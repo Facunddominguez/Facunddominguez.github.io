@@ -1,0 +1,21 @@
+name: Pruebas
+
+# Para propuestas de cambio (pull requests) y para correrlas a mano desde la pestaña Actions.
+# Los cambios en main ya se prueban dentro de "Publicar en GitHub Pages".
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  pruebas:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+      - name: index.html al día con fuente/
+        run: node herramientas/construir.mjs --verificar
+      - name: Pruebas automáticas en Chrome sin ventana
+        run: node herramientas/probar.mjs

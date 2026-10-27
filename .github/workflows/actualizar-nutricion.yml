@@ -1,0 +1,53 @@
+name: Actualizar datos de nutrición
+
+# Una vez por mes revisa la base de alimentos de USDA (FoodData Central). Si hay
+# cambios, actualiza datos/nutricion.json, reconstruye la app y la vuelve a publicar.
+# También se puede correr a mano desde la pestaña "Actions" de GitHub.
+on:
+  schedule:
+    - cron: "23 6 3 * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: nutricion
+  cancel-in-progress: false
+
+jobs:
+  actualizar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      cambios: ${{ steps.guardar.outputs.cambios }}
+    steps:
+      - uses: actions/checkout@v5
+      - name: Descargar Foundation Foods de USDA y regenerar los datos
+        run: node herramientas/actualizar-nutricion.mjs
+      - name: Reconstruir la app con los datos nuevos
+        run: node herramientas/construir.mjs
+      - id: guardar
+        name: Guardar los cambios
+        run: |
+          if git diff --quiet -- datos/nutricion.json index.html; then
+            echo "Sin cambios."
+            echo "cambios=no" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add datos/nutricion.json index.html
+          git commit -m "Datos de nutrición revisados con USDA FoodData Central"
+          git push
+          echo "cambios=si" >> "$GITHUB_OUTPUT"
+
+  # Los cambios hechos por esta tarea no disparan otras tareas, por eso publica acá mismo.
+  publicar:
+    needs: actualizar
+    if: needs.actualizar.outputs.cambios == 'si'
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    uses: ./.github/workflows/publicar.yml

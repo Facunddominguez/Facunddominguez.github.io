@@ -1,0 +1,52 @@
+name: Publicar en GitHub Pages
+
+# Cada cambio en main: comprueba que index.html esté construido desde fuente/,
+# corre todas las pruebas y, solo si pasan, publica la app en GitHub Pages.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  workflow_call:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  pruebas:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: main
+      - name: index.html al día con fuente/
+        run: node herramientas/construir.mjs --verificar
+      - name: Pruebas automáticas en Chrome sin ventana
+        run: node herramientas/probar.mjs
+
+  publicar:
+    needs: pruebas
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.despliegue.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: main
+      - name: Armar la carpeta publicable (solo la app y sus datos)
+        run: |
+          mkdir -p _sitio/datos
+          cp index.html sw.js manifest.webmanifest icon-192.png icon-512.png _sitio/
+          cp datos/nutricion.json _sitio/datos/
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: _sitio
+      - id: despliegue
+        uses: actions/deploy-pages@v5

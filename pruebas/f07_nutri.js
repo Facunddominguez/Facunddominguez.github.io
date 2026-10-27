@@ -1,0 +1,58 @@
+// Nutrition battery: USDA FoodData Central data, unit conversions, recipe box, lookup panel, published refresh.
+(async () => {
+  const R = window.R2, { wait, results, reset, setAmounts, setRecipes, IDEA1 } = R; const T = results();
+  const $ = id => document.getElementById(id), near = (a, b) => Math.abs(a - b) < 1e-6;
+  reset();
+  T.ok("N1 los datos incluidos son válidos (200 ingredientes de USDA FoodData Central)", validNutritionData(NUTRITION_SNAPSHOT) && NUTRITION_SNAPSHOT.items.length === 200 && NUTRITION_SNAPSHOT.fuente.nombre === "USDA FoodData Central");
+  const papa = nutritionFor("Papa");
+  T.ok("N2 encuentra el ingrediente por nombre, plural, sinónimo y mayúsculas", !!papa && nutritionFor("papas") === papa && nutritionFor("PATATA ") === papa && !!nutritionFor("maicena") && nutritionFor("Fécula de maíz (maicena)") === nutritionFor("maicena") && nutritionFor("ingrediente inexistente xyz") === null);
+  const hidden = nutritionDataset().meta.items.filter(it => nutritionFor(it.n) !== it).map(it => it.n); // datos en uso: incluidos o publicados
+  T.ok("N3 ningún ingrediente queda tapado por otro", hidden.length === 0, hidden.join(", "));
+  const leche = nutritionFor("Leche"), aceite = nutritionFor("Aceite de oliva"), pan = nutritionFor("Pan"), huevo = nutritionFor("Huevo");
+  T.ok("N4 convierte g, kg, unidad, taza, cucharada, ml y l con porciones de USDA", near(nutritionGrams(papa, 200, "g"), 200) && near(nutritionGrams(papa, 0.5, "kg"), 500) && near(nutritionGrams(papa, 2, "unidad"), 426) && near(nutritionGrams(leche, 1, "taza"), leche.u.taza[0]) && near(nutritionGrams(aceite, 2, "cucharada"), 2 * aceite.u.cucharada[0]) && near(nutritionGrams(leche, 250, "ml"), 250 * leche.u.taza[0] / 236.588) && near(nutritionGrams(leche, 1, "l"), 1000 * leche.u.taza[0] / 236.588) && near(nutritionGrams(huevo, 3, "unidad"), 150));
+  T.ok("N5 no inventa: sin porción de USDA o sin cantidad no convierte", nutritionGrams(pan, 1, "unidad") === null && nutritionGrams(papa, 0, "g") === null && nutritionGrams(papa, null, "g") === null);
+  const rows = [{ name: "Papa", quantity: 400, unit: "g" }, { name: "Aceite de oliva", quantity: 1, unit: "cucharada" }, { name: "Sal", quantity: null, unit: "g" }, { name: "Romero xyz", quantity: 5, unit: "g" }, { name: "Pan", quantity: 1, unit: "unidad" }];
+  const r = recipeNutrition({ yield: 2, rows }), expKcal = (papa.v[0] * 400 / 100 + aceite.v[0] * aceite.u.cucharada[0] / 100) / 2;
+  T.ok("N6 la nutrición por porción suma bien y divide por las porciones", near(r.perPortion[0], expKcal) && r.used.length === 2 && r.count === 5, r.perPortion[0] + " vs " + expKcal);
+  T.ok("N7 explica lo que no pudo calcular", r.missing.length === 3 && r.missing.some(m => /^Sal \(sin cantidad\)$/.test(m)) && r.missing.some(m => /^Romero xyz \(sin dato nutricional\)$/.test(m)) && r.missing.some(m => /^Pan \(no se puede pasar unidad a gramos\)$/.test(m)), r.missing.join(" | "));
+  setAmounts({ [IDEA1]: { yield: 2, rows } });
+  setRecipes([{ id: "recipe_test0001", title: "Papas al horno", amountsTitle: IDEA1 }]);
+  go("ingredientes"); showRecipeView("browse"); showRecipeRead("recipe_test0001"); await wait(20);
+  const box = document.querySelector("#recipeReadIngredients .nutrition-box");
+  const link = box && box.querySelector('a[href^="https://fdc.nal.usda.gov/food-details/"]');
+  T.ok("N8 la ficha de la receta muestra la nutrición estimada por porción", !!box && /Nutrición estimada por porción/.test(box.textContent) && box.textContent.includes("≈ " + nutritionNumber(expKcal, "kcal")) && /Calculada con 2 de 5 ingredientes/.test(box.textContent), box && box.textContent.slice(0, 220));
+  T.ok("N9 cada ingrediente enlaza a su ficha de USDA y se cita la fuente", !!link && link.href === "https://fdc.nal.usda.gov/food-details/" + papa.id + "/nutrients" && link.rel.includes("noopener") && link.target === "_blank" && /Fuente: USDA FoodData Central/.test(box.textContent));
+  closeRecipeRead(false);
+  T.ok("N10 sin datos suficientes avisa en lugar de mostrar ceros", /Todavía no se puede calcular/.test(recipeNutritionBox({ yield: 1, rows: [{ name: "Sal", quantity: null, unit: "g" }] }).textContent));
+  await R.openPanel("nutritionLookupPanel");
+  const input = $("nutritionLookupInput"), lent = nutritionFor("Lentejas");
+  input.value = "lentejas"; input.dispatchEvent(new Event("input"));
+  const res = $("nutritionLookupResult").textContent;
+  T.ok("N11 'Consultar nutrientes' muestra valores cada 100 g y la ficha de USDA", /Lentejas · cada 100 g/.test(res) && res.includes(nutritionNumber(lent.v[0], "kcal")) && /ficha USDA/.test(res) && $("nutritionNames").options.length === 200 && /Fuente: USDA FoodData Central/.test($("nutritionSourceInfo").textContent), res.slice(0, 160));
+  input.value = "lente"; input.dispatchEvent(new Event("input"));
+  T.ok("N12 si no encuentra el nombre exacto, sugiere opciones", /Probá con: Lentejas/.test($("nutritionLookupResult").textContent), $("nutritionLookupResult").textContent);
+  input.value = ""; input.dispatchEvent(new Event("input"));
+  const bad = JSON.parse(JSON.stringify(NUTRITION_SNAPSHOT)); bad.items[0].v[0] = -5;
+  const bad2 = JSON.parse(JSON.stringify(NUTRITION_SNAPSHOT)); bad2.items[1].d = "<img src=x onerror=alert(1)>".repeat(40);
+  T.ok("N13 rechaza datos externos inválidos", !validNutritionData(bad) && !validNutritionData(bad2) && !validNutritionData(null) && !validNutritionData({ version: 2 }));
+  localStorage.setItem("miPlatoFacil_ingredientAliases_v1", JSON.stringify({ "papa negra": { to: "papa", from: "Papa negra", toName: "Papa" } }));
+  T.ok("N14 respeta las equivalencias que cargó el usuario", nutritionFor("Papa negra") === papa);
+  localStorage.removeItem("miPlatoFacil_ingredientAliases_v1");
+  T.ok("N15 consultar y calcular no guarda nada nuevo en el dispositivo", Object.keys(localStorage).filter(k => /nutri/i.test(k)).length === 0 && nutritionFor("Papa negra") === null);
+  const realFetch = window.fetch;
+  const newer = JSON.parse(JSON.stringify(NUTRITION_SNAPSHOT)); newer.revisado = "2099-01-01"; newer.items.find(i => i.n === "Papa").v[0] = 99;
+  window.fetch = () => Promise.resolve({ ok: true, json: () => Promise.resolve(newer) });
+  refreshNutritionData.started = false; refreshNutritionData(); await wait(30);
+  const updated = nutritionFor("Papa").v[0] === 99;
+  const older = JSON.parse(JSON.stringify(NUTRITION_SNAPSHOT)); older.revisado = "2000-01-01"; older.items.find(i => i.n === "Papa").v[0] = 1;
+  window.fetch = () => Promise.resolve({ ok: true, json: () => Promise.resolve(older) });
+  refreshNutritionData.started = false; refreshNutritionData(); await wait(30);
+  const keptNewer = nutritionFor("Papa").v[0] === 99;
+  window.fetch = () => Promise.resolve({ ok: true, json: () => Promise.resolve(bad) });
+  refreshNutritionData.started = false; refreshNutritionData(); await wait(30);
+  const ignoredBad = nutritionFor("Papa").v[0] === 99;
+  const infoNew = /revisados el 01\/01\/2099/.test($("nutritionSourceInfo").textContent);
+  window.fetch = realFetch; nutritionDataset.data = null; nutritionDataset.cache = null; refreshNutritionData.started = true; renderNutritionLookup();
+  T.ok("N16 publicada: toma datos más nuevos y descarta viejos o inválidos", updated && keptNewer && ignoredBad && infoNew && nutritionFor("Papa").v[0] === papa.v[0] && /revisados el 26\/10\/2026/.test($("nutritionSourceInfo").textContent), $("nutritionSourceInfo").textContent);
+  return T;
+})()

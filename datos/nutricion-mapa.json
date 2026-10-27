@@ -1,0 +1,7550 @@
+{
+ "_descripcion": "Mapa curado de ingredientes en español a USDA FoodData Central. \"foundationNdb\" se actualiza con cada versión de Foundation Foods; \"sr\" es una copia de SR Legacy (versión final 2018-04, no cambia). Valores por 100 g.",
+ "fuente": "USDA FoodData Central",
+ "licencia": "CC0 1.0 (dominio público)",
+ "srLegacyVersion": "2018-04",
+ "items": [
+  {
+   "nombre": "Acelga",
+   "sinonimos": [],
+   "foundationNdb": null,
+   "sr": {
+    "fdcId": 169991,
+    "descripcion": "Chard, swiss, raw",
+    "n": {
+     "kcal": 19,
+     "prot": 1.8,
+     "fat": 0.2,
+     "carb": 3.74,
+     "fib": 1.6,
+     "sug": 1.1,
+     "na": 213
+    },
+    "porciones": [
+     [
+      1,
+      "cup",
+      36
+     ],
+     [
+      1,
+      "leaf",
+      48
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Ajo",
+   "sinonimos": [
+    "diente de ajo"
+   ],
+   "foundationNdb": 11215,
+   "sr": {
+    "fdcId": 169230,
+    "descripcion": "Garlic, raw",
+    "n": {
+     "kcal": 149,
+     "prot": 6.36,
+     "fat": 0.5,
+     "carb": 33.06,
+     "fib": 2.1,
+     "sug": 1,
+     "na": 17
+    },
+    "porciones": [
+     [
+      1,
+      "cup",
+      136
+     ],
+     [
+      1,
+      "tsp",
+      2.8
+     ],
+     [
+      1,
+      "clove",
+      3
+     ],
+     [
+      3,
+      "cloves",
+      9
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Albahaca",
+   "sinonimos": [],
+   "foundationNdb": null,
+   "sr": {
+    "fdcId": 172232,
+    "descripcion": "Basil, fresh",
+    "n": {
+     "kcal": 23,
+     "prot": 3.15,
+     "fat": 0.64,
+     "carb": 2.65,
+     "fib": 1.6,
+     "sug": 0.3,
+     "na": 4
+    },
+    "porciones": [
+     [
+      5,
+      "leaves",
+      2.5
+     ],
+     [
+      2,
+      "tbsp, chopped",
+      5.3
+     ],
+     [
+      0.25,
+      "cup leaves, whole",
+      6
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Alcaucil",
+   "sinonimos": [
+    "alcachofa"
+   ],
+   "foundationNdb": null,
+   "sr": {
+    "fdcId": 169205,
+    "descripcion": "Artichokes, (globe or french), raw",
+    "n": {
+     "kcal": 47,
+     "prot": 3.27,
+     "fat": 0.15,
+     "carb": 10.51,
+     "fib": 5.4,
+     "sug": 0.99,
+     "na": 94
+    },
+    "porciones": [
+     [
+      1,
+      "artichoke, medium",
+      128
+     ],
+     [
+      1,
+      "artichoke, large",
+      162
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Apio",
+   "sinonimos": [],
+   "foundationNdb": 11143,
+   "sr": {
+    "fdcId": 169988,
+    "descripcion": "Celery, raw",
+    "n": {
+     "kcal": 14,
+     "prot": 0.69,
+     "fat": 0.17,
+     "carb": 2.97,
+     "fib": 1.6,
+     "sug": 1.34,
+     "na": 80
+    },
+    "porciones": [
+     [
+      1,
+      "cup chopped",
+      101
+     ],
+     [
+      1,
+      "NLEA serving",
+      110
+     ],
+     [
+      1,
+      "tbsp",
+      7.5
+     ],
+     [
+      1,
+      "stalk, large (11\"-12\" long)",
+      64
+     ],
+     [
+      1,
+      "stalk, medium (7-1/2\" - 8\" long)",
+      40
+     ],
+     [
+      1,
+      "stalk, small (5\" long)",
+      17
+     ],
+     [
+      1,
+      "strip (4\" long)",
+      4
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Berenjena",
+   "sinonimos": [],
+   "foundationNdb": 11209,
+   "opciones": {
+    "unidad": "eggplant, unpeeled"
+   },
+   "sr": {
+    "fdcId": 169228,
+    "descripcion": "Eggplant, raw",
+    "n": {
+     "kcal": 25,
+     "prot": 0.98,
+     "fat": 0.18,
+     "carb": 5.88,
+     "fib": 3,
+     "sug": 3.53,
+     "na": 2
+    },
+    "porciones": [
+     [
+      1,
+      "cup, cubes",
+      82
+     ],
+     [
+      1,
+      "eggplant, peeled (yield from 1-1/4 lb)",
+      458
+     ],
+     [
+      1,
+      "eggplant, unpeeled (approx 1-1/4 lb)",
+      548
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Brócoli",
+   "sinonimos": [
+    "brocoli"
+   ],
+   "foundationNdb": 11090,
+   "opciones": {
+    "unidad": "stalk"
+   },
+   "sr": {
+    "fdcId": 170379,
+    "descripcion": "Broccoli, raw",
+    "n": {
+     "kcal": 34,
+     "prot": 2.82,
+     "fat": 0.37,
+     "carb": 6.64,
+     "fib": 2.6,
+     "sug": 1.7,
+     "na": 33
+    },
+    "porciones": [
+     [
+      1,
+      "cup chopped",
+      91
+     ],
+     [
+      1,
+      "bunch",
+      608
+     ],
+     [
+      1,
+      "spear (about 5\" long)",
+      31
+     ],
+     [
+      1,
+      "stalk",
+      151
+     ],
+     [
+      0.5,
+      "cup, chopped or diced",
+      44
+     ],
+     [
+      1,
+      "NLEA serving",
+      148
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Cebolla",
+   "sinonimos": [],
+   "foundationNdb": 100253,
+   "sr": {
+    "fdcId": 170000,
+    "descripcion": "Onions, raw",
+    "n": {
+     "kcal": 40,
+     "prot": 1.1,
+     "fat": 0.1,
+     "carb": 9.34,
+     "fib": 1.7,
+     "sug": 4.24,
+     "na": 4
+    },
+    "porciones": [
+     [
+      1,
+      "cup, chopped",
+      160
+     ],
+     [
+      1,
+      "cup, sliced",
+      115
+     ],
+     [
+      1,
+      "tbsp chopped",
+      10
+     ],
+     [
+      1,
+      "large",
+      150
+     ],
+     [
+      1,
+      "slice, large (1/4\" thick)",
+      38
+     ],
+     [
+      1,
+      "medium (2-1/2\" dia)",
+      110
+     ],
+     [
+      1,
+      "slice, medium (1/8\" thick)",
+      14
+     ],
+     [
+      1,
+      "small",
+      70
+     ],
+     [
+      1,
+      "slice, thin",
+      9
+     ],
+     [
+      10,
+      "rings",
+      60
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Cebolla morada",
+   "sinonimos": [
+    "cebolla colorada"
+   ],
+   "foundationNdb": 100252,
+   "sr": {
+    "fdcId": 170000,
+    "descripcion": "Onions, raw",
+    "n": {
+     "kcal": 40,
+     "prot": 1.1,
+     "fat": 0.1,
+     "carb": 9.34,
+     "fib": 1.7,
+     "sug": 4.24,
+     "na": 4
+    },
+    "porciones": [
+     [
+      1,
+      "cup, chopped",
+      160
+     ],
+     [
+      1,
+      "cup, sliced",
+      115
+     ],
+     [
+      1,
+      "tbsp chopped",
+      10
+     ],
+     [
+      1,
+      "large",
+      150
+     ],
+     [
+      1,
+      "slice, large (1/4\" thick)",
+      38
+     ],
+     [
+      1,
+      "medium (2-1/2\" dia)",
+      110
+     ],
+     [
+      1,
+      "slice, medium (1/8\" thick)",
+      14
+     ],
+     [
+      1,
+      "small",
+      70
+     ],
+     [
+      1,
+      "slice, thin",
+      9
+     ],
+     [
+      10,
+      "rings",
+      60
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Cebolla de verdeo",
+   "sinonimos": [
+    "verdeo"
+   ],
+   "foundationNdb": 100391,
+   "sr": {
+    "fdcId": 170005,
+    "descripcion": "Onions, spring or scallions (includes tops and bulb), raw",
+    "n": {
+     "kcal": 32,
+     "prot": 1.83,
+     "fat": 0.19,
+     "carb": 7.34,
+     "fib": 2.6,
+     "sug": 2.33,
+     "na": 16
+    },
+    "porciones": [
+     [
+      1,
+      "cup, chopped",
+      100
+     ],
+     [
+      1,
+      "tbsp chopped",
+      6
+     ],
+     [
+      1,
+      "large",
+      25
+     ],
+     [
+      1,
+      "medium (4-1/8\" long)",
+      15
+     ],
+     [
+      1,
+      "small (3\" long)",
+      5
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Chauchas",
+   "sinonimos": [
+    "chauchas (judías verdes)",
+    "judías verdes"
+   ],
+   "foundationNdb": 11052,
+   "sr": {
+    "fdcId": 169961,
+    "descripcion": "Beans, snap, green, raw",
+    "n": {
+     "kcal": 31,
+     "prot": 1.83,
+     "fat": 0.22,
+     "carb": 6.97,
+     "fib": 2.7,
+     "sug": 3.26,
+     "na": 6
+    },
+    "porciones": [
+     [
+      1,
+      "cup 1/2\" pieces",
+      100
+     ],
+     [
+      10,
+      "beans (4\" long)",
+      55
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Coliflor",
+   "sinonimos": [],
+   "foundationNdb": 11135,
+   "sr": {
+    "fdcId": 169986,
+    "descripcion": "Cauliflower, raw",
+    "n": {
+     "kcal": 25,
+     "prot": 1.92,
+     "fat": 0.28,
+     "carb": 4.97,
+     "fib": 2,
+     "sug": 1.91,
+     "na": 30
+    },
+    "porciones": [
+     [
+      1,
+      "cup chopped (1/2\" pieces)",
+      107
+     ],
+     [
+      1,
+      "floweret",
+      13
+     ],
+     [
+      1,
+      "head large (6-7\" dia.)",
+      840
+     ],
+     [
+      1,
+      "head medium (5-6\" dia.)",
+      588
+     ],
+     [
+      1,
+      "head small (4\" dia.)",
+      265
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Escarola",
+   "sinonimos": [],
+   "foundationNdb": null,
+   "sr": {
+    "fdcId": 168412,
+    "descripcion": "Endive, raw",
+    "n": {
+     "kcal": 17,
+     "prot": 1.25,
+     "fat": 0.2,
+     "carb": 3.35,
+     "fib": 3.1,
+     "sug": 0.25,
+     "na": 22
+    },
+    "porciones": [
+     [
+      0.5,
+      "cup, chopped",
+      25
+     ],
+     [
+      1,
+      "head",
+      513
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Espárragos",
+   "sinonimos": [
+    "esparrago"
+   ],
+   "foundationNdb": 100347,
+   "sr": {
+    "fdcId": 168389,
+    "descripcion": "Asparagus, raw",
+    "n": {
+     "kcal": 20,
+     "prot": 2.2,
+     "fat": 0.12,
+     "carb": 3.88,
+     "fib": 2.1,
+     "sug": 1.88,
+     "na": 2
+    },
+    "porciones": [
+     [
+      1,
+      "cup",
+      134
+     ],
+     [
+      1,
+      "spear, small (5\" long or less)",
+      12
+     ],
+     [
+      1,
+      "spear, medium (5-1/4\" to 7\" long)",
+      16
+     ],
+     [
+      1,
+      "spear, large (7-1/4\" to 8-1/2\")",
+      20
+     ],
+     [
+      1,
+      "spear, extra large (8-3/4\" to 10\" long)",
+      24
+     ],
+     [
+      1,
+      "spear tip (2\" long or less)",
+      3.5
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Espinaca",
+   "sinonimos": [],
+   "foundationNdb": 11457,
+   "sr": {
+    "fdcId": 168462,
+    "descripcion": "Spinach, raw",
+    "n": {
+     "kcal": 23,
+     "prot": 2.86,
+     "fat": 0.39,
+     "carb": 3.63,
+     "fib": 2.2,
+     "sug": 0.42,
+     "na": 79
+    },
+    "porciones": [
+     [
+      1,
+      "cup",
+      30
+     ],
+     [
+      1,
+      "bunch",
+      340
+     ],
+     [
+      1,
+      "leaf",
+      10
+     ],
+     [
+      1,
+      "package (10 oz)",
+      284
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Hinojo",
+   "sinonimos": [],
+   "foundationNdb": 11957,
+   "sr": {
+    "fdcId": 169385,
+    "descripcion": "Fennel, bulb, raw",
+    "n": {
+     "kcal": 31,
+     "prot": 1.24,
+     "fat": 0.2,
+     "carb": 7.3,
+     "fib": 3.1,
+     "sug": 3.93,
+     "na": 52
+    },
+    "porciones": [
+     [
+      1,
+      "cup, sliced",
+      87
+     ],
+     [
+      1,
+      "bulb",
+      234
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Kale",
+   "sinonimos": [],
+   "foundationNdb": 11233,
+   "sr": {
+    "fdcId": 168421,
+    "descripcion": "Kale, raw",
+    "n": {
+     "kcal": 35,
+     "prot": 2.92,
+     "fat": 1.49,
+     "carb": 4.42,
+     "fib": 4.1,
+     "sug": 0.99,
+     "na": 53
+    },
+    "porciones": [
+     [
+      1,
+      "cup",
+      21
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Lechuga",
+   "sinonimos": [],
+   "foundationNdb": 11253,
+   "sr": {
+    "fdcId": 169249,
+    "descripcion": "Lettuce, green leaf, raw",
+    "n": {
+     "kcal": 15,
+     "prot": 1.36,
+     "fat": 0.15,
+     "carb": 2.87,
+     "fib": 1.3,
+     "sug": 0.78,
+     "na": 28
+    },
+    "porciones": [
+     [
+      1,
+      "cup shredded",
+      36
+     ],
+     [
+      1,
+      "head",
+      360
+     ],
+     [
+      1,
+      "leaf inner",
+      4.8
+     ],
+     [
+      1,
+      "leaf outer",
+      24
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Morrón amarillo",
+   "sinonimos": [],
+   "foundationNdb": 11951,
+   "sr": {
+    "fdcId": 169383,
+    "descripcion": "Peppers, sweet, yellow, raw",
+    "n": {
+     "kcal": 27,
+     "prot": 1,
+     "fat": 0.21,
+     "carb": 6.32,
+     "fib": 0.9,
+     "na": 2
+    },
+    "porciones": [
+     [
+      1,
+      "pepper, large (3-3/4\" long, 3\" dia)",
+      186
+     ],
+     [
+      10,
+      "strips",
+      52
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Morrón rojo",
+   "sinonimos": [
+    "morrón",
+    "morron"
+   ],
+   "foundationNdb": 11821,
+   "sr": {
+    "fdcId": 170108,
+    "descripcion": "Peppers, sweet, red, raw",
+    "n": {
+     "kcal": 26,
+     "prot": 0.99,
+     "fat": 0.3,
+     "carb": 6.03,
+     "fib": 2.1,
+     "sug": 4.2,
+     "na": 4
+    },
+    "porciones": [
+     [
+      1,
+      "cup, chopped",
+      149
+     ],
+     [
+      1,
+      "cup, sliced",
+      92
+     ],
+     [
+      1,
+      "tablespoon",
+      9.3
+     ],
+     [
+      1,
+      "large (2-1/4 per pound, approx 3-3/4\" long, 3\" dia.)",
+      164
+     ],
+     [
+      1,
+      "medium (approx 2-3/4\" long, 2-1/2 dia.)",
+      119
+     ],
+     [
+      1,
+      "small",
+      74
+     ],
+     [
+      1,
+      "ring (3\" dia., 1/4\" thick)",
+      10
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Morrón verde",
+   "sinonimos": [
+    "ají verde"
+   ],
+   "foundationNdb": 11333,
+   "sr": {
+    "fdcId": 170427,
+    "descripcion": "Peppers, sweet, green, raw",
+    "n": {
+     "kcal": 20,
+     "prot": 0.86,
+     "fat": 0.17,
+     "carb": 4.64,
+     "fib": 1.7,
+     "sug": 2.4,
+     "na": 3
+    },
+    "porciones": [
+     [
+      1,
+      "cup, chopped",
+      149
+     ],
+     [
+      1,
+      "cup, sliced",
+      92
+     ],
+     [
+      1,
+      "tbsp",
+      9.3
+     ],
+     [
+      1,
+      "large (2-1/4 per lb, approx 3-3/4\" long, 3\" dia)",
+      164
+     ],
+     [
+      1,
+      "medium (approx 2-3/4\" long, 2-1/2\" dia)",
+      119
+     ],
+     [
+      1,
+      "ring (3\" dia, 1/4\" thick)",
+      10
+     ],
+     [
+      1,
+      "small",
+      74
+     ],
+     [
+      10,
+      "strips",
+      27
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Nabo",
+   "sinonimos": [],
+   "foundationNdb": 11564,
+   "sr": {
+    "fdcId": 170465,
+    "descripcion": "Turnips, raw",
+    "n": {
+     "kcal": 28,
+     "prot": 0.9,
+     "fat": 0.1,
+     "carb": 6.43,
+     "fib": 1.8,
+     "sug": 3.8,
+     "na": 67
+    },
+    "porciones": [
+     [
+      1,
+      "cup, cubes",
+      130
+     ],
+     [
+      1,
+      "large",
+      183
+     ],
+     [
+      1,
+      "medium",
+      122
+     ],
+     [
+      1,
+      "slice",
+      15
+     ],
+     [
+      1,
+      "small",
+      61
+     ],
+     [
+      0.5,
+      "cup, cubes",
+      65
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Pepino",
+   "sinonimos": [],
+   "foundationNdb": 11205,
+   "sr": {
+    "fdcId": 168409,
+    "descripcion": "Cucumber, with peel, raw",
+    "n": {
+     "kcal": 15,
+     "prot": 0.65,
+     "fat": 0.11,
+     "carb": 3.63,
+     "fib": 0.5,
+     "sug": 1.67,
+     "na": 2
+    },
+    "porciones": [
+     [
+      0.5,
+      "cup slices",
+      52
+     ],
+     [
+      1,
+      "cucumber (8-1/4\")",
+      301
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Puerro",
+   "sinonimos": [],
+   "foundationNdb": 100390,
+   "opciones": {
+    "unidad": "leek"
+   },
+   "sr": {
+    "fdcId": 169246,
+    "descripcion": "Leeks, (bulb and lower leaf-portion), raw",
+    "n": {
+     "kcal": 61,
+     "prot": 1.5,
+     "fat": 0.3,
+     "carb": 14.15,
+     "fib": 1.8,
+     "sug": 3.9,
+     "na": 20
+    },
+    "porciones": [
+     [
+      1,
+      "cup",
+      89
+     ],
+     [
+      1,
+      "leek",
+      89
+     ],
+     [
+      1,
+      "slice",
+      6
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Rabanito",
+   "sinonimos": [
+    "rabanitos",
+    "rábano"
+   ],
+   "foundationNdb": 100400,
+   "sr": {
+    "fdcId": 169276,
+    "descripcion": "Radishes, raw",
+    "n": {
+     "kcal": 16,
+     "prot": 0.68,
+     "fat": 0.1,
+     "carb": 3.4,
+     "fib": 1.6,
+     "sug": 1.86,
+     "na": 39
+    },
+    "porciones": [
+     [
+      1,
+      "cup slices",
+      116
+     ],
+     [
+      1,
+      "large (1\" to 1-1/4\" dia)",
+      9
+     ],
+     [
+      1,
+      "medium (3/4\" to 1\" dia)",
+      4.5
+     ],
+     [
+      1,
+      "slice",
+      1
+     ],
+     [
+      1,
+      "small",
+      2
+     ],
+     [
+      0.5,
+      "cup slices",
+      58
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Radicheta",
+   "sinonimos": [
+    "achicoria"
+   ],
+   "foundationNdb": null,
+   "sr": {
+    "fdcId": 169992,
+    "descripcion": "Chicory greens, raw",
+    "n": {
+     "kcal": 23,
+     "prot": 1.7,
+     "fat": 0.3,
+     "carb": 4.7,
+     "fib": 4,
+     "sug": 0.7,
+     "na": 45
+    },
+    "porciones": [
+     [
+      1,
+      "cup, chopped",
+      29
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Remolacha",
+   "sinonimos": [],
+   "foundationNdb": 11080,
+   "sr": {
+    "fdcId": 169145,
+    "descripcion": "Beets, raw",
+    "n": {
+     "kcal": 43,
+     "prot": 1.61,
+     "fat": 0.17,
+     "carb": 9.56,
+     "fib": 2.8,
+     "sug": 6.76,
+     "na": 78
+    },
+    "porciones": [
+     [
+      1,
+      "cup",
+      136
+     ],
+     [
+      1,
+      "beet (2\" dia)",
+      82
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Repollo blanco",
+   "sinonimos": [
+    "repollo"
+   ],
+   "foundationNdb": 11109,
+   "sr": {
+    "fdcId": 169975,
+    "descripcion": "Cabbage, raw",
+    "n": {
+     "kcal": 25,
+     "prot": 1.28,
+     "fat": 0.1,
+     "carb": 5.8,
+     "fib": 2.5,
+     "sug": 3.2,
+     "na": 18
+    },
+    "porciones": [
+     [
+      1,
+      "cup, chopped",
+      89
+     ],
+     [
+      1,
+      "cup, shredded",
+      70
+     ],
+     [
+      1,
+      "head, large (about 7\" dia)",
+      1248
+     ],
+     [
+      1,
+      "leaf, large",
+      33
+     ],
+     [
+      1,
+      "head, medium (about 5-3/4\" dia)",
+      908
+     ],
+     [
+      1,
+      "leaf, medium",
+      23
+     ],
+     [
+      1,
+      "head, small (about 4-1/2\" dia)",
+      714
+     ],
+     [
+      1,
+      "leaf",
+      15
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Repollo colorado",
+   "sinonimos": [
+    "repollo morado"
+   ],
+   "foundationNdb": 11112,
+   "sr": {
+    "fdcId": 169977,
+    "descripcion": "Cabbage, red, raw",
+    "n": {
+     "kcal": 31,
+     "prot": 1.43,
+     "fat": 0.16,
+     "carb": 7.37,
+     "fib": 2.1,
+     "sug": 3.83,
+     "na": 27
+    },
+    "porciones": [
+     [
+      1,
+      "cup, chopped",
+      89
+     ],
+     [
+      1,
+      "cup, shredded",
+      70
+     ],
+     [
+      1,
+      "head, large (about 5-1/2\" dia)",
+      1134
+     ],
+     [
+      1,
+      "leaf",
+      23
+     ],
+     [
+      1,
+      "head, medium (about 5\" dia)",
+      839
+     ],
+     [
+      1,
+      "head, small (4\" dia)",
+      567
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Rúcula",
+   "sinonimos": [
+    "rucula"
+   ],
+   "foundationNdb": 100346,
+   "sr": {
+    "fdcId": 169387,
+    "descripcion": "Arugula, raw",
+    "n": {
+     "kcal": 25,
+     "prot": 2.58,
+     "fat": 0.66,
+     "carb": 3.65,
+     "fib": 1.6,
+     "sug": 2.05,
+     "na": 27
+    },
+    "porciones": [
+     [
+      1,
+      "leaf",
+      2
+     ],
+     [
+      0.5,
+      "cup",
+      10
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Tomate",
+   "sinonimos": [],
+   "foundationNdb": null,
+   "sr": {
+    "fdcId": 170457,
+    "descripcion": "Tomatoes, red, ripe, raw, year round average",
+    "n": {
+     "kcal": 18,
+     "prot": 0.88,
+     "fat": 0.2,
+     "carb": 3.89,
+     "fib": 1.2,
+     "sug": 2.63,
+     "na": 5
+    },
+    "porciones": [
+     [
+      1,
+      "cup cherry tomatoes",
+      149
+     ],
+     [
+      1,
+      "cup, chopped or sliced",
+      180
+     ],
+     [
+      1,
+      "Italian tomato",
+      62
+     ],
+     [
+      1,
+      "cherry",
+      17
+     ],
+     [
+      1,
+      "large whole (3\" dia)",
+      182
+     ],
+     [
+      1,
+      "medium whole (2-3/5\" dia)",
+      123
+     ],
+     [
+      1,
+      "slice, medium (1/4\" thick)",
+      20
+     ],
+     [
+      1,
+      "plum tomato",
+      62
+     ],
+     [
+      1,
+      "small whole (2-2/5\" dia)",
+      91
+     ],
+     [
+      1,
+      "slice, thick/large (1/2\" thick)",
+      27
+     ],
+     [
+      1,
+      "wedge (1/4 of medium tomato)",
+      31
+     ],
+     [
+      1,
+      "slice, thin/small",
+      15
+     ],
+     [
+      1,
+      "NLEA serving",
+      148
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Tomate perita",
+   "sinonimos": [],
+   "foundationNdb": 100261,
+   "sr": {
+    "fdcId": 170457,
+    "descripcion": "Tomatoes, red, ripe, raw, year round average",
+    "n": {
+     "kcal": 18,
+     "prot": 0.88,
+     "fat": 0.2,
+     "carb": 3.89,
+     "fib": 1.2,
+     "sug": 2.63,
+     "na": 5
+    },
+    "porciones": [
+     [
+      1,
+      "cup cherry tomatoes",
+      149
+     ],
+     [
+      1,
+      "cup, chopped or sliced",
+      180
+     ],
+     [
+      1,
+      "Italian tomato",
+      62
+     ],
+     [
+      1,
+      "cherry",
+      17
+     ],
+     [
+      1,
+      "large whole (3\" dia)",
+      182
+     ],
+     [
+      1,
+      "medium whole (2-3/5\" dia)",
+      123
+     ],
+     [
+      1,
+      "slice, medium (1/4\" thick)",
+      20
+     ],
+     [
+      1,
+      "plum tomato",
+      62
+     ],
+     [
+      1,
+      "small whole (2-2/5\" dia)",
+      91
+     ],
+     [
+      1,
+      "slice, thick/large (1/2\" thick)",
+      27
+     ],
+     [
+      1,
+      "wedge (1/4 of medium tomato)",
+      31
+     ],
+     [
+      1,
+      "slice, thin/small",
+      15
+     ],
+     [
+      1,
+      "NLEA serving",
+      148
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Tomate cherry",
+   "sinonimos": [],
+   "foundationNdb": 100147,
+   "opciones": {
+    "unidad": "cherry"
+   },
+   "sr": {
+    "fdcId": 170457,
+    "descripcion": "Tomatoes, red, ripe, raw, year round average",
+    "n": {
+     "kcal": 18,
+     "prot": 0.88,
+     "fat": 0.2,
+     "carb": 3.89,
+     "fib": 1.2,
+     "sug": 2.63,
+     "na": 5
+    },
+    "porciones": [
+     [
+      1,
+      "cup cherry tomatoes",
+      149
+     ],
+     [
+      1,
+      "cup, chopped or sliced",
+      180
+     ],
+     [
+      1,
+      "Italian tomato",
+      62
+     ],
+     [
+      1,
+      "cherry",
+      17
+     ],
+     [
+      1,
+      "large whole (3\" dia)",
+      182
+     ],
+     [
+      1,
+      "medium whole (2-3/5\" dia)",
+      123
+     ],
+     [
+      1,
+      "slice, medium (1/4\" thick)",
+      20
+     ],
+     [
+      1,
+      "plum tomato",
+      62
+     ],
+     [
+      1,
+      "small whole (2-2/5\" dia)",
+      91
+     ],
+     [
+      1,
+      "slice, thick/large (1/2\" thick)",
+      27
+     ],
+     [
+      1,
+      "wedge (1/4 of medium tomato)",
+      31
+     ],
+     [
+      1,
+      "slice, thin/small",
+      15
+     ],
+     [
+      1,
+      "NLEA serving",
+      148
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Zanahoria",
+   "sinonimos": [],
+   "foundationNdb": 11124,
+   "sr": {
+    "fdcId": 170393,
+    "descripcion": "Carrots, raw",
+    "n": {
+     "kcal": 41,
+     "prot": 0.93,
+     "fat": 0.24,
+     "carb": 9.58,
+     "fib": 2.8,
+     "sug": 4.74,
+     "na": 69
+    },
+    "porciones": [
+     [
+      1,
+      "cup chopped",
+      128
+     ],
+     [
+      1,
+      "cup grated",
+      110
+     ],
+     [
+      1,
+      "cup strips or slices",
+      122
+     ],
+     [
+      1,
+      "large (7-1/4\" to 8-/1/2\" long)",
+      72
+     ],
+     [
+      1,
+      "medium",
+      61
+     ],
+     [
+      1,
+      "small (5-1/2\" long)",
+      50
+     ],
+     [
+      1,
+      "slice",
+      3
+     ],
+     [
+      1,
+      "strip large (3\" long)",
+      7
+     ],
+     [
+      1,
+      "strip medium",
+      4
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Zapallito",
+   "sinonimos": [
+    "zapallito redondo"
+   ],
+   "foundationNdb": null,
+   "sr": {
+    "fdcId": 170487,
+    "descripcion": "Squash, summer, all varieties, raw",
+    "n": {
+     "kcal": 16,
+     "prot": 1.21,
+     "fat": 0.18,
+     "carb": 3.35,
+     "fib": 1.1,
+     "sug": 2.2,
+     "na": 2
+    },
+    "porciones": [
+     [
+      1,
+      "cup, sliced",
+      113
+     ],
+     [
+      1,
+      "large",
+      323
+     ],
+     [
+      1,
+      "medium",
+      196
+     ],
+     [
+      1,
+      "slice",
+      9.9
+     ],
+     [
+      1,
+      "small",
+      118
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Zapallo",
+   "sinonimos": [
+    "zapallo anco",
+    "anco"
+   ],
+   "foundationNdb": 11485,
+   "sr": {
+    "fdcId": 169295,
+    "descripcion": "Squash, winter, butternut, raw",
+    "n": {
+     "kcal": 45,
+     "prot": 1,
+     "fat": 0.1,
+     "carb": 11.69,
+     "fib": 2,
+     "sug": 2.2,
+     "na": 4
+    },
+    "porciones": [
+     [
+      1,
+      "cup, cubes",
+      140
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Calabaza",
+   "sinonimos": [],
+   "foundationNdb": 100385,
+   "sr": {
+    "fdcId": 168448,
+    "descripcion": "Pumpkin, raw",
+    "n": {
+     "kcal": 26,
+     "prot": 1,
+     "fat": 0.1,
+     "carb": 6.5,
+     "fib": 0.5,
+     "sug": 2.76,
+     "na": 1
+    },
+    "porciones": [
+     [
+      1,
+      "cup (1\" cubes)",
+      116
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Zucchini",
+   "sinonimos": [],
+   "foundationNdb": 100331,
+   "sr": {
+    "fdcId": 169291,
+    "descripcion": "Squash, summer, zucchini, includes skin, raw",
+    "n": {
+     "kcal": 17,
+     "prot": 1.21,
+     "fat": 0.32,
+     "carb": 3.11,
+     "fib": 1,
+     "sug": 2.5,
+     "na": 8
+    },
+    "porciones": [
+     [
+      1,
+      "cup, chopped",
+      124
+     ],
+     [
+      1,
+      "cup, sliced",
+      113
+     ],
+     [
+      1,
+      "large",
+      323
+     ],
+     [
+      1,
+      "medium",
+      196
+     ],
+     [
+      1,
+      "slice",
+      9.9
+     ],
+     [
+      1,
+      "small",
+      118
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Champiñones",
+   "sinonimos": [
+    "champiñón",
+    "hongos"
+   ],
+   "foundationNdb": 11260,
+   "sr": {
+    "fdcId": 169251,
+    "descripcion": "Mushrooms, white, raw",
+    "n": {
+     "kcal": 22,
+     "prot": 3.09,
+     "fat": 0.34,
+     "carb": 3.26,
+     "fib": 1,
+     "sug": 1.98,
+     "na": 5
+    },
+    "porciones": [
+     [
+      1,
+      "cup, pieces or slices",
+      70
+     ],
+     [
+      1,
+      "cup, whole",
+      96
+     ],
+     [
+      1,
+      "large",
+      23
+     ],
+     [
+      1,
+      "medium",
+      18
+     ],
+     [
+      1,
+      "slice",
+      6
+     ],
+     [
+      1,
+      "small",
+      10
+     ],
+     [
+      0.5,
+      "cup pieces",
+      35
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Repollitos de Bruselas",
+   "sinonimos": [
+    "coles de bruselas"
+   ],
+   "foundationNdb": 11098,
+   "sr": {
+    "fdcId": 170383,
+    "descripcion": "Brussels sprouts, raw",
+    "n": {
+     "kcal": 43,
+     "prot": 3.38,
+     "fat": 0.3,
+     "carb": 8.95,
+     "fib": 3.8,
+     "sug": 2.2,
+     "na": 25
+    },
+    "porciones": [
+     [
+      1,
+      "cup",
+      88
+     ],
+     [
+      1,
+      "sprout",
+      19
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Perejil",
+   "sinonimos": [],
+   "foundationNdb": null,
+   "sr": {
+    "fdcId": 170416,
+    "descripcion": "Parsley, fresh",
+    "n": {
+     "kcal": 36,
+     "prot": 2.97,
+     "fat": 0.79,
+     "carb": 6.33,
+     "fib": 3.3,
+     "sug": 0.85,
+     "na": 56
+    },
+    "porciones": [
+     [
+      1,
+      "cup chopped",
+      60
+     ],
+     [
+      1,
+      "tbsp",
+      3.8
+     ],
+     [
+      10,
+      "sprigs",
+      10
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Cilantro",
+   "sinonimos": [],
+   "foundationNdb": null,
+   "sr": {
+    "fdcId": 169997,
+    "descripcion": "Coriander (cilantro) leaves, raw",
+    "n": {
+     "kcal": 23,
+     "prot": 2.13,
+     "fat": 0.52,
+     "carb": 3.67,
+     "fib": 2.8,
+     "sug": 0.87,
+     "na": 46
+    },
+    "porciones": [
+     [
+      0.25,
+      "cup",
+      4
+     ],
+     [
+      9,
+      "sprigs",
+      20
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Choclo",
+   "sinonimos": [
+    "maíz dulce",
+    "choclo en granos"
+   ],
+   "foundationNdb": 100350,
+   "sr": {
+    "fdcId": 169998,
+    "descripcion": "Corn, sweet, yellow, raw",
+    "n": {
+     "kcal": 86,
+     "prot": 3.27,
+     "fat": 1.35,
+     "carb": 18.7,
+     "fib": 2,
+     "sug": 6.26,
+     "na": 15
+    },
+    "porciones": [
+     [
+      1,
+      "cup",
+      145
+     ],
+     [
+      1,
+      "ear, large (7-3/4\" to 9\" long) yields",
+      143
+     ],
+     [
+      1,
+      "ear, medium (6-3/4\" to 7-1/2\" long) yields",
+      102
+     ],
+     [
+      1,
+      "ear, small (5-1/2\" to 6-1/2\" long)",
+      73
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Arvejas",
+   "sinonimos": [
+    "arveja"
+   ],
+   "foundationNdb": null,
+   "sr": {
+    "fdcId": 170419,
+    "descripcion": "Peas, green, raw",
+    "n": {
+     "kcal": 81,
+     "prot": 5.42,
+     "fat": 0.4,
+     "carb": 14.45,
+     "fib": 5.7,
+     "sug": 5.67,
+     "na": 5
+    },
+    "porciones": [
+     [
+      1,
+      "cup",
+      145
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Amaranto",
+   "sinonimos": [],
+   "foundationNdb": null,
+   "sr": {
+    "fdcId": 170682,
+    "descripcion": "Amaranth grain, uncooked",
+    "n": {
+     "kcal": 371,
+     "prot": 13.56,
+     "fat": 7.02,
+     "carb": 65.25,
+     "fib": 6.7,
+     "sug": 1.69,
+     "na": 4
+    },
+    "porciones": [
+     [
+      1,
+      "cup",
+      193
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Arroz",
+   "sinonimos": [
+    "arroz blanco"
+   ],
+   "foundationNdb": 20444,
+   "sr": {
+    "fdcId": 169756,
+    "descripcion": "Rice, white, long-grain, regular, raw, unenriched",
+    "n": {
+     "kcal": 365,
+     "prot": 7.13,
+     "fat": 0.66,
+     "carb": 79.95,
+     "fib": 1.3,
+     "sug": 0.12,
+     "na": 5
+    },
+    "porciones": [
+     [
+      1,
+      "cup",
+      185
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Arroz integral",
+   "sinonimos": [
+    "arroz yamaní",
+    "arroz (integral, yamaní)"
+   ],
+   "foundationNdb": 20036,
+   "sr": {
+    "fdcId": 169703,
+    "descripcion": "Rice, brown, long-grain, raw (Includes foods for USDA's Food Distribution Program)",
+    "n": {
+     "kcal": 367,
+     "prot": 7.54,
+     "fat": 3.2,
+     "carb": 76.25,
+     "fib": 3.6,
+     "sug": 0.66,
+     "na": 5
+    },
+    "porciones": [
+     [
+      1,
+      "cup",
+      185
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Avena",
+   "sinonimos": [
+    "avena arrollada",
+    "avena instantánea",
+    "avena arrollada o instantánea"
+   ],
+   "foundationNdb": 20038,
+   "sr": {
+    "fdcId": 173904,
+    "descripcion": "Cereals, oats, regular and quick, not fortified, dry",
+    "n": {
+     "kcal": 379,
+     "prot": 13.15,
+     "fat": 6.52,
+     "carb": 67.7,
+     "fib": 10.1,
+     "sug": 0.99,
+     "na": 6
+    },
+    "porciones": [
+     [
+      1,
+      "cup",
+      81
+     ],
+     [
+      0.33,
+      "cup",
+      27
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Cebada",
+   "sinonimos": [
+    "cebada perlada"
+   ],
+   "foundationNdb": null,
+   "sr": {
+    "fdcId": 170284,
+    "descripcion": "Barley, pearled, raw",
+    "n": {
+     "kcal": 352,
+     "prot": 9.91,
+     "fat": 1.16,
+     "carb": 77.72,
+     "fib": 15.6,
+     "sug": 0.8,
+     "na": 9
+    },
+    "porciones": [
+     [
+      1,
+      "cup",
+      200
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Centeno",
+   "sinonimos": [],
+   "foundationNdb": null,
+   "sr": {
+    "fdcId": 168884,
+    "descripcion": "Rye grain",
+    "n": {
+     "kcal": 338,
+     "prot": 10.34,
+     "fat": 1.63,
+     "carb": 75.86,
+     "fib": 15.1,
+     "sug": 0.98,
+     "na": 2
+    },
+    "porciones": [
+     [
+      1,
+      "cup",
+      169
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Cuscús",
+   "sinonimos": [
+    "cous cous"
+   ],
+   "foundationNdb": null,
+   "sr": {
+    "fdcId": 169699,
+    "descripcion": "Couscous, dry",
+    "n": {
+     "kcal": 376,
+     "prot": 12.76,
+     "fat": 0.64,
+     "carb": 77.43,
+     "fib": 5,
+     "na": 10
+    },
+    "porciones": [
+     [
+      1,
+      "cup",
+      173
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Fécula de maíz",
+   "sinonimos": [
+    "maicena",
+    "fécula de maíz (maicena)",
+    "almidón de maíz"
+   ],
+   "foundationNdb": null,
+   "sr": {
+    "fdcId": 169698,
+    "descripcion": "Cornstarch",
+    "n": {
+     "kcal": 381,
+     "prot": 0.26,
+     "fat": 0.05,
+     "carb": 91.27,
+     "fib": 0.9,
+     "sug": 0,
+     "na": 9
+    },
+    "porciones": [
+     [
+      1,
+      "cup",
+      128
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Fécula de mandioca",
+   "sinonimos": [
+    "almidón de mandioca"
+   ],
+   "foundationNdb": null,
+   "nota": "Se usa la tapioca perlada seca (almidón de mandioca).",
+   "sr": {
+    "fdcId": 169717,
+    "descripcion": "Tapioca, pearl, dry",
+    "n": {
+     "kcal": 358,
+     "prot": 0.19,
+     "fat": 0.02,
+     "carb": 88.69,
+     "fib": 0.9,
+     "sug": 3.35,
+     "na": 1
+    },
+    "porciones": [
+     [
+      1,
+      "cup",
+      152
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Tapioca",
+   "sinonimos": [],
+   "foundationNdb": null,
+   "sr": {
+    "fdcId": 169717,
+    "descripcion": "Tapioca, pearl, dry",
+    "n": {
+     "kcal": 358,
+     "prot": 0.19,
+     "fat": 0.02,
+     "carb": 88.69,
+     "fib": 0.9,
+     "sug": 3.35,
+     "na": 1
+    },
+    "porciones": [
+     [
+      1,
+      "cup",
+      152
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Fideos",
+   "sinonimos": [
+    "pasta",
+    "fideos secos",
+    "fideos y pastas (de trigo, maíz o arroz)",
+    "spaghetti",
+    "tallarines"
+   ],
+   "foundationNdb": null,
+   "sr": {
+    "fdcId": 169736,
+    "descripcion": "Pasta, dry, enriched",
+    "n": {
+     "kcal": 371,
+     "prot": 13.04,
+     "fat": 1.51,
+     "carb": 74.67,
+     "fib": 3.2,
+     "sug": 2.67,
+     "na": 6
+    },
+    "porciones": [
+     [
+      1,
+      "cup spaghetti",
+      91
+     ],
+     [
+      2,
+      "oz",
+      57
+     ],
+     [
+      1,
+      "cup elbows",
+      122
+     ],
+     [
+      1,
+      "cup penne",
+      95
+     ],
+     [
+      1,
+      "cup farfalle",
+      81
+     ],
+     [
+      1,
+      "cup rotini",
+      96
+     ],
+     [
+      1,
+      "cup shells",
+      64
+     ],
+     [
+      1,
+      "cup lasagna",
+      90
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Fideos integrales",
+   "sinonimos": [
+    "pasta integral"
+   ],
+   "foundationNdb": null,
+   "sr": {
+    "fdcId": 169738,
+    "descripcion": "Pasta, whole-wheat, dry (Includes foods for USDA's Food Distribution Program)",
+    "n": {
+     "kcal": 352,
+     "prot": 13.87,
+     "fat": 2.93,
+     "carb": 73.37,
+     "fib": 9.2,
+     "sug": 2.74,
+     "na": 6
+    },
+    "porciones": [
+     [
+      1,
+      "cup spaghetti",
+      91
+     ],
+     [
+      1,
+      "cup elbows",
+      122
+     ],
+     [
+      1,
+      "cup penne",
+      95
+     ],
+     [
+      1,
+      "cup farfalle",
+      81
+     ],
+     [
+      1,
+      "cup rotini",
+      96
+     ],
+     [
+      1,
+      "cup shells",
+      64
+     ],
+     [
+      1,
+      "cup lasagne",
+      90
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Harina de arroz",
+   "sinonimos": [],
+   "foundationNdb": 20061,
+   "sr": {
+    "fdcId": 169714,
+    "descripcion": "Rice flour, white, unenriched",
+    "n": {
+     "kcal": 366,
+     "prot": 5.95,
+     "fat": 1.42,
+     "carb": 80.13,
+     "fib": 2.4,
+     "sug": 0.12,
+     "na": 0
+    },
+    "porciones": [
+     [
+      1,
+      "cup",
+      158
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Harina de avena",
+   "sinonimos": [],
+   "foundationNdb": 100274,
+   "sr": {
+    "fdcId": 169741,
+    "descripcion": "Oat flour, partially debranned",
+    "n": {
+     "kcal": 404,
+     "prot": 14.66,
+     "fat": 9.12,
+     "carb": 65.7,
+     "fib": 6.5,
+     "sug": 0.8,
+     "na": 19
+    },
+    "porciones": [
+     [
+      1,
+      "cup",
+      104
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Harina de maíz",
+   "sinonimos": [],
+   "foundationNdb": 100251,
+   "sr": {
+    "fdcId": 169697,
+    "descripcion": "Cornmeal, whole-grain, yellow",
+    "n": {
+     "kcal": 362,
+     "prot": 8.12,
+     "fat": 3.59,
+     "carb": 76.89,
+     "fib": 7.3,
+     "sug": 0.64,
+     "na": 35
+    },
+    "porciones": [
+     [
+      1,
+      "cup",
+      122
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Polenta",
+   "sinonimos": [],
+   "foundationNdb": null,
+   "sr": {
+    "fdcId": 168867,
+    "descripcion": "Cornmeal, degermed, enriched, yellow",
+    "n": {
+     "kcal": 370,
+     "prot": 7.11,
+     "fat": 1.75,
+     "carb": 79.45,
+     "fib": 3.9,
+     "sug": 1.61,
+     "na": 7
+    },
+    "porciones": [
+     [
+      1,
+      "cup",
+      157
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Harina de trigo",
+   "sinonimos": [
+    "harina",
+    "harina 000",
+    "harina 0000"
+   ],
+   "foundationNdb": 20481,
+   "sr": {
+    "fdcId": 169761,
+    "descripcion": "Wheat flour, white, all-purpose, unenriched",
+    "n": {
+     "kcal": 364,
+     "prot": 10.33,
+     "fat": 0.98,
+     "carb": 76.31,
+     "fib": 2.7,
+     "sug": 0.27,
+     "na": 2
+    },
+    "porciones": [
+     [
+      1,
+      "cup",
+      125
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Harina de trigo integral",
+   "sinonimos": [
+    "harina integral"
+   ],
+   "foundationNdb": 20080,
+   "sr": {
+    "fdcId": 168893,
+    "descripcion": "Wheat flour, whole-grain (Includes foods for USDA's Food Distribution Program)",
+    "n": {
+     "kcal": 340,
+     "prot": 13.21,
+     "fat": 2.5,
+     "carb": 71.97,
+     "fib": 10.7,
+     "sug": 0.41,
+     "na": 2
+    },
+    "porciones": [
+     [
+      1,
+      "cup",
+      120
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Mandioca",
+   "sinonimos": [
+    "yuca"
+   ],
+   "foundationNdb": null,
+   "sr": {
+    "fdcId": 169985,
+    "descripcion": "Cassava, raw",
+    "n": {
+     "kcal": 160,
+     "prot": 1.36,
+     "fat": 0.28,
+     "carb": 38.06,
+     "fib": 1.8,
+     "sug": 1.7,
+     "na": 14
+    },
+    "porciones": [
+     [
+      1,
+      "cup",
+      206
+     ],
+     [
+      1,
+      "root",
+      408
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Mijo",
+   "sinonimos": [],
+   "foundationNdb": 20031,
+   "sr": {
+    "fdcId": 169702,
+    "descripcion": "Millet, raw",
+    "n": {
+     "kcal": 378,
+     "prot": 11.02,
+     "fat": 4.22,
+     "carb": 72.85,
+     "fib": 8.5,
+     "na": 5
+    },
+    "porciones": [
+     [
+      1,
+      "cup",
+      200
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Pan",
+   "sinonimos": [
+    "pan francés"
+   ],
+   "foundationNdb": null,
+   "opciones": {
+    "unidad": null
+   },
+   "sr": {
+    "fdcId": 172675,
+    "descripcion": "Bread, french or vienna (includes sourdough)",
+    "n": {
+     "kcal": 272,
+     "prot": 10.75,
+     "fat": 2.42,
+     "carb": 51.88,
+     "fib": 2.2,
+     "sug": 4.62,
+     "na": 602
+    },
+    "porciones": [
+     [
+      1,
+      "oz",
+      28.4
+     ],
+     [
+      1,
+      "slice",
+      139
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Pan de molde",
+   "sinonimos": [
+    "pan lactal",
+    "pan de molde blanco"
+   ],
+   "foundationNdb": null,
+   "sr": {
+    "fdcId": 174924,
+    "descripcion": "Bread, white, commercially prepared (includes soft bread crumbs)",
+    "n": {
+     "kcal": 266,
+     "prot": 8.85,
+     "fat": 3.33,
+     "carb": 49.42,
+     "fib": 2.7,
+     "sug": 5.67,
+     "na": 490
+    },
+    "porciones": [
+     [
+      1,
+      "slice",
+      29
+     ],
+     [
+      1,
+      "oz",
+      28.4
+     ],
+     [
+      1,
+      "cup, crumbs",
+      45
+     ],
+     [
+      1,
+      "cup, cubes",
+      35
+     ],
+     [
+      1,
+      "slice, large",
+      30
+     ],
+     [
+      1,
+      "slice",
+      25
+     ],
+     [
+      1,
+      "slice crust not eaten",
+      12
+     ],
+     [
+      1,
+      "slice, thin",
+      20
+     ],
+     [
+      1,
+      "slice thin, crust not eaten",
+      9
+     ],
+     [
+      1,
+      "slice, very thin",
+      15
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Pan integral",
+   "sinonimos": [
+    "pan de molde integral",
+    "pan lactal integral"
+   ],
+   "foundationNdb": null,
+   "sr": {
+    "fdcId": 172688,
+    "descripcion": "Bread, whole-wheat, commercially prepared",
+    "n": {
+     "kcal": 252,
+     "prot": 12.45,
+     "fat": 3.5,
+     "carb": 42.71,
+     "fib": 6,
+     "sug": 4.34,
+     "na": 455
+    },
+    "porciones": [
+     [
+      1,
+      "slice",
+      32
+     ],
+     [
+      1,
+      "oz",
+      28.4
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Pan árabe",
+   "sinonimos": [],
+   "foundationNdb": null,
+   "sr": {
+    "fdcId": 174915,
+    "descripcion": "Bread, pita, white, enriched",
+    "n": {
+     "kcal": 275,
+     "prot": 9.1,
+     "fat": 1.2,
+     "carb": 55.7,
+     "fib": 2.2,
+     "sug": 1.3,
+     "na": 536
+    },
+    "porciones": [
+     [
+      1,
+      "pita, large (6-1/2\" dia)",
+      60
+     ],
+     [
+      1,
+      "pita, small  (4\" dia)",
+      28
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Pan rallado",
+   "sinonimos": [],
+   "foundationNdb": null,
+   "sr": {
+    "fdcId": 174928,
+    "descripcion": "Bread, crumbs, dry, grated, plain",
+    "n": {
+     "kcal": 395,
+     "prot": 13.35,
+     "fat": 5.3,
+     "carb": 71.98,
+     "fib": 4.5,
+     "sug": 6.2,
+     "na": 732
+    },
+    "porciones": [
+     [
+      1,
+      "oz",
+      28.4
+     ],
+     [
+      1,
+      "cup",
+      108
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Galletitas de agua",
+   "sinonimos": [
+    "galletas de agua"
+   ],
+   "foundationNdb": null,
+   "opciones": {
+    "unidad": "cracker, rectangle"
+   },
+   "sr": {
+    "fdcId": 172746,
+    "descripcion": "Crackers, saltines (includes oyster, soda, soup)",
+    "n": {
+     "kcal": 418,
+     "prot": 9.46,
+     "fat": 8.64,
+     "carb": 74.05,
+     "fib": 2.8,
+     "sug": 1.29,
+     "na": 941
+    },
+    "porciones": [
+     [
+      5,
+      "crackers",
+      14.9
+     ],
+     [
+      0.5,
+      "oz",
+      14.2
+     ],
+     [
+      1,
+      "cup, crushed",
+      70
+     ],
+     [
+      5,
+      "crackers square (1 serving)",
+      15
+     ],
+     [
+      1,
+      "cracker square",
+      3
+     ],
+     [
+      1,
+      "cracker, round large",
+      10
+     ],
+     [
+      1,
+      "cracker, oyster",
+      1
+     ],
+     [
+      1,
+      "cracker, rectangle",
+      6
+     ],
+     [
+      1,
+      "cup oyster crackers",
+      45
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Papa",
+   "sinonimos": [
+    "papas"
+   ],
+   "foundationNdb": null,
+   "sr": {
+    "fdcId": 170026,
+    "descripcion": "Potatoes, flesh and skin, raw",
+    "n": {
+     "kcal": 77,
+     "prot": 2.05,
+     "fat": 0.09,
+     "carb": 17.49,
+     "fib": 2.1,
+     "sug": 0.82,
+     "na": 6
+    },
+    "porciones": [
+     [
+      0.5,
+      "cup, diced",
+      75
+     ],
+     [
+      1,
+      "Potato large (3\" to 4-1/4\" dia)",
+      369
+     ],
+     [
+      1,
+      "Potato medium (2-1/4\" to 3-1/4\" dia)",
+      213
+     ],
+     [
+      1,
+      "Potato small (1-3/4\" to 2-1/2\" dia)",
+      170
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Batata",
+   "sinonimos": [
+    "boniato",
+    "camote"
+   ],
+   "foundationNdb": 100286,
+   "sr": {
+    "fdcId": 168482,
+    "descripcion": "Sweet potato, raw, unprepared (Includes foods for USDA's Food Distribution Program)",
+    "n": {
+     "kcal": 86,
+     "prot": 1.57,
+     "fat": 0.05,
+     "carb": 20.12,
+     "fib": 3,
+     "sug": 4.18,
+     "na": 55
+    },
+    "porciones": [
+     [
+      1,
+      "cup, cubes",
+      133
+     ],
+     [
+      1,
+      "sweetpotato, 5\" long",
+      130
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Quinoa",
+   "sinonimos": [],
+   "foundationNdb": null,
+   "sr": {
+    "fdcId": 168874,
+    "descripcion": "Quinoa, uncooked",
+    "n": {
+     "kcal": 368,
+     "prot": 14.12,
+     "fat": 6.07,
+     "carb": 64.16,
+     "fib": 7,
+     "na": 5
+    },
+    "porciones": [
+     [
+      1,
+      "cup",
+      170
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Sorgo",
+   "sinonimos": [],
+   "foundationNdb": 100368,
+   "sr": {
+    "fdcId": 169716,
+    "descripcion": "Sorghum grain",
+    "n": {
+     "kcal": 329,
+     "prot": 10.62,
+     "fat": 3.46,
+     "carb": 72.09,
+     "fib": 6.7,
+     "sug": 2.53,
+     "na": 2
+    },
+    "porciones": [
+     [
+      1,
+      "cup",
+      192
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Tortillas de trigo",
+   "sinonimos": [
+    "tortillas",
+    "tortillas de trigo o maíz",
+    "wrap"
+   ],
+   "foundationNdb": null,
+   "sr": {
+    "fdcId": 175037,
+    "descripcion": "Tortillas, ready-to-bake or -fry, flour, refrigerated",
+    "n": {
+     "kcal": 306,
+     "prot": 8.2,
+     "fat": 7.99,
+     "carb": 49.38,
+     "fib": 3.5,
+     "sug": 3.71,
+     "na": 736
+    },
+    "porciones": [
+     [
+      1,
+      "tortilla",
+      48
+     ],
+     [
+      1,
+      "oz",
+      28.4
+     ],
+     [
+      1,
+      "tortilla medium (approx 6\" dia)",
+      30
+     ],
+     [
+      1,
+      "package",
+      407
+     ],
+     [
+      1,
+      "tortilla (approx 10\" dia)",
+      72
+     ],
+     [
+      1,
+      "tortilla (approx 12\" dia)",
+      117
+     ],
+     [
+      1,
+      "tortilla (approx 7-8\" dia)",
+      49
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Tortillas de maíz",
+   "sinonimos": [],
+   "foundationNdb": null,
+   "sr": {
+    "fdcId": 175036,
+    "descripcion": "Tortillas, ready-to-bake or -fry, corn",
+    "n": {
+     "kcal": 218,
+     "prot": 5.7,
+     "fat": 2.85,
+     "carb": 44.64,
+     "fib": 6.3,
+     "sug": 0.88,
+     "na": 45
+    },
+    "porciones": [
+     [
+      1,
+      "oz",
+      28.4
+     ],
+     [
+      1,
+      "enchilada",
+      19
+     ],
+     [
+      1,
+      "tortilla",
+      24
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Trigo burgol",
+   "sinonimos": [
+    "burgol",
+    "bulgur"
+   ],
+   "foundationNdb": 20012,
+   "sr": {
+    "fdcId": 170688,
+    "descripcion": "Bulgur, dry",
+    "n": {
+     "kcal": 342,
+     "prot": 12.29,
+     "fat": 1.33,
+     "carb": 75.87,
+     "fib": 12.5,
+     "sug": 0.41,
+     "na": 17
+    },
+    "porciones": [
+     [
+      1,
+      "cup",
+      140
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Granola",
+   "sinonimos": [],
+   "foundationNdb": null,
+   "sr": {
+    "fdcId": 171646,
+    "descripcion": "Cereals ready-to-eat, granola, homemade",
+    "n": {
+     "kcal": 489,
+     "prot": 13.67,
+     "fat": 24.31,
+     "carb": 53.88,
+     "fib": 8.9,
+     "sug": 19.8,
+     "na": 26
+    },
+    "porciones": [
+     [
+      1,
+      "cup",
+      122
+     ],
+     [
+      1,
+      "oz",
+      28.4
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Garbanzos",
+   "sinonimos": [
+    "garbanzo"
+   ],
+   "foundationNdb": 100311,
+   "sr": {
+    "fdcId": 173756,
+    "descripcion": "Chickpeas (garbanzo beans, bengal gram), mature seeds, raw",
+    "n": {
+     "kcal": 378,
+     "prot": 20.47,
+     "fat": 6.04,
+     "carb": 62.95,
+     "fib": 12.2,
+     "sug": 10.7,
+     "na": 24
+    },
+    "porciones": [
+     [
+      1,
+      "cup",
+      200
+     ],
+     [
+      1,
+      "tbsp",
+      12.5
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Lentejas",
+   "sinonimos": [
+    "lenteja"
+   ],
+   "foundationNdb": 100312,
+   "sr": {
+    "fdcId": 172420,
+    "descripcion": "Lentils, raw",
+    "n": {
+     "kcal": 352,
+     "prot": 24.63,
+     "fat": 1.06,
+     "carb": 63.35,
+     "fib": 10.7,
+     "sug": 2.03,
+     "na": 6
+    },
+    "porciones": [
+     [
+      1,
+      "cup",
+      192
+     ],
+     [
+      1,
+      "tablespoon",
+      12
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Porotos negros",
+   "sinonimos": [],
+   "foundationNdb": null,
+   "sr": {
+    "fdcId": 173734,
+    "descripcion": "Beans, black, mature seeds, raw",
+    "n": {
+     "kcal": 341,
+     "prot": 21.6,
+     "fat": 1.42,
+     "carb": 62.36,
+     "fib": 15.5,
+     "sug": 2.12,
+     "na": 5
+    },
+    "porciones": [
+     [
+      1,
+      "cup",
+      194
+     ],
+     [
+      1,
+      "tbsp",
+      12.1
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Porotos colorados",
+   "sinonimos": [],
+   "foundationNdb": null,
+   "sr": {
+    "fdcId": 173744,
+    "descripcion": "Beans, kidney, red, mature seeds, raw",
+    "n": {
+     "kcal": 337,
+     "prot": 22.53,
+     "fat": 1.06,
+     "carb": 61.29,
+     "fib": 15.2,
+     "sug": 2.1,
+     "na": 12
+    },
+    "porciones": [
+     [
+      1,
+      "cup",
+      184
+     ],
+     [
+      1,
+      "tbsp",
+      12.2
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Porotos alubia",
+   "sinonimos": [
+    "porotos alubia (blanco)",
+    "porotos blancos",
+    "alubias"
+   ],
+   "foundationNdb": null,
+   "sr": {
+    "fdcId": 175202,
+    "descripcion": "Beans, white, mature seeds, raw",
+    "n": {
+     "kcal": 333,
+     "prot": 23.36,
+     "fat": 0.85,
+     "carb": 60.27,
+     "fib": 15.2,
+     "sug": 2.11,
+     "na": 16
+    },
+    "porciones": [
+     [
+      1,
+      "cup",
+      202
+     ],
+     [
+      1,
+      "tbsp",
+      12.6
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Porotos aduki",
+   "sinonimos": [],
+   "foundationNdb": null,
+   "sr": {
+    "fdcId": 173727,
+    "descripcion": "Beans, adzuki, mature seeds, raw",
+    "n": {
+     "kcal": 329,
+     "prot": 19.87,
+     "fat": 0.53,
+     "carb": 62.9,
+     "fib": 12.7,
+     "na": 5
+    },
+    "porciones": [
+     [
+      1,
+      "cup",
+      197
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Porotos manteca",
+   "sinonimos": [],
+   "foundationNdb": null,
+   "sr": {
+    "fdcId": 174252,
+    "descripcion": "Lima beans, large, mature seeds, raw",
+    "n": {
+     "kcal": 338,
+     "prot": 21.46,
+     "fat": 0.69,
+     "carb": 63.38,
+     "fib": 19,
+     "sug": 8.5,
+     "na": 18
+    },
+    "porciones": [
+     [
+      1,
+      "cup",
+      178
+     ],
+     [
+      1,
+      "tbsp",
+      11.1
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Porotos pallar",
+   "sinonimos": [],
+   "foundationNdb": null,
+   "sr": {
+    "fdcId": 174252,
+    "descripcion": "Lima beans, large, mature seeds, raw",
+    "n": {
+     "kcal": 338,
+     "prot": 21.46,
+     "fat": 0.69,
+     "carb": 63.38,
+     "fib": 19,
+     "sug": 8.5,
+     "na": 18
+    },
+    "porciones": [
+     [
+      1,
+      "cup",
+      178
+     ],
+     [
+      1,
+      "tbsp",
+      11.1
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Porotos mung",
+   "sinonimos": [],
+   "foundationNdb": null,
+   "sr": {
+    "fdcId": 174256,
+    "descripcion": "Mung beans, mature seeds, raw",
+    "n": {
+     "kcal": 347,
+     "prot": 23.86,
+     "fat": 1.15,
+     "carb": 62.62,
+     "fib": 16.3,
+     "sug": 6.6,
+     "na": 15
+    },
+    "porciones": [
+     [
+      1,
+      "cup",
+      207
+     ],
+     [
+      1,
+      "tbsp",
+      13
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Soja",
+   "sinonimos": [
+    "soja (poroto de soja)",
+    "poroto de soja"
+   ],
+   "foundationNdb": null,
+   "sr": {
+    "fdcId": 174270,
+    "descripcion": "Soybeans, mature seeds, raw",
+    "n": {
+     "kcal": 446,
+     "prot": 36.49,
+     "fat": 19.94,
+     "carb": 30.16,
+     "fib": 9.3,
+     "sug": 7.33,
+     "na": 2
+    },
+    "porciones": [
+     [
+      1,
+      "cup",
+      186
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Habas",
+   "sinonimos": [],
+   "foundationNdb": null,
+   "sr": {
+    "fdcId": 175205,
+    "descripcion": "Broadbeans (fava beans), mature seeds, raw",
+    "n": {
+     "kcal": 341,
+     "prot": 26.12,
+     "fat": 1.53,
+     "carb": 58.29,
+     "fib": 25,
+     "sug": 5.7,
+     "na": 13
+    },
+    "porciones": [
+     [
+      1,
+      "cup",
+      150
+     ],
+     [
+      1,
+      "tbsp",
+      9.4
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Lupino",
+   "sinonimos": [
+    "lupines"
+   ],
+   "foundationNdb": null,
+   "sr": {
+    "fdcId": 172423,
+    "descripcion": "Lupins, mature seeds, raw",
+    "n": {
+     "kcal": 371,
+     "prot": 36.17,
+     "fat": 9.74,
+     "carb": 40.37,
+     "fib": 18.9,
+     "na": 15
+    },
+    "porciones": [
+     [
+      1,
+      "cup",
+      180
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Maní",
+   "sinonimos": [
+    "mani"
+   ],
+   "foundationNdb": 16087,
+   "sr": {
+    "fdcId": 172430,
+    "descripcion": "Peanuts, all types, raw",
+    "n": {
+     "kcal": 567,
+     "prot": 25.8,
+     "fat": 49.24,
+     "carb": 16.13,
+     "fib": 8.5,
+     "sug": 4.72,
+     "na": 18
+    },
+    "porciones": [
+     [
+      1,
+      "oz",
+      28.4
+     ],
+     [
+      1,
+      "cup",
+      146
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Atún",
+   "sinonimos": [
+    "atún al natural",
+    "atun"
+   ],
+   "foundationNdb": 15121,
+   "sr": {
+    "fdcId": 173709,
+    "descripcion": "Fish, tuna, light, canned in water, drained solids (Includes foods for USDA's Food Distribution Program)",
+    "n": {
+     "kcal": 86,
+     "prot": 19.44,
+     "fat": 0.96,
+     "carb": 0,
+     "fib": 0,
+     "sug": 0,
+     "na": 247
+    },
+    "porciones": [
+     [
+      1,
+      "oz",
+      28.4
+     ],
+     [
+      3,
+      "oz",
+      85
+     ],
+     [
+      1,
+      "can",
+      165
+     ],
+     [
+      1,
+      "cup, solid or chunks",
+      154
+     ],
+     [
+      1,
+      "can (12.5 oz), drained",
+      315
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Caballa",
+   "sinonimos": [],
+   "foundationNdb": null,
+   "sr": {
+    "fdcId": 175119,
+    "descripcion": "Fish, mackerel, Atlantic, raw",
+    "n": {
+     "kcal": 205,
+     "prot": 18.6,
+     "fat": 13.89,
+     "carb": 0,
+     "fib": 0,
+     "sug": 0,
+     "na": 90
+    },
+    "porciones": [
+     [
+      1,
+      "fillet",
+      112
+     ],
+     [
+      3,
+      "oz",
+      85
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Lenguado",
+   "sinonimos": [],
+   "foundationNdb": null,
+   "sr": {
+    "fdcId": 174196,
+    "descripcion": "Fish, flatfish (flounder and sole species), raw",
+    "n": {
+     "kcal": 70,
+     "prot": 12.41,
+     "fat": 1.93,
+     "carb": 0,
+     "fib": 0,
+     "sug": 0,
+     "na": 296
+    },
+    "porciones": [
+     [
+      1,
+      "oz, boneless",
+      28.4
+     ],
+     [
+      1,
+      "fillet",
+      163
+     ],
+     [
+      3,
+      "oz",
+      85
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Merluza",
+   "sinonimos": [
+    "filet de merluza"
+   ],
+   "foundationNdb": null,
+   "nota": "USDA no tiene merluza: se usa whiting (merluza plateada).",
+   "sr": {
+    "fdcId": 173713,
+    "descripcion": "Fish, whiting, mixed species, raw",
+    "n": {
+     "kcal": 90,
+     "prot": 18.31,
+     "fat": 1.31,
+     "carb": 0,
+     "fib": 0,
+     "sug": 0,
+     "na": 72
+    },
+    "porciones": [
+     [
+      1,
+      "fillet",
+      92
+     ],
+     [
+      3,
+      "oz",
+      85
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Salmón",
+   "sinonimos": [
+    "salmon"
+   ],
+   "foundationNdb": 15236,
+   "sr": {
+    "fdcId": 175167,
+    "descripcion": "Fish, salmon, Atlantic, farmed, raw",
+    "n": {
+     "kcal": 208,
+     "prot": 20.42,
+     "fat": 13.42,
+     "carb": 0,
+     "fib": 0,
+     "sug": 0,
+     "na": 59
+    },
+    "porciones": [
+     [
+      3,
+      "oz",
+      85
+     ],
+     [
+      0.5,
+      "fillet",
+      198
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Sardina",
+   "sinonimos": [
+    "sardinas en aceite"
+   ],
+   "foundationNdb": null,
+   "sr": {
+    "fdcId": 175139,
+    "descripcion": "Fish, sardine, Atlantic, canned in oil, drained solids with bone",
+    "n": {
+     "kcal": 208,
+     "prot": 24.62,
+     "fat": 11.45,
+     "carb": 0,
+     "fib": 0,
+     "sug": 0,
+     "na": 307
+    },
+    "porciones": [
+     [
+      1,
+      "cup, drained",
+      149
+     ],
+     [
+      1,
+      "oz",
+      28.4
+     ],
+     [
+      1,
+      "cubic inch",
+      16
+     ],
+     [
+      1,
+      "can (3.75 oz)",
+      92
+     ],
+     [
+      1,
+      "small (2-2/3\" x 1/2\" x 1/4\")",
+      12
+     ],
+     [
+      2,
+      "sardines",
+      24
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Pollo",
+   "sinonimos": [
+    "pechuga de pollo",
+    "pechuga",
+    "pollo (pechuga, muslo, pata-muslo)"
+   ],
+   "foundationNdb": 100304,
+   "nota": "Valores de pechuga sin piel.",
+   "sr": {
+    "fdcId": 171077,
+    "descripcion": "Chicken, broiler or fryers, breast, skinless, boneless, meat only, raw",
+    "n": {
+     "kcal": 120,
+     "prot": 22.5,
+     "fat": 2.62,
+     "carb": 0,
+     "fib": 0,
+     "sug": 0,
+     "na": 45
+    },
+    "porciones": [
+     [
+      4,
+      "oz",
+      113
+     ],
+     [
+      1,
+      "piece",
+      272
+     ],
+     [
+      1,
+      "package",
+      926
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Muslo de pollo",
+   "sinonimos": [
+    "muslo",
+    "pata muslo",
+    "pata-muslo"
+   ],
+   "foundationNdb": 100305,
+   "sr": {
+    "fdcId": 173627,
+    "descripcion": "Chicken, broilers or fryers, dark meat, thigh, meat only, raw",
+    "n": {
+     "kcal": 121,
+     "prot": 19.66,
+     "fat": 4.12,
+     "carb": 0,
+     "fib": 0,
+     "sug": 0,
+     "na": 95
+    },
+    "porciones": [
+     [
+      4,
+      "oz",
+      113
+     ],
+     [
+      1,
+      "thigh without skin",
+      149
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Huevo",
+   "sinonimos": [
+    "huevos",
+    "huevo entero de gallina",
+    "huevo entero"
+   ],
+   "foundationNdb": 1123,
+   "opciones": {
+    "unidad": "large"
+   },
+   "sr": {
+    "fdcId": 171287,
+    "descripcion": "Egg, whole, raw, fresh",
+    "n": {
+     "kcal": 143,
+     "prot": 12.56,
+     "fat": 9.51,
+     "carb": 0.72,
+     "fib": 0,
+     "sug": 0.37,
+     "na": 142
+    },
+    "porciones": [
+     [
+      1,
+      "large",
+      50
+     ],
+     [
+      1,
+      "extra large",
+      56
+     ],
+     [
+      1,
+      "jumbo",
+      63
+     ],
+     [
+      1,
+      "cup (4.86 large eggs)",
+      243
+     ],
+     [
+      1,
+      "medium",
+      44
+     ],
+     [
+      1,
+      "small",
+      38
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Clara de huevo",
+   "sinonimos": [
+    "clara",
+    "claras"
+   ],
+   "foundationNdb": 1124,
+   "sr": {
+    "fdcId": 172183,
+    "descripcion": "Egg, white, raw, fresh",
+    "n": {
+     "kcal": 52,
+     "prot": 10.9,
+     "fat": 0.17,
+     "carb": 0.73,
+     "fib": 0,
+     "sug": 0.71,
+     "na": 166
+    },
+    "porciones": [
+     [
+      1,
+      "large",
+      33
+     ],
+     [
+      1,
+      "cup",
+      243
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Yema de huevo",
+   "sinonimos": [
+    "yema",
+    "yemas"
+   ],
+   "foundationNdb": 1125,
+   "sr": {
+    "fdcId": 172184,
+    "descripcion": "Egg, yolk, raw, fresh",
+    "n": {
+     "kcal": 322,
+     "prot": 15.86,
+     "fat": 26.54,
+     "carb": 3.59,
+     "fib": 0,
+     "sug": 0.56,
+     "na": 48
+    },
+    "porciones": [
+     [
+      1,
+      "large",
+      17
+     ],
+     [
+      1,
+      "cup",
+      243
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Leche",
+   "sinonimos": [
+    "leche entera"
+   ],
+   "foundationNdb": 1077,
+   "sr": {
+    "fdcId": 171265,
+    "descripcion": "Milk, whole, 3.25% milkfat, with added vitamin D",
+    "n": {
+     "kcal": 61,
+     "prot": 3.15,
+     "fat": 3.25,
+     "carb": 4.8,
+     "fib": 0,
+     "sug": 5.05,
+     "na": 43
+    },
+    "porciones": [
+     [
+      1,
+      "cup",
+      244
+     ],
+     [
+      1,
+      "fl oz",
+      30.5
+     ],
+     [
+      1,
+      "tbsp",
+      15
+     ],
+     [
+      1,
+      "quart",
+      976
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Leche descremada",
+   "sinonimos": [],
+   "foundationNdb": 1085,
+   "sr": {
+    "fdcId": 171269,
+    "descripcion": "Milk, nonfat, fluid, with added vitamin A and vitamin D (fat free or skim)",
+    "n": {
+     "kcal": 34,
+     "prot": 3.37,
+     "fat": 0.08,
+     "carb": 4.96,
+     "fib": 0,
+     "sug": 5.09,
+     "na": 42
+    },
+    "porciones": [
+     [
+      1,
+      "cup",
+      245
+     ],
+     [
+      1,
+      "fl oz",
+      30.6
+     ],
+     [
+      1,
+      "quart",
+      980
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Leche parcialmente descremada",
+   "sinonimos": [],
+   "foundationNdb": 1079,
+   "nota": "Se usa leche con 2% de grasa.",
+   "sr": {
+    "fdcId": 171267,
+    "descripcion": "Milk, reduced fat, fluid, 2% milkfat, with added vitamin A and vitamin D",
+    "n": {
+     "kcal": 50,
+     "prot": 3.3,
+     "fat": 1.98,
+     "carb": 4.8,
+     "fib": 0,
+     "sug": 5.06,
+     "na": 47
+    },
+    "porciones": [
+     [
+      1,
+      "cup",
+      244
+     ],
+     [
+      1,
+      "fl oz",
+      30.5
+     ],
+     [
+      1,
+      "quart",
+      976
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Leche en polvo descremada",
+   "sinonimos": [],
+   "foundationNdb": null,
+   "sr": {
+    "fdcId": 170877,
+    "descripcion": "Milk, dry, nonfat, regular, without added vitamin A and vitamin D",
+    "n": {
+     "kcal": 362,
+     "prot": 36.16,
+     "fat": 0.77,
+     "carb": 51.98,
+     "fib": 0,
+     "sug": 51.98,
+     "na": 535
+    },
+    "porciones": [
+     [
+      0.25,
+      "cup",
+      30
+     ],
+     [
+      1,
+      "cup",
+      120
+     ],
+     [
+      5,
+      "tbsp",
+      23
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Yogur natural",
+   "sinonimos": [
+    "yogur",
+    "yogurt"
+   ],
+   "foundationNdb": 1116,
+   "sr": {
+    "fdcId": 171284,
+    "descripcion": "Yogurt, plain, whole milk",
+    "n": {
+     "kcal": 61,
+     "prot": 3.47,
+     "fat": 3.25,
+     "carb": 4.66,
+     "fib": 0,
+     "sug": 4.66,
+     "na": 46
+    },
+    "porciones": [
+     [
+      1,
+      "container (6 oz)",
+      170
+     ],
+     [
+      1,
+      "container (8 oz)",
+      227
+     ],
+     [
+      0.5,
+      "container (4 oz)",
+      113
+     ],
+     [
+      1,
+      "cup (8 fl oz)",
+      245
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Yogur descremado",
+   "sinonimos": [
+    "yogur natural descremado"
+   ],
+   "foundationNdb": 100295,
+   "sr": {
+    "fdcId": 170887,
+    "descripcion": "Yogurt, plain, skim milk",
+    "n": {
+     "kcal": 56,
+     "prot": 5.73,
+     "fat": 0.18,
+     "carb": 7.68,
+     "fib": 0,
+     "sug": 7.68,
+     "na": 77
+    },
+    "porciones": [
+     [
+      1,
+      "container (6 oz)",
+      170
+     ],
+     [
+      1,
+      "container (8 oz)",
+      227
+     ],
+     [
+      1,
+      "cup (8 fl oz)",
+      245
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Yogur griego",
+   "sinonimos": [],
+   "foundationNdb": 1293,
+   "sr": {
+    "fdcId": 171304,
+    "descripcion": "Yogurt, Greek, plain, whole milk",
+    "n": {
+     "kcal": 97,
+     "prot": 9,
+     "fat": 5,
+     "carb": 3.98,
+     "fib": 0,
+     "sug": 4,
+     "na": 35
+    },
+    "porciones": []
+   }
+  },
+  {
+   "nombre": "Queso cremoso",
+   "sinonimos": [],
+   "foundationNdb": null,
+   "nota": "Equivalente aproximado: USDA no tiene queso cremoso; se usa mozzarella entera.",
+   "sr": {
+    "fdcId": 170845,
+    "descripcion": "Cheese, mozzarella, whole milk",
+    "n": {
+     "kcal": 299,
+     "prot": 22.17,
+     "fat": 22.14,
+     "carb": 2.4,
+     "fib": 0,
+     "sug": 0,
+     "na": 486
+    },
+    "porciones": [
+     [
+      1,
+      "cup, shredded",
+      112
+     ],
+     [
+      1,
+      "oz",
+      28.4
+     ],
+     [
+      6,
+      "slices",
+      170
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Queso fresco",
+   "sinonimos": [],
+   "foundationNdb": 100300,
+   "sr": {
+    "fdcId": 172223,
+    "descripcion": "Cheese, fresh, queso fresco",
+    "n": {
+     "kcal": 299,
+     "prot": 18.09,
+     "fat": 23.82,
+     "carb": 2.98,
+     "fib": 0,
+     "sug": 2.32,
+     "na": 751
+    },
+    "porciones": [
+     [
+      1,
+      "cup, crumbled",
+      122
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Queso Port Salut",
+   "sinonimos": [
+    "port salut"
+   ],
+   "foundationNdb": null,
+   "sr": {
+    "fdcId": 170849,
+    "descripcion": "Cheese, port de salut",
+    "n": {
+     "kcal": 352,
+     "prot": 23.78,
+     "fat": 28.2,
+     "carb": 0.57,
+     "fib": 0,
+     "sug": 0.57,
+     "na": 534
+    },
+    "porciones": [
+     [
+      1,
+      "cup, diced",
+      132
+     ],
+     [
+      1,
+      "cup, shredded",
+      113
+     ],
+     [
+      1,
+      "oz",
+      28.4
+     ],
+     [
+      1,
+      "cubic inch",
+      17
+     ],
+     [
+      1,
+      "slice (1 oz)",
+      28
+     ],
+     [
+      1,
+      "package (6 oz)",
+      170
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Queso untable",
+   "sinonimos": [
+    "queso crema"
+   ],
+   "foundationNdb": 1017,
+   "sr": {
+    "fdcId": 173418,
+    "descripcion": "Cheese, cream",
+    "n": {
+     "kcal": 350,
+     "prot": 6.15,
+     "fat": 34.44,
+     "carb": 5.52,
+     "fib": 0,
+     "sug": 3.76,
+     "na": 314
+    },
+    "porciones": [
+     [
+      1,
+      "tbsp",
+      14.5
+     ],
+     [
+      1,
+      "cup",
+      232
+     ],
+     [
+      1,
+      "tbsp, whipped",
+      10
+     ],
+     [
+      1,
+      "oz",
+      28.4
+     ],
+     [
+      1,
+      "cubic inch",
+      16
+     ],
+     [
+      1,
+      "package, small (3 oz)",
+      85
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Queso untable descremado",
+   "sinonimos": [],
+   "foundationNdb": null,
+   "sr": {
+    "fdcId": 169079,
+    "descripcion": "Cheese, cream, low fat",
+    "n": {
+     "kcal": 208,
+     "prot": 7.85,
+     "fat": 16.67,
+     "carb": 6.73,
+     "fib": 0,
+     "sug": 3.3,
+     "na": 317
+    },
+    "porciones": [
+     [
+      1,
+      "tbsp",
+      15
+     ],
+     [
+      1,
+      "cup",
+      240
+     ],
+     [
+      1,
+      "tbsp, whipped",
+      10
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Queso rallado",
+   "sinonimos": [
+    "queso parmesano",
+    "parmesano"
+   ],
+   "foundationNdb": 1032,
+   "sr": {
+    "fdcId": 171247,
+    "descripcion": "Cheese, parmesan, grated",
+    "n": {
+     "kcal": 420,
+     "prot": 28.42,
+     "fat": 27.84,
+     "carb": 13.91,
+     "fib": 0,
+     "sug": 0.07,
+     "na": 1804
+    },
+    "porciones": [
+     [
+      1,
+      "cup",
+      100
+     ],
+     [
+      1,
+      "tbsp",
+      5
+     ],
+     [
+      1,
+      "oz",
+      28.4
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Mozzarella",
+   "sinonimos": [
+    "muzzarella",
+    "queso mozzarella"
+   ],
+   "foundationNdb": 1029,
+   "sr": {
+    "fdcId": 171244,
+    "descripcion": "Cheese, mozzarella, low moisture, part-skim",
+    "n": {
+     "kcal": 295,
+     "prot": 23.75,
+     "fat": 19.78,
+     "carb": 5.58,
+     "fib": 0,
+     "sug": 1.9,
+     "na": 666
+    },
+    "porciones": [
+     [
+      1,
+      "cup, diced",
+      132
+     ],
+     [
+      1,
+      "cup, shredded",
+      113
+     ],
+     [
+      1,
+      "oz",
+      28.4
+     ],
+     [
+      1,
+      "cubic inch",
+      18
+     ],
+     [
+      1,
+      "slice (1 oz)",
+      28
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Ricota",
+   "sinonimos": [
+    "ricotta"
+   ],
+   "foundationNdb": 1036,
+   "sr": {
+    "fdcId": 170851,
+    "descripcion": "Cheese, ricotta, whole milk",
+    "n": {
+     "kcal": 150,
+     "prot": 7.54,
+     "fat": 10.18,
+     "carb": 7.27,
+     "fib": 0,
+     "sug": 0.27,
+     "na": 110
+    },
+    "porciones": [
+     [
+      0.5,
+      "cup",
+      124
+     ],
+     [
+      1,
+      "cup",
+      246
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Carne vacuna",
+   "sinonimos": [
+    "carne",
+    "carne magra",
+    "nalga",
+    "cuadril",
+    "bola de lomo",
+    "roast beef",
+    "carne vacuna (nalga, cuadril, bola de lomo, lomo, roast beef)"
+   ],
+   "foundationNdb": 100307,
+   "nota": "Valores de nalga (corte magro).",
+   "sr": {
+    "fdcId": 171820,
+    "descripcion": "Beef, round, top round, steak, separable lean only, trimmed to 1/8\" fat, choice, raw",
+    "n": {
+     "kcal": 140,
+     "prot": 22.69,
+     "fat": 4.78,
+     "carb": 0,
+     "fib": 0,
+     "sug": 0,
+     "na": 57
+    },
+    "porciones": [
+     [
+      4,
+      "oz",
+      113
+     ],
+     [
+      1,
+      "lb",
+      453.6
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Lomo",
+   "sinonimos": [
+    "lomo vacuno"
+   ],
+   "foundationNdb": 100378,
+   "sr": null
+  },
+  {
+   "nombre": "Carne picada",
+   "sinonimos": [
+    "carne picada común"
+   ],
+   "foundationNdb": 23572,
+   "sr": {
+    "fdcId": 174036,
+    "descripcion": "Beef, ground, 80% lean meat / 20% fat, raw",
+    "n": {
+     "kcal": 254,
+     "prot": 17.17,
+     "fat": 20,
+     "carb": 0,
+     "fib": 0,
+     "sug": 0,
+     "na": 66
+    },
+    "porciones": [
+     [
+      4,
+      "oz",
+      113
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Carne picada especial",
+   "sinonimos": [],
+   "foundationNdb": 23562,
+   "sr": {
+    "fdcId": 174030,
+    "descripcion": "Beef, ground, 90% lean meat / 10% fat, raw",
+    "n": {
+     "kcal": 176,
+     "prot": 20,
+     "fat": 10,
+     "carb": 0,
+     "fib": 0,
+     "sug": 0,
+     "na": 66
+    },
+    "porciones": [
+     [
+      4,
+      "oz",
+      113
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Vacío",
+   "sinonimos": [
+    "vacio"
+   ],
+   "foundationNdb": 100309,
+   "sr": {
+    "fdcId": 169433,
+    "descripcion": "Beef, flank, steak, separable lean and fat, trimmed to 0\" fat, choice, raw",
+    "n": {
+     "kcal": 165,
+     "prot": 21.22,
+     "fat": 8.29,
+     "carb": 0,
+     "fib": 0,
+     "sug": 0,
+     "na": 54
+    },
+    "porciones": [
+     [
+      1,
+      "oz",
+      28.4
+     ],
+     [
+      4,
+      "oz",
+      113
+     ],
+     [
+      1,
+      "steak",
+      202
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Asado",
+   "sinonimos": [
+    "asado de tira",
+    "costilla"
+   ],
+   "foundationNdb": null,
+   "sr": {
+    "fdcId": 169439,
+    "descripcion": "Beef, rib, shortribs, separable lean and fat, choice, raw",
+    "n": {
+     "kcal": 390,
+     "prot": 14.4,
+     "fat": 36.23,
+     "carb": 0.4,
+     "fib": 0,
+     "na": 49
+    },
+    "porciones": [
+     [
+      4,
+      "oz",
+      113
+     ],
+     [
+      1,
+      "lb",
+      453.6
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Bondiola",
+   "sinonimos": [
+    "bondiola de cerdo"
+   ],
+   "foundationNdb": null,
+   "sr": {
+    "fdcId": 167849,
+    "descripcion": "Pork, fresh, shoulder, (Boston butt), blade (steaks), separable lean and fat, raw",
+    "n": {
+     "kcal": 186,
+     "prot": 17.42,
+     "fat": 12.36,
+     "carb": 0,
+     "fib": 0,
+     "sug": 0,
+     "na": 61
+    },
+    "porciones": [
+     [
+      4,
+      "oz",
+      113
+     ],
+     [
+      1,
+      "steak without refuse (Yield from 1 raw steak, with refuse, weighing 380g)",
+      288
+     ],
+     [
+      1,
+      "lb",
+      453.6
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Pechito de cerdo",
+   "sinonimos": [
+    "costillitas de cerdo"
+   ],
+   "foundationNdb": null,
+   "sr": {
+    "fdcId": 167853,
+    "descripcion": "Pork, fresh, spareribs, separable lean and fat, raw",
+    "n": {
+     "kcal": 277,
+     "prot": 15.47,
+     "fat": 23.4,
+     "carb": 0,
+     "fib": 0,
+     "sug": 0,
+     "na": 81
+    },
+    "porciones": [
+     [
+      4,
+      "oz",
+      113
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Carré de cerdo",
+   "sinonimos": [
+    "carne de cerdo",
+    "cerdo",
+    "carne de cerdo (carré)",
+    "lomo de cerdo"
+   ],
+   "foundationNdb": 100302,
+   "sr": {
+    "fdcId": 168230,
+    "descripcion": "Pork, fresh, loin, whole, separable lean only, raw",
+    "n": {
+     "kcal": 143,
+     "prot": 21.43,
+     "fat": 5.66,
+     "carb": 0,
+     "fib": 0,
+     "sug": 0,
+     "na": 52
+    },
+    "porciones": [
+     [
+      4,
+      "oz",
+      113
+     ],
+     [
+      1,
+      "chop, excluding refuse (yield from 1 raw chop, with refuse, weighing 151 g)",
+      106
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Jamón cocido",
+   "sinonimos": [
+    "jamón",
+    "jamon cocido"
+   ],
+   "foundationNdb": null,
+   "sr": {
+    "fdcId": 173864,
+    "descripcion": "Ham, sliced, regular (approximately 11% fat)",
+    "n": {
+     "kcal": 164,
+     "prot": 16.6,
+     "fat": 8.8,
+     "carb": 3.63,
+     "fib": 1.3,
+     "sug": 1,
+     "na": 814
+    },
+    "porciones": [
+     [
+      56,
+      "grams 1 serving",
+      56
+     ],
+     [
+      1,
+      "slice",
+      28
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Tofu",
+   "sinonimos": [],
+   "foundationNdb": null,
+   "sr": {
+    "fdcId": 172475,
+    "descripcion": "Tofu, raw, firm, prepared with calcium sulfate",
+    "n": {
+     "kcal": 144,
+     "prot": 17.27,
+     "fat": 8.72,
+     "carb": 2.78,
+     "fib": 2.3,
+     "na": 14
+    },
+    "porciones": [
+     [
+      0.5,
+      "cup",
+      126
+     ],
+     [
+      0.25,
+      "block",
+      81
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Hummus",
+   "sinonimos": [],
+   "foundationNdb": 16158,
+   "sr": {
+    "fdcId": 174289,
+    "descripcion": "Hummus, commercial",
+    "n": {
+     "kcal": 237,
+     "prot": 7.78,
+     "fat": 17.82,
+     "carb": 15,
+     "fib": 5.5,
+     "sug": 0.62,
+     "na": 426
+    },
+    "porciones": [
+     [
+      1,
+      "tbsp",
+      15
+     ],
+     [
+      1,
+      "cup",
+      246
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Aceite de oliva",
+   "sinonimos": [],
+   "foundationNdb": 4063,
+   "sr": {
+    "fdcId": 171413,
+    "descripcion": "Oil, olive, salad or cooking",
+    "n": {
+     "kcal": 884,
+     "prot": 0,
+     "fat": 100,
+     "carb": 0,
+     "fib": 0,
+     "sug": 0,
+     "na": 2
+    },
+    "porciones": [
+     [
+      1,
+      "tablespoon",
+      13.5
+     ],
+     [
+      1,
+      "cup",
+      216
+     ],
+     [
+      1,
+      "tsp",
+      4.5
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Aceite de girasol",
+   "sinonimos": [
+    "aceite"
+   ],
+   "foundationNdb": 100262,
+   "sr": {
+    "fdcId": 171025,
+    "descripcion": "Oil, sunflower, linoleic, (approx. 65%)",
+    "n": {
+     "kcal": 884,
+     "prot": 0,
+     "fat": 100,
+     "carb": 0,
+     "fib": 0,
+     "sug": 0,
+     "na": 0
+    },
+    "porciones": [
+     [
+      1,
+      "tbsp",
+      13.6
+     ],
+     [
+      1,
+      "cup",
+      218
+     ],
+     [
+      1,
+      "tsp",
+      4.5
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Manteca",
+   "sinonimos": [],
+   "foundationNdb": 1145,
+   "sr": {
+    "fdcId": 173430,
+    "descripcion": "Butter, without salt",
+    "n": {
+     "kcal": 717,
+     "prot": 0.85,
+     "fat": 81.11,
+     "carb": 0.06,
+     "fib": 0,
+     "sug": 0.06,
+     "na": 11
+    },
+    "porciones": [
+     [
+      1,
+      "pat (1\" sq, 1/3\" high)",
+      5
+     ],
+     [
+      1,
+      "tbsp",
+      14.2
+     ],
+     [
+      1,
+      "cup",
+      227
+     ],
+     [
+      1,
+      "stick",
+      113
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Crema de leche",
+   "sinonimos": [
+    "crema"
+   ],
+   "foundationNdb": 1053,
+   "sr": {
+    "fdcId": 170859,
+    "descripcion": "Cream, fluid, heavy whipping",
+    "n": {
+     "kcal": 340,
+     "prot": 2.84,
+     "fat": 36.08,
+     "carb": 2.84,
+     "fib": 0,
+     "sug": 2.92,
+     "na": 27
+    },
+    "porciones": [
+     [
+      1,
+      "cup, whipped",
+      120
+     ],
+     [
+      1,
+      "cup, fluid (yields 2 cups whipped)",
+      238
+     ],
+     [
+      1,
+      "tbsp",
+      15
+     ],
+     [
+      1,
+      "fl oz",
+      29.8
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Palta",
+   "sinonimos": [
+    "aguacate"
+   ],
+   "foundationNdb": 100348,
+   "sr": {
+    "fdcId": 171706,
+    "descripcion": "Avocados, raw, California",
+    "n": {
+     "kcal": 167,
+     "prot": 1.96,
+     "fat": 15.41,
+     "carb": 8.64,
+     "fib": 6.8,
+     "sug": 0.3,
+     "na": 8
+    },
+    "porciones": [
+     [
+      1,
+      "cup, pureed",
+      230
+     ],
+     [
+      1,
+      "fruit, without skin and seed",
+      136
+     ],
+     [
+      1,
+      "NLEA serving",
+      50
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Almendras",
+   "sinonimos": [
+    "almendra"
+   ],
+   "foundationNdb": 12061,
+   "sr": {
+    "fdcId": 170567,
+    "descripcion": "Nuts, almonds",
+    "n": {
+     "kcal": 579,
+     "prot": 21.15,
+     "fat": 49.93,
+     "carb": 21.55,
+     "fib": 12.5,
+     "sug": 4.35,
+     "na": 1
+    },
+    "porciones": [
+     [
+      1,
+      "cup, whole",
+      143
+     ],
+     [
+      1,
+      "cup, sliced",
+      92
+     ],
+     [
+      1,
+      "cup, slivered",
+      108
+     ],
+     [
+      1,
+      "cup, ground",
+      95
+     ],
+     [
+      1,
+      "oz (23 whole kernels)",
+      28.4
+     ],
+     [
+      1,
+      "almond",
+      1.2
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Nueces",
+   "sinonimos": [
+    "nuez"
+   ],
+   "foundationNdb": 12155,
+   "sr": {
+    "fdcId": 170187,
+    "descripcion": "Nuts, walnuts, english",
+    "n": {
+     "kcal": 654,
+     "prot": 15.23,
+     "fat": 65.21,
+     "carb": 13.71,
+     "fib": 6.7,
+     "sug": 2.61,
+     "na": 2
+    },
+    "porciones": [
+     [
+      1,
+      "cup, chopped",
+      117
+     ],
+     [
+      1,
+      "cup, ground",
+      80
+     ],
+     [
+      1,
+      "cup, in shell, edible yield (7 nuts)",
+      28
+     ],
+     [
+      1,
+      "cup shelled (50 halves)",
+      100
+     ],
+     [
+      1,
+      "cup pieces or chips",
+      120
+     ],
+     [
+      1,
+      "oz (14 halves)",
+      28.4
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Castañas de cajú",
+   "sinonimos": [
+    "cajú",
+    "caju",
+    "castañas de caju"
+   ],
+   "foundationNdb": 12087,
+   "sr": {
+    "fdcId": 170162,
+    "descripcion": "Nuts, cashew nuts, raw",
+    "n": {
+     "kcal": 553,
+     "prot": 18.22,
+     "fat": 43.85,
+     "carb": 30.19,
+     "fib": 3.3,
+     "sug": 5.91,
+     "na": 12
+    },
+    "porciones": [
+     [
+      1,
+      "oz",
+      28.4
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Avellanas",
+   "sinonimos": [],
+   "foundationNdb": 12120,
+   "sr": {
+    "fdcId": 170581,
+    "descripcion": "Nuts, hazelnuts or filberts",
+    "n": {
+     "kcal": 628,
+     "prot": 14.95,
+     "fat": 60.75,
+     "carb": 16.7,
+     "fib": 9.7,
+     "sug": 4.34,
+     "na": 0
+    },
+    "porciones": [
+     [
+      1,
+      "cup, chopped",
+      115
+     ],
+     [
+      1,
+      "cup, ground",
+      75
+     ],
+     [
+      1,
+      "cup, whole",
+      135
+     ],
+     [
+      1,
+      "oz (21 whole kernels)",
+      28.4
+     ],
+     [
+      10,
+      "nuts",
+      14
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Semillas de chía",
+   "sinonimos": [
+    "chía",
+    "chia"
+   ],
+   "foundationNdb": 12006,
+   "sr": {
+    "fdcId": 170554,
+    "descripcion": "Seeds, chia seeds, dried",
+    "n": {
+     "kcal": 486,
+     "prot": 16.54,
+     "fat": 30.74,
+     "carb": 42.12,
+     "fib": 34.4,
+     "na": 16
+    },
+    "porciones": [
+     [
+      1,
+      "oz",
+      28.4
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Semillas de sésamo",
+   "sinonimos": [
+    "sésamo",
+    "sesamo"
+   ],
+   "foundationNdb": null,
+   "sr": {
+    "fdcId": 170150,
+    "descripcion": "Seeds, sesame seeds, whole, dried",
+    "n": {
+     "kcal": 573,
+     "prot": 17.73,
+     "fat": 49.67,
+     "carb": 23.45,
+     "fib": 11.8,
+     "sug": 0.3,
+     "na": 11
+    },
+    "porciones": [
+     [
+      1,
+      "cup",
+      144
+     ],
+     [
+      1,
+      "tbsp",
+      9
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Semillas de lino",
+   "sinonimos": [
+    "lino",
+    "linaza"
+   ],
+   "foundationNdb": 12220,
+   "sr": {
+    "fdcId": 169414,
+    "descripcion": "Seeds, flaxseed",
+    "n": {
+     "kcal": 534,
+     "prot": 18.29,
+     "fat": 42.16,
+     "carb": 28.88,
+     "fib": 27.3,
+     "sug": 1.55,
+     "na": 30
+    },
+    "porciones": [
+     [
+      1,
+      "tbsp, whole",
+      10.3
+     ],
+     [
+      1,
+      "cup, whole",
+      168
+     ],
+     [
+      1,
+      "tbsp, ground",
+      7
+     ],
+     [
+      1,
+      "tsp, whole",
+      3.4
+     ],
+     [
+      1,
+      "tsp, ground",
+      2.5
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Semillas de girasol",
+   "sinonimos": [
+    "semillas de girasol peladas"
+   ],
+   "foundationNdb": 12036,
+   "sr": {
+    "fdcId": 170562,
+    "descripcion": "Seeds, sunflower seed kernels, dried",
+    "n": {
+     "kcal": 584,
+     "prot": 20.78,
+     "fat": 51.46,
+     "carb": 20,
+     "fib": 8.6,
+     "sug": 2.62,
+     "na": 9
+    },
+    "porciones": [
+     [
+      1,
+      "cup, with hulls, edible yield",
+      46
+     ],
+     [
+      1,
+      "cup",
+      140
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Semillas de zapallo",
+   "sinonimos": [
+    "pepitas de zapallo"
+   ],
+   "foundationNdb": 12014,
+   "sr": {
+    "fdcId": 170556,
+    "descripcion": "Seeds, pumpkin and squash seed kernels, dried",
+    "n": {
+     "kcal": 559,
+     "prot": 30.23,
+     "fat": 49.05,
+     "carb": 10.71,
+     "fib": 6,
+     "sug": 1.4,
+     "na": 7
+    },
+    "porciones": [
+     [
+      1,
+      "cup",
+      129
+     ],
+     [
+      1,
+      "oz",
+      28.4
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Aceitunas verdes",
+   "sinonimos": [
+    "aceitunas"
+   ],
+   "foundationNdb": null,
+   "sr": {
+    "fdcId": 169096,
+    "descripcion": "Olives, pickled, canned or bottled, green",
+    "n": {
+     "kcal": 145,
+     "prot": 1.03,
+     "fat": 15.32,
+     "carb": 3.84,
+     "fib": 3.3,
+     "sug": 0.54,
+     "na": 1556
+    },
+    "porciones": [
+     [
+      1,
+      "olive",
+      2.7
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Aceitunas negras",
+   "sinonimos": [],
+   "foundationNdb": null,
+   "sr": {
+    "fdcId": 169094,
+    "descripcion": "Olives, ripe, canned (small-extra large)",
+    "n": {
+     "kcal": 116,
+     "prot": 0.84,
+     "fat": 10.9,
+     "carb": 6.04,
+     "fib": 1.6,
+     "sug": 0,
+     "na": 735
+    },
+    "porciones": [
+     [
+      1,
+      "tbsp",
+      8.4
+     ],
+     [
+      1,
+      "large",
+      4.4
+     ],
+     [
+      1,
+      "small",
+      3.2
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Mantequilla de maní",
+   "sinonimos": [
+    "pasta de maní"
+   ],
+   "foundationNdb": 16098,
+   "sr": {
+    "fdcId": 174266,
+    "descripcion": "Peanut butter, smooth style, with salt (Includes foods for USDA's Food Distribution Program)",
+    "n": {
+     "kcal": 598,
+     "prot": 22.21,
+     "fat": 51.36,
+     "carb": 22.31,
+     "fib": 5,
+     "sug": 10.49,
+     "na": 426
+    },
+    "porciones": [
+     [
+      2,
+      "tbsp",
+      32
+     ],
+     [
+      1,
+      "cup",
+      258
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Manzana",
+   "sinonimos": [],
+   "foundationNdb": null,
+   "sr": {
+    "fdcId": 171688,
+    "descripcion": "Apples, raw, with skin (Includes foods for USDA's Food Distribution Program)",
+    "n": {
+     "kcal": 52,
+     "prot": 0.26,
+     "fat": 0.17,
+     "carb": 13.81,
+     "fib": 2.4,
+     "sug": 10.39,
+     "na": 1
+    },
+    "porciones": [
+     [
+      1,
+      "cup, quartered or chopped",
+      125
+     ],
+     [
+      1,
+      "cup slices",
+      109
+     ],
+     [
+      1,
+      "large (3-1/4\" dia)",
+      223
+     ],
+     [
+      1,
+      "medium (3\" dia)",
+      182
+     ],
+     [
+      1,
+      "small (2-3/4\" dia)",
+      149
+     ],
+     [
+      1,
+      "extra small (2-1/2\" dia)",
+      101
+     ],
+     [
+      1,
+      "NLEA serving",
+      242
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Manzana verde",
+   "sinonimos": [],
+   "foundationNdb": 9502,
+   "sr": {
+    "fdcId": 168203,
+    "descripcion": "Apples, raw, granny smith, with skin (Includes foods for USDA's Food Distribution Program)",
+    "n": {
+     "kcal": 58,
+     "prot": 0.44,
+     "fat": 0.19,
+     "carb": 13.61,
+     "fib": 2.8,
+     "sug": 9.59,
+     "na": 1
+    },
+    "porciones": [
+     [
+      1,
+      "cup, sliced",
+      109
+     ],
+     [
+      1,
+      "large",
+      206
+     ],
+     [
+      1,
+      "medium",
+      167
+     ],
+     [
+      1,
+      "small",
+      144
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Banana",
+   "sinonimos": [],
+   "foundationNdb": 9040,
+   "sr": {
+    "fdcId": 173944,
+    "descripcion": "Bananas, raw",
+    "n": {
+     "kcal": 89,
+     "prot": 1.09,
+     "fat": 0.33,
+     "carb": 22.84,
+     "fib": 2.6,
+     "sug": 12.23,
+     "na": 1
+    },
+    "porciones": [
+     [
+      1,
+      "cup, mashed",
+      225
+     ],
+     [
+      1,
+      "cup, sliced",
+      150
+     ],
+     [
+      1,
+      "extra small (less than 6\" long)",
+      81
+     ],
+     [
+      1,
+      "small (6\" to 6-7/8\" long)",
+      101
+     ],
+     [
+      1,
+      "medium (7\" to 7-7/8\" long)",
+      118
+     ],
+     [
+      1,
+      "large (8\" to 8-7/8\" long)",
+      136
+     ],
+     [
+      1,
+      "extra large (9\" or longer)",
+      152
+     ],
+     [
+      1,
+      "NLEA serving",
+      126
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Naranja",
+   "sinonimos": [],
+   "foundationNdb": 9202,
+   "sr": {
+    "fdcId": 169917,
+    "descripcion": "Oranges, raw, navels (Includes foods for USDA's Food Distribution Program)",
+    "n": {
+     "kcal": 49,
+     "prot": 0.91,
+     "fat": 0.15,
+     "carb": 12.54,
+     "fib": 2.2,
+     "sug": 8.5,
+     "na": 1
+    },
+    "porciones": [
+     [
+      1,
+      "cup sections, without membranes",
+      165
+     ],
+     [
+      1,
+      "fruit (2-7/8\" dia)",
+      140
+     ],
+     [
+      1,
+      "NLEA serving",
+      154
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Mandarina",
+   "sinonimos": [],
+   "foundationNdb": 100358,
+   "sr": {
+    "fdcId": 169105,
+    "descripcion": "Tangerines, (mandarin oranges), raw",
+    "n": {
+     "kcal": 53,
+     "prot": 0.81,
+     "fat": 0.31,
+     "carb": 13.34,
+     "fib": 1.8,
+     "sug": 10.58,
+     "na": 2
+    },
+    "porciones": [
+     [
+      1,
+      "cup, sections",
+      195
+     ],
+     [
+      1,
+      "small (2-1/4\" dia)",
+      76
+     ],
+     [
+      1,
+      "medium (2-1/2\" dia)",
+      88
+     ],
+     [
+      1,
+      "large (2-3/4\" dia)",
+      120
+     ],
+     [
+      1,
+      "NLEA serving",
+      109
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Pera",
+   "sinonimos": [],
+   "foundationNdb": 9412,
+   "sr": {
+    "fdcId": 167776,
+    "descripcion": "Pears, raw, bartlett (Includes foods for USDA's Food Distribution Program)",
+    "n": {
+     "kcal": 63,
+     "prot": 0.39,
+     "fat": 0.16,
+     "carb": 15.01,
+     "fib": 3.1,
+     "sug": 9.69,
+     "na": 1
+    },
+    "porciones": [
+     [
+      1,
+      "cup, sliced",
+      140
+     ],
+     [
+      1,
+      "small",
+      152
+     ],
+     [
+      1,
+      "medium",
+      177
+     ],
+     [
+      1,
+      "large",
+      227
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Durazno",
+   "sinonimos": [],
+   "foundationNdb": 9236,
+   "sr": {
+    "fdcId": 169928,
+    "descripcion": "Peaches, yellow, raw",
+    "n": {
+     "kcal": 39,
+     "prot": 0.91,
+     "fat": 0.25,
+     "carb": 9.54,
+     "fib": 1.5,
+     "sug": 8.39,
+     "na": 0
+    },
+    "porciones": [
+     [
+      1,
+      "cup slices",
+      154
+     ],
+     [
+      1,
+      "small (2-1/2\" dia)",
+      130
+     ],
+     [
+      1,
+      "medium (2-2/3\" dia)",
+      150
+     ],
+     [
+      1,
+      "large (2-3/4\" dia)",
+      175
+     ],
+     [
+      1,
+      "extra large (3\" dia)",
+      224
+     ],
+     [
+      1,
+      "NLEA serving",
+      147
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Frutilla",
+   "sinonimos": [
+    "frutillas"
+   ],
+   "foundationNdb": 9316,
+   "sr": {
+    "fdcId": 167762,
+    "descripcion": "Strawberries, raw",
+    "n": {
+     "kcal": 32,
+     "prot": 0.67,
+     "fat": 0.3,
+     "carb": 7.68,
+     "fib": 2,
+     "sug": 4.89,
+     "na": 1
+    },
+    "porciones": [
+     [
+      1,
+      "cup, halves",
+      152
+     ],
+     [
+      1,
+      "cup, pureed",
+      232
+     ],
+     [
+      1,
+      "cup, sliced",
+      166
+     ],
+     [
+      1,
+      "cup, whole",
+      144
+     ],
+     [
+      1,
+      "extra large (1-5/8\" dia)",
+      27
+     ],
+     [
+      1,
+      "large (1-3/8\" dia)",
+      18
+     ],
+     [
+      1,
+      "medium (1-1/4\" dia)",
+      12
+     ],
+     [
+      1,
+      "pint as purchased, yields",
+      357
+     ],
+     [
+      1,
+      "small (1\" dia)",
+      7
+     ],
+     [
+      1,
+      "NLEA serving",
+      147
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Arándanos",
+   "sinonimos": [
+    "arándano",
+    "arandanos"
+   ],
+   "foundationNdb": 9050,
+   "sr": {
+    "fdcId": 171711,
+    "descripcion": "Blueberries, raw",
+    "n": {
+     "kcal": 57,
+     "prot": 0.74,
+     "fat": 0.33,
+     "carb": 14.49,
+     "fib": 2.4,
+     "sug": 9.96,
+     "na": 1
+    },
+    "porciones": [
+     [
+      1,
+      "cup",
+      148
+     ],
+     [
+      50,
+      "berries",
+      68
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Uva",
+   "sinonimos": [
+    "uvas"
+   ],
+   "foundationNdb": null,
+   "sr": {
+    "fdcId": 174683,
+    "descripcion": "Grapes, red or green (European type, such as Thompson seedless), raw",
+    "n": {
+     "kcal": 69,
+     "prot": 0.72,
+     "fat": 0.16,
+     "carb": 18.1,
+     "fib": 0.9,
+     "sug": 15.48,
+     "na": 2
+    },
+    "porciones": [
+     [
+      1,
+      "cup",
+      151
+     ],
+     [
+      10,
+      "grapes",
+      49
+     ],
+     [
+      1,
+      "NLEA serving",
+      126
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Kiwi",
+   "sinonimos": [],
+   "foundationNdb": 9148,
+   "sr": {
+    "fdcId": 168153,
+    "descripcion": "Kiwifruit, green, raw",
+    "n": {
+     "kcal": 61,
+     "prot": 1.14,
+     "fat": 0.52,
+     "carb": 14.66,
+     "fib": 3,
+     "sug": 8.99,
+     "na": 3
+    },
+    "porciones": [
+     [
+      1,
+      "cup, sliced",
+      180
+     ],
+     [
+      1,
+      "fruit (2\" dia)",
+      69
+     ],
+     [
+      1,
+      "NLEA serving",
+      148
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Ananá",
+   "sinonimos": [
+    "anana",
+    "piña"
+   ],
+   "foundationNdb": 9266,
+   "sr": {
+    "fdcId": 169124,
+    "descripcion": "Pineapple, raw, all varieties",
+    "n": {
+     "kcal": 50,
+     "prot": 0.54,
+     "fat": 0.12,
+     "carb": 13.12,
+     "fib": 1.4,
+     "sug": 9.85,
+     "na": 1
+    },
+    "porciones": [
+     [
+      1,
+      "cup, chunks",
+      165
+     ],
+     [
+      1,
+      "fruit",
+      905
+     ],
+     [
+      1,
+      "slice (4-2/3\" dia x 3/4\" thick)",
+      166
+     ],
+     [
+      1,
+      "slice (3-1/2\" dia x 3/4\" thick)",
+      84
+     ],
+     [
+      1,
+      "slice, thin (3-1/2\" dia x 1/2\" thick)",
+      56
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Melón",
+   "sinonimos": [
+    "melon"
+   ],
+   "foundationNdb": 9181,
+   "sr": {
+    "fdcId": 169092,
+    "descripcion": "Melons, cantaloupe, raw",
+    "n": {
+     "kcal": 34,
+     "prot": 0.84,
+     "fat": 0.19,
+     "carb": 8.16,
+     "fib": 0.9,
+     "sug": 7.86,
+     "na": 16
+    },
+    "porciones": [
+     [
+      1,
+      "cup, balls",
+      177
+     ],
+     [
+      1,
+      "cup, cubes",
+      160
+     ],
+     [
+      1,
+      "cup, diced",
+      156
+     ],
+     [
+      1,
+      "melon, large (about 6-1/2\" dia)",
+      814
+     ],
+     [
+      1,
+      "wedge, large (1/8 of large melon)",
+      102
+     ],
+     [
+      1,
+      "melon, medium (about 5\" dia)",
+      552
+     ],
+     [
+      1,
+      "wedge, medium (1/8 of medium melon)",
+      69
+     ],
+     [
+      1,
+      "melon, small (about 4-1/4\" dia)",
+      441
+     ],
+     [
+      1,
+      "wedge, small (1/8 of small melon)",
+      55
+     ],
+     [
+      10,
+      "cantaloupe balls",
+      138
+     ],
+     [
+      1,
+      "NLEA serving",
+      134
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Sandía",
+   "sinonimos": [
+    "sandia"
+   ],
+   "foundationNdb": 100383,
+   "sr": {
+    "fdcId": 167765,
+    "descripcion": "Watermelon, raw",
+    "n": {
+     "kcal": 30,
+     "prot": 0.61,
+     "fat": 0.15,
+     "carb": 7.55,
+     "fib": 0.4,
+     "sug": 6.2,
+     "na": 1
+    },
+    "porciones": [
+     [
+      1,
+      "cup, balls",
+      154
+     ],
+     [
+      1,
+      "cup, diced",
+      152
+     ],
+     [
+      1,
+      "melon (15\" long x 7-1/2\" dia)",
+      4518
+     ],
+     [
+      1,
+      "wedge (approx 1/16 of melon)",
+      286
+     ],
+     [
+      10,
+      "watermelon balls",
+      122
+     ],
+     [
+      1,
+      "NLEA serving",
+      280
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Limón",
+   "sinonimos": [
+    "limon"
+   ],
+   "foundationNdb": null,
+   "sr": {
+    "fdcId": 167746,
+    "descripcion": "Lemons, raw, without peel",
+    "n": {
+     "kcal": 29,
+     "prot": 1.1,
+     "fat": 0.3,
+     "carb": 9.32,
+     "fib": 2.8,
+     "sug": 2.5,
+     "na": 2
+    },
+    "porciones": [
+     [
+      1,
+      "cup, sections",
+      212
+     ],
+     [
+      1,
+      "fruit (2-1/8\" dia)",
+      58
+     ],
+     [
+      1,
+      "fruit (2-3/8\" dia)",
+      84
+     ],
+     [
+      1,
+      "wedge or slice (1/8 of one 2-1/8\" dia lemon)",
+      7
+     ],
+     [
+      1,
+      "NLEA serving",
+      58
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Jugo de limón",
+   "sinonimos": [],
+   "foundationNdb": null,
+   "sr": {
+    "fdcId": 167747,
+    "descripcion": "Lemon juice, raw",
+    "n": {
+     "kcal": 22,
+     "prot": 0.35,
+     "fat": 0.24,
+     "carb": 6.9,
+     "fib": 0.3,
+     "sug": 2.52,
+     "na": 1
+    },
+    "porciones": [
+     [
+      1,
+      "cup",
+      244
+     ],
+     [
+      1,
+      "fl oz",
+      30.5
+     ],
+     [
+      1,
+      "lemon yields",
+      48
+     ],
+     [
+      1,
+      "wedge yields",
+      5.9
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Ciruela",
+   "sinonimos": [],
+   "foundationNdb": 100363,
+   "sr": {
+    "fdcId": 169949,
+    "descripcion": "Plums, raw",
+    "n": {
+     "kcal": 46,
+     "prot": 0.7,
+     "fat": 0.28,
+     "carb": 11.42,
+     "fib": 1.4,
+     "sug": 9.92,
+     "na": 0
+    },
+    "porciones": [
+     [
+      1,
+      "cup, sliced",
+      165
+     ],
+     [
+      1,
+      "fruit (2-1/8\" dia)",
+      66
+     ],
+     [
+      1,
+      "NLEA serving",
+      151
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Mango",
+   "sinonimos": [],
+   "foundationNdb": 100359,
+   "sr": {
+    "fdcId": 169910,
+    "descripcion": "Mangos, raw",
+    "n": {
+     "kcal": 60,
+     "prot": 0.82,
+     "fat": 0.38,
+     "carb": 14.98,
+     "fib": 1.6,
+     "sug": 13.66,
+     "na": 1
+    },
+    "porciones": [
+     [
+      1,
+      "cup pieces",
+      165
+     ],
+     [
+      1,
+      "fruit without refuse",
+      336
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Pomelo",
+   "sinonimos": [],
+   "foundationNdb": null,
+   "sr": {
+    "fdcId": 174673,
+    "descripcion": "Grapefruit, raw, pink and red, all areas",
+    "n": {
+     "kcal": 42,
+     "prot": 0.77,
+     "fat": 0.14,
+     "carb": 10.66,
+     "fib": 1.6,
+     "sug": 6.89,
+     "na": 0
+    },
+    "porciones": [
+     [
+      1,
+      "cup sections, with juice",
+      230
+     ],
+     [
+      0.5,
+      "fruit (3-3/4\" dia)",
+      123
+     ],
+     [
+      1,
+      "NLEA serving",
+      154
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Damasco",
+   "sinonimos": [],
+   "foundationNdb": 9021,
+   "sr": {
+    "fdcId": 171697,
+    "descripcion": "Apricots, raw",
+    "n": {
+     "kcal": 48,
+     "prot": 1.4,
+     "fat": 0.39,
+     "carb": 11.12,
+     "fib": 2,
+     "sug": 9.24,
+     "na": 1
+    },
+    "porciones": [
+     [
+      1,
+      "cup, halves",
+      155
+     ],
+     [
+      1,
+      "cup, sliced",
+      165
+     ],
+     [
+      1,
+      "apricot",
+      35
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Cerezas",
+   "sinonimos": [
+    "cereza"
+   ],
+   "foundationNdb": 9070,
+   "sr": {
+    "fdcId": 171719,
+    "descripcion": "Cherries, sweet, raw",
+    "n": {
+     "kcal": 63,
+     "prot": 1.06,
+     "fat": 0.2,
+     "carb": 16.01,
+     "fib": 2.1,
+     "sug": 12.82,
+     "na": 0
+    },
+    "porciones": [
+     [
+      1,
+      "cup, with pits, yields",
+      138
+     ],
+     [
+      1,
+      "cup, without pits",
+      154
+     ],
+     [
+      1,
+      "cherry",
+      8.2
+     ],
+     [
+      1,
+      "NLEA serving",
+      140
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Frambuesas",
+   "sinonimos": [
+    "frambuesa"
+   ],
+   "foundationNdb": 9302,
+   "sr": {
+    "fdcId": 167755,
+    "descripcion": "Raspberries, raw",
+    "n": {
+     "kcal": 52,
+     "prot": 1.2,
+     "fat": 0.65,
+     "carb": 11.94,
+     "fib": 6.5,
+     "sug": 4.42,
+     "na": 1
+    },
+    "porciones": [
+     [
+      1,
+      "cup",
+      123
+     ],
+     [
+      1,
+      "pint as purchased, yields",
+      312
+     ],
+     [
+      10,
+      "raspberries",
+      19
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Moras",
+   "sinonimos": [
+    "mora"
+   ],
+   "foundationNdb": 9042,
+   "sr": {
+    "fdcId": 173946,
+    "descripcion": "Blackberries, raw",
+    "n": {
+     "kcal": 43,
+     "prot": 1.39,
+     "fat": 0.49,
+     "carb": 9.61,
+     "fib": 5.3,
+     "sug": 4.88,
+     "na": 1
+    },
+    "porciones": [
+     [
+      1,
+      "cup",
+      144
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Pasas de uva",
+   "sinonimos": [
+    "pasas"
+   ],
+   "foundationNdb": null,
+   "sr": {
+    "fdcId": 168165,
+    "descripcion": "Raisins, dark, seedless (Includes foods for USDA's Food Distribution Program)",
+    "n": {
+     "kcal": 299,
+     "prot": 3.3,
+     "fat": 0.25,
+     "carb": 79.32,
+     "fib": 4.5,
+     "sug": 65.18,
+     "na": 26
+    },
+    "porciones": [
+     [
+      1,
+      "cup, packed",
+      165
+     ],
+     [
+      1,
+      "cup (not packed)",
+      145
+     ],
+     [
+      1,
+      "miniature box (.5 oz)",
+      14
+     ],
+     [
+      1,
+      "small box (1.5 oz)",
+      43
+     ],
+     [
+      50,
+      "raisins",
+      26
+     ],
+     [
+      1,
+      "oz (60 raisins)",
+      28.4
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Coco rallado",
+   "sinonimos": [],
+   "foundationNdb": null,
+   "sr": {
+    "fdcId": 170170,
+    "descripcion": "Nuts, coconut meat, dried (desiccated), not sweetened",
+    "n": {
+     "kcal": 660,
+     "prot": 6.88,
+     "fat": 64.53,
+     "carb": 23.65,
+     "fib": 16.3,
+     "sug": 7.35,
+     "na": 37
+    },
+    "porciones": [
+     [
+      1,
+      "oz",
+      28.4
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Sal",
+   "sinonimos": [
+    "sal fina"
+   ],
+   "foundationNdb": 2047,
+   "sr": {
+    "fdcId": 173468,
+    "descripcion": "Salt, table",
+    "n": {
+     "kcal": 0,
+     "prot": 0,
+     "fat": 0,
+     "carb": 0,
+     "fib": 0,
+     "sug": 0,
+     "na": 38758
+    },
+    "porciones": [
+     [
+      1,
+      "tsp",
+      6
+     ],
+     [
+      1,
+      "tbsp",
+      18
+     ],
+     [
+      1,
+      "cup",
+      292
+     ],
+     [
+      1,
+      "dash",
+      0.4
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Azúcar",
+   "sinonimos": [
+    "azucar"
+   ],
+   "foundationNdb": 19335,
+   "sr": {
+    "fdcId": 169655,
+    "descripcion": "Sugars, granulated",
+    "n": {
+     "kcal": 387,
+     "prot": 0,
+     "fat": 0,
+     "carb": 99.98,
+     "fib": 0,
+     "sug": 99.8,
+     "na": 1
+    },
+    "porciones": [
+     [
+      1,
+      "serving packet",
+      2.8
+     ],
+     [
+      1,
+      "tsp",
+      4.2
+     ],
+     [
+      1,
+      "cup",
+      200
+     ],
+     [
+      1,
+      "serving 1 cube",
+      2.3
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Azúcar mascabo",
+   "sinonimos": [
+    "azúcar negra"
+   ],
+   "foundationNdb": null,
+   "sr": {
+    "fdcId": 168833,
+    "descripcion": "Sugars, brown",
+    "n": {
+     "kcal": 380,
+     "prot": 0.12,
+     "fat": 0,
+     "carb": 98.09,
+     "fib": 0,
+     "sug": 97.02,
+     "na": 28
+    },
+    "porciones": [
+     [
+      1,
+      "tsp unpacked",
+      3
+     ],
+     [
+      1,
+      "cup packed",
+      220
+     ],
+     [
+      1,
+      "cup unpacked",
+      145
+     ],
+     [
+      1,
+      "tsp packed",
+      4.6
+     ],
+     [
+      1,
+      "tsp brownulated",
+      3.2
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Miel",
+   "sinonimos": [],
+   "foundationNdb": null,
+   "sr": {
+    "fdcId": 169640,
+    "descripcion": "Honey",
+    "n": {
+     "kcal": 304,
+     "prot": 0.3,
+     "fat": 0,
+     "carb": 82.4,
+     "fib": 0.2,
+     "sug": 82.12,
+     "na": 4
+    },
+    "porciones": [
+     [
+      1,
+      "cup",
+      339
+     ],
+     [
+      1,
+      "tbsp",
+      21
+     ],
+     [
+      1,
+      "packet (0.5 oz)",
+      14
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Cacao amargo",
+   "sinonimos": [
+    "cacao en polvo"
+   ],
+   "foundationNdb": null,
+   "sr": {
+    "fdcId": 169593,
+    "descripcion": "Cocoa, dry powder, unsweetened",
+    "n": {
+     "kcal": 228,
+     "prot": 19.6,
+     "fat": 13.7,
+     "carb": 57.9,
+     "fib": 37,
+     "sug": 1.75,
+     "na": 21
+    },
+    "porciones": [
+     [
+      1,
+      "cup",
+      86
+     ],
+     [
+      1,
+      "tbsp",
+      5.4
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Chocolate amargo",
+   "sinonimos": [],
+   "foundationNdb": null,
+   "sr": {
+    "fdcId": 170273,
+    "descripcion": "Chocolate, dark, 70-85% cacao solids",
+    "n": {
+     "kcal": 598,
+     "prot": 7.79,
+     "fat": 42.63,
+     "carb": 45.9,
+     "fib": 10.9,
+     "sug": 23.99,
+     "na": 20
+    },
+    "porciones": [
+     [
+      1,
+      "oz",
+      28.4
+     ],
+     [
+      1,
+      "bar",
+      101
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Dulce de leche",
+   "sinonimos": [],
+   "foundationNdb": null,
+   "sr": {
+    "fdcId": 173461,
+    "descripcion": "Dulce de Leche",
+    "n": {
+     "kcal": 315,
+     "prot": 6.84,
+     "fat": 7.35,
+     "carb": 55.35,
+     "fib": 0,
+     "sug": 49.74,
+     "na": 129
+    },
+    "porciones": [
+     [
+      1,
+      "tbsp",
+      19
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Mermelada",
+   "sinonimos": [
+    "mermeladas"
+   ],
+   "foundationNdb": null,
+   "sr": {
+    "fdcId": 169641,
+    "descripcion": "Jams and preserves",
+    "n": {
+     "kcal": 278,
+     "prot": 0.37,
+     "fat": 0.07,
+     "carb": 68.86,
+     "fib": 1.1,
+     "sug": 48.5,
+     "na": 32
+    },
+    "porciones": [
+     [
+      1,
+      "tbsp",
+      20
+     ],
+     [
+      1,
+      "packet (0.5 oz)",
+      14
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Mayonesa",
+   "sinonimos": [],
+   "foundationNdb": null,
+   "sr": {
+    "fdcId": 171009,
+    "descripcion": "Salad dressing, mayonnaise, regular",
+    "n": {
+     "kcal": 680,
+     "prot": 0.96,
+     "fat": 74.85,
+     "carb": 0.57,
+     "fib": 0,
+     "sug": 0.57,
+     "na": 635
+    },
+    "porciones": [
+     [
+      1,
+      "tbsp",
+      13.8
+     ],
+     [
+      1,
+      "cup",
+      220
+     ],
+     [
+      1,
+      "packet",
+      10
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Mostaza",
+   "sinonimos": [],
+   "foundationNdb": 2046,
+   "sr": {
+    "fdcId": 172234,
+    "descripcion": "Mustard, prepared, yellow",
+    "n": {
+     "kcal": 60,
+     "prot": 3.74,
+     "fat": 3.34,
+     "carb": 5.83,
+     "fib": 4,
+     "sug": 0.92,
+     "na": 1104
+    },
+    "porciones": [
+     [
+      1,
+      "tsp or 1 packet",
+      5
+     ],
+     [
+      1,
+      "cup",
+      249
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Ketchup",
+   "sinonimos": [],
+   "foundationNdb": 11966,
+   "sr": {
+    "fdcId": 168556,
+    "descripcion": "Catsup",
+    "n": {
+     "kcal": 101,
+     "prot": 1.04,
+     "fat": 0.1,
+     "carb": 27.4,
+     "fib": 0.3,
+     "sug": 21.27,
+     "na": 907
+    },
+    "porciones": [
+     [
+      1,
+      "tbsp",
+      17
+     ],
+     [
+      1,
+      "packet",
+      9
+     ],
+     [
+      1,
+      "cup",
+      240
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Vinagre",
+   "sinonimos": [
+    "vinagre de alcohol"
+   ],
+   "foundationNdb": null,
+   "sr": {
+    "fdcId": 172237,
+    "descripcion": "Vinegar, distilled",
+    "n": {
+     "kcal": 18,
+     "prot": 0,
+     "fat": 0,
+     "carb": 0.04,
+     "fib": 0,
+     "sug": 0.04,
+     "na": 2
+    },
+    "porciones": [
+     [
+      1,
+      "tbsp",
+      14.9
+     ],
+     [
+      1,
+      "cup",
+      238
+     ],
+     [
+      1,
+      "tsp",
+      5
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Vinagre de manzana",
+   "sinonimos": [],
+   "foundationNdb": null,
+   "sr": {
+    "fdcId": 173469,
+    "descripcion": "Vinegar, cider",
+    "n": {
+     "kcal": 21,
+     "prot": 0,
+     "fat": 0,
+     "carb": 0.93,
+     "fib": 0,
+     "sug": 0.4,
+     "na": 5
+    },
+    "porciones": [
+     [
+      1,
+      "tbsp",
+      14.9
+     ],
+     [
+      1,
+      "cup",
+      239
+     ],
+     [
+      1,
+      "tsp",
+      5
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Salsa de soja",
+   "sinonimos": [
+    "salsa de soya"
+   ],
+   "foundationNdb": null,
+   "sr": {
+    "fdcId": 174277,
+    "descripcion": "Soy sauce made from soy and wheat (shoyu)",
+    "n": {
+     "kcal": 53,
+     "prot": 8.14,
+     "fat": 0.57,
+     "carb": 4.93,
+     "fib": 0.8,
+     "sug": 0.4,
+     "na": 5493
+    },
+    "porciones": [
+     [
+      1,
+      "tbsp",
+      16
+     ],
+     [
+      1,
+      "tsp",
+      5.3
+     ],
+     [
+      1,
+      "cup",
+      255
+     ],
+     [
+      1,
+      "individual packet",
+      8.9
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Puré de tomate",
+   "sinonimos": [
+    "pure de tomate",
+    "salsa de tomate"
+   ],
+   "foundationNdb": 100345,
+   "sr": {
+    "fdcId": 170460,
+    "descripcion": "Tomato products, canned, puree, without salt added",
+    "n": {
+     "kcal": 38,
+     "prot": 1.65,
+     "fat": 0.21,
+     "carb": 8.98,
+     "fib": 1.9,
+     "sug": 4.83,
+     "na": 28
+    },
+    "porciones": [
+     [
+      1,
+      "cup",
+      250
+     ],
+     [
+      1,
+      "can (29 oz) (401 x 411)",
+      822
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Tomate triturado",
+   "sinonimos": [],
+   "foundationNdb": 11693,
+   "sr": {
+    "fdcId": 170501,
+    "descripcion": "Tomatoes, crushed, canned",
+    "n": {
+     "kcal": 32,
+     "prot": 1.64,
+     "fat": 0.28,
+     "carb": 7.29,
+     "fib": 1.9,
+     "sug": 4.4,
+     "na": 186
+    },
+    "porciones": [
+     [
+      0.5,
+      "cup",
+      121
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Tomate en lata",
+   "sinonimos": [
+    "tomates perita en lata"
+   ],
+   "foundationNdb": 100341,
+   "sr": {
+    "fdcId": 170051,
+    "descripcion": "Tomatoes, red, ripe, canned, packed in tomato juice",
+    "n": {
+     "kcal": 16,
+     "prot": 0.79,
+     "fat": 0.25,
+     "carb": 3.47,
+     "fib": 1.9,
+     "sug": 2.55,
+     "na": 115
+    },
+    "porciones": [
+     [
+      1,
+      "cup",
+      240
+     ],
+     [
+      1,
+      "tbsp",
+      15
+     ],
+     [
+      1,
+      "can",
+      190
+     ],
+     [
+      1,
+      "large",
+      164
+     ],
+     [
+      1,
+      "medium",
+      111
+     ],
+     [
+      1,
+      "small",
+      82
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Extracto de tomate",
+   "sinonimos": [
+    "pasta de tomate"
+   ],
+   "foundationNdb": 11546,
+   "sr": {
+    "fdcId": 170459,
+    "descripcion": "Tomato products, canned, paste, without salt added (Includes foods for USDA's Food Distribution Program)",
+    "n": {
+     "kcal": 82,
+     "prot": 4.32,
+     "fat": 0.47,
+     "carb": 18.91,
+     "fib": 4.1,
+     "sug": 12.18,
+     "na": 59
+    },
+    "porciones": [
+     [
+      0.25,
+      "cup",
+      66
+     ],
+     [
+      1,
+      "cup",
+      262
+     ],
+     [
+      1,
+      "tbsp",
+      16
+     ],
+     [
+      1,
+      "can (6 oz)",
+      170
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Pimienta",
+   "sinonimos": [
+    "pimienta negra"
+   ],
+   "foundationNdb": null,
+   "sr": {
+    "fdcId": 170931,
+    "descripcion": "Spices, pepper, black",
+    "n": {
+     "kcal": 251,
+     "prot": 10.39,
+     "fat": 3.26,
+     "carb": 63.95,
+     "fib": 25.3,
+     "sug": 0.64,
+     "na": 20
+    },
+    "porciones": [
+     [
+      1,
+      "tsp, ground",
+      2.3
+     ],
+     [
+      1,
+      "tbsp, ground",
+      6.9
+     ],
+     [
+      1,
+      "tsp, whole",
+      2.9
+     ],
+     [
+      1,
+      "dash",
+      0.1
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Orégano",
+   "sinonimos": [
+    "oregano"
+   ],
+   "foundationNdb": null,
+   "sr": {
+    "fdcId": 171328,
+    "descripcion": "Spices, oregano, dried",
+    "n": {
+     "kcal": 265,
+     "prot": 9,
+     "fat": 4.28,
+     "carb": 68.92,
+     "fib": 42.5,
+     "sug": 4.09,
+     "na": 25
+    },
+    "porciones": [
+     [
+      1,
+      "tsp, leaves",
+      1
+     ],
+     [
+      1,
+      "tsp, ground",
+      1.8
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Pimentón",
+   "sinonimos": [
+    "pimenton"
+   ],
+   "foundationNdb": null,
+   "sr": {
+    "fdcId": 171329,
+    "descripcion": "Spices, paprika",
+    "n": {
+     "kcal": 282,
+     "prot": 14.14,
+     "fat": 12.89,
+     "carb": 53.99,
+     "fib": 34.9,
+     "sug": 10.34,
+     "na": 68
+    },
+    "porciones": [
+     [
+      1,
+      "tsp",
+      2.3
+     ],
+     [
+      1,
+      "tbsp",
+      6.8
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Comino",
+   "sinonimos": [],
+   "foundationNdb": null,
+   "sr": {
+    "fdcId": 170923,
+    "descripcion": "Spices, cumin seed",
+    "n": {
+     "kcal": 375,
+     "prot": 17.81,
+     "fat": 22.27,
+     "carb": 44.24,
+     "fib": 10.5,
+     "sug": 2.25,
+     "na": 168
+    },
+    "porciones": [
+     [
+      1,
+      "tsp, whole",
+      2.1
+     ],
+     [
+      1,
+      "tbsp, whole",
+      6
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Canela",
+   "sinonimos": [],
+   "foundationNdb": null,
+   "sr": {
+    "fdcId": 171320,
+    "descripcion": "Spices, cinnamon, ground",
+    "n": {
+     "kcal": 247,
+     "prot": 3.99,
+     "fat": 1.24,
+     "carb": 80.59,
+     "fib": 53.1,
+     "sug": 2.17,
+     "na": 10
+    },
+    "porciones": [
+     [
+      1,
+      "tsp",
+      2.6
+     ],
+     [
+      1,
+      "tbsp",
+      7.8
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Nuez moscada",
+   "sinonimos": [],
+   "foundationNdb": null,
+   "sr": {
+    "fdcId": 171326,
+    "descripcion": "Spices, nutmeg, ground",
+    "n": {
+     "kcal": 525,
+     "prot": 5.84,
+     "fat": 36.31,
+     "carb": 49.29,
+     "fib": 20.8,
+     "sug": 2.99,
+     "na": 16
+    },
+    "porciones": [
+     [
+      1,
+      "tsp",
+      2.2
+     ],
+     [
+      1,
+      "tbsp",
+      7
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Ajo en polvo",
+   "sinonimos": [],
+   "foundationNdb": null,
+   "sr": {
+    "fdcId": 171325,
+    "descripcion": "Spices, garlic powder",
+    "n": {
+     "kcal": 331,
+     "prot": 16.55,
+     "fat": 0.73,
+     "carb": 72.73,
+     "fib": 9,
+     "sug": 2.43,
+     "na": 60
+    },
+    "porciones": [
+     [
+      1,
+      "tsp",
+      3.1
+     ],
+     [
+      1,
+      "tbsp",
+      9.7
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Agua",
+   "sinonimos": [],
+   "foundationNdb": null,
+   "sr": {
+    "fdcId": 173647,
+    "descripcion": "Beverages, water, tap, drinking",
+    "n": {
+     "kcal": 0,
+     "prot": 0,
+     "fat": 0,
+     "carb": 0,
+     "fib": 0,
+     "sug": 0,
+     "na": 4
+    },
+    "porciones": [
+     [
+      1,
+      "fl oz",
+      29.6
+     ],
+     [
+      1,
+      "serving 8 fl oz",
+      237
+     ],
+     [
+      1,
+      "liter",
+      1000
+     ]
+    ]
+   }
+  },
+  {
+   "nombre": "Bebida de almendras",
+   "sinonimos": [
+    "leche de almendras"
+   ],
+   "foundationNdb": 100276,
+   "sr": null
+  },
+  {
+   "nombre": "Bebida de avena",
+   "sinonimos": [
+    "leche de avena"
+   ],
+   "foundationNdb": 100277,
+   "sr": null
+  },
+  {
+   "nombre": "Bebida de soja",
+   "sinonimos": [
+    "leche de soja"
+   ],
+   "foundationNdb": 16222,
+   "sr": null
+  }
+ ]
+}

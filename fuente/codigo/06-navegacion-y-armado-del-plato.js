@@ -1,0 +1,411 @@
+// Mi Plato Fácil · Arranque, navegación entre pantallas y armado del plato.
+// Parte 7 de 30: los archivos se unen en este orden (el número define el orden de arranque).
+function init(){
+  renderTrainingWeek();
+  renderTrainingExceptions();
+  renderChoice("fruit",data.fruit,"fruta","bf_prot");
+  renderChoice("bfprot",data.bfprot,"bfprot","bf_carb");
+  renderChoice("bfcarb",data.bfcarb,"bfcarb","bf_fat");
+  renderChoice("bffat",data.bffat,"grasa","resumen");
+  renderChoice("snacks",data.snacks,"snack","resumen");
+  renderMulti("boxv",data.verduras,"verduras");
+  renderMulti("boxa",data.almidones,"almidones");
+  renderProteins();
+  renderMulti("boxLegCarb",data.legumbres,"legCarb");
+  renderMulti("boxLegProt",data.legumbres,"legProt");
+  liList(el.preIdeaList,data.preIdeas);
+  liList(el.preComboList,data.preCombos);
+  renderMenuIdeas();
+  methodCards(el.cookingMethods,data.cookingMethods);
+  renderSnackIdeas();
+  liList(el.advicePreIdeas,data.preIdeas);
+  liList(el.advicePreCombos,data.preCombos);
+  pantrySel=loadPantry();
+  renderPantry()
+}
+function start(type){
+  lastRandomType=null;
+  state.type=type;
+  go({
+    desayuno:"bf_fruit",plato:"day",snack:"snack",pre:"pre"
+  }[type])
+}
+function go(id){
+  document.querySelectorAll(".screen").forEach(s=>{
+    s.classList.remove("is-active");s.setAttribute("aria-hidden","true")
+  });
+  const n=document.getElementById(id);
+  n.classList.add("is-active");
+  n.removeAttribute("aria-hidden");
+  if(stack.at(-1)!==id)stack.push(id);
+  nav();
+  if(id==="resumen")summary();
+  if(id==="misplatos")renderSaved();
+  if(id==="plan")renderPlan();
+  if(id==="compras")renderCompras();
+  if(id==="ingredientes")renderPantry();
+  window.scrollTo({
+    top:0,behavior:"smooth"
+  })
+}
+function nextFor(id){
+  return {
+    lunch_veg:"lunch_carb",lunch_carb:"lunch_prot",lunch_prot:"resumen"
+  }
+  [id]||""
+}
+function nav(){
+  const cur=stack.at(-1),home=cur==="home",sum=cur==="resumen",next=nextFor(cur),v=Math.min(100,(stack.length-1)*18);
+  const bottomVisible=!home&&!sum&&cur!=="misplatos"&&cur!=="azar"&&cur!=="plan"&&cur!=="compras"&&cur!=="ingredientes"&&cur!=="trainingCalendar";
+  el.bottom.classList.toggle("is-visible",bottomVisible);
+  el.homeTop.classList.toggle("is-visible",!home);
+  document.getElementById("themeToggle").classList.toggle("is-hidden",!home);
+  el.adviceFab.classList.toggle("is-visible",home||sum||bottomVisible);
+  el.adviceFab.classList.toggle("advice-fab--raised",bottomVisible);
+  el.nextBottom.classList.toggle("is-hidden",!next);
+  el.bottomInner.classList.toggle("has-next",!!next);
+  if(next)el.nextBottom.dataset.go=next;
+  else delete el.nextBottom.dataset.go;
+}
+let canVibrate=typeof navigator!=="undefined"&&typeof navigator.vibrate==="function";
+function haptic(){
+  if(!canVibrate)return;
+  try{
+    if(navigator.vibrate(20)===false)canVibrate=false
+  }catch(e){
+    canVibrate=false
+  }
+}
+function tapStart(b,e){
+  pStart={
+    x:e.clientX,y:e.clientY
+  };
+  pMoved=false
+}
+function tapMove(e){
+  if(!pStart)return;
+  if(Math.hypot(e.clientX-pStart.x,e.clientY-pStart.y)>10)pMoved=true
+}
+function pickAnim(b,k,n,q,next){
+  document.querySelectorAll(".choice").forEach(c=>c.classList.remove("is-selected"));
+  b.classList.add("is-selected");
+  setTimeout(()=>pick(k,n,q,next),60)
+}
+function pick(k,n,q,next){
+  state[k]={
+    name:n,quantity:q
+  };
+  if(editReturn){
+    editReturn=false;
+    go("resumen");
+    return
+  }
+  go(next)
+}
+function toggleMulti(b,k,n){
+  const arr=state[k];
+  const i=arr.findIndex(x=>x.name===n);
+  if(i>=0){
+    arr.splice(i,1);
+    b.classList.remove("is-selected");
+    b.setAttribute("aria-pressed","false")
+  }else{
+    arr.push({
+      name:n
+    });
+    b.classList.add("is-selected");
+    b.setAttribute("aria-pressed","true")
+  }
+}
+function basePortions(){
+  return state.day==="Día de entrenamiento"?{
+    vegetables:"1/3",carbs:"1/3",protein:"1/3"
+  }:{
+    vegetables:"1/2",carbs:"1/4",protein:"1/4"
+  }
+}
+function portions(){
+  return state.customPortions||basePortions()
+}
+function setDay(d){
+  state.day=d;
+  state.customPortions=null;
+  closePortionEditor();
+  updatePlate();
+  go("plate_static")
+}
+function toggleDay(){
+  state.day=state.day==="Día de entrenamiento"?"Día libre":"Día de entrenamiento";
+  state.customPortions=null;
+  closePortionEditor();
+  updatePlate();
+  go("plate_static")
+}
+function syncPortionEditor(){
+  const p=portions();
+  el.portionVeg.value=p.vegetables;
+  el.portionCarb.value=p.carbs;
+  el.portionProt.value=p.protein;
+  el.portionError.classList.remove("is-visible")
+}
+function closePortionEditor(){
+  el.portionEditor.classList.remove("is-visible");
+  el.portionError.classList.remove("is-visible")
+}
+function updatePlate(){
+  const p=portions();
+  el.plateTitle.textContent=state.day;
+  el.vegHint.textContent=`Cantidad general: ${p.vegetables} del plato. Podés elegir más de una opción.`;
+  el.carbHint.textContent=`Cantidad general: ${p.carbs} del plato. Podés elegir más de una opción. Podés seleccionar legumbres dentro del grupo de almidones. Cambiar de lista no borra lo que ya elegiste; revisá la combinación en el resumen.`;
+  el.protHint.textContent=`Cantidad general: ${p.protein} del plato. Podés elegir más de una opción. Podés seleccionar legumbres dentro del grupo de proteínas. Cambiar de lista no borra lo que ya elegiste; revisá la combinación en el resumen.`;
+  syncPortionEditor();
+  renderPlate()
+}
+function frac(v){
+  return v==="1/2"?1/2:v==="1/3"?1/3:v==="1/4"?1/4:0
+}
+function savePortions(){
+  const v=el.portionVeg.value,c=el.portionCarb.value,p=el.portionProt.value,total=frac(v)+frac(c)+frac(p);
+  if(Math.abs(total-1)>0.0001){
+    el.portionError.classList.add("is-visible");
+    return
+  }
+  state.customPortions={
+    vegetables:v,carbs:c,protein:p
+  };
+  closePortionEditor();
+  updatePlate();
+  if(portionEditReturn){
+    portionEditReturn=false;
+    go("resumen")
+  }
+}
+function slice(type,name,amount,half=false){
+  const s=ce("article",`plate__slice plate__slice--${type}${half?" plate__slice--half":""}`);
+  s.append(ce("span","plate__name",name),ce("span","plate__amount",amount),ce("span","plate__caption","del plato"));
+  return s
+}
+function renderPlate(){
+  const p=portions(),free=state.day==="Día libre"&&!state.customPortions,w=ce("div","plate");
+  w.append(slice("vegetables","Verduras",p.vegetables,free),slice("carbs","Almidones",p.carbs),slice("protein","Proteínas",p.protein));
+  el.plateViz.replaceChildren(w)
+}
+function setReplace(which,value){
+  if(which==="carb"){
+    state.replaceCarb=value;
+    toggle(el.carbNormal,!value);
+    toggle(el.carbLeg,value);
+    el.boxa.classList.toggle("is-hidden",value);
+    el.boxLegCarb.classList.toggle("is-hidden",!value)
+  }else{
+    state.replaceProt=value;
+    toggle(el.protNormal,!value);
+    toggle(el.protLeg,value);
+    el.boxp.classList.toggle("is-hidden",value);
+    el.boxLegProt.classList.toggle("is-hidden",!value)
+  }
+}
+function toggle(b,s){
+  b.classList.toggle("is-selected",s);
+  b.setAttribute("aria-pressed",String(s))
+}
+function fmt(o){
+  return o?`${o.name}${o.quantity?` <span class="quantity">${o.quantity}</span>`:""}`:"No elegido"
+}
+function fmtList(a){
+  return a&&a.length?`<span class="selection-list">${a.map(x=>`<span class="selection-chip">${x.name}</span>`).join("")}</span>`:"No elegido"
+}
+function edit(t){
+  editReturn=true;
+  go(t)
+}
+function editLine(label,value,target,icon){
+  return `<div class="summary__line"><div class="summary__edit-row"><div>${icon} <strong>${label}:</strong><br>${value}</div><button class="edit-button" type="button" data-edit="${target}">Cambiar</button></div></div>`
+}
+function merged(a,b){
+  return [...a,...b]
+}
+function groupLabel(base,leg,baseArr,legArr){
+  return baseArr.length&&legArr.length?`${base} + legumbres`:legArr.length&&!baseArr.length?leg:base
+}
+function summary(){
+  let h="";
+  if(state.type==="desayuno")h=`<div class="summary__line"><strong>Desayuno / Merienda</strong></div>${editLine("Fruta",fmt(state.fruta),"bf_fruit","🍓")}${editLine("Proteína",fmt(state.bfprot),"bf_prot","🥛")}${editLine("Cereal",fmt(state.bfcarb),"bf_carb","🌾")}${editLine("Grasa opcional",fmt(state.grasa),"bf_fat","🥑")}`;
+  else if(state.type==="plato"){
+    const p=portions(),other=state.day==="Día de entrenamiento"?"Día libre":"Día de entrenamiento",carbArr=merged(state.almidones,state.legCarb),protArr=merged(state.proteinas,state.legProt),carb=groupLabel("Almidones","Legumbres como almidón",state.almidones,state.legCarb),prot=groupLabel("Proteínas","Legumbres como proteína",state.proteinas,state.legProt);
+    const platoMissing=[],platoPresent=[];
+    if(state.verduras.length)platoPresent.push("verduras");
+    else platoMissing.push("verduras");
+    if(carbArr.length)platoPresent.push("almidones/legumbres");
+    else platoMissing.push("almidones/legumbres");
+    if(protArr.length)platoPresent.push("proteínas/legumbres");
+    else platoMissing.push("proteínas/legumbres");
+    const joinY=a=>a.length===1?a[0]:a.slice(0,-1).join(", ")+" y "+a[a.length-1];
+    const platoRedis=platoPresent.length?` Si querés mantener el plato completo, podés editar las proporciones para redistribuir ese espacio ${platoPresent.length===1?"en "+platoPresent[0]:"entre "+joinY(platoPresent)}.`:" Si querés, podés editar las proporciones antes de finalizar.";
+    const platoWarn=platoMissing.length?`<article class="notice">No seleccionaste ${joinY(platoMissing)}.${platoRedis}<div class="divider"></div><button class="button button--soft" type="button" data-edit-portions-summary>Editar proporciones</button></article>`:"";
+    h=`<div class="summary__line"><strong>Almuerzo / Cena · ${state.day}</strong></div>${editLine(`Verduras · ${p.vegetables} del plato`,fmtList(state.verduras),"lunch_veg","🥗")}${editLine(`${carb} · ${p.carbs} del plato`,fmtList(carbArr),"lunch_carb","🍚")}${editLine(`${prot} · ${p.protein} del plato`,fmtList(protArr),"lunch_prot","🔵")}${platoWarn}<div class="divider"></div><div class="summary-actions"><button class="button button--soft" type="button" data-toggle-day>Cambiar a ${other}</button><button class="button button--soft" type="button" data-edit-portions-summary>Editar proporciones</button></div>`
+  }else if(state.type==="snack")h=`<div class="summary__line"><strong>Snack</strong></div>${editLine("Opción",fmt(state.snack),"snack","🥜")}`;
+  else h=`<div class="summary__line"><strong>Pre-entreno</strong></div><div class="summary__line">${fmt(state.pre)}</div>`;
+  if(lastRandomType){
+    h+=`<div class="divider"></div><button class="button button--soft" type="button" data-regen-random>🎲 Generar otra sugerencia</button>`
+  }
+  el.summary.innerHTML=h;
+  nav()
+}
+function back(){
+  if(stack.length<=1)return;
+  stack.pop();
+  const prev=stack.pop();
+  editReturn=false;
+  portionEditReturn=false;
+  go(prev)
+}
+function resetAdviceTemporaryState(){
+  const input=document.getElementById("menuSearchInput"),results=document.getElementById("menuSearchResults"),list=document.getElementById("menuSearchList");
+  if(input)input.value="";
+  if(results)results.classList.remove("is-visible");
+  if(list)list.replaceChildren();
+  ["suggestMenu","suggestSnack","suggestPre"].forEach(id=>{
+    const box=document.getElementById(id);if(box)box.classList.remove("is-visible")
+  })
+}
+function restart(){
+  Object.assign(state,{
+    type:"",day:"",fruta:null,bfprot:null,bfcarb:null,grasa:null,pre:null,snack:null,verduras:[],almidones:[],proteinas:[],legCarb:[],legProt:[],replaceCarb:false,replaceProt:false,customPortions:null
+  });
+  editReturn=false;
+  portionEditReturn=false;
+  lastRandomType=null;
+  stack=["home"];
+  document.querySelectorAll(".choice.is-selected,.toggle-button.is-selected").forEach(e=>e.classList.remove("is-selected"));
+  document.querySelectorAll('.choice[aria-pressed="true"]').forEach(e=>e.setAttribute("aria-pressed","false"));
+  setReplace("carb",false);
+  setReplace("prot",false);
+  closePortionEditor();
+  el.preIdeas.classList.add("is-hidden");
+  el.adviceModal.classList.remove("is-visible");
+  resetAdviceTemporaryState();
+  renderContextAdvice();
+  document.querySelectorAll(".screen").forEach(s=>{
+    s.classList.remove("is-active");s.setAttribute("aria-hidden","true")
+  });
+  const home=document.getElementById("home");
+  home.classList.add("is-active");
+  home.removeAttribute("aria-hidden");
+  nav();
+  window.scrollTo({
+    top:0,behavior:"smooth"
+  })
+}
+function continueFromMulti(next){
+  if(editReturn){
+    editReturn=false;
+    go("resumen");
+    return
+  }
+  go(next)
+}
+function showAdviceTab(name){
+  document.querySelectorAll(".advice-tab").forEach(b=>{
+    const on=b.dataset.adviceTab===name;b.classList.toggle("is-selected",on);b.setAttribute("aria-selected",String(on))
+  });
+  document.querySelectorAll(".advice-section").forEach(s=>s.classList.remove("is-active"));
+  const panel=document.getElementById(`advice_${name}`);
+  if(panel)panel.classList.add("is-active")
+}
+function setMenuFilter(f,b){
+  currentMenuFilter=f;
+  document.querySelectorAll('[data-menu-filter]').forEach(x=>x.classList.toggle('is-selected',x===b));
+  renderMenuIdeas();
+  document.getElementById('suggestMenu').classList.remove('is-visible')
+}
+function setSnackFilter(f,b){
+  currentSnackFilter=f;
+  document.querySelectorAll('[data-snack-filter]').forEach(x=>x.classList.toggle('is-selected',x===b));
+  renderSnackIdeas();
+  document.getElementById('suggestSnack').classList.remove('is-visible')
+}
+function setSavedSort(f,b){
+  savedSort=f;
+  document.querySelectorAll('[data-sort]').forEach(x=>{
+    const on=x===b;x.classList.toggle('is-selected',on);x.setAttribute('aria-pressed',String(on))
+  });
+  renderSaved()
+}
+function pickIndex(kind,len){
+  if(len<2)return 0;
+  let i=Math.floor(Math.random()*len);
+  if(i===lastSuggestion[kind])i=(i+1)%len;
+  lastSuggestion[kind]=i;
+  return i
+}
+function showSuggestion(kind){
+  if(kind==="menu"){
+    const arr=filteredMenuRecords();
+    if(!arr.length)return;
+    const i=pickIndex("menu",arr.length);
+    document.getElementById("suggestMenuText").textContent=arr[i].text;
+    document.getElementById("suggestMenu").classList.add("is-visible")
+  }
+  if(kind==="snack"){
+    const arr=filteredSnacks();
+    if(!arr.length)return;
+    const i=pickIndex("snack",arr.length),s=arr[i];
+    document.getElementById("suggestSnackText").textContent=snackLabel(s);
+    document.getElementById("suggestSnack").classList.add("is-visible")
+  }
+  if(kind==="pre"){
+    const i=pickIndex("pre",data.preCombos.length);
+    document.getElementById("suggestPreText").textContent=data.preCombos[i];
+    document.getElementById("suggestPre").classList.add("is-visible")
+  }
+}
+function renderContextAdvice(){
+  const box=document.getElementById("contextAdvice"),titleEl=document.getElementById("contextTitle"),linesEl=document.getElementById("contextLines"),tipEl=document.getElementById("contextTip");
+  if(!box||!titleEl||!linesEl||!tipEl)return;
+  const lines=[];
+  let title="",tip="";
+  if(state.type==="desayuno"&&(state.fruta||state.bfprot||state.bfcarb||state.grasa)){
+    title="Tu desayuno / merienda";
+    if(state.fruta)lines.push(`Fruta: ${state.fruta.name}`);
+    if(state.bfprot)lines.push(`Proteína: ${state.bfprot.name}`);
+    if(state.bfcarb)lines.push(`Cereal: ${state.bfcarb.name}`);
+    if(state.grasa)lines.push(`Grasa opcional: ${state.grasa.name}`);
+    tip="Tip: si querés variar, podés cambiar el formato de fruta o cereal sin cambiar la estructura principal."
+  }else if(state.type==="plato"&&(state.day||state.verduras.length||state.almidones.length||state.legCarb.length||state.proteinas.length||state.legProt.length)){
+    const p=portions();
+    title="Tu plato";
+    if(state.day)lines.push(state.day);
+    lines.push(`Proporciones: verduras ${p.vegetables}, almidones ${p.carbs}, proteínas ${p.protein}.`);
+    if(state.customPortions)lines.push("Usás proporciones personalizadas validadas por la app.");
+    if(state.legCarb.length||state.legProt.length)lines.push("Incluiste legumbres; podés revisar el filtro Legumbres en Menú.");
+    if(state.almidones.length&&state.legCarb.length)lines.push("Combinaste almidones y legumbres dentro del grupo de almidones.");
+    if(state.proteinas.length&&state.legProt.length)lines.push("Combinaste proteínas y legumbres dentro del grupo de proteínas.");
+    tip="Tip: podés usar los filtros o el buscador por etiquetas para encontrar ideas según una palabra, por ejemplo pescado, pollo o garbanzos."
+  }
+  if(!title){
+    box.classList.remove("is-visible");
+    return
+  }
+  titleEl.textContent=title;
+  linesEl.replaceChildren(...lines.map(x=>ce("li",null,x)));
+  tipEl.textContent=tip;
+  box.classList.add("is-visible")
+}
+function renderMenuSearch(){
+  const input=document.getElementById("menuSearchInput"),box=document.getElementById("menuSearchResults"),list=document.getElementById("menuSearchList");
+  if(!input||!box||!list)return;
+  const q=input.value;
+  const results=data.menuCatalog.filter(item=>menuRecordMatches(item,q));
+  if(!normalizeSearchText(q)){
+    box.classList.remove("is-visible");
+    list.replaceChildren();
+    return
+  }
+  box.classList.add("is-visible");
+  if(!results.length){
+    list.replaceChildren(ce("li","search-empty",`No encontré ideas con “${q}”. Probá otra palabra, por ejemplo pescado, pollo, garbanzos o tomate.`));
+    return
+  }
+  renderMenuList(list,results,true)
+}
