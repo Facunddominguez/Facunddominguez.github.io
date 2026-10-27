@@ -1,5 +1,5 @@
 // Mi Plato Fácil · Existencias con cantidad y presupuesto de compras.
-// Parte 12 de 30: los archivos se unen en este orden (el número define el orden de arranque).
+// Parte 12: los archivos se unen en orden según su número, que define el orden de arranque.
 const STOCK_QUANT_KEY="miPlatoFacil_pantryQuantities_v1";
 function stockKey(name,unit){
   return JSON.stringify([normalizeSearchText(name),unit])

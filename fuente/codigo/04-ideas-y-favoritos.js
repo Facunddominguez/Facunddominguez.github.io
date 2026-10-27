@@ -1,5 +1,5 @@
 // Mi Plato Fácil · Ideas de menú, colaciones y consejos favoritos.
-// Parte 5 de 30: los archivos se unen en este orden (el número define el orden de arranque).
+// Parte 5: los archivos se unen en orden según su número, que define el orden de arranque.
 function menuRecordMatches(record,query){
   const q=normalizeSearchText(query);
   if(!q)return false;

@@ -1,5 +1,5 @@
 // Mi Plato Fácil · Eventos generales de la interfaz y arranque de la app.
-// Parte 15 de 30: los archivos se unen en este orden (el número define el orden de arranque).
+// Parte 15: los archivos se unen en orden según su número, que define el orden de arranque.
 document.addEventListener("pointerdown",e=>{
   const b=e.target.closest("button");if(b)tapStart(b,e)
 },{

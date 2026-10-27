@@ -1,7 +1,7 @@
 // Mi Plato Fácil · Modo app instalable y sin conexión (manifiesto y service worker).
-// Parte 28 de 30: los archivos se unen en este orden (el número define el orden de arranque).
+// Parte 28: los archivos se unen en orden según su número, que define el orden de arranque.
 (function(){
-  if(!/^https?:$/.test(location.protocol))return;const add=(rel,href,type)=>{
+  if(!/^https?:$/.test(location.protocol))return;const where=document.getElementById("deploymentWhere");if(where)where.textContent="Estás usando la versión publicada en "+location.host+location.pathname.replace(/index\.html$/,"")+". Se puede instalar y usar sin conexión.";const add=(rel,href,type)=>{
     const l=document.createElement("link");l.rel=rel;l.href=href;if(type)l.type=type;document.head.append(l)
   };add("manifest","manifest.webmanifest");add("icon","icon-192.png","image/png");add("apple-touch-icon","icon-192.png");if(!("serviceWorker" in navigator))return;const swUrl=new URL("sw.js",location.href).href,ctl=navigator.serviceWorker.controller,hadController=!!ctl&&ctl.scriptURL===swUrl,status=t=>{
     const s=document.getElementById("installAppStatus");if(s)s.textContent=t

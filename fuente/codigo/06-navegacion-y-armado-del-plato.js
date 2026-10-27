@@ -1,5 +1,5 @@
 // Mi Plato Fácil · Arranque, navegación entre pantallas y armado del plato.
-// Parte 7 de 30: los archivos se unen en este orden (el número define el orden de arranque).
+// Parte 7: los archivos se unen en orden según su número, que define el orden de arranque.
 function init(){
   renderTrainingWeek();
   renderTrainingExceptions();

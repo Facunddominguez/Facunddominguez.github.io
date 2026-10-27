@@ -1,5 +1,5 @@
 // Mi Plato Fácil · Asistente de IA: con tu app de IA o con Gemini directo.
-// Parte 30 de 30: los archivos se unen en este orden (el número define el orden de arranque).
+// Parte 30: los archivos se unen en orden según su número, que define el orden de arranque.
 function loadAiSettings(){
   try{
     const o=JSON.parse(localStorage.getItem("miPlatoFacil_aiSettings_v1")||"{}");

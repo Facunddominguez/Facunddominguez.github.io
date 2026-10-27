@@ -1,5 +1,5 @@
 // Mi Plato Fácil · Copiar, compartir y crear la imagen del plato.
-// Parte 9 de 30: los archivos se unen en este orden (el número define el orden de arranque).
+// Parte 9: los archivos se unen en orden según su número, que define el orden de arranque.
 function txtOne(o){
   return o?o.name+(o.quantity?" ("+o.quantity+")":""):"No elegido"
 }

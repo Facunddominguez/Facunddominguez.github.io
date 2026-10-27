@@ -1,5 +1,5 @@
 // Mi Plato Fácil · Calendario mensual de entrenamiento.
-// Parte 16 de 30: los archivos se unen en este orden (el número define el orden de arranque).
+// Parte 16: los archivos se unen en orden según su número, que define el orden de arranque.
 let trainViewMonth=null;
 function initTrainingUI(){
   const input=document.getElementById("trainingExceptionDate");

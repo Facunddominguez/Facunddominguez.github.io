@@ -1,5 +1,5 @@
 // Mi Plato Fácil · Lista de compras derivada del plan y sugerencias.
-// Parte 13 de 30: los archivos se unen en este orden (el número define el orden de arranque).
+// Parte 13: los archivos se unen en orden según su número, que define el orden de arranque.
 function shoppingQuantityAndCost(){
   const box=document.getElementById("shoppingQuantCostResult");
   if(!box)return;
@@ -233,7 +233,7 @@ function renderCompras(){
   }
   const pending=items.filter(x=>!comprasDone[x.key]);
   summary.textContent=pending.length+" pendientes · "+(items.length-pending.length)+" tachados";
-  hint.textContent="Lista del plan. La despensa y las porciones no la cambian. Si registrás existencias en 🧰 Más herramientas, verás sugerencias debajo de cada ingrediente, que aplicás vos.";
+  hint.textContent=isSimpleMode()?"Lista del plan. La despensa y las porciones no la cambian: si marcaste algo en “Con lo que tengo”, lo vas a ver como sugerencia debajo del ingrediente.":"Lista del plan. La despensa y las porciones no la cambian. Si registrás existencias en 🧰 Más herramientas, verás sugerencias debajo de cada ingrediente, que aplicás vos.";
   document.getElementById("comprasShowPending").setAttribute("aria-pressed",String(!comprasShowAll));
   document.getElementById("comprasShowAll").setAttribute("aria-pressed",String(comprasShowAll));
   const visible=comprasShowAll?items:pending;

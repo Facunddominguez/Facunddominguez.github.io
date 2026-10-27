@@ -1,5 +1,5 @@
 // Mi Plato Fácil · Aviso para instalar la app.
-// Parte 1 de 30: los archivos se unen en este orden (el número define el orden de arranque).
+// Parte 1: los archivos se unen en orden según su número, que define el orden de arranque.
 let deferredInstallPrompt=null;
 window.addEventListener("beforeinstallprompt",event=>{
   event.preventDefault();deferredInstallPrompt=event;const button=document.getElementById("installAppButton");if(button)button.hidden=false

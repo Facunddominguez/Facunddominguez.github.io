@@ -1,5 +1,5 @@
 // Mi Plato Fácil · Nutrición con USDA FoodData Central.
-// Parte 29 de 30: los archivos se unen en este orden (el número define el orden de arranque).
+// Parte 29: los archivos se unen en orden según su número, que define el orden de arranque.
 var NUTRITION_SNAPSHOT=__DATOS_NUTRICION__;
 function validNutritionData(d){
   return!!d&&typeof d==="object"&&d.version===1&&typeof d.revisado==="string"&&d.revisado.length<=20&&!!d.fuente&&typeof d.fuente==="object"&&Array.isArray(d.items)&&d.items.length>0&&d.items.length<=5000&&d.items.every(i=>!!i&&typeof i.n==="string"&&i.n.trim().length>0&&i.n.length<=100&&Array.isArray(i.s)&&i.s.length<=50&&i.s.every(x=>typeof x==="string"&&x.length<=100)&&Number.isInteger(i.id)&&i.id>0&&(i.b==="F"||i.b==="S")&&typeof i.d==="string"&&i.d.length<=300&&Array.isArray(i.v)&&i.v.length===7&&i.v.every(x=>x===null||(typeof x==="number"&&Number.isFinite(x)&&x>=0&&x<=100000))&&(i.u===undefined||(!!i.u&&typeof i.u==="object"&&Object.entries(i.u).every(([k,p])=>["unidad","taza","cucharada","cucharadita"].includes(k)&&Array.isArray(p)&&typeof p[0]==="number"&&p[0]>0&&p[0]<100000&&typeof p[1]==="string"&&p[1].length<=200))))

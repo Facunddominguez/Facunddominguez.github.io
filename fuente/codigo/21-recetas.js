@@ -1,5 +1,5 @@
 // Mi Plato Fácil · Recetas: datos, explorador, lectura y edición.
-// Parte 22 de 30: los archivos se unen en este orden (el número define el orden de arranque).
+// Parte 22: los archivos se unen en orden según su número, que define el orden de arranque.
 /* I04-A: detalles independientes; no migrar cantidades ni alterar cálculos existentes. */
 const RECIPE_DETAILS_KEY="miPlatoFacil_recipeDetails_v1";
 function validRecipeDetails(store){
@@ -483,7 +483,7 @@ function showRecipeRead(id){
     const costLine=recipeCostText(recipeFullCost(r));
     if(costLine)ingredients.append(ce("p","screen__hint",costLine));
     ingredients.append(recipeNutritionBox(amount))
-  }else ingredients.append(ce("p","screen__hint",r.amountsTitle?"Las cantidades vinculadas ya no están disponibles.":"No hay ingredientes ni cantidades registrados para esta receta. Podés cargarlos en ⚖️ Mis cantidades por receta, eligiendo esta receta en Mis recetas."));
+  }else ingredients.append(ce("p","screen__hint",r.amountsTitle?"Las cantidades vinculadas ya no están disponibles.":"No hay ingredientes registrados para esta receta. Tocá Editar receta para cargarlos."));
   const steps=document.getElementById("recipeReadSteps");
   steps.replaceChildren();
   if(r.steps.length){

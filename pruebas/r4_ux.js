@@ -19,7 +19,12 @@
   await R.openPanel("shoppingToolsPanel"); await R.openPanel("shoppingBudgetPanel");
   T.ok("X6 las herramientas siguen funcionando dentro del bloque", /Guardá un presupuesto/.test(document.getElementById("shoppingBudgetResult").textContent));
   tools.open = false;
-  T.ok("X7 la indicación explica dónde registrar la despensa", /Más herramientas/.test(document.getElementById("comprasHint").textContent));
+  // v14.9.90: en modo simple las herramientas están ocultas, así que la indicación apunta a "Con lo que tengo".
+  const simpleHint = document.getElementById("comprasHint").textContent;
+  setUiMode("completo"); await wait(20);
+  const fullHint = document.getElementById("comprasHint").textContent;
+  setUiMode("simple"); await wait(20);
+  T.ok("X7 la indicación explica dónde registrar la despensa (simple: Con lo que tengo; completo: Más herramientas)", /Con lo que tengo/.test(simpleHint) && !/Más herramientas/.test(simpleHint) && /Más herramientas/.test(fullHint), simpleHint + " | " + fullHint);
   T.ok("X8 código sin uso eliminado", typeof buildShopping === "undefined" && typeof shoppingMissingLabel === "undefined" && !document.querySelector("[data-manual-copy]"));
   T.ok("X9 copiar la lista sigue funcionando", /🛒 Lista de compras/.test(comprasText()) && comprasText().includes("Papa: 200 g"));
   return T;

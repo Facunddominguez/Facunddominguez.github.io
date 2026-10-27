@@ -1,5 +1,5 @@
 // Mi Plato Fácil · Semana de entrenamiento y excepciones.
-// Parte 6 de 30: los archivos se unen en este orden (el número define el orden de arranque).
+// Parte 6: los archivos se unen en orden según su número, que define el orden de arranque.
 const TRAINING_KEY="miPlatoFacil_trainingWeek";
 function loadTrainingWeek(){
   try{

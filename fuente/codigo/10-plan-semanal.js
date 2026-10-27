@@ -1,5 +1,5 @@
 // Mi Plato Fácil · Plan semanal, variaciones, recetas en el plan, porciones e historial.
-// Parte 11 de 30: los archivos se unen en este orden (el número define el orden de arranque).
+// Parte 11: los archivos se unen en orden según su número, que define el orden de arranque.
 const PKEY="miPlatoFacil_plan",VKEY="miPlatoFacil_planVars";
 function migratePlan(o){
   const out={
@@ -299,7 +299,7 @@ function assignSavedRecipeToPlan(){
     const recipe=loadRecipeDetails()[id];
     if(!recipe)throw Error("Seleccioná una receta guardada.");
     const amounts=loadRecipeAmounts(),amount=recipe.amountsTitle&&amounts[recipe.amountsTitle];
-    if(!amount||!amount.rows.length)throw Error("Esta receta necesita ingredientes y cantidades vinculados para incorporarse al plan y a Compras. Cargalos en ⚖️ Mis cantidades por receta (Descubrí → Con lo que tengo).");
+    if(!amount||!amount.rows.length)throw Error("Esta receta necesita sus ingredientes para incorporarse al plan y a Compras. Abrila en Descubrí → Con lo que tengo → Recetas, tocá Editar receta y cargalos.");
     if(amount.rows.some(row=>!row.name||!row.name.trim()))throw Error("Revisá los ingredientes de esta receta.");
     const plan=loadPlan(),existing=plan[day]&&plan[day][slot];
     if(existing&&!window.confirm("Ya hay una comida asignada. ¿Reemplazarla por esta receta?"))return;

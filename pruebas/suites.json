@@ -2,6 +2,7 @@
   "_descripcion": "Baterías de pruebas que corre herramientas/probar.mjs, en este orden. Cada una empieza con el almacenamiento vacío y usa solo datos inventados.",
   "suites": [
     "d01_diseno.js",
+    "m01_modo.js",
     "f08_ai.js",
     "f07_nutri.js",
     "f02_units.js",

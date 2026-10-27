@@ -7,6 +7,16 @@ App web para armar comidas con el método del plato, planificar la semana, guard
 - **Publicada:** abrí la dirección de GitHub Pages de este repositorio en el celular y elegí **Instalar aplicación** (o **Agregar a pantalla de inicio**).
 - **Sin publicar:** también se puede abrir `index.html` directamente desde el dispositivo.
 
+## Modo simple
+
+La app arranca en **modo simple**: muestra lo necesario para armar comidas, planificar la semana, hacer las compras y registrar lo que comiste. Las herramientas avanzadas quedan ocultas, no borradas: sus datos siguen guardados y en uso (por ejemplo, las existencias siguen sugiriendo en Compras).
+
+- **Ocultas en Compras:** presupuesto, compras realizadas, existencias con cantidad, precios, costos y cálculos por receta.
+- **Ocultas en Recetas:** revisar una idea, recomendaciones por costo, orden de resultados, mis cantidades por receta, ingredientes equivalentes y descontar de la despensa.
+- **Ocultas en el Plan:** variaciones, semanas por fecha, vista del mes, historial de cambios y objetivos semanales.
+
+Para verlas: **Configuración → Modo simple**, o el botón **Mostrar herramientas avanzadas** al final de Compras, Recetas y Plan. Es un ajuste de cada dispositivo: no va en los respaldos.
+
 ## Tus datos
 
 - Todo lo que cargás (platos, recetas, plan, compras, despensa) queda **solo en tu dispositivo**, en el almacenamiento del navegador. Este repositorio contiene únicamente el código de la app: no se sube ningún dato personal.

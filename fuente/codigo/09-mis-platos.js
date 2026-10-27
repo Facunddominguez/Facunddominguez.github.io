@@ -1,5 +1,5 @@
 // Mi Plato Fácil · Mis platos guardados, importar y exportar.
-// Parte 10 de 30: los archivos se unen en este orden (el número define el orden de arranque).
+// Parte 10: los archivos se unen en orden según su número, que define el orden de arranque.
 const SKEY="miPlatoFacil_saved";
 function loadSaved(){
   try{

@@ -1,5 +1,5 @@
 // Mi Plato Fácil · Equivalencias de ingredientes del usuario.
-// Parte 24 de 30: los archivos se unen en este orden (el número define el orden de arranque).
+// Parte 24: los archivos se unen en orden según su número, que define el orden de arranque.
 function knownIngredientNames(){
   const names=new Map(),add=n=>{
     const t=String(n||"").trim();

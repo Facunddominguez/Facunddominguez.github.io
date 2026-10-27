@@ -2780,3 +2780,19 @@ details.home-group>summary{
   outline:3px solid var(--focus-ring);
   outline-offset:2px
 }
+
+/* Modo simple (predeterminado): las herramientas avanzadas se ocultan. No se borra nada: sus datos siguen guardados y en uso. */
+html:not([data-modo="completo"]) [data-avanzado]{
+  display:none!important
+}
+.mode-note{
+  margin-top:16px
+}
+.mode-note>.screen__hint{
+  margin:0
+}
+.mode-note>.button{
+  display:block;
+  width:100%;
+  margin-top:10px
+}

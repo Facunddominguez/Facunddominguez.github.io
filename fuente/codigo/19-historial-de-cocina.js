@@ -1,5 +1,5 @@
 // Mi Plato Fácil · Historial de comidas preparadas.
-// Parte 20 de 30: los archivos se unen en este orden (el número define el orden de arranque).
+// Parte 20: los archivos se unen en orden según su número, que define el orden de arranque.
 function validCookingHistoryRecord(x){
   return !!x&&typeof x.id==="string"&&typeof x.date==="string"&&validTrainingDate(x.date)&&typeof x.meal==="string"&&typeof x.title==="string"&&Array.isArray(x.lines)&&x.lines.every(t=>typeof t==="string")
 }

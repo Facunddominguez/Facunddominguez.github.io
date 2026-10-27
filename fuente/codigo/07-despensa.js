@@ -1,5 +1,5 @@
 // Mi Plato Fácil · Despensa: ingredientes marcados como disponibles.
-// Parte 8 de 30: los archivos se unen en este orden (el número define el orden de arranque).
+// Parte 8: los archivos se unen en orden según su número, que define el orden de arranque.
 function loadPantry(){
   try{
     const raw=localStorage.getItem(PANKEY);

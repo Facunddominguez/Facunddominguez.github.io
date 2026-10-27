@@ -1,5 +1,5 @@
 // Mi Plato Fácil · Cantidades por receta, compras por cantidad, existencias y costos.
-// Parte 23 de 30: los archivos se unen en este orden (el número define el orden de arranque).
+// Parte 23: los archivos se unen en orden según su número, que define el orden de arranque.
 const RECIPE_AMOUNTS_KEY="miPlatoFacil_recipeAmounts_v1";
 const RECIPE_AMOUNT_UNITS=["g","kg","ml","l","unidad","cucharada","cucharadita","taza"];
 function ownAmountsKey(id){

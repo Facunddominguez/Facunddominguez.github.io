@@ -1,5 +1,5 @@
 // Mi Plato Fácil · Movimientos de despensa y descontar al cocinar.
-// Parte 27 de 30: los archivos se unen en este orden (el número define el orden de arranque).
+// Parte 27: los archivos se unen en orden según su número, que define el orden de arranque.
 function validPantryMoves(a){
   return Array.isArray(a)&&a.length<=300&&a.every(x=>!!x&&typeof x==="object"&&typeof x.at==="string"&&x.at.length<=40&&typeof x.name==="string"&&x.name.trim().length>0&&x.name.length<=100&&typeof x.unit==="string"&&x.unit.length<=20&&typeof x.delta==="number"&&Number.isFinite(x.delta)&&Math.abs(x.delta)<=100000000&&typeof x.reason==="string"&&x.reason.length<=80)
 }

@@ -1,5 +1,5 @@
 // Mi Plato Fácil · Revisión de despensa por receta.
-// Parte 21 de 30: los archivos se unen en este orden (el número define el orden de arranque).
+// Parte 21: los archivos se unen en orden según su número, que define el orden de arranque.
 const PANTRY_REVIEW_COMPONENTS={
   "Ensalada de fideos integrales + atún + tomates cherry + aderezo de oliva":[{
     "label":"Fideos integrales","key":null

@@ -1,5 +1,5 @@
 // Mi Plato Fácil · Nombres de ingredientes, sinónimos, equivalencias y unidades.
-// Parte 4 de 30: los archivos se unen en este orden (el número define el orden de arranque).
+// Parte 4: los archivos se unen en orden según su número, que define el orden de arranque.
 function normalizeSearchText(value){
   return String(value||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").trim()
 }

@@ -1,5 +1,5 @@
 // Mi Plato Fácil · Tema claro/oscuro y piezas de interfaz reutilizables.
-// Parte 3 de 30: los archivos se unen en este orden (el número define el orden de arranque).
+// Parte 3: los archivos se unen en orden según su número, que define el orden de arranque.
 const TKEY="miPlatoFacil_theme";
 function prefersDark(){
   try{
@@ -46,6 +46,25 @@ function cycleTheme(){
   const order=["auto","light","dark"],cur=getThemeMode();
   setThemeMode(order[(order.indexOf(cur)+1)%order.length])
 }
+// Modo simple (predeterminado) o completo. Solo cambia qué herramientas se ven: no borra ni cambia datos.
+// Es un ajuste de cada dispositivo, como la clave de IA: no va en los respaldos (así siguen sirviendo en versiones anteriores).
+const UI_MODE_KEY="miPlatoFacil_uiMode_v1";
+let uiModeMemory=null;
+function getUiMode(){
+  if(uiModeMemory)return uiModeMemory;
+  try{
+    return localStorage.getItem(UI_MODE_KEY)==="completo"?"completo":"simple"
+  }catch(e){
+    return "simple"
+  }
+}
+function isSimpleMode(){
+  return getUiMode()==="simple"
+}
+function applyUiMode(){
+  document.documentElement.setAttribute("data-modo",getUiMode())
+}
+applyUiMode();
 function ce(t,c,txt){
   const e=document.createElement(t);
   if(c)e.className=c;

@@ -1,5 +1,5 @@
 // Mi Plato Fácil · Platos al azar y plato del día.
-// Parte 14 de 30: los archivos se unen en este orden (el número define el orden de arranque).
+// Parte 14: los archivos se unen en orden según su número, que define el orden de arranque.
 function randPick(a){
   return a[Math.floor(Math.random()*a.length)]
 }

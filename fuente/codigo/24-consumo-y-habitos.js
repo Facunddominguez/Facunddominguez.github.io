@@ -1,5 +1,5 @@
 // Mi Plato Fácil · Registro de consumo y metas de hábitos.
-// Parte 25 de 30: los archivos se unen en este orden (el número define el orden de arranque).
+// Parte 25: los archivos se unen en orden según su número, que define el orden de arranque.
 const CONSUMPTION_KEY="miPlatoFacil_consumption_v1",HABIT_GOALS_KEY="miPlatoFacil_habitGoals_v1",CONSUMPTION_MEALS=["desayuno","almuerzo","merienda","cena","otra"],FOOD_GROUPS=["verduras","legumbres","pescado","fruta","almidones","proteinas"],HABIT_GROUPS=["verduras","legumbres","pescado","fruta"],FISH_WORDS=["pescado","merluza","atun","salmon","sardina","caballa","lenguado","trucha"];
 let consumptionWeek=null;
 function validConsumption(a){

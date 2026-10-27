@@ -1,5 +1,5 @@
 // Mi Plato Fácil · Productos extra de la lista de compras.
-// Parte 18 de 30: los archivos se unen en este orden (el número define el orden de arranque).
+// Parte 18: los archivos se unen en orden según su número, que define el orden de arranque.
 const MANUAL_SHOP_KEY="miPlatoFacil_manualShopping_v1";
 let manualShopEditing=null;
 function loadManualShopping(){
