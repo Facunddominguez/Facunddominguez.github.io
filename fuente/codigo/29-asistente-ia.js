@@ -61,7 +61,8 @@ function aiAvailableIngredients(){
   };
   for(const id of loadPantry()){
     const p=pantryById(id);
-    if(p)add(p[1].replace(/^[^\p{L}]+/u,"").trim(),p[1].replace(/^[^\p{L}]+/u,"").trim())
+    if(p)add(p[1].replace(/^[^\p{L}]+/u,"").trim(),p[1].replace(/^[^\p{L}]+/u,"").trim());
+    else if(id.trim())add(id,id.trim())
   }
   for(const s of Object.values(loadStockQuantities()))if(s&&s.quantity>0)add(s.name,s.name+" ("+String(s.quantity).replace(".",",")+" "+s.unit+")");
   return [...out.values()]

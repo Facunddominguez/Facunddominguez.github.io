@@ -17,6 +17,8 @@ La barra de abajo tiene cinco pestañas:
 - **Mis comidas:** tus platos guardados y tus recetas en un solo lugar, con búsqueda por nombre o ingrediente. Desde cada receta: Ver, Planificar o Editar.
 - **Más:** ideas (sugerir al azar, con lo que tengo), días de entrenamiento y ajustes (tema, respaldo, asistente de IA y modo simple).
 
+**Mi despensa** (Más → Con lo que tengo): marcás lo básico que tenés y agregás cualquier otro ingrediente, con o sin cantidad. Sin cantidad queda como marca; con cantidad, Compras te dice cuánto falta. Las ideas con lo que tenés aparecen justo debajo. Cada ingrediente se edita o se quita (con Deshacer).
+
 Cada pestaña recuerda dónde quedaste (por ejemplo, un plato a medio armar). Tocar la pestaña activa, o el botón de arriba, vuelve a su inicio.
 
 ## Modo simple

@@ -2839,3 +2839,41 @@ body:has(#home.is-active) .app-shell{
   padding:8px 6px;
   font-size:14px
 }
+
+/* Mi despensa: lo básico, otros ingredientes con cantidad opcional e ideas */
+#pantryItemsPanel{
+  margin-top:14px
+}
+#pantryItemsPanel input,#pantryItemsPanel select{
+  width:100%;
+  min-width:0;
+  min-height:44px;
+  padding:9px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:var(--surface);
+  color:var(--text);
+  font:inherit
+}
+.pantry-item-qty{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  gap:10px;
+  margin-top:8px
+}
+.pantry-item{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:8px;
+  padding:10px 0;
+  border-top:1px solid var(--line)
+}
+.pantry-item__text{
+  flex:1 1 100%;
+  min-width:0;
+  overflow-wrap:anywhere
+}
+#pantryResultsTitle{
+  margin-top:18px
+}
