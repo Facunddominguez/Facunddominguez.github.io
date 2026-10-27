@@ -1462,7 +1462,7 @@ input[aria-invalid="true"]{
   right:0;
   z-index:45;
   display:grid;
-  grid-template-columns:repeat(4,minmax(0,1fr));
+  grid-template-columns:repeat(5,minmax(0,1fr));
   gap:4px;
   padding:8px max(8px,calc((100vw - 560px)/2)) calc(8px + env(safe-area-inset-bottom));
   background:var(--surface,#fff);
@@ -1521,51 +1521,8 @@ body{
   display:none!important
 }
 
-#home[data-section-tab="comidas"] .home-group--plan{
-  display:none!important
-}
-
-#home[data-section-tab="comidas"] .home-group--find{
-  display:none!important
-}
-
-#home[data-section-tab="comidas"] #sectionSettings{
-  display:none!important
-}
-
-#home[data-section-tab="planifica"] .home-group--main{
-  display:none!important
-}
-
-#home[data-section-tab="planifica"] .home-group--find{
-  display:none!important
-}
-
-#home[data-section-tab="planifica"] #sectionSettings{
-  display:none!important
-}
-
-#home[data-section-tab="descubri"] .home-group--main{
-  display:none!important
-}
-
-#home[data-section-tab="descubri"] .home-group--plan{
-  display:none!important
-}
-
-#home[data-section-tab="descubri"] #sectionSettings{
-  display:none!important
-}
-
-#home[data-section-tab="configuracion"] .home-group--main{
-  display:none!important
-}
-
-#home[data-section-tab="configuracion"] .home-group--plan{
-  display:none!important
-}
-
-#home[data-section-tab="configuracion"] .home-group--find{
+/* Portada: Hoy muestra el día y los atajos para armar; Más muestra ideas y ajustes. */
+#home[data-home-tab="hoy"] .home-group--find,#home[data-home-tab="hoy"] #sectionSettings,#home[data-home-tab="mas"] .today,#home[data-home-tab="mas"] .home-group--main{
   display:none!important
 }
 
@@ -1699,56 +1656,30 @@ body{
 
 }
 
-/* Category identity restored; home-only responsive layout without nested scrolling. */#home[data-section-tab="comidas"]{
+/* Category identity: Hoy (comidas, naranja) y Más (ideas y ajustes, violeta). */#home[data-home-tab="hoy"]{
   --category-gradient:linear-gradient(135deg,#ffe1d5 0%,#fff3ee 70%);
   --category-border:#f4a58f;
   --category-ink:#c23d1f;
   --category-accent:#e2542f
 }
 
-#home[data-section-tab="planifica"]{
-  --category-gradient:linear-gradient(135deg,#ffeec2 0%,#fff8e6 70%);
-  --category-border:#f0cd7a;
-  --category-ink:#986714;
-  --category-accent:#e0951a
-}
-
-#home[data-section-tab="descubri"]{
+#home[data-home-tab="mas"]{
   --category-gradient:linear-gradient(135deg,#f2d9fb 0%,#faf0fe 70%);
   --category-border:#dcb3e8;
   --category-ink:#7d2f96;
   --category-accent:#a441c0
 }
 
-#home[data-section-tab="configuracion"]{
-  --category-gradient:linear-gradient(135deg,#dceefb 0%,#f0f7ff 70%);
-  --category-border:#b7d6ed;
-  --category-ink:#28638d;
-  --category-accent:#458dbd
-}
-
-[data-theme="dark"] #home[data-section-tab="comidas"]{
+[data-theme="dark"] #home[data-home-tab="hoy"]{
   --category-gradient:linear-gradient(135deg,#3a1d14 0%,#141d1a 70%);
   --category-border:#7a3a29;
   --category-ink:#f0a184
 }
 
-[data-theme="dark"] #home[data-section-tab="planifica"]{
-  --category-gradient:linear-gradient(135deg,#2e2612 0%,#141d1a 70%);
-  --category-border:#665327;
-  --category-ink:#e6c079
-}
-
-[data-theme="dark"] #home[data-section-tab="descubri"]{
+[data-theme="dark"] #home[data-home-tab="mas"]{
   --category-gradient:linear-gradient(135deg,#2a1c31 0%,#141d1a 70%);
   --category-border:#684477;
   --category-ink:#d6a3e6
-}
-
-[data-theme="dark"] #home[data-section-tab="configuracion"]{
-  --category-gradient:linear-gradient(135deg,#172c3b 0%,#141d1a 70%);
-  --category-border:#35556b;
-  --category-ink:#a1d0ef
 }
 
 body:has(#home.is-active){
@@ -2329,20 +2260,6 @@ body:has(#home.is-active) .app-shell{
   cursor:pointer
 }
 
-@media(max-height:700px){
-  #home[data-section-tab="planifica"] .home-grid{
-    gap:6px
-  }
-  #home[data-section-tab="planifica"] .home-grid>button{
-    height:44px!important;
-    padding:6px 12px
-  }
-  #home[data-section-tab="planifica"] .tool-button__desc{
-    display:none
-  }
-
-}
-
 #recipeCostPanel input,#recipeCostPanel select{
   width:100%;
   min-width:0;
@@ -2795,4 +2712,99 @@ html:not([data-modo="completo"]) [data-avanzado]{
   display:block;
   width:100%;
   margin-top:10px
+}
+
+/* Portada con pestañas (Hoy y Más): ocupa al menos la pantalla y, si el contenido no entra, la página se desplaza (sin scroll interno). */
+body:has(#home.is-active){
+  height:auto;
+  min-height:0;
+  overflow:visible;
+  padding-bottom:var(--section-nav-h)
+}
+body:has(#home.is-active) .app-shell{
+  height:auto;
+  min-height:calc(100dvh - var(--section-nav-h))
+}
+#home.is-active{
+  overflow:visible
+}
+#home>.home-group,#home>#sectionSettings{
+  flex:0 0 auto
+}
+#home>.home-group+.home-group,#home>#sectionSettings{
+  margin-top:clamp(14px,2.4vh,20px)!important
+}
+
+/* Hoy: las comidas del día */
+#home .today{
+  display:grid;
+  gap:8px;
+  margin:0 0 clamp(14px,2.4vh,20px)
+}
+.today__rows{
+  display:grid;
+  gap:8px
+}
+.today-row{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:center;
+  column-gap:10px;
+  padding:8px 10px 8px 14px;
+  border:1px solid var(--category-border);
+  border-radius:16px;
+  background:var(--surface);
+  box-shadow:var(--shadow)
+}
+.today-row__slot{
+  grid-column:1;
+  font-size:12px;
+  font-weight:800;
+  color:var(--muted)
+}
+.today-row__plate{
+  grid-column:1;
+  font-size:15px;
+  font-weight:800;
+  color:var(--text);
+  line-height:1.3;
+  overflow-wrap:anywhere
+}
+.today-row__plate.is-empty{
+  color:var(--muted);
+  font-weight:700
+}
+.today-row>.button,.today-row__done{
+  grid-column:2;
+  grid-row:1/span 2
+}
+.today-row>.button{
+  width:auto;
+  min-height:44px;
+  margin:0;
+  padding:8px 14px
+}
+.today-row__done{
+  padding:0 6px;
+  font-size:14px;
+  font-weight:800;
+  color:var(--green)
+}
+.today__status:empty{
+  display:none
+}
+.today__status{
+  margin:0
+}
+
+/* Barra de 5 pestañas: "Mis comidas" entra en un renglón desde 360 px de ancho; en pantallas más chicas pasa a dos */
+.section-nav button{
+  padding:4px 2px
+}
+.section-nav button span:last-child{
+  max-width:100%;
+  text-align:center;
+  font-size:clamp(10px,2.8vw,11px);
+  line-height:1.15;
+  overflow-wrap:anywhere
 }

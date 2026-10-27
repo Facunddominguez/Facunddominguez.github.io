@@ -3,6 +3,7 @@
   "suites": [
     "d01_diseno.js",
     "m01_modo.js",
+    "n01_nav.js",
     "f08_ai.js",
     "f07_nutri.js",
     "f02_units.js",

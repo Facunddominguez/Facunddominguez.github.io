@@ -26,7 +26,8 @@
   await click('[data-replace="carb"][data-value="true"]'); await click('#boxLegCarb [data-name="Lentejas"]'); await click('#nextBottom');
   await click('#boxp [data-name="Merluza"]'); await click('#nextBottom');
   ok("R4 almuerzo con legumbre como almidón llega al resumen", scr() === "resumen" && /Lentejas/.test(el.summary.textContent) && /Merluza/.test(el.summary.textContent));
-  await click('#summary [data-edit="lunch_veg"]'); await click('[data-section-tab="planifica"]'); await click('[data-section-tab="comidas"]');
+  // v14.9.91: las pestañas son Hoy, Semana, Compras, Mis comidas y Más.
+  await click('#summary [data-edit="lunch_veg"]'); await click('[data-section-tab="semana"]'); await click('[data-section-tab="hoy"]');
   const restored = scr(); await click('#nextBottom');
   ok("R5 edición en curso sobrevive al cambio de pestaña (N01)", restored === "lunch_veg" && scr() === "resumen");
   await click('#summary [data-edit-portions-summary]');
@@ -40,7 +41,8 @@
   await click('[data-restart]');
   ok("R8 dos platos guardados", loadSaved().length === 2);
   // Plan
-  await click('[data-section-tab="planifica"]'); await click('[data-open-plan]');
+  await click('[data-section-tab="semana"]');
+  ok("R8b la pestaña Semana abre el plan", scr() === "plan");
   const plate = loadSaved().find(p => p.type === "plato"), bf = loadSaved().find(p => p.type === "desayuno");
   document.querySelector('[data-plan-select="lunes|almuerzo"]').value = plate.id; await click('[data-plan-set="lunes|almuerzo"]');
   document.querySelector('[data-plan-select="lunes|desayuno"]').value = bf.id; await click('[data-plan-set="lunes|desayuno"]');
@@ -79,7 +81,7 @@
   await click("#recipeViewBrowse"); showRecipeRead(rid); await click("#recipeReadDuplicate");
   ok("R19 duplicar receta", Object.keys(loadRecipeDetails()).length === 2);
   // Theme + advice modal
-  await click('[data-section-tab="comidas"]');
+  await click('[data-section-tab="hoy"]');
   await click("#adviceFab"); const modalOpen = el.adviceModal.classList.contains("is-visible"); await click("[data-close-advice]");
   ok("R20 Consejos abre y cierra", modalOpen && !el.adviceModal.classList.contains("is-visible"));
   ok("R21 sin aviso de arranque con datos válidos", !document.getElementById("startupIssues"));

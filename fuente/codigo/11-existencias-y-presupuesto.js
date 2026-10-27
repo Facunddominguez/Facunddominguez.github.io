@@ -110,7 +110,7 @@ function startupGuard(label,fn){
     const names=box.dataset.modules?box.dataset.modules.split("|"):[];
     if(!names.includes(label))names.push(label);
     box.dataset.modules=names.join("|");
-    box.textContent="No se pudieron cargar algunos datos guardados ("+names.join(", ")+"). El resto de la app funciona y no se modificó ningún dato. Antes de seguir, descargá un respaldo desde Configuración → Respaldo y restauración."
+    box.textContent="No se pudieron cargar algunos datos guardados ("+names.join(", ")+"). El resto de la app funciona y no se modificó ningún dato. Antes de seguir, descargá un respaldo desde Más → Respaldo y restauración."
   }
 }
 startupGuard("Existencias de despensa",initStockQuantities);

@@ -27,7 +27,7 @@ document.addEventListener("click",e=>{
     renderPlan();return go("plan")
   }if(b.dataset.openCompras!==undefined){
     renderCompras();return go("compras")
-  }if(b.dataset.backPlan!==undefined)return go("plan");if(b.dataset.planSet){
+  }if(b.dataset.backPlan!==undefined)return openTab("semana");if(b.dataset.planSet){
     const parts=b.dataset.planSet.split("|");const sel=document.querySelector('[data-plan-select="'+b.dataset.planSet+'"]');if(sel&&sel.value)setSlot(parts[0],parts[1],sel.value);else planStatus("Elegí un plato del menú.");return
   }if(b.dataset.planClear){
     const parts=b.dataset.planClear.split("|");return clearSlot(parts[0],parts[1])

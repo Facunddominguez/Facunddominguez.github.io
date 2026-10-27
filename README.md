@@ -7,6 +7,18 @@ App web para armar comidas con el método del plato, planificar la semana, guard
 - **Publicada:** abrí la dirección de GitHub Pages de este repositorio en el celular y elegí **Instalar aplicación** (o **Agregar a pantalla de inicio**).
 - **Sin publicar:** también se puede abrir `index.html` directamente desde el dispositivo.
 
+## Cómo está organizada la app
+
+La barra de abajo tiene cinco pestañas:
+
+- **Hoy:** tus comidas de hoy según el plan, con **Lo comí** en un toque (queda en *Lo que comí*, sin cambiar el plan), y los atajos para armar un desayuno, un almuerzo o el plato del día.
+- **Semana:** el plan semanal.
+- **Compras:** la lista que sale del plan, más los productos que agregás vos.
+- **Mis comidas:** tus platos guardados.
+- **Más:** ideas (sugerir al azar, con lo que tengo), días de entrenamiento y ajustes (tema, respaldo, asistente de IA y modo simple).
+
+Cada pestaña recuerda dónde quedaste (por ejemplo, un plato a medio armar). Tocar la pestaña activa, o el botón de arriba, vuelve a su inicio.
+
 ## Modo simple
 
 La app arranca en **modo simple**: muestra lo necesario para armar comidas, planificar la semana, hacer las compras y registrar lo que comiste. Las herramientas avanzadas quedan ocultas, no borradas: sus datos siguen guardados y en uso (por ejemplo, las existencias siguen sugiriendo en Compras).
@@ -15,12 +27,12 @@ La app arranca en **modo simple**: muestra lo necesario para armar comidas, plan
 - **Ocultas en Recetas:** revisar una idea, recomendaciones por costo, orden de resultados, mis cantidades por receta, ingredientes equivalentes y descontar de la despensa.
 - **Ocultas en el Plan:** variaciones, semanas por fecha, vista del mes, historial de cambios y objetivos semanales.
 
-Para verlas: **Configuración → Modo simple**, o el botón **Mostrar herramientas avanzadas** al final de Compras, Recetas y Plan. Es un ajuste de cada dispositivo: no va en los respaldos.
+Para verlas: **Más → Modo simple**, o el botón **Mostrar herramientas avanzadas** al final de Compras, Recetas y Plan. Es un ajuste de cada dispositivo: no va en los respaldos.
 
 ## Tus datos
 
 - Todo lo que cargás (platos, recetas, plan, compras, despensa) queda **solo en tu dispositivo**, en el almacenamiento del navegador. Este repositorio contiene únicamente el código de la app: no se sube ningún dato personal.
-- Cada dirección guarda sus propios datos. Para pasarlos de un dispositivo o dirección a otra, usá **Configuración → Descargar respaldo JSON** y después **Restaurar** en el otro lado.
+- Cada dirección guarda sus propios datos. Para pasarlos de un dispositivo o dirección a otra, usá **Más → Respaldo y restauración → Descargar respaldo JSON** y después **Restaurar** en el otro lado.
 - Si publicás una copia de prueba, ponela en otro sitio: dos copias en el mismo sitio (por ejemplo, el mismo usuario de GitHub Pages) comparten los mismos datos.
 
 ## Nutrición

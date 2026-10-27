@@ -10,7 +10,8 @@
   go('home');
   const homeButtons = [...document.querySelectorAll('#home .home-group button, #sectionSettings button')];
   const notCards = homeButtons.filter(b => !b.classList.contains('tool-button') || !b.querySelector('.tool-button__emoji') || !b.querySelector('.tool-button__label') || !b.querySelector('.tool-button__desc')).map(b => b.textContent.trim().slice(0, 30));
-  T.ok('D1 todas las entradas del inicio son tarjetas iguales', homeButtons.length >= 11 && notCards.length === 0, notCards.join(' | '));
+  // v14.9.91: Plan, Compras y Mis platos pasaron a la barra de pestañas; quedan 9 tarjetas (3 para armar, 3 de ideas y 3 ajustes).
+  T.ok('D1 todas las entradas del inicio son tarjetas iguales', homeButtons.length >= 9 && notCards.length === 0, notCards.join(' | '));
   // D2 Tema: la tarjeta muestra el tema elegido
   const before = localStorage.getItem('miPlatoFacil_theme');
   localStorage.setItem('miPlatoFacil_theme', 'dark'); applyTheme();

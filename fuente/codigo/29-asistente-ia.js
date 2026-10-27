@@ -119,7 +119,7 @@ async function geminiChooseModel(key){
 }
 async function geminiGenerate(prompt){
   const s=loadAiSettings();
-  if(!s.key)throw Error("Configurá tu clave de Gemini en ⚙️ Configuración → Asistente de IA.");
+  if(!s.key)throw Error("Configurá tu clave de Gemini en Más → Asistente de IA.");
   const j=await geminiFetch("https://generativelanguage.googleapis.com/v1beta/models/"+encodeURIComponent(s.model||"gemini-flash-latest")+":generateContent",{
     method:"POST",headers:{
       "Content-Type":"application/json","x-goog-api-key":s.key
@@ -207,7 +207,7 @@ function renderAiRunner(box){
   actions.append(mk("button--soft","Copiar pedido para tu IA","data-ai-copy"));
   if(navigator.share)actions.append(mk("button--soft","Compartir pedido","data-ai-share"));
   box.append(actions);
-  if(!s.key)box.append(ce("p","screen__hint","Copiá el pedido, pegalo en tu app de IA (ChatGPT, Gemini u otra) y después pegá acá la respuesta. Para que la app consulte sola, configurá Gemini en ⚙️ Configuración → Asistente de IA."));
+  if(!s.key)box.append(ce("p","screen__hint","Copiá el pedido, pegalo en tu app de IA (ChatGPT, Gemini u otra) y después pegá acá la respuesta. Para que la app consulte sola, configurá Gemini en Más → Asistente de IA."));
   const det=ce("details"),pr=ce("textarea");
   pr.readOnly=true;
   pr.rows=5;
@@ -279,3 +279,20 @@ document.getElementById("aiIdeasPanel").addEventListener("toggle",e=>{
 });
 renderAllAiRunners();
 renderAiSettings();
+// Tarjeta en Más → Ajustes: lleva directo a la configuración del asistente (está en la pantalla de Respaldo).
+{
+  const b=ce("button","tool-button");
+  b.type="button";
+  b.id="aiSettingsOpen";
+  b.append(ce("span","tool-button__emoji","✨"),ce("span","tool-button__label","Asistente de IA"),ce("span","tool-button__desc","Con tu app de IA o con Gemini"));
+  b.addEventListener("click",()=>{
+    go("backupScreen");
+    const panel=document.getElementById("aiSettingsPanel");
+    panel.open=true;
+    setTimeout(()=>panel.scrollIntoView({
+      block:"start",behavior:"smooth"
+    }),60)
+  });
+  const settings=document.getElementById("sectionSettings");
+  (settings.querySelector(".tools-grid")||settings).append(b)
+}

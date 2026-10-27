@@ -214,7 +214,7 @@ function renderSaved(){
       box.addEventListener("toggle",()=>{
         if(!q)savedRecipesOpen=box.open
       });
-      box.append(ce("summary",null,"📖 Recetas asignadas al plan ("+recipes.length+")"),ce("p","screen__hint","Se crean al asignar una receta al plan. La receta se edita en Descubrí → Con lo que tengo."),...recipes.map(savedCard));
+      box.append(ce("summary",null,"📖 Recetas asignadas al plan ("+recipes.length+")"),ce("p","screen__hint","Se crean al asignar una receta al plan. La receta se edita en Más → Con lo que tengo."),...recipes.map(savedCard));
       nodes.push(box)
     }
     list.replaceChildren(...nodes)
