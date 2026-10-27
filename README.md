@@ -14,7 +14,7 @@ La barra de abajo tiene cinco pestañas:
 - **Hoy:** tus comidas de hoy según el plan, con **Lo comí** en un toque (queda en *Lo que comí*, sin cambiar el plan), y los atajos para armar un desayuno, un almuerzo o el plato del día.
 - **Semana:** el plan semanal.
 - **Compras:** la lista que sale del plan, más los productos que agregás vos.
-- **Mis comidas:** tus platos guardados.
+- **Mis comidas:** tus platos guardados y tus recetas en un solo lugar, con búsqueda por nombre o ingrediente. Desde cada receta: Ver, Planificar o Editar.
 - **Más:** ideas (sugerir al azar, con lo que tengo), días de entrenamiento y ajustes (tema, respaldo, asistente de IA y modo simple).
 
 Cada pestaña recuerda dónde quedaste (por ejemplo, un plato a medio armar). Tocar la pestaña activa, o el botón de arriba, vuelve a su inicio.
@@ -25,6 +25,7 @@ La app arranca en **modo simple**: muestra lo necesario para armar comidas, plan
 
 - **Ocultas en Compras:** presupuesto, compras realizadas, existencias con cantidad, precios, costos y cálculos por receta.
 - **Ocultas en Recetas:** revisar una idea, recomendaciones por costo, orden de resultados, mis cantidades por receta, ingredientes equivalentes y descontar de la despensa.
+- **Ocultas en Mis comidas:** exportar o importar platos, vaciar la lista y las copias de recetas que usa el plan.
 - **Ocultas en el Plan:** variaciones, semanas por fecha, vista del mes, historial de cambios y objetivos semanales.
 
 Para verlas: **Más → Modo simple**, o el botón **Mostrar herramientas avanzadas** al final de Compras, Recetas y Plan. Es un ajuste de cada dispositivo: no va en los respaldos.

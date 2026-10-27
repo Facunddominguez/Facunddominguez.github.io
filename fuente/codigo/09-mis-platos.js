@@ -181,44 +181,158 @@ function sortSaved(arr){
   }
   return s
 }
+// Mis comidas (v14.9.92): una sola biblioteca con los platos guardados y las recetas propias.
+// Solo muestra: no cambia ni mezcla datos. Las copias que se crean al asignar una receta al plan
+// (guardan nombre e ingredientes por si la receta se borra) se ven en el modo completo.
+let savedKind="todo";
+function savedRecipeIngredients(r,amounts){
+  const a=r.amountsTitle&&Object.prototype.hasOwnProperty.call(amounts,r.amountsTitle)?amounts[r.amountsTitle]:null;
+  return a?a.rows.map(x=>String(x.name||"").trim()).filter(Boolean):[]
+}
+function matchSavedRecipe(r,amounts,q){
+  if(!q)return true;
+  return normalizeSearchText([r.title,r.sourceTitle||"",r.notes||"",...(r.steps||[]),...(r.tags||[]),...savedRecipeIngredients(r,amounts)].join(" ")).includes(q)
+}
+function savedRecipeCard(r,amounts,inPlan){
+  const card=ce("div","summary__line recipe-lib-card"),names=savedRecipeIngredients(r,amounts),a=r.amountsTitle&&Object.prototype.hasOwnProperty.call(amounts,r.amountsTitle)?amounts[r.amountsTitle]:null;
+  card.dataset.recipeId=r.id;
+  card.append(ce("strong",null,"📖 "+r.title));
+  const ul=ce("ul","recipe-lib-card__lines");
+  ul.append(ce("li",null,names.length?"Ingredientes: "+names.join(", "):"Sin ingredientes cargados"));
+  card.append(ul);
+  const meta=[r.minutes?"⏱ "+r.minutes+" min":"",a&&a.yield?"Rinde "+String(a.yield).replace(".",",")+" porci"+(a.yield===1?"ón":"ones"):"",r.steps.length?r.steps.length+" paso"+(r.steps.length===1?"":"s"):"",inPlan?"📅 En el plan":""].filter(Boolean).join(" · ");
+  if(meta)card.append(ce("div","recipe-lib-card__meta",meta));
+  const acts=ce("div","recipe-lib-card__actions");
+  for(const [text,key] of [["Ver receta","savedRecipeView"],["Planificar","savedRecipePlan"],["Editar","savedRecipeEdit"]]){
+    const b=ce("button","button button--soft",text);
+    b.type="button";
+    b.dataset[key]=r.id;
+    b.setAttribute("aria-label",text+": "+r.title);
+    acts.append(b)
+  }
+  card.append(acts);
+  return card
+}
 function renderSaved(){
   const list=document.getElementById("savedList"),hint=document.getElementById("savedHint");
   if(!list)return;
-  const a=loadSaved();
-  const q=normalizeSearchText(savedQuery);
-  const filtered=a.filter(it=>matchSaved(it,q));
-  const ordered=sortSaved(filtered);
-  const sorted=ordered.slice().sort((x,y)=>(y.fav?1:0)-(x.fav?1:0));
-  if(hint){
-    if(!a.length)hint.textContent="";
-    else if(q)hint.textContent="Mostrando "+filtered.length+" de "+a.length+" platos.";
-    else{
-      const r=a.filter(x=>x.recipeSourceId).length,p=a.length-r;
-      hint.textContent="Tenés "+p+" plato"+(p===1?"":"s")+" guardado"+(p===1?"":"s")+(r?" y "+r+" receta"+(r===1?"":"s")+" del plan":"")+" en este dispositivo."
-    }
+  const a=loadSaved(),q=normalizeSearchText(savedQuery);
+  let store={},storeError="",amounts={};
+  try{
+    store=loadRecipeDetails()
+  }catch(err){
+    storeError=err.message
   }
-  if(!a.length){
-    list.replaceChildren(emptyState("🍽️","Todavía no guardaste platos","Armá una comida y tocá Guardar para tenerla siempre a mano.",{
+  try{
+    amounts=loadRecipeAmounts()
+  }catch(err){
+  }
+  // Si las recetas no se pueden leer, las copias del plan no se tratan como "receta borrada".
+  const plates=a.filter(x=>!x.recipeSourceId),copies=a.filter(x=>x.recipeSourceId),orphans=storeError?[]:copies.filter(x=>!Object.prototype.hasOwnProperty.call(store,x.recipeSourceId)),recipes=Object.values(store).sort((x,y)=>x.title.localeCompare(y.title,"es"));
+  const plan=loadPlan(),planned=new Set();
+  DAYS.forEach(([d])=>SLOTS.forEach(([s])=>{
+    const id=plan[d]&&plan[d][s];if(id)planned.add(id)
+  }));
+  const recipesInPlan=new Set(copies.filter(x=>planned.has(x.id)).map(x=>x.recipeSourceId));
+  const platesF=sortSaved(plates.filter(it=>matchSaved(it,q))).sort((x,y)=>(y.fav?1:0)-(x.fav?1:0)),recipesF=recipes.filter(r=>matchSavedRecipe(r,amounts,q)),orphansF=orphans.filter(it=>matchSaved(it,q)),copiesF=copies.filter(it=>!orphans.includes(it)&&matchSaved(it,q));
+  document.querySelectorAll("[data-saved-kind]").forEach(b=>{
+    const on=b.dataset.savedKind===savedKind;b.classList.toggle("is-selected",on);b.setAttribute("aria-pressed",String(on))
+  });
+  const nP=plates.length,nR=storeError?copies.length:recipes.length+orphans.length,plural=(n,one,many)=>n+" "+(n===1?one:many);
+  if(hint){
+    if(!nP&&!nR)hint.textContent="";
+    else if(q)hint.textContent="Encontré "+plural(platesF.length,"plato","platos")+" y "+plural(recipesF.length+orphansF.length,"receta","recetas")+".";
+    else hint.textContent="Tenés "+plural(nP,"plato","platos")+" y "+plural(nR,"receta","recetas")+" guardados en este dispositivo."
+  }
+  if(!nP&&!nR&&!copies.length&&!storeError){
+    list.replaceChildren(emptyState("🍽️","Todavía no guardaste comidas","Armá un plato y tocá Guardar, o creá una receta en Más → Con lo que tengo.",{
       label:"Armar mi primer plato",key:"start",value:"plato"
-    }))
-  }else if(!filtered.length){
-    list.replaceChildren(emptyState("🔍","Sin resultados","No hay platos que coincidan con tu búsqueda. Probá con otra palabra.",{
-      label:"Limpiar búsqueda",key:"clearSearch"
-    }))
-  }else{
-    const plates=sorted.filter(x=>!x.recipeSourceId),recipes=sorted.filter(x=>x.recipeSourceId),nodes=plates.map(savedCard);
-    if(!plates.length)nodes.push(ce("p","screen__hint",q?"Ningún plato propio coincide; mirá las recetas del plan.":"Todavía no guardaste platos propios. Abajo están las recetas que asignaste al plan."));
-    if(recipes.length){
+    }));
+    return
+  }
+  const nodes=[];
+  if(savedKind!=="recetas"){
+    nodes.push(ce("h3","saved-section__title","🍽️ Platos ("+(q?platesF.length+" de "+nP:nP)+")"));
+    if(platesF.length)nodes.push(...platesF.map(savedCard));
+    else nodes.push(ce("p","screen__hint",q?"Ningún plato coincide con tu búsqueda.":"Todavía no guardaste platos. Armá una comida y tocá Guardar."))
+  }
+  if(savedKind!=="platos"){
+    if(storeError){
+      const shownCopies=copies.filter(it=>matchSaved(it,q));
+      nodes.push(ce("h3","saved-section__title","📖 Recetas"),ce("p","screen__hint",storeError),...shownCopies.map(savedCard));
+      list.replaceChildren(...nodes);
+      return
+    }
+    nodes.push(ce("h3","saved-section__title","📖 Recetas ("+(q?recipesF.length+orphansF.length+" de "+nR:nR)+")"));
+    nodes.push(...recipesF.map(r=>savedRecipeCard(r,amounts,recipesInPlan.has(r.id))));
+    for(const it of orphansF){
+      const card=savedCard(it);
+      card.insertBefore(ce("p","screen__hint","Copia guardada en el plan: la receta original se borró."),card.children[1]||null);
+      nodes.push(card)
+    }
+    if(!recipesF.length&&!orphansF.length&&!storeError)nodes.push(ce("p","screen__hint",q?"Ninguna receta coincide con tu búsqueda.":"Todavía no tenés recetas. Creá una en Más → Con lo que tengo → Crear receta."));
+    if(copiesF.length){
       const box=ce("details","home-group saved-recipes");
-      box.open=savedRecipesOpen||!!q;
+      box.setAttribute("data-avanzado","misplatos");
+      box.open=savedRecipesOpen;
       box.addEventListener("toggle",()=>{
-        if(!q)savedRecipesOpen=box.open
+        savedRecipesOpen=box.open
       });
-      box.append(ce("summary",null,"📖 Recetas asignadas al plan ("+recipes.length+")"),ce("p","screen__hint","Se crean al asignar una receta al plan. La receta se edita en Más → Con lo que tengo."),...recipes.map(savedCard));
+      box.append(ce("summary",null,"🗂️ Copias de recetas usadas en el plan ("+copiesF.length+")"),ce("p","screen__hint","Se crean al asignar una receta al plan y guardan su nombre e ingredientes por si la receta se borra. La receta se edita en Más → Con lo que tengo."),...copiesF.map(savedCard));
       nodes.push(box)
     }
-    list.replaceChildren(...nodes)
   }
+  list.replaceChildren(...nodes)
+}
+// Acciones de la biblioteca: filtro y botones de las recetas.
+document.addEventListener("click",e=>{
+  const b=e.target.closest("button");
+  if(!b)return;
+  if(b.dataset.savedKind){
+    savedKind=b.dataset.savedKind;
+    renderSaved();
+    return
+  }
+  const view=b.dataset.savedRecipeView,edit=b.dataset.savedRecipeEdit,plan=b.dataset.savedRecipePlan;
+  try{
+    if(view){
+      go("ingredientes");
+      showRecipeView("browse");
+      recipeReadReturnTo="misplatos";
+      showRecipeRead(view)
+    }else if(edit){
+      go("ingredientes");
+      recipeDetailsEditing=edit;
+      renderRecipeDetails();
+      showRecipeView("editor")
+    }else if(plan)planSavedRecipe(plan)
+  }catch(err){
+    savedStatus(err.message)
+  }
+});
+// "Planificar": abre la Semana con la receta elegida en "Consultar mis recetas mientras planifico".
+function planSavedRecipe(id){
+  openTab("semana");
+  document.getElementById("currentPlanPanel").open=true;
+  document.getElementById("planRecipeSearch").value="";
+  const ref=document.getElementById("planRecipeReference");
+  ref.open=true;
+  setTimeout(()=>{
+    const select=document.getElementById("planRecipeSelect");
+    renderPlanRecipeReference();
+    if(![...select.options].some(o=>o.value===id)){
+      document.getElementById("planRecipeApplyAvoid").checked=false;
+      renderPlanRecipeReference()
+    }
+    select.value=id;
+    renderPlanRecipePreview();
+    document.getElementById("planRecipeDay").value=todayPlanDay();
+    document.getElementById("planRecipeSlot").value="almuerzo";
+    document.getElementById("planRecipeAssignStatus").textContent="Elegí el día y la comida, y tocá Asignar receta al plan actual.";
+    ref.scrollIntoView({
+      block:"start",behavior:"smooth"
+    })
+  },80)
 }
 function exportPlates(){
   const a=loadSaved();

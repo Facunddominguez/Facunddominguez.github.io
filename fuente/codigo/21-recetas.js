@@ -457,6 +457,8 @@ function startRecipeFromIdea(title){
 }
 let recipeReadId=null;
 let recipeReadReturnFocus=null;
+// "misplatos" cuando la receta se abrió desde Mis comidas: Volver regresa ahí.
+let recipeReadReturnTo=null;
 function showRecipeRead(id){
   const all=loadRecipeDetails(),r=all[id];
   if(!r)throw Error("La receta ya no está disponible.");
@@ -466,6 +468,7 @@ function showRecipeRead(id){
   const panel=document.getElementById("recipeReadView");
   document.getElementById("recipeCatalogResults").hidden=true;
   panel.hidden=false;
+  document.getElementById("recipeReadBack").textContent=recipeReadReturnTo==="misplatos"?"← Volver a Mis comidas":"← Volver a recetas";
   document.getElementById("recipeReadTitle").textContent=r.title;
   document.getElementById("recipeReadOrigin").textContent=r.sourceTitle?"Idea de origen: "+r.sourceTitle:"Receta propia";
   renderRecipeReadExtras(r,all);
@@ -501,6 +504,7 @@ function showRecipeRead(id){
 }
 function closeRecipeRead(restoreFocus=true){
   recipeReadId=null;
+  recipeReadReturnTo=null;
   document.getElementById("recipeBrowseView").classList.remove("is-reading");
   document.getElementById("recipeReadView").hidden=true;
   document.getElementById("recipeCatalogResults").hidden=false;
@@ -594,7 +598,14 @@ function addRecipeMissingToShopping(){
 document.getElementById("recipeReadToShopping").addEventListener("click",addRecipeMissingToShopping);
 document.getElementById("recipeReadDuplicate").addEventListener("click",()=>duplicateRecipeFromButton(recipeReadId));
 document.getElementById("recipeDetailsDuplicate").addEventListener("click",()=>duplicateRecipeFromButton(recipeDetailsEditing));
-document.getElementById("recipeReadBack").addEventListener("click",closeRecipeRead);
+document.getElementById("recipeReadBack").addEventListener("click",()=>{
+  if(recipeReadReturnTo==="misplatos"){
+    closeRecipeRead(false);
+    back();
+    return
+  }
+  closeRecipeRead()
+});
 document.getElementById("recipeReadEdit").addEventListener("click",()=>{
   try{
     const id=recipeReadId;if(!id)return;recipeDetailsEditing=id;renderRecipeDetails();closeRecipeRead(false);showRecipeView("editor");document.getElementById("recipeDetailsTitle").focus({

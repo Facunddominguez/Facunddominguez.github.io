@@ -20,6 +20,13 @@ const ADVANCED_TOOLS={
       document.getElementById("ingredientAliasPanel")
     ]
   },
+  misplatos:{
+    list:"exportar o importar platos, vaciar la lista y las copias de recetas que usa el plan",
+    items:()=>{
+      const tools=document.getElementById("savedTools"),divider=tools&&tools.previousElementSibling;
+      return [divider&&divider.classList.contains("divider")?divider:null,tools]
+    }
+  },
   plan:{
     list:"variaciones, semanas por fecha, vista del mes, historial de cambios y objetivos semanales",
     items:()=>{

@@ -2808,3 +2808,34 @@ body:has(#home.is-active) .app-shell{
   line-height:1.15;
   overflow-wrap:anywhere
 }
+
+/* Mis comidas: platos y recetas en una sola biblioteca */
+.saved-section__title{
+  margin:18px 0 8px;
+  font-size:16px;
+  font-weight:850;
+  color:var(--text)
+}
+.recipe-lib-card__lines{
+  margin:6px 0 0;
+  padding-left:18px;
+  color:var(--muted);
+  font-size:13px
+}
+.recipe-lib-card__meta{
+  margin-top:6px;
+  color:var(--muted);
+  font-size:12px
+}
+.recipe-lib-card__actions{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:8px;
+  margin-top:10px
+}
+.recipe-lib-card__actions>.button{
+  min-height:44px;
+  margin:0;
+  padding:8px 6px;
+  font-size:14px
+}
