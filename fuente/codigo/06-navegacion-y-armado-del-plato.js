@@ -303,6 +303,8 @@ function restart(){
   const home=document.getElementById("home");
   home.classList.add("is-active");
   home.removeAttribute("aria-hidden");
+  // Empezar de nuevo también vuelve todas las pestañas a su inicio (Hoy activa).
+  if(typeof resetTabs==="function")resetTabs();
   nav();
   window.scrollTo({
     top:0,behavior:"smooth"

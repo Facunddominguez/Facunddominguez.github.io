@@ -2829,7 +2829,7 @@ body:has(#home.is-active) .app-shell{
 }
 .recipe-lib-card__actions{
   display:grid;
-  grid-template-columns:repeat(3,minmax(0,1fr));
+  grid-template-columns:repeat(2,minmax(0,1fr));
   gap:8px;
   margin-top:10px
 }
@@ -2876,4 +2876,24 @@ body:has(#home.is-active) .app-shell{
 }
 #pantryResultsTitle{
   margin-top:18px
+}
+
+/* Registrar en un toque: Lo compré (Compras) */
+.bought-box{
+  margin:14px 0 4px;
+  padding:12px;
+  border:1px solid var(--line);
+  border-radius:16px;
+  background:var(--green2)
+}
+.bought-box>.screen__hint{
+  margin:0
+}
+.bought-box>.button{
+  display:block;
+  width:100%;
+  margin-top:10px
+}
+.bought-box>#comprasBoughtStatus:empty{
+  display:none
 }

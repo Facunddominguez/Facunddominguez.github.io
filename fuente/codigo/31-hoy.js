@@ -9,6 +9,8 @@ function todayHint(){
   }
   return t===true?"Hoy es día de entrenamiento.":t===false?"Hoy es día de descanso.":"Tus comidas de hoy según el plan de la semana."
 }
+// Último "Lo comí" registrado desde Hoy, para poder deshacerlo.
+var todayUndoId=null;
 function renderToday(){
   const box=document.getElementById("todayRows");
   if(!box)return;
@@ -40,9 +42,32 @@ document.addEventListener("click",e=>{
   if(!b)return;
   if(b.dataset.planEaten&&b.closest("#todayPanel")){
     // El registro lo hace el manejador del plan (24-consumo-y-habitos.js), que corre antes que este.
-    const slot=b.dataset.planEaten.split("|")[1],status=document.getElementById("todayStatus"),plan=loadPlan(),id=plan[todayPlanDay()]&&plan[todayPlanDay()][slot],it=id?loadSaved().find(p=>p.id===id):null;
+    const slot=b.dataset.planEaten.split("|")[1],status=document.getElementById("todayStatus"),plan=loadPlan(),id=plan[todayPlanDay()]&&plan[todayPlanDay()][slot],it=id?loadSaved().find(p=>p.id===id):null,today=localTrainingDate(new Date());
     renderToday();
-    status.textContent=it&&eatenToday(it,slot)?"Registrado en Lo que comí ("+planSlotName(slot)+"). El plan no cambió.":"No se pudo registrar. Probá desde la Semana → Lo que comí.";
+    const rec=it?loadConsumption().filter(x=>x.date===today&&x.meal===slot&&x.sourceId===it.id).at(-1):null;
+    if(!rec){
+      status.textContent="No se pudo registrar. Probá desde la Semana → Lo que comí.";
+      return
+    }
+    todayUndoId=rec.id;
+    const undo=ce("button","filter-chip","Deshacer");
+    undo.type="button";
+    undo.dataset.todayUndo="";
+    status.replaceChildren(document.createTextNode("Registrado en Lo que comí ("+planSlotName(slot)+"). El plan no cambió. "),undo);
+    return
+  }
+  if(b.dataset.todayUndo!==undefined&&todayUndoId){
+    const status=document.getElementById("todayStatus");
+    try{
+      saveConsumption(loadConsumption().filter(x=>x.id!==todayUndoId));
+      todayUndoId=null;
+      renderToday();
+      renderPlan();
+      if(document.getElementById("consumptionPanel").open)renderConsumption();
+      status.textContent="Listo, se deshizo."
+    }catch(err){
+      status.textContent=err.message
+    }
     return
   }
   if(b.dataset.todayChoose){

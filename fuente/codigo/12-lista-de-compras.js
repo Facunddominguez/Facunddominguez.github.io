@@ -210,7 +210,7 @@ function shoppingSuggestion(e,stock,marked){
   };
   const buy=shoppingQtyText(missing);
   return {
-    kind:"partial",text:"Despensa: tenés "+have+". Podrías comprar "+buy+(e.unknown?", más lo que no tiene cantidad.":"."),buy
+    kind:"partial",text:"Despensa: tenés "+have+". Podrías comprar "+buy+(e.unknown?", más lo que no tiene cantidad.":"."),buy,missing
   }
 }
 function shoppingDisplayItems(){

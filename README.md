@@ -21,6 +21,12 @@ La barra de abajo tiene cinco pestañas:
 
 Cada pestaña recuerda dónde quedaste (por ejemplo, un plato a medio armar). Tocar la pestaña activa, o el botón de arriba, vuelve a su inicio.
 
+**Registrar en un toque** (todo se puede deshacer enseguida):
+
+- **Lo comí** (Hoy): anota la comida del plan en *Lo que comí*, sin cambiar el plan.
+- **🍳 Lo cociné** (en cada receta de Mis comidas y al verla): anota la preparación de hoy y, si la receta tiene cantidades, las descuenta de tu despensa (solo lo que tengas registrado; avisa lo que no alcanzó).
+- **🧺 Lo compré** (Compras): lo que tachaste pasa a tu despensa, con la cantidad de la lista cuando se sabe (o la de la sugerencia que aplicaste). La lista de compras no cambia.
+
 ## Modo simple
 
 La app arranca en **modo simple**: muestra lo necesario para armar comidas, planificar la semana, hacer las compras y registrar lo que comiste. Las herramientas avanzadas quedan ocultas, no borradas: sus datos siguen guardados y en uso (por ejemplo, las existencias siguen sugiriendo en Compras).

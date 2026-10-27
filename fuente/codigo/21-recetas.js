@@ -469,6 +469,7 @@ function showRecipeRead(id){
   document.getElementById("recipeCatalogResults").hidden=true;
   panel.hidden=false;
   document.getElementById("recipeReadBack").textContent=recipeReadReturnTo==="misplatos"?"← Volver a Mis comidas":"← Volver a recetas";
+  document.getElementById("recipeReadStatus").textContent="";
   document.getElementById("recipeReadTitle").textContent=r.title;
   document.getElementById("recipeReadOrigin").textContent=r.sourceTitle?"Idea de origen: "+r.sourceTitle:"Receta propia";
   renderRecipeReadExtras(r,all);

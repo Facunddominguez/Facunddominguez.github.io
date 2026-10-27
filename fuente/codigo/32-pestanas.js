@@ -4,6 +4,9 @@
 // o el botón de arriba, vuelve a su pantalla de inicio. Las pestañas no guardan nada en el dispositivo.
 let openTab=()=>{
 };
+// Vuelve todas las pestañas a su inicio (lo usa restart(), por ejemplo con "Armar otro plato").
+// Es var para que restart() pueda consultarla aunque se llame antes de que corra este archivo.
+var resetTabs=null;
 (()=>{
   const home=document.getElementById("home"),bar=document.getElementById("sectionNav"),theme=document.getElementById("themeToggle");
   let switching=false;
@@ -109,12 +112,10 @@ let openTab=()=>{
       switchTab(activeTab)
     }
   },true);
-  document.addEventListener("click",e=>{
-    if(e.target.closest("[data-restart]")){
-      activeTab="hoy";
-      Object.keys(memories).forEach(k=>delete memories[k]);
-      paint()
-    }
-  });
+  resetTabs=()=>{
+    activeTab="hoy";
+    Object.keys(memories).forEach(k=>delete memories[k]);
+    paint()
+  };
   paint()
 })();

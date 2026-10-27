@@ -203,7 +203,7 @@ function savedRecipeCard(r,amounts,inPlan){
   const meta=[r.minutes?"⏱ "+r.minutes+" min":"",a&&a.yield?"Rinde "+String(a.yield).replace(".",",")+" porci"+(a.yield===1?"ón":"ones"):"",r.steps.length?r.steps.length+" paso"+(r.steps.length===1?"":"s"):"",inPlan?"📅 En el plan":""].filter(Boolean).join(" · ");
   if(meta)card.append(ce("div","recipe-lib-card__meta",meta));
   const acts=ce("div","recipe-lib-card__actions");
-  for(const [text,key] of [["Ver receta","savedRecipeView"],["Planificar","savedRecipePlan"],["Editar","savedRecipeEdit"]]){
+  for(const [text,key] of [["Ver receta","savedRecipeView"],["🍳 Lo cociné","savedRecipeCook"],["Planificar","savedRecipePlan"],["Editar","savedRecipeEdit"]]){
     const b=ce("button","button button--soft",text);
     b.type="button";
     b.dataset[key]=r.id;
