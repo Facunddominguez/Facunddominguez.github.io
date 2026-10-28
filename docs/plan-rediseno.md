@@ -234,3 +234,37 @@ Hecho cuando: las capturas en tema claro y oscuro no muestran superposiciones ni
 ## Arranque (solo para el primer mensaje)
 
 Ahora hacé solo esto: creá la rama `rediseno` desde `main`, guardá este plan textual en `docs/plan-rediseno.md`, hacé commit y push de la rama, y respondé "LISTO". No empieces la Etapa 0: enseguida te mando un /goal para que trabajes solo hasta el final. Si retomás más adelante, ignorá esta sección y seguí el modo autónomo desde el Registro.
+
+## Registro
+
+Estados: ✅ hecha · ⏳ en curso · ⛔ parada. Cada etapa entra a `rediseno` con su tag `etapa-N-ok` cuando pasa la compuerta (`node herramientas/validar-etapa.mjs N`) y los dos revisores.
+
+| Etapa | Estado | Tag | Versión de la app |
+|---|---|---|---|
+| 0. Red de seguridad | ⏳ | — | 14.9.94 |
+| 1. Confianza | — | — | — |
+| 2. Selector de comida y nueva Semana | — | — | — |
+| 3. Hoy | — | — | — |
+| 4. Comidas y nueva estructura | — | — | — |
+| 5. Compras y Despensa | — | — | — |
+| 6. Un solo registro | — | — | — |
+| 7. Precios automáticos de INDEC | — | — | — |
+| 8. Resto de las herramientas avanzadas | — | — | — |
+| 9. Precios de SEPA | — | — | — |
+| 10. Pulido | — | — | — |
+
+### Etapa 0 · Red de seguridad ⏳
+
+Rama `rediseno-etapa-0-red-de-seguridad`.
+
+**Plan corto**
+- Archivos nuevos: `CLAUDE.md`; `.claude/agents/revisor-codigo.md` y `revisor-usuario.md`; `herramientas/validar-etapa.mjs` (compuerta) y `herramientas/capturas.mjs` (capturas y medidas a 390×844, claro y oscuro); `docs/validacion/criterios.json` y `docs/validacion/linea-base.json`; `pruebas/fixtures/respaldo-v14.9.94.json` (respaldo completo inventado, con los 24 módulos); `pruebas/k01_respaldo_ejemplo.js` (se restaura, cada pantalla abre sin errores y los conteos coinciden) y `pruebas/j01_recorridos.js` (recorridos que no se pueden romper); `.gitattributes`.
+- Archivos que cambian, sin tocar la app: `pruebas/suites.json` (suma k01 y j01), `pruebas/run_all.js` (devuelve también el nombre y el resultado de cada prueba), `herramientas/probar.mjs` (opción `--json <archivo>` con esos resultados) y `.gitignore` (carpeta `capturas/`).
+- Riesgos para los datos: ninguno. `fuente/` no cambia e `index.html` tiene que seguir idéntico (`construir.mjs --verificar`). El respaldo de ejemplo usa solo datos inventados.
+- Pruebas que cambian: ninguna existente. Se suman dos baterías. Los recorridos de j01 se escriben con funciones de manejo de la interfaz separadas de lo que verifican, para que las etapas siguientes adapten el manejo sin aflojar los resultados.
+- Compuerta probada en falso: en una rama aparte, sin push ni merge, se rompe una prueba a propósito y `validar-etapa.mjs 0` tiene que fallar.
+
+**Decisiones que tomé sin vos**
+- Las ramas de etapa se llaman `rediseno-etapa-N-tema`: git no permite que existan a la vez `rediseno` y `rediseno/etapa-N-tema`, porque `rediseno` ya es una rama y no puede ser también una carpeta de ramas.
+- `.gitattributes` con `* -text`: los archivos se bajan tal cual están en el repositorio. Sin esto, un clon en Windows convierte los saltos de línea y `construir.mjs --verificar` falla aunque no haya cambios.
+- Las capturas usan un reloj fijo, lunes 26/10/2026 a las 12:00 (Argentina), y los datos del respaldo de ejemplo, para que las medidas sean comparables entre etapas.
