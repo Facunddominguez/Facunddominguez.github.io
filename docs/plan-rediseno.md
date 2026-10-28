@@ -257,14 +257,56 @@ Estados: ✅ hecha · ⏳ en curso · ⛔ parada. Cada etapa entra a `rediseno` 
 
 Rama `rediseno-etapa-0-red-de-seguridad`.
 
-**Plan corto**
-- Archivos nuevos: `CLAUDE.md`; `.claude/agents/revisor-codigo.md` y `revisor-usuario.md`; `herramientas/validar-etapa.mjs` (compuerta) y `herramientas/capturas.mjs` (capturas y medidas a 390×844, claro y oscuro); `docs/validacion/criterios.json` y `docs/validacion/linea-base.json`; `pruebas/fixtures/respaldo-v14.9.94.json` (respaldo completo inventado, con los 24 módulos); `pruebas/k01_respaldo_ejemplo.js` (se restaura, cada pantalla abre sin errores y los conteos coinciden) y `pruebas/j01_recorridos.js` (recorridos que no se pueden romper); `.gitattributes`.
-- Archivos que cambian, sin tocar la app: `pruebas/suites.json` (suma k01 y j01), `pruebas/run_all.js` (devuelve también el nombre y el resultado de cada prueba), `herramientas/probar.mjs` (opción `--json <archivo>` con esos resultados) y `.gitignore` (carpeta `capturas/`).
-- Riesgos para los datos: ninguno. `fuente/` no cambia e `index.html` tiene que seguir idéntico (`construir.mjs --verificar`). El respaldo de ejemplo usa solo datos inventados.
-- Pruebas que cambian: ninguna existente. Se suman dos baterías. Los recorridos de j01 se escriben con funciones de manejo de la interfaz separadas de lo que verifican, para que las etapas siguientes adapten el manejo sin aflojar los resultados.
-- Compuerta probada en falso: en una rama aparte, sin push ni merge, se rompe una prueba a propósito y `validar-etapa.mjs 0` tiene que fallar.
+**Plan corto** (revisado: revisor-codigo marcó 2 bloqueantes en la primera versión, el PR borrador y los apartados del Registro, ya corregidos)
+- Archivos nuevos:
+  - `CLAUDE.md`.
+  - `.claude/agents/revisor-codigo.md` y `revisor-usuario.md`.
+  - `herramientas/validar-etapa.mjs` (compuerta) y `herramientas/capturas.mjs` (capturas y medidas a 390×844, claro y oscuro).
+  - `docs/validacion/criterios.json` y `docs/validacion/linea-base.json`.
+  - `pruebas/fixtures/respaldo-v14.9.94.json`, generado con `completeBackupSnapshot` de la v14.9.94: los 24 módulos con datos inventados, incluidos los casos que las etapas siguientes corrigen al mostrar ("En trozos", "Huevo | Clara de huevo", platos repetidos como "Desayuno / Merienda" y los cinco registros de P11). Su hash va a la línea base.
+  - `pruebas/k01_respaldo_ejemplo.js` y `pruebas/j01_recorridos.js`, al final de `suites.json`.
+  - `.gitattributes`.
+- Archivos que cambian, sin tocar la app:
+  - `pruebas/suites.json` (suma k01 y j01).
+  - `pruebas/run_all.js`: agrega el detalle de cada prueba sin cambiar lo que ya devolvía (`TOTAL`, cada batería y `_fallas`, que leen `probar.mjs` y la tarea de `main`).
+  - `herramientas/probar.mjs`: opción `--json <archivo>` con esos resultados.
+  - `.gitignore`: carpeta `capturas/`.
+- PR borrador `rediseno` → `main` con `gh api`, para que cada push a `rediseno` corra las pruebas en GitHub (`pruebas.yml` solo corre en PR). Si no se puede crear, va a "Pendientes para vos".
+- Capturas (`capturas.mjs`), en tres estados:
+  - `vacio`: primer uso, sin datos;
+  - `normal`: el respaldo de ejemplo, con la semana completa (7 × 4), en modo simple;
+  - `todo`: modo completo y todos los paneles abiertos.
+
+  Mide alto, palabras visibles, errores de JavaScript, scroll horizontal, campos sin etiqueta, elementos fuera de la pantalla, textos cortados y controles superpuestos. Las imágenes se llaman `<vista>-<estado>-<tema>.png`, con un `medidas.json` al lado. Reloj fijo: lunes 26/10/2026 a las 12:00 (Argentina). El "antes" de cada etapa se mide en este mismo equipo, desde una copia del tag anterior.
+- `criterios.json`:
+  - cada control tiene `id`, etapa desde la que aplica, tipo (medida, prueba, comando, registro o revisor), vista, estado, métrica, operador y umbral;
+  - los de tipo prueba nombran la prueba (por su código) y la compuerta falla si desde esa etapa no existe o no pasa;
+  - la compuerta compara contra el tag `etapa-0-ok`: quitar un control o aflojar un umbral cuenta como falla.
+- Compuerta (`validar-etapa.mjs`):
+  - nunca usa `--suites`;
+  - compara la cantidad de pruebas contra la mayor entre la línea base de la rama y la de `rediseno`;
+  - falla si falta una batería, si no hay navegador, si el JSON de resultados está incompleto o si, desde la Etapa 1, falta el tag `etapa-0-ok`;
+  - controla que toda clave `miPlatoFacil_*` nueva entre en el respaldo como opcional (`COMPLETE_BACKUP_KEYS` y `COMPLETE_BACKUP_OPTIONAL_KEYS`);
+  - no escribe archivos versionados, salvo `--actualizar-linea-base`, que solo deja subir los conteos.
+- Línea base: las 26 claves (incluidas `miPlatoFacil_aiSettings_v1` y `miPlatoFacil_uiMode_v1`, que no van en el respaldo) y aparte las 24 del respaldo; los 3 dominios externos de hoy (aistudio.google.com, fdc.nal.usda.gov y generativelanguage.googleapis.com); navegador, sistema y medidas de la v14.9.94.
+- k01 y j01 abren la app en un iframe del mismo origen, porque restaurar recarga la página.
+  - k01: el respaldo de ejemplo se restaura y las 24 claves quedan idénticas byte a byte; recorrer todas las pantallas no escribe nada; los conteos coinciden sin depender de la fecha real.
+  - j01, seis recorridos que verifican lo guardado y no textos ni ids: armar y guardar un plato, asignarlo a un día, ver la lista, tachar y Lo compré, Lo comí con Deshacer, y respaldar y restaurar. No dan por bueno nada que el plan va a cambiar (P5, P6), solo lo de "Conservar".
+- Riesgos para los datos: ninguno. `fuente/` no cambia e `index.html` tiene que seguir idéntico (`construir.mjs --verificar`).
+- Pruebas que cambian: ninguna existente. Se suman dos baterías.
+- Compuerta probada en falso, en una rama aparte sin push ni merge, con tres casos: romper una prueba, borrar una prueba y aflojar un umbral de `criterios.json`. Se anotan la salida y el código de salida de cada uno.
+
+**Medidas antes y después**
+- (se completa al cerrar la etapa: capturas y medidas de referencia de la v14.9.94)
 
 **Decisiones que tomé sin vos**
 - Las ramas de etapa se llaman `rediseno-etapa-N-tema`: git no permite que existan a la vez `rediseno` y `rediseno/etapa-N-tema`, porque `rediseno` ya es una rama y no puede ser también una carpeta de ramas.
-- `.gitattributes` con `* -text`: los archivos se bajan tal cual están en el repositorio. Sin esto, un clon en Windows convierte los saltos de línea y `construir.mjs --verificar` falla aunque no haya cambios.
+- `.gitattributes` con `* text=auto eol=lf`: los archivos se bajan con saltos de línea LF también en Windows. Sin esto, un clon en Windows los convierte y `construir.mjs --verificar` falla aunque no haya cambios.
 - Las capturas usan un reloj fijo, lunes 26/10/2026 a las 12:00 (Argentina), y los datos del respaldo de ejemplo, para que las medidas sean comparables entre etapas.
+- Los enlaces de atribución de los precios (Etapa 7) van en `datos/precios.json`, no en `fuente/`: así la app no suma dominios externos y la compuerta no se afloja.
+
+**Mejoras sugeridas**
+- (al cerrar la etapa)
+
+**Pendientes para vos**
+- (al cerrar la etapa)
