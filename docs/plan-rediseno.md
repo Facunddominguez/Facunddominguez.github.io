@@ -756,3 +756,27 @@ Rama `rediseno-etapa-3-hoy`. Versión 15.2.0.
 - Semilla: la propuesta inicial del almuerzo es igual a la de `platoDelDia`; la de la cena suma la comida a la semilla (`"plato_"+fecha+"_cena"`). C3-5 lo compara.
 - `armadoDestino` se fija después de `resetForRandom`, en Sugerime y en "Ver y cambiar"; C3-5 incluye un desayuno que, al guardarse, queda asignado.
 - C3-6 comprueba cómo se ven en modo simple el chip, Mañana y los atajos (iguales que en modo completo).
+
+**Decisiones que tomé sin vos**
+- Sin rutina ni excepción, el chip pregunta "¿Entrenás hoy?" y Sí o No guardan la excepción de hoy en `miPlatoFacil_trainingExceptions` (no crean una rutina); la hoja también ofrece "Configurar mi rutina".
+- Si el texto guardado de las excepciones no es un objeto JSON, el chip no escribe nada y pide revisarlas en Días de entrenamiento (así no se pisa lo que haya).
+- En cada fila, el botón de acción (Elegir o Lo comí) va primero en el orden del documento y el nombre del hueco lleno es un botón al lado (abre Cambiar, Quitar, Porciones y Lo comí hoy). Así las pruebas que tocan "el primer botón de la fila" siguen tocando la acción.
+- El Lo comí de Hoy lleva la marca `data-today-eaten`: el manejador del plan repinta Hoy antes que el de Hoy, y el botón ya no está en `#todayPanel` cuando este corre.
+- `renderPlan` repinta también Hoy, y cada cambio de un hueco recuerda la pestaña desde la que se hizo (`deshacerPlan.tab`): Hoy muestra su aviso "… asignado … · Deshacer" una sola vez por cambio y lo saca cuando el Deshacer deja de valer.
+- "Sugerime algo" es una hoja propia: chips de las 4 comidas, la propuesta con Usar esta, Otra y Ver y cambiar, y "🎲 Al azar", que abre la pantalla `azar` de siempre (así se sigue llegando a ella sin una tarjeta aparte). En desayuno y merienda, "Armalo" hace lo mismo que el Sugerime del Selector.
+- La línea de ayuda de Hoy queda vacía (el tipo de día lo dice el chip) y se oculta. El grupo de atajos se llama "Atajos".
+- La tarjeta "Con lo que tengo" está en Hoy y en Más. `e1_confianza` E1-9 y `n01` N12 no hubo que tocarlas: siguen pasando igual.
+- La semilla del Plato del día pasa a usar `localTrainingDate` (antes `todayKey()`, sin ceros): la sugerencia del día puede ser otra que la de la v15.1, una sola vez.
+
+**Medidas de Hoy** (alto en px / palabras visibles, tema claro; antes = `capturas/etapa-2`, después = `capturas/etapa-3`; iguales en oscuro)
+
+| Estado | Antes | Después |
+|---|---|---|
+| Vacío | 962 / 68 | 1.118 / 72 |
+| Normal | 984 / 69 | 1.057 / 69 |
+| Todo | 984 / 69 | 1.358 / 90 |
+
+- Normal mide 1,25 pantallas (objetivo propio: 1,5). Vacío suma la línea de primera vez y el chip; "todo" abre Mañana.
+
+**Compuerta**
+- "VALIDACIÓN ETAPA 3: OK (31 controles)". Pruebas: 472/472 (eran 442). Batería nueva `e3_hoy.js` con 30 pruebas.
