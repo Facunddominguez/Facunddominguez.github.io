@@ -245,7 +245,7 @@ Estados: ✅ hecha · ⏳ en curso · ⛔ parada. Cada etapa entra a `rediseno` 
 | 1. Confianza | ✅ | `etapa-1-ok` | 15.0.0 |
 | 2. Selector de comida y nueva Semana | ✅ | `etapa-2-ok` | 15.1.0 |
 | 3. Hoy | ✅ | `etapa-3-ok` | 15.2.0 |
-| 4. Comidas y nueva estructura | ⏳ | — | 15.3.0 |
+| 4. Comidas y nueva estructura | ✅ | `etapa-4-ok` | 15.3.0 |
 | 5. Compras y Despensa | — | — | — |
 | 6. Un solo registro | — | — | — |
 | 7. Precios automáticos de INDEC | — | — | — |
@@ -796,7 +796,7 @@ Rama `rediseno-etapa-3-hoy`. Versión 15.2.0.
 - El Selector dice "en vez de tu …" para un hueco cuyo plato ya no existe: filtrar con los guardados.
 - `homeTexts` (32) no cambió: la línea de ayuda de Hoy se apaga con `todayHint()` devolviendo "".
 
-### Etapa 4 · Comidas y nueva estructura ⏳
+### Etapa 4 · Comidas y nueva estructura ✅
 
 Rama `rediseno-etapa-4-comidas`. Versión 15.3.0.
 
@@ -1059,3 +1059,24 @@ Rama `rediseno-etapa-4-comidas`. Versión 15.3.0.
 - El aviso de modo simple ocupa 3 líneas en 7 pantallas: acortarlo a una.
 - Algunos nombres automáticos todavía muestran la forma ("Fruta en trozos con huevo…").
 - Eliminar una comida sigue pidiendo confirmación en vez de ofrecer Deshacer.
+
+**Revisores**
+- revisor-codigo, sobre el plan: BLOQUEANTE en la primera versión. Lo de "Con lo que tengo" se mudaba a pantallas sin tope de palabras, y D7 dejaba de medir los chips del buscador.
+  - Lo resolví sumando a `criterios.json` (más estricto, no más permisivo) E4-palabras-ideas ≤ 391 y E4-palabras-comidas ≤ 607.
+  - D7 suma las pantallas nuevas. Se verificó en el diff.
+- revisor-codigo, sobre el diff: NO BLOQUEANTE (los dos bloqueantes del plan, resueltos; datos, pruebas y C4-8, bien).
+- revisor-usuario: NO BLOQUEANTE. **E4-un-tema se cumple:** cada pantalla trata un solo tema. La despensa bajó de 3.558 a 2.510 px y, con todo abierto, de 9.793 a 3.150 px.
+
+**Mejoras sugeridas**
+- Comidas tiene muchos controles arriba de la lista (buscador, Limpiar, 3 chips de tipo y 4 de orden): plegar el orden.
+- Ideas es densa y no tiene botón lleno; "Con lo que tengo" se ve como un chip suelto.
+- La ayuda de Compras todavía nombra "Con lo que tengo": decir "Despensa" (Etapa 5).
+- "Desayuno o merienda" se parte en 3 líneas en Hoy. El texto del selector de archivo del respaldo se corta (Etapa 10).
+- Los componentes de las tarjetas de Comidas cuentan como "cortados" (es el "…" de una línea, buscado): revisarlo en la Etapa 10.
+- Al guardar una receta con un error, abrir la sección donde está el campo.
+- `IDEAS_MENU_VISIBLES` no se usa; el 8 está repetido.
+- e4 C4-7 borra `setItem` del marco sin restaurarlo.
+- L11 ya no cubre que `planSavedRecipe` no escriba.
+- El Deshacer de asignar una receta deja la copia en `saved`, plegada en "Copias de recetas usadas en el plan" (aceptable).
+- El detalle de un plato no calcula los nutrientes del plato entero (el armado no guarda gramos); muestra los de cada ingrediente.
+- Eliminar sigue con confirmación, no con Deshacer.
