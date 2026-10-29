@@ -8,6 +8,8 @@
     localStorage.clear();
     let r; try { r = await load(f) } catch (e) { r = ["FALLA " + f + " interrumpida: " + e.message] }
     total += r.length; pass += r.filter(x => x.startsWith("PASA")).length;
+    // Detalle de cada prueba (lo usa herramientas/probar.mjs --json); lo demás queda igual.
+    (out.__detalle ||= {})[f] = r.map(x => ({ ok: x.startsWith("PASA"), texto: x.replace(/^(PASA|FALLA) /, "") }));
     out[f] = r.filter(x => x.startsWith("PASA")).length + "/" + r.length;
     const fails = r.filter(x => !x.startsWith("PASA")); if (fails.length) out[f + "_fallas"] = fails;
   }

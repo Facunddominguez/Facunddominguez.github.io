@@ -1,0 +1,49 @@
+{
+  "version": 1,
+  "descripcion": "Un control medible por cada 'Hecho cuando' de las etapas 1 a 10 de docs/plan-rediseno.md. Cada control aplica desde su etapa y en todas las siguientes (nada vuelve atrás). La compuerta (herramientas/validar-etapa.mjs) los evalúa y rechaza este archivo si es más permisivo que en el tag etapa-0-ok: un control quitado, una etapa más tardía o un umbral más laxo cuentan como falla.",
+  "tipos": {
+    "medida": "Una métrica de herramientas/capturas.mjs (alto en px o palabras visibles; las demás, como cantidad) para una vista y un estado, en cada tema. El umbral es un número o {\"relativoAEtapa0\": factor}, que se multiplica por la medida de la Etapa 0 guardada en docs/validacion/linea-base.json.",
+    "medida-todas": "Una métrica de capturas.mjs en todas las vistas, estados y temas.",
+    "prueba": "Una o más pruebas cuyo nombre empieza con el código indicado y un espacio. Desde la etapa del control tienen que existir y pasar.",
+    "comando": "Un comando que tiene que terminar con código 0.",
+    "registro": "La sección de la etapa en el Registro de docs/plan-rediseno.md tiene que nombrar cada ítem en una línea con ✅ o con 'Decisión'.",
+    "revisor": "Lo juzga el revisor indicado con las capturas o el diff; la compuerta solo lo recuerda."
+  },
+  "generales": {
+    "sinErroresJs": true,
+    "sinScrollHorizontal": true,
+    "temas": ["claro", "oscuro"],
+    "estados": ["vacio", "normal", "todo"]
+  },
+  "controles": [
+    { "id": "E1-lista-sin-formas", "etapa": 1, "hecho": "Ningún ítem de la lista es una forma (\"En trozos\", \"Licuado\").", "tipo": "prueba", "prueba": "C1-1" },
+    { "id": "E1-tachados-persisten", "etapa": 1, "hecho": "Los tachados sobreviven a recargar.", "tipo": "prueba", "prueba": "C1-2" },
+    { "id": "E1-armado-sin-pregunta", "etapa": 1, "hecho": "El armado con rutina no pregunta \"¿Entrenás hoy?\".", "tipo": "prueba", "prueba": "C1-3" },
+    { "id": "E1-sugerencias-reales", "etapa": 1, "hecho": "50 sugerencias seguidas de almuerzo o cena salen del catálogo o de tus comidas.", "tipo": "prueba", "prueba": "C1-4" },
+    { "id": "E1-palabras-compras", "etapa": 1, "hecho": "Las pantallas tocadas tienen 40 % menos palabras visibles: Lista de compras.", "tipo": "medida", "vista": "compras", "estado": "normal", "metrica": "palabras", "operador": "<=", "umbral": { "relativoAEtapa0": 0.6 } },
+    { "id": "E1-palabras-despensa", "etapa": 1, "hecho": "Las pantallas tocadas tienen 40 % menos palabras visibles: Con lo que tengo.", "tipo": "medida", "vista": "despensa", "estado": "normal", "metrica": "palabras", "operador": "<=", "umbral": { "relativoAEtapa0": 0.6 } },
+    { "id": "E1-palabras-respaldo", "etapa": 1, "hecho": "Las pantallas tocadas tienen 40 % menos palabras visibles: Respaldo.", "tipo": "medida", "vista": "respaldo", "estado": "normal", "metrica": "palabras", "operador": "<=", "umbral": { "relativoAEtapa0": 0.6 } },
+    { "id": "E1-palabras-ia", "etapa": 1, "hecho": "Las pantallas tocadas tienen 40 % menos palabras visibles: Asistente de IA.", "tipo": "medida", "vista": "ia", "estado": "normal", "metrica": "palabras", "operador": "<=", "umbral": { "relativoAEtapa0": 0.6 } },
+    { "id": "E2-semana-alto", "etapa": 2, "hecho": "Semana con plan completo mide 1,5 pantallas o menos (1,5 × 844 px).", "tipo": "medida", "vista": "semana", "estado": "normal", "metrica": "alto", "operador": "<=", "umbral": 1266 },
+    { "id": "E2-asignar-toques", "etapa": 2, "hecho": "Asignar una comida guardada a un hueco lleva 3 toques o menos.", "tipo": "prueba", "prueba": "C2-1" },
+    { "id": "E3-hoy-toques", "etapa": 3, "hecho": "Desde Hoy, elegir y marcar Lo comí en un hueco vacío lleva 3 toques o menos.", "tipo": "prueba", "prueba": "C3-1" },
+    { "id": "E4-semana-nueva-toques", "etapa": 4, "hecho": "Un usuario nuevo arma una semana con 3 comidas en 15 toques o menos (recorrido probado).", "tipo": "prueba", "prueba": "C4-1" },
+    { "id": "E4-un-tema", "etapa": 4, "hecho": "Ninguna pantalla mezcla dos temas.", "tipo": "revisor", "revisor": "revisor-usuario" },
+    { "id": "E5-palabras-compras-todo", "etapa": 5, "hecho": "Compras con todo activado tiene 60 % menos palabras visibles que en la Etapa 0.", "tipo": "medida", "vista": "compras", "estado": "todo", "metrica": "palabras", "operador": "<=", "umbral": { "relativoAEtapa0": 0.4 } },
+    { "id": "E5-respaldo-completo", "etapa": 5, "hecho": "El respaldo de ejemplo se ve completo.", "tipo": "prueba", "prueba": "C5-1" },
+    { "id": "E6-un-registro", "etapa": 6, "hecho": "Hay un solo lugar para ver y corregir lo registrado.", "tipo": "prueba", "prueba": "C6-1" },
+    { "id": "E6-un-registro-revision", "etapa": 6, "hecho": "Hay un solo lugar para ver y corregir lo registrado (sin registros sueltos en otras pantallas).", "tipo": "revisor", "revisor": "revisor-usuario" },
+    { "id": "E7-precio-item-total", "etapa": 7, "hecho": "La lista muestra ≈ precio por ítem y total.", "tipo": "prueba", "prueba": "C7-1" },
+    { "id": "E7-costo-porcion", "etapa": 7, "hecho": "Cada comida muestra ≈ costo por porción.", "tipo": "prueba", "prueba": "C7-2" },
+    { "id": "E7-region", "etapa": 7, "hecho": "Cambiar la región cambia los valores.", "tipo": "prueba", "prueba": "C7-3" },
+    { "id": "E7-mi-precio", "etapa": 7, "hecho": "Mi precio gana.", "tipo": "prueba", "prueba": "C7-4" },
+    { "id": "E7-precios-validos", "etapa": 7, "hecho": "La tarea de precios genera un datos/precios.json válido (o, sin red, el archivo de ejemplo pasa las mismas comprobaciones).", "tipo": "comando", "comando": "node herramientas/actualizar-precios.mjs --verificar" },
+    { "id": "E8-herramientas-avanzadas", "etapa": 8, "hecho": "Cada línea de \"Herramientas avanzadas\" está hecha o tiene una decisión escrita en el Registro.", "tipo": "registro", "seccion": "Etapa 8", "debeNombrar": ["Mi precio", "Costos", "Presupuesto", "Compras realizadas", "Existencias y movimientos", "Calcular compras por recetas", "Comparar alternativas de precio", "Equivalencias", "Objetivos semanales", "Historial del plan", "Modo simple"] },
+    { "id": "E9-cobertura-precios", "etapa": 9, "hecho": "El 80 % o más de los ingredientes del catálogo y de las comidas de ejemplo tienen precio.", "tipo": "prueba", "prueba": "C9-1" },
+    { "id": "E10-sin-superposiciones", "etapa": 10, "hecho": "Las capturas en tema claro y oscuro no muestran superposiciones.", "tipo": "medida-todas", "metrica": "superpuestos", "operador": "<=", "umbral": 0 },
+    { "id": "E10-sin-textos-cortados", "etapa": 10, "hecho": "Las capturas en tema claro y oscuro no muestran textos cortados.", "tipo": "medida-todas", "metrica": "cortados", "operador": "<=", "umbral": 0 },
+    { "id": "E10-nada-fuera-de-pantalla", "etapa": 10, "hecho": "Nada se sale de la pantalla en tema claro ni oscuro.", "tipo": "medida-todas", "metrica": "fueraDePantalla", "operador": "<=", "umbral": 0 },
+    { "id": "E10-campos-con-etiqueta", "etapa": 10, "hecho": "Todos los campos tienen etiqueta.", "tipo": "medida-todas", "metrica": "sinEtiqueta", "operador": "<=", "umbral": 0 },
+    { "id": "E10-revision-visual", "etapa": 10, "hecho": "Las capturas en tema claro y oscuro no muestran superposiciones ni textos cortados (revisión visual).", "tipo": "revisor", "revisor": "revisor-usuario" }
+  ]
+}
