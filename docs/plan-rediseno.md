@@ -244,7 +244,7 @@ Estados: ✅ hecha · ⏳ en curso · ⛔ parada. Cada etapa entra a `rediseno` 
 | 0. Red de seguridad | ✅ | `etapa-0-ok` | 14.9.94 |
 | 1. Confianza | ✅ | `etapa-1-ok` | 15.0.0 |
 | 2. Selector de comida y nueva Semana | ✅ | `etapa-2-ok` | 15.1.0 |
-| 3. Hoy | — | — | — |
+| 3. Hoy | ⏳ | — | 15.2.0 |
 | 4. Comidas y nueva estructura | — | — | — |
 | 5. Compras y Despensa | — | — | — |
 | 6. Un solo registro | — | — | — |
@@ -675,3 +675,74 @@ Rama `rediseno-etapa-2-selector-y-semana`. Versión 15.1.0.
 
 **Pendientes para vos**
 - Ninguno nuevo.
+
+### Etapa 3 · Hoy ⏳
+
+Rama `rediseno-etapa-3-hoy`. Versión 15.2.0.
+
+**Plan corto**
+- Hoy según la estructura objetivo (`01-home.html` y `renderToday` en `31-hoy.js`), de arriba hacia abajo:
+  - Encabezado "Hoy · lunes 26 de octubre" (como ahora). La línea de ayuda de `todayHint` deja de repetir el tipo de día: eso lo dice el chip.
+  - Chip de entrenamiento, dentro de `#todayPanel`:
+    - Con rutina o excepción para hoy: "🏋️ Hoy entrenás · cambiar" o "Hoy descansás · cambiar" (sale de `trainingDayForDate(new Date())`).
+    - Sin rutina ni excepción: "¿Entrenás hoy? · elegir"; abre una hoja con Sí, No y "Configurar mi rutina" (va a `trainingCalendar`).
+    - Lo que escribe está en "Riesgos para los datos".
+  - Las 4 comidas en el orden del día (`#todayRows`, `data-today-slot`, el mismo orden de hoy):
+    - Hueco lleno: el nombre (dos líneas como máximo) es un botón que abre la hoja del hueco de la Semana (`abrirHueco(hoy, comida)`: Cambiar, Quitar con Deshacer, Porciones y "Lo comí hoy"), y al lado el botón "Lo comí" (el mismo `data-plan-eaten`) o "✓ Comido".
+    - Hueco vacío: "Sin elegir" y el botón "Elegir" (`data-today-choose`), que ahora abre el Selector de ese hueco sobre Hoy, sin ir a Semana (`abrirSelector(todayPlanDay(), comida)`). Elegir asigna ahí mismo (`setSlot`: historial, poda de porciones y copia automática de la semana, como en la Etapa 2) y la fila pasa a mostrar "Lo comí".
+    - Después de asignar desde Hoy, `#todayStatus` dice "Asignado al almuerzo · Deshacer" (el mismo `deshacerPlan` y `data-plan-deshacer` de la Semana; al deshacer se repinta Hoy además de la Semana).
+    - "Armar nueva" desde el Selector de Hoy: `armadoDestino` ya guarda la pestaña. Al guardar, `asignarArmadoAlHueco` vuelve a la pestaña de origen: si es Hoy, a `home` con la comida asignada y el aviso en `#todayStatus`; si es Semana, como ahora.
+  - "Mañana · martes" plegado (`<details>` cerrado): las 4 comidas de mañana del plan (el domingo muestra el lunes, porque el plan es por día de la semana). Hueco vacío: "Elegir" abre el Selector de ese día; hueco lleno: abre su hoja, sin "Lo comí" (solo vale hoy, como en la Semana).
+  - Atajos (grupo `home-group--main`, tarjetas iguales para `d01`): "Armar una comida" con Desayuno / Merienda y Almuerzo / Cena (los mismos `data-start`), "Sugerime algo" y "Con lo que tengo" (el mismo `data-open-pantry`: abre la pantalla `ingredientes`; filtrar Ideas por la despensa es de la Etapa 4).
+- Primera vez (P1):
+  - Si no hay comidas guardadas (`loadSaved()` vacío) y hoy no tiene plan, arriba de las comidas aparece una sola línea con el método y el primer paso: "Medio plato de verduras, un cuarto de almidones y un cuarto de proteínas. Empezá eligiendo tu almuerzo." El "Elegir" del almuerzo pasa a ser el botón lleno (acción principal).
+  - No se guarda ninguna marca: la línea se va sola cuando guardás la primera comida. Sin clave nueva.
+  - Las filas vacías dejan de decir "Sin plan para hoy" (P1); dicen "Sin elegir".
+- "Sugerime algo" reemplaza a Plato del día y a Sugerir al azar como entradas separadas; las dos funciones se integran:
+  - Abre el Selector del primer hueco vacío de hoy en el orden del día (si están todos llenos, el de la próxima comida según la hora) con la propuesta ya a la vista: "¿Qué tal …?" con "Usar esta" (botón lleno, asigna al hueco), "Otra" y "Ver y cambiar". Arriba, chips de las 4 comidas para cambiar de hueco.
+  - Almuerzo y cena: la primera propuesta del día es la del Plato del día (la misma semilla `hashStr("plato_"+todayKey())`, igual todo el día); "Otra" usa `Math.random`, como Sugerir al azar. Las dos con `elegirSugerencia` y el día de la rutina (C1-4 sigue valiendo).
+  - "Ver y cambiar" hace lo que hacían las dos tarjetas: `cargarSugerencia` y el resumen, para editarla, guardarla con su nombre o compartirla. Si se guarda, se asigna al hueco (`armadoDestino`).
+  - Desayuno y merienda: lo mismo que el Sugerime del Selector (`randomDesayuno` con fruta real, resumen y, al guardar, asignado al hueco).
+  - Sin candidatas: la hoja muestra `avisoSinSugerencias()` y no toca el armado.
+  - Siguen existiendo `platoDelDia`, `randomMeal`, la pantalla `azar` (a la que vuelve "Otra" del resumen si no hay ideas) y sus manejadores (`data-plato-dia`, `data-open-azar`, `data-random-type`, `data-regen-random`). Salen de la vista solo las tarjetas "Plato del día" (Hoy) y "Sugerir al azar" (Más).
+- Para que nada quede sin lugar: la tarjeta "Ideas" (`data-open-ideas`) pasa de Hoy a Más (`home-group--find`), junto a Con lo que tengo, Días de entrenamiento y los ajustes. En la Etapa 4 va a Comidas → Ideas.
+- Archivos:
+  - `fuente/cuerpo/pantallas/01-home.html`: chip, primera vez, Mañana y atajos.
+  - `fuente/codigo/`: 31 (render de Hoy, chip, Mañana, primera vez, Sugerime algo y Deshacer en `#todayStatus`), 32 (`homeTexts` sin el tipo de día), 05 (`cambiarEntrenamientoDeHoy` y su Deshacer), 13 (`sugerenciaDelDia(comida)`: la semilla del Plato del día en una función que usan `platoDelDia` y Sugerime), 38 (Selector abierto desde Hoy con propuesta inicial, chips de comida y "Ver y cambiar"; `asignarArmadoAlHueco` vuelve a la pestaña de origen; `elegirEnSelector` avisa en Hoy) y 14 (manejadores nuevos).
+  - `fuente/estilos.css`: chip y filas de Hoy y Mañana con el sistema de diseño (44 px, verde para acciones, claro y oscuro).
+  - `fuente/version.json` → 15.2.0.
+  - `herramientas/capturas.mjs` no cambia (la vista `hoy` ya está en los estados vacío, normal y todo).
+- Orden de arranque: `paint()` (32) llama a `renderToday` durante `init()`, antes de que carguen 36 a 38. `renderToday` y sus ayudantes son declaraciones `function` y solo usan lo definido hasta el 13 o con `var`; la `hoja`, el Selector, las sugerencias y `armadoDestino` se usan recién al tocar. En 31 no hay `const`/`let` de nivel superior que lea el render.
+- Riesgos para los datos:
+  - Sin claves nuevas ni cambios de formato; respaldo y restauración no cambian.
+  - Se leen: `plan`, `saved`, `consumption_v1`, `trainingWeek`, `trainingExceptions`, `planPortions_v1`, `planHistory_v1`, `datedWeeks_v1`, `recipeDetails_v1`, `recipeAmounts_v1`, `recipePreferences_v1` y la despensa (marcados y `pantryQuantities_v1`, para el peso de las sugerencias).
+  - Pintar Hoy no escribe nada (k01 lo controla al recorrer las pantallas).
+  - Se escriben solo cuando el usuario actúa, con las funciones de siempre: `plan` (con `planHistory_v1`, poda de `planPortions_v1` y copia automática en `datedWeeks_v1`, todo por `persistPlan`); `saved` (una idea o un armado que se usa, como en la Etapa 2); `consumption_v1` (Lo comí, igual que hoy, `planned:true`).
+  - El chip "cambiar" sí escribe una excepción de la rutina en `miPlatoFacil_trainingExceptions`, con el formato de siempre (`{"AAAA-MM-DD": true|false}`) y solo para la fecha de hoy: invierte el tipo de día. Si el valor nuevo coincide con la rutina semanal, borra la excepción de hoy en vez de guardar una redundante. No toca las excepciones de otras fechas ni `miPlatoFacil_trainingWeek`. Aviso "Hoy descansás · Deshacer": el Deshacer vuelve a escribir el texto exacto que había (o quita la clave si no existía). Si `setItem` falla, no cambia nada y se avisa. Es lo mismo que guardar una excepción en Días de entrenamiento, donde se ve y se puede quitar.
+- Pruebas existentes que cambian porque solo miran la interfaz vieja (la misma cantidad; las comprobaciones de datos quedan):
+  - `n01` N8: cuenta las 3 filas vacías por `.today-row__plate.is-empty` en vez del texto "Sin plan para hoy"; lo demás igual (orden, nombre, "Lo comí", título "Hoy · ").
+  - `n01` N10: "Elegir" en un hueco vacío abre el Selector de ese hueco sin salir de Hoy (`home`, pestaña Hoy marcada, hoja "Elegir cena del …" con Mis comidas). Antes esperaba Semana; C3-1 suma la asignación y Lo comí.
+  - `n01` N11: Más reúne Ideas, Con lo que tengo, Días de entrenamiento, Respaldo, Tema y Modo simple (antes pedía "Sugerir al azar", que se integra en Sugerime algo); además, ninguna tarjeta visible de Hoy ni de Más dice "Plato del día" ni "Sugerir al azar".
+  - `e1_confianza` E1-7 y `regression` (Ideas, línea 92): abren Ideas desde Más en vez de Hoy; las mismas comprobaciones.
+  - `e1_confianza` E1-9 y `n01` N12 tocan `#home [data-open-pantry]` desde Más: el selector se acota al grupo visible (`.home-group--find`), porque Hoy también tiene esa tarjeta.
+- Pruebas de lógica que cambian de camino, con la misma fuerza:
+  - `e1_confianza` C1-4c: "Sugerime algo" en el almuerzo de hoy → "Ver y cambiar" lleva al resumen con una idea del catálogo o una comida tuya, con su nombre y con ingredientes (las mismas condiciones que con Sugerir al azar).
+  - C1-4d: Sugerime algo en el desayuno elige una fruta real y una forma válida.
+  - C1-4e: con preferencias que dejan sin ideas, la hoja muestra "No hay ideas que no tengan lo que evitás", el armado (`state`) no cambia y no se combinan ingredientes sueltos.
+  - C1-4 y C1-4b (50 sugerencias reales, tipo de día) no cambian.
+- Pruebas nuevas, batería `e3_hoy.js` (al final de `suites.json`):
+  - C3-1 (E3-hoy-toques): con el respaldo de ejemplo y el almuerzo de hoy vacío, desde Hoy: "Elegir" (1), una comida guardada en el Selector (2) y "Lo comí" (3). Exige 3 toques o menos, seguir en `home`, `plan[hoy].almuerzo` con esa comida y un registro en `consumption_v1` de hoy, almuerzo, `planned:true` y ese `sourceId`.
+  - C3-2: chip con rutina (entreno y descanso) y sin rutina; "cambiar" escribe solo la excepción de hoy y conserva las demás; volver al valor de la rutina la borra; Deshacer deja `trainingExceptions` byte a byte como estaba; si `setItem` tira, nada cambia; el Selector y el armado usan el tipo de día nuevo (`diaDeRutina`).
+  - C3-3: primera vez: sin comidas, Hoy muestra la línea del método y el primer paso, el "Elegir" del almuerzo es el botón lleno y ninguna fila dice "Sin plan para hoy"; con comidas guardadas, la línea no está. Pintar Hoy no escribe.
+  - C3-4: Mañana arranca plegado, muestra el día siguiente del plan (domingo → lunes, con reloj fijo); elegir ahí asigna a ese día y no ofrece Lo comí.
+  - C3-5: Sugerime algo abre el primer hueco vacío de hoy; en almuerzo, la primera propuesta es la misma dos veces en el día (la del Plato del día, comparada con `sugerenciaDelDia`); "Otra" cambia; "Usar esta" asigna con Deshacer; "Ver y cambiar" lleva al resumen y, al guardar, queda asignada al hueco.
+  - C3-6: atajos: Hoy muestra Armar (desayuno y almuerzo), Sugerime algo y Con lo que tengo; ninguna entrada visible "Plato del día" ni "Sugerir al azar"; Ideas y Días de entrenamiento se abren desde Más; `platoDelDia`, `randomMeal` y la pantalla `azar` siguen funcionando.
+  - C3-7: hueco lleno en Hoy: tocar el nombre abre Cambiar, Quitar (con Deshacer en `#todayStatus`) y "Lo comí hoy"; Armar nueva desde un hueco de Hoy vuelve a Hoy con la comida asignada (y desde Semana, a Semana).
+  - C3-8: lo asignado en Hoy se ve en la Semana (chip del día con su "N/4") y lo asignado en la Semana, en Hoy.
+- Cómo se mantienen los controles anteriores:
+  - `validar-etapa.mjs 3` corre los criterios de las Etapas 1 y 2 además del nuevo.
+  - E2-semana-alto: la vista de Semana no cambia; solo `asignarArmadoAlHueco` y el Deshacer repintan también Hoy.
+  - E2-asignar-toques (C2-1) y el resto de `e2_semana.js` quedan como están.
+  - Palabras de la Etapa 1 (Compras, Con lo que tengo, Respaldo y Asistente de IA): esas pantallas no se tocan; `ingredientes` se abre igual desde Hoy y desde Más.
+  - C1-1 a C1-4 y las pruebas de respaldo, despensa, compras y plan no cambian; la cantidad de pruebas sube (8 nuevas).
+  - Hoy no tiene criterio de alto. Objetivo propio: con el respaldo de ejemplo, Hoy con Mañana plegado en 1,5 pantallas o menos (hoy mide 896 px).
