@@ -97,8 +97,8 @@ function choice({
     b.dataset.pick=key;
     b.dataset.next=next
   }
-  b.append(ce("span","choice__title",label));
-  if(quantity)b.append(ce("span","quantity",quantity));
+  b.append(ce("span","choice__title",opcionVisible(label)));
+  if(quantity)b.append(ce("span","quantity",cantidadVisible(quantity)));
   return b
 }
 function renderChoice(id,items,key,next){

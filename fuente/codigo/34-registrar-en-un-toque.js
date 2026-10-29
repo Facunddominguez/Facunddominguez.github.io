@@ -88,9 +88,14 @@ function boughtNow(){
   if(!items.length)return {
     text:all.some(e=>comprasDone[e.key])?"Lo tachado ya está en tu despensa.":"Primero tachá lo que compraste en la lista."
   };
-  const stock=loadStockQuantities(),marked=pantryMarkedMatcher(),before=oneTapSnapshot(BOUGHT_UNDO_KEYS),changes=[],marks=[];
+  const stock=loadStockQuantities(),marked=pantryMarkedMatcher(),before=oneTapSnapshot(BOUGHT_UNDO_KEYS),changes=[],marks=[],alcanzaba=[];
   for(const e of items){
-    const sugg=shoppingSuggestion(e,stock,marked),qty=sugg&&sugg.kind==="partial"?sugg.missing:mergeUnits(e.units);
+    const sugg=shoppingSuggestion(e,stock,marked);
+    // Si la despensa ya alcanzaba ("Ya tenés"), no se suma nada: así no se inflan las existencias.
+    if(sugg&&sugg.kind==="covered"){
+      alcanzaba.push(e.name);continue
+    }
+    const qty=sugg&&sugg.kind==="partial"?sugg.missing:mergeUnits(e.units);
     if(qty&&qty.size)for(const [unit,q] of qty){
       if(q>0)changes.push({
         name:e.name,unit,delta:q
@@ -129,7 +134,7 @@ function boughtNow(){
     deshacer();
     throw err
   }
-  const parts=res.moves.map(oneTapQty).concat(marks.map(n=>n+" (sin cantidad)"));
+  const parts=res.moves.map(oneTapQty).concat(marks.map(n=>n+" (sin cantidad)"),alcanzaba.map(n=>n+" (ya alcanzaba)"));
   return {
     text:"Pasó a tu despensa: "+parts.join(", ")+". Lo ves en Ya en tu despensa.",before,after:oneTapSnapshot(BOUGHT_UNDO_KEYS),keys:items.map(e=>e.key),keysList:BOUGHT_UNDO_KEYS
   }

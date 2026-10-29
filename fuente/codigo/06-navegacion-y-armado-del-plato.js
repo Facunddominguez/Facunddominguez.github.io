@@ -277,7 +277,7 @@ function toggle(b,s){
   b.setAttribute("aria-pressed",String(s))
 }
 function fmt(o){
-  return o?`${o.name}${o.quantity?` <span class="quantity">${o.quantity}</span>`:""}`:"No elegido"
+  return o?`${opcionVisible(o.name)}${o.quantity?` <span class="quantity">${cantidadVisible(o.quantity)}</span>`:""}`:"No elegido"
 }
 function fmtList(a){
   return a&&a.length?`<span class="selection-list">${a.map(x=>`<span class="selection-chip">${x.name}</span>`).join("")}</span>`:"No elegido"
@@ -297,7 +297,7 @@ function groupLabel(base,leg,baseArr,legArr){
 }
 function summary(){
   let h="";
-  if(state.type==="desayuno")h=`<div class="summary__line"><strong>Desayuno / Merienda</strong></div>${editLine("Fruta",state.fruta?fmt({name:frutaTexto(state.fruta),quantity:state.fruta.quantity}):fmt(null),"bf_fruit","🍓")}${editLine("Proteína",fmt(state.bfprot),"bf_prot","🥛")}${editLine("Cereal",fmt(state.bfcarb),"bf_carb","🌾")}${editLine("Grasa opcional",fmt(state.grasa),"bf_fat","🥑")}`;
+  if(state.type==="desayuno")h=`<div class="summary__line"><strong>${nombreDesdeEstado(state,"desayuno")||"Desayuno / Merienda"}</strong></div>${editLine("Fruta",state.fruta?fmt({name:frutaTexto(state.fruta),quantity:state.fruta.quantity}):fmt(null),"bf_fruit","🍓")}${editLine("Proteína",fmt(state.bfprot),"bf_prot","🥛")}${editLine("Cereal",fmt(state.bfcarb),"bf_carb","🌾")}${editLine("Grasa opcional",fmt(state.grasa),"bf_fat","🥑")}`;
   else if(state.type==="plato"){
     const p=portions(),other=state.day==="Día de entrenamiento"?"Día libre":"Día de entrenamiento",carbArr=merged(state.almidones,state.legCarb),protArr=merged(state.proteinas,state.legProt),carb=groupLabel("Almidones","Legumbres como almidón",state.almidones,state.legCarb),prot=groupLabel("Proteínas","Legumbres como proteína",state.proteinas,state.legProt);
     const platoMissing=[],platoPresent=[];
@@ -310,7 +310,7 @@ function summary(){
     const joinY=a=>a.length===1?a[0]:a.slice(0,-1).join(", ")+" y "+a[a.length-1];
     const platoRedis=platoPresent.length?` Si querés mantener el plato completo, podés editar las proporciones para redistribuir ese espacio ${platoPresent.length===1?"en "+platoPresent[0]:"entre "+joinY(platoPresent)}.`:" Si querés, podés editar las proporciones antes de finalizar.";
     const platoWarn=platoMissing.length?`<article class="notice">No seleccionaste ${joinY(platoMissing)}.${platoRedis}<div class="divider"></div><button class="button button--soft" type="button" data-edit-portions-summary>Editar proporciones</button></article>`:"";
-    h=`<div class="summary__line"><strong>Almuerzo / Cena · ${state.day}</strong></div>${editLine(`Verduras · ${p.vegetables} del plato`,fmtList(state.verduras),"lunch_veg","🥗")}${editLine(`${carb} · ${p.carbs} del plato`,fmtList(carbArr),"lunch_carb","🍚")}${editLine(`${prot} · ${p.protein} del plato`,fmtList(protArr),"lunch_prot","🔵")}${platoWarn}<div class="divider"></div><div class="summary-actions"><button class="button button--soft" type="button" data-toggle-day>Cambiar a ${other}</button><button class="button button--soft" type="button" data-edit-portions-summary>Editar proporciones</button></div>`
+    h=`<div class="summary__line"><strong>${nombreDesdeEstado(state,"plato")||"Almuerzo / Cena"} · ${state.day}</strong></div>${editLine(`Verduras · ${p.vegetables} del plato`,fmtList(state.verduras),"lunch_veg","🥗")}${editLine(`${carb} · ${p.carbs} del plato`,fmtList(carbArr),"lunch_carb","🍚")}${editLine(`${prot} · ${p.protein} del plato`,fmtList(protArr),"lunch_prot","🔵")}${platoWarn}<div class="divider"></div><div class="summary-actions"><button class="button button--soft" type="button" data-toggle-day>Cambiar a ${other}</button><button class="button button--soft" type="button" data-edit-portions-summary>Editar proporciones</button></div>`
   }else if(state.type==="snack")h=`<div class="summary__line"><strong>Snack</strong></div>${editLine("Opción",fmt(state.snack),"snack","🥜")}`;
   else h=`<div class="summary__line"><strong>Pre-entreno</strong></div><div class="summary__line">${fmt(state.pre)}</div>`;
   if(lastRandomType){

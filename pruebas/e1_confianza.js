@@ -143,6 +143,18 @@
   const pantryAntes = localStorage.getItem("miPlatoFacil_pantry");
   await tocar(q('#comprasList details.shop-group [data-shop-key="tomate"]'));
   ok("E1-6 'Lo compré' pasa a Ya en tu despensa y ahí queda; destachar lo devuelve sin tocar la despensa", enDespensa && sigue && grupo("Tomate") === "pendiente" && localStorage.getItem("miPlatoFacil_pantry") === pantryAntes && JSON.parse(localStorage.getItem(CHECKS) || "{}")[semana()] === undefined);
+  // E1-6b Si la despensa ya alcanzaba ("Ya tenés"), "Lo compré" no suma nada: no infla las existencias
+  cargar({}); await abrir();
+  const IDEA = "Arroz de prueba";
+  localStorage.setItem("miPlatoFacil_recipeAmounts_v1", JSON.stringify({ [IDEA]: { yield: 1, rows: [{ name: "Arroz", quantity: 300, unit: "g" }] } }));
+  localStorage.setItem("miPlatoFacil_recipeDetails_v1", JSON.stringify({ recipe_prueba01: { id: "recipe_prueba01", title: IDEA, sourceTitle: null, amountsTitle: IDEA, steps: ["Cocinar"], notes: "" } }));
+  localStorage.setItem("miPlatoFacil_saved", JSON.stringify([{ id: "r1", savedAt: "2026-10-26T10:00:00.000Z", type: "plato", title: IDEA, lines: [], sig: "recipe-ref:recipe_prueba01:plato", text: IDEA, cooked: 0, state: null, recipeSourceId: "recipe_prueba01", recipeIngredients: ["Arroz"] }]));
+  localStorage.setItem("miPlatoFacil_plan", plan([["lunes", "almuerzo", "r1"]]));
+  localStorage.setItem("miPlatoFacil_pantryQuantities_v1", JSON.stringify({ [w.stockKey("Arroz", "g")]: { name: "Arroz", unit: "g", quantity: 500 } }));
+  await irA("compras");
+  const stockAntes = localStorage.getItem("miPlatoFacil_pantryQuantities_v1"), grupoArroz = w.shoppingDisplayItems().find(x => x.name === "Arroz").group;
+  ev("comprasDone['arroz'] = true"); await tocar($("comprasBought"));
+  ok("E1-6b si la despensa ya alcanzaba, Lo compré no suma nada a las existencias", grupoArroz === "tenes" && localStorage.getItem("miPlatoFacil_pantryQuantities_v1") === stockAntes && w.shoppingDisplayItems().find(x => x.name === "Arroz").group === "comprado", grupoArroz + " · " + localStorage.getItem("miPlatoFacil_pantryQuantities_v1"));
 
   // E1-7 Las ideas se pueden tocar: detalle con Guardar y Agregar a la semana (con Deshacer si reemplaza)
   cargar({}); await abrir(); await irA("hoy");
