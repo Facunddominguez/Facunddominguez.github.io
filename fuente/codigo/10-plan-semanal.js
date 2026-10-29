@@ -98,7 +98,7 @@ function setSlot(dayKey,slot,id){
     }catch(e){
     }
     const it=id?loadSaved().find(x=>x.id===id):null;
-    logPlanChange(planDayName(dayKey)+" · "+planSlotName(slot)+": "+(it?"asignado "+savedItemTitle(it):"quitado"))
+    logPlanChange(planDayName(dayKey)+" · "+planSlotName(slot)+": "+(it?"asignado "+mealName(it):"quitado"))
   }
   renderPlan();
   planStatus(id?"Asignado.":"Quitado.")
@@ -208,8 +208,9 @@ function savedItemLines(it){
   if(lines.length||!it.recipeSourceId||!Array.isArray(it.recipeIngredients)||!it.recipeIngredients.length)return lines;
   return ["Ingredientes: "+it.recipeIngredients.join(", ")]
 }
-function planPlateLabel(it){
-  return (it.fav?"⭐ ":"")+(it.recipeSourceId?"📖":typeEmoji(it.type))+" "+(it.note?it.note+" · ":"")+savedItemTitle(it)
+// Nombre de una comida en el plan y en los selectores (desde la v15, con mealName y sin repetir con mealLabels).
+function planPlateLabel(it,label){
+  return (it.fav?"⭐ ":"")+(it.recipeSourceId?"📖":typeEmoji(it.type))+" "+(label||mealName(it))
 }
 function renderPlanRecipeReference(){
   const select=document.getElementById("planRecipeSelect"),box=document.getElementById("planRecipePreview"),search=document.getElementById("planRecipeSearch");
@@ -373,8 +374,8 @@ function renderPlan(){
         }wrap.append(nm,det,row);if(it.recipeSourceId&&yields[it.recipeSourceId])wrap.append(ce("div","plan-slot__lines","La receta rinde "+String(yields[it.recipeSourceId]).replace(".",",")+" porciones."+(portionsMap[pk]!==undefined?" Compras calcula para "+String(portionsMap[pk]).replace(".",",")+".":" Compras usa la receta completa.")))
       }else{
         const pool=pools[slotPool(slot)];if(pool.length){
-          const row=ce("div","plan-slot__row");const sel=ce("select");sel.dataset.planSelect=dayKey+"|"+slot;const op0=ce("option",null,"Elegir…");op0.value="";sel.append(op0);pool.forEach(function(p){
-            const o=ce("option",null,planPlateLabel(p).slice(0,54));o.value=p.id;sel.append(o)
+          const row=ce("div","plan-slot__row");const sel=ce("select");sel.dataset.planSelect=dayKey+"|"+slot;const op0=ce("option",null,"Elegir…");op0.value="";sel.append(op0);const labels=mealLabels(pool);pool.forEach(function(p){
+            const o=ce("option",null,planPlateLabel(p,labels.get(p.id)));o.value=p.id;sel.append(o)
           });const addBtn=ce("button","button button--soft","Asignar");addBtn.type="button";addBtn.style.minWidth="88px";addBtn.dataset.planSet=dayKey+"|"+slot;row.append(sel,addBtn);wrap.append(row)
         }else{
           wrap.append(ce("div","plan-empty","Guardá platos de este tipo para asignarlos."))
@@ -514,6 +515,7 @@ function planItemsFlat(){
   });
   return out
 }
+// Desde la v15 devuelve alimentos que se compran (comprables, en 35-comida-real.js): nunca formas ni opciones dobles.
 function extractIngredients(item){
   const out=[];
   if(item&&Array.isArray(item.recipeIngredients))return item.recipeIngredients.filter(x=>typeof x==="string"&&x.trim());
@@ -521,18 +523,18 @@ function extractIngredients(item){
   if(st&&typeof st==="object"){
     ["verduras","almidones","proteinas","legCarb","legProt"].forEach(function(k){
       (Array.isArray(st[k])?st[k]:[]).forEach(function(o){
-        if(o&&o.name)out.push(o.name.indexOf("Opción ocasional: ")===0?o.name.slice(18):o.name)
+        if(o&&o.name)out.push(...comprables(o.name))
       })
     });
     ["fruta","bfprot","bfcarb","grasa","snack","pre"].forEach(function(k){
-      const o=st[k];if(o&&o.name&&o.name!=="No sumo grasa"&&o.name!=="No elegido")out.push(o.name)
+      const o=st[k];if(o&&o.name&&o.name!=="No sumo grasa"&&o.name!=="No elegido")out.push(...comprables(o.name))
     });
     return out
   }
   const lines=Array.isArray(item.lines)?item.lines:[];
   lines.forEach(function(ln){
     const idx=ln.indexOf(": ");if(idx<0)return;ln.slice(idx+2).split(", ").forEach(function(part){
-      const name=part.trim();if(name&&name!=="No elegido"&&name!=="No sumo grasa")out.push(name)
+      const name=part.trim();if(name&&name!=="No elegido"&&name!=="No sumo grasa")out.push(...comprables(name))
     })
   });
   return out

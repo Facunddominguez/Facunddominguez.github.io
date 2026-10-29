@@ -280,20 +280,13 @@ document.getElementById("aiIdeasPanel").addEventListener("toggle",e=>{
 });
 renderAllAiRunners();
 renderAiSettings();
-// Tarjeta en Más → Ajustes: lleva directo a la configuración del asistente (está en la pantalla de Respaldo).
+// Tarjeta en Más → Ajustes: abre la pantalla del asistente (desde la v15 tiene pantalla propia).
 {
   const b=ce("button","tool-button");
   b.type="button";
   b.id="aiSettingsOpen";
   b.append(ce("span","tool-button__emoji","✨"),ce("span","tool-button__label","Asistente de IA"),ce("span","tool-button__desc","Con tu app de IA o con Gemini"));
-  b.addEventListener("click",()=>{
-    go("backupScreen");
-    const panel=document.getElementById("aiSettingsPanel");
-    panel.open=true;
-    setTimeout(()=>panel.scrollIntoView({
-      block:"start",behavior:"smooth"
-    }),60)
-  });
+  b.addEventListener("click",()=>go("asistente"));
   const settings=document.getElementById("sectionSettings");
   (settings.querySelector(".tools-grid")||settings).append(b)
 }

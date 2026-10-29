@@ -242,7 +242,7 @@ Estados: ✅ hecha · ⏳ en curso · ⛔ parada. Cada etapa entra a `rediseno` 
 | Etapa | Estado | Tag | Versión de la app |
 |---|---|---|---|
 | 0. Red de seguridad | ✅ | `etapa-0-ok` | 14.9.94 |
-| 1. Confianza | — | — | — |
+| 1. Confianza | ✅ | `etapa-1-ok` | 15.0.0 |
 | 2. Selector de comida y nueva Semana | — | — | — |
 | 3. Hoy | — | — | — |
 | 4. Comidas y nueva estructura | — | — | — |
@@ -366,3 +366,165 @@ Rama `rediseno-etapa-0-red-de-seguridad`.
 
 **Pendientes para vos**
 - Ninguno en esta etapa. El merge final a `main` es tuyo.
+
+### Etapa 1 · Confianza ✅
+
+Rama `rediseno-etapa-1-confianza`. Versión 15.0.0.
+
+**Plan corto**
+- Comida real en la lista (P4):
+  - El paso Frutas pide qué fruta (16: banana, manzana, naranja, mandarina, pera, frutillas, kiwi, durazno, uvas, ananá, ciruela, melón, sandía, arándanos, mango y pomelo), con una fila de chips arriba para la forma (Entera, En trozos, Licuado, Budín, Panqueque, Tarta, Waffle, Galletas; Entera por defecto). Se guarda `fruta: {name: "Banana", quantity: "1 unidad", forma: "En trozos"}`: `name` pasa a ser la fruta y `forma` es un campo nuevo opcional.
+  - Archivo nuevo `fuente/codigo/35-comida-real.js`: `comprables(nombre)` dice qué se compra para cada opción guardada. "Huevo | Clara de huevo" → "Huevos"; una forma de fruta sin fruta (platos viejos) → "Fruta de estación"; la regla de pre-entreno → "Pan blanco" y "Fruta de estación"; "Opción ocasional: asado, vacío…" → "Carne para asado"; los snacks compuestos, a sus alimentos.
+  - `extractIngredients` usa `comprables`, así la lista, las equivalencias y los objetivos ven alimentos.
+  - Sinónimo nuevo "huevo | clara de huevo" → Huevo (con nombre visible "Huevos"), para que precios o existencias cargados con el nombre viejo sigan coincidiendo. Las variedades que hoy se distinguen (Avena y "Avena arrollada o instantánea", Arroz y "Arroz (integral, yamaní)") siguen distintas, como pide f01_key.
+  - Los platos guardados se corrigen al mostrarlos: tarjetas, resumen y lista usan los nombres nuevos sin reescribir `miPlatoFacil_saved`.
+- Lista (P5):
+  - Clave nueva `miPlatoFacil_shoppingChecks_v1`: los tachados por semana, `{"2026-10-26": ["tomate", …]}` (la semana empieza el lunes). Entra al respaldo como opcional y se valida al restaurar; un respaldo viejo sin ella no la toca.
+  - Lo que está en la despensa (lo básico, otros ingredientes o existencias que alcanzan) va a un grupo plegado "Ya tenés (N)". Si hay cantidad registrada y no alcanza, sigue en Pendientes con "faltan X".
+  - "Lo compré" suma a la despensa (como hoy) y destacha lo que pasó, así lo comprado sale de Pendientes y queda en "Ya tenés".
+- Sin "¿Entrenás hoy?" cuando la rutina lo sabe (P6):
+  - Si `trainingDayForDate(hoy)` no es null, el armado de almuerzo o cena arranca en Verduras, con un chip "Día de entrenamiento · cambiar" (o "Día libre · cambiar") arriba de cada paso.
+  - Sin rutina, pregunta como hoy. Las proporciones se editan desde el resumen, como ya se puede.
+- Nombres (P7):
+  - Al guardar, una hoja inferior con el nombre sugerido y editable ("Merluza con papa y tomate"). Se guarda en `note`, el campo que ya usa "Renombrar".
+  - `mealName(item)` arma un nombre automático, al mostrarlos, para los platos viejos sin nombre (Mis comidas, Semana, Hoy, historial).
+  - `mealLabels(items)` evita nombres repetidos en los selectores: agrega "· día de entrenamiento" o "· día libre" y, si siguen iguales, un número.
+- Sugerencias (P8):
+  - "Sugerir al azar" y "Plato del día" eligen del catálogo de ideas y de tus comidas guardadas.
+  - Filtran por tipo de comida y por preferencias (ingredientes a evitar), y dan más chances a lo que usa tu despensa.
+  - Cada idea del catálogo suma `ingredientes` vinculados a las opciones del armado, así se puede guardar como comida y entra a la lista. El día (entrenamiento o libre) sale de la rutina.
+  - Sumo unos 12 platos comunes en Argentina con sus ingredientes vinculados, marcados para revisar en el PR final.
+  - Desayuno sigue combinando las opciones del armado.
+  - En Almidones, harinas, féculas y pan rallado pasan a "Más opciones" (plegado).
+- Ideas (P9):
+  - Sin botón flotante "Consejos". El modal pasa a ser una pantalla Ideas con sus cuatro partes (platos, cocción, snacks y pre-entreno), con entrada desde Hoy y Mis comidas.
+  - Tocar una idea abre su detalle en una hoja inferior, con Guardar y Agregar a la semana (día y comida). Las ideas de "Con lo que tengo" también se pueden tocar.
+- Asistente de IA en pantalla propia (Más → Asistente de IA), con el estilo del sistema en sus campos (clave de Gemini, buscador de recetas del plan y selector de archivo del respaldo). La barra "Volver al paso anterior" solo aparece en los pasos del armado (P14).
+- Textos (P13): ayudas de una línea, sin advertencias, en Compras, Despensa, Respaldo y Asistente de IA (meta: 40 % menos palabras visibles en el estado normal).
+- Archivos:
+  - `fuente/codigo/`: 01, 02, 04, 06, 07, 08, 09, 10, 12, 13, 14, 18, 29, 32 y 34, y los nuevos `35-comida-real.js`, `36-sugerencias.js` y `37-ideas-y-hoja.js`;
+  - `fuente/cuerpo/`: `final.html` (sin el modal) y en `pantallas/` las de frutas, almidones, compras, despensa y respaldo, más las nuevas `21-ideas.html` y `22-asistente.html`;
+  - `fuente/estilos.css`;
+  - `herramientas/capturas.mjs`: solo el camino de las vistas `ideas` e `ia`, que pasan a ser pantallas; miden lo mismo.
+- Riesgos para los datos:
+  - clave nueva `miPlatoFacil_shoppingChecks_v1`: respaldo opcional y validación al restaurar;
+  - `fruta.forma` es un campo nuevo opcional dentro de lo guardado, que la validación de importar ya acepta; los platos viejos no se reescriben;
+  - el nombre va en `note`, que ya existe; ninguna clave cambia ni se borra.
+- Pruebas que cambian, porque solo miran la interfaz vieja:
+  - `regression.js`: R20 abría "Consejos" (ahora abre la pantalla Ideas) y los pasos que tocan `[data-day]` cuando ya no se pregunta;
+  - `n01_nav.js`: N16 (el asistente ya no está dentro de Respaldo);
+  - `f08_ai.js`: abre la pantalla nueva;
+  - `r2_shop.js` y `r4_ux.js`: lo que leen del texto de ayuda de Compras y de las sugerencias de despensa, que pasan a "Ya tenés".
+  Las de datos y lógica no cambian.
+- Pruebas nuevas, batería `e1_confianza.js`:
+  - C1-1: la lista del respaldo de ejemplo no tiene formas;
+  - C1-2: los tachados sobreviven a recargar;
+  - C1-3: con rutina no pregunta;
+  - C1-4: 50 sugerencias seguidas de almuerzo o cena salen del catálogo o de tus comidas;
+  - además: nombres sin repetir, fruta elegida en la lista, respaldo con la clave nueva, respaldo viejo sin ella y "Lo compré" que pasa a "Ya tenés".
+
+**Plan corto, segunda versión** (revisor-codigo marcó 4 bloqueantes en la primera; esto la corrige y manda sobre lo de arriba)
+- Lista:
+  - La clave nueva `miPlatoFacil_shoppingChecks_v1` guarda por semana `{"2026-10-26": {"t": [tachados], "c": [comprados]}}`.
+  - "Lo compré" pasa lo tachado a "Ya en tu despensa (N)", plegado, y ahí queda toda la semana aunque después cambie la despensa o "Lo cociné" descuente. Lo que ya estaba en la despensa va a "Ya tenés (N)", también plegado; si hay cantidad registrada y no alcanza, sigue en Pendientes con "faltan X".
+  - "Lo compré" suma lo que falta cuando se conoce (lo que hoy hace "Anotar"), si no la cantidad del plan. Así no infla las existencias. "Anotar" queda integrado como comportamiento normal.
+  - El Deshacer de "Lo compré" restaura también los tachados y comprados: la clave nueva entra a lo que guarda el Deshacer.
+  - Se escribe solo cuando el usuario actúa (nunca al mostrar). Al escribir se conservan las últimas 12 semanas. La semana se calcula con `mondayOf`.
+  - Respaldo: la clave va en `COMPLETE_BACKUP_KEYS`, en `COMPLETE_BACKUP_OPTIONAL_KEYS` y en la lista que se omite cuando no hay datos, así un respaldo sin tachados lo sigue restaurando la v14.9.94. Tiene un validador con límites (fechas válidas, listas de textos, máximo 520 semanas, sin `__proto__`) y una lectura tolerante.
+- Pruebas de lógica que cambian, con su reemplazo de la misma fuerza:
+  - `r2_shop.js` S1 a S4, S8, S10 y S12; `u01_toque.js` U6, U8 y U9; `dp01_despensa.js` DP10; `r4_ux.js` X7.
+  - Lo que antes era "la lista no cambia" pasa a ser: Pendientes, "Ya tenés" y "Ya en tu despensa" juntos tienen siempre los mismos ítems, con las mismas cantidades del plan, cambie o no la despensa.
+  - El multiplicador, los precios y el presupuesto no mueven ningún ítem entre grupos.
+  - Tocar "Lo compré" dos veces no suma dos veces (U8).
+  - Con "faltan X", "Lo compré" suma solo lo que faltaba (U9).
+  - U7: Deshacer devuelve también los tachados.
+  - Las sugerencias de despensa (`shoppingSuggestion`) no cambian; cambia dónde se muestran.
+- Sugerencias por entrenamiento:
+  - Con rutina, para un día de entrenamiento no salen tus comidas guardadas como "Día libre", ni al revés. Las ideas del catálogo se cargan con el día de la rutina, y así toman sus proporciones.
+  - El armado iniciado desde un hueco de Semana usa la rutina de ese día, no la de hoy.
+  - Si las preferencias dejan sin candidatos, se avisa ("No hay ideas que no tengan lo que evitás"); nunca se vuelve a combinar ingredientes sueltos.
+  - "Sugerir al azar" de desayuno elige una fruta real.
+- Comida real:
+  - `comprables` cubre también los platos que solo tienen `lines`, con la cantidad en el nombre ("En trozos (2 unidades…)", "Huevo | Clara de huevo (1 unidad | 2 unidades)").
+  - C1-1 suma un plato así. "Frutos secos: …", "Semillas: …" y las "Opción ocasional" se acortan a alimentos.
+  - No cambia el `text` de las ideas ni las etiquetas de `data.snacks`, que son la clave de los favoritos: solo se suma `ingredientes`.
+- Nombres:
+  - El nombre se acorta antes de agregarle el sufijo que lo diferencia.
+  - Todos los selectores (plan, semanas guardadas, consumo e historial) usan `mealLabels`.
+- Agregar a la semana desde una idea: se guarda con el mismo formato que un plato armado (`state`, `lines`, nombre en `note`). Se asigna con la función de asignación de siempre (historial y porciones), con Deshacer si reemplaza algo.
+- Decisión: el paso Frutas suma palabras (16 frutas y las formas). El 40 % menos se mide en las 4 pantallas de `criterios.json`.
+- Revisión de la segunda versión: NO BLOQUEANTE. Decisiones tomadas con sus sugerencias:
+  - "Lo compré" tiene su propia lista de claves para el Deshacer, así tachar algo después de "Lo cociné" no bloquea el Deshacer de "Lo cociné".
+  - Las semanas guardadas se recortan a las últimas 12 recién en la próxima escritura, nunca al leer.
+  - Cada semana nueva (lunes) empieza sin tachados; lo de semanas anteriores queda guardado.
+  - Quitar la marca a algo de "Ya en tu despensa" lo devuelve a Pendientes sin tocar la despensa (para revertirla está el Deshacer).
+
+**Medidas antes y después** (alto en px / palabras visibles, estado normal, tema claro; antes = `capturas/etapa-0`, después = `capturas/etapa-1`)
+
+| Vista | Antes | Después |
+|---|---|---|
+| Compras | 3.820 / 438 | 2.940 / 225 |
+| Despensa (Con lo que tengo) | 4.824 / 653 | 3.558 / 268 |
+| Respaldo | 1.305 / 152 | 944 / 36 |
+| Asistente de IA | 1.966 / 311 | 975 / 83 |
+| Ideas | 3.786 / 366 | 6.047 / 460 |
+| Hoy | 896 / 58 | 984 / 69 |
+| Armado: almuerzo | 844 / 18 | 2.575 / 56 |
+| Armado: desayuno | 1.276 / 51 | 1.436 / 71 |
+| Resumen | 1.169 / 49 | 1.148 / 50 |
+
+- Las cuatro pantallas tocadas bajaron 49 %, 59 %, 76 % y 73 % de palabras (meta: 40 %).
+- "Armado: almuerzo" crece porque, con rutina, arranca directo en Verduras en vez de preguntar "¿Entrenás hoy?".
+- Ideas crece porque pasó de un modal con scroll propio a pantalla, con las 12 ideas nuevas y "Guardar idea" en cada una.
+
+**Compuerta**
+- "VALIDACIÓN ETAPA 1: OK (28 controles)". Pruebas: 413/413 (eran 387). Batería nueva `e1_confianza.js` con 26 pruebas.
+
+**Revisores**
+- revisor-codigo, sobre el plan: BLOQUEANTE en la primera versión (4 puntos); NO BLOQUEANTE en la segunda.
+- revisor-codigo, sobre el diff: NO BLOQUEANTE. Corregí su sugerencia: "Lo compré" ya no suma cantidad si la despensa alcanzaba (prueba E1-6b).
+- revisor-usuario: BLOQUEANTE (el resumen seguía mostrando "Huevo | Clara de huevo", el título "Desayuno / Merienda" y "Guardar" como secundario). Corregido; en la segunda revisión, NO BLOQUEANTE.
+
+**Pruebas adaptadas** (ninguna borrada; ninguna batería bajó)
+- `r2_shop`:
+  - S1b, S10a y S10b: además de la sugerencia, verifican que el ítem va a "Ya tenés".
+  - S2a a S2d: "Anotar" pasa a "· faltan X" en la fila y en Copiar.
+  - S3: los tres grupos juntos tienen siempre los mismos ítems y cantidades; multiplicador, precios y presupuesto no mueven nada de grupo.
+  - S4a a S4c: "Tachar" se reemplaza por el grupo "Ya tenés".
+  - S8: "faltan" se actualiza.
+  - S12: el texto de ayuda nuevo.
+- `u01`:
+  - U6: lo comprado pasa a "Ya en tu despensa".
+  - U7: el Deshacer devuelve tachados y comprados.
+  - U9: suma solo lo que falta.
+- `regression`: R1, R3, R7 y R14 eligen forma y fruta, confirman la hoja de nombre y verifican "Banana" y nunca "Licuado". R20 abre la pantalla Ideas en vez de "Consejos".
+- `n01`: N8 (Hoy muestra el nombre de la comida) y N16 (el Asistente tiene pantalla propia).
+- `j01`: `manejo.guardar` confirma la hoja de nombre (lo que se verifica no cambió).
+- Otras:
+  - `f03` P7 y `l01` L4/L12 usan el nombre automático;
+  - `bkp02` C5 lee la nota como texto;
+  - `f04` G10b busca la idea por nombre (las 12 nuevas la corrieron de página);
+  - `r2_fixtures` `reset()` cierra los grupos.
+
+**Decisiones que tomé sin vos**
+- La lista ya no es "intocable": nada se borra, pero lo que tenés y lo que compraste pasan a grupos plegados ("Ya tenés", "Ya en tu despensa"), como pide la Etapa 1. Esto reemplaza la regla vieja "Compras no cambia sola".
+- Paso Frutas: primero la forma (Entera por defecto) y después la fruta, en dos columnas.
+- Ideas es una tarjeta más en "Armar una comida" de Hoy y tiene un enlace en Mis comidas.
+- "Copiar lista" copia solo lo pendiente sin tachar.
+- El nombre de una comida se guarda en `note`. La nota ya no se muestra aparte ("🏷️"): pasa a ser el título de la tarjeta.
+- El aviso de privacidad de Gemini quedó plegado ("ⓘ Privacidad").
+- El registro de consumo sigue guardando el título viejo (`savedItemTitle`), para no cambiar ese dato guardado.
+- Las 12 ideas argentinas nuevas están marcadas `nueva: true` en `01-datos-y-estado.js`, para que las revises.
+
+**Mejoras sugeridas**
+- Cantidades sin plural y con muchos decimales ("5 unidad", "166,666667 g"): Etapa 5 (las fijan varias pruebas de lógica).
+- Resumen con 4 acciones secundarias (Compartir, Imagen, Copiar y Armar otro plato): pasar Imagen y Copiar a un menú "⋯".
+- Ideas: lista larga en una columna; conviene paginar o plegar por tipo (Etapa 4, Comidas | Ideas).
+- Una sugerencia "info" (parte sin cantidad) manda el ítem a "Ya tenés", plegado; puede esconder algo que falta.
+- El contador "N pendientes · M tachados" no cuenta lo tachado dentro de "Ya tenés".
+- Quedan reglas CSS `.advice-fab` del botón que ya no existe.
+- "Publicación e instalación" no encaja en Respaldo (Etapa 4: Más).
+- El aviso de "herramientas ocultas" ocupa 3 líneas en Compras, Despensa y Mis comidas.
+
+**Pendientes para vos**
+- Revisar las 12 ideas argentinas nuevas del catálogo (`nueva: true`).

@@ -4,6 +4,8 @@
   const $ = id => document.getElementById(id);
   const scr = () => document.querySelector(".screen.is-active").id;
   const shown = e => !!e && e.getClientRects().length > 0;
+  // Desde la v15 los platos sin nombre se muestran con uno automático (mealName), no con "Almuerzo / Cena · Día libre".
+  const platosVistos = t => ["p1", "p2"].filter(id => t.includes(mealName(loadSaved().find(x => x.id === id)))).length;
   const appData = () => JSON.stringify(Object.keys(localStorage).filter(k => k.startsWith("miPlatoFacil_") && k !== UI_MODE_KEY).sort().map(k => [k, localStorage.getItem(k)]));
   const tab = name => document.querySelector('#sectionNav [data-section-tab="' + name + '"]');
   const openLibrary = async () => { tab("miscomidas").click(); await wait(60) };
@@ -33,9 +35,9 @@
   T.ok("L3 la copia del plan no se repite y la de una receta borrada se ve con aviso", !!orphan && /Milanesas viejas/.test(orphan.textContent) && !!copies && copies.querySelectorAll(".summary__line").length === 1 && !shown(copies));
   // L4 Filtro Todo / Platos / Recetas
   document.querySelector('[data-saved-kind="recetas"]').click(); await wait(30);
-  const onlyRecipes = !/Día libre/.test(list.textContent) && list.querySelectorAll(".recipe-lib-card").length === 2;
+  const onlyRecipes = platosVistos(list.textContent) === 0 && list.querySelectorAll(".recipe-lib-card").length === 2;
   document.querySelector('[data-saved-kind="platos"]').click(); await wait(30);
-  const onlyPlates = list.querySelectorAll(".recipe-lib-card").length === 0 && (list.textContent.match(/Día libre/g) || []).length === 2 && !/Milanesas/.test(list.textContent);
+  const onlyPlates = list.querySelectorAll(".recipe-lib-card").length === 0 && platosVistos(list.textContent) === 2 && !/Milanesas/.test(list.textContent);
   document.querySelector('[data-saved-kind="todo"]').click(); await wait(30);
   T.ok("L4 el filtro muestra todo, solo platos o solo recetas", onlyRecipes && onlyPlates && document.querySelector('[data-saved-kind="todo"]').getAttribute("aria-pressed") === "true" && list.querySelectorAll(".recipe-lib-card").length === 2);
   // L5 Buscar: recetas por ingrediente o etiqueta, platos por su contenido
@@ -68,7 +70,7 @@
   localStorage.setItem("miPlatoFacil_recipeDetails_v1", '{"recipe_x":{"id":"otro"}}');
   await openLibrary();
   const text = $("savedList").textContent;
-  T.ok("L12 con recetas dañadas, los platos se siguen viendo y se avisa", /No se pudieron leer los detalles guardados/.test(text) && (text.match(/Día libre/g) || []).length === 2 && !/la receta original se borró/.test(text) && /Guiso de lentejas/.test(text));
+  T.ok("L12 con recetas dañadas, los platos se siguen viendo y se avisa", /No se pudieron leer los detalles guardados/.test(text) && platosVistos(text) === 2 && !/la receta original se borró/.test(text) && /Guiso de lentejas/.test(text));
   reset(); showRecipeView("browse"); tab("hoy").click(); await wait(40);
   return T;
 })()

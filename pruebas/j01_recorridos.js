@@ -36,7 +36,7 @@
       await tocar(q('#boxa [data-name="' + almidon + '"]')); await tocar($("nextBottom"));
       await tocar(q('#boxp [data-name="' + proteina + '"]')); await tocar($("nextBottom"));
     },
-    async guardar() { await tocar(q("#resumen [data-save-plate]")) },
+    async guardar() { await tocar(q("#resumen [data-save-plate]")); await tocar(q(".hoja .button--primary")) },
     async asignar(id, dia, comida) {
       await irA("semana");
       const sel = q('[data-plan-select="' + dia + '|' + comida + '"]'); sel.value = id; sel.dispatchEvent(new w.Event("change", { bubbles: true }));

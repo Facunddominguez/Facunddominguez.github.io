@@ -10,14 +10,15 @@
   ok("R0 versión visible " + expectVersion, document.getElementById("deploymentGuide").textContent.includes("Versión " + expectVersion));
   // Breakfast flow
   await click('[data-start="desayuno"]');
-  await click('#fruit [data-name="Licuado"]'); await wait(100);
+  // v15: el paso Frutas pide la forma (arriba) y la fruta.
+  await click('#fruitForms [data-fruta-forma="Licuado"]'); await click('#fruit [data-name="Banana"]'); await wait(100);
   await click('#bfprot [data-name="Yogur natural descremado"]'); await wait(100);
   await click('#bfcarb [data-name="Pan de molde integral o blanco"]'); await wait(100);
   await click('#bffat [data-name="Palta"]'); await wait(100);
   ok("R1 desayuno completo llega al resumen", scr() === "resumen" && /Licuado/.test(el.summary.textContent) && /Palta/.test(el.summary.textContent));
   await click('#summary [data-edit="bf_prot"]'); await click('#bfprot [data-name="Huevo | Clara de huevo"]'); await wait(100);
   ok("R2 editar desde el resumen vuelve al resumen", scr() === "resumen" && /Huevo/.test(el.summary.textContent));
-  await click('[data-save-plate]');
+  await click('[data-save-plate]'); await click('.hoja .button--primary');
   await click('[data-restart]');
   ok("R3 Armar otro plato reinicia", scr() === "home" && state.type === "");
   // Lunch flow
@@ -35,7 +36,7 @@
   const blocked = el.portionError.classList.contains("is-visible") && scr() === "plate_static";
   el.portionVeg.value = "1/2"; el.portionCarb.value = "1/4"; el.portionProt.value = "1/4"; await click("[data-save-portions]");
   ok("R6 proporciones inválidas bloquean y válidas vuelven al resumen", blocked && scr() === "resumen");
-  await click('[data-save-plate]');
+  await click('[data-save-plate]'); await click('.hoja .button--primary');
   await click('#homeTop');
   ok("R7 Inicio vuelve a la portada sin borrar la selección", scr() === "home" && state.type === "plato");
   await click('[data-restart]');
@@ -62,7 +63,7 @@
   await click('[data-plan-set="lunes|almuerzo"]'); document.querySelector('[data-plan-select="lunes|almuerzo"]').value = plate.id; await click('[data-plan-set="lunes|almuerzo"]');
   go("compras"); await wait(100);
   const items = [...document.querySelectorAll("#comprasList .shop-item")].map(x => x.textContent);
-  ok("R14 Compras lista los ingredientes del plan", ["Tomate", "Lentejas", "Merluza", "Licuado"].every(n => items.some(t => t.includes(n))), items.join(" | "));
+  ok("R14 Compras lista los ingredientes del plan (la fruta elegida, no su forma)", ["Tomate", "Lentejas", "Merluza", "Banana"].every(n => items.some(t => t.includes(n))) && !items.some(t => /Licuado/.test(t)), items.join(" | "));
   document.getElementById("manualShopName").value = "Detergente"; document.getElementById("manualShoppingForm").requestSubmit(); await wait(80);
   ok("R15 productos extra se agregan", loadManualShopping().some(x => x.name === "Detergente"));
   // Training
@@ -82,8 +83,11 @@
   ok("R19 duplicar receta", Object.keys(loadRecipeDetails()).length === 2);
   // Theme + advice modal
   await click('[data-section-tab="hoy"]');
-  await click("#adviceFab"); const modalOpen = el.adviceModal.classList.contains("is-visible"); await click("[data-close-advice]");
-  ok("R20 Consejos abre y cierra", modalOpen && !el.adviceModal.classList.contains("is-visible"));
+  // v15: "Consejos" pasó a ser la pantalla Ideas; una idea abre su detalle en una hoja que se cierra.
+  await click('#home [data-open-ideas]'); const ideasOpen = scr() === "ideas" && document.querySelectorAll("#menuIdeas [data-idea-open]").length === data.menuCatalog.length;
+  await click("#menuIdeas [data-idea-open]"); const sheetOpen = hoja.abierta() && document.getElementById("hojaTitulo").textContent === data.menuCatalog[0].text;
+  await click(".hoja [data-hoja-cerrar]");
+  ok("R20 Consejos abre y cierra", ideasOpen && sheetOpen && !hoja.abierta() && !document.getElementById("bottom").classList.contains("is-visible"));
   ok("R21 sin aviso de arranque con datos válidos", !document.getElementById("startupIssues"));
   localStorage.clear(); restart();
   return T;

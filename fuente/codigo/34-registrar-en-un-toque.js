@@ -1,16 +1,21 @@
 // Mi Plato Fácil · Registrar en un toque: "Lo cociné" (recetas) y "Lo compré" (Compras). "Lo comí" está en Hoy.
 // Parte 35: los archivos se unen en orden según su número, que define el orden de arranque.
 // Cada acción usa los registros de siempre (historial de preparaciones, despensa y movimientos) y se puede
-// deshacer enseguida, volviendo exactamente a como estaba. La lista de compras no cambia: solo la despensa.
+// deshacer enseguida, volviendo exactamente a como estaba. Desde la v15, lo comprado pasa a "Ya en tu despensa".
 const ONE_TAP_KEYS=[PANKEY,STOCK_QUANT_KEY,"miPlatoFacil_pantryMoves_v1",COOKING_HISTORY_KEY];
+// "Lo compré" tiene su propia lista: también guarda los tachados y comprados de la semana (así tachar algo después
+// de "Lo cociné" no bloquea su Deshacer).
+const BOUGHT_UNDO_KEYS=[...ONE_TAP_KEYS,SHOPPING_CHECKS_KEY];
 const oneTapUndo={
 };
+// Hasta la v14 lo pasado a la despensa se recordaba solo en memoria; desde la v15 se guarda por semana. Se conserva
+// la variable porque otras partes (y las pruebas) la reinician.
 let comprasTransferred=new Set();
-function oneTapSnapshot(){
-  return Object.fromEntries(ONE_TAP_KEYS.map(k=>[k,localStorage.getItem(k)]))
+function oneTapSnapshot(keys){
+  return Object.fromEntries((keys||ONE_TAP_KEYS).map(k=>[k,localStorage.getItem(k)]))
 }
 function oneTapRestore(u){
-  if(JSON.stringify(oneTapSnapshot())!==JSON.stringify(u.after))throw Error("No se puede deshacer: los datos cambiaron después.");
+  if(JSON.stringify(oneTapSnapshot(u.keysList))!==JSON.stringify(u.after))throw Error("No se puede deshacer: los datos cambiaron después.");
   for(const [k,v] of Object.entries(u.before)){
     if(v===null)localStorage.removeItem(k);else localStorage.setItem(k,v)
   }
@@ -75,26 +80,34 @@ function cookRecipeNow(id){
     text,before,after:oneTapSnapshot()
   }
 }
-// Lo compré: lo tachado en Compras pasa a la despensa. Con cantidad conocida suma a las existencias
-// (o la cantidad de la sugerencia que aplicaste); sin cantidad, queda marcado como que lo tenés.
+// Lo compré: lo tachado en Compras pasa a la despensa y a "Ya en tu despensa". Si se sabe cuánto falta, suma
+// solo eso (lo que antes hacía "Anotar"); si no, la cantidad del plan; sin cantidad, queda marcado que lo tenés.
 function boughtNow(){
-  const all=shoppingPlanItems(),ticked=all.filter(e=>comprasDone[e.key]);
-  if(!ticked.length)return {
-    text:"Primero tachá lo que compraste en la lista."
-  };
-  const items=ticked.filter(e=>!comprasTransferred.has(e.key));
+  syncShoppingWeek();
+  const all=shoppingPlanItems(),boughtBefore=shoppingBoughtSet(),items=all.filter(e=>comprasDone[e.key]&&!boughtBefore.has(e.key));
   if(!items.length)return {
-    text:"Lo tachado ya está en tu despensa."
+    text:all.some(e=>comprasDone[e.key])?"Lo tachado ya está en tu despensa.":"Primero tachá lo que compraste en la lista."
   };
-  const stock=loadStockQuantities(),marked=pantryMarkedMatcher(),before=oneTapSnapshot(),changes=[],marks=[];
+  const stock=loadStockQuantities(),marked=pantryMarkedMatcher(),before=oneTapSnapshot(BOUGHT_UNDO_KEYS),changes=[],marks=[],alcanzaba=[];
   for(const e of items){
-    const label=shoppingItemLabel(e),sugg=shoppingSuggestion(e,stock,marked),a=comprasApplied[e.key],applied=!!(a&&sugg&&sugg.kind==="partial"&&a.label===label&&a.buy===sugg.buy),qty=applied?sugg.missing:mergeUnits(e.units);
+    const sugg=shoppingSuggestion(e,stock,marked);
+    // Si la despensa ya alcanzaba ("Ya tenés"), no se suma nada: así no se inflan las existencias.
+    if(sugg&&sugg.kind==="covered"){
+      alcanzaba.push(e.name);continue
+    }
+    const qty=sugg&&sugg.kind==="partial"?sugg.missing:mergeUnits(e.units);
     if(qty&&qty.size)for(const [unit,q] of qty){
       if(q>0)changes.push({
         name:e.name,unit,delta:q
       })
     }else marks.push(e.name)
   }
+  const deshacer=()=>{
+    for(const [k,v] of Object.entries(before)){
+      if(v===null)localStorage.removeItem(k);else localStorage.setItem(k,v)
+    }
+    pantrySel=loadPantry()
+  };
   let newMarks=0;
   for(const name of marks){
     const chip=pantryChipFor(name),k=ingredientKey(name);
@@ -112,21 +125,18 @@ function boughtNow(){
   let res={
     moves:[]
   };
-  if(changes.length){
-    try{
-      res=applyStockChanges(changes,("Lo compré · "+typedAppDateLabel(localTrainingDate(new Date()))).slice(0,80))
-    }catch(err){
-      for(const [k,v] of Object.entries(before)){
-        if(v===null)localStorage.removeItem(k);else localStorage.setItem(k,v)
-      }
-      pantrySel=loadPantry();
-      throw err
-    }
+  try{
+    if(changes.length)res=applyStockChanges(changes,("Lo compré · "+typedAppDateLabel(localTrainingDate(new Date()))).slice(0,80));
+    const bought=shoppingBoughtSet();
+    items.forEach(e=>bought.add(e.key));
+    saveShoppingChecks(bought)
+  }catch(err){
+    deshacer();
+    throw err
   }
-  items.forEach(e=>comprasTransferred.add(e.key));
-  const parts=res.moves.map(oneTapQty).concat(marks.map(n=>n+" (sin cantidad)"));
+  const parts=res.moves.map(oneTapQty).concat(marks.map(n=>n+" (sin cantidad)"),alcanzaba.map(n=>n+" (ya alcanzaba)"));
   return {
-    text:"Pasó a tu despensa: "+parts.join(", ")+"."+(ticked.length>items.length?" Lo que ya habías pasado no se repite.":"")+" La lista no cambió.",before,after:oneTapSnapshot(),keys:items.map(e=>e.key)
+    text:"Pasó a tu despensa: "+parts.join(", ")+". Lo ves en Ya en tu despensa.",before,after:oneTapSnapshot(BOUGHT_UNDO_KEYS),keys:items.map(e=>e.key),keysList:BOUGHT_UNDO_KEYS
   }
 }
 document.addEventListener("click",e=>{
@@ -153,7 +163,7 @@ document.addEventListener("click",e=>{
       const st=document.getElementById("comprasBoughtStatus"),r=boughtNow();
       if(r.before){
         oneTapUndo.bought={
-          before:r.before,after:r.after,status:st,keys:r.keys
+          before:r.before,after:r.after,status:st,keys:r.keys,keysList:r.keysList
         };
         afterOneTap();
         renderCompras()
