@@ -10690,7 +10690,7 @@ function cantidadVisible(q){
   return q==="1 unidad | 2 unidades"?"1 huevo o 2 claras":String(q||"").split(" | ").join(" o ")
 }
 function textoCorregido(s){
-  return String(s||"").split("Huevo | Clara de huevo (1 unidad | 2 unidades)").join("Huevos (1 huevo o 2 claras)").split("Huevo | Clara de huevo").join("Huevos (o 2 claras)").split("Enteras con cáscara o peladas").join("Fruta entera").replace(/^Fruta: (Budín|En trozos|Licuado|Panqueque|Porción de galletas|Tarta|Waffle)\b/,(x,f)=>"Fruta: "+frutaTexto({
+  return String(s||"").split("Huevo | Clara de huevo (1 unidad | 2 unidades)").join("Huevos (1 huevo o 2 claras)").replace(/(([^()|]*) | ([^()|]*))/g,"($1 o $2)").split("Huevo | Clara de huevo").join("Huevos (o 2 claras)").split("Enteras con cáscara o peladas").join("Fruta entera").replace(/^Fruta: (Budín|En trozos|Licuado|Panqueque|Porción de galletas|Tarta|Waffle)\b/,(x,f)=>"Fruta: "+frutaTexto({
     name:f
   }))
 }
