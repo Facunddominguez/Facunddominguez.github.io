@@ -746,3 +746,13 @@ Rama `rediseno-etapa-3-hoy`. Versión 15.2.0.
   - Palabras de la Etapa 1 (Compras, Con lo que tengo, Respaldo y Asistente de IA): esas pantallas no se tocan; `ingredientes` se abre igual desde Hoy y desde Más.
   - C1-1 a C1-4 y las pruebas de respaldo, despensa, compras y plan no cambian; la cantidad de pruebas sube (8 nuevas).
   - Hoy no tiene criterio de alto. Objetivo propio: con el respaldo de ejemplo, Hoy con Mañana plegado en 1,5 pantallas o menos (hoy mide 896 px).
+
+**Plan corto, segunda versión** (revisor-codigo marcó 1 bloqueante en la primera; esto la corrige y manda sobre lo de arriba)
+- C1-4c, C1-4d y C1-4e no se mueven a "Sugerime algo": la pantalla `azar` y `randomMeal` siguen, así que solo cambia cómo se entra (desde Más, con una entrada a "Sugerir al azar" dentro de Ideas y organización, o `go("azar")`). Conservan todas sus condiciones, incluidos el aviso sin candidatas y el `state` sin cambios.
+- C3-5 repite esas mismas condiciones para Sugerime algo: idea del catálogo o comida tuya con nombre e ingredientes, fruta real en el desayuno y, sin candidatas, el aviso con el `state` sin cambios. Ningún conteo baja.
+- El chip guarda partiendo del JSON crudo de `miPlatoFacil_trainingExceptions`: solo cambia la entrada de hoy y conserva tal cual las demás, aunque sean raras (C3-2 lo prueba con una entrada que `loadTrainingExceptions` descarta).
+- El Deshacer del chip restaura solo la entrada de hoy; si el texto guardado cambió después, deja de servir y lo dice.
+- La fecha de hoy sale de `localTrainingDate(new Date())`, no de `todayKey()`.
+- Semilla: la propuesta inicial del almuerzo es igual a la de `platoDelDia`; la de la cena suma la comida a la semilla (`"plato_"+fecha+"_cena"`). C3-5 lo compara.
+- `armadoDestino` se fija después de `resetForRandom`, en Sugerime y en "Ver y cambiar"; C3-5 incluye un desayuno que, al guardarse, queda asignado.
+- C3-6 comprueba cómo se ven en modo simple el chip, Mañana y los atajos (iguales que en modo completo).
