@@ -422,3 +422,34 @@ Rama `rediseno-etapa-1-confianza`. Versión 15.0.0.
   - C1-3: con rutina no pregunta;
   - C1-4: 50 sugerencias seguidas de almuerzo o cena salen del catálogo o de tus comidas;
   - además: nombres sin repetir, fruta elegida en la lista, respaldo con la clave nueva, respaldo viejo sin ella y "Lo compré" que pasa a "Ya tenés".
+
+**Plan corto, segunda versión** (revisor-codigo marcó 4 bloqueantes en la primera; esto la corrige y manda sobre lo de arriba)
+- Lista:
+  - La clave nueva `miPlatoFacil_shoppingChecks_v1` guarda por semana `{"2026-10-26": {"t": [tachados], "c": [comprados]}}`.
+  - "Lo compré" pasa lo tachado a "Ya en tu despensa (N)", plegado, y ahí queda toda la semana aunque después cambie la despensa o "Lo cociné" descuente. Lo que ya estaba en la despensa va a "Ya tenés (N)", también plegado; si hay cantidad registrada y no alcanza, sigue en Pendientes con "faltan X".
+  - "Lo compré" suma lo que falta cuando se conoce (lo que hoy hace "Anotar"), si no la cantidad del plan. Así no infla las existencias. "Anotar" queda integrado como comportamiento normal.
+  - El Deshacer de "Lo compré" restaura también los tachados y comprados: la clave nueva entra a lo que guarda el Deshacer.
+  - Se escribe solo cuando el usuario actúa (nunca al mostrar). Al escribir se conservan las últimas 12 semanas. La semana se calcula con `mondayOf`.
+  - Respaldo: la clave va en `COMPLETE_BACKUP_KEYS`, en `COMPLETE_BACKUP_OPTIONAL_KEYS` y en la lista que se omite cuando no hay datos, así un respaldo sin tachados lo sigue restaurando la v14.9.94. Tiene un validador con límites (fechas válidas, listas de textos, máximo 520 semanas, sin `__proto__`) y una lectura tolerante.
+- Pruebas de lógica que cambian, con su reemplazo de la misma fuerza:
+  - `r2_shop.js` S1 a S4, S8, S10 y S12; `u01_toque.js` U6, U8 y U9; `dp01_despensa.js` DP10; `r4_ux.js` X7.
+  - Lo que antes era "la lista no cambia" pasa a ser: Pendientes, "Ya tenés" y "Ya en tu despensa" juntos tienen siempre los mismos ítems, con las mismas cantidades del plan, cambie o no la despensa.
+  - El multiplicador, los precios y el presupuesto no mueven ningún ítem entre grupos.
+  - Tocar "Lo compré" dos veces no suma dos veces (U8).
+  - Con "faltan X", "Lo compré" suma solo lo que faltaba (U9).
+  - U7: Deshacer devuelve también los tachados.
+  - Las sugerencias de despensa (`shoppingSuggestion`) no cambian; cambia dónde se muestran.
+- Sugerencias por entrenamiento:
+  - Con rutina, para un día de entrenamiento no salen tus comidas guardadas como "Día libre", ni al revés. Las ideas del catálogo se cargan con el día de la rutina, y así toman sus proporciones.
+  - El armado iniciado desde un hueco de Semana usa la rutina de ese día, no la de hoy.
+  - Si las preferencias dejan sin candidatos, se avisa ("No hay ideas que no tengan lo que evitás"); nunca se vuelve a combinar ingredientes sueltos.
+  - "Sugerir al azar" de desayuno elige una fruta real.
+- Comida real:
+  - `comprables` cubre también los platos que solo tienen `lines`, con la cantidad en el nombre ("En trozos (2 unidades…)", "Huevo | Clara de huevo (1 unidad | 2 unidades)").
+  - C1-1 suma un plato así. "Frutos secos: …", "Semillas: …" y las "Opción ocasional" se acortan a alimentos.
+  - No cambia el `text` de las ideas ni las etiquetas de `data.snacks`, que son la clave de los favoritos: solo se suma `ingredientes`.
+- Nombres:
+  - El nombre se acorta antes de agregarle el sufijo que lo diferencia.
+  - Todos los selectores (plan, semanas guardadas, consumo e historial) usan `mealLabels`.
+- Agregar a la semana desde una idea: se guarda con el mismo formato que un plato armado (`state`, `lines`, nombre en `note`). Se asigna con la función de asignación de siempre (historial y porciones), con Deshacer si reemplaza algo.
+- Decisión: el paso Frutas suma palabras (16 frutas y las formas). El 40 % menos se mide en las 4 pantallas de `criterios.json`.
