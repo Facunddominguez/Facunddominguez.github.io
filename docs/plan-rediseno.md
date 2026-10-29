@@ -993,3 +993,69 @@ Rama `rediseno-etapa-4-comidas`. Versión 15.3.0.
   - "Ver solo mis recetas" y el tamaño de página del catálogo (Ideas → Buscar con filtros);
   - `planSavedRecipe`.
 - Preferencias y Fuentes de datos se hacen en esta etapa como pantallas simples, que reciben el HTML movido. Si no alcanza el tiempo, se anota como decisión, sin dejar nada inalcanzable.
+
+**Implementación** (manda sobre las dos versiones del plan donde difieren)
+- Commits: `959ed66` (estructura, pantallas y pruebas de interfaz adaptadas), `be5da77` (batería `e4_comidas.js` y caminos de las capturas) y el arreglo de Ideas (8 ideas desde el arranque).
+- Pruebas adaptadas, con la misma fuerza o más:
+  - `n01`:
+    - N1: el orden nuevo de las pestañas.
+    - N11: las 7 entradas de Más.
+    - N12: Con lo que tengo desde Hoy y la despensa desde Compras, cada una con su pestaña marcada.
+    - N13: Hoy muestra Sugerime algo y no muestra los ajustes.
+  - `k01` K6: cuenta las tarjetas visibles por tipo y exige exactamente 9 platos y 5 recetas (las copias del plan no cuentan). También exige la línea "Tenés 14 comidas guardadas".
+  - `l01` L1 a L11 sobre la tarjeta única.
+    - L2: rinde y pasos se ven en el detalle.
+    - L6 y L7: el detalle y el formulario propio.
+    - L8: ahora también asigna con "Agregar a la semana" y sigue probando `planSavedRecipe` con sus condiciones.
+    - L9 y L10: Mis datos.
+    - L11: se evalúa antes de que L8 escriba.
+  - `r3_saved`:
+    - G1a, G2, G3b y G5: la tarjeta única.
+    - G1b: la línea cuenta comidas y la separación platos/recetas se comprueba por las tarjetas.
+  - `u01` U2 y U3: "Lo cociné" en el detalle de la receta, con los mismos registros, el mismo descuento y el mismo Deshacer.
+  - `e1_confianza`:
+    - E1-7: Ideas desde Comidas.
+    - E1-9: la despensa desde Compras y las ideas desde Hoy → Con lo que tengo.
+  - `regression`:
+    - Crear receta: pasa por "+ Nueva" → Escribir receta y suma R18b (la pantalla propia).
+    - R20: Ideas desde Comidas, con "Ver todas".
+  - `e3_hoy` C3-6: los atajos son "Armar una comida", Sugerime algo y Con lo que tengo, y se comprueban visibles las dos opciones de armar. C3-6c entra a Ideas desde Comidas y a Mi rutina desde Más.
+  - `dp01` DP1: el enlace a las ideas queda debajo de la despensa, `#pantryResults` está en Ideas y las recetas no están en la despensa.
+  - `m01`: la misma lista de ids, repartida por pantalla (M2, M3 y M6). M4 exige el aviso con su botón en 7 pantallas y M5 busca la tarjeta en Preferencias.
+  - `d01`:
+    - D1: cada entrada de las grillas de Hoy y Más es una tarjeta (10 o más).
+    - D7: suma los chips de `ideas`, `comida`, `preferencias` y la bienvenida, y la hoja "+ Nueva".
+    - D8: abre los plegables de las pantallas nuevas.
+  - `f07` no cambió: N11 y N12 abren el panel por id y conservan sus textos.
+  - Las demás pruebas que usan `go("ingredientes")` con `showRecipeView` o `showRecipeRead` no cambiaron.
+- Pruebas: 493/493 (eran 472). Batería nueva `e4_comidas.js` con 20 pruebas, de C4-1 a C4-10 con sus variantes. C4-1 arma la semana en 12 toques.
+- Compuerta: "VALIDACIÓN ETAPA 4: OK (34 controles)".
+
+**Decisiones que tomé sin vos**
+- "Armar una comida" es una sola tarjeta en Hoy con sus dos opciones adentro ("Desayuno o merienda" y "Almuerzo o cena", los mismos `data-start`). No abre una hoja: así armar sigue a un toque.
+- La clave interna de la pestaña sigue siendo `miscomidas`; solo cambió lo que se ve ("Comidas").
+- El detalle de un plato no estima los nutrientes del plato entero: el armado no guarda gramos. Muestra los componentes y cada uno abre sus nutrientes cada 100 g. Las recetas con cantidades conservan el cuadro por porción.
+- La marca de la bienvenida es `{"vista":true}`, sin fecha. Si al leerla no es válida, se toma como no vista; en un respaldo, la marca inválida hace fallar la validación, como cualquier otro módulo.
+- La bienvenida guarda la rutina con el mismo formato de `miPlatoFacil_trainingWeek`, sin pasar por `saveTrainingWeek`, porque esa función lee las casillas de la pantalla Mi rutina.
+- El Historial de comidas preparadas sigue plegado en Mis comidas hasta la Etapa 6 (un solo registro).
+- Los avisos que las acciones de la receta escriben en `#recipeCatalogCount` (Ideas) se repiten en la línea de estado del detalle. Los de los platos (`savedStatus`) se ven también en el detalle.
+- Arreglo de diseño que destapó D7: los botones "☆ Guardar idea" de Ideas pasan de 40 a 44 px.
+
+**Medidas** (alto en px / palabras visibles, tema claro, estado normal; antes = `capturas/etapa-3`, después = `capturas/etapa-4`)
+
+| Vista | Antes | Después |
+|---|---|---|
+| Ideas | 6.047 / 460 | 2.552 / 171 |
+| Mis comidas | 4.197 / 607 | 2.328 / 300 |
+| Despensa | 3.558 / 268 | 2.510 / 158 |
+| Respaldo (Mis datos) | 944 / 36 | 1.062 / 60 |
+| Más | 964 / 72 | 896 / 58 |
+| Hoy | 1.057 / 69 | 1.067 / 71 |
+
+- Hoy en estado vacío se sigue midiendo en `home` (la bienvenida no lo tapa: `restart()` vuelve a Hoy antes de cada vista).
+
+**Mejoras sugeridas**
+- La bienvenida, el detalle y el formulario de receta no tienen vista en `capturas.mjs`: conviene sumarlas en la Etapa 10.
+- El aviso de modo simple ocupa 3 líneas en 7 pantallas: acortarlo a una.
+- Algunos nombres automáticos todavía muestran la forma ("Fruta en trozos con huevo…").
+- Eliminar una comida sigue pidiendo confirmación en vez de ofrecer Deshacer.
