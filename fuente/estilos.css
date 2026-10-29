@@ -3041,7 +3041,9 @@ body.con-hoja{
 }
 .semana-cabeza .screen__title{
   margin:0;
-  font-size:21px
+  font-size:19px;
+  line-height:1.25;
+  text-wrap:balance
 }
 .semana-menu{
   flex:0 0 auto;
