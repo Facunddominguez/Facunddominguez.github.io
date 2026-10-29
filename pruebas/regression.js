@@ -87,9 +87,9 @@
   await click("#recipeViewBrowse"); showRecipeRead(rid); await click("#recipeReadDuplicate");
   ok("R19 duplicar receta", Object.keys(loadRecipeDetails()).length === 2);
   // Theme + advice modal
-  await click('[data-section-tab="hoy"]');
-  // v15: "Consejos" pasó a ser la pantalla Ideas; una idea abre su detalle en una hoja que se cierra.
-  await click('#home [data-open-ideas]'); const ideasOpen = scr() === "ideas" && document.querySelectorAll("#menuIdeas [data-idea-open]").length === data.menuCatalog.length;
+  await click('[data-section-tab="mas"]');
+  // v15: "Consejos" pasó a ser la pantalla Ideas; una idea abre su detalle en una hoja que se cierra (v15.2: desde Más).
+  await click('#home .home-group--find [data-open-ideas]'); const ideasOpen = scr() === "ideas" && document.querySelectorAll("#menuIdeas [data-idea-open]").length === data.menuCatalog.length;
   await click("#menuIdeas [data-idea-open]"); const sheetOpen = hoja.abierta() && document.getElementById("hojaTitulo").textContent === data.menuCatalog[0].text;
   await click(".hoja [data-hoja-cerrar]");
   ok("R20 Consejos abre y cierra", ideasOpen && sheetOpen && !hoja.abierta() && !document.getElementById("bottom").classList.contains("is-visible"));

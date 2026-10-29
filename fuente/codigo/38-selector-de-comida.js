@@ -231,11 +231,96 @@ function asignarArmadoAlHueco(item){
   armadoDestino=null;
   if(!d||!item)return;
   planDiaElegido=d.dia;
-  const asignado=setSlot(d.dia,d.slot,item.id)!==false;
+  const asignado=setSlot(d.dia,d.slot,item.id)!==false,texto=asignado?"Asignado al "+nombreDelHueco(d.dia,d.slot).toLowerCase()+".":"Se guardó en Mis comidas, pero no se pudo asignar: "+errorDelPlan;
   limpiarArmado();
+  // Vuelve a donde empezó: Hoy (con el aviso y su Deshacer) o la Semana en ese día.
+  if(d.tab==="hoy"){
+    stack=["home"];
+    go("home");
+    renderToday();
+    if(!asignado){
+      const st=document.getElementById("todayStatus");
+      if(st)st.textContent=texto
+    }
+    return
+  }
   stack=["plan"];
   go("plan");
-  planStatus(asignado?"Asignado al "+nombreDelHueco(d.dia,d.slot).toLowerCase()+".":"Se guardó en Mis comidas, pero no se pudo asignar: "+errorDelPlan)
+  planStatus(texto)
+}
+// "Sugerime algo" (Hoy, desde la v15.2): reemplaza a Plato del día y a Sugerir al azar como entradas separadas.
+// Propone para un hueco de hoy (el primero vacío o, si están todos llenos, la próxima comida según la hora). En
+// almuerzo y cena, la primera propuesta es la del Plato del día (semilla con la fecha) y "Otra" es al azar; "Ver y
+// cambiar" la lleva al resumen (como hacían las dos tarjetas) y, si se guarda, se asigna al hueco. Desayuno y merienda
+// arman una combinación al azar, como el Sugerime del Selector. "Al azar" abre la pantalla de siempre.
+function huecoParaSugerir(){
+  const p=loadPlan()[todayPlanDay()]||{},ids=new Set(loadSaved().map(x=>x.id)),vacio=HOY_COMIDAS.find(s=>!p[s]||!ids.has(p[s]));
+  if(vacio)return vacio;
+  const h=new Date().getHours();
+  return h<11?"desayuno":h<15?"almuerzo":h<19?"merienda":"cena"
+}
+function abrirSugerime(slot){
+  const dia=todayPlanDay();
+  slot=SLOTS.some(s=>s[0]===slot)?slot:huecoParaSugerir();
+  const caja=ce("div","selector sugerime"),chips=ce("div","filter-row sugerime__comidas"),sug=ce("div","selector__sugerencia"),otras=ce("div","selector__acciones");
+  for(const c of HOY_COMIDAS){
+    const b=ce("button","filter-chip",planSlotName(c));b.type="button";b.dataset.sugerimeComida=c;b.setAttribute("aria-pressed",String(c===slot));chips.append(b)
+  }
+  sug.setAttribute("aria-live","polite");
+  otras.append(botonHoja("🎲 Al azar","button--soft",{
+    openAzar:""
+  }));
+  caja.append(chips,sug,otras);
+  const h={
+    dia,slot,modo:"selector",caja,sug,id:(loadPlan()[dia]||{})[slot]||null,sugerime:true
+  };
+  huecoAbierto=h;
+  hoja.abrir({
+    titulo:"Sugerime algo",contenido:[caja],botones:[],foco:false
+  });
+  proponerEnSugerime(h,true)
+}
+function proponerEnSugerime(h,primera){
+  h.sug.replaceChildren();
+  const fila=ce("div","selector__acciones");
+  if(slotPool(h.slot)==="desayuno"){
+    h.sugerencia=null;
+    h.sug.append(ce("p","selector__propuesta","Te armo "+(h.slot==="merienda"?"una merienda":"un desayuno")+" con fruta, proteína y cereal."));
+    fila.append(botonHoja("Armalo","button--primary",{
+      selectorSugerir:""
+    }));
+    h.sug.append(fila);
+    return
+  }
+  const s=primera?sugerenciaDelDia(h.slot):elegirSugerencia(h.slot,Math.random,diaDelHueco(h));
+  h.sugerencia=s;
+  if(!s){
+    h.sug.append(ce("p","screen__hint",avisoSinSugerencias()));
+    return
+  }
+  fila.append(botonHoja("Usar esta","button--primary",{
+    selectorUsar:""
+  }),botonHoja("Otra","button--soft",{
+    sugerimeOtra:""
+  }),botonHoja("Ver y cambiar","button--soft",{
+    sugerimeVer:""
+  }));
+  h.sug.append(ce("p","selector__propuesta","¿Qué tal "+(s.tipo==="idea"?s.idea.text:mealName(s.item))+(h.id?" en vez de tu ":" para tu ")+planSlotName(h.slot).toLowerCase()+"?"),fila)
+}
+// Ver y cambiar: carga la propuesta en el armado y abre el resumen; al guardarla, se asigna al hueco.
+function verSugerencia(){
+  const h=huecoAbierto;
+  if(!h||!h.sugerime||!h.sugerencia)return;
+  huecoAbierto=null;
+  hoja.cerrar();
+  cargarSugerencia(h.sugerencia,diaDelHueco(h)||"");
+  lastRandomType=null;
+  // Después de cargarSugerencia (que empieza de cero y borra el destino).
+  armadoDestino={
+    dia:h.dia,slot:h.slot,tab:activeTab
+  };
+  go("resumen");
+  shareStatus("¿Qué tal esta? Podés cambiarla o guardarla.")
 }
 // Menú ⋯ de la Semana: lo ocasional, en los dos modos.
 function abrirMenuSemana(){
@@ -331,7 +416,7 @@ function abrirHerramientaPlan(nombre){
 }
 // Las acciones de las hojas que llevan a otra pantalla (armar) o piden confirmación (vaciar) cierran la hoja antes.
 document.addEventListener("click",e=>{
-  if(e.target.closest&&e.target.closest(".hoja [data-start],.hoja [data-clear-plan]")){
+  if(e.target.closest&&e.target.closest(".hoja [data-start],.hoja [data-clear-plan],.hoja [data-open-azar],.hoja [data-open-training]")){
     huecoAbierto=null;
     hoja.cerrar()
   }
@@ -353,6 +438,11 @@ document.addEventListener("click",e=>{
     const idea=ideaPorTexto(d.selectorIdea);if(!idea)throw Error("La idea ya no está disponible.");asignarIdeaAlHueco(h,idea)
   });
   if(d.selectorSugerir!==undefined)return sugerirEnSelector();
+  if(d.sugerimeComida)return abrirSugerime(d.sugerimeComida);
+  if(d.sugerimeOtra!==undefined){
+    if(huecoAbierto&&huecoAbierto.sugerime)proponerEnSugerime(huecoAbierto,false);return
+  }
+  if(d.sugerimeVer!==undefined)return verSugerencia();
   if(d.selectorUsar!==undefined)return elegirEnSelector(h=>{
     const s=h.sugerencia;if(!s)throw Error("Pedí una sugerencia.");if(s.tipo==="idea")asignarIdeaAlHueco(h,s.idea);else asignarHueco(h.dia,h.slot,s.item.id)
   });

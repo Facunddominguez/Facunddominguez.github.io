@@ -48,20 +48,20 @@
   await clickTab("semana"); await clickTab("hoy");
   const rows = [...document.querySelectorAll("#todayRows .today-row")];
   const lunch = rows.find(r => r.dataset.todaySlot === "almuerzo");
-  T.ok("N8 Hoy muestra las 4 comidas del día en orden, con lo planificado", rows.map(r => r.dataset.todaySlot).join(",") === "desayuno,almuerzo,merienda,cena" && lunch.querySelector(".today-row__plate").textContent === mealName(loadSaved()[0]) && lunch.querySelector("button").textContent === "Lo comí" && rows.filter(r => /Sin plan para hoy/.test(r.textContent)).length === 3 && $("home").querySelector(".screen__title").textContent.startsWith("Hoy · "), rows.map(r => r.textContent).join(" | "));
+  T.ok("N8 Hoy muestra las 4 comidas del día en orden, con lo planificado", rows.map(r => r.dataset.todaySlot).join(",") === "desayuno,almuerzo,merienda,cena" && lunch.querySelector(".today-row__plate").textContent === mealName(loadSaved()[0]) && lunch.querySelector("button").textContent === "Lo comí" && rows.filter(r => r.querySelector(".today-row__plate.is-empty")).length === 3 && $("home").querySelector(".screen__title").textContent.startsWith("Hoy · "), rows.map(r => r.textContent).join(" | "));
   // N9 "Lo comí" registra la comida en un toque y no cambia el plan
   const planBefore = localStorage.getItem("miPlatoFacil_plan");
   lunch.querySelector("button").click(); await wait(60);
   const recs = loadConsumption(), lunchAfter = document.querySelector('#todayRows [data-today-slot="almuerzo"]');
   T.ok("N9 'Lo comí' en Hoy registra la comida (del plan, hoy) sin cambiar el plan", recs.length === 1 && recs[0].meal === "almuerzo" && recs[0].planned === true && recs[0].date === localTrainingDate(new Date()) && recs[0].sourceId === "t1" && localStorage.getItem("miPlatoFacil_plan") === planBefore && /✓ Comido/.test(lunchAfter.textContent) && /Registrado/.test($("todayStatus").textContent), $("todayStatus").textContent);
-  // N10 "Elegir" en una comida sin plan abre la Semana en el día de hoy, con el Selector de esa comida (v15.1)
+  // N10 "Elegir" en una comida sin plan abre el Selector de esa comida sin salir de Hoy (v15.2; antes abría la Semana)
   document.querySelector('#todayRows [data-today-slot="cena"] button').click(); await wait(150);
-  T.ok("N10 'Elegir' en una comida sin plan abre la Semana", scr() === "plan" && tab("semana").getAttribute("aria-current") === "page" && document.querySelector("#planDias [aria-pressed=\"true\"]").dataset.planDia === todayPlanDay() && hoja.abierta() && /^Elegir cena del /.test(document.getElementById("hojaTitulo").textContent) && !!hoja.elemento.querySelector("[data-selector-seccion=\"mias\"]"), document.getElementById("hojaTitulo").textContent);
+  T.ok("N10 'Elegir' en una comida sin plan abre el Selector sin salir de Hoy", scr() === "home" && tab("hoy").getAttribute("aria-current") === "page" && hoja.abierta() && /^Elegir cena del /.test(document.getElementById("hojaTitulo").textContent) && !!hoja.elemento.querySelector("[data-selector-seccion=\"mias\"]"), document.getElementById("hojaTitulo").textContent);
   hoja.cerrar();
   // N11 Más reúne ideas, entrenamiento y ajustes
   await clickTab("mas");
   const masCards = [...document.querySelectorAll("#home .home-group--find button, #sectionSettings button")].filter(shown).map(b => b.querySelector(".tool-button__label").textContent);
-  T.ok("N11 Más reúne ideas, entrenamiento y ajustes", ["Sugerir al azar", "Con lo que tengo", "Días de entrenamiento", "Respaldo y restauración"].every(x => masCards.includes(x)) && masCards.some(x => /^Tema:/.test(x)) && masCards.some(x => /^Modo simple:/.test(x)) && !shown($("todayPanel")), masCards.join(" | "));
+  T.ok("N11 Más reúne ideas, entrenamiento y ajustes (Sugerir al azar se integró en Sugerime algo, v15.2)", ["Ideas", "Con lo que tengo", "Días de entrenamiento", "Respaldo y restauración"].every(x => masCards.includes(x)) && ![...document.querySelectorAll("#home .tool-button")].filter(shown).some(b => /Plato del día|Sugerir al azar/.test(b.textContent)) && masCards.some(x => /^Tema:/.test(x)) && masCards.some(x => /^Modo simple:/.test(x)) && !shown($("todayPanel")), masCards.join(" | "));
   // N12 Desde Más se abre "Con lo que tengo" y Más sigue marcada
   document.querySelector("#home [data-open-pantry]").click(); await wait(60);
   T.ok("N12 desde Más se abre Con lo que tengo y la pestaña Más sigue marcada", scr() === "ingredientes" && tab("mas").getAttribute("aria-current") === "page" && $("homeTop").textContent === "← Más");
