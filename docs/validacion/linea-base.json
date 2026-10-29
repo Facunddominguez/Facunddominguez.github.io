@@ -137,6 +137,7 @@
       "hoy": {
         "vacio": {
           "claro": {
+            "pantalla": "home",
             "alto": 882,
             "palabras": 62,
             "sinEtiqueta": 0,
@@ -145,6 +146,7 @@
             "superpuestos": 0
           },
           "oscuro": {
+            "pantalla": "home",
             "alto": 882,
             "palabras": 62,
             "sinEtiqueta": 0,
@@ -155,6 +157,7 @@
         },
         "normal": {
           "claro": {
+            "pantalla": "home",
             "alto": 896,
             "palabras": 58,
             "sinEtiqueta": 0,
@@ -163,6 +166,7 @@
             "superpuestos": 1
           },
           "oscuro": {
+            "pantalla": "home",
             "alto": 896,
             "palabras": 58,
             "sinEtiqueta": 0,
@@ -173,6 +177,7 @@
         },
         "todo": {
           "claro": {
+            "pantalla": "home",
             "alto": 896,
             "palabras": 58,
             "sinEtiqueta": 0,
@@ -181,6 +186,7 @@
             "superpuestos": 1
           },
           "oscuro": {
+            "pantalla": "home",
             "alto": 896,
             "palabras": 58,
             "sinEtiqueta": 0,
@@ -193,55 +199,61 @@
       "semana": {
         "vacio": {
           "claro": {
+            "pantalla": "plan",
             "alto": 5983,
             "palabras": 676,
             "sinEtiqueta": 0,
             "fueraDePantalla": 0,
-            "cortados": 0,
+            "cortados": 28,
             "superpuestos": 0
           },
           "oscuro": {
+            "pantalla": "plan",
             "alto": 5983,
             "palabras": 676,
             "sinEtiqueta": 0,
             "fueraDePantalla": 0,
-            "cortados": 0,
+            "cortados": 28,
             "superpuestos": 0
           }
         },
         "normal": {
           "claro": {
+            "pantalla": "plan",
             "alto": 8118,
             "palabras": 1695,
             "sinEtiqueta": 0,
             "fueraDePantalla": 0,
-            "cortados": 0,
+            "cortados": 28,
             "superpuestos": 0
           },
           "oscuro": {
+            "pantalla": "plan",
             "alto": 8118,
             "palabras": 1695,
             "sinEtiqueta": 0,
             "fueraDePantalla": 0,
-            "cortados": 0,
+            "cortados": 28,
             "superpuestos": 0
           }
         },
         "todo": {
           "claro": {
-            "alto": 4061,
-            "palabras": 415,
+            "pantalla": "plan",
+            "alto": 12357,
+            "palabras": 2225,
             "sinEtiqueta": 0,
             "fueraDePantalla": 0,
-            "cortados": 0,
+            "cortados": 29,
             "superpuestos": 0
           },
           "oscuro": {
-            "alto": 4061,
-            "palabras": 415,
+            "pantalla": "plan",
+            "alto": 12357,
+            "palabras": 2225,
             "sinEtiqueta": 0,
             "fueraDePantalla": 0,
-            "cortados": 0,
+            "cortados": 29,
             "superpuestos": 0
           }
         }
@@ -249,6 +261,7 @@
       "compras": {
         "vacio": {
           "claro": {
+            "pantalla": "compras",
             "alto": 1494,
             "palabras": 136,
             "sinEtiqueta": 0,
@@ -257,6 +270,7 @@
             "superpuestos": 0
           },
           "oscuro": {
+            "pantalla": "compras",
             "alto": 1494,
             "palabras": 136,
             "sinEtiqueta": 0,
@@ -267,6 +281,7 @@
         },
         "normal": {
           "claro": {
+            "pantalla": "compras",
             "alto": 3820,
             "palabras": 438,
             "sinEtiqueta": 0,
@@ -275,6 +290,7 @@
             "superpuestos": 0
           },
           "oscuro": {
+            "pantalla": "compras",
             "alto": 3820,
             "palabras": 438,
             "sinEtiqueta": 0,
@@ -285,19 +301,21 @@
         },
         "todo": {
           "claro": {
+            "pantalla": "compras",
             "alto": 15279,
             "palabras": 1857,
             "sinEtiqueta": 0,
             "fueraDePantalla": 0,
-            "cortados": 0,
+            "cortados": 1,
             "superpuestos": 0
           },
           "oscuro": {
+            "pantalla": "compras",
             "alto": 15279,
             "palabras": 1857,
             "sinEtiqueta": 0,
             "fueraDePantalla": 0,
-            "cortados": 0,
+            "cortados": 1,
             "superpuestos": 0
           }
         }
@@ -305,6 +323,7 @@
       "comidas": {
         "vacio": {
           "claro": {
+            "pantalla": "misplatos",
             "alto": 1116,
             "palabras": 73,
             "sinEtiqueta": 0,
@@ -313,6 +332,7 @@
             "superpuestos": 0
           },
           "oscuro": {
+            "pantalla": "misplatos",
             "alto": 1116,
             "palabras": 73,
             "sinEtiqueta": 0,
@@ -323,6 +343,7 @@
         },
         "normal": {
           "claro": {
+            "pantalla": "misplatos",
             "alto": 3811,
             "palabras": 459,
             "sinEtiqueta": 0,
@@ -331,6 +352,7 @@
             "superpuestos": 0
           },
           "oscuro": {
+            "pantalla": "misplatos",
             "alto": 3811,
             "palabras": 459,
             "sinEtiqueta": 0,
@@ -341,6 +363,7 @@
         },
         "todo": {
           "claro": {
+            "pantalla": "misplatos",
             "alto": 5826,
             "palabras": 684,
             "sinEtiqueta": 0,
@@ -349,6 +372,7 @@
             "superpuestos": 0
           },
           "oscuro": {
+            "pantalla": "misplatos",
             "alto": 5826,
             "palabras": 684,
             "sinEtiqueta": 0,
@@ -361,6 +385,7 @@
       "mas": {
         "vacio": {
           "claro": {
+            "pantalla": "home",
             "alto": 964,
             "palabras": 74,
             "sinEtiqueta": 0,
@@ -369,6 +394,7 @@
             "superpuestos": 1
           },
           "oscuro": {
+            "pantalla": "home",
             "alto": 964,
             "palabras": 74,
             "sinEtiqueta": 0,
@@ -379,6 +405,7 @@
         },
         "normal": {
           "claro": {
+            "pantalla": "home",
             "alto": 964,
             "palabras": 74,
             "sinEtiqueta": 0,
@@ -387,6 +414,7 @@
             "superpuestos": 1
           },
           "oscuro": {
+            "pantalla": "home",
             "alto": 964,
             "palabras": 74,
             "sinEtiqueta": 0,
@@ -397,6 +425,7 @@
         },
         "todo": {
           "claro": {
+            "pantalla": "home",
             "alto": 964,
             "palabras": 74,
             "sinEtiqueta": 0,
@@ -405,6 +434,7 @@
             "superpuestos": 1
           },
           "oscuro": {
+            "pantalla": "home",
             "alto": 964,
             "palabras": 74,
             "sinEtiqueta": 0,
@@ -417,6 +447,7 @@
       "despensa": {
         "vacio": {
           "claro": {
+            "pantalla": "ingredientes",
             "alto": 3136,
             "palabras": 484,
             "sinEtiqueta": 0,
@@ -425,6 +456,7 @@
             "superpuestos": 0
           },
           "oscuro": {
+            "pantalla": "ingredientes",
             "alto": 3136,
             "palabras": 484,
             "sinEtiqueta": 0,
@@ -435,6 +467,7 @@
         },
         "normal": {
           "claro": {
+            "pantalla": "ingredientes",
             "alto": 4824,
             "palabras": 653,
             "sinEtiqueta": 0,
@@ -443,6 +476,7 @@
             "superpuestos": 0
           },
           "oscuro": {
+            "pantalla": "ingredientes",
             "alto": 4824,
             "palabras": 653,
             "sinEtiqueta": 0,
@@ -453,19 +487,21 @@
         },
         "todo": {
           "claro": {
+            "pantalla": "ingredientes",
             "alto": 9825,
             "palabras": 1756,
             "sinEtiqueta": 0,
             "fueraDePantalla": 0,
-            "cortados": 0,
+            "cortados": 1,
             "superpuestos": 0
           },
           "oscuro": {
+            "pantalla": "ingredientes",
             "alto": 9825,
             "palabras": 1756,
             "sinEtiqueta": 0,
             "fueraDePantalla": 0,
-            "cortados": 0,
+            "cortados": 1,
             "superpuestos": 0
           }
         }
@@ -473,6 +509,7 @@
       "entrenamiento": {
         "vacio": {
           "claro": {
+            "pantalla": "trainingCalendar",
             "alto": 1721,
             "palabras": 172,
             "sinEtiqueta": 0,
@@ -481,6 +518,7 @@
             "superpuestos": 0
           },
           "oscuro": {
+            "pantalla": "trainingCalendar",
             "alto": 1721,
             "palabras": 172,
             "sinEtiqueta": 0,
@@ -491,6 +529,7 @@
         },
         "normal": {
           "claro": {
+            "pantalla": "trainingCalendar",
             "alto": 1895,
             "palabras": 159,
             "sinEtiqueta": 0,
@@ -499,6 +538,7 @@
             "superpuestos": 0
           },
           "oscuro": {
+            "pantalla": "trainingCalendar",
             "alto": 1895,
             "palabras": 159,
             "sinEtiqueta": 0,
@@ -509,6 +549,7 @@
         },
         "todo": {
           "claro": {
+            "pantalla": "trainingCalendar",
             "alto": 1984,
             "palabras": 161,
             "sinEtiqueta": 0,
@@ -517,6 +558,7 @@
             "superpuestos": 0
           },
           "oscuro": {
+            "pantalla": "trainingCalendar",
             "alto": 1984,
             "palabras": 161,
             "sinEtiqueta": 0,
@@ -529,6 +571,7 @@
       "respaldo": {
         "vacio": {
           "claro": {
+            "pantalla": "backupScreen",
             "alto": 1305,
             "palabras": 152,
             "sinEtiqueta": 0,
@@ -537,6 +580,7 @@
             "superpuestos": 0
           },
           "oscuro": {
+            "pantalla": "backupScreen",
             "alto": 1305,
             "palabras": 152,
             "sinEtiqueta": 0,
@@ -547,6 +591,7 @@
         },
         "normal": {
           "claro": {
+            "pantalla": "backupScreen",
             "alto": 1305,
             "palabras": 152,
             "sinEtiqueta": 0,
@@ -555,6 +600,7 @@
             "superpuestos": 0
           },
           "oscuro": {
+            "pantalla": "backupScreen",
             "alto": 1305,
             "palabras": 152,
             "sinEtiqueta": 0,
@@ -565,6 +611,7 @@
         },
         "todo": {
           "claro": {
+            "pantalla": "backupScreen",
             "alto": 2751,
             "palabras": 484,
             "sinEtiqueta": 0,
@@ -573,6 +620,7 @@
             "superpuestos": 0
           },
           "oscuro": {
+            "pantalla": "backupScreen",
             "alto": 2751,
             "palabras": 484,
             "sinEtiqueta": 0,
@@ -585,6 +633,7 @@
       "ia": {
         "vacio": {
           "claro": {
+            "pantalla": "backupScreen",
             "alto": 1966,
             "palabras": 311,
             "sinEtiqueta": 0,
@@ -593,6 +642,7 @@
             "superpuestos": 0
           },
           "oscuro": {
+            "pantalla": "backupScreen",
             "alto": 1966,
             "palabras": 311,
             "sinEtiqueta": 0,
@@ -603,6 +653,7 @@
         },
         "normal": {
           "claro": {
+            "pantalla": "backupScreen",
             "alto": 1966,
             "palabras": 311,
             "sinEtiqueta": 0,
@@ -611,6 +662,7 @@
             "superpuestos": 0
           },
           "oscuro": {
+            "pantalla": "backupScreen",
             "alto": 1966,
             "palabras": 311,
             "sinEtiqueta": 0,
@@ -621,6 +673,7 @@
         },
         "todo": {
           "claro": {
+            "pantalla": "backupScreen",
             "alto": 2751,
             "palabras": 484,
             "sinEtiqueta": 0,
@@ -629,6 +682,7 @@
             "superpuestos": 0
           },
           "oscuro": {
+            "pantalla": "backupScreen",
             "alto": 2751,
             "palabras": 484,
             "sinEtiqueta": 0,
@@ -641,7 +695,8 @@
       "ideas": {
         "vacio": {
           "claro": {
-            "alto": 882,
+            "pantalla": "adviceModal",
+            "alto": 3786,
             "palabras": 368,
             "sinEtiqueta": 0,
             "fueraDePantalla": 0,
@@ -649,7 +704,8 @@
             "superpuestos": 0
           },
           "oscuro": {
-            "alto": 882,
+            "pantalla": "adviceModal",
+            "alto": 3786,
             "palabras": 368,
             "sinEtiqueta": 0,
             "fueraDePantalla": 0,
@@ -659,7 +715,8 @@
         },
         "normal": {
           "claro": {
-            "alto": 896,
+            "pantalla": "adviceModal",
+            "alto": 3786,
             "palabras": 366,
             "sinEtiqueta": 0,
             "fueraDePantalla": 0,
@@ -667,7 +724,8 @@
             "superpuestos": 0
           },
           "oscuro": {
-            "alto": 896,
+            "pantalla": "adviceModal",
+            "alto": 3786,
             "palabras": 366,
             "sinEtiqueta": 0,
             "fueraDePantalla": 0,
@@ -677,7 +735,8 @@
         },
         "todo": {
           "claro": {
-            "alto": 896,
+            "pantalla": "adviceModal",
+            "alto": 3786,
             "palabras": 366,
             "sinEtiqueta": 0,
             "fueraDePantalla": 0,
@@ -685,7 +744,8 @@
             "superpuestos": 0
           },
           "oscuro": {
-            "alto": 896,
+            "pantalla": "adviceModal",
+            "alto": 3786,
             "palabras": 366,
             "sinEtiqueta": 0,
             "fueraDePantalla": 0,
@@ -697,6 +757,7 @@
       "armado-desayuno": {
         "vacio": {
           "claro": {
+            "pantalla": "bf_fruit",
             "alto": 1276,
             "palabras": 51,
             "sinEtiqueta": 0,
@@ -705,6 +766,7 @@
             "superpuestos": 2
           },
           "oscuro": {
+            "pantalla": "bf_fruit",
             "alto": 1276,
             "palabras": 51,
             "sinEtiqueta": 0,
@@ -715,6 +777,7 @@
         },
         "normal": {
           "claro": {
+            "pantalla": "bf_fruit",
             "alto": 1276,
             "palabras": 51,
             "sinEtiqueta": 0,
@@ -723,6 +786,7 @@
             "superpuestos": 2
           },
           "oscuro": {
+            "pantalla": "bf_fruit",
             "alto": 1276,
             "palabras": 51,
             "sinEtiqueta": 0,
@@ -733,6 +797,7 @@
         },
         "todo": {
           "claro": {
+            "pantalla": "bf_fruit",
             "alto": 1276,
             "palabras": 51,
             "sinEtiqueta": 0,
@@ -741,6 +806,7 @@
             "superpuestos": 2
           },
           "oscuro": {
+            "pantalla": "bf_fruit",
             "alto": 1276,
             "palabras": 51,
             "sinEtiqueta": 0,
@@ -753,6 +819,7 @@
       "armado-almuerzo": {
         "vacio": {
           "claro": {
+            "pantalla": "day",
             "alto": 844,
             "palabras": 18,
             "sinEtiqueta": 0,
@@ -761,6 +828,7 @@
             "superpuestos": 0
           },
           "oscuro": {
+            "pantalla": "day",
             "alto": 844,
             "palabras": 18,
             "sinEtiqueta": 0,
@@ -771,6 +839,7 @@
         },
         "normal": {
           "claro": {
+            "pantalla": "day",
             "alto": 844,
             "palabras": 18,
             "sinEtiqueta": 0,
@@ -779,6 +848,7 @@
             "superpuestos": 0
           },
           "oscuro": {
+            "pantalla": "day",
             "alto": 844,
             "palabras": 18,
             "sinEtiqueta": 0,
@@ -789,6 +859,7 @@
         },
         "todo": {
           "claro": {
+            "pantalla": "day",
             "alto": 844,
             "palabras": 18,
             "sinEtiqueta": 0,
@@ -797,6 +868,7 @@
             "superpuestos": 0
           },
           "oscuro": {
+            "pantalla": "day",
             "alto": 844,
             "palabras": 18,
             "sinEtiqueta": 0,
@@ -809,6 +881,7 @@
       "armado-verduras": {
         "vacio": {
           "claro": {
+            "pantalla": "lunch_veg",
             "alto": 2536,
             "palabras": 57,
             "sinEtiqueta": 0,
@@ -817,6 +890,7 @@
             "superpuestos": 1
           },
           "oscuro": {
+            "pantalla": "lunch_veg",
             "alto": 2536,
             "palabras": 57,
             "sinEtiqueta": 0,
@@ -827,6 +901,7 @@
         },
         "normal": {
           "claro": {
+            "pantalla": "lunch_veg",
             "alto": 2536,
             "palabras": 57,
             "sinEtiqueta": 0,
@@ -835,6 +910,7 @@
             "superpuestos": 1
           },
           "oscuro": {
+            "pantalla": "lunch_veg",
             "alto": 2536,
             "palabras": 57,
             "sinEtiqueta": 0,
@@ -845,6 +921,7 @@
         },
         "todo": {
           "claro": {
+            "pantalla": "lunch_veg",
             "alto": 2536,
             "palabras": 57,
             "sinEtiqueta": 0,
@@ -853,6 +930,7 @@
             "superpuestos": 1
           },
           "oscuro": {
+            "pantalla": "lunch_veg",
             "alto": 2536,
             "palabras": 57,
             "sinEtiqueta": 0,
@@ -865,6 +943,7 @@
       "resumen": {
         "vacio": {
           "claro": {
+            "pantalla": "resumen",
             "alto": 1169,
             "palabras": 49,
             "sinEtiqueta": 0,
@@ -873,6 +952,7 @@
             "superpuestos": 2
           },
           "oscuro": {
+            "pantalla": "resumen",
             "alto": 1169,
             "palabras": 49,
             "sinEtiqueta": 0,
@@ -883,6 +963,7 @@
         },
         "normal": {
           "claro": {
+            "pantalla": "resumen",
             "alto": 1169,
             "palabras": 49,
             "sinEtiqueta": 0,
@@ -891,6 +972,7 @@
             "superpuestos": 2
           },
           "oscuro": {
+            "pantalla": "resumen",
             "alto": 1169,
             "palabras": 49,
             "sinEtiqueta": 0,
@@ -901,6 +983,7 @@
         },
         "todo": {
           "claro": {
+            "pantalla": "resumen",
             "alto": 1169,
             "palabras": 49,
             "sinEtiqueta": 0,
@@ -909,6 +992,7 @@
             "superpuestos": 2
           },
           "oscuro": {
+            "pantalla": "resumen",
             "alto": 1169,
             "palabras": 49,
             "sinEtiqueta": 0,

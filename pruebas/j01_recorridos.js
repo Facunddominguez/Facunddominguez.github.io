@@ -83,7 +83,8 @@
   // J4 Tachar y Lo compré: lo comprado pasa a la despensa
   await manejo.tacharYLoCompre(clave("Tomate"));
   const despensa = JSON.parse(localStorage.getItem("miPlatoFacil_pantry") || "[]"), existencias = Object.values(JSON.parse(localStorage.getItem("miPlatoFacil_pantryQuantities_v1") || "{}"));
-  ok("J4 tachar y Lo compré lo pasa a la despensa", despensa.includes("tomate") || existencias.some(s => clave(s.name) === clave("Tomate")), JSON.stringify(despensa));
+  const enDespensa = n => despensa.some(x => clave(x) === clave(n)) || existencias.some(s => clave(s.name) === clave(n));
+  ok("J4 tachar y Lo compré pasa a la despensa solo lo tachado", enDespensa("Tomate") && !enDespensa("Papa") && !enDespensa("Merluza"), JSON.stringify(despensa));
   // J5 Lo comí con Deshacer (sin cambiar el plan)
   await manejo.asignar(plato.id, hoy(), "almuerzo");
   const planAntes = localStorage.getItem("miPlatoFacil_plan");
@@ -92,13 +93,16 @@
   const registrado = registros.length === 1 && registros[0].sourceId === plato.id && registros[0].meal === "almuerzo" && registros[0].planned === true;
   await manejo.deshacerLoComi();
   ok("J5 Lo comí registra la comida y Deshacer la quita, sin cambiar el plan", registrado && (localStorage.getItem("miPlatoFacil_consumption_v1") || "[]") === "[]" && localStorage.getItem("miPlatoFacil_plan") === planAntes);
-  // J6 Respaldar y restaurar deja todo como estaba
+  // J6 Respaldar y restaurar deja todo como estaba, y el respaldo lleva todo lo guardado (incluso claves armadas en el
+  // momento, que la compuerta no ve en el código). Solo quedan afuera los ajustes de este dispositivo.
   const respaldo = await manejo.respaldar();
+  const soloDelDispositivo = ["miPlatoFacil_aiSettings_v1", "miPlatoFacil_uiMode_v1"];
+  const sinRespaldo = Object.keys(localStorage).filter(k => k.startsWith("miPlatoFacil_") && !soloDelDispositivo.includes(k) && !(respaldo && Object.prototype.hasOwnProperty.call(respaldo.data, k)));
   const antes = respaldo && JSON.stringify(Object.keys(respaldo.data).map(k => [k, respaldo.data[k]]));
   localStorage.setItem("miPlatoFacil_saved", "[]"); localStorage.setItem("miPlatoFacil_plan", "{}"); localStorage.removeItem("miPlatoFacil_pantry");
   if (respaldo) await manejo.restaurar(respaldo);
   const despues = respaldo && JSON.stringify(Object.keys(respaldo.data).map(k => [k, localStorage.getItem(k)]));
-  ok("J6 respaldar y restaurar deja todo como estaba", !!respaldo && antes === despues && guardados().length === 1 && plan().martes.almuerzo === plato.id);
+  ok("J6 respaldar y restaurar deja todo como estaba, y el respaldo lleva todo lo guardado", !!respaldo && !sinRespaldo.length && antes === despues && guardados().length === 1 && plan().martes.almuerzo === plato.id, sinRespaldo.length ? "fuera del respaldo: " + sinRespaldo.join(", ") : "");
   marco.remove();
   localStorage.clear();
   return T;

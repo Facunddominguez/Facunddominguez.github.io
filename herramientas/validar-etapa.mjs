@@ -52,9 +52,19 @@ console.log(`Compuerta de la Etapa ${N} · rama ${git('branch', '--show-current'
 const TAG = 'etapa-0-ok';
 const hayTag = existe('refs/tags/' + TAG);
 if (N >= 1) control(hayTag, `Existe el tag ${TAG}`, 'desde la Etapa 1 la compuerta compara contra ese tag');
+if (hayTag) {
+  // El tag local tiene que ser el publicado: si alguien lo moviera, cambiaría toda la referencia.
+  const remoto = spawnSync('git', ['ls-remote', 'origin', 'refs/tags/' + TAG], { cwd: RAIZ, encoding: 'utf8', timeout: 30000 });
+  const publicado = remoto.status === 0 ? (remoto.stdout.trim().split(/\s+/)[0] || '') : null, local = git('rev-parse', 'refs/tags/' + TAG).stdout.trim();
+  if (publicado === null) nota(`No se pudo consultar el tag ${TAG} publicado (sin conexión): se usa el local`);
+  else control(!publicado || publicado === local, `El tag ${TAG} local es el publicado`, `local ${local.slice(0, 10)}, publicado ${publicado.slice(0, 10)}`);
+}
+// Rama rediseno: la local o, si no está, la publicada. Sin ninguna de las dos no se puede comparar.
+const REDISENO = existe('refs/heads/rediseno') ? 'rediseno' : existe('refs/remotes/origin/rediseno') ? 'origin/rediseno' : null;
+control(REDISENO, `Existe la rama rediseno${REDISENO === 'origin/rediseno' ? ' (la publicada, origin/rediseno)' : ''}`, 'la compuerta compara contra rediseno: traela con git fetch');
 const criterios = JSON.parse(leer('docs/validacion/criterios.json'));
 const baseRama = JSON.parse(leer('docs/validacion/linea-base.json'));
-const baseRediseno = existe('rediseno') ? jsonDesdeGit('rediseno', 'docs/validacion/linea-base.json') : null;
+const baseRediseno = REDISENO ? jsonDesdeGit(REDISENO, 'docs/validacion/linea-base.json') : null;
 const baseTag = hayTag ? jsonDesdeGit(TAG, 'docs/validacion/linea-base.json') : null;
 const fija = baseTag || baseRama;
 const bases = [baseTag, baseRediseno, baseRama].filter(Boolean);
@@ -206,8 +216,9 @@ const dominios = new Map(), dependencias = [];
   for (const e of readdirSync(dir, { withFileTypes: true })) {
     const archivo = join(dir, e.name), rel = relative(RAIZ, archivo).replace(/\\/g, '/');
     if (e.isDirectory()) { recorrer(archivo); continue }
-    const texto = readFileSync(archivo, 'utf8');
-    for (const m of texto.matchAll(/https?:\/\/([a-zA-Z0-9.-]+)/g)) if (!dominios.has(m[1].toLowerCase())) dominios.set(m[1].toLowerCase(), rel);
+    // Los espacios de nombres de XML (por ejemplo, el de SVG) son identificadores, no direcciones: no se piden.
+    const texto = readFileSync(archivo, 'utf8').replace(/https?:\/\/www\.w3\.org\/(2000\/svg|1999\/xlink|1999\/xhtml|2000\/xmlns\/?|XML\/1998\/namespace)\b/g, '');
+    for (const m of texto.matchAll(/(?:https?|wss?):\/\/([a-zA-Z0-9.-]+)|["'`(]\/\/([a-zA-Z0-9-]+\.[a-zA-Z0-9.-]+)/g)) { const d = (m[1] || m[2]).toLowerCase(); if (!dominios.has(d)) dominios.set(d, rel) }
     texto.split('\n').forEach((l, i) => {
       if (/^\s*import\s+[\w{*"']|\bimport\s*\(|\brequire\s*\(|\bimportScripts\s*\(|<script[^>]*\bsrc\s*=|<link[^>]*rel=["']?(stylesheet|modulepreload|preload)/.test(l)) dependencias.push(`${rel}:${i + 1}`);
     });
@@ -220,14 +231,19 @@ control(!dependencias.length, 'Sin dependencias en la app (import, require, impo
 
 // 8. Versión de la app
 const version = JSON.parse(leer('fuente/version.json')).version;
-if (existe('rediseno')) {
-  const cambios = git('diff', '--name-only', 'rediseno', '--', 'fuente', ':(exclude)fuente/version.json').stdout.trim().split('\n').filter(Boolean)
+if (REDISENO) {
+  const cambios = git('diff', '--name-only', REDISENO, '--', 'fuente', ':(exclude)fuente/version.json').stdout.trim().split('\n').filter(Boolean)
     .concat(git('ls-files', '--others', '--exclude-standard', '--', 'fuente').stdout.trim().split('\n').filter(Boolean));
-  const anterior = (jsonDesdeGit('rediseno', 'fuente/version.json') || {}).version || '0.0.0';
+  const anterior = (jsonDesdeGit(REDISENO, 'fuente/version.json') || {}).version || '0.0.0';
   const mayor = (a, b) => { const x = a.split('.').map(Number), y = b.split('.').map(Number); for (let i = 0; i < 3; i++) if (x[i] !== y[i]) return x[i] > y[i]; return false };
   if (N === 0) control(!cambios.length && version === anterior, `La app no cambia en la Etapa 0 (fuente/ igual que en rediseno, versión ${version})`, cambios.slice(0, 8).join(', '));
   else if (cambios.length) control(mayor(version, anterior), `La app cambió (${cambios.length} archivos de fuente/) y la versión subió: ${anterior} → ${version}`, 'subí fuente/version.json (regla 4)');
   else nota(`La app no cambió respecto de rediseno (versión ${version})`);
+}
+// Las herramientas que miden salen de la rama, no del tag: si cambiaron, que se vea (lo revisa revisor-codigo).
+if (hayTag) {
+  const medicion = git('diff', '--stat', TAG, '--', 'herramientas', 'pruebas/run_all.js', 'pruebas/k01_respaldo_ejemplo.js', 'pruebas/j01_recorridos.js', 'pruebas/fixtures').stdout.trim();
+  nota(medicion ? 'Cambios en las herramientas de medición desde ' + TAG + ' (revisarlos en el diff):\n    ' + medicion.split('\n').join('\n    ') : 'Las herramientas de medición no cambiaron desde ' + TAG);
 }
 
 // Resultado

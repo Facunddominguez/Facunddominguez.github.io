@@ -94,7 +94,9 @@ const MEDIR = sel => `(() => {
   const ir = y => window.scrollTo({ top: y, behavior: "instant" });
   ir(0);
   const palabras = (objetivo.innerText || "").split(/\\s+/).filter(w => /[\\p{L}\\p{N}]/u.test(w)).length;
-  const alto = Math.ceil(Math.max(document.documentElement.scrollHeight, document.body.scrollHeight));
+  // Alto: el del documento o, si la vista tiene scroll propio, el de su contenido (el mayor).
+  const alto = Math.ceil(Math.max(document.documentElement.scrollHeight, document.body.scrollHeight, objetivo.scrollHeight));
+  const pantalla = objetivo.id || (objetivo.closest("[id]") || {}).id || objetivo.tagName.toLowerCase();
   const scrollHorizontal = document.documentElement.scrollWidth > innerWidth + 1;
   // Campos sin etiqueta accesible (label, aria-label, aria-labelledby o title).
   const sinEtiqueta = [...document.querySelectorAll("input,select,textarea")].filter(e => e.type !== "hidden" && visible(e) && !(e.labels && e.labels.length) && !e.getAttribute("aria-label") && !e.getAttribute("aria-labelledby") && !e.title).map(nombre);
@@ -114,6 +116,16 @@ const MEDIR = sel => `(() => {
     const cs = getComputedStyle(e), recorta = /hidden|clip/.test(cs.overflowX) || cs.textOverflow === "ellipsis";
     return recorta && e.scrollWidth > e.clientWidth + 1;
   }).map(nombre);
+  // Selectores cuyo texto elegido no entra (el navegador lo corta sin avisar).
+  const regla = document.createElement("canvas").getContext("2d");
+  for (const e of objetivo.querySelectorAll("select")) {
+    const o = e.options[e.selectedIndex];
+    if (!visible(e) || !o || !o.text.trim()) continue;
+    const cs = getComputedStyle(e);
+    regla.font = cs.fontStyle + " " + cs.fontWeight + " " + cs.fontSize + " " + cs.fontFamily;
+    const util = e.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight) - (cs.appearance === "none" ? 0 : 22);
+    if (regla.measureText(o.text.trim()).width > util + 1) cortados.push("select " + nombre(e) + " «" + o.text.trim().slice(0, 30) + "»");
+  }
   // Controles superpuestos:
   //  a) dos controles de la vista que se pisan;
   //  b) con el scroll arriba, un control flotante (no una barra de ancho completo) que tapa un control de la vista;
@@ -143,7 +155,7 @@ const MEDIR = sel => `(() => {
   ir(document.documentElement.scrollHeight);
   for (const f of fijos) for (const n of propios) if (choca(f, n)) superpuestos.push(nombre(f) + " tapa al final " + nombre(n));
   ir(0);
-  return { alto, palabras, scrollHorizontal, sinEtiqueta, fueraDePantalla, cortados, superpuestos };
+  return { pantalla, alto, palabras, scrollHorizontal, sinEtiqueta, fueraDePantalla, cortados, superpuestos };
 })()`;
 
 let codigo = 1;
@@ -162,7 +174,9 @@ try {
   await enviar('Emulation.setDeviceMetricsOverride', { width: ANCHO, height: ALTO, deviceScaleFactor: 1, mobile: true }, S);
   const evaluar = async expr => { const r = await enviar('Runtime.evaluate', { expression: expr, awaitPromise: true, returnByValue: true }, S); if (r.exceptionDetails) throw new Error((r.exceptionDetails.exception && r.exceptionDetails.exception.description) || r.exceptionDetails.text); return r.result.value };
   const cargar = async () => { const desde = eventos.length; await enviar('Page.navigate', { url: origen + '/index.html' }, S); for (let t = 0; t < 400 && !eventos.slice(desde).some(e => e.method === 'Page.loadEventFired' && e.sessionId === S); t++) await espera(50); await espera(600) };
-  const errores = desde => eventos.slice(desde).filter(e => e.sessionId === S && (e.method === 'Runtime.exceptionThrown' || (e.method === 'Runtime.consoleAPICalled' && e.params.type === 'error'))).map(e => e.method === 'Runtime.exceptionThrown' ? (e.params.exceptionDetails.exception ? e.params.exceptionDetails.exception.description.split('\n')[0] : e.params.exceptionDetails.text) : e.params.args.map(a => a.value || a.description).join(' '));
+  // Errores: excepciones, console.error y cualquier pedido a internet (la app solo puede pedir a su propio origen).
+  const externo = u => { try { const x = new URL(u); return /^(https?|wss?):$/.test(x.protocol) && x.origin !== origen } catch (e) { return false } };
+  const errores = desde => eventos.slice(desde).filter(e => e.sessionId === S && (e.method === 'Runtime.exceptionThrown' || (e.method === 'Runtime.consoleAPICalled' && e.params.type === 'error') || (e.method === 'Network.requestWillBeSent' && externo(e.params.request.url)))).map(e => e.method === 'Runtime.exceptionThrown' ? (e.params.exceptionDetails.exception ? e.params.exceptionDetails.exception.description.split('\n')[0] : e.params.exceptionDetails.text) : e.method === 'Network.requestWillBeSent' ? 'Pedido a internet: ' + e.params.request.url.slice(0, 120) : e.params.args.map(a => a.value || a.description).join(' '));
   await cargar();
   for (const estado of estados) {
     for (const tema of temas) {
@@ -177,14 +191,21 @@ try {
         const desde = eventos.length;
         let m;
         try {
-          await evaluar(`(async () => { window.scrollTo({ top: 0, behavior: "instant" }); restart(); await new Promise(r => setTimeout(r, 60)); ${vista.ir}; await new Promise(r => setTimeout(r, 250)); ${estado === 'todo' ? `const o = ${vista.medir ? `document.querySelector(${JSON.stringify(vista.medir)})` : 'null'} || document.querySelector(".screen.is-active"); o.querySelectorAll("details").forEach(d => { d.open = true }); await new Promise(r => setTimeout(r, 300));` : ''} document.querySelectorAll("input,textarea").forEach(e => e.blur()); window.scrollTo({ top: 0, behavior: "instant" }); await new Promise(r => setTimeout(r, 200)); return true })()`);
+          await evaluar(`(async () => { window.scrollTo({ top: 0, behavior: "instant" }); restart(); await new Promise(r => setTimeout(r, 60)); ${vista.ir}; await new Promise(r => setTimeout(r, 250)); ${estado === 'todo' ? `const o = ${vista.medir ? `document.querySelector(${JSON.stringify(vista.medir)})` : 'null'} || document.querySelector(".screen.is-active"); o.querySelectorAll("details").forEach(d => { d.open = true }); await new Promise(r => setTimeout(r, 300)); for (const d of [...o.querySelectorAll("details")].filter(d => !d.open).reverse()) { d.open = true; await new Promise(r => setTimeout(r, 120)) }` : ''} document.querySelectorAll("input,textarea").forEach(e => e.blur()); window.scrollTo({ top: 0, behavior: "instant" }); await new Promise(r => setTimeout(r, 200)); return true })()`);
           m = await evaluar(MEDIR(vista.medir));
         } catch (err) { m = { error: err.message } }
         m.errores = (vista === VISTAS[0] ? erroresCarga : []).concat(errores(desde));
         if (m.error) m.errores.unshift('No se pudo abrir la vista: ' + m.error);
         ((medidas.vistas[vista.id] ||= {})[estado] ||= {})[tema] = m;
         if (conImagenes && !m.error) {
-          const foto = await enviar('Page.captureScreenshot', { format: 'png', captureBeyondViewport: true, clip: { x: 0, y: 0, width: ANCHO, height: Math.min(m.alto, 16000), scale: 1 } }, S);
+          // Para la imagen, la ventana se estira al alto de la página: así las barras fijas quedan abajo, donde se ven al
+          // final del recorrido, y no tapan contenido en el medio de la captura. Las medidas ya se tomaron a 390×844.
+          const altoFoto = Math.min(m.alto, 16000);
+          await enviar('Emulation.setDeviceMetricsOverride', { width: ANCHO, height: altoFoto, deviceScaleFactor: 1, mobile: true }, S);
+          await espera(200);
+          const foto = await enviar('Page.captureScreenshot', { format: 'png', clip: { x: 0, y: 0, width: ANCHO, height: altoFoto, scale: 1 } }, S);
+          await enviar('Emulation.setDeviceMetricsOverride', { width: ANCHO, height: ALTO, deviceScaleFactor: 1, mobile: true }, S);
+          await espera(100);
           await writeFile(join(salida, `${vista.id}-${estado}-${tema}.png`), Buffer.from(foto.data, 'base64'));
         }
         console.log(`${vista.id.padEnd(16)} ${estado.padEnd(6)} ${tema.padEnd(6)} alto ${String(m.alto ?? '—').padStart(5)} px · ${String(m.palabras ?? '—').padStart(4)} palabras${m.errores.length ? ' · ERRORES: ' + m.errores.join(' | ') : ''}${m.scrollHorizontal ? ' · SCROLL HORIZONTAL' : ''}`);

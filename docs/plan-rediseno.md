@@ -241,7 +241,7 @@ Estados: ✅ hecha · ⏳ en curso · ⛔ parada. Cada etapa entra a `rediseno` 
 
 | Etapa | Estado | Tag | Versión de la app |
 |---|---|---|---|
-| 0. Red de seguridad | ⏳ | — | 14.9.94 |
+| 0. Red de seguridad | ✅ | `etapa-0-ok` | 14.9.94 |
 | 1. Confianza | — | — | — |
 | 2. Selector de comida y nueva Semana | — | — | — |
 | 3. Hoy | — | — | — |
@@ -253,7 +253,7 @@ Estados: ✅ hecha · ⏳ en curso · ⛔ parada. Cada etapa entra a `rediseno` 
 | 9. Precios de SEPA | — | — | — |
 | 10. Pulido | — | — | — |
 
-### Etapa 0 · Red de seguridad ⏳
+### Etapa 0 · Red de seguridad ✅
 
 Rama `rediseno-etapa-0-red-de-seguridad`.
 
@@ -297,16 +297,72 @@ Rama `rediseno-etapa-0-red-de-seguridad`.
 - Compuerta probada en falso, en una rama aparte sin push ni merge, con tres casos: romper una prueba, borrar una prueba y aflojar un umbral de `criterios.json`. Se anotan la salida y el código de salida de cada uno.
 
 **Medidas antes y después**
-- (se completa al cerrar la etapa: capturas y medidas de referencia de la v14.9.94)
+- La app no cambió: antes y después son la v14.9.94. Son la referencia de todas las etapas: 84 capturas (14 vistas × 3 estados × 2 temas) en `capturas/etapa-0/` (no se versionan) y sus medidas en `docs/validacion/linea-base.json` (`medidasEtapa0`).
+- Entorno: Windows 10.0.22631, Chrome 156.0.8078.73, 390×844, reloj fijo lunes 26/10/2026 12:00.
+- Pruebas: 387 de 387 (375 de antes, más k01 con 6 y j01 con 6), en 31 baterías.
+- Alto en px / palabras visibles, tema claro:
+
+| Vista | Vacío | Normal | Todo |
+|---|---|---|---|
+| Hoy | 882 / 62 | 896 / 58 | 896 / 58 |
+| Semana | 5.983 / 676 | 8.118 / 1.695 | 12.357 / 2.225 |
+| Compras | 1.494 / 136 | 3.820 / 438 | 15.279 / 1.857 |
+| Mis comidas | 1.116 / 73 | 3.811 / 459 | 5.826 / 684 |
+| Más | 964 / 74 | 964 / 74 | 964 / 74 |
+| Despensa (Con lo que tengo) | 3.136 / 484 | 4.824 / 653 | 9.825 / 1.756 |
+| Entrenamiento | 1.721 / 172 | 1.895 / 159 | 1.984 / 161 |
+| Respaldo | 1.305 / 152 | 1.305 / 152 | 2.751 / 484 |
+| Asistente de IA | 1.966 / 311 | 1.966 / 311 | 2.751 / 484 |
+| Ideas (Consejos) | 3.786 / 368 | 3.786 / 366 | 3.786 / 366 |
+| Armado: desayuno | 1.276 / 51 | 1.276 / 51 | 1.276 / 51 |
+| Armado: almuerzo | 844 / 18 | 844 / 18 | 844 / 18 |
+| Armado: verduras | 2.536 / 57 | 2.536 / 57 | 2.536 / 57 |
+| Resumen | 1.169 / 49 | 1.169 / 49 | 1.169 / 49 |
+
+- Controles de la Etapa 0: sin errores de JavaScript, pedidos a internet ni scroll horizontal en las 84 capturas, sin campos sin etiqueta ni elementos fuera de pantalla. Textos cortados: los 28 selectores de Semana ("Elegir un plato…" no entra) y uno en Compras y en Despensa con todo abierto. Las únicas superposiciones son del botón flotante "Consejos" (P9), que tapa controles en Hoy, Más, el armado y el resumen.
+- Ideas mide el contenido del modal "Consejos", que tiene scroll propio (3.786 px). Semana "todo" deja abierto "Editar mi plan actual": la app cierra ese panel al abrir el editor de semanas guardadas, así que las capturas reabren los paneles que se cerraron.
+- Calibración contra el plan: Semana vacía mide 5.983 px (el plan dice 5.898) y la lista de verduras, 2.536 px (el plan dice 2.531).
+
+**Compuerta**
+- `node herramientas/validar-etapa.mjs 0`: "VALIDACIÓN ETAPA 0: OK (18 controles, 3.1 min)", después de sumar lo que pidieron los revisores.
+- Probada en falso en la rama local `prueba-en-falso-etapa-0` (sin push ni merge), con un commit por caso:
+
+| Caso | Qué rompí | Qué detectó | Salida y código |
+|---|---|---|---|
+| 1 | La prueba K2 de k01 (pide 25 claves en vez de 24) | Pruebas en verde: 386/387, y k01 sin restaurar completo | FALLÓ (2 de 17 controles), código 1 |
+| 2 | Borré la prueba J6 de j01 | Cantidad de pruebas: 386 (mínimo 387), j01 con 5 de 6 | FALLÓ (1 de 17 controles), código 1 |
+| 3 | Aflojé E2-semana-alto de 1266 a 2000 px en `criterios.json` (sin commit) | criterios.json más permisivo: "E2-semana-alto: umbral más laxo (1266 → 2000)" | FALLÓ (1 de 17 controles), código 1 |
 
 **Decisiones que tomé sin vos**
 - Las ramas de etapa se llaman `rediseno-etapa-N-tema`: git no permite que existan a la vez `rediseno` y `rediseno/etapa-N-tema`, porque `rediseno` ya es una rama y no puede ser también una carpeta de ramas.
 - `.gitattributes` con `* text=auto eol=lf`: los archivos se bajan con saltos de línea LF también en Windows. Sin esto, un clon en Windows los convierte y `construir.mjs --verificar` falla aunque no haya cambios.
 - Las capturas usan un reloj fijo, lunes 26/10/2026 a las 12:00 (Argentina), y los datos del respaldo de ejemplo, para que las medidas sean comparables entre etapas.
 - Los enlaces de atribución de los precios (Etapa 7) van en `datos/precios.json`, no en `fuente/`: así la app no suma dominios externos y la compuerta no se afloja.
+- La compuerta toma las medidas de la Etapa 0, el hash del respaldo de ejemplo, los dominios y los criterios siempre del tag `etapa-0-ok`, no del archivo de la rama: así una etapa no puede pasar cambiándolos. Antes de que exista el tag, compara `criterios.json` contra el último commit (por eso el caso 3 de la prueba en falso se hizo sin commit).
+- La línea base solo sube: `--actualizar-linea-base` suma pruebas y claves nuevas (y las claves nuevas quedan protegidas también en el respaldo), nunca baja nada.
+- El "antes" de cada etapa son las capturas que tomó la compuerta de la etapa anterior en este mismo equipo (`capturas/etapa-(N-1)`), que equivalen al tag anterior.
+- La compuerta guarda sus resultados (pruebas, registros y capturas) en `capturas/`, que no se versiona.
+
+**Revisores**
+- revisor-codigo: NO BLOQUEANTE. Sumé en esta etapa, antes del tag, lo que endurece la compuerta:
+  - J6 comprueba que toda clave `miPlatoFacil_*` guardada (salvo los ajustes del dispositivo) entra al respaldo, también las armadas en el momento;
+  - J4 comprueba que solo lo tachado pasa a la despensa;
+  - los espacios de nombres de SVG no cuentan como dominios, y sí cuentan `wss://` y `//host`;
+  - las capturas marcan como error cualquier pedido a internet;
+  - la compuerta usa `origin/rediseno` si no está la rama local (y falla sin ninguna) y comprueba que el tag `etapa-0-ok` sea el publicado;
+  - avisa si cambiaron las herramientas de medición desde el tag;
+  - el alto toma el scroll propio de la vista y `medidas.json` guarda qué pantalla se midió;
+  - control nuevo `E7-tarea-en-pr` para "la tarea de precios corre en el PR borrador".
+- revisor-usuario: NO BLOQUEANTE. Las capturas sirven de referencia (las 84 revisadas por luminancia; las claras entre 224 y 246, las oscuras entre 30 y 40). Corregí en esta etapa:
+  - las barras fijas tapaban contenido en las capturas largas: ahora quedan al pie;
+  - Semana "todo" no mostraba el plan;
+  - los selectores cortados no se detectaban.
+  Sus observaciones de primer uso coinciden con P1 a P14.
 
 **Mejoras sugeridas**
-- (al cerrar la etapa)
+- K6 de k01 compara textos ("Tenés 28 comidas asignadas", "Tenés 9 platos y 5 recetas") que cambian en las Etapas 2 y 4: se adapta ahí, contando lo que se ve.
+- En tema oscuro, el botón lleno ("Lo compré", "Sí, entreno") tiene texto blanco sobre #57C8A4, con un contraste de 2,06:1. Va a la Etapa 10 (contraste).
+- En Compras aparecen cantidades como "416,666667 g" y "3 cucharada": redondear y concordar el plural (Etapa 5).
 
 **Pendientes para vos**
-- (al cerrar la etapa)
+- Ninguno en esta etapa. El merge final a `main` es tuyo.
