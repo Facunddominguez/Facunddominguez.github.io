@@ -606,3 +606,22 @@ Rama `rediseno-etapa-2-selector-y-semana`. Versión 15.1.0.
 - Alto de Semana ≤ 1.266 px (E2-semana-alto; estado `normal`: el respaldo de ejemplo con la semana completa, en modo simple, lunes 26/10; claro y oscuro):
   - Se ve un solo día: encabezado (≈ 110 px), aviso de semana nueva (≈ 140 px; aparece porque el historial del respaldo termina el domingo 25/10), chips (≈ 70 px), 4 comidas de ≈ 90 px (nombre en dos líneas como máximo) y la barra inferior. Estimado: menos de 1.000 px, desde 8.118.
   - Ningún panel ni aviso de modo queda en la vista. El estado `todo` (modo completo) no tiene criterio de alto; sus paneles están en `planHerramientas`.
+
+**Plan corto, segunda versión** (revisor-codigo marcó 2 bloqueantes en la primera; esto la corrige y manda sobre lo de arriba)
+- Empezar de cero nunca pierde el plan:
+  - Antes de vaciar se guarda la copia fechada del lunes de la semana del plan. Si esa fecha ya tiene una copia distinta del plan actual (comparando `plan` y las comidas usadas), no se pisa: el plan actual se guarda además como variación en `miPlatoFacil_planVars` ("Semana del 19/10"; si ese nombre ya existe con otro contenido, "Semana del 19/10 (2)"). Las dos claves ya están en el respaldo.
+  - Si una escritura falla (`setItem` tira o `persistVars` devuelve false), no se vacía nada y se avisa "No se pudo guardar una copia; tu plan no cambió".
+  - C2-4 cubre los dos casos: copia existente distinta (queda intacta y aparece la variación con el plan) y escritura que falla (con `setItem` que tira: el plan sigue igual).
+- La semana del plan es `mondayOf(localTrainingDate(new Date(at)))` de la última entrada del historial (`at` está en UTC). C2-4 incluye el caso domingo 22 h de Argentina (lunes 01 h UTC), que es de la semana que termina ese domingo.
+- Copia automática: en la primera escritura del plan de una semana nueva (cualquier cambio, no solo desde el aviso), si el lunes de la semana del plan no tiene copia fechada, se guarda antes de escribir. Si esa copia falla, el cambio de un hueco sigue (no borra nada) y se avisa.
+- Toda escritura nueva del plan (Selector, Copiar un día, Vaciar, Deshacer, Repetir, Empezar de cero y armar desde un hueco) pasa por una sola función que guarda, poda porciones y llama a `logPlanChange`.
+- Vaciar mantiene el `confirm` de hoy y suma Deshacer. Lo que guarda el Deshacer (plan y porciones de antes) vive en memoria hasta la próxima escritura del plan, así sobrevive al cambio de pestaña: al volver a Semana sigue el aviso "Plan vaciado · Deshacer".
+- `m01`, reemplazo con la misma fuerza:
+  - M3 (lo esencial no se oculta en modo simple): en modo simple, desde Semana, se ve `#planList` dentro de `#currentPlanPanel` (el id pasa a la vista del día), y el menú ⋯ ofrece Buscar en mis recetas, Lo que comí y objetivos, Vaciar (`[data-clear-plan]`) y Descargar. Al tocar cada uno se muestra `#planRecipeReference`, `#consumptionPanel` y `[data-download-week]`, y funcionan (la prueba busca una receta, registra una comida y descarga).
+  - M4: Compras y Recetas mantienen su aviso de modo. Semana ya no lo tiene porque no oculta nada: la prueba comprueba que no haya aviso y que el menú liste todo.
+  - M6 (en modo completo se ve todo): desde el menú ⋯ se muestran `varSelect`, `monthlyPlanPanel`, `datedWeeksPanel`, `planHistoryPanel` y `[data-del-var]`. La prueba lo exige en los dos modos, así que queda más estricta.
+  - M7 vuelve al modo simple con el aviso de Compras en vez del de Semana.
+- Pruebas de lógica que cambian de camino sin perder condiciones: R9 a R13 de `regression` (asignar, reemplazar, variaciones independientes, semana fechada independiente y mes) y `f03` P1, P2 y P8 conservan cada comprobación; solo cambia cómo se llega (Selector, hoja del hueco y menú ⋯).
+- C2-7 comprueba también que el Deshacer de Vaciar devuelve las porciones (`planPortions_v1`) además del plan.
+- K6 de `k01` suma los "N/4" de los 7 chips del DOM y exige "28 de 28" (no usa `loadPlan()`).
+- Queda para la Etapa 8: el resumen de Lo que comí y objetivos en Semana ("Verduras en 9 de 14 comidas"). En esta etapa se llega desde el menú ⋯.
