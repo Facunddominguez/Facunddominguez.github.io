@@ -22,13 +22,16 @@
   setRecipes([{ id: "recipe_test0001", title: "Guiso", amountsTitle: IDEA1 }]);
   setStock([["Lentejas", 500, "g"]]);
   const s1 = keys();
+  // v15.3: "Lo cociné" de una receta se toca en su detalle (Comidas → la tarjeta).
   tab("miscomidas").click(); await wait(60);
-  document.querySelector('#savedList [data-saved-recipe-cook="recipe_test0001"]').click(); await wait(40);
-  const hist = loadCookingHistory(), lent = loadStockQuantities()[stockKey("Lentejas", "g")], msg2 = $("savedActionStatus").textContent;
+  document.querySelector('#savedList .comida-card[data-recipe-id="recipe_test0001"]').click(); await wait(60);
+  $("recipeReadCookNow").click(); await wait(40);
+  const hist = loadCookingHistory(), lent = loadStockQuantities()[stockKey("Lentejas", "g")], msg2 = $("recipeReadStatus").textContent;
   T.ok("U2 'Lo cociné' anota la preparación de hoy y descuenta lo que tenés", hist.length === 1 && hist[0].title === "Guiso" && hist[0].date === localTrainingDate(new Date()) && hist[0].sourceId === "recipe_test0001" && lent.quantity === 200 && /Se descontó de tu despensa: Lentejas 300 g/.test(msg2) && /No alcanzó: Cebolla/.test(msg2) && !loadStockQuantities()[stockKey("Cebolla", "unidad")], msg2);
   // U3 Deshacer vuelve todo a como estaba (despensa, movimientos e historial)
-  $("savedActionStatus").querySelector("[data-one-tap-undo]").click(); await wait(30);
-  T.ok("U3 deshacer 'Lo cociné' deja todo como estaba", keys() === s1 && /se deshizo/.test($("savedActionStatus").textContent));
+  $("recipeReadStatus").querySelector("[data-one-tap-undo]").click(); await wait(30);
+  T.ok("U3 deshacer 'Lo cociné' deja todo como estaba", keys() === s1 && /se deshizo/.test($("recipeReadStatus").textContent));
+  closeRecipeRead(false);
   // U4 En la receta: se ve en modo simple; sin cantidades solo anota
   setAmounts({ [IDEA1]: { yield: 1, rows: [{ name: "Romero", quantity: null, unit: "g" }] } });
   const stockBefore = localStorage.getItem("miPlatoFacil_pantryQuantities_v1");

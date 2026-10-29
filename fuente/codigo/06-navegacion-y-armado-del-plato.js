@@ -145,18 +145,22 @@ function nextFor(id){
 }
 // Pestañas de la barra inferior y la pantalla de inicio de cada una. La barra está en 32-pestanas.js.
 const TABS={
-  hoy:{root:"home",label:"Hoy"},semana:{root:"plan",label:"Semana"},compras:{root:"compras",label:"Compras"},miscomidas:{root:"misplatos",label:"Mis comidas"},mas:{root:"home",label:"Más"}
+  hoy:{root:"home",label:"Hoy"},semana:{root:"plan",label:"Semana"},compras:{root:"compras",label:"Compras"},miscomidas:{root:"misplatos",label:"Comidas"},mas:{root:"home",label:"Más"}
 };
 let activeTab="hoy";
 function activeTabRoot(){
   return TABS[activeTab].root
+}
+// En Comidas, Ideas es la otra mitad del segmento "Mis comidas | Ideas": no muestra "← Comidas".
+function esRaizDePestana(cur){
+  return cur===activeTabRoot()||(activeTab==="miscomidas"&&cur==="ideas")
 }
 function nav(){
   const cur=stack.at(-1),home=cur==="home",sum=cur==="resumen",next=nextFor(cur);
   const bottomVisible=ARMADO_PASOS.includes(cur);
   el.bottom.classList.toggle("is-visible",bottomVisible);
   // Arriba: vuelve al inicio de la pestaña actual; no se muestra si ya estás ahí.
-  el.homeTop.classList.toggle("is-visible",cur!==activeTabRoot());
+  el.homeTop.classList.toggle("is-visible",!esRaizDePestana(cur));
   el.homeTop.textContent="← "+TABS[activeTab].label;
   el.homeTop.setAttribute("aria-label","Volver al inicio de "+TABS[activeTab].label);
   document.getElementById("themeToggle").classList.toggle("is-hidden",!home);

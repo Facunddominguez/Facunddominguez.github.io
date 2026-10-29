@@ -15,14 +15,18 @@
   setStock([["Papa", 1, "kg"]]);
   const recipeId = "recipe_test0001";
   // M2 Herramientas avanzadas ocultas en Compras, Recetas y Plan (aunque los paneles estén abiertos)
+  // v15.3: la misma lista de ids, repartida por la pantalla de su tema (antes las tres estaban en "ingredientes").
   const expected = {
     compras: ["shoppingToolsPanel"],
-    ingredientes: ["pantryReviewPanel", "recipeAmountsPanel", "ingredientAliasPanel"],
+    ingredientes: ["pantryReviewPanel"],
+    recetaEditar: ["recipeAmountsPanel"],
+    preferencias: ["ingredientAliasPanel"],
+    ideas: [], comida: [], backupScreen: [],
     plan: ["varSelect", "monthlyPlanPanel", "datedWeeksPanel", "datedEditPanel", "planHistoryPanel", "habitGoalsPanel"]
   };
   const visibleAdvanced = [];
   for (const [screen, ids] of Object.entries(expected)) {
-    go(screen); if (screen === "ingredientes") showRecipeView("browse");
+    go(screen); if (screen === "ideas") showRecipeView("browse");
     openAll(screen); await wait(40);
     for (const id of ids) if (shown($(id))) visibleAdvanced.push(id);
     for (const e of advancedIn(screen)) if (shown(e)) visibleAdvanced.push(screen + ":" + (e.id || e.className));
@@ -42,8 +46,11 @@
   const essentials = [];
   go("compras"); await wait(20);
   for (const sel of ["#comprasList", "#manualShoppingPanel", "[data-share-compras]", "[data-copy-compras]", "#comprasShowPending"]) if (!shown(document.querySelector(sel))) essentials.push(sel);
-  go("ingredientes"); showRecipeView("browse"); openAll("ingredientes"); await wait(30);
-  for (const sel of ["#pantryChips", "#recipeCatalogSearch", "#recipeCatalogTime", "#recipeAvoidWords", "#aiIdeasPanel", "#nutritionLookupPanel", "#recipeCatalogResults", "#recipeViewCreate"]) if (!shown(document.querySelector(sel))) essentials.push(sel);
+  // v15.3: los mismos elementos, cada uno en su pantalla (despensa, Ideas, Preferencias y Fuentes de datos).
+  for (const [pant, sels] of [["ingredientes", ["#pantryChips"]], ["ideas", ["#recipeCatalogSearch", "#recipeCatalogTime", "#aiIdeasPanel", "#recipeCatalogResults", "#recipeViewCreate"]], ["preferencias", ["#recipeAvoidWords"]], ["fuentes", ["#nutritionLookupPanel"]]]) {
+    go(pant); if (pant === "ideas") showRecipeView("browse"); openAll(pant); await wait(30);
+    for (const sel of sels) if (!shown(document.querySelector(sel))) essentials.push(sel)
+  }
   // Desde la v15.1 la Semana muestra el día elegido y lo ocasional está en su menú ⋯ (en los dos modos):
   // lo esencial se alcanza desde la Semana, se ve y muestra sus datos.
   go("plan"); await wait(30);
@@ -80,13 +87,14 @@
   T.ok("M3 lo esencial sigue visible (lista, extras, recetas, plan, lo que comí)", essentials.length === 0, essentials.join(", "));
   // M4 Cada pantalla avisa qué está oculto y que los datos siguen guardados
   // Semana (desde la v15.1) no oculta nada: no lleva aviso y su menú ⋯ lista todas sus herramientas.
-  const notes = ["compras", "ingredientes"].map(id => document.querySelector("#" + id + " [data-mode-note]"));
+  // v15.3: cada pantalla nueva que oculta herramientas tiene su aviso con el botón.
+  const notes = ["compras", "ingredientes", "ideas", "comida", "recetaEditar", "preferencias", "backupScreen"].map(id => document.querySelector("#" + id + " [data-mode-note]"));
   await menuSemana(); const itemsMenu = [...document.querySelectorAll(".hoja .menu-semana button")].filter(shown).map(b => b.textContent); hoja.cerrar();
   const menuCompleto = ["Repetir semana anterior", "Copiar un día", "Vaciar la semana", "Planes guardados", "Semanas anteriores y mes", "Historial de cambios", "Descargar", "Buscar en mis recetas", "Lo que comí y objetivos"].every(t => itemsMenu.includes(t));
   T.ok("M4 aviso en Compras y Recetas con lo que está oculto; Semana no oculta nada y su menú lo lista todo", notes.every(n => n && /Tus datos siguen guardados/.test(n.textContent) && n.querySelector("button").textContent === "Mostrar herramientas avanzadas") && /presupuesto/.test(notes[0].textContent) && $("shoppingToolsPanel").previousElementSibling === notes[0] && !document.querySelector("#plan [data-mode-note]") && menuCompleto, notes.map(n => n && n.textContent.slice(0, 60)).join(" | ") + " | " + itemsMenu.join(", "));
   // M5 Tarjeta en Configuración: cambia el modo y lo recuerda
   const card = $("uiModeToggle");
-  const inSettings = !!card && $("sectionSettings").contains(card) && card.classList.contains("tool-button");
+  const inSettings = !!card && $("preferencias").contains(card) && card.classList.contains("tool-button");
   const before = appData();
   const label1 = card.querySelector(".tool-button__label").textContent;
   card.click(); await wait(20);
@@ -97,8 +105,11 @@
   const toolsShown = shown($("shoppingToolsPanel"));
   // Semana: las mismas herramientas desde el menú ⋯, en modo completo y (ya comprobado en M3) en modo simple.
   const planShown = planHerrSimple && await herramientasPlan();
-  go("ingredientes"); showRecipeView("browse"); openAll("ingredientes"); await wait(20);
-  const ingShown = ["pantryReviewPanel", "recipeAmountsPanel", "ingredientAliasPanel", "recipeRecommendPantry"].every(id => shown($(id)));
+  let ingShown = true;
+  for (const [pant, id] of [["ingredientes", "pantryReviewPanel"], ["recetaEditar", "recipeAmountsPanel"], ["preferencias", "ingredientAliasPanel"], ["ideas", "recipeRecommendPantry"]]) {
+    go(pant); if (pant === "ideas") showRecipeView("browse"); openAll(pant); await wait(20);
+    if (!shown($(id))) ingShown = false
+  }
   T.ok("M6 en modo completo vuelven a verse todas las herramientas", toolsShown && planShown && ingShown && notes.every(n => n.querySelector("button").textContent === "Ocultar herramientas avanzadas"));
   // M7 El aviso de cada pantalla vuelve al modo simple
   notes[0].querySelector("button").click(); await wait(20); go("compras"); await wait(20);

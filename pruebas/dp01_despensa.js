@@ -11,10 +11,11 @@
   const add = async (name, qty, unit) => { $("pantryItemName").value = name; $("pantryItemQty").value = qty || ""; if (unit) $("pantryItemUnit").value = unit; $("pantryItemForm").requestSubmit(); await wait(30); return $("pantryItemStatus").textContent };
   const btn = (attr, value) => [...document.querySelectorAll("#pantryItemList [" + attr + "]")].find(b => b.getAttribute(attr) === value);
   window.confirm = () => true;
-  reset(); go("ingredientes"); showRecipeView("browse"); await wait(40);
-  // DP1 Pantalla: Mi despensa, Lo básico, otros ingredientes e ideas justo debajo (también en modo simple)
+  reset(); go("ingredientes"); await wait(40);
+  // DP1 Pantalla: Mi despensa, Lo básico, otros ingredientes y, justo debajo, el enlace a las ideas (también en modo simple).
+  // v15.3: las ideas con lo que tenés se ven en Comidas → Ideas ("Con lo que tengo") y las recetas salieron de esta pantalla.
   const sec = $("ingredientes"), pos = id => [...sec.querySelectorAll("[id]")].indexOf($(id));
-  T.ok("DP1 Mi despensa: lo básico, otros ingredientes e ideas justo debajo", sec.querySelector(".screen__title").textContent === "Mi despensa" && shown($("pantryItemsPanel")) && shown($("pantryItemForm")) && pos("pantryChips") < pos("pantryItemsPanel") && pos("pantryItemsPanel") < pos("pantryResults") && pos("pantryResults") < pos("recipeDetailsPanel") && $("pantryItemUnit").options.length === RECIPE_AMOUNT_UNITS.length);
+  T.ok("DP1 Mi despensa: lo básico, otros ingredientes y el enlace a las ideas justo debajo", sec.querySelector(".screen__title").textContent === "Mi despensa" && shown($("pantryItemsPanel")) && shown($("pantryItemForm")) && pos("pantryChips") < pos("pantryItemsPanel") && pos("pantryItemsPanel") < pos("pantryIdeasLink") && shown($("pantryIdeasLink")) && $("ideasConLoQueTengo").contains($("pantryResults")) && !sec.contains($("recipeDetailsPanel")) && $("pantryItemUnit").options.length === RECIPE_AMOUNT_UNITS.length);
   // DP2 Sin cantidad: se guarda como ingrediente de la despensa (marca), sin tocar existencias
   const m2 = await add("Quinoa roja");
   T.ok("DP2 sin cantidad se agrega a la despensa como marca", pantry().includes("Quinoa roja") && !Object.keys(stock()).length && rowText().includes("Quinoa roja · sin cantidad") && /sin cantidad/.test(m2), m2);

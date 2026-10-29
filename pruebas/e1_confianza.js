@@ -162,8 +162,9 @@
   ok("E1-6b si la despensa ya alcanzaba, Lo compré no suma nada a las existencias", grupoArroz === "tenes" && localStorage.getItem("miPlatoFacil_pantryQuantities_v1") === stockAntes && w.shoppingDisplayItems().find(x => x.name === "Arroz").group === "comprado", grupoArroz + " · " + localStorage.getItem("miPlatoFacil_pantryQuantities_v1"));
 
   // E1-7 Las ideas se pueden tocar: detalle con Guardar y Agregar a la semana (con Deshacer si reemplaza)
-  cargar({}); await abrir(); await irA("mas");
-  await tocar(q('#home .home-group--find [data-open-ideas]'));
+  // v15.3: Ideas está en Comidas (segmento "Mis comidas | Ideas").
+  cargar({}); await abrir(); await irA("miscomidas");
+  await tocar(q('#misplatos [data-comidas-vista="ideas"]'));
   const idea = ev("data.menuCatalog[0]"), sinBarra = pantalla() === "ideas" && !$("bottom").classList.contains("is-visible") && !doc().getElementById("adviceFab");
   await tocar(q('#menuIdeas [data-idea-open]'));
   const hojaOk = ev("hoja.abierta()") && $("hojaTitulo").textContent === idea.text && /Lleva:/.test(ev("hoja.elemento").textContent);
@@ -179,8 +180,10 @@
   if (deshacer) await tocar(deshacer);
   ok("E1-8 si reemplaza algo, se puede deshacer", reemplazo && !!deshacer && w.loadPlan().martes.cena === asignada && w.loadPlanHistory().length >= 3);
   ev("hoja.cerrar()");
-  await irA("mas"); await tocar(q('#home [data-open-pantry]'));
+  // v15.3: la despensa se abre desde Compras y las ideas con lo que tenés, desde Hoy → Con lo que tengo (Ideas filtrada).
+  await irA("compras"); await tocar(q('#compras [data-open-pantry]'));
   await tocar(q('#pantryChips [data-pantry-toggle="pollo"]'));
+  await irA("hoy"); await tocar(q('#home [data-con-lo-que-tengo]'));
   await tocar(q('#pantryResults [data-idea-open]'));
   ok("E1-9 las ideas de \"Con lo que tengo\" también se pueden tocar", ev("hoja.abierta()") && ev("data.menuCatalog").some(x => x.text === $("hojaTitulo").textContent));
   ev("hoja.cerrar()");

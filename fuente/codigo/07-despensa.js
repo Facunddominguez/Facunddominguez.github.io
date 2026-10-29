@@ -124,7 +124,9 @@ function renderPantryResults(){
     return
   }
   const res=pantryMatches();
-  if(hint)hint.textContent="Tenés "+have+" ingrediente"+(have===1?"":"s")+" en la despensa. Tocá una idea para verla.";
+  if(hint)hint.textContent="Tenés "+have+" ingrediente"+(have===1?"":"s")+" en la despensa.";
+  const link=document.getElementById("pantryIdeasLink");
+  if(link)link.textContent="💡 Ver ideas con lo que tenés"+(res.length?" ("+res.length+")":"");
   if(!res.length){
     cont.replaceChildren(emptyState("🤔","Sin coincidencias","No encontré ingredientes seleccionados mencionados en los títulos del menú. Probá con otra selección."));
     return

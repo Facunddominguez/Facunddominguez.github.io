@@ -464,11 +464,14 @@ function showRecipeRead(id){
   if(!r)throw Error("La receta ya no está disponible.");
   recipeReadId=id;
   recipeReadReturnFocus=document.activeElement;
+  // Desde la v15.3 la receta se lee en el detalle de la comida (pantalla propia, en Comidas).
+  if(stack.at(-1)!=="comida")go("comida");
+  if(typeof mostrarDetalleReceta==="function")mostrarDetalleReceta(r);
   document.getElementById("recipeBrowseView").classList.add("is-reading");
   const panel=document.getElementById("recipeReadView");
   document.getElementById("recipeCatalogResults").hidden=true;
   panel.hidden=false;
-  document.getElementById("recipeReadBack").textContent=recipeReadReturnTo==="misplatos"?"← Volver a Mis comidas":"← Volver a recetas";
+  document.getElementById("recipeReadBack").textContent=recipeReadReturnTo==="misplatos"?"← Volver a Mis comidas":"← Volver";
   document.getElementById("recipeReadStatus").textContent="";
   document.getElementById("recipeReadTitle").textContent=r.title;
   document.getElementById("recipeReadOrigin").textContent=r.sourceTitle?"Idea de origen: "+r.sourceTitle:"Receta propia";
@@ -478,9 +481,13 @@ function showRecipeRead(id){
   const recipes=loadRecipeAmounts(),amount=r.amountsTitle&&Object.prototype.hasOwnProperty.call(recipes,r.amountsTitle)?recipes[r.amountsTitle]:null;
   if(amount){
     ingredients.append(ce("p","screen__hint","Rinde "+amount.yield+" porciones. Cantidades registradas por vos."));
-    const ul=ce("ul");
+    const ul=ce("ul","comida-componentes");
     for(const row of amount.rows){
-      const li=ce("li",null,row.name+": "+(row.quantity===null?"cantidad desconocida":row.quantity+" "+row.unit));
+      // Cada ingrediente se toca para ver sus nutrientes (v15.3); el texto de la fila no cambia.
+      const li=ce("li"),b=ce("button","comida-ingrediente",row.name+": "+(row.quantity===null?"cantidad desconocida":row.quantity+" "+row.unit));
+      b.type="button";
+      b.dataset.nutrienteIngrediente=row.name;
+      li.append(b);
       ul.append(li)
     }
     ingredients.append(ul);
@@ -600,12 +607,9 @@ document.getElementById("recipeReadToShopping").addEventListener("click",addReci
 document.getElementById("recipeReadDuplicate").addEventListener("click",()=>duplicateRecipeFromButton(recipeReadId));
 document.getElementById("recipeDetailsDuplicate").addEventListener("click",()=>duplicateRecipeFromButton(recipeDetailsEditing));
 document.getElementById("recipeReadBack").addEventListener("click",()=>{
-  if(recipeReadReturnTo==="misplatos"){
-    closeRecipeRead(false);
-    back();
-    return
-  }
-  closeRecipeRead()
+  // La receta está en su propia pantalla: Volver regresa a donde se abrió (Mis comidas o Ideas).
+  closeRecipeRead(false);
+  back()
 });
 document.getElementById("recipeReadEdit").addEventListener("click",()=>{
   try{
@@ -616,12 +620,17 @@ document.getElementById("recipeReadEdit").addEventListener("click",()=>{
     document.getElementById("recipeCatalogCount").textContent=err.message
   }
 });
+// Desde la v15.3 cada vista tiene su lugar: explorar está en Comidas → Ideas ("Buscar con filtros", plegado)
+// y el formulario, en su pantalla propia. Abrir una vista lleva a su pantalla.
 function showRecipeView(view){
   const browse=view==="browse",panel=document.getElementById("recipeDetailsPanel");
-  // Desde la v15 las recetas están plegadas en "📖 Recetas": abrir una vista abre el panel.
-  if(panel&&"open" in panel)panel.open=true;
-  document.getElementById("recipeBrowseView").hidden=!browse;
-  document.getElementById("recipeEditorView").hidden=browse;
+  if(browse){
+    if(stack.at(-1)!=="ideas")go("ideas");
+    if(panel&&"open" in panel)panel.open=true
+  }else if(stack.at(-1)!=="recetaEditar")go("recetaEditar");
+  document.getElementById("recipeBrowseView").hidden=false;
+  document.getElementById("recipeEditorView").hidden=false;
+  if(!browse)abrirSeccionesReceta();
   document.getElementById("recipeViewBrowse").setAttribute("aria-pressed",String(browse));
   document.getElementById("recipeViewCreate").setAttribute("aria-pressed",String(!browse));
   if(browse){
@@ -723,3 +732,15 @@ document.getElementById("recipeDetailsDelete").addEventListener("click",()=>{
     recipeDetailsStatus(err.message)
   }
 });
+
+// Formulario de receta (v15.3): Ingredientes, Preparación y Más detalles son plegables. Al abrirlo se
+// despliegan las secciones que ya tienen algo; el título dice si es una receta nueva o una que se edita.
+function abrirSeccionesReceta(){
+  const v=id=>String(document.getElementById(id).value||"").trim(),abrir=(id,on)=>{
+    const d=document.getElementById(id);if(d&&on)d.open=true
+  };
+  abrir("recetaSeccionIngredientes",true);
+  abrir("recetaSeccionPreparacion",!!v("recipeDetailsSteps"));
+  abrir("recetaSeccionMas",["recipeDetailsSource","recipeDetailsAmounts","recipeDetailsNotes","recipeTags","recipeMinutes","recipeSubstitutions"].some(v));
+  document.getElementById("recetaEditarTitulo").textContent=recipeDetailsEditing?"Editar receta":"Nueva receta"
+}

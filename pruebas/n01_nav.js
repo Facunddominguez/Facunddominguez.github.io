@@ -1,4 +1,4 @@
-// Navegación con pestañas (v14.9.91): Hoy, Semana, Compras, Mis comidas y Más. Solo datos inventados.
+// Navegación con pestañas (v14.9.91; desde la v15.3: Hoy, Semana, Comidas, Compras y Más). Solo datos inventados.
 (async () => {
   const R = window.R2, { wait, results, reset, setSaved, setPlan, tradPlate } = R; const T = results();
   const $ = id => document.getElementById(id);
@@ -10,7 +10,7 @@
   reset(); await clickTab("hoy");
   // N1 Cinco pestañas en orden
   const names = [...document.querySelectorAll("#sectionNav [data-section-tab]")].map(b => b.querySelector("span:last-child").textContent);
-  T.ok("N1 la barra tiene 5 pestañas: Hoy, Semana, Compras, Mis comidas y Más", names.join(",") === "Hoy,Semana,Compras,Mis comidas,Más", names.join(","));
+  T.ok("N1 la barra tiene 5 pestañas: Hoy, Semana, Comidas, Compras y Más", names.join(",") === "Hoy,Semana,Comidas,Compras,Más", names.join(","));
   // N2 Cada pestaña abre su pantalla
   const roots = {};
   for (const name of ["semana", "compras", "miscomidas", "mas", "hoy"]) { await clickTab(name); roots[name] = scr() + (scr() === "home" ? ":" + $("home").dataset.homeTab : "") }
@@ -58,16 +58,21 @@
   document.querySelector('#todayRows [data-today-slot="cena"] button').click(); await wait(150);
   T.ok("N10 'Elegir' en una comida sin plan abre el Selector sin salir de Hoy", scr() === "home" && tab("hoy").getAttribute("aria-current") === "page" && hoja.abierta() && /^Elegir cena del /.test(document.getElementById("hojaTitulo").textContent) && !!hoja.elemento.querySelector("[data-selector-seccion=\"mias\"]"), document.getElementById("hojaTitulo").textContent);
   hoja.cerrar();
-  // N11 Más reúne ideas, entrenamiento y ajustes
+  // N11 Más según la estructura objetivo (v15.3): Mi rutina, Preferencias, Mis datos, IA, Apariencia, Fuentes y Cómo funciona.
+  // Ideas pasó a Comidas y Con lo que tengo quedó en Hoy; el modo simple está en Preferencias.
   await clickTab("mas");
-  const masCards = [...document.querySelectorAll("#home .home-group--find button, #sectionSettings button")].filter(shown).map(b => b.querySelector(".tool-button__label").textContent);
-  T.ok("N11 Más reúne ideas, entrenamiento y ajustes (Sugerir al azar se integró en Sugerime algo, v15.2)", ["Ideas", "Con lo que tengo", "Días de entrenamiento", "Respaldo y restauración"].every(x => masCards.includes(x)) && ![...document.querySelectorAll("#home .tool-button")].filter(shown).some(b => /Plato del día|Sugerir al azar/.test(b.textContent)) && masCards.some(x => /^Tema:/.test(x)) && masCards.some(x => /^Modo simple:/.test(x)) && !shown($("todayPanel")), masCards.join(" | "));
-  // N12 Desde Más se abre "Con lo que tengo" y Más sigue marcada
-  document.querySelector("#home [data-open-pantry]").click(); await wait(60);
-  T.ok("N12 desde Más se abre Con lo que tengo y la pestaña Más sigue marcada", scr() === "ingredientes" && tab("mas").getAttribute("aria-current") === "page" && $("homeTop").textContent === "← Más");
+  const masCards = [...document.querySelectorAll("#sectionSettings button")].filter(shown).map(b => b.querySelector(".tool-button__label").textContent);
+  T.ok("N11 Más reúne Mi rutina, Preferencias, Mis datos, Asistente de IA, Apariencia, Fuentes de datos y Cómo funciona", ["Mi rutina", "Preferencias", "Mis datos", "Asistente de IA", "Fuentes de datos", "Cómo funciona"].every(x => masCards.includes(x)) && ![...document.querySelectorAll("#home .tool-button")].filter(shown).some(b => /Plato del día|Sugerir al azar/.test(b.textContent)) && masCards.some(x => /^Tema:/.test(x)) && !shown($("todayPanel")), masCards.join(" | "));
+  // N12 "Con lo que tengo" se abre desde Hoy (Ideas filtrada, con Comidas marcada) y la despensa, desde Compras
+  await clickTab("hoy");
+  document.querySelector("#home [data-con-lo-que-tengo]").click(); await wait(60);
+  const ideasOk = scr() === "ideas" && tab("miscomidas").getAttribute("aria-current") === "page" && shown($("pantryResults")) && !$("homeTop").classList.contains("is-visible");
+  await clickTab("compras"); document.querySelector("#compras [data-open-pantry]").click(); await wait(60);
+  T.ok("N12 Con lo que tengo se abre desde Hoy y la despensa desde Compras, con su pestaña marcada", ideasOk && scr() === "ingredientes" && tab("compras").getAttribute("aria-current") === "page" && $("homeTop").textContent === "← Compras");
+  ideasConLoQueTengo = false; pintarFiltroConLoQueTengo();
   // N13 Hoy no muestra lo de Más
   await clickTab("hoy");
-  T.ok("N13 Hoy muestra el día y los atajos para armar, sin ideas ni ajustes", shown($("todayPanel")) && shown(document.querySelector('#home [data-start="plato"]')) && !shown($("sectionSettings")) && !shown(document.querySelector("#home .home-group--find")));
+  T.ok("N13 Hoy muestra el día y los atajos para armar, sin ideas ni ajustes", shown($("todayPanel")) && shown(document.querySelector('#home [data-start="plato"]')) && !shown($("sectionSettings")) && shown(document.querySelector("#home [data-sugerime]")));
   // N14 En Compras, "Ver el plan de la semana" abre la pestaña Semana
   await clickTab("compras"); document.querySelector("[data-back-plan]").click(); await wait(60);
   T.ok("N14 en Compras, 'Ver el plan de la semana' abre la pestaña Semana", scr() === "plan" && tab("semana").getAttribute("aria-current") === "page");

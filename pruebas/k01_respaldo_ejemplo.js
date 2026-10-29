@@ -67,8 +67,10 @@
   // v15.1: la Semana muestra los chips de lunes a domingo con "N/4"; se suman los que se ven.
   const semana = [...doc.querySelectorAll("#planDias [data-plan-dia]")].reduce((t, c) => t + Number((c.querySelector(".semana-dia-chip__cuenta").textContent.match(/^(\d)\/4$/) || [0, NaN])[1]), 0) + " de 28";
   tab("miscomidas").click(); await espera(80);
-  const comidas = doc.getElementById("savedHint").textContent;
-  ok("K6 Semana y Mis comidas muestran lo del respaldo", semana === "28 de 28" && doc.querySelectorAll("#planDias [data-plan-dia]").length === 7 && /Tenés 9 platos y 5 recetas/.test(comidas), semana + " | " + comidas);
+  // v15.3: tarjeta única; se cuentan las tarjetas que se ven por tipo (las copias del plan van aparte, plegadas).
+  const tarjetas = t => [...doc.querySelectorAll('#savedList > .comida-card[data-comida-tipo="' + t + '"]')].filter(c => c.getClientRects().length).length;
+  const comidas = tarjetas("plato") + " platos y " + tarjetas("receta") + " recetas";
+  ok("K6 Semana y Mis comidas muestran lo del respaldo", semana === "28 de 28" && doc.querySelectorAll("#planDias [data-plan-dia]").length === 7 && comidas === "9 platos y 5 recetas" && /Tenés 14 comidas guardadas/.test(doc.getElementById("savedHint").textContent), semana + " | " + comidas);
   document.getElementById("marcoPrueba").remove();
   localStorage.clear();
   return T;
