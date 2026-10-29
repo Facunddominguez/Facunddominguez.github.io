@@ -246,7 +246,7 @@ Estados: ✅ hecha · ⏳ en curso · ⛔ parada. Cada etapa entra a `rediseno` 
 | 2. Selector de comida y nueva Semana | ✅ | `etapa-2-ok` | 15.1.0 |
 | 3. Hoy | ✅ | `etapa-3-ok` | 15.2.0 |
 | 4. Comidas y nueva estructura | ✅ | `etapa-4-ok` | 15.3.0 |
-| 5. Compras y Despensa | — | — | — |
+| 5. Compras y Despensa | ⏳ | — | 15.4.0 |
 | 6. Un solo registro | — | — | — |
 | 7. Precios automáticos de INDEC | — | — | — |
 | 8. Resto de las herramientas avanzadas | — | — | — |
@@ -1080,3 +1080,108 @@ Rama `rediseno-etapa-4-comidas`. Versión 15.3.0.
 - El Deshacer de asignar una receta deja la copia en `saved`, plegada en "Copias de recetas usadas en el plan" (aceptable).
 - El detalle de un plato no calcula los nutrientes del plato entero (el armado no guarda gramos); muestra los de cada ingrediente.
 - Eliminar sigue con confirmación, no con Deshacer.
+
+### Etapa 5 · Compras y Despensa ⏳
+
+Rama `rediseno-etapa-5-compras`. Versión 15.4.0.
+
+**Plan corto**
+- "Lista | Despensa" (P5 y P12):
+  - Un segmento arriba, igual en `compras` y en `ingredientes`. La despensa pasa a ser la segunda raíz de la pestaña Compras, como Ideas en Comidas (`nav` y `paint`): no muestra "← Compras". El botón "Despensa" del segmento conserva `id="comprasDespensa"` y `data-open-pantry`, así las pruebas que entran por ahí no cambian.
+  - Título "Compras" y una sola línea de ayuda, que nombra la Despensa y no "Con lo que tengo" (mejora de la Etapa 4). La sugerencia "Lo marcaste en “Con lo que tengo”" pasa a "Lo marcaste en tu Despensa".
+- Lista, de arriba hacia abajo:
+  - Barra de presupuesto, solo en modo completo (el modo simple esconde precios y presupuesto, adelanto de "Mostrar precios y presupuesto" de la Etapa 8). Con presupuesto: "Presupuesto $30.000 · ≈ $X estimado (faltan N precios)". Sin presupuesto: "Poner un presupuesto". Tocarla abre el panel de presupuesto. El cálculo sale de una función pura nueva, `estimadoDeLaLista()`, extraída de `shoppingBudgetRender` (que pasa a usarla, así su texto no cambia). El ≈ precio por ítem llega en la Etapa 7.
+  - "+ Agregar producto" (productos extra): botón arriba que abre el formulario de siempre (`#manualShoppingForm`, mismos ids) en un plegable. Los extras se ven en la misma lista, en su sección, con su casilla (el campo `done` que ya existe), Editar y Quitar con Deshacer. Sale el panel aparte "Productos que agregás vos".
+  - Interruptor "Descontar lo que tengo", encendido por defecto (el comportamiento de hoy):
+    - Encendido: lo que alcanza va a "Ya tenés (N)" y lo que falta dice "faltan X", como desde la Etapa 1.
+    - Apagado: todo queda en su sección con la cantidad completa del plan, sin "Ya tenés". "Ya en tu despensa" (lo comprado esta semana) se sigue viendo.
+    - Se guarda solo al tocarlo, en una clave nueva (ver riesgos).
+    - Reemplaza, como comportamiento de la lista, a "Descontar lo que ya tengo" y a "Marcar ingredientes que figuran en mi despensa".
+  - Lista por secciones del súper: Verdulería, Carnicería y pescadería, Lácteos y huevos, Panadería, Almacén, Congelados, Limpieza y Otros. `seccionDelSuper(nombre)` decide con la categoría del armado (verduras y frutas, proteínas, almidones, legumbres) y, si no, con una tabla de palabras (`var`, por el orden de arranque); lo que no reconoce va a Otros. Cada sección lleva su título y su cantidad de ítems. Los extras usan la misma función.
+  - Cantidades sumadas como hoy (`shoppingPlanItems`: recetas con cantidades, porciones de cada comida del plan con `portionFactor` y unidades compatibles), mostradas legibles (ver más abajo).
+  - Tachados que no se pierden: siguen guardados por semana (`shoppingChecks_v1`, Etapa 1) y ahora quedan a la vista, tachados, al final de su sección. Salen los botones "Pendientes | Todos": ya no hace falta un filtro para encontrarlos. El contador "N pendientes · M tachados" cuenta también lo tachado dentro de "Ya tenés" (mejora de la Etapa 1).
+  - Al final, plegados, "Ya tenés (N)" y "Ya en tu despensa (N)", como desde la Etapa 1.
+  - Una sugerencia "info" ya no esconde nada (mejora de la Etapa 1): si la despensa tiene cantidad en otra unidad ("la unidad no coincide") o cubre solo lo que tiene cantidad, el ítem queda en Pendientes con "· revisá: tenés X". A "Ya tenés" van solo lo que alcanza (`covered`) y lo que está en la despensa sin cantidad cuando el plan tampoco la tiene. `shoppingSuggestion` no cambia (sus textos y tipos los fijan U4c, U4d, S5 y DP10): cambia el grupo.
+  - Botón lleno al pie: "Terminé de comprar" (el mismo `#comprasBought`).
+- "Terminé de comprar":
+  - Hace en el momento lo mismo que "Lo compré" (`boughtNow`: lo tachado pasa a la despensa y a "Ya en tu despensa", con Deshacer). Con el interruptor apagado suma la cantidad completa del plan, porque no se descontó nada. Así las pruebas que tocan `#comprasBought` siguen probando lo mismo.
+  - El aviso dice "Pasó a tu despensa: … · Deshacer · 🧾 Anotar gasto". "Anotar gasto" abre una hoja donde todo es opcional:
+    - Monto pagado y comercio. Con monto, se guarda una compra en `miPlatoFacil_purchases_v1` con la fecha de hoy y la moneda del presupuesto (ARS si no hay).
+    - "Cargar detalle del ticket" (plegado): filas precargadas con lo que acaba de pasar a la despensa (nombre, cantidad y unidad) y un campo de precio. Las filas con cantidad y precio actualizan Mis precios (`referencePrices_v1`, con el mismo formato que hoy "Guardar los precios de estos productos como referencia"), aunque no se cargue monto. El ticket no vuelve a sumar a la despensa: eso ya lo hizo Terminé de comprar.
+    - Guardar tiene su propio Deshacer: devuelve `purchases_v1` y `referencePrices_v1` byte a byte si nada cambió después.
+  - `savePurchase` se parte en `leerFormularioCompra` (el formulario viejo) y `registrarCompra(compra, opciones)`, que usan el formulario de siempre (en el menú ⋯) y la hoja. La validación es la misma (`validPurchases`, `validReferencePrices`): si algo no vale, no se escribe nada.
+- Despensa (`ingredientes`):
+  - Lo básico (chips) y "Otros ingredientes". Cada ítem muestra su cantidad legible y un plegable "Historial (N)" con sus movimientos: `movimientosDe(nombre)` toma los de `pantryMoves_v1` con el mismo `ingredientKey`, los últimos 10, del más nuevo al más viejo. Solo lee.
+  - Editar (el formulario de siempre) ahora también ofrece Deshacer: `pantryUndo` guarda la existencia anterior y el Deshacer la vuelve a escribir, con su movimiento, igual que el de Quitar. Quitar ya tenía Deshacer.
+  - Al editar, el campo muestra el valor exacto guardado, no el redondeado: guardar sin tocar nada no cambia la cantidad.
+  - "Movimientos recientes" (`#stockMovesPanel`, el mismo id) pasa de la herramienta de existencias a la Despensa, plegado, como "Todos los movimientos".
+  - "Revisar qué tengo y qué falta" sigue igual (avanzado).
+- Menú ⋯ de Compras (las calculadoras y lo ocasional):
+  - Una hoja con la lista. Cada ítem abre la pantalla nueva `comprasHerramientas` ("Compras › …", con Volver), que muestra solo ese panel, igual que `planHerramientas` en la Semana. Los paneles se mudan con sus ids y su lógica; `#shoppingToolsPanel` queda como contenedor dentro de esa pantalla.
+  - Compras realizadas (`#purchasesPanel`: el historial y el formulario completo).
+  - Presupuesto (`#shoppingBudgetPanel`, con Comparar alternativas de precio).
+  - Mis precios (`#pricePanel`). "Mi precio" sobre el precio automático es de las Etapas 7 y 8.
+  - Costo de una receta (`#recipeCostPanel`).
+  - Calcular para otras recetas (`#quantShoppingPanel` y `#stockDeductionPanel`): lo único que la lista no cubre es elegir recetas que no están en la semana y simular sin tocar nada.
+  - Porciones, existencias y costos (`#shoppingQuantCostPanel`: el multiplicador, que nunca cambió la lista, y el detalle de existencias `#stockList`).
+  - Compartir, Copiar lista (lo pendiente sin tachar, por secciones, con cantidades legibles) y Ver el plan de la semana (`data-share-compras`, `data-copy-compras` y `data-back-plan`).
+  - "Calcular compras por recetas" y "Ajustar porciones" quedan cubiertos por la lista (recetas del plan con las porciones de la Semana); "Descontar lo que tengo", por el interruptor.
+  - Modo simple: el menú muestra todo en los dos modos, como en la Semana. El grupo `compras` de `ADVANCED_TOOLS` pasa a esconder solo la barra de presupuesto ("presupuesto y precios"), con su aviso `[data-mode-note]`.
+- Equivalencias: la sugerencia en la lista ("¿Tomate perita es lo mismo que Tomate?") queda para la Etapa 8; la administración sigue en Preferencias.
+- Cantidades legibles (lo hago acá, porque Compras y Despensa son donde se ven):
+  - `cantidadLegible(n, unidad)` en `03-ingredientes-y-unidades.js`: g y ml sin decimales, o con uno si es menos de 10 ("166,666667 g" → "167 g"); kg y l, hasta 2 decimales; unidad, cucharada, cucharadita y taza, hasta 2 decimales y en plural si pasa de 1 ("5 unidades", "1 unidad", "0,5 taza", "2 cucharaditas").
+  - `textoLegible(texto)` aplica lo mismo a cada "número unidad" de un texto.
+  - Solo se usa al mostrar: filas de la lista, "faltan X", el detalle de "Ya tenés", Copiar y Compartir, el aviso de Terminé de comprar, la Despensa, el historial y `#stockList`. Nunca al guardar ni en los campos `label`, `buy` y `suggestion.text` de `shoppingDisplayItems` y `shoppingSuggestion`, que son la lógica que fijan las pruebas: esas comprobaciones no cambian.
+- Archivos:
+  - `fuente/cuerpo/pantallas/`: `06-compras.html` (reescrita: segmento, barra, "+ Agregar producto", interruptor, lista y "Terminé de comprar"), `04-ingredientes.html` (segmento, historial por ítem y movimientos) y la nueva `30-comprasHerramientas.html` (los paneles que se mudan, con sus ids).
+  - `fuente/codigo/`: 03 (`cantidadLegible` y `textoLegible`), 06 y 32 (segunda raíz de Compras), 11 (`estimadoDeLaLista`), 12 (lista por secciones, interruptor, contador y grupo de las "info"), 17 (extras en la lista, Quitar con Deshacer), 18 (clave nueva en el respaldo), 25 (`registrarCompra`), 26 (`movimientosDe`), 30 (grupo `compras`), 33 (historial y Deshacer al editar), 34 (etiqueta y cantidad con el interruptor apagado), 14 (manejadores) y el nuevo `41-compras-y-despensa.js` (segmento, menú ⋯, `comprasHerramientas`, hoja "Anotar gasto" y `seccionDelSuper`).
+  - `fuente/estilos.css`: segmento, barra, interruptor, secciones y tachados con el sistema de diseño (44 px, verde para acciones, rojo para quitar, claro y oscuro).
+  - `fuente/version.json` → 15.4.0.
+  - `herramientas/capturas.mjs` no cambia: `compras` sigue siendo `openTab("compras")` y `despensa`, `openTab("compras"); go("ingredientes")`.
+- Orden de arranque: `init()` corre durante la carga de 14, y la pestaña recordada puede pintar Compras antes de que cargue 41. Por eso `renderCompras` y lo que llama (`seccionDelSuper`, `cantidadLegible`, `textoLegible` y la lectura del interruptor) son declaraciones `function` y sus tablas van en `var`. La hoja, el menú y `comprasHerramientas` se usan recién al tocar. En 41 no hay `const` ni `let` de nivel superior que lea el render.
+- Riesgos para los datos (ningún formato cambia; no hacen falta migraciones):
+  - `miPlatoFacil_purchases_v1`: arreglo (máximo 1000) de `{id, date "AAAA-MM-DD", store ≤ 60, currency de 3 letras, total > 0, items: [{name, quantity|null, unit|null, price|null}] ≤ 100}`. La hoja escribe con ese formato, valida con `validPurchases` antes de escribir y, sin monto, no escribe compra.
+  - `miPlatoFacil_pantryMoves_v1`: arreglo (los últimos 300) de `{at ISO, name, unit, delta, reason ≤ 80}`. El historial por ítem solo lee. Se escribe como hoy (Lo compré, Lo cociné, Ajuste manual, Quitar y sus Deshacer).
+  - `miPlatoFacil_pantryQuantities_v1`: objeto `stockKey(name, unit) → {name, quantity, unit}`. Mostrar redondeado no cambia lo guardado y editar parte del valor exacto.
+  - `miPlatoFacil_manualShopping_v1`: arreglo de `{id, name ≤ 100, amount ≤ 80, done}`. Tachar usa `done`, como hoy; Quitar y su Deshacer reescriben el mismo arreglo.
+  - `miPlatoFacil_shoppingBudget_v1`: `{currency ARS|USD, limit, period, people}`. La barra solo lee; se edita en el panel de siempre.
+  - `miPlatoFacil_referencePrices_v1`: la hoja suma entradas con el mismo formato que "Registrar compra" (`pack` "Compra en …" o "Compra registrada").
+  - Clave nueva `miPlatoFacil_comprasOpciones_v1`, `{"descontar": false}`: solo se escribe al tocar el interruptor (al encenderlo, `true`). Lectura tolerante: si no es válida, encendido. Entra al respaldo como opcional (`COMPLETE_BACKUP_KEYS`, `COMPLETE_BACKUP_OPTIONAL_KEYS` y la lista de omitir si es null), se valida al restaurar y un respaldo viejo sin ella se restaura igual. La línea base la suma con `--actualizar-linea-base`.
+  - Mostrar la lista, la Despensa, el historial o el menú no escribe nada (k01 y C5-1 lo comparan byte a byte).
+- Pruebas existentes que cambian porque miran la interfaz vieja (la misma cantidad; las comprobaciones de datos quedan):
+  - Las que leen el texto de las filas o de `#stockList` pasan a la forma legible, con los mismos números, y suman la comprobación del `label` interno, que no cambia:
+    - `f01_int` M1: "Tomate: 2 unidades + sin cantidad en 1 plato" y "Papa: 200 g + sin cantidad en 1 plato"; además, `item("Tomate").label` sigue siendo "Tomate: 2 unidad + sin cantidad en 1 plato".
+    - `f02_units` U2 y U3: "Papa: 1,2 kg", "Leche: 1,3 l", "Aceite: 1 cucharada + 2 cucharaditas", "Huevo: 200 g + 2 unidades" y "Papa: 200 g"; los `label` internos, como hoy.
+    - `r3_rec` E3: "Papa: 300 g" y "Cebolla: 1 unidad" (no cambian).
+    - `r2_uni` U2 y U3: "Arroz: 300 g" y "Azúcar: 2 cucharadas" en `#stockList`, que ahora está en `comprasHerramientas` (se lee igual, por id).
+    - `r2_shop` S2 (Copiar): "faltan X" en forma legible, con las mismas cantidades.
+  - `r2_shop`:
+    - S4a a S4c: sin "Pendientes | Todos"; tachar deja el ítem a la vista, tachado y al final de su sección; destachar en la lista lo vuelve a pendiente; el contador cambia igual que antes.
+    - S10b: "Lo marcaste en tu Despensa" en vez de "Con lo que tengo"; el grupo sigue siendo "tenes".
+    - S12: la línea de ayuda nueva.
+    - Si alguna fija "tenes" para una "info" de unidad distinta o de cobertura parcial, pasa a "pendiente" con la misma sugerencia, y se anota acá.
+  - `r4_ux` X7: la indicación nombra la Despensa en los dos modos y no "Más herramientas".
+  - `n01` N12: la despensa se abre con el segmento, con Compras marcada y sin "← Compras".
+  - `m01`, grupo `compras` (como M3 y M6 en la Etapa 2): en modo simple la vista no muestra la barra de presupuesto y tiene su aviso; en los dos modos el menú ⋯ lista los paneles y cada uno se muestra y funciona (presupuesto, compra realizada, precio, costo de receta, cálculo por recetas, simulación de existencias y multiplicador). M4 sigue exigiendo el aviso de Compras.
+  - `d01`: D7 suma el segmento, el interruptor, las casillas y la hoja "Anotar gasto"; D8 abre los plegables de `comprasHerramientas`.
+  - `dp01` DP1: la Despensa con segmento, ítems con cantidad e historial y el enlace a las ideas.
+  - Las que abren paneles por id con `R.openPanel` (bkp02, f01_int, f02_desp, f02_units, f03_plan, f04_gasto, r2_dom, r2_pan, r3_rec, r4_ux y regression) no deberían cambiar: los ids siguen. Si alguna exige que el panel se vea, entra por el menú ⋯ y se anota acá.
+  - `u01` U5 a U9, `j01` J4 y `e1` E1-6 siguen tocando `#comprasBought`, con los mismos datos.
+- Pruebas nuevas, batería `e5_compras.js` (al final de `suites.json`):
+  - C5-1 (E5-respaldo-completo): en un marco, restaura el respaldo de ejemplo y, entrando solo con toques (pestañas, segmento, menús ⋯ y plegables), comprueba que cada módulo se ve con su cantidad: plan 28 de 28; 9 platos y 5 recetas; Mis cantidades por receta (4); despensa (7 marcas y 8 existencias con cantidad); movimientos (8, en los historiales por ítem y en Todos los movimientos); productos extra (3, en su sección); presupuesto (en la barra, en modo completo, y en su panel); compras realizadas (3); Mis precios (8); porciones (3); historial del plan (6); semanas fechadas (2); variaciones (1); Lo que comí (14); preparaciones (4); objetivos (4); rutina y excepciones (2 y 2); preferencias de recetas (2); equivalencias (2); ideas favoritas (2) y tema. Cada elemento tiene que verse (`getClientRects`) y recorrer todo no escribe nada.
+  - C5-2: lista por secciones: cada ítem está en una sola sección, en el orden fijo; Pendientes, "Ya tenés" y "Ya en tu despensa" juntos tienen los mismos ítems y cantidades que `shoppingPlanItems` (la regla de S3).
+  - C5-3: interruptor: apagado, ningún "Ya tenés" y todas las cantidades del plan; encendido, como antes; escribe solo `comprasOpciones_v1` y solo al tocarlo; apagado, "Terminé de comprar" suma la cantidad completa.
+  - C5-4: productos extra: "+ Agregar producto" arriba; el producto aparece en su sección; tachar escribe `done`; Editar; Quitar con Deshacer deja `manualShopping_v1` byte a byte.
+  - C5-5: "Terminé de comprar": lo mismo que Lo compré (despensa, movimientos y comprados). "Anotar gasto" sin datos no escribe; con monto y comercio, una compra válida; con detalle, Mis precios suma solo las filas con cantidad y precio; un monto inválido no escribe nada; el Deshacer devuelve compras y precios byte a byte.
+  - C5-6: Despensa: cantidad legible; el historial de cada ítem coincide con sus movimientos; Editar con Deshacer; Quitar con Deshacer; editar sin cambios no cambia la cantidad guardada.
+  - C5-7: cantidades legibles: casos de `cantidadLegible` ("166,666667 g" → "167 g", "5 unidad" → "5 unidades", "1 unidad", "0,5 taza", "1,25 kg", "2 cucharaditas"); las filas y Copiar se ven legibles y el `label` interno no cambia.
+  - C5-8: el menú ⋯ ofrece las herramientas en los dos modos; cada una se abre en `comprasHerramientas` y funciona.
+  - C5-9: una "info" de unidad distinta queda en Pendientes con "revisá"; el contador cuenta lo tachado en "Ya tenés".
+  - C5-10: la clave nueva va al respaldo; un respaldo sin ella se restaura; uno con un valor inválido se rechaza.
+- Cómo se cumplen los controles:
+  - E5-palabras-compras-todo (≤ 742,8; Etapa 0: 1.857): en el estado "todo", la vista Compras ya no tiene los paneles (están en `comprasHerramientas`, que las capturas no abren). Quedan el segmento, la barra, el interruptor, las secciones y los plegables abiertos ("Ya tenés", "Ya en tu despensa" y el formulario de "+ Agregar producto"). Estimado: entre 400 y 550 palabras. Si se pasa, el detalle de "Ya tenés" se acorta a "tenés X".
+  - E5-respaldo-completo: C5-1.
+  - E1-palabras-compras (normal, ≤ 262; hoy unas 228): salen la ayuda de "Lo compré", el panel de extras, "Pendientes | Todos", Compartir, Copiar y Ver el plan; entran el segmento, el interruptor, "+ Agregar producto" y los títulos de sección. En modo simple no hay barra. Debería bajar.
+  - Despensa (E1, normal, ≤ 391; hoy 158): suma el segmento y un "Historial (N)" plegado por ítem.
+  - E4-palabras-ideas, E4-palabras-comidas, E2-semana-alto, C1-1 a C1-4, C2-1, C3-1 y C4-1 no se tocan. Las pruebas de respaldo, despensa, compras y plan no bajan y la cantidad total sube (10 nuevas como mínimo).
+  - `validar-etapa.mjs 5` corre los criterios de las Etapas 1 a 4 además de los dos nuevos.
