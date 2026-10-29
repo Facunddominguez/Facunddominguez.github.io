@@ -29,6 +29,8 @@
     "bkp01.js",
     "bkp02.js",
     "imp01.js",
-    "regression.js"
+    "regression.js",
+    "k01_respaldo_ejemplo.js",
+    "j01_recorridos.js"
   ]
 }

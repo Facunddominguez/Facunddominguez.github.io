@@ -1,3 +1,5 @@
 _sitio/
 node_modules/
 *.log
+# Capturas y medidas de herramientas/capturas.mjs (se regeneran)
+capturas/
