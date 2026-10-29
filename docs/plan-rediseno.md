@@ -243,7 +243,7 @@ Estados: ✅ hecha · ⏳ en curso · ⛔ parada. Cada etapa entra a `rediseno` 
 |---|---|---|---|
 | 0. Red de seguridad | ✅ | `etapa-0-ok` | 14.9.94 |
 | 1. Confianza | ✅ | `etapa-1-ok` | 15.0.0 |
-| 2. Selector de comida y nueva Semana | — | — | — |
+| 2. Selector de comida y nueva Semana | ✅ | `etapa-2-ok` | 15.1.0 |
 | 3. Hoy | — | — | — |
 | 4. Comidas y nueva estructura | — | — | — |
 | 5. Compras y Despensa | — | — | — |
@@ -529,7 +529,7 @@ Rama `rediseno-etapa-1-confianza`. Versión 15.0.0.
 **Pendientes para vos**
 - Revisar las 12 ideas argentinas nuevas del catálogo (`nueva: true`).
 
-### Etapa 2 · Selector de comida y nueva Semana ⏳
+### Etapa 2 · Selector de comida y nueva Semana ✅
 
 Rama `rediseno-etapa-2-selector-y-semana`. Versión 15.1.0.
 
@@ -645,3 +645,33 @@ Rama `rediseno-etapa-2-selector-y-semana`. Versión 15.1.0.
   - el Deshacer de la Semana sobrevive a volver al inicio (C2-7b);
   - M3 de `m01` busca una receta, registra una comida, pide la descarga y exige las herramientas de la Semana en modo simple.
 - `herramientas/capturas.mjs` no cambió. En el estado `todo`, Semana ya no tiene paneles para abrir (están en la pantalla `planHerramientas`, que se abre desde el menú ⋯).
+
+**Medidas antes y después** (alto en px / palabras visibles, estado normal, tema claro; antes = `capturas/etapa-1`, después = `capturas/etapa-2`)
+
+| Vista | Antes | Después |
+|---|---|---|
+| Semana | 8.118 / 1.860 | 1.013 / 177 |
+| Armado: almuerzo | 2.575 / 56 | 1.544 / 56 |
+| Armado: verduras | 2.575 / 55 | 1.544 / 55 |
+| Armado: desayuno | 1.436 / 71 | 1.416 / 71 |
+
+- Semana mide 1,2 pantallas (meta: 1,5) y ya no tiene los 28 selectores cortados. Asignar una comida guardada lleva 3 toques desde Semana, o 2 si el hueco es de hoy (C2-1).
+
+**Compuerta**
+- "VALIDACIÓN ETAPA 2: OK (30 controles)". Pruebas: 442/442 (eran 413). Batería nueva `e2_semana.js` con 29 pruebas.
+
+**Revisores**
+- revisor-codigo, sobre el plan: BLOQUEANTE en la primera versión ("Empezar de cero" podía perder el plan y faltaba el reemplazo de M3 y M6); NO BLOQUEANTE en la segunda.
+- revisor-codigo, sobre el diff: NO BLOQUEANTE. Igual corregí sus 5 sugerencias (están en las decisiones de arriba).
+- revisor-usuario: NO BLOQUEANTE. Semana es mucho más simple y se lee bien en los dos temas; nada cortado ni superpuesto.
+
+**Mejoras sugeridas**
+- El aviso "¿Repetís el plan o empezás de cero?" empuja los chips hacia abajo: ponerlo debajo o en una línea.
+- En los huecos llenos solo se ve "›": nada dice que ahí están Cambiar, Quitar, Porciones y Lo comí.
+- Los íconos ⭐/🔍/📖 delante del nombre suman ruido. Algunos nombres viejos todavía muestran la forma ("Fruta en trozos…").
+- Semana vacía no tiene un botón lleno; el armado tiene dos salidas hacia atrás ("← Hoy" arriba y "Volver al paso anterior" abajo).
+- La pestaña dice "Mis comidas" y la estructura objetivo, "Comidas" (Etapa 4).
+- El Selector y el menú ⋯ no tienen captura propia: los cubren solo las pruebas. Conviene sumar vistas a `capturas.mjs` en la Etapa 10.
+
+**Pendientes para vos**
+- Ninguno nuevo.
