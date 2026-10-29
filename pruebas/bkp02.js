@@ -33,7 +33,7 @@
   ok("C3 Mis platos muestra la nota como texto", savedText.includes("pollo > 200 g " + XSS));
   go("compras"); renderManualShopping(); await wait(50);
   ok("C4 productos extra muestran \"Leche <1 L\" como texto", document.getElementById("manualShopList").textContent.includes("Leche <1 L"));
-  go("plan"); renderPlan(); document.getElementById("datedWeeksPanel").open = true; document.getElementById("datedWeekStart").value = monday; renderDatedWeek();
+  planDiaElegido = "lunes"; go("plan"); renderPlan(); document.getElementById("datedWeeksPanel").open = true; document.getElementById("datedWeekStart").value = monday; renderDatedWeek();
   document.getElementById("monthlyPlanPanel").open = true; renderMonthlyPlan(); await wait(50);
   ok("C5 plan y semanas fechadas muestran el título como texto", document.getElementById("planList").textContent.includes("pollo > 200 g " + XSS) && document.getElementById("datedWeekView").textContent.includes("pollo > 200 g"));
   go("misplatos"); document.getElementById("cookingHistoryPanel").open = true; renderCookingHistory(); await wait(50);

@@ -30,7 +30,7 @@ function renderToday(){
         action.setAttribute("aria-label","Lo comí: "+mealName(it)+" ("+name+")")
       }else{
         action.dataset.todayChoose=slot;
-        action.setAttribute("aria-label","Elegir qué comer en "+name+" (abre la semana)")
+        action.setAttribute("aria-label","Elegir qué comer en "+name)
       }
     }
     row.append(action);
@@ -71,12 +71,10 @@ document.addEventListener("click",e=>{
     return
   }
   if(b.dataset.todayChoose){
+    // Abre la Semana en el día de hoy con el Selector de esa comida.
     openTab("semana");
-    const panel=document.getElementById("currentPlanPanel");
-    if(panel)panel.open=true;
-    const dayBox=document.querySelectorAll("#planList .plan-day")[DAYS.findIndex(d=>d[0]===todayPlanDay())];
-    if(dayBox)setTimeout(()=>dayBox.scrollIntoView({
-      block:"start",behavior:"smooth"
-    }),60)
+    if(stack.at(-1)!=="plan")openTab("semana");
+    elegirDiaPlan(todayPlanDay());
+    abrirSelector(todayPlanDay(),b.dataset.todayChoose)
   }
 });

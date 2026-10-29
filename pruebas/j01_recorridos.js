@@ -38,9 +38,12 @@
     },
     async guardar() { await tocar(q("#resumen [data-save-plate]")); await tocar(q(".hoja .button--primary")) },
     async asignar(id, dia, comida) {
+      // v15.1: día → comida → la comida guardada en el Selector (si el hueco está lleno, primero Cambiar).
       await irA("semana");
-      const sel = q('[data-plan-select="' + dia + '|' + comida + '"]'); sel.value = id; sel.dispatchEvent(new w.Event("change", { bubbles: true }));
-      await tocar(q('[data-plan-set="' + dia + '|' + comida + '"]'));
+      await tocar(q('#planDias [data-plan-dia="' + dia + '"]'));
+      await tocar(q('[data-hueco="' + dia + '|' + comida + '"]'));
+      if (!doc().querySelector(".hoja [data-selector-id]")) await tocar(q(".hoja [data-hueco-cambiar]"));
+      await tocar(q('.hoja [data-selector-id="' + id + '"]'));
     },
     async verLista() {
       await irA("compras");

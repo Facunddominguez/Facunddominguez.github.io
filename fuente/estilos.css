@@ -3032,3 +3032,323 @@ body.con-hoja{
 .shop-group .shop-item{
   flex-wrap:wrap
 }
+/* Semana (v15.1): un día a la vez, chips de lunes a domingo y huecos que se tocan */
+.semana-cabeza{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:10px
+}
+.semana-cabeza .screen__title{
+  margin:0;
+  font-size:19px;
+  line-height:1.25;
+  text-wrap:balance
+}
+.semana-menu{
+  flex:0 0 auto;
+  min-width:44px;
+  font-size:20px;
+  line-height:1
+}
+#plan>.screen__hint{
+  margin:4px 0 10px
+}
+.semana-nueva{
+  margin:0 0 12px;
+  padding:12px;
+  border:1px solid var(--category-border,var(--line));
+  border-radius:16px;
+  background:var(--soft)
+}
+.semana-nueva[hidden]{
+  display:none
+}
+.semana-nueva p{
+  margin:0 0 10px;
+  font-size:14.5px;
+  line-height:1.35
+}
+.semana-nueva__acciones{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px
+}
+.semana-nueva__acciones .button{
+  margin:0;
+  padding:10px 8px
+}
+.semana-dias{
+  display:grid;
+  grid-template-columns:repeat(7,minmax(0,1fr));
+  gap:4px;
+  margin:0 0 12px
+}
+.semana-dia-chip{
+  position:relative;
+  display:grid;
+  justify-items:center;
+  gap:1px;
+  min-height:62px;
+  padding:6px 0 9px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:var(--surface);
+  color:var(--text);
+  font:inherit;
+  cursor:pointer;
+  overflow:hidden
+}
+.semana-dia-chip__letra{
+  font-size:12px;
+  font-weight:800;
+  color:var(--muted)
+}
+.semana-dia-chip__num{
+  font-size:16px;
+  font-weight:850
+}
+.semana-dia-chip__cuenta{
+  font-size:11px;
+  font-weight:750;
+  color:var(--muted)
+}
+.semana-dia-chip__barra{
+  position:absolute;
+  left:6px;
+  right:6px;
+  bottom:4px;
+  height:3px;
+  border-radius:3px;
+  background:var(--line)
+}
+.semana-dia-chip__barra::after{
+  content:"";
+  display:block;
+  width:calc(var(--completo,0)*100%);
+  height:100%;
+  border-radius:3px;
+  background:var(--green)
+}
+.semana-dia-chip.es-hoy{
+  border-color:var(--green)
+}
+.semana-dia-chip[aria-pressed="true"]{
+  border-color:var(--green);
+  background:var(--green);
+  color:#fff
+}
+.semana-dia-chip[aria-pressed="true"] .semana-dia-chip__letra,.semana-dia-chip[aria-pressed="true"] .semana-dia-chip__cuenta{
+  color:inherit
+}
+.semana-dia-chip[aria-pressed="true"] .semana-dia-chip__barra{
+  background:rgba(255,255,255,.35)
+}
+.semana-dia-chip[aria-pressed="true"] .semana-dia-chip__barra::after{
+  background:currentColor
+}
+[data-theme="dark"] .semana-dia-chip[aria-pressed="true"]{
+  color:var(--bg)
+}
+.semana-dia__titulo{
+  margin:0 0 8px;
+  font-size:16px
+}
+.semana-huecos{
+  display:grid;
+  gap:8px
+}
+.hueco{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:center;
+  gap:10px;
+  width:100%;
+  min-height:64px;
+  padding:8px 12px 8px 14px;
+  border:1px solid var(--category-border,var(--line));
+  border-radius:16px;
+  background:var(--surface);
+  color:var(--text);
+  font:inherit;
+  text-align:left;
+  cursor:pointer;
+  box-shadow:var(--shadow)
+}
+.hueco--vacio{
+  border-style:dashed;
+  box-shadow:none
+}
+.hueco__texto{
+  display:grid;
+  gap:2px;
+  min-width:0
+}
+.hueco__comida{
+  font-size:12px;
+  font-weight:800;
+  color:var(--muted)
+}
+.hueco__plato{
+  display:-webkit-box;
+  -webkit-box-orient:vertical;
+  -webkit-line-clamp:2;
+  overflow:hidden;
+  font-size:15px;
+  font-weight:800;
+  line-height:1.3;
+  overflow-wrap:anywhere
+}
+.hueco__plato.is-empty{
+  color:var(--muted);
+  font-weight:700
+}
+.hueco__detalle{
+  display:-webkit-box;
+  -webkit-box-orient:vertical;
+  -webkit-line-clamp:1;
+  overflow:hidden;
+  font-size:12.5px;
+  color:var(--muted);
+  overflow-wrap:anywhere
+}
+.hueco__accion{
+  font-size:14px;
+  font-weight:850;
+  color:var(--green)
+}
+.hueco--vacio .hueco__accion{
+  padding:8px 12px;
+  border-radius:12px;
+  background:var(--soft)
+}
+.semana-aviso:empty,#planStatus:empty{
+  display:none
+}
+.semana-aviso .filter-chip{
+  margin-left:4px
+}
+/* Hoja de un hueco lleno, Selector de comida y menú ⋯ */
+.hueco-hoja__plato{
+  margin:0 0 4px;
+  font-size:16px;
+  font-weight:850
+}
+.hueco-hoja__acciones,.menu-semana,.copiar-dia{
+  display:grid;
+  gap:8px;
+  margin-top:12px
+}
+.hueco-hoja__acciones .button,.menu-semana .button,.copiar-dia .button{
+  width:100%;
+  margin:0
+}
+.menu-semana .button{
+  text-align:left
+}
+.copiar-dia p{
+  margin:0
+}
+.selector input[type="search"]{
+  width:100%
+}
+.selector__acciones{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin:10px 0 4px
+}
+.selector__acciones .button{
+  margin:0;
+  padding:10px 8px
+}
+.selector__sugerencia{
+  margin:8px 0;
+  padding:10px 12px;
+  border-radius:14px;
+  background:var(--soft)
+}
+.selector__sugerencia[hidden]{
+  display:none
+}
+.selector__propuesta{
+  margin:0 0 8px;
+  font-weight:800
+}
+.selector-seccion{
+  margin-top:12px
+}
+.selector-seccion__titulo{
+  margin:0 0 6px;
+  font-size:13px;
+  font-weight:850;
+  color:var(--muted);
+  text-transform:uppercase;
+  letter-spacing:.03em
+}
+.selector-item{
+  display:grid;
+  gap:2px;
+  width:100%;
+  min-height:48px;
+  margin:0 0 6px;
+  padding:8px 12px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:var(--surface);
+  color:var(--text);
+  font:inherit;
+  text-align:left;
+  cursor:pointer
+}
+.selector-item.is-actual{
+  border-color:var(--green);
+  background:var(--green2)
+}
+.selector-item__nombre{
+  font-weight:750;
+  overflow-wrap:anywhere
+}
+.selector-item__detalle{
+  display:-webkit-box;
+  -webkit-box-orient:vertical;
+  -webkit-line-clamp:1;
+  overflow:hidden;
+  font-size:12.5px;
+  color:var(--muted)
+}
+/* Pantalla con las herramientas de la Semana (una a la vez, desde el menú ⋯) */
+#planHerramientas [data-herr][hidden]{
+  display:none
+}
+#planHerramientas [data-herr]>.button{
+  width:100%
+}
+/* Listas largas del armado: grilla de chips de dos columnas con buscador */
+.opciones-buscador{
+  width:100%;
+  margin:0 0 10px
+}
+.grid--chips{
+  grid-template-columns:repeat(2,minmax(0,1fr))
+}
+.grid--chips .choice{
+  min-height:44px;
+  padding:10px 11px;
+  font-size:14.5px
+}
+.grid--chips .choice[hidden]{
+  display:none
+}
+.grid--chips>.home-section-label,.grid--chips>details{
+  grid-column:1/-1
+}
+.grid--chips>.home-section-label[hidden]{
+  display:none
+}
+.grid--chips details.almidones-mas{
+  grid-template-columns:repeat(2,minmax(0,1fr))
+}
+.grid--chips details.almidones-mas>summary{
+  grid-column:1/-1
+}

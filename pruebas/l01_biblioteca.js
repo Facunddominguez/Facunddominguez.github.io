@@ -57,7 +57,7 @@
   $("homeTop").click(); await wait(60);
   // L8 Planificar abre la Semana con la receta elegida
   $("savedList").querySelector('.recipe-lib-card[data-recipe-id="recipe_lib0002"] [data-saved-recipe-plan]').click(); await wait(300);
-  T.ok("L8 Planificar abre la Semana con la receta elegida", scr() === "plan" && tab("semana").getAttribute("aria-current") === "page" && $("planRecipeReference").open && $("planRecipeSelect").value === "recipe_lib0002" && $("planRecipeDay").value === todayPlanDay() && $("planRecipeSlot").value === "almuerzo", $("planRecipeSelect").value);
+  T.ok("L8 Planificar abre la Semana con la receta elegida", scr() === "planHerramientas" && !$("planRecipeReference").closest("[data-herr]").hidden && tab("semana").getAttribute("aria-current") === "page" && $("planRecipeReference").open && $("planRecipeSelect").value === "recipe_lib0002" && $("planRecipeDay").value === todayPlanDay() && $("planRecipeSlot").value === "almuerzo", $("planRecipeSelect").value);
   // L9 En modo completo se ven las copias del plan y las herramientas de platos
   setUiMode("completo"); await openLibrary();
   const copies2 = $("savedList").querySelector("details.saved-recipes");

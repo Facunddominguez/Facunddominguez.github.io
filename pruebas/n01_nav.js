@@ -54,9 +54,10 @@
   lunch.querySelector("button").click(); await wait(60);
   const recs = loadConsumption(), lunchAfter = document.querySelector('#todayRows [data-today-slot="almuerzo"]');
   T.ok("N9 'Lo comí' en Hoy registra la comida (del plan, hoy) sin cambiar el plan", recs.length === 1 && recs[0].meal === "almuerzo" && recs[0].planned === true && recs[0].date === localTrainingDate(new Date()) && recs[0].sourceId === "t1" && localStorage.getItem("miPlatoFacil_plan") === planBefore && /✓ Comido/.test(lunchAfter.textContent) && /Registrado/.test($("todayStatus").textContent), $("todayStatus").textContent);
-  // N10 "Elegir" en una comida sin plan abre la Semana
+  // N10 "Elegir" en una comida sin plan abre la Semana en el día de hoy, con el Selector de esa comida (v15.1)
   document.querySelector('#todayRows [data-today-slot="cena"] button').click(); await wait(150);
-  T.ok("N10 'Elegir' en una comida sin plan abre la Semana", scr() === "plan" && tab("semana").getAttribute("aria-current") === "page" && $("currentPlanPanel").open);
+  T.ok("N10 'Elegir' en una comida sin plan abre la Semana", scr() === "plan" && tab("semana").getAttribute("aria-current") === "page" && document.querySelector("#planDias [aria-pressed=\"true\"]").dataset.planDia === todayPlanDay() && hoja.abierta() && /^Elegir cena del /.test(document.getElementById("hojaTitulo").textContent) && !!hoja.elemento.querySelector("[data-selector-seccion=\"mias\"]"), document.getElementById("hojaTitulo").textContent);
+  hoja.cerrar();
   // N11 Más reúne ideas, entrenamiento y ajustes
   await clickTab("mas");
   const masCards = [...document.querySelectorAll("#home .home-group--find button, #sectionSettings button")].filter(shown).map(b => b.querySelector(".tool-button__label").textContent);

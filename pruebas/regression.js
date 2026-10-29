@@ -45,22 +45,27 @@
   await click('[data-section-tab="semana"]');
   ok("R8b la pestaña Semana abre el plan", scr() === "plan");
   const plate = loadSaved().find(p => p.type === "plato"), bf = loadSaved().find(p => p.type === "desayuno");
-  document.querySelector('[data-plan-select="lunes|almuerzo"]').value = plate.id; await click('[data-plan-set="lunes|almuerzo"]');
-  document.querySelector('[data-plan-select="lunes|desayuno"]').value = bf.id; await click('[data-plan-set="lunes|desayuno"]');
+  // v15.1: se asigna tocando el día, la comida y la comida guardada en el Selector (si está llena, Cambiar);
+  // se quita desde la hoja de la comida y las herramientas se abren desde el menú ⋯.
+  const asignar = async (dia, comida, id) => { await click('#planDias [data-plan-dia="' + dia + '"]'); await click('[data-hueco="' + dia + '|' + comida + '"]'); if (!hoja.elemento.querySelector("[data-selector-id]")) await click(".hoja [data-hueco-cambiar]"); await click('.hoja [data-selector-id="' + id + '"]') };
+  const quitar = async (dia, comida) => { if (scr() !== "plan") await click("#homeTop"); await click('#planDias [data-plan-dia="' + dia + '"]'); await click('[data-hueco="' + dia + '|' + comida + '"]'); await click('.hoja [data-plan-clear="' + dia + '|' + comida + '"]') };
+  const herramienta = async nombre => { if (scr() !== "plan") await click("#homeTop"); await click("[data-plan-menu]"); await click('.hoja [data-plan-herr="' + nombre + '"]') };
+  await asignar("lunes", "almuerzo", plate.id);
+  await asignar("lunes", "desayuno", bf.id);
   ok("R9 asignar platos al plan", loadPlan().lunes.almuerzo === plate.id && loadPlan().lunes.desayuno === bf.id);
-  document.querySelector('[data-plan-select="lunes|almuerzo"]').value = plate.id; await click('[data-plan-set="lunes|almuerzo"]');
+  await asignar("lunes", "almuerzo", plate.id);
   ok("R10 Reemplazar sigue operativo", loadPlan().lunes.almuerzo === plate.id);
-  await click('[data-save-var]'); await click('[data-plan-clear="lunes|almuerzo"]');
+  await herramienta("variaciones"); await click('[data-save-var]'); await quitar("lunes", "almuerzo"); await herramienta("variaciones");
   const vs = document.getElementById("varSelect"); vs.value = "Var A"; vs.dispatchEvent(new Event("change", { bubbles: true })); await wait(100);
   ok("R11 variaciones independientes del plan actual", !!loadVars()["Var A"].lunes.almuerzo && loadPlan().lunes.almuerzo === plate.id);
-  document.getElementById("datedWeeksPanel").open = true; await wait(50); await click('[data-dated-save]');
-  await click('[data-plan-clear="lunes|almuerzo"]');
+  await herramienta("semanas"); await wait(50); await click('[data-dated-save]');
+  await quitar("lunes", "almuerzo");
   const weeks = loadDatedWeeks(), k = Object.keys(weeks)[0];
   ok("R12 semana fechada es una copia independiente", !!weeks[k].plan.lunes.almuerzo && !loadPlan().lunes.almuerzo);
-  document.getElementById("monthlyPlanPanel").open = true; renderMonthlyPlan(); await wait(50);
+  await herramienta("semanas"); await wait(50);
   ok("R13 vista mensual marca días con comidas", document.querySelectorAll('#monthlyPlanGrid [data-mark]').length >= 1);
   // Compras
-  await click('[data-plan-set="lunes|almuerzo"]'); document.querySelector('[data-plan-select="lunes|almuerzo"]').value = plate.id; await click('[data-plan-set="lunes|almuerzo"]');
+  await click("#homeTop"); await asignar("lunes", "almuerzo", plate.id);
   go("compras"); await wait(100);
   const items = [...document.querySelectorAll("#comprasList .shop-item")].map(x => x.textContent);
   ok("R14 Compras lista los ingredientes del plan (la fruta elegida, no su forma)", ["Tomate", "Lentejas", "Merluza", "Banana"].every(n => items.some(t => t.includes(n))) && !items.some(t => /Licuado/.test(t)), items.join(" | "));

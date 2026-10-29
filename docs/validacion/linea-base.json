@@ -8,7 +8,7 @@
     "navegador": "Chrome/156.0.8078.73"
   },
   "pruebas": {
-    "total": 413,
+    "total": 442,
     "suites": {
       "d01_diseno.js": 8,
       "m01_modo.js": 13,
@@ -41,7 +41,8 @@
       "regression.js": 23,
       "k01_respaldo_ejemplo.js": 6,
       "j01_recorridos.js": 6,
-      "e1_confianza.js": 26
+      "e1_confianza.js": 26,
+      "e2_semana.js": 29
     }
   },
   "claves": [
@@ -1009,8 +1010,8 @@
     }
   },
   "actualizada": {
-    "etapa": 1,
-    "version": "15.0.0",
+    "etapa": 2,
+    "version": "15.1.0",
     "fecha": "2026-10-29"
   }
 }
