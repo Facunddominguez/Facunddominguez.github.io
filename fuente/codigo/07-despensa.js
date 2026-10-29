@@ -119,19 +119,19 @@ function renderPantryResults(){
   if(!cont)return;
   const have=pantryHaveCount();
   if(!have){
-    if(hint)hint.textContent="Marcá lo que tenés en casa, o agregalo con su cantidad, y te muestro ideas con esos ingredientes.";
-    cont.replaceChildren(emptyState("🧊","Elegí tus ingredientes","Las sugerencias muestran coincidencias, no disponibilidad completa de una receta."));
+    if(hint)hint.textContent="Marcá lo que tenés y te muestro qué cocinar.";
+    cont.replaceChildren(emptyState("🧊","Elegí tus ingredientes","Te muestro ideas que los usan."));
     return
   }
   const res=pantryMatches();
-  if(hint)hint.textContent="Tenés "+have+" ingrediente"+(have===1?"":"s")+" en la despensa. Revisá el resto de los ingredientes antes de cocinar: no se verifican cantidades ni disponibilidad completa.";
+  if(hint)hint.textContent="Tenés "+have+" ingrediente"+(have===1?"":"s")+" en la despensa. Tocá una idea para verla.";
   if(!res.length){
     cont.replaceChildren(emptyState("🤔","Sin coincidencias","No encontré ingredientes seleccionados mencionados en los títulos del menú. Probá con otra selección."));
     return
   }
   const ul=ce("ul","menu-list");
   (pantryResultsAll?res:res.slice(0,8)).forEach(r=>{
-    const li=ce("li",null,r.rec.text);const wrap=ce("div","menu-item-tags");wrap.append(ce("span","tag-chip pantry-badge",r.n+" ingrediente"+(r.n===1?"":"s")+" en común"));wrap.append(ce("span","tag-chip","Coinciden: "+r.matched.join(", ")));li.append(wrap);ul.append(li)
+    const li=ce("li");li.append(ideaBoton(r.rec));const wrap=ce("div","menu-item-tags");wrap.append(ce("span","tag-chip pantry-badge","Usa: "+r.matched.join(", ")));li.append(wrap);ul.append(li)
   });
   const nodes=[ul];
   if(res.length>8){

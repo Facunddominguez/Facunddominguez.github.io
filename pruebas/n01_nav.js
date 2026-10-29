@@ -48,7 +48,7 @@
   await clickTab("semana"); await clickTab("hoy");
   const rows = [...document.querySelectorAll("#todayRows .today-row")];
   const lunch = rows.find(r => r.dataset.todaySlot === "almuerzo");
-  T.ok("N8 Hoy muestra las 4 comidas del día en orden, con lo planificado", rows.map(r => r.dataset.todaySlot).join(",") === "desayuno,almuerzo,merienda,cena" && lunch.querySelector(".today-row__plate").textContent === savedItemTitle(loadSaved()[0]) && lunch.querySelector("button").textContent === "Lo comí" && rows.filter(r => /Sin plan para hoy/.test(r.textContent)).length === 3 && $("home").querySelector(".screen__title").textContent.startsWith("Hoy · "), rows.map(r => r.textContent).join(" | "));
+  T.ok("N8 Hoy muestra las 4 comidas del día en orden, con lo planificado", rows.map(r => r.dataset.todaySlot).join(",") === "desayuno,almuerzo,merienda,cena" && lunch.querySelector(".today-row__plate").textContent === mealName(loadSaved()[0]) && lunch.querySelector("button").textContent === "Lo comí" && rows.filter(r => /Sin plan para hoy/.test(r.textContent)).length === 3 && $("home").querySelector(".screen__title").textContent.startsWith("Hoy · "), rows.map(r => r.textContent).join(" | "));
   // N9 "Lo comí" registra la comida en un toque y no cambia el plan
   const planBefore = localStorage.getItem("miPlatoFacil_plan");
   lunch.querySelector("button").click(); await wait(60);
@@ -74,11 +74,10 @@
   const snap = appData();
   for (const n of ["hoy", "semana", "compras", "miscomidas", "mas", "hoy"]) await clickTab(n);
   T.ok("N15 moverse entre pestañas no cambia ningún dato", appData() === snap);
-  // N16 Más → Asistente de IA abre su configuración (en la pantalla de Respaldo)
-  await clickTab("mas"); $("aiSettingsPanel").open = false;
+  // N16 Más → Asistente de IA abre su pantalla propia (desde la v15 ya no está dentro de Respaldo), sin barra de pasos
+  await clickTab("mas");
   $("aiSettingsOpen").click(); await wait(120);
-  T.ok("N16 Más → Asistente de IA abre su configuración", scr() === "backupScreen" && $("aiSettingsPanel").open && tab("mas").getAttribute("aria-current") === "page" && $("sectionSettings").contains($("aiSettingsOpen")));
-  $("aiSettingsPanel").open = false;
+  T.ok("N16 Más → Asistente de IA abre su configuración", scr() === "asistente" && shown($("aiKeyInput")) && !$("backupScreen").contains($("aiSettingsPanel")) && !$("bottom").classList.contains("is-visible") && tab("mas").getAttribute("aria-current") === "page" && $("sectionSettings").contains($("aiSettingsOpen")));
   reset(); await clickTab("hoy");
   return T;
 })()

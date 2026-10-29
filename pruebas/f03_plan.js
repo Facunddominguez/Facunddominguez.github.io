@@ -39,7 +39,7 @@
   T.ok("P6 cargar una variación no arrastra porciones de otra comida", Object.keys(loadPlanPortions()).length === 0 && loadPlan().lunes.almuerzo !== "tp1");
   await R.openPanel("planHistoryPanel");
   const hist = $("planHistoryList").textContent;
-  T.ok("P7 el historial registra asignaciones, porciones y variaciones", /Lunes · Almuerzo: asignado Papas al horno/.test(hist) && /porciones 2/.test(hist) && /porciones según la receta/.test(hist) && /Variación "Con porciones" cargada/.test(hist) && /Lunes · Almuerzo: asignado Almuerzo \/ Cena/.test(hist), hist.slice(0, 300));
+  T.ok("P7 el historial registra asignaciones, porciones y variaciones", /Lunes · Almuerzo: asignado Papas al horno/.test(hist) && /porciones 2/.test(hist) && /porciones según la receta/.test(hist) && /Variación "Con porciones" cargada/.test(hist) && hist.includes("Lunes · Almuerzo: asignado " + mealName(loadSaved().find(x => x.id === "tp1"))), hist.slice(0, 300));
   // Reuse a dated week whose plate was deleted afterwards
   setSlot("martes", "cena", "tp2");
   $("datedWeeksPanel").open = true; await wait(10); document.querySelector("[data-dated-save]").click(); await wait(20);

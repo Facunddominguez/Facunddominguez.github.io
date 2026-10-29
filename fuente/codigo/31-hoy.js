@@ -19,7 +19,7 @@ function renderToday(){
   box.replaceChildren(...["desayuno","almuerzo","merienda","cena"].map(slot=>{
     const label=SLOTS.find(s=>s[0]===slot)[1],name=planSlotName(slot),id=plan[day]&&plan[day][slot],it=id?byId.get(id):null,row=ce("div","today-row");
     row.dataset.todaySlot=slot;
-    row.append(ce("span","today-row__slot",label),ce("span","today-row__plate"+(it?"":" is-empty"),it?(it.note?it.note+" · ":"")+savedItemTitle(it):"Sin plan para hoy"));
+    row.append(ce("span","today-row__slot",label),ce("span","today-row__plate"+(it?"":" is-empty"),it?mealName(it):"Sin plan para hoy"));
     let action;
     if(it&&eatenToday(it,slot))action=ce("span","today-row__done","✓ Comido");
     else{
@@ -27,7 +27,7 @@ function renderToday(){
       action.type="button";
       if(it){
         action.dataset.planEaten=day+"|"+slot;
-        action.setAttribute("aria-label","Lo comí: "+savedItemTitle(it)+" ("+name+")")
+        action.setAttribute("aria-label","Lo comí: "+mealName(it)+" ("+name+")")
       }else{
         action.dataset.todayChoose=slot;
         action.setAttribute("aria-label","Elegir qué comer en "+name+" (abre la semana)")

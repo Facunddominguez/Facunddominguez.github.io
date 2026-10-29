@@ -42,17 +42,18 @@
   setSaved([recipePlate("rp1", "recipe_test0001", "Papas al horno", ["Papa"]), tradPlate("tp1", ["Arroz"], ["Tomate"], ["Merluza"])]);
   setPlan([["lunes", "almuerzo", "rp1"], ["lunes", "cena", "tp1"]]);
   tab("compras").click(); await wait(60);
-  const s5 = keys(), labels = shoppingDisplayItems().map(x => x.label).join("|");
+  const s5 = keys(), labels = shoppingDisplayItems().map(x => x.label).join("|"), grupos = () => shoppingDisplayItems().map(x => x.name + ":" + x.group).join("|");
   $("comprasBought").click(); await wait(30);
   T.ok("U5 'Lo compré' se ve en modo simple; sin nada tachado avisa y no cambia nada", $("comprasBought").getClientRects().length > 0 && keys() === s5 && /Primero tachá/.test($("comprasBoughtStatus").textContent));
   // U6 Lo tachado pasa a la despensa: con cantidad suma existencias; sin cantidad queda marcado
   toggleShop(ingredientKey("Papa"), true); toggleShop(ingredientKey("Tomate"), true); await wait(20);
+  const checks6 = localStorage.getItem("miPlatoFacil_shoppingChecks_v1");
   $("comprasBought").click(); await wait(40);
   const papa6 = loadStockQuantities()[stockKey("Papa", "g")], msg6 = $("comprasBoughtStatus").textContent;
-  T.ok("U6 'Lo compré' pasa lo tachado a la despensa (con y sin cantidad)", !!papa6 && papa6.quantity === 200 && JSON.parse(localStorage.getItem("miPlatoFacil_pantry")).includes("tomate") && loadPantryMoves().some(m => /^Lo compré/.test(m.reason) && m.delta === 200) && /Pasó a tu despensa: Papa 200 g, Tomate \(sin cantidad\)/.test(msg6) && /La lista no cambió/.test(msg6), msg6);
+  T.ok("U6 'Lo compré' pasa lo tachado a la despensa (con y sin cantidad)", !!papa6 && papa6.quantity === 200 && JSON.parse(localStorage.getItem("miPlatoFacil_pantry")).includes("tomate") && loadPantryMoves().some(m => /^Lo compré/.test(m.reason) && m.delta === 200) && /Pasó a tu despensa: Papa 200 g, Tomate \(sin cantidad\)/.test(msg6) && grupos() === "Arroz:pendiente|Merluza:pendiente|Papa:comprado|Tomate:comprado" && /Ya en tu despensa \(2\)/.test($("comprasList").textContent), msg6);
   // U7 Deshacer "Lo compré" deja todo como estaba
   $("comprasBoughtStatus").querySelector("[data-one-tap-undo]").click(); await wait(30);
-  T.ok("U7 deshacer 'Lo compré' deja todo como estaba", keys() === s5 && /se deshizo/.test($("comprasBoughtStatus").textContent));
+  T.ok("U7 deshacer 'Lo compré' deja todo como estaba (también tachados y comprados)", keys() === s5 && localStorage.getItem("miPlatoFacil_shoppingChecks_v1") === checks6 && grupos() === "Arroz:pendiente|Merluza:pendiente|Papa:pendiente|Tomate:pendiente" && comprasDone[ingredientKey("Papa")] === true && /se deshizo/.test($("comprasBoughtStatus").textContent));
   // U8 La lista no cambia (Compras no cambia sola) y tocar de nuevo no suma dos veces
   $("comprasBought").click(); await wait(30); $("comprasBought").click(); await wait(30);
   T.ok("U8 la lista no cambia y tocar de nuevo no suma dos veces", labels === shoppingDisplayItems().map(x => x.label).join("|") && loadStockQuantities()[stockKey("Papa", "g")].quantity === 200 && /ya está en tu despensa/.test($("comprasBoughtStatus").textContent));
@@ -60,11 +61,11 @@
   reset(); comprasTransferred = new Set(); papasCase();
   setSaved([recipePlate("rp1", "recipe_test0001", "Papas al horno", ["Papa"])]); setPlan([["lunes", "almuerzo", "rp1"]]); setStock([["Papa", 50, "g"]]);
   go("compras"); await wait(40);
-  const sugg = shoppingDisplayItems().find(x => x.name === "Papa").suggestion;
-  document.querySelector("#comprasList [data-shop-suggest-apply]").click(); await wait(30);
+  // v15: "Anotar" se integró: con "faltan X", Lo compré suma solo lo que faltaba.
+  const sugg = shoppingDisplayItems().find(x => x.name === "Papa").suggestion, faltan = R.renderedRows().includes("Papa: 200 g · faltan 150 g");
   toggleShop(ingredientKey("Papa"), true); await wait(20);
   $("comprasBought").click(); await wait(30);
-  T.ok("U9 con la sugerencia aplicada suma solo lo que faltaba (150 g)", sugg.kind === "partial" && loadStockQuantities()[stockKey("Papa", "g")].quantity === 200 && /Papa 150 g/.test($("comprasBoughtStatus").textContent), $("comprasBoughtStatus").textContent);
+  T.ok("U9 con la sugerencia aplicada suma solo lo que faltaba (150 g)", sugg.kind === "partial" && faltan && loadStockQuantities()[stockKey("Papa", "g")].quantity === 200 && /Papa 150 g/.test($("comprasBoughtStatus").textContent), $("comprasBoughtStatus").textContent);
   reset(); comprasTransferred = new Set(); tab("hoy").click(); await wait(30);
   return T;
 })()

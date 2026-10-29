@@ -21,7 +21,7 @@ document.addEventListener("click",e=>{
     e.preventDefault();e.stopPropagation();pMoved=false;return
   }haptic();if(b.dataset.openTraining!==undefined)return go("trainingCalendar");if(b.dataset.trainingExceptionSave!==undefined)return saveTrainingException();if(b.dataset.trainingExceptionRemove)return removeTrainingException(b.dataset.trainingExceptionRemove);if(b.dataset.trainingSave!==undefined)return saveTrainingWeek();if(b.dataset.trainingDisable!==undefined)return disableTrainingWeek();if(b.dataset.adviceFav!==undefined)return toggleAdviceFav(b.dataset.adviceFav);if(b.dataset.adviceFavOnly){
     const kind=b.dataset.adviceFavOnly;adviceFavOnly[kind]=!adviceFavOnly[kind];if(kind==="menu")renderMenuIdeas();else renderSnackIdeas();return
-  }if(b.dataset.themeToggle!==undefined)return cycleTheme();if(b.dataset.searchMenu!==undefined)return renderMenuSearch();if(b.dataset.menuFilter)return setMenuFilter(b.dataset.menuFilter,b);if(b.dataset.snackFilter)return setSnackFilter(b.dataset.snackFilter,b);if(b.dataset.pantryToggle)return togglePantry(b.dataset.pantryToggle,b);if(b.dataset.pantryClear!==undefined)return clearPantry();if(b.dataset.sort)return setSavedSort(b.dataset.sort,b);if(b.dataset.suggest)return showSuggestion(b.dataset.suggest);if(b.dataset.adviceTab)return showAdviceTab(b.dataset.adviceTab);if(b.dataset.start)return start(b.dataset.start);if(b.dataset.openAzar!==undefined)return go("azar");if(b.dataset.openPantry!==undefined){
+  }if(b.dataset.themeToggle!==undefined)return cycleTheme();if(b.dataset.searchMenu!==undefined)return renderMenuSearch();if(b.dataset.menuFilter)return setMenuFilter(b.dataset.menuFilter,b);if(b.dataset.snackFilter)return setSnackFilter(b.dataset.snackFilter,b);if(b.dataset.pantryToggle)return togglePantry(b.dataset.pantryToggle,b);if(b.dataset.pantryClear!==undefined)return clearPantry();if(b.dataset.sort)return setSavedSort(b.dataset.sort,b);if(b.dataset.suggest)return showSuggestion(b.dataset.suggest);if(b.dataset.adviceTab)return showAdviceTab(b.dataset.adviceTab);if(b.dataset.start)return start(b.dataset.start,b.dataset.startDay);if(b.dataset.frutaForma)return setFrutaForma(b.dataset.frutaForma);if(b.dataset.dayChip!==undefined)return cambiarDiaDelArmado();if(b.dataset.openIdeas!==undefined)return go("ideas");if(b.dataset.openAzar!==undefined)return go("azar");if(b.dataset.openPantry!==undefined){
     renderPantry();return go("ingredientes")
   }if(b.dataset.openPlan!==undefined){
     renderPlan();return go("plan")
@@ -37,11 +37,7 @@ document.addEventListener("click",e=>{
     portionEditReturn=false;syncPortionEditor();return el.portionEditor.classList.toggle("is-visible")
   }if(b.dataset.savePortions!==undefined)return savePortions();if(b.dataset.editPortionsSummary!==undefined){
     portionEditReturn=true;updatePlate();go("plate_static");el.portionEditor.classList.add("is-visible");return
-  }if(b.dataset.toggleIdeas!==undefined)return el.preIdeas.classList.toggle("is-hidden");if(b.dataset.openAdvice!==undefined){
-    renderContextAdvice();el.adviceModal.classList.add("is-visible");const cb=el.adviceModal.querySelector("[data-close-advice]");if(cb)cb.focus();return
-  }if(b.dataset.closeAdvice!==undefined){
-    resetAdviceTemporaryState();el.adviceModal.classList.remove("is-visible");el.adviceFab.focus();return
-  }if(b.dataset.savePlate!==undefined)return savePlate();if(b.dataset.shareImage!==undefined)return shareImage();if(b.dataset.openSaved!==undefined){
+  }if(b.dataset.toggleIdeas!==undefined)return el.preIdeas.classList.toggle("is-hidden");if(b.dataset.savePlate!==undefined)return abrirGuardarConNombre();if(b.dataset.shareImage!==undefined)return shareImage();if(b.dataset.openSaved!==undefined){
     renderSaved();return go("misplatos")
   }if(b.dataset.exportPlates!==undefined)return exportPlates();if(b.dataset.importPlates!==undefined){
     const fi=document.getElementById("importFile");if(fi)fi.click();return
@@ -51,28 +47,10 @@ document.addEventListener("click",e=>{
     const it=loadSaved().find(x=>x.id===b.dataset.copySaved);if(it)doCopy(it.text).then(ok=>savedStatus(ok?"¡Copiado!":"No se pudo copiar."));return
   }if(b.dataset.delSaved)return deleteSaved(b.dataset.delSaved);if(b.dataset.copyPlate!==undefined)return copyPlate();if(b.dataset.sharePlate!==undefined)return sharePlate();if(b.dataset.restart!==undefined)return restart();if(b.dataset.back!==undefined)return back()
 });
-el.adviceModal.addEventListener("click",e=>{
-  if(e.target===el.adviceModal){
-    resetAdviceTemporaryState();el.adviceModal.classList.remove("is-visible");el.adviceFab.focus()
-  }
-});
-el.adviceModal.addEventListener("keydown",e=>{
+// Ideas (desde la v15 es una pantalla, ya no un botón flotante): Enter en el buscador busca.
+document.getElementById("ideas").addEventListener("keydown",e=>{
   if(e.target&&e.target.id==="menuSearchInput"&&e.key==="Enter"){
     e.preventDefault();renderMenuSearch()
-  }
-});
-document.addEventListener("keydown",e=>{
-  if(e.key==="Escape"&&el.adviceModal.classList.contains("is-visible")){
-    resetAdviceTemporaryState();el.adviceModal.classList.remove("is-visible");el.adviceFab.focus()
-  }
-});
-el.adviceModal.addEventListener("keydown",e=>{
-  if(e.key!=="Tab"||!el.adviceModal.classList.contains("is-visible"))return;const f=el.adviceModal.querySelectorAll('button,[href],input,select,textarea,[tabindex]:not([tabindex="-1"])');const vis=Array.prototype.filter.call(f,x=>x.offsetParent!==null&&!x.disabled);if(!vis.length)return;const first=vis[0],last=vis[vis.length-1];if(e.shiftKey&&document.activeElement===first){
-    e.preventDefault();last.focus()
-  }else if(!e.shiftKey&&document.activeElement===last){
-    e.preventDefault();first.focus()
-  }else if(!el.adviceModal.contains(document.activeElement)){
-    e.preventDefault();first.focus()
   }
 });
 el.homeTop.addEventListener("click",restart);

@@ -314,8 +314,9 @@ function appendPlanAssignmentControls(wrap,day,slot,pool,item){
   const empty=ce("option",null,pool.length?"Elegir un plato…":"No hay platos guardados de este tipo");
   empty.value="";
   select.append(empty);
+  const labels=mealLabels(pool);
   pool.forEach(p=>{
-    const o=ce("option",null,planPlateLabel(p).slice(0,54));o.value=p.id;select.append(o)
+    const o=ce("option",null,planPlateLabel(p,labels.get(p.id)));o.value=p.id;select.append(o)
   });
   const assign=ce("button","button button--soft",item?"Reemplazar":"Asignar");
   assign.type="button";
@@ -328,6 +329,7 @@ function appendPlanAssignmentControls(wrap,day,slot,pool,item){
     const create=ce("button","button button--soft","Crear y guardar un plato");
     create.type="button";
     create.dataset.start=slotPool(slot);
+    create.dataset.startDay=day;
     wrap.append(create)
   }
 }

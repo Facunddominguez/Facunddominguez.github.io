@@ -35,7 +35,7 @@
   ok("C4 productos extra muestran \"Leche <1 L\" como texto", document.getElementById("manualShopList").textContent.includes("Leche <1 L"));
   go("plan"); renderPlan(); document.getElementById("datedWeeksPanel").open = true; document.getElementById("datedWeekStart").value = monday; renderDatedWeek();
   document.getElementById("monthlyPlanPanel").open = true; renderMonthlyPlan(); await wait(50);
-  ok("C5 plan y semanas fechadas muestran el título como texto", document.getElementById("planList").textContent.includes("Almuerzo " + XSS) && document.getElementById("datedWeekView").textContent.includes("pollo > 200 g"));
+  ok("C5 plan y semanas fechadas muestran el título como texto", document.getElementById("planList").textContent.includes("pollo > 200 g " + XSS) && document.getElementById("datedWeekView").textContent.includes("pollo > 200 g"));
   go("misplatos"); document.getElementById("cookingHistoryPanel").open = true; renderCookingHistory(); await wait(50);
   ok("C6 historial muestra el título como texto", document.getElementById("cookingHistoryList").textContent.includes("Cena " + XSS));
   go("ingredientes"); showRecipeView("browse"); showRecipeRead("recipe_test0003"); await wait(50);

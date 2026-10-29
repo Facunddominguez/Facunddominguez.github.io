@@ -15,52 +15,32 @@ function syncMultiSelection(){
     const key=pair[0],arr=pair[1],names=new Set(arr.map(x=>x.name));document.querySelectorAll('[data-multi="'+key+'"]').forEach(b=>{
       const on=names.has(b.dataset.name);b.classList.toggle("is-selected",on);b.setAttribute("aria-pressed",String(on))
     })
+  });
+  document.querySelectorAll(".almidones-mas").forEach(d=>{
+    if(d.querySelector(".is-selected"))d.open=true
   })
 }
 function resetForRandom(t){
   Object.assign(state,{
-    type:t,day:"",fruta:null,bfprot:null,bfcarb:null,grasa:null,pre:null,snack:null,verduras:[],almidones:[],proteinas:[],legCarb:[],legProt:[],replaceCarb:false,replaceProt:false,customPortions:null
+    type:t,day:"",fruta:null,bfprot:null,bfcarb:null,grasa:null,pre:null,snack:null,verduras:[],almidones:[],proteinas:[],legCarb:[],legProt:[],replaceCarb:false,replaceProt:false,customPortions:null,nombreSugerido:""
   });
   stack=["home"];
   document.querySelectorAll(".choice.is-selected").forEach(e=>e.classList.remove("is-selected"));
   setReplace("carb",false);
   setReplace("prot",false)
 }
+// Almuerzo o cena al azar (desde la v15): una idea del catálogo o una comida tuya (36-sugerencias.js).
 function randomPlato(){
-  resetForRandom("plato");
-  state.day=Math.random()<0.5?"Día de entrenamiento":"Día libre";
-  state.verduras=sampleN(data.verduras,1+Math.floor(Math.random()*2)).map(n=>({
-    name:n
-  }));
-  if(Math.random()<0.35){
-    state.legCarb=[{
-      name:randPick(data.legumbres)
-    }];
-    setReplace("carb",true)
-  }else{
-    state.almidones=[{
-      name:randPick(data.almidones)
-    }]
-  }
-  if(Math.random()<0.35){
-    state.legProt=[{
-      name:randPick(data.legumbres)
-    }];
-    setReplace("prot",true)
-  }else{
-    const mains=data.proteinas.filter(x=>x.indexOf("Opción ocasional:")!==0);
-    state.proteinas=[{
-      name:randPick(mains)
-    }]
-  }
-  syncMultiSelection();
-  updatePlate()
+  const dia=diaDeRutina(new Date()),s=elegirSugerencia("plato",Math.random,dia);
+  if(!s)return false;
+  cargarSugerencia(s,dia);
+  return true
 }
 function randomDesayuno(){
   resetForRandom("desayuno");
-  const fr=randPick(data.fruit);
+  const fr=randPick(data.frutas);
   state.fruta={
-    name:fr[0],quantity:fr[1]
+    name:fr[0],quantity:fr[1],forma:randPick(data.frutaFormas)
   };
   const pr=randPick(data.bfprot);
   state.bfprot={
@@ -82,9 +62,14 @@ function randomDesayuno(){
   }
 }
 function randomMeal(t){
-  lastRandomType=t;
   if(t==="desayuno")randomDesayuno();
-  else randomPlato();
+  else if(!randomPlato()){
+    const st=document.getElementById("azarStatus");
+    if(st)st.textContent=avisoSinSugerencias();
+    if(stack.at(-1)!=="azar")go("azar");
+    return
+  }
+  lastRandomType=t;
   go("resumen");
   shareStatus("¡Sugerencia lista! Podés editarla, guardarla o compartirla.")
 }
@@ -119,39 +104,16 @@ function sampleNR(rnd,a,n){
   }
   return out
 }
+// Plato del día: la misma sugerencia todo el día (azar con la fecha como semilla), con el día de la rutina.
 function platoDelDia(){
   lastRandomType=null;
-  resetForRandom("plato");
-  const rnd=mulberry32(hashStr("plato_"+todayKey()));
-  state.day=rnd()<0.5?"Día de entrenamiento":"Día libre";
-  const training=trainingDayForDate(new Date());
-  if(training!==null)state.day=training?"Día de entrenamiento":"Día libre";
-  state.verduras=sampleNR(rnd,data.verduras,1+Math.floor(rnd()*2)).map(n=>({
-    name:n
-  }));
-  if(rnd()<0.35){
-    state.legCarb=[{
-      name:pickR(rnd,data.legumbres)
-    }];
-    setReplace("carb",true)
-  }else{
-    state.almidones=[{
-      name:pickR(rnd,data.almidones)
-    }]
+  const rnd=mulberry32(hashStr("plato_"+todayKey())),dia=diaDeRutina(new Date()),s=elegirSugerencia("plato",rnd,dia);
+  if(!s){
+    const st=document.getElementById("todayStatus");
+    if(st)st.textContent=avisoSinSugerencias();
+    return
   }
-  if(rnd()<0.35){
-    state.legProt=[{
-      name:pickR(rnd,data.legumbres)
-    }];
-    setReplace("prot",true)
-  }else{
-    const mains=data.proteinas.filter(x=>x.indexOf("Opción ocasional:")!==0);
-    state.proteinas=[{
-      name:pickR(rnd,mains)
-    }]
-  }
-  syncMultiSelection();
-  updatePlate();
+  cargarSugerencia(s,dia);
   go("resumen");
   shareStatus("🍽️ Plato del día · "+todayKey())
 }

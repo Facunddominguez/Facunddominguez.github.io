@@ -22,9 +22,10 @@ function plateSignature(){
   return state.type+"|"+plateLines().join("|")
 }
 function currentSnapshot(){
-  const L=plateLines();
+  const L=plateLines(),st=JSON.parse(JSON.stringify(state));
+  delete st.nombreSugerido;
   return {
-    id:Date.now()+"_"+Math.random().toString(36).slice(2,7),savedAt:new Date().toISOString(),type:state.type,title:L[0],lines:L.slice(1),sig:plateSignature(),text:plateText(),cooked:0,state:JSON.parse(JSON.stringify(state))
+    id:Date.now()+"_"+Math.random().toString(36).slice(2,7),savedAt:new Date().toISOString(),type:state.type,title:L[0],lines:L.slice(1),sig:plateSignature(),text:plateText(),cooked:0,state:st
   }
 }
 let savedStatusTimer=null;
@@ -37,7 +38,8 @@ function savedStatus(msg){
     s.textContent=""
   },3600)
 }
-function savePlate(){
+// Guarda la comida armada. Desde la v15 el nombre (la hoja "Guardar comida") va en note, el campo de "Renombrar".
+function savePlate(nombre){
   if(!state.type){
     shareStatus("Primero armá un plato.");
     return
@@ -48,9 +50,11 @@ function savePlate(){
     shareStatus("Este plato ya está guardado.");
     return
   }
+  if(typeof nombre==="string"&&nombre.trim())snap.note=nombre.trim().slice(0,80);
   a.unshift(snap);
   const ok=persistSaved(a);
-  shareStatus(ok?"¡Plato guardado en este dispositivo!":"No se pudo guardar (almacenamiento no disponible).")
+  shareStatus(ok?"¡Guardado en Mis comidas!":"No se pudo guardar (almacenamiento no disponible).");
+  return ok?snap:null
 }
 function deleteSaved(id){
   const a=loadSaved().filter(x=>x.id!==id);
@@ -71,8 +75,8 @@ function renameSaved(id){
   const a=loadSaved();
   const it=a.find(x=>x.id===id);
   if(!it)return;
-  const cur=it.note||"";
-  const val=window.prompt("Nombre o nota para este plato:",cur);
+  const cur=it.note||mealName(it);
+  const val=window.prompt("Nombre de esta comida:",cur);
   if(val===null)return;
   it.note=val.trim();
   persistSaved(a);
@@ -102,7 +106,7 @@ function clearAllSaved(){
 }
 function matchSaved(it,q){
   if(!q)return true;
-  const hay=normalizeSearchText(savedItemTitle(it)+" "+(it.title||"")+" "+savedItemLines(it).join(" ")+" "+(it.note||""));
+  const hay=normalizeSearchText(mealName(it)+" "+savedItemTitle(it)+" "+(it.title||"")+" "+savedItemLines(it).join(" ")+" "+(it.note||""));
   return hay.includes(q)
 }
 function fmtWhen(iso){
@@ -115,16 +119,8 @@ function fmtWhen(iso){
 function savedCard(item){
   const card=ce("div","summary__line");
   const head=ce("div",null);
-  head.append(ce("strong",null,(item.fav?"⭐ ":"")+(item.recipeSourceId?"📖":typeEmoji(item.type))+" "+savedItemTitle(item)));
-  if(item.note){
-    const nt=ce("div",null,"🏷️ "+item.note);
-    nt.style.color="var(--green)";
-    nt.style.fontSize="13px";
-    nt.style.fontWeight="800";
-    nt.style.marginTop="4px";
-    head.append(nt)
-  }
-  const lines=Array.isArray(item.lines)?savedItemLines(item):(item.text?item.text.split(NL).slice(1).map(x=>x.replace(/^•\s*/,"")):[]);
+  head.append(ce("strong",null,(item.fav?"⭐ ":"")+(item.recipeSourceId?"📖":typeEmoji(item.type))+" "+mealName(item)));
+  const lines=(Array.isArray(item.lines)?savedItemLines(item):(item.text?item.text.split(NL).slice(1).map(x=>x.replace(/^•\s*/,"")):[])).map(textoCorregido);
   const ul=ce("ul");
   ul.style.margin="6px 0 0";
   ul.style.paddingLeft="18px";
@@ -170,7 +166,7 @@ function toggleSavedActions(id){
 function sortSaved(arr){
   const s=arr.slice();
   if(savedSort==="az"){
-    s.sort((x,y)=>normalizeSearchText((x.note||x.title||"")).localeCompare(normalizeSearchText((y.note||y.title||""))))
+    s.sort((x,y)=>normalizeSearchText(mealName(x)).localeCompare(normalizeSearchText(mealName(y))))
   }else if(savedSort==="tipo"){
     const ord={
       desayuno:0,plato:1,snack:2,pre:3
