@@ -3,6 +3,9 @@
   const R = window.R2, { wait, results, reset, setAmounts, setRecipes, tradPlate, setSaved, IDEA1 } = R; const T = results();
   window.confirm = () => true;
   const $ = id => document.getElementById(id);
+  // v15.1: las porciones se cargan en la hoja del hueco (Semana → día → comida). Lo que se verifica no cambió.
+  const abrirHueco = async (dia = "lunes", comida = "almuerzo") => { if (hoja.abierta()) hoja.cerrar(); go("plan"); await wait(20); document.querySelector('[data-plan-dia="' + dia + '"]').click(); document.querySelector('[data-hueco="' + dia + '|' + comida + '"]').click(); await wait(20); return document.querySelector('.hoja [data-plan-portions="' + dia + '|' + comida + '"]') };
+  const textoHoja = () => hoja.elemento.textContent;
   reset();
   setAmounts({ [IDEA1]: { yield: 4, rows: [{ name: "Papa", quantity: 400, unit: "g" }] } });
   setRecipes([{ id: "recipe_test0001", title: "Papas al horno", amountsTitle: IDEA1 }]);
@@ -11,11 +14,13 @@
   $("planRecipeSelect").value = "recipe_test0001"; $("planRecipeDay").value = "lunes"; $("planRecipeSlot").value = "almuerzo"; assignSavedRecipeToPlan();
   go("compras"); await wait(30);
   T.ok("P1a sin porciones, Compras usa la receta completa", R.renderedRows().includes("Papa: 400 g"));
-  go("plan"); await wait(30);
-  const inp = document.querySelector('[data-plan-portions="lunes|almuerzo"]');
-  T.ok("P1b el plan ofrece porciones para recetas (no para platos)", !!inp && inp.placeholder === "4" && document.querySelectorAll("[data-plan-portions]").length === 1 && /La receta rinde 4 porciones\. Compras usa la receta completa\./.test($("planList").textContent));
+  setSlot("martes", "cena", "tp1");
+  const enPlato = await abrirHueco("martes", "cena"), porcionesEnPlato = document.querySelectorAll("[data-plan-portions]").length;
+  setSlot("martes", "cena", null);
+  const inp = await abrirHueco();
+  T.ok("P1b el plan ofrece porciones para recetas (no para platos)", !enPlato && porcionesEnPlato === 0 && !!inp && inp.placeholder === "4" && document.querySelectorAll("[data-plan-portions]").length === 1 && /La receta rinde 4 porciones\. Compras usa la receta completa\./.test(textoHoja()));
   inp.value = "2"; inp.dispatchEvent(new Event("change", { bubbles: true })); await wait(20);
-  T.ok("P1c guardar 2 porciones lo muestra en el plan", /Compras calcula para 2\./.test($("planList").textContent) && JSON.stringify(loadPlanPortions()) === '{"lunes|almuerzo":2}' && /Porciones guardadas/.test($("planStatus").textContent));
+  T.ok("P1c guardar 2 porciones lo muestra en el plan", /Compras calcula para 2\./.test(textoHoja()) && /2 porciones/.test($("planList").textContent) && JSON.stringify(loadPlanPortions()) === '{"lunes|almuerzo":2}' && /Porciones guardadas/.test($("planStatus").textContent));
   go("compras"); await wait(30);
   T.ok("P2a Compras escala la receta a 2 porciones", R.renderedRows().includes("Papa: 200 g"), R.renderedRows().join(" | "));
   localStorage.setItem("miPlatoFacil_referencePrices_v1", JSON.stringify({ p1: { id: "p1", name: "Papa", pack: "", amount: 1000, price: 1000, unit: "g", currency: "ARS", date: "2026-10-20" } }));
@@ -24,8 +29,7 @@
   T.ok("P2b presupuesto usa las porciones", /Costo parcial estimado: 200,00 ARS/.test($("shoppingBudgetResult").textContent));
   await R.openPanel("shoppingQuantCostPanel");
   T.ok("P2c 'Ajustar porciones' parte de las porciones del plan", /Papa: 200 g/.test($("shoppingQuantCostResult").textContent));
-  go("plan"); await wait(20);
-  let p = document.querySelector('[data-plan-portions="lunes|almuerzo"]'); p.value = "0"; p.dispatchEvent(new Event("change", { bubbles: true })); await wait(20);
+  let p = await abrirHueco(); p.value = "0"; p.dispatchEvent(new Event("change", { bubbles: true })); await wait(20);
   T.ok("P3 porciones inválidas se rechazan", /entre 0,25 y 100/.test($("planStatus").textContent) && loadPlanPortions()["lunes|almuerzo"] === 2);
   p = document.querySelector('[data-plan-portions="lunes|almuerzo"]'); p.value = ""; p.dispatchEvent(new Event("change", { bubbles: true })); await wait(20);
   T.ok("P4 vaciar el campo vuelve a la receta completa", Object.keys(loadPlanPortions()).length === 0 && localStorage.getItem("miPlatoFacil_planPortions_v1") === null);

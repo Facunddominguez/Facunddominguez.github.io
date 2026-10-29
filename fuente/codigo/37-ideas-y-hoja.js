@@ -7,6 +7,7 @@ const hoja=(()=>{
   fondo.hidden=true;
   caja.setAttribute("role","dialog");
   caja.setAttribute("aria-modal","true");
+  caja.tabIndex=-1;
   titulo.id="hojaTitulo";
   caja.setAttribute("aria-labelledby","hojaTitulo");
   estado.setAttribute("aria-live","polite");
@@ -23,10 +24,11 @@ const hoja=(()=>{
     });
     volver=null
   }
+  // foco:false deja el foco en la hoja (no en el primer campo), así no se abre el teclado sin pedirlo.
   function abrir({
-    titulo:t,contenido,botones
+    titulo:t,contenido,botones,foco
   }){
-    volver=document.activeElement;
+    if(fondo.hidden)volver=document.activeElement;
     titulo.textContent=t;
     estado.replaceChildren();
     cuerpo.replaceChildren(...(contenido||[]));
@@ -48,7 +50,8 @@ const hoja=(()=>{
     }),cerrarBoton);
     fondo.hidden=false;
     document.body.classList.add("con-hoja");
-    const primero=caja.querySelector("input,select,button");
+    caja.scrollTop=0;
+    const primero=foco===false?caja:caja.querySelector("input,select,button");
     if(primero)primero.focus({
       preventScroll:true
     })
@@ -80,7 +83,9 @@ function abrirGuardarConNombre(){
   const guardar=()=>{
     const nombre=campo.value.trim()||sugerido;
     hoja.cerrar();
-    savePlate(nombre)
+    const guardada=savePlate(nombre);
+    // Armado desde un hueco de la Semana: se asigna ahí (también si ya estaba guardada igual) y se vuelve.
+    if(guardada&&armadoDestino&&armadoDestino.tab===activeTab)asignarArmadoAlHueco(guardada)
   };
   campo.addEventListener("keydown",e=>{
     if(e.key==="Enter"){

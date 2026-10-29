@@ -2,6 +2,7 @@
 // Parte 31: los archivos se unen en orden según su número, que define el orden de arranque.
 // Las herramientas ocultas siguen funcionando con lo que ya guardaste (por ejemplo, las existencias
 // siguen generando sugerencias en Compras): solo dejan de verse hasta que se elige el modo completo.
+// Semana (desde la v15.1) no oculta nada: sus herramientas están en su menú ⋯ en los dos modos.
 const ADVANCED_TOOLS={
   compras:{
     list:"presupuesto, compras realizadas, existencias, precios y cálculos",
@@ -25,13 +26,6 @@ const ADVANCED_TOOLS={
     items:()=>{
       const tools=document.getElementById("savedTools"),divider=tools&&tools.previousElementSibling;
       return [divider&&divider.classList.contains("divider")?divider:null,tools]
-    }
-  },
-  plan:{
-    list:"variaciones, semanas por fecha, vista del mes, historial de cambios y objetivos semanales",
-    items:()=>{
-      const vars=document.querySelector("#plan .plan-vars"),label=vars&&vars.previousElementSibling;
-      return [label&&label.classList.contains("home-section-label")?label:null,vars,document.querySelector("#plan [data-del-var]"),document.getElementById("monthlyPlanPanel"),document.getElementById("datedWeeksPanel"),document.getElementById("datedEditPanel"),document.getElementById("planHistoryPanel"),document.getElementById("habitGoalsPanel")]
     }
   }
 };

@@ -21,6 +21,7 @@ function syncMultiSelection(){
   })
 }
 function resetForRandom(t){
+  armadoDestino=null;
   Object.assign(state,{
     type:t,day:"",fruta:null,bfprot:null,bfcarb:null,grasa:null,pre:null,snack:null,verduras:[],almidones:[],proteinas:[],legCarb:[],legProt:[],replaceCarb:false,replaceProt:false,customPortions:null,nombreSugerido:""
   });

@@ -42,9 +42,13 @@ function loadPlan(){
     })
   }
 }
+// Toda escritura del plan pasa por acá: antes guarda la copia de la semana anterior si hace falta, y después
+// el Deshacer anterior deja de valer (cada acción que se puede deshacer lo vuelve a armar).
 function persistPlan(o){
+  copiaAutomaticaDeSemana();
   try{
     localStorage.setItem(PKEY,JSON.stringify(o));
+    deshacerPlan=null;
     return true
   }catch(e){
     return false
@@ -81,7 +85,9 @@ function planStatus(msg){
   },3600)
 }
 function setSlot(dayKey,slot,id){
-  const plan=loadPlan();
+  const plan=loadPlan(),antes={
+    plan:JSON.parse(JSON.stringify(plan)),porciones:loadPlanPortions()
+  };
   if(!plan[dayKey])plan[dayKey]={
     desayuno:null,merienda:null,almuerzo:null,cena:null
   };
@@ -97,8 +103,11 @@ function setSlot(dayKey,slot,id){
       }
     }catch(e){
     }
-    const it=id?loadSaved().find(x=>x.id===id):null;
-    logPlanChange(planDayName(dayKey)+" · "+planSlotName(slot)+": "+(it?"asignado "+mealName(it):"quitado"))
+    const it=id?loadSaved().find(x=>x.id===id):null,texto=planDayName(dayKey)+" · "+planSlotName(slot)+": "+(it?"asignado "+mealName(it):"quitado");
+    logPlanChange(texto);
+    deshacerPlan={
+      texto,plan:antes.plan,porciones:antes.porciones
+    }
   }
   renderPlan();
   planStatus(id?"Asignado.":"Quitado.")
@@ -108,12 +117,15 @@ function clearSlot(dayKey,slot){
 }
 function clearPlan(){
   if(window.confirm("¿Vaciar todo el plan semanal?")){
-    const old=loadPlan();
+    const old=loadPlan(),porciones=loadPlanPortions();
     persistPlan(migratePlan({
     }));
     prunePlanPortions(old,migratePlan({
     }));
     logPlanChange("Plan vaciado");
+    deshacerPlan={
+      texto:"Plan vaciado",plan:old,porciones
+    };
     renderPlan();
     planStatus("Plan vaciado.")
   }
@@ -292,34 +304,39 @@ function initializePlanRecipeAssignment(){
     }
   }
 }
+// Asigna una receta propia a un hueco: usa (o crea) su copia en los platos del plan, como siempre.
+// La usan "Buscar en mis recetas" (con confirmación si reemplaza) y el Selector de comida (con Deshacer).
+function asignarRecetaAlPlan(id,day,slot,confirmar){
+  if(!DAYS.some(d=>d[0]===day)||!SLOTS.some(d=>d[0]===slot))throw Error("Seleccioná un día y una comida válidos.");
+  const recipe=loadRecipeDetails()[id];
+  if(!recipe)throw Error("Seleccioná una receta guardada.");
+  const amounts=loadRecipeAmounts(),amount=recipe.amountsTitle&&amounts[recipe.amountsTitle];
+  if(!amount||!amount.rows.length)throw Error("Esta receta necesita sus ingredientes para incorporarse al plan y a Compras. Abrila en Más → Con lo que tengo → Recetas, tocá Editar receta y cargalos.");
+  if(amount.rows.some(row=>!row.name||!row.name.trim()))throw Error("Revisá los ingredientes de esta receta.");
+  const plan=loadPlan(),existing=plan[day]&&plan[day][slot];
+  if(confirmar&&existing&&!window.confirm("Ya hay una comida asignada. ¿Reemplazarla por esta receta?"))return false;
+  const saved=loadSaved(),signature="recipe-ref:"+id+":"+slotPool(slot);
+  let snapshot=saved.find(x=>x.recipeSourceId===id&&x.type===slotPool(slot));
+  if(!snapshot){
+    snapshot={
+      id:"recipe_plan_"+Date.now()+"_"+Math.random().toString(36).slice(2,8),savedAt:new Date().toISOString(),type:slotPool(slot),title:recipe.title,lines:[],sig:signature,text:recipe.title,cooked:0,state:null,recipeSourceId:id,recipeIngredients:amount.rows.map(row=>row.name.trim())
+    };
+    saved.unshift(snapshot)
+  }else{
+    snapshot={
+      ...snapshot,title:recipe.title,recipeIngredients:amount.rows.map(row=>row.name.trim())
+    };
+    saved[saved.findIndex(x=>x.id===snapshot.id)]=snapshot
+  }
+  if(!persistSaved(saved))throw Error("No se pudo guardar la receta en los platos del plan.");
+  setSlot(day,slot,snapshot.id);
+  renderCompras();
+  return true
+}
 function assignSavedRecipeToPlan(){
   const status=document.getElementById("planRecipeAssignStatus");
   try{
-    const id=document.getElementById("planRecipeSelect").value,day=document.getElementById("planRecipeDay").value,slot=document.getElementById("planRecipeSlot").value;
-    if(!DAYS.some(d=>d[0]===day)||!SLOTS.some(d=>d[0]===slot))throw Error("Seleccioná un día y una comida válidos.");
-    const recipe=loadRecipeDetails()[id];
-    if(!recipe)throw Error("Seleccioná una receta guardada.");
-    const amounts=loadRecipeAmounts(),amount=recipe.amountsTitle&&amounts[recipe.amountsTitle];
-    if(!amount||!amount.rows.length)throw Error("Esta receta necesita sus ingredientes para incorporarse al plan y a Compras. Abrila en Más → Con lo que tengo → Recetas, tocá Editar receta y cargalos.");
-    if(amount.rows.some(row=>!row.name||!row.name.trim()))throw Error("Revisá los ingredientes de esta receta.");
-    const plan=loadPlan(),existing=plan[day]&&plan[day][slot];
-    if(existing&&!window.confirm("Ya hay una comida asignada. ¿Reemplazarla por esta receta?"))return;
-    const saved=loadSaved(),signature="recipe-ref:"+id+":"+slotPool(slot);
-    let snapshot=saved.find(x=>x.recipeSourceId===id&&x.type===slotPool(slot));
-    if(!snapshot){
-      snapshot={
-        id:"recipe_plan_"+Date.now()+"_"+Math.random().toString(36).slice(2,8),savedAt:new Date().toISOString(),type:slotPool(slot),title:recipe.title,lines:[],sig:signature,text:recipe.title,cooked:0,state:null,recipeSourceId:id,recipeIngredients:amount.rows.map(row=>row.name.trim())
-      };
-      saved.unshift(snapshot)
-    }else{
-      snapshot={
-        ...snapshot,title:recipe.title,recipeIngredients:amount.rows.map(row=>row.name.trim())
-      };
-      saved[saved.findIndex(x=>x.id===snapshot.id)]=snapshot
-    }
-    if(!persistSaved(saved))throw Error("No se pudo guardar la receta en los platos del plan.");
-    setSlot(day,slot,snapshot.id);
-    renderCompras();
+    if(!asignarRecetaAlPlan(document.getElementById("planRecipeSelect").value,document.getElementById("planRecipeDay").value,document.getElementById("planRecipeSlot").value,true))return;
     status.textContent="Receta asignada. Compras suma sus ingredientes con las cantidades registradas en la receta."
   }catch(err){
     status.textContent=err.message
@@ -342,50 +359,219 @@ document.getElementById("planRecipeReference").addEventListener("toggle",e=>{
     }renderPlanRecipeReference()
   }
 });
+// Semana (desde la v15.1): un día a la vez. Chips de lunes a domingo con cuántas comidas tiene cada uno y, debajo,
+// las 4 comidas del día elegido. Tocar una comida abre el Selector (si está vacía) o sus opciones (si está llena).
+// El plan sigue guardado por día de la semana: las fechas son solo de presentación. Son var (y funciones) porque
+// renderPlan puede correr antes de que carguen los archivos siguientes.
+var planDiaElegido=null,deshacerPlan=null;
+function fechaCorta(d){
+  return d.getDate()+" "+["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"][d.getMonth()]
+}
+function semanaActual(){
+  return mondayOf(localTrainingDate(new Date()))
+}
+function rangoDeSemana(lunes){
+  const a=new Date(lunes+"T12:00:00"),b=new Date(a);
+  b.setDate(b.getDate()+6);
+  return fechaCorta(a)+" – "+fechaCorta(b)
+}
+function diaPlanElegido(){
+  return DAYS.some(d=>d[0]===planDiaElegido)?planDiaElegido:todayPlanDay()
+}
+function elegirDiaPlan(dia){
+  if(DAYS.some(d=>d[0]===dia))planDiaElegido=dia;
+  renderPlan()
+}
+function planTieneComidas(plan){
+  return DAYS.some(([d])=>SLOTS.some(([s])=>plan&&plan[d]&&plan[d][s]))
+}
+// La semana del plan es la de su último cambio (el historial guarda la hora en UTC; se pasa a la fecha local).
+function semanaDelPlan(){
+  const h=loadPlanHistory();
+  if(!h.length)return null;
+  const d=new Date(h[0].at);
+  return isNaN(d.getTime())?null:mondayOf(localTrainingDate(d))
+}
+function semanaNuevaPendiente(plan){
+  const s=semanaDelPlan();
+  return !!s&&s<semanaActual()&&planTieneComidas(plan||loadPlan())
+}
+function nombreDelHueco(dia,slot){
+  return planSlotName(slot)+" del "+planDayName(dia).toLowerCase()
+}
 function renderPlan(){
   const cont=document.getElementById("planList");
   if(!cont)return;
   refreshVarSelect();
-  const plan=loadPlan();
-  const saved=loadSaved();
-  const byId={
-  };
-  saved.forEach(p=>{
-    byId[p.id]=p
+  const plan=loadPlan(),byId=new Map(loadSaved().map(p=>[p.id,p])),dia=diaPlanElegido(),lunes=semanaActual(),hoy=todayPlanDay(),porciones=loadPlanPortions();
+  document.getElementById("planSemanaTitulo").textContent="Esta semana · "+rangoDeSemana(lunes);
+  let total=0;
+  const chips=DAYS.map(([key,label],i)=>{
+    const n=SLOTS.filter(([s])=>plan[key]&&plan[key][s]&&byId.has(plan[key][s])).length,f=new Date(lunes+"T12:00:00"),b=ce("button","semana-dia-chip"+(key===hoy?" es-hoy":"")),barra=ce("span","semana-dia-chip__barra");
+    total+=n;
+    f.setDate(f.getDate()+i);
+    b.type="button";
+    b.dataset.planDia=key;
+    b.setAttribute("aria-pressed",String(key===dia));
+    b.setAttribute("aria-label",label+" "+f.getDate()+(key===hoy?" (hoy)":"")+": "+n+" de 4 comidas");
+    barra.style.setProperty("--completo",String(n/4));
+    b.append(ce("span","semana-dia-chip__letra",label.charAt(0)),ce("span","semana-dia-chip__num",String(f.getDate())),ce("span","semana-dia-chip__cuenta",n+"/4"),barra);
+    return b
   });
-  const portionsMap=loadPlanPortions(),yields={
-  };
+  document.getElementById("planDias").replaceChildren(...chips);
+  const i=DAYS.findIndex(d=>d[0]===dia),f=new Date(lunes+"T12:00:00");
+  f.setDate(f.getDate()+i);
+  document.getElementById("planDiaTitulo").textContent=planDayName(dia)+" "+f.getDate()+(dia===hoy?" · hoy":"");
+  cont.replaceChildren(...["desayuno","almuerzo","merienda","cena"].map(slot=>{
+    const id=plan[dia]&&plan[dia][slot],it=id?byId.get(id):null,b=ce("button","hueco"+(it?"":" hueco--vacio")),texto=ce("span","hueco__texto");
+    b.type="button";
+    b.dataset.hueco=dia+"|"+slot;
+    texto.append(ce("span","hueco__comida",SLOTS.find(s=>s[0]===slot)[1]));
+    if(it){
+      texto.append(ce("span","hueco__plato",planPlateLabel(it)));
+      const pk=dia+"|"+slot,detalle=savedItemLines(it).join(" · ")+(porciones[pk]!==undefined?" · "+String(porciones[pk]).replace(".",",")+" porciones":"");
+      if(detalle)texto.append(ce("span","hueco__detalle",detalle));
+      b.setAttribute("aria-label",nombreDelHueco(dia,slot)+": "+mealName(it)+". Cambiar, quitar y más")
+    }else{
+      texto.append(ce("span","hueco__plato is-empty","Sin elegir"));
+      b.setAttribute("aria-label","Elegir "+nombreDelHueco(dia,slot).toLowerCase())
+    }
+    b.append(texto,ce("span","hueco__accion",it?"›":"Elegir"));
+    return b
+  }));
+  const hint=document.getElementById("planHint");
+  if(hint)hint.textContent=total?total+" de 28 comidas en la semana.":"Tocá una comida para elegir qué vas a comer.";
+  const nueva=document.getElementById("planSemanaNueva");
+  if(nueva){
+    const pendiente=semanaNuevaPendiente(plan);
+    nueva.hidden=!pendiente;
+    if(pendiente)document.getElementById("planSemanaNuevaTexto").textContent="Tu plan es de la semana del "+typedAppDateLabel(semanaDelPlan()).slice(0,5)+"."
+  }
+  const aviso=document.getElementById("planAviso");
+  if(aviso){
+    aviso.replaceChildren();
+    if(deshacerPlan){
+      const b=ce("button","filter-chip","Deshacer");
+      b.type="button";
+      b.dataset.planDeshacer="";
+      aviso.append(document.createTextNode(deshacerPlan.texto+". "),b)
+    }
+  }
+  if(typeof refrescarHojaHueco==="function")refrescarHojaHueco()
+}
+// Deshacer: vuelve el plan y las porciones de antes del último cambio hecho desde la Semana.
+function deshacerCambioDelPlan(){
+  const d=deshacerPlan;
+  if(!d)return;
+  if(!persistPlan(d.plan)){
+    planStatus("No se pudo deshacer.");
+    return
+  }
   try{
-    const rd=loadRecipeDetails(),am=loadRecipeAmounts();
-    for(const r of Object.values(rd))if(r.amountsTitle&&am[r.amountsTitle])yields[r.id]=am[r.amountsTitle].yield
+    savePlanPortions(d.porciones)
   }catch(e){
   }
-  const pools={
-    desayuno:saved.filter(p=>p.type==="desayuno"),plato:saved.filter(p=>p.type==="plato")
+  logPlanChange("Deshecho: "+d.texto);
+  renderPlan();
+  planStatus("Listo, se deshizo.")
+}
+// Copia fechada de una semana. Si esa fecha ya tiene otra copia, no se pisa: el plan va también a una variación
+// "Semana del 19/10" (o se reutiliza la que ya tiene el mismo contenido). Si algo no se puede guardar, tira un error.
+function mismoPlan(a,b){
+  const x=migratePlan(a&&typeof a==="object"?a:{}),y=migratePlan(b&&typeof b==="object"?b:{});
+  return DAYS.every(([d])=>SLOTS.every(([s])=>(x[d][s]||null)===(y[d][s]||null)))
+}
+function guardarCopiaDeSemana(lunes,plan,saved,conVariacion){
+  const weeks=loadDatedWeeks();
+  if(!weeks[lunes]){
+    weeks[lunes]=datedWeekSnapshot(plan,saved);
+    localStorage.setItem(DATED_WEEKS_KEY,JSON.stringify(weeks));
+    return {
+      copia:true,variacion:null
+    }
+  }
+  if(!conVariacion||mismoPlan(weeks[lunes].plan,plan))return {
+    copia:false,variacion:null
   };
-  let total=0;
-  const nodes=DAYS.map(function(dpair){
-    const dayKey=dpair[0],dayLabel=dpair[1];const day=ce("div","plan-day");day.append(ce("h3","plan-day__title",dayLabel));SLOTS.forEach(function(spair){
-      const slot=spair[0],slotLabel=spair[1];const wrap=ce("div","plan-slot");wrap.append(ce("div","plan-slot__label",slotLabel));const id=plan[dayKey]?plan[dayKey][slot]:null;const it=id?byId[id]:null;if(it){
-        total++;const nm=ce("div","plan-slot__plate",planPlateLabel(it));const det=ce("div","plan-slot__lines",savedItemLines(it).join(" · "));const row=ce("div","plan-slot__row");const del=ce("button","button button--danger","Quitar");del.type="button";del.style.minWidth="86px";del.dataset.planClear=dayKey+"|"+slot;row.append(del);const pk=dayKey+"|"+slot;if(dayKey===todayPlanDay()){
-          const done=eatenToday(it,slot),eat=ce("button","button button--soft",done?"✓ Comido hoy":"Lo comí hoy");eat.type="button";eat.dataset.planEaten=pk;eat.disabled=done;eat.setAttribute("aria-label",(done?"Ya registrado hoy: ":"Registrar que comí hoy ")+savedItemTitle(it));row.append(eat)
-        }if(it.recipeSourceId){
-          const inp=ce("input"),lab=ce("label","plan-portions");inp.type="text";inp.inputMode="decimal";inp.maxLength=6;inp.value=portionsMap[pk]!==undefined?String(portionsMap[pk]).replace(".",","):"";inp.placeholder=yields[it.recipeSourceId]?String(yields[it.recipeSourceId]):"";inp.dataset.planPortions=pk;inp.setAttribute("aria-label","Porciones para "+planDayName(dayKey)+" "+planSlotName(slot));lab.append(ce("span",null,"Porciones"),inp);row.append(lab)
-        }wrap.append(nm,det,row);if(it.recipeSourceId&&yields[it.recipeSourceId])wrap.append(ce("div","plan-slot__lines","La receta rinde "+String(yields[it.recipeSourceId]).replace(".",",")+" porciones."+(portionsMap[pk]!==undefined?" Compras calcula para "+String(portionsMap[pk]).replace(".",",")+".":" Compras usa la receta completa.")))
-      }else{
-        const pool=pools[slotPool(slot)];if(pool.length){
-          const row=ce("div","plan-slot__row");const sel=ce("select");sel.dataset.planSelect=dayKey+"|"+slot;const op0=ce("option",null,"Elegir…");op0.value="";sel.append(op0);const labels=mealLabels(pool);pool.forEach(function(p){
-            const o=ce("option",null,planPlateLabel(p,labels.get(p.id)));o.value=p.id;sel.append(o)
-          });const addBtn=ce("button","button button--soft","Asignar");addBtn.type="button";addBtn.style.minWidth="88px";addBtn.dataset.planSet=dayKey+"|"+slot;row.append(sel,addBtn);wrap.append(row)
-        }else{
-          wrap.append(ce("div","plan-empty","Guardá platos de este tipo para asignarlos."))
-        }
-      }appendPlanAssignmentControls(wrap,dayKey,slot,pools[slotPool(slot)],it);day.append(wrap)
-    });return day
-  });
-  cont.replaceChildren(...nodes);
-  const hint=document.getElementById("planHint");
-  if(hint)hint.textContent=total?("Tenés "+total+" comida"+(total===1?"":"s")+" asignada"+(total===1?"":"s")+" esta semana."):"Asigná un plato por comida en cada día. Después generá la lista de compras."
+  const vars=loadVars(),base="Semana del "+typedAppDateLabel(lunes).slice(0,5);
+  let nombre=base,n=2;
+  while(vars[nombre]&&!mismoPlan(vars[nombre],plan))nombre=base+" ("+(n++)+")";
+  if(!vars[nombre]){
+    vars[nombre]=JSON.parse(JSON.stringify(plan));
+    if(!persistVars(vars))throw Error("No se pudo guardar la variación.")
+  }
+  return {
+    copia:false,variacion:nombre
+  }
+}
+// Primera escritura del plan en una semana nueva: si la semana anterior tenía comidas y no tiene copia, se guarda.
+function copiaAutomaticaDeSemana(){
+  try{
+    const s=semanaDelPlan();
+    if(!s||s>=semanaActual())return;
+    const plan=loadPlan();
+    if(!planTieneComidas(plan))return;
+    guardarCopiaDeSemana(s,plan,loadSaved(),false)
+  }catch(e){
+    planStatus("No se pudo guardar la copia de la semana anterior.")
+  }
+}
+// Semana nueva: seguir con el mismo plan (queda registrado y el aviso no vuelve).
+function repetirPlanEstaSemana(){
+  const s=semanaDelPlan();
+  let extra="";
+  if(s)try{
+    guardarCopiaDeSemana(s,loadPlan(),loadSaved(),false)
+  }catch(e){
+    extra=" No se pudo guardar la copia de la semana anterior."
+  }
+  logPlanChange("Plan repetido para la semana del "+typedAppDateLabel(semanaActual()).slice(0,5));
+  renderPlan();
+  planStatus("Listo: seguís con el mismo plan esta semana."+extra)
+}
+// Semana nueva: empezar de cero. Antes guarda la copia (o la variación); si no se puede, el plan no cambia.
+// Deshacer devuelve el plan y las porciones; la copia y la variación quedan guardadas.
+function empezarSemanaDeCero(){
+  const s=semanaDelPlan()||mondayOf(localTrainingDate(new Date(Date.now()-7*864e5))),plan=loadPlan(),porciones=loadPlanPortions();
+  let r;
+  try{
+    r=guardarCopiaDeSemana(s,plan,loadSaved(),true)
+  }catch(e){
+    renderPlan();
+    planStatus("No se pudo guardar una copia; tu plan no cambió.");
+    return false
+  }
+  const vacio=migratePlan({});
+  if(!persistPlan(vacio)){
+    planStatus("No se pudo vaciar el plan.");
+    return false
+  }
+  prunePlanPortions(plan,vacio);
+  const donde=r.variacion?"en Planes guardados (\""+r.variacion+"\")":"en Semanas anteriores ("+typedAppDateLabel(s).slice(0,5)+")";
+  logPlanChange("Semana nueva: plan vaciado; el anterior quedó "+donde);
+  deshacerPlan={
+    texto:"Empezaste de cero. Tu plan anterior quedó "+donde,plan,porciones
+  };
+  renderPlan();
+  return true
+}
+// Copiar un día a otros días (una sola escritura, con historial y Deshacer).
+function copiarDiaDelPlan(desde,hacia){
+  const destinos=(hacia||[]).filter(d=>d!==desde&&DAYS.some(x=>x[0]===d));
+  if(!DAYS.some(x=>x[0]===desde)||!destinos.length)throw Error("Elegí al menos un día.");
+  const plan=loadPlan(),porciones=loadPlanPortions(),nuevo=JSON.parse(JSON.stringify(plan));
+  for(const d of destinos)nuevo[d]={
+    ...plan[desde]
+  };
+  if(!persistPlan(nuevo))throw Error("No se pudo copiar.");
+  prunePlanPortions(plan,nuevo);
+  const texto=planDayName(desde)+" copiado a "+juntarY(destinos.map(d=>planDayName(d).toLowerCase()));
+  logPlanChange(texto);
+  deshacerPlan={
+    texto,plan,porciones
+  };
+  renderPlan();
+  planStatus(texto+".")
 }
 const PLAN_PORTIONS_KEY="miPlatoFacil_planPortions_v1",PLAN_HISTORY_KEY="miPlatoFacil_planHistory_v1";
 function validPlanPortions(o){

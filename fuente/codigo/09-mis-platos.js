@@ -46,9 +46,10 @@ function savePlate(nombre){
   }
   const a=loadSaved();
   const snap=currentSnapshot();
-  if(a.some(x=>(x.sig||x.text)===snap.sig)){
+  const igual=a.find(x=>(x.sig||x.text)===snap.sig);
+  if(igual){
     shareStatus("Este plato ya está guardado.");
-    return
+    return igual
   }
   if(typeof nombre==="string"&&nombre.trim())snap.note=nombre.trim().slice(0,80);
   a.unshift(snap);
@@ -306,10 +307,9 @@ document.addEventListener("click",e=>{
     savedStatus(err.message)
   }
 });
-// "Planificar": abre la Semana con la receta elegida en "Consultar mis recetas mientras planifico".
+// "Planificar": abre Semana → Buscar en mis recetas con la receta elegida.
 function planSavedRecipe(id){
-  openTab("semana");
-  document.getElementById("currentPlanPanel").open=true;
+  abrirHerramientaPlan("recetas");
   document.getElementById("planRecipeSearch").value="";
   const ref=document.getElementById("planRecipeReference");
   ref.open=true;

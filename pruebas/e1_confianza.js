@@ -82,9 +82,12 @@
   ok("C1-3c sin rutina, pregunta como antes", pantalla() === "day");
   // Desde un hueco de la Semana se usa la rutina de ese día (solo los lunes se entrena)
   cargar({ miPlatoFacil_trainingWeek: JSON.stringify({ version: 1, days: [1] }) }); await abrir(); await irA("semana");
-  await tocar(q('#planList [data-start="plato"][data-start-day="lunes"]'));
+  // v15.1: se arma desde "Armar nueva" del Selector de la comida (día → comida → Armar nueva).
+  await tocar(q('#planDias [data-plan-dia="lunes"]')); await tocar(q('[data-hueco="lunes|almuerzo"]'));
+  await tocar(q('.hoja [data-start="plato"][data-start-day="lunes"]'));
   const diaLunes = ev("state.day"); await irA("semana"); await irA("semana");
-  await tocar(q('#planList [data-start="plato"][data-start-day="martes"]'));
+  await tocar(q('#planDias [data-plan-dia="martes"]')); await tocar(q('[data-hueco="martes|almuerzo"]'));
+  await tocar(q('.hoja [data-start="plato"][data-start-day="martes"]'));
   ok("C1-3d el armado desde un hueco de la Semana usa la rutina de ese día", diaLunes === "Día de entrenamiento" && ev("state.day") === "Día libre" && pantalla() === "lunch_veg", diaLunes + " / " + ev("state.day"));
 
   // C1-4 50 sugerencias seguidas de almuerzo o cena salen del catálogo o de tus comidas
@@ -112,8 +115,10 @@
   const etiquetas = [...w.mealLabels(w.loadSaved()).values()];
   const dobles = [{ id: "d1", type: "plato", title: "Almuerzo / Cena · Día libre", lines: [], state: { type: "plato", day: "Día libre", verduras: [{ name: "Tomate" }], almidones: [{ name: "Papa" }], proteinas: [{ name: "Merluza" }], legCarb: [], legProt: [] } }, { id: "d2", type: "plato", title: "Almuerzo / Cena · Día de entrenamiento", lines: [], state: { type: "plato", day: "Día de entrenamiento", verduras: [{ name: "Tomate" }], almidones: [{ name: "Papa" }], proteinas: [{ name: "Merluza" }], legCarb: [], legProt: [] } }, { id: "d3", type: "plato", title: "x", note: "Merluza con papa y tomate", lines: [] }];
   const e2 = [...w.mealLabels(dobles).values()];
-  await irA("semana");
-  const opciones = [...doc().querySelectorAll('[data-plan-select="lunes|cena"] option')].map(o => o.textContent).filter(t => !/^Elegir/.test(t));
+  // v15.1: los nombres de "Mis comidas" en el Selector de la cena del lunes (antes, las opciones del select).
+  await irA("semana"); await tocar(q('#planDias [data-plan-dia="lunes"]')); await tocar(q('[data-hueco="lunes|cena"]'));
+  if (!doc().querySelector(".hoja [data-selector-id]")) await tocar(q(".hoja [data-hueco-cambiar]"));
+  const opciones = [...doc().querySelectorAll('.hoja [data-selector-seccion="mias"] .selector-item__nombre')].map(o => o.textContent);
   ok("E1-2 ningún selector repite nombres de comidas", new Set(etiquetas.map(norm)).size === etiquetas.length && !etiquetas.some(e => /^(desayuno \/ merienda|almuerzo \/ cena)/.test(norm(e))) && new Set(e2.map(norm)).size === 3 && e2[0] === "Merluza con papa y tomate · día libre" && opciones.length > 3 && new Set(opciones).size === opciones.length, e2.join(" | ") + " || " + opciones.slice(0, 4).join(" | "));
 
   // E1-3 Respaldo: la clave nueva entra como opcional; uno viejo sin ella no la toca; una inválida se rechaza

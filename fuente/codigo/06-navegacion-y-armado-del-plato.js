@@ -22,7 +22,45 @@ function init(){
   liList(el.advicePreIdeas,data.preIdeas);
   liList(el.advicePreCombos,data.preCombos);
   pantrySel=loadPantry();
-  renderPantry()
+  renderPantry();
+  // Listas largas del armado (más de 12 opciones): grilla de chips con buscador.
+  for(const [id,etiqueta] of [["fruit","Buscar fruta"],["boxv","Buscar verdura"],["boxa","Buscar almidón"],["boxp","Buscar proteína"],["boxLegCarb","Buscar legumbre"],["boxLegProt","Buscar legumbre"],["bfprot","Buscar proteína"],["bfcarb","Buscar cereal"],["bffat","Buscar grasa"],["snacks","Buscar snack"]]){
+    const box=document.getElementById(id);
+    if(box&&box.querySelectorAll(".choice").length>12)conBuscador(box,etiqueta)
+  }
+}
+function conBuscador(box,etiqueta){
+  if(box.dataset.buscador)return;
+  box.dataset.buscador="1";
+  box.classList.add("grid--chips");
+  const input=ce("input");
+  input.type="search";
+  input.id=box.id+"Buscar";
+  input.className="opciones-buscador";
+  input.placeholder=etiqueta;
+  input.autocomplete="off";
+  input.setAttribute("aria-label",etiqueta);
+  input.dataset.filtra=box.id;
+  input.addEventListener("input",()=>filtrarOpciones(box,input.value));
+  box.before(input)
+}
+// Lo elegido sigue a la vista aunque no coincida con lo que se busca.
+function filtrarOpciones(box,q){
+  const n=normalizeSearchText(String(q||"").trim());
+  box.querySelectorAll(".choice").forEach(c=>{
+    c.hidden=!!n&&!c.classList.contains("is-selected")&&!normalizeSearchText(c.textContent+" "+(c.dataset.name||"")).includes(n)
+  });
+  box.querySelectorAll(".home-section-label").forEach(l=>{
+    l.hidden=!!n
+  });
+  box.querySelectorAll("details").forEach(d=>{
+    if(n&&d.querySelector(".choice:not([hidden])"))d.open=true
+  })
+}
+function limpiarBuscadores(){
+  document.querySelectorAll("[data-filtra]").forEach(i=>{
+    i.value="";const box=document.getElementById(i.dataset.filtra);if(box)filtrarOpciones(box,"")
+  })
 }
 // Pasos del armado: solo en ellos se ve la barra "Volver al paso anterior".
 const ARMADO_PASOS=["bf_fruit","bf_prot","bf_carb","bf_fat","day","plate_static","lunch_veg","lunch_carb","lunch_prot","snack","pre"];
@@ -51,8 +89,14 @@ function renderAlmidones(){
 }
 // Almuerzo o cena: si la rutina sabe si ese día se entrena, no se pregunta y se arranca en Verduras.
 // dayKey: el día del plan cuando el armado empieza desde un hueco de la Semana (usa la rutina de ese día).
-function start(type,dayKey){
+// slot: la comida del hueco desde el que se arma (Selector de comida); al guardar, se asigna ahí y se vuelve a la Semana.
+var armadoDestino=null;
+function start(type,dayKey,slot){
   lastRandomType=null;
+  armadoDestino=slot&&dayKey&&SLOTS.some(s=>s[0]===slot)&&DAYS.some(d=>d[0]===dayKey)?{
+    dia:dayKey,slot,tab:activeTab
+  }:null;
+  limpiarBuscadores();
   state.type=type;
   armadoFecha=dayKey&&DAYS.some(d=>d[0]===dayKey)?fechaDelDiaDelPlan(dayKey):null;
   if(type==="plato"){
@@ -336,7 +380,8 @@ function resetAdviceTemporaryState(){
     const box=document.getElementById(id);if(box)box.classList.remove("is-visible")
   })
 }
-function restart(){
+// Deja el armado vacío (sin tocar pestañas ni pantallas).
+function limpiarArmado(){
   Object.assign(state,{
     type:"",day:"",fruta:null,bfprot:null,bfcarb:null,grasa:null,pre:null,snack:null,verduras:[],almidones:[],proteinas:[],legCarb:[],legProt:[],replaceCarb:false,replaceProt:false,customPortions:null,nombreSugerido:""
   });
@@ -346,13 +391,24 @@ function restart(){
   editReturn=false;
   portionEditReturn=false;
   lastRandomType=null;
-  stack=["home"];
   document.querySelectorAll(".choice.is-selected,.toggle-button.is-selected").forEach(e=>e.classList.remove("is-selected"));
   document.querySelectorAll('.choice[aria-pressed="true"]').forEach(e=>e.setAttribute("aria-pressed","false"));
   setReplace("carb",false);
   setReplace("prot",false);
   closePortionEditor();
   el.preIdeas.classList.add("is-hidden");
+  limpiarBuscadores()
+}
+function restart(){
+  limpiarArmado();
+  armadoDestino=null;
+  planDiaElegido=null;
+  deshacerPlan=null;
+  try{
+    if(hoja.abierta())hoja.cerrar()
+  }catch(e){
+  }
+  stack=["home"];
   resetAdviceTemporaryState();
   renderContextAdvice();
   document.querySelectorAll(".screen").forEach(s=>{
