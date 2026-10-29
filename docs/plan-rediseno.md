@@ -453,3 +453,8 @@ Rama `rediseno-etapa-1-confianza`. Versión 15.0.0.
   - Todos los selectores (plan, semanas guardadas, consumo e historial) usan `mealLabels`.
 - Agregar a la semana desde una idea: se guarda con el mismo formato que un plato armado (`state`, `lines`, nombre en `note`). Se asigna con la función de asignación de siempre (historial y porciones), con Deshacer si reemplaza algo.
 - Decisión: el paso Frutas suma palabras (16 frutas y las formas). El 40 % menos se mide en las 4 pantallas de `criterios.json`.
+- Revisión de la segunda versión: NO BLOQUEANTE. Decisiones tomadas con sus sugerencias:
+  - "Lo compré" tiene su propia lista de claves para el Deshacer, así tachar algo después de "Lo cociné" no bloquea el Deshacer de "Lo cociné".
+  - Las semanas guardadas se recortan a las últimas 12 recién en la próxima escritura, nunca al leer.
+  - Cada semana nueva (lunes) empieza sin tachados; lo de semanas anteriores queda guardado.
+  - Quitar la marca a algo de "Ya en tu despensa" lo devuelve a Pendientes sin tocar la despensa (para revertirla está el Deshacer).
