@@ -528,3 +528,81 @@ Rama `rediseno-etapa-1-confianza`. Versión 15.0.0.
 
 **Pendientes para vos**
 - Revisar las 12 ideas argentinas nuevas del catálogo (`nueva: true`).
+
+### Etapa 2 · Selector de comida y nueva Semana ⏳
+
+Rama `rediseno-etapa-2-selector-y-semana`. Versión 15.1.0.
+
+**Plan corto**
+- Selector de comida (componente compartido, P2 y P3):
+  - Usa la `hoja` que ya existe (`37-ideas-y-hoja.js`); `selectorDeComida({dia, comida, alElegir})` arma su contenido. Título "Almuerzo del martes".
+  - Arriba, un buscador (filtra por `mealName`, sin tildes, con `normalizeSearchText`). Debajo, en este orden:
+    - Recientes: hasta 4 comidas del tipo, por último uso en Lo que comí y `savedAt`.
+    - Mis comidas del tipo: favoritas primero, nombres de `mealLabels` (nunca dos iguales). Incluye tus recetas con ingredientes, que se asignan con la misma lógica de "Asignar receta al plan actual".
+    - Ideas: el catálogo filtrado con `sugerenciasPara`, solo en almuerzo y cena.
+    - Dos botones: Armar nueva y Sugerime (propone una con `elegirSugerencia`: "Usar esta" u "Otra").
+  - Tocar una comida asigna en el momento (con `setSlot`: historial y porciones como siempre), cierra la hoja y muestra "Asignado · Deshacer" si reemplazó algo. Tocar una idea la guarda y asigna con `agregarIdeaALaSemana`.
+  - Desayuno y merienda usan las comidas de tipo `desayuno`; almuerzo y cena, las de tipo `plato` (`slotPool`, como hoy).
+- Semana (`05-plan.html` reescrita, render nuevo en `10-plan-semanal.js`):
+  - Encabezado "Esta semana · 26 oct – 1 nov" (lunes con `mondayOf`, solo de presentación) y el botón ⋯.
+  - Fila de 7 chips L–D con el número del día y la completitud ("3/4", con un anillo). El día elegido arranca en hoy y queda marcado (`aria-pressed`). Debajo, ese día con sus 4 comidas en el orden del día.
+  - Hueco vacío: una fila "Elegir" que abre el Selector.
+  - Hueco lleno: nombre (dos líneas como máximo); al tocarlo, una hoja con Cambiar (abre el Selector), Quitar (con Deshacer), Porciones (solo recetas con rendimiento: el mismo campo `data-plan-portions` y su validación de hoy) y Lo comí (solo en el día de hoy: el mismo registro `data-plan-eaten` de hoy).
+  - Se van los 28 `select` con "Asignar", "Crear y guardar un plato" en cada hueco y las ayudas largas (resuelve los selectores cortados de la Etapa 0).
+  - "Elegir" en Hoy abre Semana en ese día con el Selector de ese hueco (la Hoy nueva es la Etapa 3).
+- Menú ⋯ de Semana: una hoja con la lista. Cada ítem abre una pantalla nueva `planHerramientas` ("Semana › …", con Volver) que muestra solo ese panel. Los paneles de hoy se mudan ahí sin cambiar ids ni lógica.
+  - Repetir semana anterior: usa la copia fechada del lunes anterior (`reuseDatedWeek`); si no hay, el ítem lo dice y no hace nada.
+  - Copiar un día: hoja "Copiar el lunes a…" con chips de días; una sola escritura del plan, `prunePlanPortions`, una línea de historial y Deshacer.
+  - Vaciar: sin confirmación, con Deshacer (plan y porciones).
+  - Planes guardados: las variaciones (`varSelect`, Guardar y Borrar variación).
+  - Semanas anteriores y mes: `monthlyPlanPanel`, `datedWeeksPanel` y `datedEditPanel`.
+  - Historial de cambios: `planHistoryPanel`.
+  - Descargar: el panel de descarga HTML.
+  - Además, para que nada quede sin lugar: "Buscar en mis recetas" (`planRecipeReference`) y "Lo que comí y objetivos" (`consumptionPanel` con `habitGoalsPanel`).
+  - Modo simple: el menú muestra todo en los dos modos, porque ya nada ocupa la vista. Sale el grupo `plan` de `ADVANCED_TOOLS` y su aviso de "herramientas ocultas" en Semana; los demás grupos no cambian.
+- Semana nueva:
+  - Sin clave nueva: la semana del plan es el lunes de la última entrada de `miPlatoFacil_planHistory_v1` (cada cambio ya se registra ahí). Si es anterior al lunes actual y el plan tiene comidas, arriba de los chips aparece "¿Repetís el plan o empezás de cero?" con Repetir (botón lleno) y Empezar de cero. Sin historial válido, no aparece. Mostrarlo no escribe nada.
+  - Repetir: no toca el plan; guarda la copia fechada de la semana del plan si no existe y registra "Plan repetido para la semana del 26/10" (así el aviso no vuelve).
+  - Empezar de cero: primero guarda la copia fechada (`datedWeekSnapshot`, con las comidas usadas) en `miPlatoFacil_datedWeeks_v1`, con el lunes de la semana del plan; si esa fecha ya tiene copia, la deja como está (puede estar editada). Después vacía el plan, poda porciones y registra. Deshacer devuelve plan y porciones; la copia queda.
+- Armar desde un hueco (P3):
+  - "Armar nueva" llama a `start(tipo, dia)` (ya usa la rutina de ese día) y guarda en memoria, no en `localStorage`, `armadoDestino = {dia, comida}`.
+  - Al confirmar la hoja de nombre, si hay destino: guarda (o, si ya estaba igual, usa la guardada por `sig`), asigna con `setSlot`, vuelve a Semana con ese día elegido y muestra "Asignado al almuerzo del martes · Deshacer". `restart()` y cualquier armado empezado fuera de un hueco borran el destino.
+- Armado en grilla (P15): las listas de más de 12 opciones (verduras, proteínas, almidones, legumbres y frutas) pasan a una grilla de chips de 2 columnas (44 px de alto) con un buscador arriba. Los chips conservan `data-name`, `data-multi` y `data-pick`, así el armado y lo guardado no cambian; lo elegido sigue marcado aunque el filtro lo esconda.
+- Archivos:
+  - `fuente/cuerpo/pantallas/05-plan.html` (Semana nueva) y la nueva `23-planHerramientas.html` (los paneles que se mudan).
+  - `fuente/codigo/`: 06 (`start` con destino y la grilla), 09 (`savePlate` devuelve la guardada si ya existía), 10 (render de Semana, Vaciar, Copiar un día y semana nueva), 14 (eventos), 16 (se va `appendPlanAssignmentControls`), 24 (Lo comí desde la hoja), 30 (sale el grupo `plan`), 31 ("Elegir" de Hoy), 37 (destino al guardar) y el nuevo `38-selector-de-comida.js`.
+  - `fuente/estilos.css`: chips de días, huecos, grilla y buscador con el sistema de diseño.
+  - `herramientas/capturas.mjs`: solo cómo el estado `todo` abre los paneles de Semana, que pasan a `planHerramientas`. Las medidas son las mismas (la compuerta va a avisar que cambió la herramienta).
+  - `fuente/version.json` → 15.1.0.
+- Orden de arranque: `init()` corre al cargar `14-eventos-y-arranque.js`, y la pestaña recordada (32) puede llamar a `renderPlan()` antes de que carguen 37 y 38. Por eso `renderPlan` solo usa lo definido hasta el 13 o declaraciones `function` (que se elevan); la `hoja`, el Selector y `armadoDestino` se usan recién al tocar.
+- Riesgos para los datos:
+  - `miPlatoFacil_plan` sigue con el mismo formato, por día de la semana (`lunes`…`domingo` × 4 comidas). Las fechas son solo de presentación.
+  - Se leen: `plan`, `saved`, `planPortions_v1`, `planHistory_v1`, `datedWeeks_v1`, `planVars`, `consumption_v1`, `recipeDetails_v1` y `recipeAmounts_v1`.
+  - Se escriben, solo cuando el usuario actúa: `plan`; `planPortions_v1` (poda al cambiar un hueco, como hoy); `planHistory_v1`; `datedWeeks_v1` (copia de la semana nueva, sin pisar una existente); `saved` (ideas, recetas y armados asignados, con el formato de siempre) y `consumption_v1` (Lo comí, como hoy).
+  - No hace falta clave nueva: el destino del armado y lo que guarda el Deshacer viven en memoria, y la semana del plan sale del historial. Respaldo y restauración no cambian.
+- Pruebas que cambian porque solo miran la interfaz vieja (ningún dato ni regla cambia; la misma cantidad de pruebas):
+  - `j01` `asignar`: toca el hueco y la comida en el Selector, en vez de `select` + Asignar. Sigue verificando lo guardado en `miPlatoFacil_plan`.
+  - `regression` (las de plan, líneas 45 a 63): asignan con el Selector; variaciones, semanas fechadas y mes se abren desde el menú ⋯; las mismas comprobaciones de datos.
+  - `e1_confianza`: C1-3 entra al armado por "Armar nueva" del Selector del lunes y del martes; la de nombres sin repetir lee las filas del Selector de `lunes|cena` en vez de las `option`.
+  - `k01` K6 (anotada en la Etapa 0): cuenta lo que se ve, la suma de los chips ("28 de 28"), en vez del texto "Tenés 28 comidas asignadas".
+  - `n01` N10: "Elegir" abre Semana en el día de hoy y con el Selector de ese hueco (antes miraba `currentPlanPanel`).
+  - `m01`, grupo `plan`: en los dos modos la vista de Semana no muestra ningún panel avanzado, el menú ⋯ los lista todos y cada uno abre con sus datos.
+  - `l01` L8: "Planificar" abre "Buscar en mis recetas" en `planHerramientas` con la receta elegida.
+  - `bkp02` C5 y `r3_saved`: eligen el día con el chip antes de leer `#planList`; siguen comprobando que el título se muestra como texto y los nombres de receta.
+- Pruebas de lógica que cambian de camino, con la misma fuerza:
+  - `f03` P1 y P2 (porciones): abren la hoja del hueco lleno → Porciones; los mismos valores válidos e inválidos y lo guardado en `planPortions_v1`. El vaciado y P8 siguen llamando a las mismas funciones (`clearPlan` ya no pide confirmación; la prueba lo admite).
+  - `f06` C2a y C2b: Lo comí aparece en la hoja de los huecos de hoy y no en otros días; el registro es el mismo.
+- Pruebas nuevas, batería `e2_semana.js` (al final de `suites.json`):
+  - C2-1: con el respaldo de ejemplo y un hueco vacío, asignar una comida guardada cuenta 2 toques (hueco y comida); la prueba exige 3 o menos y verifica `miPlatoFacil_plan`.
+  - C2-2: el plan sigue por día de semana: asignar el miércoles escribe `plan.miercoles`, con el mismo formato.
+  - C2-3: armar desde un hueco vuelve a Semana en ese día con la comida asignada; si el plato ya estaba guardado, asigna el existente sin duplicarlo.
+  - C2-4: semana nueva: el aviso aparece con historial de la semana anterior y no escribe al mostrarse; Empezar de cero guarda antes la copia fechada (con sus comidas) y no pisa una existente; Deshacer devuelve plan y porciones; Repetir no cambia el plan y el aviso no vuelve.
+  - C2-5: hueco lleno: Cambiar, Quitar con Deshacer, Porciones solo en recetas y Lo comí solo hoy.
+  - C2-6: el menú ⋯ tiene los 7 ítems del plan (más recetas y Lo que comí) y cada uno abre su panel funcionando.
+  - C2-7: Copiar un día y Vaciar, con Deshacer.
+  - C2-8: Selector: el buscador filtra; Recientes, Mis comidas e Ideas (solo almuerzo y cena); sin nombres repetidos; una receta con ingredientes se asigna.
+  - C2-9: la grilla de verduras con búsqueda deja elegir igual que antes (`state.verduras`).
+  - C2-10: encabezado "Esta semana · 26 oct – 1 nov" con el reloj fijo y chips "4/4" con la semana completa.
+- Alto de Semana ≤ 1.266 px (E2-semana-alto; estado `normal`: el respaldo de ejemplo con la semana completa, en modo simple, lunes 26/10; claro y oscuro):
+  - Se ve un solo día: encabezado (≈ 110 px), aviso de semana nueva (≈ 140 px; aparece porque el historial del respaldo termina el domingo 25/10), chips (≈ 70 px), 4 comidas de ≈ 90 px (nombre en dos líneas como máximo) y la barra inferior. Estimado: menos de 1.000 px, desde 8.118.
+  - Ningún panel ni aviso de modo queda en la vista. El estado `todo` (modo completo) no tiene criterio de alto; sus paneles están en `planHerramientas`.
