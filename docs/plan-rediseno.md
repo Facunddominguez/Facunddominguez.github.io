@@ -962,3 +962,34 @@ Rama `rediseno-etapa-4-comidas`. Versión 15.3.0.
   - Las pruebas de respaldo, despensa, compras y plan no bajan, y la cantidad total sube (10 nuevas como mínimo).
   - En el estado "vacío", la bienvenida se abre al cargar, pero `capturas.mjs` llama a `restart()` antes de cada vista, así que Hoy y las demás vistas se miden como siempre.
   - La bienvenida, el detalle y el editor no tienen vista propia en las capturas (no se agregan vistas a la herramienta de medición): las cubren C4-1 y C4-4 a C4-7, y para revisor-usuario se toman capturas sueltas aparte, sin tocar `capturas.mjs` y fuera de la compuerta.
+
+**Plan corto, segunda versión** (revisor-codigo marcó 2 bloqueantes en la primera; esto los corrige y manda sobre lo de arriba)
+- Medición. Hay dos controles nuevos desde esta etapa: E4-palabras-ideas (vista `ideas`, normal, ≤ 391; hoy son 460) y E4-palabras-comidas (vista `comidas`, normal, ≤ 607). Para cumplirlos:
+  - Ideas:
+    - "Ideas de menú" muestra 8 ideas y "Ver todas (N)"; con búsqueda o con Solo favoritas se ven todas.
+    - Las ayudas quedan en una línea.
+    - Se pliegan "🔎 Buscar con filtros", "✨ Pedir ideas a la IA" y el bloque "Con lo que tengo" (solo se ve con el filtro puesto).
+  - Mis comidas: tarjetas sin la fila de botones ni la lista de componentes (una línea), así que las palabras bajan.
+  - La vista `despensa` sigue midiendo `ingredientes`.
+- d01 D7 junta los chips de `misplatos`, `ingredientes`, `trainingCalendar`, `ideas`, `comida` y `preferencias`, y de la hoja "+ Nueva" abierta. D8 abre los plegables de las pantallas nuevas.
+- m01 protege la lógica del modo simple:
+  - Cada pantalla nueva que oculta herramientas tiene su aviso `[data-mode-note]` con el botón:
+    - `ideas`: recomendaciones, orden y tamaño de página;
+    - `comida`: descontar de la despensa;
+    - `recetaEditar`: cantidades vinculadas y Mis cantidades por receta;
+    - `preferencias`: equivalencias;
+    - `backupScreen`: exportar, importar y vaciar comidas.
+    - `ingredientes` conserva el suyo (Revisar qué tengo).
+  - M2 y M6 recorren exactamente la misma lista de ids de antes, repartida por pantalla. M4 suma los avisos nuevos.
+- f07 N11 y N12 conservan sus textos; solo cambia el camino. K6 de k01 sigue exigiendo exactamente 9 platos y 5 recetas: se cuentan las tarjetas por `data-comida-tipo`, sin las copias del plan.
+- `miPlatoFacil_bienvenida_v1`:
+  - Va en el respaldo como opcional y en la lista de omitir si es null.
+  - Se valida al leer y al restaurar: solo vale `{"vista":true}` (si trae otra cosa, la validación del respaldo falla igual que con otros módulos; al leer, se toma como no vista).
+  - Se escribe solo al tocar Saltar o "Armar mi semana". Verla desde Cómo funciona no la reescribe.
+- La bienvenida es una pantalla del `stack` (`go("bienvenida")`), no una capa. En el estado vacío de las capturas, `restart()` deja Hoy activo antes de medir; lo compruebo en `capturas/etapa-4`.
+- C4-8 nombra y prueba que siguen alcanzables:
+  - "Asignar receta al plan actual" (menú ⋯ de Semana);
+  - "Calcular nutrientes" (el cuadro de nutrientes de la receta, ahora en `comida`);
+  - "Ver solo mis recetas" y el tamaño de página del catálogo (Ideas → Buscar con filtros);
+  - `planSavedRecipe`.
+- Preferencias y Fuentes de datos se hacen en esta etapa como pantallas simples, que reciben el HTML movido. Si no alcanza el tiempo, se anota como decisión, sin dejar nada inalcanzable.
