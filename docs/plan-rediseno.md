@@ -244,7 +244,7 @@ Estados: ✅ hecha · ⏳ en curso · ⛔ parada. Cada etapa entra a `rediseno` 
 | 0. Red de seguridad | ✅ | `etapa-0-ok` | 14.9.94 |
 | 1. Confianza | ✅ | `etapa-1-ok` | 15.0.0 |
 | 2. Selector de comida y nueva Semana | ✅ | `etapa-2-ok` | 15.1.0 |
-| 3. Hoy | ⏳ | — | 15.2.0 |
+| 3. Hoy | ✅ | `etapa-3-ok` | 15.2.0 |
 | 4. Comidas y nueva estructura | — | — | — |
 | 5. Compras y Despensa | — | — | — |
 | 6. Un solo registro | — | — | — |
@@ -676,7 +676,7 @@ Rama `rediseno-etapa-2-selector-y-semana`. Versión 15.1.0.
 **Pendientes para vos**
 - Ninguno nuevo.
 
-### Etapa 3 · Hoy ⏳
+### Etapa 3 · Hoy ✅
 
 Rama `rediseno-etapa-3-hoy`. Versión 15.2.0.
 
@@ -780,3 +780,18 @@ Rama `rediseno-etapa-3-hoy`. Versión 15.2.0.
 
 **Compuerta**
 - "VALIDACIÓN ETAPA 3: OK (31 controles)". Pruebas: 472/472 (eran 442). Batería nueva `e3_hoy.js` con 30 pruebas.
+
+**Revisores**
+- revisor-codigo, sobre el plan: BLOQUEANTE en la primera versión (C1-4c/d/e perdían condiciones al pasar por Sugerime). Se resolvió en la segunda versión y se verificó directo en el diff, sin otra ronda sobre el plan.
+- revisor-codigo, sobre el diff: NO BLOQUEANTE. Confirmó que C1-4c/d/e conservan todas sus condiciones y que C3-5 las repite para Sugerime.
+- revisor-usuario: NO BLOQUEANTE. Hoy vacío explica el método del plato en una línea, con "Elegir" del almuerzo como acción principal.
+
+**Mejoras sugeridas**
+- Sin rutina, el chip "¿Entrenás hoy? · elegir" vuelve a preguntar: mejor llevar a Mi rutina u ocultarlo.
+- Hoy con plan no tiene botón lleno: llenar el "Lo comí" de la próxima comida pendiente.
+- "✓ Comido" → "✓ Lo comí" (vocabulario). "Mañana" plegado no tiene flecha.
+- Los atajos "Desayuno / Merienda" y "Almuerzo / Cena" repiten nombres viejos: un solo "Armar una comida" (Etapa 4).
+- "Con lo que tengo" está en Hoy y en Más.
+- N8 o C3-3 deberían exigir "Sin elegir" en las filas vacías.
+- El Selector dice "en vez de tu …" para un hueco cuyo plato ya no existe: filtrar con los guardados.
+- `homeTexts` (32) no cambió: la línea de ayuda de Hoy se apaga con `todayHint()` devolviendo "".
