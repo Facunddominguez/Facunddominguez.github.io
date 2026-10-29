@@ -617,7 +617,9 @@ document.getElementById("recipeReadEdit").addEventListener("click",()=>{
   }
 });
 function showRecipeView(view){
-  const browse=view==="browse";
+  const browse=view==="browse",panel=document.getElementById("recipeDetailsPanel");
+  // Desde la v15 las recetas están plegadas en "📖 Recetas": abrir una vista abre el panel.
+  if(panel&&"open" in panel)panel.open=true;
   document.getElementById("recipeBrowseView").hidden=!browse;
   document.getElementById("recipeEditorView").hidden=browse;
   document.getElementById("recipeViewBrowse").setAttribute("aria-pressed",String(browse));

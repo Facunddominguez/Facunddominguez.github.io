@@ -1507,10 +1507,6 @@ body{
   bottom:var(--section-nav-h)
 }
 
-#adviceFab{
-  bottom:calc(var(--section-nav-h) + var(--step-nav-h) + 12px)
-}
-
 #themeToggle{
   position:static;
   display:inline-flex!important;
@@ -1893,7 +1889,7 @@ body:has(#home.is-active) .app-shell{
   min-height:44px
 }
 
-/* Compact favorite controls scoped to Advice; preserve click handlers. */#adviceModal button[data-advice-fav]{
+/* Compact favorite controls scoped to Ideas; preserve click handlers. */#ideas button[data-advice-fav]{
   display:flex;
   align-items:center;
   justify-content:center;
@@ -1916,23 +1912,23 @@ body:has(#home.is-active) .app-shell{
   box-shadow:none
 }
 
-#adviceModal button[data-advice-fav][aria-pressed="true"]{
+#ideas button[data-advice-fav][aria-pressed="true"]{
   background:var(--green2);
   border-color:var(--green);
   color:var(--green)
 }
 
-#adviceModal button[data-advice-fav]:focus-visible{
+#ideas button[data-advice-fav]:focus-visible{
   outline:2px solid var(--green);
   outline-offset:2px
 }
 
-#adviceModal .menu-search{
+#ideas .menu-search{
   grid-template-columns:minmax(0,1fr) auto;
   align-items:center
 }
 
-#adviceModal #menuSearchInput{
+#ideas #menuSearchInput{
   min-width:0;
   width:100%;
   font-size:14px
@@ -2896,4 +2892,143 @@ body:has(#home.is-active) .app-shell{
 }
 .bought-box>#comprasBoughtStatus:empty{
   display:none
+}
+
+/* ============================================================================
+   Etapa 1 (v15): campos con el estilo del sistema, hoja inferior, Ideas, paso
+   Frutas, chip del día y grupos de la lista de compras.
+   ========================================================================== */
+/* Campos de texto y archivo sin estilo propio: especificidad cero, así cualquier regla existente manda. */
+:where(input[type="text"],input[type="search"],input[type="password"],input[type="number"],input:not([type])){
+  box-sizing:border-box;
+  width:100%;
+  min-width:0;
+  min-height:44px;
+  padding:9px 12px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:var(--surface);
+  color:var(--text);
+  font:inherit
+}
+:where(input[type="file"]){
+  box-sizing:border-box;
+  width:100%;
+  min-height:44px;
+  padding:8px;
+  border:1px dashed var(--line);
+  border-radius:12px;
+  background:var(--surface);
+  color:var(--text);
+  font:inherit
+}
+:where(input[type="file"])::file-selector-button{
+  min-height:36px;
+  margin-right:10px;
+  padding:6px 12px;
+  border:1px solid var(--green);
+  border-radius:10px;
+  background:var(--green2);
+  color:var(--green);
+  font:inherit;
+  font-weight:800
+}
+/* Hoja inferior (guardar con nombre, detalle de una idea) */
+.hoja-fondo{
+  position:fixed;
+  inset:0;
+  z-index:1000;
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
+  background:rgba(0,0,0,.45)
+}
+.hoja-fondo[hidden]{
+  display:none
+}
+.hoja{
+  box-sizing:border-box;
+  width:100%;
+  max-width:560px;
+  max-height:85vh;
+  overflow:auto;
+  padding:18px 16px calc(16px + env(safe-area-inset-bottom));
+  border-radius:20px 20px 0 0;
+  background:var(--surface);
+  color:var(--text);
+  box-shadow:var(--shadow)
+}
+.hoja__titulo{
+  margin:0 0 10px;
+  font-size:18px;
+  line-height:1.3
+}
+.hoja__acciones{
+  display:grid;
+  gap:8px;
+  margin-top:12px
+}
+.hoja__acciones>.button{
+  width:100%;
+  margin:0
+}
+.hoja__estado:empty{
+  display:none
+}
+body.con-hoja{
+  overflow:hidden
+}
+/* Ideas: cada idea se puede tocar */
+.idea-link{
+  display:block;
+  width:100%;
+  min-height:44px;
+  padding:6px 0;
+  border:0;
+  background:none;
+  color:var(--text);
+  font:inherit;
+  font-weight:750;
+  text-align:left;
+  cursor:pointer
+}
+.idea-link:hover{
+  color:var(--green)
+}
+#ideas .advice-tabs{
+  margin-top:8px
+}
+/* Paso Frutas: la forma arriba y las frutas en dos columnas */
+#fruitForms{
+  margin:0 0 12px
+}
+#fruit{
+  grid-template-columns:repeat(2,minmax(0,1fr))
+}
+/* Chip "Día de entrenamiento · cambiar" de los pasos del almuerzo o cena */
+.day-chip{
+  margin:0 0 10px
+}
+.day-chip[hidden]{
+  display:none
+}
+/* Almidones: "Más opciones" plegado dentro de la lista */
+.almidones-mas{
+  display:grid;
+  gap:10px
+}
+/* Lista de compras: grupos plegados "Ya tenés" y "Ya en tu despensa" */
+.shop-group{
+  margin-top:12px
+}
+.shop-group>.shop-item{
+  margin:0
+}
+.shop-item__detail{
+  flex:1 1 100%;
+  color:var(--muted);
+  font-size:13px
+}
+.shop-group .shop-item{
+  flex-wrap:wrap
 }
