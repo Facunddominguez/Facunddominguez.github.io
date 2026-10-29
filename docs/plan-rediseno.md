@@ -242,7 +242,7 @@ Estados: ✅ hecha · ⏳ en curso · ⛔ parada. Cada etapa entra a `rediseno` 
 | Etapa | Estado | Tag | Versión de la app |
 |---|---|---|---|
 | 0. Red de seguridad | ✅ | `etapa-0-ok` | 14.9.94 |
-| 1. Confianza | — | — | — |
+| 1. Confianza | ✅ | `etapa-1-ok` | 15.0.0 |
 | 2. Selector de comida y nueva Semana | — | — | — |
 | 3. Hoy | — | — | — |
 | 4. Comidas y nueva estructura | — | — | — |
@@ -367,7 +367,7 @@ Rama `rediseno-etapa-0-red-de-seguridad`.
 **Pendientes para vos**
 - Ninguno en esta etapa. El merge final a `main` es tuyo.
 
-### Etapa 1 · Confianza ⏳
+### Etapa 1 · Confianza ✅
 
 Rama `rediseno-etapa-1-confianza`. Versión 15.0.0.
 
@@ -458,3 +458,73 @@ Rama `rediseno-etapa-1-confianza`. Versión 15.0.0.
   - Las semanas guardadas se recortan a las últimas 12 recién en la próxima escritura, nunca al leer.
   - Cada semana nueva (lunes) empieza sin tachados; lo de semanas anteriores queda guardado.
   - Quitar la marca a algo de "Ya en tu despensa" lo devuelve a Pendientes sin tocar la despensa (para revertirla está el Deshacer).
+
+**Medidas antes y después** (alto en px / palabras visibles, estado normal, tema claro; antes = `capturas/etapa-0`, después = `capturas/etapa-1`)
+
+| Vista | Antes | Después |
+|---|---|---|
+| Compras | 3.820 / 438 | 2.940 / 225 |
+| Despensa (Con lo que tengo) | 4.824 / 653 | 3.558 / 268 |
+| Respaldo | 1.305 / 152 | 944 / 36 |
+| Asistente de IA | 1.966 / 311 | 975 / 83 |
+| Ideas | 3.786 / 366 | 6.047 / 460 |
+| Hoy | 896 / 58 | 984 / 69 |
+| Armado: almuerzo | 844 / 18 | 2.575 / 56 |
+| Armado: desayuno | 1.276 / 51 | 1.436 / 71 |
+| Resumen | 1.169 / 49 | 1.148 / 50 |
+
+- Las cuatro pantallas tocadas bajaron 49 %, 59 %, 76 % y 73 % de palabras (meta: 40 %).
+- "Armado: almuerzo" crece porque, con rutina, arranca directo en Verduras en vez de preguntar "¿Entrenás hoy?".
+- Ideas crece porque pasó de un modal con scroll propio a pantalla, con las 12 ideas nuevas y "Guardar idea" en cada una.
+
+**Compuerta**
+- "VALIDACIÓN ETAPA 1: OK (28 controles)". Pruebas: 413/413 (eran 387). Batería nueva `e1_confianza.js` con 26 pruebas.
+
+**Revisores**
+- revisor-codigo, sobre el plan: BLOQUEANTE en la primera versión (4 puntos); NO BLOQUEANTE en la segunda.
+- revisor-codigo, sobre el diff: NO BLOQUEANTE. Corregí su sugerencia: "Lo compré" ya no suma cantidad si la despensa alcanzaba (prueba E1-6b).
+- revisor-usuario: BLOQUEANTE (el resumen seguía mostrando "Huevo | Clara de huevo", el título "Desayuno / Merienda" y "Guardar" como secundario). Corregido; en la segunda revisión, NO BLOQUEANTE.
+
+**Pruebas adaptadas** (ninguna borrada; ninguna batería bajó)
+- `r2_shop`:
+  - S1b, S10a y S10b: además de la sugerencia, verifican que el ítem va a "Ya tenés".
+  - S2a a S2d: "Anotar" pasa a "· faltan X" en la fila y en Copiar.
+  - S3: los tres grupos juntos tienen siempre los mismos ítems y cantidades; multiplicador, precios y presupuesto no mueven nada de grupo.
+  - S4a a S4c: "Tachar" se reemplaza por el grupo "Ya tenés".
+  - S8: "faltan" se actualiza.
+  - S12: el texto de ayuda nuevo.
+- `u01`:
+  - U6: lo comprado pasa a "Ya en tu despensa".
+  - U7: el Deshacer devuelve tachados y comprados.
+  - U9: suma solo lo que falta.
+- `regression`: R1, R3, R7 y R14 eligen forma y fruta, confirman la hoja de nombre y verifican "Banana" y nunca "Licuado". R20 abre la pantalla Ideas en vez de "Consejos".
+- `n01`: N8 (Hoy muestra el nombre de la comida) y N16 (el Asistente tiene pantalla propia).
+- `j01`: `manejo.guardar` confirma la hoja de nombre (lo que se verifica no cambió).
+- Otras:
+  - `f03` P7 y `l01` L4/L12 usan el nombre automático;
+  - `bkp02` C5 lee la nota como texto;
+  - `f04` G10b busca la idea por nombre (las 12 nuevas la corrieron de página);
+  - `r2_fixtures` `reset()` cierra los grupos.
+
+**Decisiones que tomé sin vos**
+- La lista ya no es "intocable": nada se borra, pero lo que tenés y lo que compraste pasan a grupos plegados ("Ya tenés", "Ya en tu despensa"), como pide la Etapa 1. Esto reemplaza la regla vieja "Compras no cambia sola".
+- Paso Frutas: primero la forma (Entera por defecto) y después la fruta, en dos columnas.
+- Ideas es una tarjeta más en "Armar una comida" de Hoy y tiene un enlace en Mis comidas.
+- "Copiar lista" copia solo lo pendiente sin tachar.
+- El nombre de una comida se guarda en `note`. La nota ya no se muestra aparte ("🏷️"): pasa a ser el título de la tarjeta.
+- El aviso de privacidad de Gemini quedó plegado ("ⓘ Privacidad").
+- El registro de consumo sigue guardando el título viejo (`savedItemTitle`), para no cambiar ese dato guardado.
+- Las 12 ideas argentinas nuevas están marcadas `nueva: true` en `01-datos-y-estado.js`, para que las revises.
+
+**Mejoras sugeridas**
+- Cantidades sin plural y con muchos decimales ("5 unidad", "166,666667 g"): Etapa 5 (las fijan varias pruebas de lógica).
+- Resumen con 4 acciones secundarias (Compartir, Imagen, Copiar y Armar otro plato): pasar Imagen y Copiar a un menú "⋯".
+- Ideas: lista larga en una columna; conviene paginar o plegar por tipo (Etapa 4, Comidas | Ideas).
+- Una sugerencia "info" (parte sin cantidad) manda el ítem a "Ya tenés", plegado; puede esconder algo que falta.
+- El contador "N pendientes · M tachados" no cuenta lo tachado dentro de "Ya tenés".
+- Quedan reglas CSS `.advice-fab` del botón que ya no existe.
+- "Publicación e instalación" no encaja en Respaldo (Etapa 4: Más).
+- El aviso de "herramientas ocultas" ocupa 3 líneas en Compras, Despensa y Mis comidas.
+
+**Pendientes para vos**
+- Revisar las 12 ideas argentinas nuevas del catálogo (`nueva: true`).
