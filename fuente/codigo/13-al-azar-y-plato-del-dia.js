@@ -105,10 +105,17 @@ function sampleNR(rnd,a,n){
   }
   return out
 }
-// Plato del día: la misma sugerencia todo el día (azar con la fecha como semilla), con el día de la rutina.
+// Plato del día: la misma sugerencia todo el día (azar con la fecha como semilla), con el día de la rutina. Desde la
+// v15.2 es la primera propuesta de "Sugerime algo" en el almuerzo; la cena suma la comida a la semilla.
+function semillaDelDia(comida){
+  return mulberry32(hashStr("plato_"+localTrainingDate(new Date())+(comida==="cena"?"_cena":"")))
+}
+function sugerenciaDelDia(comida){
+  return elegirSugerencia(comida==="cena"?"cena":"plato",semillaDelDia(comida),diaDeRutina(new Date()))
+}
 function platoDelDia(){
   lastRandomType=null;
-  const rnd=mulberry32(hashStr("plato_"+todayKey())),dia=diaDeRutina(new Date()),s=elegirSugerencia("plato",rnd,dia);
+  const dia=diaDeRutina(new Date()),s=sugerenciaDelDia("almuerzo");
   if(!s){
     const st=document.getElementById("todayStatus");
     if(st)st.textContent=avisoSinSugerencias();

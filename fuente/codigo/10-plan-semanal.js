@@ -112,8 +112,9 @@ function setSlot(dayKey,slot,id){
     }
     const it=id?loadSaved().find(x=>x.id===id):null,texto=planDayName(dayKey)+" · "+planSlotName(slot)+": "+(it?"asignado "+mealName(it):"quitado");
     logPlanChange(texto);
+    // tab: desde qué pestaña se hizo (Hoy muestra su propio aviso con Deshacer).
     deshacerPlan={
-      texto,plan:antes.plan,porciones:antes.porciones
+      texto,plan:antes.plan,porciones:antes.porciones,tab:activeTab
     }
   }
   renderPlan();
@@ -472,7 +473,9 @@ function renderPlan(){
       aviso.append(document.createTextNode(deshacerPlan.texto+". "),b)
     }
   }
-  if(typeof refrescarHojaHueco==="function")refrescarHojaHueco()
+  if(typeof refrescarHojaHueco==="function")refrescarHojaHueco();
+  // Hoy muestra el mismo plan: se repinta con cada cambio.
+  if(typeof renderToday==="function")renderToday()
 }
 // Deshacer: vuelve el plan y las porciones de antes del último cambio hecho desde la Semana.
 function deshacerCambioDelPlan(){
