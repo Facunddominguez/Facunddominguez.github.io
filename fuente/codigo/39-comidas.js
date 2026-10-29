@@ -73,10 +73,10 @@ function abrirComida(origen,id){
   mostrarDetallePlato(id)
 }
 // Detalle (pantalla "comida"): las acciones comunes arriba y, abajo, el plato o la receta.
-function pintarCabeceraComida(nombre,etiquetas){
+function pintarCabeceraComida(nombre,etiquetas,conservarAviso){
   document.getElementById("comidaTitulo").textContent=nombre;
   document.getElementById("comidaEtiquetas").textContent=etiquetas.join(" · ");
-  document.getElementById("comidaEstado").textContent=""
+  if(!conservarAviso)document.getElementById("comidaEstado").textContent=""
 }
 function mostrarDetalleReceta(r){
   let amounts={
@@ -102,9 +102,10 @@ function mostrarDetallePlato(id){
   if(stack.at(-1)!=="comida")go("comida");
   pintarDetallePlato(it)
 }
-function pintarDetallePlato(it){
+// conservarAviso: al repintar después de una acción (Lo cociné, Favorita…) queda a la vista su aviso.
+function pintarDetallePlato(it,conservarAviso){
   const c=comidaDesdePlato(it);
-  pintarCabeceraComida((it.fav?"⭐ ":"")+c.nombre,c.etiquetas.concat(it.recipeSourceId?["Copia de una receta"]:[]));
+  pintarCabeceraComida((it.fav?"⭐ ":"")+c.nombre,c.etiquetas.concat(it.recipeSourceId?["Copia de una receta"]:[]),conservarAviso);
   const box=document.getElementById("comidaPlato"),ul=document.getElementById("comidaComponentes"),acts=document.getElementById("comidaPlatoAcciones");
   box.hidden=false;
   ul.replaceChildren(...(c.componentes.length?c.componentes.map(n=>{
@@ -119,7 +120,7 @@ function refrescarDetalleComida(){
   if(stack.at(-1)!=="comida"||!comidaActual)return;
   if(comidaActual.origen==="plato"){
     const it=loadSaved().find(x=>x.id===comidaActual.id);
-    if(it)pintarDetallePlato(it);else{
+    if(it)pintarDetallePlato(it,true);else{
       comidaActual=null;back()
     }
   }
