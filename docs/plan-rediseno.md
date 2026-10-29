@@ -625,3 +625,18 @@ Rama `rediseno-etapa-2-selector-y-semana`. Versión 15.1.0.
 - C2-7 comprueba también que el Deshacer de Vaciar devuelve las porciones (`planPortions_v1`) además del plan.
 - K6 de `k01` suma los "N/4" de los 7 chips del DOM y exige "28 de 28" (no usa `loadPlan()`).
 - Queda para la Etapa 8: el resumen de Lo que comí y objetivos en Semana ("Verduras en 9 de 14 comidas"). En esta etapa se llega desde el menú ⋯.
+
+**Decisiones que tomé sin vos**
+- Sugerencias de revisor-codigo sobre la segunda versión, incorporadas:
+  - la copia automática de la semana anterior se guarda solo si esa semana tenía comidas;
+  - si ya existe una variación "Semana del …" con el mismo contenido, se reutiliza en vez de crear "(2)";
+  - el Deshacer de "Empezar de cero" devuelve el plan y las porciones, y no borra la variación ni la copia recién creadas (C2-4e).
+- La copia automática va en `persistPlan`, por donde pasa toda escritura del plan (también variaciones y semanas reutilizadas). El Deshacer guarda el plan y las porciones de antes; vale hasta la próxima escritura del plan y sobrevive al cambio de pestaña.
+- Cada cambio hecho desde la Semana (asignar, cambiar, quitar, copiar un día, vaciar, repetir la semana anterior y empezar de cero) se puede deshacer, no solo los que reemplazan algo.
+- "Lo comí" en la hoja de un hueco solo aparece en el día de hoy (el registro no acepta fechas futuras y así era antes). Porciones aparece en todas las recetas, como antes, no solo en las que tienen rendimiento.
+- En el Selector, Armar nueva y Sugerime van arriba, debajo del buscador, para no tener que bajar hasta el final de una lista larga. Recientes aparece si hay más de 4 comidas del tipo. Ideas muestra 6 (las que más usan tu despensa) y hasta 20 al buscar.
+- Sugerime en desayuno o merienda arma una combinación al azar (como "Sugerir al azar") y, al guardarla, se asigna al hueco.
+- El destino del armado recuerda la pestaña: guardar un armado de otra pestaña no lo asigna a un hueco de la Semana.
+- La hoja inferior abre el Selector y los menús sin poner el foco en el buscador (`foco:false`), así no se abre el teclado sin pedirlo.
+- La grilla con buscador se aplica sola a las listas del armado con más de 12 opciones: frutas, verduras, almidones, proteínas y legumbres.
+- `herramientas/capturas.mjs` no cambió. En el estado `todo`, Semana ya no tiene paneles para abrir (están en la pantalla `planHerramientas`, que se abre desde el menú ⋯).
