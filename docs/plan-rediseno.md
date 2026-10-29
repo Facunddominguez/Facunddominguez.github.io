@@ -639,4 +639,9 @@ Rama `rediseno-etapa-2-selector-y-semana`. Versión 15.1.0.
 - El destino del armado recuerda la pestaña: guardar un armado de otra pestaña no lo asigna a un hueco de la Semana.
 - La hoja inferior abre el Selector y los menús sin poner el foco en el buscador (`foco:false`), así no se abre el teclado sin pedirlo.
 - La grilla con buscador se aplica sola a las listas del armado con más de 12 opciones: frutas, verduras, almidones, proteínas y legumbres.
+- Sugerencias de revisor-codigo sobre el diff, incorporadas:
+  - guardar porciones también pasa por la copia automática de la semana anterior;
+  - si esa copia no se puede guardar, el cambio del plan no se escribe (ni historial ni Deshacer), se avisa y se puede reintentar. El Selector queda abierto con el motivo (C2-4k y C2-4l);
+  - el Deshacer de la Semana sobrevive a volver al inicio (C2-7b);
+  - M3 de `m01` busca una receta, registra una comida, pide la descarga y exige las herramientas de la Semana en modo simple.
 - `herramientas/capturas.mjs` no cambió. En el estado `todo`, Semana ya no tiene paneles para abrir (están en la pantalla `planHerramientas`, que se abre desde el menú ⋯).

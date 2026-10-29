@@ -57,13 +57,25 @@
   // Las herramientas de la Semana (variaciones, semanas por fecha y mes, historial) se alcanzan desde el menú ⋯.
   const herramientasPlan = async () => { const r = []; r.push(await porMenu("variaciones", ["#varSelect", "#planHerramientas [data-del-var]"])); r.push(await porMenu("semanas", ["#monthlyPlanPanel", "#datedWeeksPanel"])); r.push(await porMenu("historial", ["#planHistoryPanel", "#planHistoryList"])); go("plan"); await wait(20); return r.every(Boolean) };
   await menuSemana(); if (!shown(document.querySelector(".hoja [data-clear-plan]"))) essentials.push("[data-clear-plan]"); hoja.cerrar();
-  await porMenu("recetas", ["#planRecipeReference", "#planRecipeSelect"]);
-  if (![...$("planRecipeSelect").options].some(o => o.value)) essentials.push("Buscar en mis recetas sin recetas");
+  // Buscar en mis recetas: busca por nombre y encuentra la receta.
+  await porMenu("recetas", ["#planRecipeReference", "#planRecipeSelect", "#planRecipeSearch"]);
+  $("planRecipeSearch").value = "Papas"; $("planRecipeSearch").dispatchEvent(new Event("input", { bubbles: true })); await wait(20);
+  if ($("planRecipeSelect").value !== recipeId) essentials.push("Buscar en mis recetas no encontró la receta");
+  $("planRecipeSearch").value = ""; $("planRecipeSearch").dispatchEvent(new Event("input", { bubbles: true }));
+  // Lo que comí: registra una comida escrita a mano.
   await porMenu("consumo", ["#consumptionPanel", "#consumptionSave", "#consumptionView"]);
-  if (!$("consumptionView").textContent.trim()) essentials.push("Lo que comí sin resumen");
+  const registrosAntes = loadConsumption().length;
+  $("consumptionMeal").value = "merienda"; $("consumptionPlate").value = ""; $("consumptionText").value = "Prueba de modo simple"; $("consumptionSave").click(); await wait(20);
+  if (loadConsumption().length !== registrosAntes + 1 || !/1 comida registrada|comidas registradas/.test($("consumptionView").textContent)) essentials.push("Lo que comí no registró");
+  // Descargar: pide la descarga del plan (sin bajar nada de verdad).
   await porMenu("descargar", ["[data-download-week]"]);
-  const essentialsAntes = essentials.length, planHerrSimple = await herramientasPlan();
-  if (essentials.length !== essentialsAntes) essentials.splice(essentialsAntes);
+  const blobs = [], crear = URL.createObjectURL, clic = HTMLAnchorElement.prototype.click;
+  URL.createObjectURL = b => { blobs.push(b); return crear.call(URL, b) }; HTMLAnchorElement.prototype.click = function () { };
+  try { document.querySelector("[data-download-week]").click(); await wait(20) } finally { URL.createObjectURL = crear; HTMLAnchorElement.prototype.click = clic }
+  if (blobs.length !== 1 || !(await blobs[0].text()).includes("Papas al horno")) essentials.push("Descargar no generó el plan");
+  // Las herramientas de la Semana también se alcanzan en modo simple.
+  if (!(await herramientasPlan())) essentials.push("herramientas de la Semana en modo simple");
+  const planHerrSimple = true;
   go("plan"); await wait(20);
   T.ok("M3 lo esencial sigue visible (lista, extras, recetas, plan, lo que comí)", essentials.length === 0, essentials.join(", "));
   // M4 Cada pantalla avisa qué está oculto y que los datos siguen guardados

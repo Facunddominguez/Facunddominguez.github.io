@@ -401,9 +401,9 @@ function limpiarArmado(){
 }
 function restart(){
   limpiarArmado();
+  // El Deshacer de la Semana no se pierde por volver al inicio: vale hasta el próximo cambio del plan.
   armadoDestino=null;
   planDiaElegido=null;
-  deshacerPlan=null;
   try{
     if(hoja.abierta())hoja.cerrar()
   }catch(e){

@@ -215,11 +215,15 @@ function sugerirEnSelector(){
   }));
   h.sug.append(ce("p","selector__propuesta","¿Qué tal "+(s.tipo==="idea"?s.idea.text:mealName(s.item))+"?"),fila)
 }
+// Asigna y, si no se pudo guardar, tira el motivo (el Selector queda abierto y lo muestra).
+function asignarHueco(dia,slot,id){
+  if(setSlot(dia,slot,id)===false)throw Error(errorDelPlan||"No se pudo guardar el cambio.")
+}
 function asignarIdeaAlHueco(h,idea){
   const {
     item
   }=guardarIdea(idea,diaDelHueco(h)||"Día libre");
-  setSlot(h.dia,h.slot,item.id)
+  asignarHueco(h.dia,h.slot,item.id)
 }
 // Armado empezado desde un hueco: lo guardado se asigna ahí y se vuelve a la Semana en ese día.
 function asignarArmadoAlHueco(item){
@@ -227,11 +231,11 @@ function asignarArmadoAlHueco(item){
   armadoDestino=null;
   if(!d||!item)return;
   planDiaElegido=d.dia;
-  setSlot(d.dia,d.slot,item.id);
+  const asignado=setSlot(d.dia,d.slot,item.id)!==false;
   limpiarArmado();
   stack=["plan"];
   go("plan");
-  planStatus("Asignado al "+nombreDelHueco(d.dia,d.slot).toLowerCase()+".")
+  planStatus(asignado?"Asignado al "+nombreDelHueco(d.dia,d.slot).toLowerCase()+".":"Se guardó en Mis comidas, pero no se pudo asignar: "+errorDelPlan)
 }
 // Menú ⋯ de la Semana: lo ocasional, en los dos modos.
 function abrirMenuSemana(){
@@ -343,14 +347,14 @@ document.addEventListener("click",e=>{
   if(d.huecoCambiar){
     const [dia,slot]=d.huecoCambiar.split("|");return abrirSelector(dia,slot)
   }
-  if(d.selectorId)return elegirEnSelector(h=>setSlot(h.dia,h.slot,d.selectorId));
+  if(d.selectorId)return elegirEnSelector(h=>asignarHueco(h.dia,h.slot,d.selectorId));
   if(d.selectorReceta)return elegirEnSelector(h=>asignarRecetaAlPlan(d.selectorReceta,h.dia,h.slot,false));
   if(d.selectorIdea)return elegirEnSelector(h=>{
     const idea=ideaPorTexto(d.selectorIdea);if(!idea)throw Error("La idea ya no está disponible.");asignarIdeaAlHueco(h,idea)
   });
   if(d.selectorSugerir!==undefined)return sugerirEnSelector();
   if(d.selectorUsar!==undefined)return elegirEnSelector(h=>{
-    const s=h.sugerencia;if(!s)throw Error("Pedí una sugerencia.");if(s.tipo==="idea")asignarIdeaAlHueco(h,s.idea);else setSlot(h.dia,h.slot,s.item.id)
+    const s=h.sugerencia;if(!s)throw Error("Pedí una sugerencia.");if(s.tipo==="idea")asignarIdeaAlHueco(h,s.idea);else asignarHueco(h.dia,h.slot,s.item.id)
   });
   if(d.planMenu!==undefined)return abrirMenuSemana();
   if(d.planHerr)return abrirHerramientaPlan(d.planHerr);

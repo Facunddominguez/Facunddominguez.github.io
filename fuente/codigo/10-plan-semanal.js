@@ -42,15 +42,19 @@ function loadPlan(){
     })
   }
 }
-// Toda escritura del plan pasa por acá: antes guarda la copia de la semana anterior si hace falta, y después
-// el Deshacer anterior deja de valer (cada acción que se puede deshacer lo vuelve a armar).
+// Toda escritura del plan pasa por acá: antes guarda la copia de la semana anterior si hace falta (si no se puede,
+// no se escribe nada y queda el motivo en errorDelPlan), y después el Deshacer anterior deja de valer (cada acción
+// que se puede deshacer lo vuelve a armar).
+var errorDelPlan="";
 function persistPlan(o){
-  copiaAutomaticaDeSemana();
+  errorDelPlan="";
+  if(!copiaAutomaticaDeSemana())return false;
   try{
     localStorage.setItem(PKEY,JSON.stringify(o));
     deshacerPlan=null;
     return true
   }catch(e){
+    errorDelPlan="No se pudo guardar el cambio (falta de espacio u otro error). Tu plan no cambió.";
     return false
   }
 }
@@ -93,7 +97,10 @@ function setSlot(dayKey,slot,id){
   };
   const before=plan[dayKey][slot]||null;
   plan[dayKey][slot]=id||null;
-  persistPlan(plan);
+  if(!persistPlan(plan)){
+    planStatus(errorDelPlan);
+    return false
+  }
   if(before!==(id||null)){
     try{
       const p=loadPlanPortions();
@@ -110,7 +117,8 @@ function setSlot(dayKey,slot,id){
     }
   }
   renderPlan();
-  planStatus(id?"Asignado.":"Quitado.")
+  planStatus(id?"Asignado.":"Quitado.");
+  return true
 }
 function clearSlot(dayKey,slot){
   setSlot(dayKey,slot,null)
@@ -118,8 +126,12 @@ function clearSlot(dayKey,slot){
 function clearPlan(){
   if(window.confirm("¿Vaciar todo el plan semanal?")){
     const old=loadPlan(),porciones=loadPlanPortions();
-    persistPlan(migratePlan({
-    }));
+    if(!persistPlan(migratePlan({
+    }))){
+      renderPlan();
+      planStatus(errorDelPlan);
+      return
+    }
     prunePlanPortions(old,migratePlan({
     }));
     logPlanChange("Plan vaciado");
@@ -167,7 +179,10 @@ function loadVariationByName(nm){
   const vars=loadVars();
   if(!vars[nm])return;
   const old=loadPlan();
-  persistPlan(migratePlan(vars[nm]));
+  if(!persistPlan(migratePlan(vars[nm]))){
+    planStatus(errorDelPlan);
+    return
+  }
   prunePlanPortions(old,loadPlan());
   logPlanChange('Variación "'+nm+'" cargada');
   renderPlan();
@@ -329,7 +344,7 @@ function asignarRecetaAlPlan(id,day,slot,confirmar){
     saved[saved.findIndex(x=>x.id===snapshot.id)]=snapshot
   }
   if(!persistSaved(saved))throw Error("No se pudo guardar la receta en los platos del plan.");
-  setSlot(day,slot,snapshot.id);
+  if(setSlot(day,slot,snapshot.id)===false)throw Error(errorDelPlan);
   renderCompras();
   return true
 }
@@ -464,7 +479,7 @@ function deshacerCambioDelPlan(){
   const d=deshacerPlan;
   if(!d)return;
   if(!persistPlan(d.plan)){
-    planStatus("No se pudo deshacer.");
+    planStatus(errorDelPlan||"No se pudo deshacer.");
     return
   }
   try{
@@ -504,16 +519,19 @@ function guardarCopiaDeSemana(lunes,plan,saved,conVariacion){
     copia:false,variacion:nombre
   }
 }
-// Primera escritura del plan en una semana nueva: si la semana anterior tenía comidas y no tiene copia, se guarda.
+// Primera escritura de una semana nueva (plan o porciones): si la semana anterior tenía comidas y no tiene copia,
+// se guarda antes. Devuelve false si no se pudo: entonces no se escribe el cambio (se puede volver a intentar).
 function copiaAutomaticaDeSemana(){
   try{
     const s=semanaDelPlan();
-    if(!s||s>=semanaActual())return;
+    if(!s||s>=semanaActual())return true;
     const plan=loadPlan();
-    if(!planTieneComidas(plan))return;
-    guardarCopiaDeSemana(s,plan,loadSaved(),false)
+    if(!planTieneComidas(plan))return true;
+    guardarCopiaDeSemana(s,plan,loadSaved(),false);
+    return true
   }catch(e){
-    planStatus("No se pudo guardar la copia de la semana anterior.")
+    errorDelPlan="No se pudo guardar la copia de la semana anterior, así que el cambio no se hizo. Liberá espacio y probá de nuevo.";
+    return false
   }
 }
 // Semana nueva: seguir con el mismo plan (queda registrado y el aviso no vuelve).
@@ -543,7 +561,7 @@ function empezarSemanaDeCero(){
   }
   const vacio=migratePlan({});
   if(!persistPlan(vacio)){
-    planStatus("No se pudo vaciar el plan.");
+    planStatus(errorDelPlan||"No se pudo vaciar el plan.");
     return false
   }
   prunePlanPortions(plan,vacio);
@@ -563,7 +581,7 @@ function copiarDiaDelPlan(desde,hacia){
   for(const d of destinos)nuevo[d]={
     ...plan[desde]
   };
-  if(!persistPlan(nuevo))throw Error("No se pudo copiar.");
+  if(!persistPlan(nuevo))throw Error(errorDelPlan||"No se pudo copiar.");
   prunePlanPortions(plan,nuevo);
   const texto=planDayName(desde)+" copiado a "+juntarY(destinos.map(d=>planDayName(d).toLowerCase()));
   logPlanChange(texto);

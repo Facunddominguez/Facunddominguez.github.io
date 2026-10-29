@@ -129,6 +129,25 @@
   prep({ miPlatoFacil_planHistory_v1: hist, miPlatoFacil_plan: null }); await abrir(); await irA("semana");
   await abrirHueco("lunes", "almuerzo"); await tocar(q('.hoja [data-selector-id="plato_p3"]'));
   ok("C2-4j la primera escritura de una semana nueva guarda la copia de la anterior, solo si tenía comidas", !!autoCopia && JSON.stringify(autoCopia.plan) === R.data.miPlatoFacil_plan && !(leer("miPlatoFacil_datedWeeks_v1") || {})[lunesAnt]);
+  // Guardar porciones también es una escritura de la semana: primero la copia y el aviso sigue hasta decidir.
+  prep({ miPlatoFacil_planHistory_v1: hist }); await abrir(); await irA("semana");
+  const recLunes = Object.entries(plan().lunes).find(([, id]) => /^recipe_plan_/.test(id || ""))[0];
+  await abrirHueco("lunes", recLunes);
+  const campoP = q(".hoja [data-plan-portions]"); campoP.value = "3"; campoP.dispatchEvent(new w.Event("change", { bubbles: true })); await espera(50);
+  const copiaPorciones = (leer("miPlatoFacil_datedWeeks_v1") || {})[lunesAnt];
+  ok("C2-4k guardar porciones en una semana nueva guarda antes la copia de la semana anterior", !!copiaPorciones && JSON.stringify(copiaPorciones.plan) === R.data.miPlatoFacil_plan && leer("miPlatoFacil_planPortions_v1")["lunes|" + recLunes] === 3);
+  // Si la copia automática no se puede guardar, el cambio no se hace, el Selector queda abierto con el motivo y se puede reintentar.
+  ev("hoja.cerrar()");
+  prep({ miPlatoFacil_planHistory_v1: hist }); await abrir(); await irA("semana");
+  const plan4l = localStorage.getItem("miPlatoFacil_plan"), hist4l = localStorage.getItem("miPlatoFacil_planHistory_v1"), set4l = w.Storage.prototype.setItem;
+  w.Storage.prototype.setItem = function (k, v) { if (k === "miPlatoFacil_datedWeeks_v1") throw new w.DOMException("Sin espacio", "QuotaExceededError"); return set4l.call(this, k, v) };
+  let fallo4l = false;
+  try {
+    await abrirHueco("lunes", "almuerzo"); await tocar(q(".hoja [data-hueco-cambiar]")); await tocar(q('.hoja [data-selector-id="plato_p3"]'));
+    fallo4l = localStorage.getItem("miPlatoFacil_plan") === plan4l && localStorage.getItem("miPlatoFacil_planHistory_v1") === hist4l && hojaAbierta() && /copia de la semana anterior/.test(doc().querySelector(".hoja__estado").textContent) && !doc().querySelector("#planAviso [data-plan-deshacer]") && visible($("planSemanaNueva"));
+  } finally { w.Storage.prototype.setItem = set4l }
+  await tocar(q('.hoja [data-selector-id="plato_p3"]'));
+  ok("C2-4l si la copia automática falla, no se escribe el cambio, se avisa y al reintentar funciona", fallo4l && plan().lunes.almuerzo === "plato_p3" && !!(leer("miPlatoFacil_datedWeeks_v1") || {})[lunesAnt] && !hojaAbierta());
 
   // C2-5 Hueco lleno: Cambiar, Quitar con Deshacer, Porciones solo en recetas y Lo comí solo hoy
   cargar(R.data); await abrir(); await irA("semana");
@@ -177,6 +196,12 @@
   await irA("compras"); await irA("semana");
   await tocar(q("#planAviso [data-plan-deshacer]"));
   ok("C2-7 Copiar un día y Vaciar, con Deshacer que devuelve plan y porciones (también tras cambiar de pestaña)", copiado && deshechoCopia && vaciado && localStorage.getItem("miPlatoFacil_plan") === plan7 && localStorage.getItem("miPlatoFacil_planPortions_v1") === porc7, [copiado, deshechoCopia, vaciado].join(","));
+  // Volver al inicio (Armar otro plato, restart) no pierde el Deshacer de la Semana.
+  await tocar(q("[data-plan-menu]")); await tocar(q(".hoja [data-clear-plan]"));
+  ev("restart()"); await irA("semana");
+  const deshacerTrasInicio = doc().querySelector("#planAviso [data-plan-deshacer]");
+  if (deshacerTrasInicio) await tocar(deshacerTrasInicio);
+  ok("C2-7b volver al inicio no pierde el Deshacer de la Semana", !!deshacerTrasInicio && localStorage.getItem("miPlatoFacil_plan") === plan7 && localStorage.getItem("miPlatoFacil_planPortions_v1") === porc7);
 
   // C2-8 Selector: secciones, buscador, sin nombres repetidos, Sugerime y recetas
   cargar(R.data); await abrir(); await irA("semana");
