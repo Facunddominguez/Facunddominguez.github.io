@@ -748,7 +748,7 @@ Rama `rediseno-etapa-3-hoy`. Versión 15.2.0.
   - Hoy no tiene criterio de alto. Objetivo propio: con el respaldo de ejemplo, Hoy con Mañana plegado en 1,5 pantallas o menos (hoy mide 896 px).
 
 **Plan corto, segunda versión** (revisor-codigo marcó 1 bloqueante en la primera; esto la corrige y manda sobre lo de arriba)
-- C1-4c, C1-4d y C1-4e no se mueven a "Sugerime algo": la pantalla `azar` y `randomMeal` siguen, así que solo cambia cómo se entra (desde Más, con una entrada a "Sugerir al azar" dentro de Ideas y organización, o `go("azar")`). Conservan todas sus condiciones, incluidos el aviso sin candidatas y el `state` sin cambios.
+- C1-4c, C1-4d y C1-4e no se mueven a "Sugerime algo": la pantalla `azar` y `randomMeal` siguen, así que solo cambia cómo se entra (desde la hoja de "Sugerime algo", con el botón "Al azar", que abre la pantalla `azar`: así no vuelve a ser una entrada separada). Conservan todas sus condiciones, incluidos el aviso sin candidatas y el `state` sin cambios.
 - C3-5 repite esas mismas condiciones para Sugerime algo: idea del catálogo o comida tuya con nombre e ingredientes, fruta real en el desayuno y, sin candidatas, el aviso con el `state` sin cambios. Ningún conteo baja.
 - El chip guarda partiendo del JSON crudo de `miPlatoFacil_trainingExceptions`: solo cambia la entrada de hoy y conserva tal cual las demás, aunque sean raras (C3-2 lo prueba con una entrada que `loadTrainingExceptions` descarta).
 - El Deshacer del chip restaura solo la entrada de hoy; si el texto guardado cambió después, deja de servir y lo dice.
