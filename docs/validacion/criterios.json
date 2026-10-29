@@ -28,6 +28,8 @@
     { "id": "E2-asignar-toques", "etapa": 2, "hecho": "Asignar una comida guardada a un hueco lleva 3 toques o menos.", "tipo": "prueba", "prueba": "C2-1" },
     { "id": "E3-hoy-toques", "etapa": 3, "hecho": "Desde Hoy, elegir y marcar Lo comí en un hueco vacío lleva 3 toques o menos.", "tipo": "prueba", "prueba": "C3-1" },
     { "id": "E4-semana-nueva-toques", "etapa": 4, "hecho": "Un usuario nuevo arma una semana con 3 comidas en 15 toques o menos (recorrido probado).", "tipo": "prueba", "prueba": "C4-1" },
+    { "id": "E4-palabras-ideas", "etapa": 4, "hecho": "Lo que sale de \"Con lo que tengo\" (P10) no se muda a una pantalla sin tope: Ideas, en estado normal, no supera el tope de palabras de la despensa (0,6 × 653).", "tipo": "medida", "vista": "ideas", "estado": "normal", "metrica": "palabras", "operador": "<=", "umbral": 391 },
+    { "id": "E4-palabras-comidas", "etapa": 4, "hecho": "Las recetas que llegan a Comidas no la inflan: Mis comidas, en estado normal, no supera lo que mide al final de la Etapa 3.", "tipo": "medida", "vista": "comidas", "estado": "normal", "metrica": "palabras", "operador": "<=", "umbral": 607 },
     { "id": "E4-un-tema", "etapa": 4, "hecho": "Ninguna pantalla mezcla dos temas.", "tipo": "revisor", "revisor": "revisor-usuario" },
     { "id": "E5-palabras-compras-todo", "etapa": 5, "hecho": "Compras con todo activado tiene 60 % menos palabras visibles que en la Etapa 0.", "tipo": "medida", "vista": "compras", "estado": "todo", "metrica": "palabras", "operador": "<=", "umbral": { "relativoAEtapa0": 0.4 } },
     { "id": "E5-respaldo-completo", "etapa": 5, "hecho": "El respaldo de ejemplo se ve completo.", "tipo": "prueba", "prueba": "C5-1" },

@@ -40,7 +40,16 @@ function filteredSnacks(){
 function renderMenuIdeas(){
   adviceFavFilter("menu");
   const items=adviceFavItems("menu",filteredMenuRecords());
-  renderMenuList(el.menuIdeas,items,false);
+  // v15.3: se ven 8 ideas y "Ver todas (N)"; con Solo favoritas se ven todas las que coinciden.
+  const todas=(typeof ideasMenuTodas!=="undefined"&&ideasMenuTodas===true)||adviceFavOnly.menu||items.length<=8;
+  renderMenuList(el.menuIdeas,todas?items:items.slice(0,8),false);
+  if(items.length>8&&!adviceFavOnly.menu){
+    const li=ce("li","ideas-ver-todas"),b=ce("button","button button--soft",todas?"Ver menos":"Ver todas ("+items.length+")");
+    b.type="button";
+    b.dataset.ideasVerTodas="";
+    li.append(b);
+    el.menuIdeas.append(li)
+  }
   if(!items.length&&adviceFavOnly.menu){
     const li=ce("li");
     li.append(emptyState("☆","Sin favoritos para este filtro","Guardá ideas con la estrella o desactivá Solo favoritos para ver el menú."));

@@ -1,6 +1,6 @@
 // Mi Plato Fácil · service worker (modo sin conexión). Guarda los archivos de la app; los datos siguen en el dispositivo (localStorage).
 // Cada copia publicada (carpeta) guarda y limpia solo su propia copia.
-const VERSION="15.2.0";
+const VERSION="15.3.0";
 const PREFIX="mi-plato-facil:"+new URL(self.registration.scope).pathname+":";
 const CACHE=PREFIX+"v"+VERSION;
 const ASSETS=["./","./index.html","./manifest.webmanifest","./icon-192.png","./icon-512.png","./datos/nutricion.json"];

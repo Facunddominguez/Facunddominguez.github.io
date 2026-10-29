@@ -1,4 +1,4 @@
-// Mi Plato Fácil · Barra de pestañas: Hoy, Semana, Compras, Mis comidas y Más.
+// Mi Plato Fácil · Barra de pestañas: Hoy, Semana, Comidas, Compras y Más.
 // Parte 33: los archivos se unen en orden según su número, que define el orden de arranque.
 // Cada pestaña recuerda su recorrido (por ejemplo, un plato a medio armar). Tocar la pestaña activa,
 // o el botón de arriba, vuelve a su pantalla de inicio. Las pestañas no guardan nada en el dispositivo.
@@ -18,7 +18,7 @@ var resetTabs=null;
     document.documentElement.style.setProperty("--step-nav-h",el.bottom.classList.contains("is-visible")?el.bottom.getBoundingClientRect().height+"px":"0px")
   }
   function homeTexts(){
-    if(activeTab==="mas")return ["Más","Ideas, organización y ajustes de la app."];
+    if(activeTab==="mas")return ["Más","Tu rutina, tus preferencias y tus datos."];
     return ["Hoy · "+new Date().toLocaleDateString("es-AR",{
       weekday:"long",day:"numeric",month:"long"
     }),todayHint()]
@@ -35,7 +35,7 @@ var resetTabs=null;
     home.querySelector(".screen__title").textContent=title;
     home.querySelector(".screen__hint").textContent=hint;
     theme.classList.toggle("is-hidden",!(stack.at(-1)==="home"&&activeTab==="mas"));
-    el.homeTop.classList.toggle("is-visible",stack.at(-1)!==activeTabRoot());
+    el.homeTop.classList.toggle("is-visible",!esRaizDePestana(stack.at(-1)));
     el.homeTop.textContent="← "+TABS[activeTab].label;
     el.homeTop.setAttribute("aria-label","Volver al inicio de "+TABS[activeTab].label);
     if(stack.at(-1)==="home"&&activeTab==="hoy")renderToday();
@@ -56,6 +56,7 @@ var resetTabs=null;
     if(id==="plan")renderPlan();
     if(id==="compras")renderCompras();
     if(id==="ingredientes")renderPantry();
+    if(id==="ideas")renderContextAdvice();
     nav()
   }
   function switchTab(tab){

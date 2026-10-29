@@ -1899,7 +1899,7 @@ body:has(#home.is-active) .app-shell{
   width:max-content;
   max-width:100%;
   min-width:0;
-  min-height:40px;
+  min-height:var(--tap);
   padding:8px 13px;
   border:1px solid var(--line);
   border-radius:999px;
@@ -3431,3 +3431,36 @@ body.con-hoja{
 .sugerime__comidas{
   margin-bottom:10px
 }
+/* v15.3 · Comidas y nueva estructura: segmento "Mis comidas | Ideas", tarjeta única, detalle, formulario de receta,
+   bienvenida y Más. Usa los tokens del sistema de diseño (verde para acciones, 44 px, claro y oscuro). */
+.visually-hidden{position:absolute!important;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.segmento{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin:10px 0 12px;padding:4px;border:1px solid var(--line);border-radius:999px;background:var(--soft)}
+.segmento__boton{min-height:var(--tap);border:0;border-radius:999px;background:transparent;color:var(--text);font:inherit;font-weight:700;cursor:pointer}
+.segmento__boton[aria-pressed="true"]{background:var(--green);color:#fff}
+.comidas-nueva{margin:0 0 8px}
+.comida-card{display:flex;flex-direction:column;align-items:flex-start;gap:3px;width:100%;min-height:var(--tap);margin:0 0 8px;padding:12px 14px;border:1px solid var(--line);border-radius:16px;background:var(--surface);color:var(--text);font:inherit;text-align:left;cursor:pointer}
+.comida-card:focus-visible{outline:3px solid var(--focus-ring);outline-offset:2px}
+.comida-card__nombre{font-size:15px;line-height:1.3;overflow-wrap:anywhere}
+.comida-card__componentes{max-width:100%;color:var(--muted);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.comida-card__etiquetas{color:var(--green);font-size:12px;font-weight:700}
+.comida-card__aviso{color:var(--muted);font-size:12px;font-style:italic}
+.comida-acciones{margin:6px 0}
+.comida-componentes{list-style:none;margin:6px 0;padding:0;display:flex;flex-wrap:wrap;gap:6px}
+.comida-ingrediente{min-height:var(--tap);padding:6px 12px;border:1px solid var(--line);border-radius:999px;background:var(--surface);color:var(--text);font:inherit;font-size:14px;text-align:left;cursor:pointer}
+#comida #recipeReadTitle{display:none}
+.receta-seccion>summary{font-weight:800}
+.receta-seccion .recipe-ingredients{border:0;padding:0;margin:0}
+.ideas-despensa{margin:0 0 12px}
+.ideas-ver-todas{list-style:none;margin-top:6px}
+.nueva-comida .tool-button{text-align:left}
+.bienvenida__plato{display:block;width:min(220px,70%);height:auto;margin:12px auto}
+.bienvenida__borde{fill:var(--surface);stroke:var(--line);stroke-width:4}
+.bienvenida__verduras{fill:#7cc58f}
+.bienvenida__almidones{fill:#f2c14e}
+.bienvenida__proteinas{fill:#e98a6b}
+.bienvenida__texto{font:700 13px system-ui,sans-serif;fill:#1d2b22}
+.bienvenida__ideas .filter-chip{text-align:left}
+#bienvenida .filter-chip[aria-pressed="true"],#preferencias .filter-chip[aria-pressed="true"],#ideasFiltros .filter-chip[aria-pressed="true"]{border-color:var(--green);background:var(--green);color:#fff}
+.armar-comida{cursor:default;grid-column:1/-1}
+.armar-comida__opciones{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;margin-top:8px}
+.armar-comida__opciones .button{width:100%}

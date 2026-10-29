@@ -78,8 +78,10 @@
   await click('[data-train-quick="1"]'); await click('[data-train-type="rest"]'); await click("[data-training-exception-save]");
   ok("R17 excepción por fecha se guarda", Object.keys(loadTrainingExceptions()).length === 1);
   // Recipes
-  go("ingredientes"); await wait(80);
-  await click("#recipeViewCreate");
+  // v15.3: la receta se escribe desde Comidas → "+ Nueva" → Escribir receta, en su pantalla propia.
+  go("misplatos"); await wait(80);
+  await click("#misplatos [data-comida-nueva]"); await click(".hoja [data-nueva-receta]");
+  ok("R18b Escribir receta abre el formulario en su pantalla", scr() === "recetaEditar");
   document.getElementById("recipeDetailsTitle").value = "Receta de prueba"; document.getElementById("recipeDetailsSteps").value = "Paso 1\nPaso 2";
   await click("#recipeDetailsSave");
   const own = loadRecipeDetails(), rid = Object.keys(own)[0];
@@ -89,7 +91,10 @@
   // Theme + advice modal
   await click('[data-section-tab="mas"]');
   // v15: "Consejos" pasó a ser la pantalla Ideas; una idea abre su detalle en una hoja que se cierra (v15.2: desde Más).
-  await click('#home .home-group--find [data-open-ideas]'); const ideasOpen = scr() === "ideas" && document.querySelectorAll("#menuIdeas [data-idea-open]").length === data.menuCatalog.length;
+  // v15.3: Ideas está en Comidas (segmento "Mis comidas | Ideas"); muestra 8 y "Ver todas".
+  await click('[data-section-tab="miscomidas"]'); await click('#misplatos [data-comidas-vista="ideas"]'); await click("#menuIdeas [data-ideas-ver-todas]");
+  const ideasOpen = scr() === "ideas" && document.querySelectorAll("#menuIdeas [data-idea-open]").length === data.menuCatalog.length;
+  await click("#menuIdeas [data-ideas-ver-todas]");
   await click("#menuIdeas [data-idea-open]"); const sheetOpen = hoja.abierta() && document.getElementById("hojaTitulo").textContent === data.menuCatalog[0].text;
   await click(".hoja [data-hoja-cerrar]");
   ok("R20 Consejos abre y cierra", ideasOpen && sheetOpen && !hoja.abierta() && !document.getElementById("bottom").classList.contains("is-visible"));

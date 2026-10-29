@@ -162,16 +162,19 @@
   for (const modo of ["simple", "completo"]) {
     cargar(R.data); localStorage.setItem("miPlatoFacil_uiMode_v1", modo); await abrir(); await irA("hoy");
     const atajos = [...doc().querySelectorAll("#home .home-group--main .tool-button")].filter(visible).map(b => b.querySelector(".tool-button__label").textContent);
+    // v15.3: "Armar una comida" es una sola tarjeta con sus dos opciones (los mismos data-start).
+    const armarOk = visible(q('#home .armar-comida [data-start="desayuno"]')) && visible(q('#home .armar-comida [data-start="plato"]'));
     const enHoy = [...doc().querySelectorAll("#home .tool-button")].filter(visible).map(b => b.textContent).join(" | ");
     const vistaHoy = visible(q("#todayEntreno [data-hoy-entreno]")) && visible($("todayManana")) && doc().querySelectorAll("#todayRows .today-row").length === 4;
     await irA("mas");
     const enMas = [...doc().querySelectorAll("#home .tool-button")].filter(visible).map(b => b.textContent).join(" | ");
-    const masOk = visible(q("#home .home-group--find [data-open-ideas]")) && visible(q("#home .home-group--find [data-open-training]")) && !visible($("todayPanel"));
-    ok("C3-6" + (modo === "simple" ? "" : "b") + " atajos de Hoy en modo " + modo + ": chip, 4 comidas, Mañana y Armar, Sugerime algo y Con lo que tengo", vistaHoy && JSON.stringify(atajos) === JSON.stringify(["Desayuno / Merienda", "Almuerzo / Cena", "Sugerime algo", "Con lo que tengo"]) && !/Plato del día|Sugerir al azar/.test(enHoy + enMas) && masOk, atajos.join(" | "));
+    // v15.3: Más tiene Mi rutina y los ajustes; Ideas pasó a Comidas.
+    const masOk = visible(q("#sectionSettings [data-open-training]")) && visible(q("#sectionSettings [data-open-como-funciona]")) && !visible($("todayPanel"));
+    ok("C3-6" + (modo === "simple" ? "" : "b") + " atajos de Hoy en modo " + modo + ": chip, 4 comidas, Mañana y Armar, Sugerime algo y Con lo que tengo", vistaHoy && JSON.stringify(atajos) === JSON.stringify(["Armar una comida", "Sugerime algo", "Con lo que tengo"]) && armarOk && !/Plato del día|Sugerir al azar/.test(enHoy + enMas) && masOk, atajos.join(" | "));
   }
-  await tocar(q("#home .home-group--find [data-open-ideas]"));
+  await irA("miscomidas"); await tocar(q('#misplatos [data-comidas-vista="ideas"]'));
   const ideasOk = pantalla() === "ideas";
-  await irA("mas"); await tocar(q("#home .home-group--find [data-open-training]"));
+  await irA("mas"); await tocar(q("#sectionSettings [data-open-training]"));
   const rutinaOk = pantalla() === "trainingCalendar";
   await irA("hoy"); ev("platoDelDia()"); await espera(100);
   const platoDiaOk = pantalla() === "resumen" && !!ev("state.nombreSugerido");
