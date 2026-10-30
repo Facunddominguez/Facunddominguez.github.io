@@ -1197,3 +1197,65 @@ Rama `rediseno-etapa-5-compras`. Versión 15.4.0.
 - `miPlatoFacil_comprasOpciones_v1` va también en la lista de omitir si es null (18, línea 21). Un respaldo viejo sin ella deja el interruptor como está; C5-10 lo prueba.
 - r2_uni U2 y U3 leen `#stockList` por id. Si alguna prueba exige que se vea, entra por el menú ⋯.
 - C5-8: cada herramienta se abre en 2 toques o menos desde Compras (⋯ y el ítem): `#stockSave`, Cargar pendientes, Comparar alternativas y las demás. `#stockMovesPanel` se abre desde la Despensa (segmento y plegable).
+
+**Implementación** (manda sobre las dos versiones del plan donde difieren)
+- Commits: `2fb37f0` (Lista | Despensa, secciones, interruptor, herramientas en el menú ⋯ y pruebas de interfaz adaptadas), `0fc4888` (textos cortos en las herramientas) y `9ae4dac` (batería `e5_compras.js`).
+- Pruebas: 504 de 504 (eran 493). La batería nueva `e5_compras.js` tiene 11 pruebas, de C5-1 a C5-10 (C5-3 tiene una segunda parte, C5-3b). Ninguna batería bajó.
+- Pruebas adaptadas, con la misma fuerza o más (ninguna borrada):
+  - `d01` D5: el botón que alterna en Compras pasa a ser el segmento "Lista | Despensa" (el activo, con fondo verde y distinto del otro). Antes era el filtro "Pendientes | Todos", que salió.
+  - `n01` N4: el botón de arriba se prueba desde `comprasHerramientas` ("← Compras"), porque la Despensa ahora es raíz de la pestaña.
+  - `m01`:
+    - M2: en Compras, lo avanzado es la barra de presupuesto.
+    - M3: en la vista, la lista, "+ Agregar producto", el interruptor y "Terminé de comprar". Además, cada herramienta del menú ⋯ (Compartir y Copiar, compras realizadas, presupuesto, precios, costo de receta, otras recetas con la simulación, multiplicador y existencias) se abre y muestra sus controles.
+    - M4: el aviso de Compras queda al final de la pantalla.
+    - M6: además, en modo completo, el mismo recorrido del menú ⋯.
+    - M7: la barra vuelve a ocultarse.
+  - `r4_ux`:
+    - X4: "+ Agregar producto" arriba de la lista, extras al pie, Terminé de comprar y estado, y las herramientas en `comprasHerramientas`.
+    - X5: los 6 paneles, cerrados por defecto.
+    - X7: la ayuda nombra la Despensa en los dos modos.
+  - `r2_shop`:
+    - S4b (bloqueante de revisor-codigo): comprobación positiva. "Merluza: 2 unidades" se ve en Pendientes (filas dentro de las secciones), Arroz no, y "Ya tenés" se busca por su título.
+    - S4c: sin "Todos". Lo tachado sigue a la vista, con `is-done`, y se destilda ahí.
+    - S10b: "Lo marcaste en tu Despensa".
+    - Revisé las demás pruebas que buscan filas por estructura. `renderedRows` (`#comprasList .shop-item label`) y `keysEnPantalla` (`#comprasList [data-shop-key]`) cuentan dentro de las secciones; los extras quedan fuera de `#comprasList` (`#comprasExtras`), así no se cuentan como filas del plan. `e1` (E1-6) busca `details.shop-group` con un `data-shop-key` concreto. Ninguna queda vacía.
+  - `e1` C1-2: después de recargar, el tachado se busca en la lista sin tocar "Todos": es más estricto.
+  - `dp01` DP10: "Lo marcaste en tu Despensa".
+  - `f01_int` M1 y `f02_units` U2: las filas se ven legibles ("2 unidades", "2 cucharaditas") y además se exige el `label` interno sin cambios ("2 unidad", "2 cucharadita").
+  - Sin cambios: `r3_rec` E3, `r2_uni` (`#stockList` se lee por id), `f02_desp` D3, `u01`, `j01` y `e1` E1-6, que tocan `#comprasBought`.
+- Medidas (alto en px / palabras visibles, tema claro; antes = `capturas/etapa-4`, después = `capturas/etapa-5`):
+
+| Vista | Estado | Antes | Después |
+|---|---|---|---|
+| Compras | normal | 2.998 / 227 | 3.105 / 225 |
+| Compras | todo | 15.490 / 1.820 | 4.212 / 376 |
+| Herramientas de Compras | todo | (dentro de Compras) | 8.778 / 710 |
+| Despensa | normal | 2.510 / 158 | 3.165 / 179 |
+| Despensa | todo | 3.150 / 575 | 4.622 / 750 |
+
+  - La Despensa en "todo" crece porque abre el historial de cada ítem y Todos los movimientos (no tiene tope en ese estado).
+  - E5-palabras-compras-todo: 376 ≤ 742,8. E5-palabras-herramientas-compras: 710 ≤ 742,8. E1-palabras-compras: 225 ≤ 262.
+- Compuerta: "VALIDACIÓN ETAPA 5: OK (37 controles, 5.3 min)", con 504/504 pruebas, la clave nueva como opcional en el respaldo y los mismos números en tema oscuro.
+
+**Decisiones que tomé sin vos**
+- Los botones "Pendientes | Todos" salieron: lo tachado queda a la vista, tachado y al final de su sección. La variable `comprasShowAll` sigue existiendo porque la reinician las pruebas.
+- Los productos extra van en su propia sección, "Otros productos", al pie de la lista (no repartidos por sección del súper), con Editar y Quitar con Deshacer, sin confirmación.
+- "Terminé de comprar" es el mismo botón `#comprasBought` y hace lo mismo que "Lo compré". El aviso suma "🧾 Anotar gasto", que abre el formulario de siempre de Compras realizadas ya cargado: lo que acaba de pasar a la despensa, la fecha de hoy, la moneda del presupuesto, "Actualizar Mis precios" marcado y "Sumar a la despensa" desmarcado. `savePurchase` no cambió.
+- Solo la "info" de unidad distinta pasa a Pendientes ("· revisá", con la sugerencia debajo). "Cubre lo que tiene cantidad" sigue en "Ya tenés", como fija S1b.
+- `seccionDelSuper` usa las verduras y frutas del armado y una tabla de palabras. Lo que no reconoce va a "Otros". La revisión de la tabla queda para la Etapa 10.
+- La barra de presupuesto redondea a pesos ("$60.000 · ≈ $3.975 estimado (faltan 13 precios)") y solo se ve en modo completo.
+- Para entrar en el tope de palabras, en las herramientas:
+  - las ayudas quedaron en una línea;
+  - lo que falta estimar se agrupa por motivo ("Sin precio compatible: a, b, c");
+  - Comparar alternativas dice "Sin precio: …";
+  - se sacaron las frases largas de aclaración.
+  
+  Los textos que fijan las pruebas de lógica ("Costo parcial estimado", "Subtotal estimado con referencias inequívocas", "Falta comprar", "Gasto real…", "diferencia", "Costo de todas las recetas del plan…", "marcado en despensa…") no cambiaron.
+- La vista `compras-herramientas` de las capturas abre `abrirHerramientaCompras("todas")`, que muestra todos los paneles juntos: mide más de lo que muestra cada ítem del menú.
+- El Deshacer de Editar en la Despensa vuelve a escribir la despensa y las marcas como estaban y anota el movimiento inverso ("Deshacer: edición").
+
+**Mejoras sugeridas**
+- Las filas de "Ya tenés" con despensa en otra unidad muestran la sugerencia completa: se podría acortar a "tenés X".
+- La tabla de secciones del súper se arma a mano: conviene revisarla con los ingredientes reales del catálogo (Etapa 10).
+- La herramienta "Porciones, existencias y costos" repite la lista de existencias de la Despensa; podría quedar solo el multiplicador (Etapa 8).
+- El ≈ precio por ítem en la lista y la sugerencia de equivalencias llegan en las Etapas 7 y 8.
