@@ -11,7 +11,7 @@
   setPlan([["lunes", "almuerzo", "rp1"], ["lunes", "cena", "tp1"]]);
   go("compras"); await wait(60);
   const rows = R.renderedRows();
-  T.ok("M1 Compras une plural y sinónimo en una sola línea", rows.includes("Tomate: 2 unidad + sin cantidad en 1 plato") && rows.includes("Papa: 200 g + sin cantidad en 1 plato") && rows.length === 3, rows.join(" | "));
+  T.ok("M1 Compras une plural y sinónimo en una sola línea", rows.includes("Tomate: 2 unidades + sin cantidad en 1 plato") && R.item("Tomate").label === "Tomate: 2 unidad + sin cantidad en 1 plato" && rows.includes("Papa: 200 g + sin cantidad en 1 plato") && rows.length === 3, rows.join(" | "));
   setStock([["Tomate", 1, "unidad"], ["Papas", 500, "g"]]); renderCompras();
   const tom = R.item("Tomate"), papa = R.item("Papa");
   T.ok("M2 la despensa se reconoce aunque el nombre esté en otra forma", tom.suggestion.kind === "partial" && tom.suggestion.buy === "1 unidad" && papa.suggestion.kind === "info" && /tenés 500 g/.test(papa.suggestion.text), tom.suggestion.text + " / " + papa.suggestion.text);

@@ -63,7 +63,8 @@
   const primera = q("#comprasList [data-shop-key]"), clave = primera.dataset.shopKey;
   primera.click(); await espera(150);
   const guardados = JSON.parse(localStorage.getItem(CHECKS) || "{}");
-  await abrir(); await irA("compras"); await tocar($("comprasShowAll"));
+  // v15.4: lo tachado queda a la vista en su sección (sin el filtro "Todos").
+  await abrir(); await irA("compras");
   const despues = doc().querySelector('#comprasList [data-shop-key="' + clave + '"]');
   ok("C1-2 los tachados sobreviven a recargar", !!guardados[semana()] && guardados[semana()].t.includes(clave) && !!despues && despues.checked && ev("comprasDone")[clave] === true, clave);
   // Una semana nueva empieza sin tachados; lo de semanas anteriores queda guardado.

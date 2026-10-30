@@ -224,7 +224,7 @@ function shoppingItemLabel(e){
 function shoppingSuggestion(e,stock,marked){
   const own=Object.values(stock).filter(s=>ingredientKey(s.name)===e.key);
   if(!own.length)return marked.has(e.name)?{
-    kind:"info",text:"Lo marcaste en “Con lo que tengo” (sin cantidad registrada)."
+    kind:"info",text:"Lo marcaste en tu Despensa (sin cantidad registrada)."
   }:null;
   const fmt=n=>Number(n.toFixed(6)).toLocaleString("es-AR",{
     maximumFractionDigits:6
@@ -262,31 +262,76 @@ function shoppingSuggestion(e,stock,marked){
     kind:"partial",text:"Despensa: tenés "+have+". Podrías comprar "+buy+(e.unknown?", más lo que no tiene cantidad.":"."),buy,missing
   }
 }
+// Interruptor "Descontar lo que tengo" (desde la v15.4), en miPlatoFacil_comprasOpciones_v1: {"descontar": true|false}.
+// Encendido por defecto (el comportamiento de antes). Se escribe solo al tocarlo. Es var por el orden de arranque.
+var COMPRAS_OPCIONES_KEY="miPlatoFacil_comprasOpciones_v1";
+function validComprasOpciones(o){
+  return !!o&&typeof o==="object"&&!Array.isArray(o)&&Object.keys(o).length===1&&typeof o.descontar==="boolean"
+}
+function comprasDescontar(){
+  try{
+    const o=JSON.parse(localStorage.getItem(COMPRAS_OPCIONES_KEY)||"null");
+    return validComprasOpciones(o)?o.descontar:true
+  }catch(e){
+    return true
+  }
+}
+function guardarComprasDescontar(valor){
+  localStorage.setItem(COMPRAS_OPCIONES_KEY,JSON.stringify({
+    descontar:!!valor
+  }))
+}
+// Secciones del súper (desde la v15.4). Primero las listas del armado; después, palabras sueltas.
+var SECCIONES_SUPER=["Verdulería","Carnicería y pescadería","Lácteos y huevos","Panadería","Almacén","Congelados","Limpieza","Otros"];
+var PALABRAS_SUPER=null;
+function seccionDelSuper(nombre){
+  const n=" "+normalizeSearchText(nombre).replace(/[^a-z0-9ñ ]+/g," ")+" ",k=ingredientKey(nombre);
+  if(!PALABRAS_SUPER){
+    PALABRAS_SUPER=[
+      ["Almacén","pan rallado|harina|fecula|maicena|frutos secos|semillas|atun|caballa en lata|arroz|fideo|fideos|pasta|pastas|avena|polenta|quinoa|cuscus|aceite|sal|azucar|cafe|te|yerba|vinagre|granola|mani|lenteja|lentejas|garbanzo|garbanzos|poroto|porotos|arveja|arvejas|soja|comino|oregano|pimienta|pimenton|especias|caldo|tomate triturado|pure de tomate|galletitas|cacao|miel|mermelada|amaranto|mijo|sorgo|cebada|centeno|tapioca|trigo|lupino|habas".split("|")],
+      ["Congelados",["congelado","congelada","congelados","congeladas","helado"]],
+      ["Limpieza",["detergente","lavandina","jabon","servilleta","servilletas","papel","esponja","limpiador","desinfectante","bolsas","rollo"]],
+      ["Lácteos y huevos",["leche","yogur","queso","quesos","manteca","crema","huevo","huevos","ricota","clara"]],
+      ["Carnicería y pescadería",["carne","pollo","cerdo","vacuna","asado","vacio","bondiola","pechito","merluza","pescado","salmon","milanesa","milanesas","hamburguesa","pavo","cordero","nalga","cuadril","lomo","picada","jamon","caballa","trucha","mariscos"]],
+      ["Panadería",["pan","pancitos","tortillas","facturas","tostadas"]]
+    ];
+  }
+  if(n.includes(" pan rallado "))return "Almacén";
+  const enLista=arr=>arr.some(x=>ingredientKey(Array.isArray(x)?x[0]:x)===k);
+  if(enLista(data.verduras)||enLista(data.frutas)||/ (fruta|frutas|papa|papas|batata|mandioca|choclo|palta|limon|perejil|albahaca|verdura|verduras) /.test(n))return "Verdulería";
+  for(const [sec,palabras] of PALABRAS_SUPER){
+    if(palabras.some(p=>n.includes(" "+p+" ")))return sec
+  }
+  return "Otros"
+}
 // Cada ítem del plan va a un grupo: "pendiente", "tenes" (ya está en la despensa y alcanza, o no hay cantidad para
 // comparar) o "comprado" (pasó con "Lo compré" esta semana). Si hay cantidad y no alcanza, sigue pendiente con
 // "faltan X". Los tres grupos juntos son siempre la misma lista, con las cantidades del plan.
+// Desde la v15.4: si la despensa tiene otra unidad ("la unidad no coincide"), queda pendiente con "revisá"; con el
+// interruptor "Descontar lo que tengo" apagado, nada va a "Ya tenés" y no se muestra "faltan".
 function shoppingDisplayItems(){
-  const stock=loadStockQuantities(),marked=pantryMarkedMatcher(),bought=shoppingBoughtSet();
+  const stock=loadStockQuantities(),marked=pantryMarkedMatcher(),bought=shoppingBoughtSet(),descontar=comprasDescontar();
   return shoppingPlanItems().map(e=>{
-    const label=shoppingItemLabel(e),suggestion=shoppingSuggestion(e,stock,marked),partial=!!suggestion&&suggestion.kind==="partial",group=bought.has(e.key)?"comprado":suggestion&&!partial?"tenes":"pendiente";return {
-      key:e.key,name:e.name,label,suggestion,group,text:partial&&group==="pendiente"?label+" · faltan "+suggestion.buy:label
+    const label=shoppingItemLabel(e),suggestion=shoppingSuggestion(e,stock,marked),partial=!!suggestion&&suggestion.kind==="partial",revisar=!!suggestion&&suggestion.kind==="info"&&/la unidad no coincide/.test(suggestion.text),group=bought.has(e.key)?"comprado":descontar&&suggestion&&!partial&&!revisar?"tenes":"pendiente";return {
+      key:e.key,name:e.name,label,suggestion,group,seccion:seccionDelSuper(e.name),text:descontar&&group==="pendiente"&&partial?label+" · faltan "+suggestion.buy:descontar&&group==="pendiente"&&revisar?label+" · revisá":label
     }
   }).sort((a,b)=>a.label.localeCompare(b.label,"es"))
 }
 function shoppingRow(x,i,checked,detail){
-  const row=ce("div","shop-item"+(checked?" is-done":"")),cb=ce("input"),lab=ce("label",null,x.text);
+  const row=ce("div","shop-item"+(checked?" is-done":"")),cb=ce("input"),lab=ce("label",null,textoLegible(x.text));
   cb.type="checkbox";
   cb.checked=checked;
   cb.dataset.shopKey=x.key;
   cb.id="shopItem_"+i;
   lab.htmlFor=cb.id;
   row.append(cb,lab);
-  if(detail)row.append(ce("span","shop-item__detail",detail));
+  if(detail)row.append(ce("span","shop-item__detail",textoLegible(detail)));
   return row
 }
-function shoppingGroup(title,list,open,onToggle,checked,detail){
+function shoppingGroup(title,list,open,onToggle){
   const box=ce("details","home-group shop-group");
   box.open=open;
+  box.dataset.grupo=title;
   box.addEventListener("toggle",()=>onToggle(box.open));
   box.append(ce("summary",null,title+" ("+list.length+")"));
   return box
@@ -295,6 +340,12 @@ function renderCompras(){
   const cont=document.getElementById("comprasList"),hint=document.getElementById("comprasHint"),summary=document.getElementById("comprasSummary");
   if(!cont)return;
   syncShoppingWeek();
+  const sw=document.getElementById("comprasDescontar");
+  if(sw)sw.checked=comprasDescontar();
+  try{
+    renderPresupuestoCompras()
+  }catch(e){
+  }
   let items;
   try{
     items=shoppingDisplayItems()
@@ -302,15 +353,22 @@ function renderCompras(){
     cont.replaceChildren(ce("p","screen__hint","No se pudo calcular la lista: "+e.message));
     return
   }
-  const pend=items.filter(x=>x.group==="pendiente"),tenes=items.filter(x=>x.group==="tenes"),comprados=items.filter(x=>x.group==="comprado"),pending=pend.filter(x=>!comprasDone[x.key]);
-  summary.textContent=pending.length+" pendientes · "+(pend.length-pending.length)+" tachados";
-  hint.textContent=isSimpleMode()?"Lo que marcás en “Con lo que tengo” pasa a Ya tenés.":"Con cantidades en 🧰 Más herramientas, la lista te dice cuánto falta.";
-  document.getElementById("comprasShowPending").setAttribute("aria-pressed",String(!comprasShowAll));
-  document.getElementById("comprasShowAll").setAttribute("aria-pressed",String(comprasShowAll));
-  const visible=comprasShowAll?pend:pending,nodes=[];
+  const pend=items.filter(x=>x.group==="pendiente"),tenes=items.filter(x=>x.group==="tenes"),comprados=items.filter(x=>x.group==="comprado"),pending=pend.filter(x=>!comprasDone[x.key]),tachados=pend.length-pending.length+tenes.filter(x=>comprasDone[x.key]).length;
+  summary.textContent=pending.length+" pendientes · "+tachados+" tachados";
+  hint.textContent="Tachá lo que comprás. Lo que tenés en la Despensa pasa a Ya tenés.";
+  const nodes=[];
   let i=0;
-  for(const x of visible)nodes.push(shoppingRow(x,i++,!!comprasDone[x.key]));
-  if(!visible.length)nodes.push(ce("p","screen__hint",items.length?(pend.length?"No quedan pendientes. Los tachados están en Todos.":"No queda nada por comprar."):"No hay compras pendientes. Agregá comidas a la semana."));
+  for(const sec of SECCIONES_SUPER){
+    const lista=pend.filter(x=>x.seccion===sec);
+    if(!lista.length)continue;
+    const box=ce("div","compras-seccion");
+    box.dataset.seccion=sec;
+    box.append(ce("h3","compras-seccion__titulo",sec));
+    // Lo tachado queda a la vista, al final de su sección.
+    for(const x of [...lista.filter(x=>!comprasDone[x.key]),...lista.filter(x=>comprasDone[x.key])])box.append(shoppingRow(x,i++,!!comprasDone[x.key],x.text.endsWith(" · revisá")&&x.suggestion?"💡 "+x.suggestion.text:""));
+    nodes.push(box)
+  }
+  if(!pending.length)nodes.push(ce("p","screen__hint",items.length?"No queda nada por comprar.":"No hay compras pendientes. Agregá comidas a la semana."));
   if(tenes.length){
     const g=shoppingGroup("Ya tenés",tenes,comprasTenesOpen,v=>{
       comprasTenesOpen=v
@@ -327,12 +385,6 @@ function renderCompras(){
   }
   cont.replaceChildren(...nodes)
 }
-document.getElementById("comprasShowPending").addEventListener("click",()=>{
-  comprasShowAll=false;renderCompras()
-});
-document.getElementById("comprasShowAll").addEventListener("click",()=>{
-  comprasShowAll=true;renderCompras()
-});
 // Tachar o destachar. Destachar algo de "Ya en tu despensa" lo devuelve a Pendientes sin tocar la despensa
 // (para revertir la despensa está el Deshacer de "Lo compré").
 function toggleShop(key,checked){
@@ -351,7 +403,12 @@ function toggleShop(key,checked){
   renderCompras()
 }
 function comprasText(){
-  const lines=shoppingDisplayItems().filter(x=>x.group==="pendiente"&&!comprasDone[x.key]).map(x=>"• "+x.text),extras=manualShoppingText();
+  const pend=shoppingDisplayItems().filter(x=>x.group==="pendiente"&&!comprasDone[x.key]),lines=[],extras=manualShoppingText();
+  // Por secciones del súper y con cantidades legibles (desde la v15.4).
+  for(const sec of SECCIONES_SUPER){
+    const l=pend.filter(x=>x.seccion===sec);
+    if(l.length)lines.push(...(lines.length?[""]:[]),sec,...l.map(x=>"• "+textoLegible(x.text)))
+  }
   if(!lines.length&&!extras)return "";
   return "🛒 Lista de compras — Mi plato fácil"+NL+lines.join(NL)+(extras?(lines.length?NL+NL:"")+"Productos extra"+NL+extras:"")
 }

@@ -45,17 +45,19 @@
   setSaved([recipePlate("rp2", "recipe_test0002", "Merluza con arroz", ["Arroz", "Merluza"])]); setPlan([["martes", "almuerzo", "rp2"]]);
   setStock([["Arroz", 500, "g"]]); go("compras"); await wait(60);
   const arroz = item("Arroz");
-  const pendientesVisibles = () => [...document.querySelectorAll("#comprasList > .shop-item label")].map(l => l.textContent);
+  // v15.4: Pendientes van por secciones del súper; "Ya tenés" se busca por su título.
+  const pendientesVisibles = () => [...document.querySelectorAll("#comprasList .compras-seccion .shop-item label")].map(l => l.textContent);
+  const grupoPorTitulo = t => [...document.querySelectorAll("#comprasList details.shop-group")].find(d => d.querySelector("summary").textContent.startsWith(t + " ("));
   T.ok("S4a despensa suficiente va a Ya tenés, sin tachar sola", arroz.label === "Arroz: 300 g" && arroz.suggestion.kind === "covered" && arroz.group === "tenes" && !comprasDone[arroz.key]);
-  T.ok("S4b lo que ya tenés no cuenta como pendiente y está en el grupo plegado", /1 pendientes · 0 tachados/.test(document.getElementById("comprasSummary").textContent) && !pendientesVisibles().some(t => t.startsWith("Arroz")) && !document.querySelector("#comprasList details.shop-group").open && document.querySelector("#comprasList details.shop-group").textContent.includes("Arroz: 300 g"), document.getElementById("comprasSummary").textContent);
+  T.ok("S4b lo que ya tenés no cuenta como pendiente y está en el grupo plegado", /1 pendientes · 0 tachados/.test(document.getElementById("comprasSummary").textContent) && pendientesVisibles().includes("Merluza: 2 unidades") && !pendientesVisibles().some(t => t.startsWith("Arroz")) && !!grupoPorTitulo("Ya tenés") && !grupoPorTitulo("Ya tenés").open && grupoPorTitulo("Ya tenés").textContent.includes("Arroz: 300 g"), document.getElementById("comprasSummary").textContent);
   const merluza = item("Merluza");
   [...document.querySelectorAll("#comprasList [data-shop-key]")].find(x => x.dataset.shopKey === merluza.key).click(); await wait(40);
   const ticked = /0 pendientes · 1 tachados/.test(document.getElementById("comprasSummary").textContent);
-  await click("#comprasShowAll");
-  const cb = [...document.querySelectorAll("#comprasList [data-shop-key]")].find(x => x.dataset.shopKey === merluza.key);
+  // v15.4: sin "Todos": lo tachado sigue a la vista, tachado, en su sección; se destilda ahí mismo.
+  const cb = [...document.querySelectorAll("#comprasList .compras-seccion [data-shop-key]")].find(x => x.dataset.shopKey === merluza.key);
+  const tachadoVisible = !!cb && cb.checked && cb.closest(".shop-item").classList.contains("is-done");
   cb.click(); await wait(40);
-  T.ok("S4c destildar en Todos lo vuelve a pendiente", ticked && !comprasDone[merluza.key] && /1 pendientes · 0 tachados/.test(document.getElementById("comprasSummary").textContent));
-  await click("#comprasShowPending");
+  T.ok("S4c destildar en Todos lo vuelve a pendiente", ticked && tachadoVisible && !comprasDone[merluza.key] && /1 pendientes · 0 tachados/.test(document.getElementById("comprasSummary").textContent));
   // S5 two units, no conversion
   reset();
   setAmounts({ [IDEA1]: { yield: 1, rows: [{ name: "Papa", quantity: 200, unit: "g" }, { name: "papa", quantity: 2, unit: "unidad" }, { name: "Sal", quantity: null, unit: "g" }] } });
@@ -98,7 +100,7 @@
   // S10 unknown-only item with pantry, and chip mark without pantry
   setStock([["Tomate", 2, "unidad"]]); localStorage.setItem("miPlatoFacil_pantry", JSON.stringify(["hojas"])); renderCompras();
   T.ok("S10a despensa en ingrediente sin cantidad: solo informa", item("Tomate").suggestion.kind === "info" && /El plan no indica cantidad/.test(item("Tomate").suggestion.text) && grupo("Tomate") === "tenes");
-  T.ok("S10b marca de 'Con lo que tengo' se informa", /Lo marcaste en “Con lo que tengo”/.test(item("Lechuga").suggestion.text) && grupo("Lechuga") === "tenes" && document.getElementById("comprasList").textContent.includes("💡 Lo marcaste en “Con lo que tengo”"));
+  T.ok("S10b marca de 'Con lo que tengo' se informa", /Lo marcaste en tu Despensa/.test(item("Lechuga").suggestion.text) && grupo("Lechuga") === "tenes" && document.getElementById("comprasList").textContent.includes("💡 Lo marcaste en tu Despensa"));
   // S11 corrupted recipe data only blocks the list when the plan uses recipes
   localStorage.setItem("miPlatoFacil_recipeDetails_v1", '{"recipe_x":{"id":"otro"}}'); renderCompras();
   T.ok("S11a con recetas dañadas, un plan sin recetas sigue mostrando la lista", renderedRows().length > 0);

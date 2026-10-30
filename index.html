@@ -3465,14 +3465,37 @@ body.con-hoja{
 .armar-comida{cursor:default;grid-column:1/-1}
 .armar-comida__opciones{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;margin-top:8px}
 .armar-comida__opciones .button{width:100%}
+/* v15.4 · Compras y Despensa: barra de presupuesto, interruptor, secciones del súper, agregar producto e historial. */
+.compras-presupuesto{display:block;width:100%;min-height:var(--tap);margin:4px 0 8px;padding:10px 14px;border:1px solid var(--line);border-radius:14px;background:var(--soft);color:var(--text);font:inherit;font-weight:600;text-align:left;cursor:pointer}
+.compras-presupuesto.is-excedido{border-color:var(--danger,#c0392b)}
+.compras-controles{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:4px 0}
+.interruptor{display:inline-flex;align-items:center;gap:10px;min-height:var(--tap);cursor:pointer;font-weight:600}
+.interruptor input{appearance:none;-webkit-appearance:none;position:relative;width:46px;height:28px;margin:0;border-radius:999px;background:var(--line);cursor:pointer;transition:background .15s}
+.interruptor input::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.25);transition:left .15s}
+.interruptor input:checked{background:var(--green)}
+.interruptor input:checked::after{left:21px}
+.interruptor input:focus-visible{outline:3px solid var(--green);outline-offset:2px}
+.compras-agregar{margin:4px 0}
+.compras-agregar>summary{display:inline-flex;align-items:center;min-height:var(--tap);padding:0 16px;border:1px solid var(--green);border-radius:999px;color:var(--green);font-weight:700;cursor:pointer;list-style:none}
+.compras-agregar>summary::-webkit-details-marker{display:none}
+.compras-seccion{margin:10px 0 4px}
+.compras-seccion__titulo{margin:12px 0 2px;font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.compras-seccion .shop-item{min-height:var(--tap)}
+.compras-seccion .shop-item input{width:24px;height:24px}
+#manualShopList .manual-shop-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+#manualShopList .manual-shop-row .shop-item{flex:1 1 60%}
+#manualShopList .manual-shop-row .filter-chip{min-height:var(--tap)}
+.pantry-item__historial{flex:1 1 100%;margin:2px 0 4px}
+.pantry-item__historial>summary{min-height:var(--tap);display:flex;align-items:center;cursor:pointer;color:var(--muted);font-size:14px}
+.herr-contenedor>summary{list-style:none}
 </style></head><body>
 <div class="app-shell"><header class="app-header"><div class="app-header__row"><div class="brand"><div><h1 class="brand__title" aria-label="Mi Plato Fácil"><span class="wordmark-mi">mi</span> plato <span class="wordmark-facil">fácil</span></h1></div></div><button class="home-button" id="homeTop" type="button">Inicio</button></div></header><main id="appMain">
 <section class="screen card is-active" id="home"><p class="screen__kicker">Hoy</p><h2 class="screen__title">Hoy</h2><p class="screen__hint"></p><div class="today" id="todayPanel"><div class="today__entreno" id="todayEntreno"></div><p class="today__primera" id="todayPrimera" hidden></p><div class="today__rows" id="todayRows"></div><p class="screen__hint today__status" id="todayStatus" aria-live="polite"></p><details class="today__manana" id="todayManana"><summary id="todayMananaTitulo">Mañana</summary><div class="today__rows" id="todayMananaRows"></div></details></div><div class="home-group home-group--main"><p class="settings-label">Atajos</p><div class="grid home-grid"><div class="tool-button armar-comida" role="group" aria-labelledby="armarComidaTitulo"><span class="tool-button__emoji">🥗</span><span class="tool-button__label" id="armarComidaTitulo">Armar una comida</span><span class="tool-button__desc">Con el método del plato</span><div class="armar-comida__opciones"><button class="button button--soft" type="button" data-start="desayuno">Desayuno o merienda</button><button class="button button--soft" type="button" data-start="plato">Almuerzo o cena</button></div></div><button class="tool-button" type="button" data-sugerime><span class="tool-button__emoji">🎲</span><span class="tool-button__label">Sugerime algo</span><span class="tool-button__desc">Una idea para tu próxima comida</span></button><button class="tool-button" type="button" data-con-lo-que-tengo><span class="tool-button__emoji">🧊</span><span class="tool-button__label">Con lo que tengo</span><span class="tool-button__desc">Ideas con tu despensa</span></button></div></div><div class="home-group" id="sectionSettings"><div class="tools-grid"><button class="tool-button" type="button" data-open-training><span class="tool-button__emoji">🏋️</span><span class="tool-button__label">Mi rutina</span><span class="tool-button__desc">Qué días entrenás</span></button><button class="tool-button" type="button" data-open-preferencias><span class="tool-button__emoji">⚙️</span><span class="tool-button__label">Preferencias</span><span class="tool-button__desc">Qué evitar y modo simple</span></button><button class="tool-button" type="button" id="backupOpen" data-open-mis-datos><span class="tool-button__emoji">💾</span><span class="tool-button__label">Mis datos</span><span class="tool-button__desc">Respaldo, exportar e importar</span></button><button class="tool-button" type="button" id="aiSettingsOpen"><span class="tool-button__emoji">✨</span><span class="tool-button__label">Asistente de IA</span><span class="tool-button__desc">Con tu app de IA o con Gemini</span></button><button class="tool-button theme-fab" id="themeToggle" type="button" data-theme-toggle><span class="tool-button__emoji">🌙</span><span class="tool-button__label">Tema: Auto</span><span class="tool-button__desc">Apariencia: claro, oscuro o automático</span></button><button class="tool-button" type="button" data-open-fuentes><span class="tool-button__emoji">📚</span><span class="tool-button__label">Fuentes de datos</span><span class="tool-button__desc">De dónde salen los datos</span></button><button class="tool-button" type="button" data-open-como-funciona><span class="tool-button__emoji">❓</span><span class="tool-button__label">Cómo funciona</span><span class="tool-button__desc">El método y la bienvenida</span></button></div></div></section>
 <section class="screen card" id="trainingCalendar"><p class="screen__kicker">Entrenamiento</p><h2 class="screen__title">Tus días de entrenamiento</h2><p class="screen__hint">Tu rutina y los cambios puntuales, en un solo lugar.</p><div class="train-panel"><h3>🗓️ Tu semana habitual</h3><p class="screen__hint">Marcá los días que entrenás. Los demás serán de descanso. Se aplica al Plato del día; no modifica planes ni elecciones manuales.</p><div id="trainingDays" class="train-week"></div><div class="summary-actions"><button class="button button--primary" type="button" data-training-save>Guardar mi semana</button><button class="button button--soft" type="button" data-training-disable>Desactivar rutina semanal</button></div><p id="trainingStatus" class="screen__hint" aria-live="polite"></p></div><div class="train-panel"><h3>✨ Cambiar un día puntual</h3><p class="screen__hint">Elegí la fecha y el tipo de día. Esta excepción tiene prioridad sobre tu semana habitual.</p><div class="filter-row"><button class="filter-chip" type="button" data-train-quick="0">Hoy</button><button class="filter-chip" type="button" data-train-quick="1">Mañana</button></div><div class="train-month-head"><button class="filter-chip" type="button" data-train-month="-1" aria-label="Mes anterior">‹</button><strong id="trainMonthTitle" aria-live="polite"></strong><button class="filter-chip" type="button" data-train-month="1" aria-label="Mes siguiente">›</button></div><div id="trainMonthGrid" class="train-month-grid" role="group" aria-label="Elegir fecha"></div><p class="train-legend">● Entrenamiento · ○ Descanso · Borde: hoy</p><p id="trainSelectedLabel" class="screen__hint" aria-live="polite"></p><details class="train-direct"><summary>Ir a una fecha</summary><div class="portion-field"><label for="trainingExceptionDateText">Fecha exacta</label><input id="trainingExceptionDate" type="date" class="is-hidden" aria-hidden="true" tabindex="-1"><input id="trainingExceptionDateText" type="text" inputmode="numeric" placeholder="DD/MM/AAAA" maxlength="10" autocomplete="off" aria-label="Fecha en formato día mes año"><small id="trainingExceptionDateError" class="screen__hint" role="status"></small></div></details><div class="train-type" role="group" aria-label="Tipo de día"><button class="filter-chip" type="button" data-train-type="train">🏋️ Entrenamiento</button><button class="filter-chip" type="button" data-train-type="rest">🌿 Descanso</button></div><select id="trainingExceptionValue" class="is-hidden" aria-hidden="true" tabindex="-1"><option value="train">Entrenamiento</option><option value="rest">Descanso</option></select><div class="summary-actions"><button class="button button--primary" type="button" data-training-exception-save>Guardar cambio para esta fecha</button></div><p id="trainingExceptionStatus" class="screen__hint" aria-live="polite"></p><div class="divider"></div><h3>Tus cambios guardados</h3><div id="trainingExceptionsList"></div></div></section>
 <section class="screen card" id="azar"><p class="screen__kicker">Al azar</p><h2 class="screen__title">¿Qué querés que arme?</h2><p class="screen__hint">Una idea completa que después podés cambiar o guardar.</p><div class="grid"><button class="button button--primary home-main" data-random-type="desayuno">🍳 Desayuno / Merienda</button><button class="button button--primary home-main" data-random-type="plato">🥗 Almuerzo / Cena</button></div><p class="screen__hint" id="azarStatus" aria-live="polite"></p></section>
-<section class="screen card" id="ingredientes"><p class="screen__kicker">Compras</p><h2 class="screen__title">Mi despensa</h2><p class="screen__hint" id="pantryHint">Marcá lo que tenés en casa y te muestro qué podés cocinar.</p><p class="home-section-label">Lo básico</p><div class="filter-row" id="pantryChips"></div><div class="summary-actions"><button class="button button--soft" type="button" data-pantry-clear>Limpiar selección</button></div><div class="home-group" id="pantryItemsPanel"><h3 class="plan-day__title">Otros ingredientes y cantidades</h3><p class="screen__hint">La cantidad es opcional: con ella, Compras sabe cuánto falta.</p><form id="pantryItemForm" autocomplete="off"><div class="portion-field"><label for="pantryItemName">Ingrediente</label><input id="pantryItemName" type="text" maxlength="100" list="pantryItemNames" required placeholder="Ej.: arroz yamaní"></div><div class="pantry-item-qty"><div class="portion-field"><label for="pantryItemQty">Cantidad (opcional)</label><input id="pantryItemQty" type="text" inputmode="decimal" maxlength="12" placeholder="Ej.: 500"></div><div class="portion-field"><label for="pantryItemUnit">Unidad</label><select id="pantryItemUnit"></select></div></div><div class="summary-actions"><button class="button button--soft" type="submit" id="pantryItemSubmit">Agregar a la despensa</button><button class="button button--soft is-hidden" type="button" id="pantryItemCancel">Cancelar edición</button></div></form><datalist id="pantryItemNames"></datalist><p id="pantryItemStatus" class="screen__hint" aria-live="polite"></p><div id="pantryItemList"></div></div><div class="summary-actions despensa-ideas"><button class="button button--soft" type="button" id="pantryIdeasLink" data-con-lo-que-tengo>💡 Ver ideas con lo que tenés</button></div><div class="divider"></div><details class="home-group" id="pantryReviewPanel"><summary>🔎 Revisar qué tengo y qué falta</summary><p class="screen__hint">Elegí una idea y confirmá sus componentes. Se revisa solo lo nombrado en el título, no una receta completa. Variedades, preparaciones, cantidades y otros ingredientes requieren revisión. Las marcas de esta revisión son temporales: no cambian tu despensa ni Compras.</p><div class="portion-field"><label for="pantryReviewRecipe">Idea del menú</label><select id="pantryReviewRecipe"></select></div><button class="button button--soft" type="button" id="pantryReviewReset">Reiniciar revisión desde mi selección</button><div id="pantryReviewItems"></div><p id="pantryReviewStatus" class="screen__hint" aria-live="polite"></p></details></section>
+<section class="screen card" id="ingredientes"><p class="screen__kicker">Compras</p><h2 class="screen__title">Mi despensa</h2><div class="segmento" role="group" aria-label="Compras"><button type="button" class="segmento__boton" data-compras-vista="lista" aria-pressed="false">Lista</button><button type="button" class="segmento__boton" data-compras-vista="despensa" aria-pressed="true">Despensa</button></div><p class="screen__hint" id="pantryHint">Marcá lo que tenés en casa y te muestro qué podés cocinar.</p><p class="home-section-label">Lo básico</p><div class="filter-row" id="pantryChips"></div><div class="summary-actions"><button class="button button--soft" type="button" data-pantry-clear>Limpiar selección</button></div><div class="home-group" id="pantryItemsPanel"><h3 class="plan-day__title">Otros ingredientes y cantidades</h3><p class="screen__hint">La cantidad es opcional: con ella, Compras sabe cuánto falta.</p><form id="pantryItemForm" autocomplete="off"><div class="portion-field"><label for="pantryItemName">Ingrediente</label><input id="pantryItemName" type="text" maxlength="100" list="pantryItemNames" required placeholder="Ej.: arroz yamaní"></div><div class="pantry-item-qty"><div class="portion-field"><label for="pantryItemQty">Cantidad (opcional)</label><input id="pantryItemQty" type="text" inputmode="decimal" maxlength="12" placeholder="Ej.: 500"></div><div class="portion-field"><label for="pantryItemUnit">Unidad</label><select id="pantryItemUnit"></select></div></div><div class="summary-actions"><button class="button button--soft" type="submit" id="pantryItemSubmit">Agregar a la despensa</button><button class="button button--soft is-hidden" type="button" id="pantryItemCancel">Cancelar edición</button></div></form><datalist id="pantryItemNames"></datalist><p id="pantryItemStatus" class="screen__hint" aria-live="polite"></p><div id="pantryItemList"></div></div><div class="summary-actions despensa-ideas"><button class="button button--soft" type="button" id="pantryIdeasLink" data-con-lo-que-tengo>💡 Ver ideas con lo que tenés</button></div><details class="home-group" id="stockMovesPanel"><summary>Todos los movimientos</summary><div id="stockMoves"></div></details><div class="divider"></div><details class="home-group" id="pantryReviewPanel"><summary>🔎 Revisar qué tengo y qué falta</summary><p class="screen__hint">Elegí una idea y confirmá sus componentes. Se revisa solo lo nombrado en el título, no una receta completa. Variedades, preparaciones, cantidades y otros ingredientes requieren revisión. Las marcas de esta revisión son temporales: no cambian tu despensa ni Compras.</p><div class="portion-field"><label for="pantryReviewRecipe">Idea del menú</label><select id="pantryReviewRecipe"></select></div><button class="button button--soft" type="button" id="pantryReviewReset">Reiniciar revisión desde mi selección</button><div id="pantryReviewItems"></div><p id="pantryReviewStatus" class="screen__hint" aria-live="polite"></p></details></section>
 <section class="screen card" id="plan"><div class="semana-cabeza"><h2 class="screen__title" id="planSemanaTitulo">Esta semana</h2><button class="filter-chip semana-menu" type="button" data-plan-menu aria-label="Más opciones de la semana" aria-haspopup="dialog">⋯</button></div><p class="screen__hint" id="planHint"></p><div class="semana-nueva" id="planSemanaNueva" hidden><p><strong>¿Repetís el plan o empezás de cero?</strong> <span id="planSemanaNuevaTexto"></span></p><div class="semana-nueva__acciones"><button class="button button--primary" type="button" data-plan-repetir>Repetir el plan</button><button class="button button--soft" type="button" data-plan-de-cero>Empezar de cero</button></div></div><div class="semana-dias" id="planDias" role="group" aria-label="Días de la semana"></div><div class="semana-dia" id="currentPlanPanel"><h3 class="semana-dia__titulo" id="planDiaTitulo"></h3><div class="semana-huecos" id="planList"></div></div><p class="screen__hint semana-aviso" id="planAviso" aria-live="polite"></p><p class="screen__hint" id="planStatus" aria-live="polite"></p></section>
-<section class="screen card" id="compras"><p class="screen__kicker">Lista de compras</p><h2 class="screen__title">Ingredientes de la semana</h2><p class="screen__hint" id="comprasHint"></p><div class="summary-actions" id="comprasViewControls"><button type="button" class="button button--soft" id="comprasShowPending" aria-pressed="true">Pendientes</button><button type="button" class="button button--soft" id="comprasShowAll" aria-pressed="false">Todos</button><button type="button" class="button button--soft" id="comprasDespensa" data-open-pantry>🧺 Mi despensa</button></div><p class="screen__hint" id="comprasSummary" aria-live="polite"></p><div id="comprasList"></div><div class="bought-box" id="comprasBoughtBox"><p class="screen__hint">Tachá lo que compraste y tocá Lo compré: pasa a tu despensa.</p><button class="button button--primary" type="button" id="comprasBought">🧺 Lo compré</button><p class="screen__hint" id="comprasBoughtStatus" aria-live="polite"></p></div><div class="home-group" id="manualShoppingPanel"><h3 class="plan-day__title">Productos que agregás vos</h3><p class="screen__hint">Lo que no sale de la semana, como detergente.</p><form id="manualShoppingForm"><div class="portion-field"><label for="manualShopName">Producto</label><input id="manualShopName" type="text" maxlength="100" required placeholder="Ej.: detergente"></div><div class="portion-field"><label for="manualShopAmount">Cantidad o nota (opcional)</label><input id="manualShopAmount" type="text" maxlength="80" placeholder="Ej.: 1 botella"></div><div class="summary-actions"><button class="button button--soft" type="submit" id="manualShopSubmit">Agregar producto</button><button class="button button--soft is-hidden" type="button" data-manual-cancel>Cancelar edición</button></div></form><p id="manualShopStatus" class="screen__hint" aria-live="polite"></p><div id="manualShopList"></div></div><div class="divider"></div><div class="summary-actions"><button class="button button--soft" type="button" data-share-compras>Compartir</button><button class="button button--soft" type="button" data-copy-compras>Copiar lista</button><button class="button button--soft" type="button" data-back-plan>📅 Ver el plan de la semana</button></div><p class="screen__hint" id="comprasStatus" aria-live="polite"></p><details class="home-group" id="shoppingToolsPanel"><summary>🧰 Más herramientas: presupuesto, despensa, precios y cálculos</summary><p class="screen__hint">Herramientas opcionales para calcular y comparar.</p><details class="home-group" id="shoppingBudgetPanel"><summary>💰 Presupuesto de compras</summary><p class="screen__hint">Compará un límite para esta lista semanal con costos estimados de ingredientes faltantes. No registra gastos reales ni convierte monedas. Los ingredientes sin precio quedan pendientes.</p><div class="portion-field"><label for="shoppingBudgetCurrency">Moneda</label><select id="shoppingBudgetCurrency"><option value="ARS">ARS</option><option value="USD">USD</option></select></div><div class="portion-field"><label for="shoppingBudgetLimit">Presupuesto disponible</label><input id="shoppingBudgetLimit" type="number" min="0" max="100000000000" step="0.01" placeholder="Ej.: 30000"></div><div class="portion-field"><label for="shoppingBudgetPeriod">Período</label><select id="shoppingBudgetPeriod"><option value="semana">Semana</option><option value="mes">Mes</option></select></div><div class="portion-field"><label for="shoppingBudgetPeople">Personas (opcional)</label><input id="shoppingBudgetPeople" type="text" inputmode="numeric" maxlength="2" placeholder="Ej.: 2"></div><button class="button button--soft" type="button" id="shoppingBudgetSave">Guardar presupuesto</button><div id="shoppingBudgetResult" aria-live="polite"></div><details><summary>Comparar alternativas de precio</summary><p class="screen__hint">Ordena por el mayor costo compatible registrado de cada ingrediente. Elegí otra referencia guardada del mismo ingrediente, unidad y moneda para simular. No cambia precios, recetas, compras ni planificación. No compara sustituciones de ingredientes.</p><button type="button" class="button button--soft" id="budgetCompareRefresh">Actualizar / restablecer escenario</button><div id="budgetCompareResult" aria-live="polite"></div><button type="button" class="button button--soft" id="budgetCopyScenario">Copiar resumen del escenario</button><p class="screen__hint" id="budgetCopyStatus" aria-live="polite"></p></details></details><details class="home-group" id="purchasesPanel"><summary>🧾 Compras realizadas</summary><p class="screen__hint">Registrá lo que gastaste para compararlo con el presupuesto. Podés cargar a mano los productos y precios del ticket. No cambia la lista ni el plan.</p><div class="portion-field"><label for="purchaseDate">Fecha (DD/MM/AAAA)</label><input id="purchaseDate" type="text" inputmode="numeric" maxlength="10" placeholder="DD/MM/AAAA" autocomplete="off"></div><div class="portion-field"><label for="purchaseStore">Comercio (opcional)</label><input id="purchaseStore" type="text" maxlength="60"></div><div class="portion-field"><label for="purchaseCurrency">Moneda (3 letras)</label><input id="purchaseCurrency" type="text" maxlength="3" value="ARS"></div><div class="portion-field"><label for="purchaseTotal">Total pagado</label><input id="purchaseTotal" type="text" inputmode="decimal" placeholder="Ej.: 25.000,50"></div><p class="screen__hint">Productos del ticket (opcional): nombre, cantidad, unidad y precio pagado por esa cantidad.</p><div id="purchaseItems"></div><div class="summary-actions"><button type="button" class="button button--soft" id="purchaseAddItem">Agregar producto</button><button type="button" class="button button--soft" id="purchaseFromList">Cargar pendientes de la lista</button></div><label class="screen__hint"><input type="checkbox" id="purchaseUpdatePrices"> Guardar los precios de estos productos como referencia</label><label class="screen__hint"><input type="checkbox" id="purchaseAddStock"> Sumar las cantidades a la despensa</label><button type="button" class="button button--primary" id="purchaseSave">Registrar compra</button><p id="purchaseStatus" class="screen__hint" aria-live="polite"></p><div id="purchaseList"></div></details><details class="home-group" id="shoppingQuantCostPanel"><summary>⚙️ Ajustar porciones, despensa y costos</summary><p class="screen__hint">Agrupa solo recetas guardadas asignadas al plan semanal. Suma el mismo ingrediente en unidades compatibles (g↔kg, ml↔l y cucharadita↔cucharada). Los precios se toman de referencias manuales del mismo ingrediente y unidad compatible. Si hay varias referencias posibles, el costo queda pendiente para evitar elegir arbitrariamente. No convierte monedas ni peso↔volumen.</p><div class="portion-field"><label for="shoppingPortionMultiplier">Multiplicador de porciones para todas las recetas planificadas</label><input id="shoppingPortionMultiplier" type="number" min="0.25" max="20" step="0.25" value="1"><p class="screen__hint">1 = porciones originales registradas. 2 = preparar el doble. Es una simulación; no modifica las recetas, el plan ni la lista de compras.</p></div><label class="screen__hint"><input id="shoppingMarkPantry" type="checkbox"> Marcar ingredientes que figuran en mi despensa (sin descontarlos)</label><div class="home-group"><h4>Existencias medidas en despensa</h4><p class="screen__hint">Registrá cantidades reales. Una marca de disponibilidad por sí sola no descuenta nada. Se convierten solo g↔kg, ml↔l y cucharadita↔cucharada; las demás unidades tienen que coincidir con la receta.</p><div class="portion-field"><label for="stockIngredient">Ingrediente</label><input id="stockIngredient" type="text" maxlength="100" placeholder="Ej.: arroz"></div><div class="portion-field"><label for="stockQuantity">Cantidad disponible</label><input id="stockQuantity" type="number" min="0" step="any" placeholder="Ej.: 300"></div><div class="portion-field"><label for="stockUnit">Unidad</label><select id="stockUnit"></select></div><button type="button" class="button button--soft" id="stockSave">Guardar existencia</button><p id="stockStatus" class="screen__hint" aria-live="polite"></p><div id="stockList"></div><details id="stockMovesPanel"><summary>Movimientos recientes</summary><div id="stockMoves"></div></details></div><div id="shoppingQuantCostResult" aria-live="polite"></div><button type="button" class="button button--soft" id="shoppingQuantCostRefresh">Actualizar cantidades y costos</button></details><details class="home-group" id="recipeCostPanel"><summary>💰 Estimar costo de una receta</summary><p class="screen__hint">Usa tus cantidades guardadas y precios manuales. Elegí explícitamente una referencia para cada ingrediente; no se selecciona automáticamente la más barata ni la más reciente. Admite el mismo ingrediente en unidad compatible (g↔kg, ml↔l y cucharadita↔cucharada). Estima el contenido utilizado, no envases enteros, desperdicio, energía ni otros gastos.</p><div class="portion-field"><label for="recipeCostTitle">Receta con cantidades guardadas</label><select id="recipeCostTitle"></select></div><div class="portion-field"><label for="recipeCostPortions">Porciones a preparar</label><input id="recipeCostPortions" type="text" inputmode="decimal" value="1"></div><button class="button button--soft" type="button" id="recipeCostPrepare">Elegir precios para esta receta</button><div id="recipeCostPrices"></div><button class="button button--primary" type="button" id="recipeCostCalculate" disabled>Calcular costo estimado</button><p id="recipeCostStatus" class="screen__hint" aria-live="polite"></p><div id="recipeCostResult"></div></details><details class="home-group" id="pricePanel"><summary>🏷️ Mis precios de referencia</summary><p class="screen__hint">Datos manuales, no cotizaciones en línea. Conservá distintas presentaciones y fechas. No modifica Compras ni el plan. No convierte monedas; las unidades solo entre g↔kg, ml↔l y cucharadita↔cucharada.</p><form id="priceForm"><div class="portion-field"><label for="priceName">Ingrediente o producto</label><input id="priceName" type="text" maxlength="100" required></div><div class="portion-field"><label for="pricePack">Presentación o marca (opcional)</label><input id="pricePack" type="text" maxlength="100"></div><div class="portion-field"><label for="priceAmount">Contenido de la presentación</label><input id="priceAmount" type="text" maxlength="100" inputmode="decimal" required></div><div class="portion-field"><label for="priceValue">Precio de esa presentación</label><input id="priceValue" type="text" maxlength="100" inputmode="decimal" required></div><div class="portion-field"><label for="priceCurrency">Moneda (código de 3 letras, ej.: ARS)</label><input id="priceCurrency" type="text" maxlength="100" required></div><div class="portion-field"><label for="priceDate">Fecha del precio (DD/MM/AAAA)</label><input id="priceDate" type="text" maxlength="100" inputmode="numeric" required></div><div class="portion-field"><label for="priceUnit">Unidad del contenido</label><select id="priceUnit"></select></div><div class="summary-actions"><button class="button button--soft" type="submit">Guardar referencia</button><button class="button button--soft" type="button" id="priceCancel">Limpiar formulario</button></div></form><p id="priceStatus" class="screen__hint" aria-live="polite"></p><div id="priceHistory"></div><div id="priceList"></div></details><details class="home-group" id="quantShoppingPanel"><summary>⚖️ Calcular compras por recetas</summary><p class="screen__hint">Elegí recetas con cantidades guardadas y las porciones a preparar. Este cálculo es independiente del plan y de la lista habitual: no los modifica. La selección se pierde al recargar. Suma el mismo ingrediente en unidades compatibles (g↔kg, ml↔l y cucharadita↔cucharada), sin descontar existencias.</p><div id="quantShoppingChoices"></div><button class="button button--primary" type="button" id="quantShoppingCalculate">Calcular lista cuantificada</button><p id="quantShoppingStatus" class="screen__hint" aria-live="polite"></p><div id="quantShoppingResult"></div></details><details class="home-group" id="stockDeductionPanel"><summary>🏠 Descontar lo que ya tengo</summary><p class="screen__hint">Usa las recetas y porciones marcadas arriba. Indicá existencias en la misma unidad de cada fila. Es una simulación temporal: no modifica despensa, plan, lista habitual ni extras. Ya suma g↔kg, ml↔l y cucharadita↔cucharada del mismo ingrediente.</p><button class="button button--soft" type="button" id="stockPrepare">Preparar revisión de existencias</button><div id="stockRows"></div><button class="button button--primary" type="button" id="stockCalculate" disabled>Calcular lo que falta</button><p id="stockDeductionStatus" class="screen__hint" aria-live="polite"></p><div id="stockResult"></div></details></details></section>
+<section class="screen card" id="compras"><div class="semana-cabeza"><h2 class="screen__title">Compras</h2><button class="filter-chip semana-menu" type="button" data-compras-menu aria-label="Más opciones de compras" aria-haspopup="dialog">⋯</button></div><div class="segmento" role="group" aria-label="Compras"><button type="button" class="segmento__boton" data-compras-vista="lista" aria-pressed="true">Lista</button><button type="button" class="segmento__boton" id="comprasDespensa" data-open-pantry aria-pressed="false">Despensa</button></div><p class="screen__hint" id="comprasHint"></p><button type="button" class="compras-presupuesto" id="comprasPresupuesto" data-compras-herr="presupuesto"></button><div class="compras-controles"><label class="interruptor" for="comprasDescontar"><input type="checkbox" id="comprasDescontar" role="switch" checked><span>Descontar lo que tengo</span></label></div><details class="compras-agregar" id="manualShoppingPanel"><summary>+ Agregar producto</summary><form id="manualShoppingForm"><div class="portion-field"><label for="manualShopName">Producto</label><input id="manualShopName" type="text" maxlength="100" required placeholder="Ej.: detergente"></div><div class="portion-field"><label for="manualShopAmount">Cantidad (opcional)</label><input id="manualShopAmount" type="text" maxlength="80" placeholder="Ej.: 1 botella"></div><div class="summary-actions"><button class="button button--soft" type="submit" id="manualShopSubmit">Agregar producto</button><button class="button button--soft is-hidden" type="button" data-manual-cancel>Cancelar edición</button></div></form></details><p id="manualShopStatus" class="screen__hint" aria-live="polite"></p><p class="screen__hint" id="comprasSummary" aria-live="polite"></p><div id="comprasList"></div><div class="compras-seccion" id="comprasExtras"><h3 class="compras-seccion__titulo">Otros productos</h3><div id="manualShopList"></div></div><div class="bought-box" id="comprasBoughtBox"><button class="button button--primary" type="button" id="comprasBought">Terminé de comprar</button><p class="screen__hint" id="comprasBoughtStatus" aria-live="polite"></p></div><p class="screen__hint" id="comprasStatus" aria-live="polite"></p></section>
 <section class="screen card" id="bf_fruit"><p class="screen__kicker">Paso 1 de 4</p><h2 class="screen__title">Frutas</h2><p class="screen__hint">Elegí la forma y después la fruta.</p><div class="filter-row" id="fruitForms" role="group" aria-label="Cómo la comés"></div><div class="grid grid--one" id="fruit"></div></section>
 <section class="screen card" id="bf_prot"><p class="screen__kicker">Paso 2 de 4</p><h2 class="screen__title">Proteína</h2><p class="screen__hint">Elegí una opción.</p><div class="grid grid--one" id="bfprot"></div></section>
 <section class="screen card" id="bf_carb"><p class="screen__kicker">Paso 3 de 4</p><h2 class="screen__title">Cereal</h2><p class="screen__hint">Elegí una opción.</p><div class="grid grid--one" id="bfcarb"></div></section>
@@ -3494,8 +3517,9 @@ body.con-hoja{
 <section class="screen card" id="recetaEditar"><p class="screen__kicker">Comidas</p><h2 class="screen__title" id="recetaEditarTitulo">Receta</h2><div id="recipeEditorView" hidden><p class="screen__hint">Completá lo que sepas: solo el nombre es obligatorio.</p><details class="home-group" id="aiRecipePanel"><summary>✨ Armar la receta con IA desde un texto</summary><p class="screen__hint">Pegá una receta de cualquier lado (una web, un mensaje, una nota). La IA la ordena en ingredientes, cantidades y pasos, y vos la revisás antes de guardar. No se guarda nada sola.</p><label for="aiRecipeText">Texto de la receta</label><textarea id="aiRecipeText" maxlength="8000" rows="6" placeholder="Ej.: Tarta de zapallitos para 4. 3 zapallitos, 1 cebolla, 3 huevos, 100 g de queso..."></textarea><div class="ai-runner" data-ai="recipe"></div></details><div class="portion-field"><label for="recipeDetailsTitle">Nombre de la receta</label><input id="recipeDetailsTitle" type="text" maxlength="100"></div><details class="home-group receta-seccion" id="recetaSeccionIngredientes" open><summary>🥕 Ingredientes</summary><fieldset class="home-group recipe-ingredients" id="recipeIngredientsBox"><legend class="visually-hidden">Ingredientes</legend><p class="screen__hint">Cargá ingredientes y cantidades. Dejá la cantidad vacía si no la sabés. Se guardan junto con la receta.</p><div class="portion-field"><label for="recipeYield">Porciones que rinde</label><input id="recipeYield" type="text" inputmode="decimal" value="1"></div><div id="recipeIngredientRows"></div><button class="button button--soft" type="button" id="recipeIngredientAdd">Agregar ingrediente</button></fieldset></details><details class="home-group receta-seccion" id="recetaSeccionPreparacion"><summary>👩‍🍳 Preparación</summary><div class="portion-field"><label for="recipeDetailsSteps">Preparación: un paso por línea</label><textarea id="recipeDetailsSteps" rows="6" maxlength="12000" placeholder="Escribí tus pasos de preparación"></textarea></div></details><details class="home-group receta-seccion" id="recetaSeccionMas"><summary>➕ Más detalles</summary><div class="portion-field"><label for="recipeDetailsSource">Idea del menú (opcional)</label><select id="recipeDetailsSource"></select></div><div class="portion-field"><label for="recipeDetailsAmounts">Cantidades vinculadas (opcional)</label><select id="recipeDetailsAmounts"></select></div><div class="portion-field"><label for="recipeDetailsNotes">Notas (opcional)</label><textarea id="recipeDetailsNotes" rows="3" maxlength="2000"></textarea></div><div class="portion-field"><label for="recipeTags">Etiquetas (separadas por coma, opcional)</label><input id="recipeTags" type="text" maxlength="400" placeholder="Ej.: vegetariano, rápido, horno"></div><div class="portion-field"><label for="recipeMinutes">Tiempo total en minutos (opcional)</label><input id="recipeMinutes" type="text" inputmode="numeric" maxlength="4" placeholder="Ej.: 30"></div><div class="portion-field"><label for="recipeSubstitutions">Reemplazos posibles (uno por línea, opcional)</label><textarea id="recipeSubstitutions" rows="2" maxlength="3200" placeholder="Ej.: Papa = Batata"></textarea></div></details><div class="summary-actions"><button class="button button--primary" type="button" id="recipeDetailsSave">Guardar receta</button><button class="button button--soft" type="button" id="recipeDetailsCancel">Cancelar edición</button></div><p class="screen__hint" id="recipeDetailsStatus" aria-live="polite"></p><details class="home-group receta-seccion" id="recetaSeccionOtras"><summary>⚙️ Otras acciones</summary><div class="portion-field"><label for="recipeDetailsSelect">Receta guardada</label><select id="recipeDetailsSelect"></select></div><div class="summary-actions"><button class="button button--soft" type="button" id="recipeDetailsNew">Nueva receta</button><button class="button button--soft" type="button" id="recipeDetailsDuplicate">Duplicar seleccionada</button><button class="button button--danger" type="button" id="recipeDetailsDelete">Eliminar detalles</button></div></details></div><details class="home-group" id="recipeAmountsPanel"><summary>⚖️ Mis cantidades por receta</summary><p class="screen__hint">Cargá cantidades propias o de una receta que conozcas. No son recomendaciones nutricionales. Se guardan por separado y no cambian el plan ni Compras. Una cantidad vacía queda como desconocida.</p><div class="portion-field"><label for="amountRecipe">Idea del menú</label><select id="amountRecipe"></select></div><div class="portion-field"><label for="amountYield">Porciones que rinde la receta base</label><input id="amountYield" type="text" inputmode="decimal" value="1"></div><p class="screen__hint" id="amountRowCount" aria-live="polite"></p><div id="amountRows"></div><div class="summary-actions"><button class="button button--soft" type="button" id="amountAdd">Agregar ingrediente</button><button class="button button--primary" type="button" id="amountSave">Guardar mis cantidades</button></div><div class="divider"></div><div class="portion-field"><label for="amountTarget">Porciones a preparar</label><input id="amountTarget" type="text" inputmode="decimal" value="1"></div><button class="button button--soft" type="button" id="amountCalculate">Calcular cantidades</button><p id="amountStatus" class="screen__hint" aria-live="polite"></p><div id="amountResult"></div></details></section>
 <section class="screen card" id="preferencias"><p class="screen__kicker">Más</p><h2 class="screen__title">Preferencias</h2><div class="tools-grid" id="preferenciasModo"></div><div class="home-group" id="recipePreferencesPanel"><h3>🚫 Ingredientes a evitar</h3><p class="screen__hint">Filtro de texto orientativo, no comprueba alérgenos ni garantiza aptitud alimentaria.</p><label for="recipeAvoidWords">Palabras o ingredientes que preferís evitar, separados por coma</label><input id="recipeAvoidWords" maxlength="400" placeholder="cebolla, aceituna"><label><input id="recipeApplyAvoid" type="checkbox"> Ocultar coincidencias</label><button type="button" class="button button--soft" id="recipeSavePreferences">Guardar preferencias</button><button type="button" class="button button--danger" id="recipeClearPreferences">Limpiar preferencias</button><p id="recipePreferencesStatus" aria-live="polite"></p></div><details class="home-group" id="ingredientAliasPanel"><summary>🔤 Ingredientes equivalentes</summary><p class="screen__hint">La app ya une singular y plural (tomate/tomates) y algunos sinónimos claros (papa/patata, palta/aguacate, arvejas/guisantes). Acá podés unir otros nombres que para vos son el mismo ingrediente. No cambia lo que escribiste: solo cómo se agrupan Compras, despensa y precios.</p><div id="ingredientAliasSuggestions"></div><div class="portion-field"><label for="ingredientAliasFrom">Nombre</label><input id="ingredientAliasFrom" type="text" maxlength="100" list="ingredientAliasNames" autocomplete="off" placeholder="Ej.: Arroz yamaní"></div><div class="portion-field"><label for="ingredientAliasTo">Es el mismo ingrediente que</label><input id="ingredientAliasTo" type="text" maxlength="100" list="ingredientAliasNames" autocomplete="off" placeholder="Ej.: Arroz integral"></div><datalist id="ingredientAliasNames"></datalist><button class="button button--soft" type="button" id="ingredientAliasSave">Guardar equivalencia</button><p id="ingredientAliasStatus" class="screen__hint" aria-live="polite"></p><div id="ingredientAliasList"></div></details></section>
 <section class="screen card" id="fuentes"><p class="screen__kicker">Más</p><h2 class="screen__title">Fuentes de datos</h2><p class="screen__hint">La nutrición sale de USDA FoodData Central, de dominio público.</p><details class="home-group" id="nutritionLookupPanel"><summary>🥗 Consultar nutrientes</summary><p class="screen__hint">Valores cada 100 g según USDA FoodData Central, la base pública de alimentos del Departamento de Agricultura de EE. UU. Son aproximados y no reemplazan el consejo de un profesional.</p><label for="nutritionLookupInput">Ingrediente</label><input id="nutritionLookupInput" list="nutritionNames" autocomplete="off" maxlength="100" placeholder="Ej.: lentejas"><datalist id="nutritionNames"></datalist><div id="nutritionLookupResult" aria-live="polite"></div><p id="nutritionSourceInfo" class="screen__hint"></p></details></section>
-<section class="screen card" id="comoFunciona"><p class="screen__kicker">Más</p><h2 class="screen__title">Cómo funciona</h2><p class="screen__hint">Medio plato de verduras, un cuarto de almidones y un cuarto de proteínas.</p><div class="summary-actions"><button class="button button--primary" type="button" data-ver-bienvenida>Ver la bienvenida</button></div><details class="home-group" id="deploymentGuide"><summary>📲 Publicación e instalación</summary><p class="screen__hint">Versión 15.3.0 · <span id="deploymentWhere">Abierta como archivo funciona igual que siempre; publicada en un sitio HTTPS se puede instalar y usar sin conexión.</span></p><h3>Cómo se publica</h3><ol><li>El código está en un repositorio de GitHub con GitHub Pages activado.</li><li>Cada cambio que se sube corre las pruebas automáticas y, solo si pasan, publica la versión nueva.</li><li>Una vez por mes, una tarea revisa los datos de nutrición de USDA y vuelve a publicar si cambiaron.</li></ol><h3>Para instalarla</h3><ol><li>Abrí la dirección publicada en el celular.</li><li>Elegí Instalar aplicación (o Agregar a pantalla de inicio).</li></ol><h3>Tus datos</h3><p class="screen__hint">Cada dirección guarda sus propios datos: lo que tenés en el archivo local no aparece solo en la versión publicada. Descargá un respaldo acá y restauralo en la versión publicada. Si publicás una copia de prueba, ponela en otro sitio: dos copias en el mismo sitio comparten los mismos datos. Las actualizaciones se avisan con un mensaje para recargar; tus datos no se borran.</p><button class="button button--soft" type="button" id="installAppButton" hidden>Instalar aplicación</button><p id="installAppStatus" class="screen__hint" aria-live="polite">Instalación disponible solo en la versión publicada con HTTPS.</p></details></section>
+<section class="screen card" id="comoFunciona"><p class="screen__kicker">Más</p><h2 class="screen__title">Cómo funciona</h2><p class="screen__hint">Medio plato de verduras, un cuarto de almidones y un cuarto de proteínas.</p><div class="summary-actions"><button class="button button--primary" type="button" data-ver-bienvenida>Ver la bienvenida</button></div><details class="home-group" id="deploymentGuide"><summary>📲 Publicación e instalación</summary><p class="screen__hint">Versión 15.4.0 · <span id="deploymentWhere">Abierta como archivo funciona igual que siempre; publicada en un sitio HTTPS se puede instalar y usar sin conexión.</span></p><h3>Cómo se publica</h3><ol><li>El código está en un repositorio de GitHub con GitHub Pages activado.</li><li>Cada cambio que se sube corre las pruebas automáticas y, solo si pasan, publica la versión nueva.</li><li>Una vez por mes, una tarea revisa los datos de nutrición de USDA y vuelve a publicar si cambiaron.</li></ol><h3>Para instalarla</h3><ol><li>Abrí la dirección publicada en el celular.</li><li>Elegí Instalar aplicación (o Agregar a pantalla de inicio).</li></ol><h3>Tus datos</h3><p class="screen__hint">Cada dirección guarda sus propios datos: lo que tenés en el archivo local no aparece solo en la versión publicada. Descargá un respaldo acá y restauralo en la versión publicada. Si publicás una copia de prueba, ponela en otro sitio: dos copias en el mismo sitio comparten los mismos datos. Las actualizaciones se avisan con un mensaje para recargar; tus datos no se borran.</p><button class="button button--soft" type="button" id="installAppButton" hidden>Instalar aplicación</button><p id="installAppStatus" class="screen__hint" aria-live="polite">Instalación disponible solo en la versión publicada con HTTPS.</p></details></section>
 <section class="screen card" id="bienvenida"><p class="screen__kicker" id="bienvenidaPaso">Paso 1 de 3</p><div class="bienvenida__paso" data-bienvenida-paso="1"><h2 class="screen__title">Comé equilibrado sin pensar tanto</h2><svg class="bienvenida__plato" viewBox="0 0 200 200" role="img" aria-labelledby="bienvenidaPlatoTitulo"><title id="bienvenidaPlatoTitulo">Un plato: la mitad de verduras, un cuarto de almidones y un cuarto de proteínas</title><circle cx="100" cy="100" r="96" class="bienvenida__borde"/><path d="M100 100 L100 8 A92 92 0 0 0 100 192 Z" class="bienvenida__verduras"/><path d="M100 100 L100 8 A92 92 0 0 1 192 100 Z" class="bienvenida__almidones"/><path d="M100 100 L192 100 A92 92 0 0 1 100 192 Z" class="bienvenida__proteinas"/><text x="54" y="104" text-anchor="middle" class="bienvenida__texto">Verduras</text><text x="140" y="66" text-anchor="middle" class="bienvenida__texto">Almidones</text><text x="140" y="144" text-anchor="middle" class="bienvenida__texto">Proteínas</text></svg><p class="screen__hint">Medio plato de verduras, un cuarto de almidones y un cuarto de proteínas. La app te ayuda a armarlo, planificar la semana y hacer las compras.</p><div class="summary-actions"><button class="button button--primary" type="button" data-bienvenida-siguiente>Siguiente</button><button class="button button--soft" type="button" data-bienvenida-saltar>Saltar</button></div></div><div class="bienvenida__paso" data-bienvenida-paso="2" hidden><h2 class="screen__title">¿Qué días entrenás?</h2><p class="screen__hint">Es opcional: así la app sabe qué comidas sugerirte cada día.</p><div class="filter-row" id="bienvenidaDias"><button type="button" class="filter-chip" data-bienvenida-dia="1" aria-pressed="false">Lunes</button><button type="button" class="filter-chip" data-bienvenida-dia="2" aria-pressed="false">Martes</button><button type="button" class="filter-chip" data-bienvenida-dia="3" aria-pressed="false">Miércoles</button><button type="button" class="filter-chip" data-bienvenida-dia="4" aria-pressed="false">Jueves</button><button type="button" class="filter-chip" data-bienvenida-dia="5" aria-pressed="false">Viernes</button><button type="button" class="filter-chip" data-bienvenida-dia="6" aria-pressed="false">Sábado</button><button type="button" class="filter-chip" data-bienvenida-dia="0" aria-pressed="false">Domingo</button></div><p class="screen__hint" id="bienvenidaRutinaEstado" aria-live="polite"></p><div class="summary-actions"><button class="button button--primary" type="button" data-bienvenida-rutina>Guardar y seguir</button><button class="button button--soft" type="button" data-bienvenida-siguiente>Ahora no</button></div></div><div class="bienvenida__paso" data-bienvenida-paso="3" hidden><h2 class="screen__title">Elegí de 3 a 5 ideas</h2><p class="screen__hint" id="bienvenidaIdeasEstado" aria-live="polite">Se guardan en Mis comidas para armar tu semana.</p><div class="filter-row bienvenida__ideas" id="bienvenidaIdeas"></div><div class="summary-actions"><button class="button button--primary" type="button" data-bienvenida-armar disabled>Armar mi semana</button><button class="button button--soft" type="button" data-bienvenida-saltar>Saltar</button></div></div></section>
+<section class="screen card" id="comprasHerramientas"><p class="screen__kicker">Compras</p><h2 class="screen__title" id="comprasHerrTitulo">Herramientas de compras</h2><details class="herr-contenedor" id="shoppingToolsPanel" open><summary class="visually-hidden">Herramientas de compras</summary><div data-herr="presupuesto"><details class="home-group" id="shoppingBudgetPanel"><summary>💰 Presupuesto</summary><p class="screen__hint">Tu límite contra el costo estimado de lo que falta.</p><div class="portion-field"><label for="shoppingBudgetCurrency">Moneda</label><select id="shoppingBudgetCurrency"><option value="ARS">ARS</option><option value="USD">USD</option></select></div><div class="portion-field"><label for="shoppingBudgetLimit">Presupuesto</label><input id="shoppingBudgetLimit" type="number" min="0" max="100000000000" step="0.01" placeholder="Ej.: 30000"></div><div class="portion-field"><label for="shoppingBudgetPeriod">Período</label><select id="shoppingBudgetPeriod"><option value="semana">Semana</option><option value="mes">Mes</option></select></div><div class="portion-field"><label for="shoppingBudgetPeople">Personas (opcional)</label><input id="shoppingBudgetPeople" type="text" inputmode="numeric" maxlength="2" placeholder="Ej.: 2"></div><button class="button button--soft" type="button" id="shoppingBudgetSave">Guardar presupuesto</button><div id="shoppingBudgetResult" aria-live="polite"></div><details id="budgetComparePanel"><summary>Comparar alternativas de precio</summary><p class="screen__hint">Probá otro precio guardado. No cambia nada.</p><button type="button" class="button button--soft" id="budgetCompareRefresh">Actualizar</button><div id="budgetCompareResult" aria-live="polite"></div><button type="button" class="button button--soft" id="budgetCopyScenario">Copiar resumen</button><p class="screen__hint" id="budgetCopyStatus" aria-live="polite"></p></details></details></div><div data-herr="realizadas"><details class="home-group" id="purchasesPanel"><summary>🧾 Compras realizadas</summary><p class="screen__hint">Anotá lo que gastaste; el ticket puede actualizar Mis precios.</p><div class="portion-field"><label for="purchaseDate">Fecha (DD/MM/AAAA)</label><input id="purchaseDate" type="text" inputmode="numeric" maxlength="10" placeholder="DD/MM/AAAA" autocomplete="off"></div><div class="portion-field"><label for="purchaseStore">Comercio (opcional)</label><input id="purchaseStore" type="text" maxlength="60"></div><div class="portion-field"><label for="purchaseCurrency">Moneda</label><input id="purchaseCurrency" type="text" maxlength="3" value="ARS"></div><div class="portion-field"><label for="purchaseTotal">Total pagado</label><input id="purchaseTotal" type="text" inputmode="decimal" placeholder="Ej.: 25.000,50"></div><p class="screen__hint">Detalle del ticket (opcional).</p><div id="purchaseItems"></div><div class="summary-actions"><button type="button" class="button button--soft" id="purchaseAddItem">Agregar producto</button><button type="button" class="button button--soft" id="purchaseFromList">Cargar pendientes</button></div><label class="screen__hint"><input type="checkbox" id="purchaseUpdatePrices"> Actualizar Mis precios</label><label class="screen__hint"><input type="checkbox" id="purchaseAddStock"> Sumar a la despensa</label><button type="button" class="button button--primary" id="purchaseSave">Registrar compra</button><p id="purchaseStatus" class="screen__hint" aria-live="polite"></p><div id="purchaseList"></div></details></div><div data-herr="precios"><details class="home-group" id="pricePanel"><summary>🏷️ Mis precios</summary><p class="screen__hint">Tus precios por presentación y fecha.</p><form id="priceForm"><div class="portion-field"><label for="priceName">Ingrediente o producto</label><input id="priceName" type="text" maxlength="100" required></div><div class="portion-field"><label for="pricePack">Presentación (opcional)</label><input id="pricePack" type="text" maxlength="100"></div><div class="portion-field"><label for="priceAmount">Contenido</label><input id="priceAmount" type="text" maxlength="100" inputmode="decimal" required></div><div class="portion-field"><label for="priceValue">Precio</label><input id="priceValue" type="text" maxlength="100" inputmode="decimal" required></div><div class="portion-field"><label for="priceCurrency">Moneda (ej.: ARS)</label><input id="priceCurrency" type="text" maxlength="100" required></div><div class="portion-field"><label for="priceDate">Fecha (DD/MM/AAAA)</label><input id="priceDate" type="text" maxlength="100" inputmode="numeric" required></div><div class="portion-field"><label for="priceUnit">Unidad</label><select id="priceUnit"></select></div><div class="summary-actions"><button class="button button--soft" type="submit">Guardar precio</button><button class="button button--soft" type="button" id="priceCancel">Limpiar</button></div></form><p id="priceStatus" class="screen__hint" aria-live="polite"></p><div id="priceHistory"></div><div id="priceList"></div></details></div><div data-herr="costoReceta"><details class="home-group" id="recipeCostPanel"><summary>💰 Costo de una receta</summary><p class="screen__hint">Elegí un precio para cada ingrediente.</p><div class="portion-field"><label for="recipeCostTitle">Receta con cantidades</label><select id="recipeCostTitle"></select></div><div class="portion-field"><label for="recipeCostPortions">Porciones</label><input id="recipeCostPortions" type="text" inputmode="decimal" value="1"></div><button class="button button--soft" type="button" id="recipeCostPrepare">Elegir precios</button><div id="recipeCostPrices"></div><button class="button button--primary" type="button" id="recipeCostCalculate" disabled>Calcular costo</button><p id="recipeCostStatus" class="screen__hint" aria-live="polite"></p><div id="recipeCostResult"></div></details></div><div data-herr="otrasRecetas"><details class="home-group" id="quantShoppingPanel"><summary>⚖️ Calcular para otras recetas</summary><p class="screen__hint">Elegí recetas y porciones. No cambia la lista.</p><div id="quantShoppingChoices"></div><button class="button button--primary" type="button" id="quantShoppingCalculate">Calcular</button><p id="quantShoppingStatus" class="screen__hint" aria-live="polite"></p><div id="quantShoppingResult"></div></details><details class="home-group" id="stockDeductionPanel"><summary>🏠 Descontar lo que ya tengo</summary><p class="screen__hint">Indicá lo que tenés de cada fila. No cambia nada.</p><button class="button button--soft" type="button" id="stockPrepare">Preparar</button><div id="stockRows"></div><button class="button button--primary" type="button" id="stockCalculate" disabled>Calcular lo que falta</button><p id="stockDeductionStatus" class="screen__hint" aria-live="polite"></p><div id="stockResult"></div></details></div><div data-herr="existencias"><details class="home-group" id="shoppingQuantCostPanel"><summary>⚙️ Porciones, existencias y costos</summary><p class="screen__hint">Simulá más porciones de las recetas de la semana.</p><div class="portion-field"><label for="shoppingPortionMultiplier">Multiplicador de porciones</label><input id="shoppingPortionMultiplier" type="number" min="0.25" max="20" step="0.25" value="1"></div><label class="screen__hint"><input id="shoppingMarkPantry" type="checkbox"> Marcar lo que está en la despensa</label><div class="home-group"><h4>Existencias</h4><div class="portion-field"><label for="stockIngredient">Ingrediente</label><input id="stockIngredient" type="text" maxlength="100" placeholder="Ej.: arroz"></div><div class="portion-field"><label for="stockQuantity">Cantidad</label><input id="stockQuantity" type="number" min="0" step="any" placeholder="Ej.: 300"></div><div class="portion-field"><label for="stockUnit">Unidad</label><select id="stockUnit"></select></div><button type="button" class="button button--soft" id="stockSave">Guardar existencia</button><p id="stockStatus" class="screen__hint" aria-live="polite"></p><div id="stockList"></div></div><div id="shoppingQuantCostResult" aria-live="polite"></div><button type="button" class="button button--soft" id="shoppingQuantCostRefresh">Actualizar</button></details></div><div data-herr="compartir" class="summary-actions"><button class="button button--soft" type="button" data-share-compras>Compartir</button><button class="button button--soft" type="button" data-copy-compras>Copiar lista</button><button class="button button--soft" type="button" data-back-plan>Ver la semana</button></div></details></section>
 </main></div><footer class="bottom-nav" id="bottom"><div class="bottom-nav__inner" id="bottomInner"><button class="button button--soft" data-back>← Volver al paso anterior</button><button class="button button--primary is-hidden" id="nextBottom" data-next-bottom>Continuar</button></div></footer><nav class="section-nav" id="sectionNav" aria-label="Secciones principales"><button type="button" data-section-tab="hoy" aria-current="page"><span aria-hidden="true">🍽️</span><span>Hoy</span></button><button type="button" data-section-tab="semana"><span aria-hidden="true">📅</span><span>Semana</span></button><button type="button" data-section-tab="miscomidas"><span aria-hidden="true">📖</span><span>Comidas</span></button><button type="button" data-section-tab="compras"><span aria-hidden="true">🛒</span><span>Compras</span></button><button type="button" data-section-tab="mas"><span aria-hidden="true">☰</span><span>Más</span></button></nav>
 <script>
 // Mi Plato Fácil · Aviso para instalar la app.
@@ -3949,6 +3973,19 @@ function pricesFor(list,name,unit){
     ...p,amount:convertQuantity(p.amount,p.unit,unit),unit,sourceAmount:p.amount,sourceUnit:p.unit
   })
 }
+// Cantidades legibles (desde la v15.4): redondeo y plural, solo al mostrar. Lo guardado y los textos internos
+// de la lista (label, buy, suggestion.text) no cambian.
+var UNIDADES_PLURAL={unidad:"unidades",cucharada:"cucharadas",cucharadita:"cucharaditas",taza:"tazas"};
+function cantidadLegible(n,unidad){
+  const q=Number(n);
+  if(!Number.isFinite(q))return String(n)+" "+unidad;
+  const dec=unidad==="g"||unidad==="ml"?(Math.abs(q)<10?1:0):2,r=Math.round(q*10**dec)/10**dec,num=r.toLocaleString("es-AR",{maximumFractionDigits:dec});
+  return num+" "+(UNIDADES_PLURAL[unidad]&&r>1?UNIDADES_PLURAL[unidad]:unidad)
+}
+// Aplica cantidadLegible a cada "número unidad" de un texto ("166,666667 g", "5 unidad", "1.250,5 ml").
+function textoLegible(texto){
+  return String(texto).replace(/(\d{1,3}(?:\.\d{3})+|\d+)(?:,(\d+))? (g|kg|ml|l|unidad|cucharada|cucharadita|taza)(?![\p{L}])/gu,(m,ent,dec,u)=>cantidadLegible(Number(ent.replace(/\./g,"")+(dec?"."+dec:"")),u))
+}
 // Mi Plato Fácil · Ideas de menú, colaciones y consejos favoritos.
 // Parte 5: los archivos se unen en orden según su número, que define el orden de arranque.
 function menuRecordMatches(record,query){
@@ -4334,9 +4371,10 @@ let activeTab="hoy";
 function activeTabRoot(){
   return TABS[activeTab].root
 }
-// En Comidas, Ideas es la otra mitad del segmento "Mis comidas | Ideas": no muestra "← Comidas".
+// En Comidas, Ideas es la otra mitad del segmento "Mis comidas | Ideas": no muestra "← Comidas". Igual la Despensa en
+// Compras ("Lista | Despensa", desde la v15.4).
 function esRaizDePestana(cur){
-  return cur===activeTabRoot()||(activeTab==="miscomidas"&&cur==="ideas")
+  return cur===activeTabRoot()||(activeTab==="miscomidas"&&cur==="ideas")||(activeTab==="compras"&&cur==="ingredientes")
 }
 function nav(){
   const cur=stack.at(-1),home=cur==="home",sum=cur==="resumen",next=nextFor(cur);
@@ -6314,9 +6352,7 @@ function renderStockQuantities(){
     return
   }
   for(const [key,item] of values){
-    const row=ce("div","shop-item"),label=ce("span",null,item.name+": "+item.quantity.toLocaleString("es-AR",{
-      maximumFractionDigits:6
-    })+" "+item.unit),edit=ce("button","button button--soft","Editar"),remove=ce("button","button button--danger","Quitar");
+    const row=ce("div","shop-item"),label=ce("span",null,item.name+": "+cantidadLegible(item.quantity,item.unit)),edit=ce("button","button button--soft","Editar"),remove=ce("button","button button--danger","Quitar");
     edit.type=remove.type="button";
     edit.addEventListener("click",()=>{
       document.getElementById("stockIngredient").value=item.name;document.getElementById("stockQuantity").value=item.quantity;document.getElementById("stockUnit").value=item.unit;document.getElementById("stockIngredient").focus()
@@ -6407,22 +6443,9 @@ function shoppingBudgetRead(){
     return null
   }
 }
-function shoppingBudgetRender(){
-  const box=document.getElementById("shoppingBudgetResult");
-  box.replaceChildren();
-  const budget=shoppingBudgetRead();
-  if(!budget){
-    box.append(ce("p","screen__hint","Guardá un presupuesto para ver la comparación."));
-    return
-  }
-  let rows;
-  try{
-    rows=shoppingMissingRows()
-  }catch(err){
-    box.append(ce("p","screen__hint",err.message));
-    return
-  }
-  const prices=Object.values(loadReferencePrices()),currency=budget.currency;
+// El costo estimado de lo que falta comprar (desde la v15.4 también lo usa la barra de presupuesto de la lista).
+function estimadoDeLaLista(rows,currency){
+  const prices=Object.values(loadReferencePrices());
   let estimated=0,covered=0,unpriced=0,otherCurrency=0;
   for(const row of rows){
     if(row.missing<=0&&!row.unknown)continue;
@@ -6448,6 +6471,46 @@ function shoppingBudgetRender(){
     estimated+=cost;
     covered++
   }
+  return {
+    estimated,covered,unpriced,otherCurrency
+  }
+}
+// Barra de presupuesto arriba de la lista (v15.4). Solo lee; tocarla abre el panel de presupuesto.
+function renderPresupuestoCompras(){
+  const bar=document.getElementById("comprasPresupuesto");
+  if(!bar)return;
+  const budget=shoppingBudgetRead(),fmt=n=>"$"+Math.round(n).toLocaleString("es-AR");
+  if(!budget){
+    bar.textContent="💰 Poner un presupuesto";
+    return
+  }
+  let e;
+  try{
+    e=estimadoDeLaLista(shoppingMissingRows(),budget.currency)
+  }catch(err){
+    bar.textContent="💰 Presupuesto "+fmt(budget.limit);
+    return
+  }
+  const faltan=e.unpriced+e.otherCurrency;
+  bar.textContent="💰 Presupuesto "+fmt(budget.limit)+" · ≈ "+fmt(e.estimated)+" estimado"+(faltan?" (faltan "+faltan+" precio"+(faltan===1?"":"s")+")":"");
+  bar.classList.toggle("is-excedido",e.estimated>budget.limit)
+}
+function shoppingBudgetRender(){
+  const box=document.getElementById("shoppingBudgetResult");
+  box.replaceChildren();
+  const budget=shoppingBudgetRead();
+  if(!budget){
+    box.append(ce("p","screen__hint","Guardá un presupuesto para ver la comparación."));
+    return
+  }
+  let rows;
+  try{
+    rows=shoppingMissingRows()
+  }catch(err){
+    box.append(ce("p","screen__hint",err.message));
+    return
+  }
+  const currency=budget.currency,{estimated,covered,unpriced,otherCurrency}=estimadoDeLaLista(rows,currency);
   const fmt=n=>n.toLocaleString("es-AR",{
     minimumFractionDigits:2,maximumFractionDigits:2
   });
@@ -6813,7 +6876,7 @@ function shoppingItemLabel(e){
 function shoppingSuggestion(e,stock,marked){
   const own=Object.values(stock).filter(s=>ingredientKey(s.name)===e.key);
   if(!own.length)return marked.has(e.name)?{
-    kind:"info",text:"Lo marcaste en “Con lo que tengo” (sin cantidad registrada)."
+    kind:"info",text:"Lo marcaste en tu Despensa (sin cantidad registrada)."
   }:null;
   const fmt=n=>Number(n.toFixed(6)).toLocaleString("es-AR",{
     maximumFractionDigits:6
@@ -6851,31 +6914,76 @@ function shoppingSuggestion(e,stock,marked){
     kind:"partial",text:"Despensa: tenés "+have+". Podrías comprar "+buy+(e.unknown?", más lo que no tiene cantidad.":"."),buy,missing
   }
 }
+// Interruptor "Descontar lo que tengo" (desde la v15.4), en miPlatoFacil_comprasOpciones_v1: {"descontar": true|false}.
+// Encendido por defecto (el comportamiento de antes). Se escribe solo al tocarlo. Es var por el orden de arranque.
+var COMPRAS_OPCIONES_KEY="miPlatoFacil_comprasOpciones_v1";
+function validComprasOpciones(o){
+  return !!o&&typeof o==="object"&&!Array.isArray(o)&&Object.keys(o).length===1&&typeof o.descontar==="boolean"
+}
+function comprasDescontar(){
+  try{
+    const o=JSON.parse(localStorage.getItem(COMPRAS_OPCIONES_KEY)||"null");
+    return validComprasOpciones(o)?o.descontar:true
+  }catch(e){
+    return true
+  }
+}
+function guardarComprasDescontar(valor){
+  localStorage.setItem(COMPRAS_OPCIONES_KEY,JSON.stringify({
+    descontar:!!valor
+  }))
+}
+// Secciones del súper (desde la v15.4). Primero las listas del armado; después, palabras sueltas.
+var SECCIONES_SUPER=["Verdulería","Carnicería y pescadería","Lácteos y huevos","Panadería","Almacén","Congelados","Limpieza","Otros"];
+var PALABRAS_SUPER=null;
+function seccionDelSuper(nombre){
+  const n=" "+normalizeSearchText(nombre).replace(/[^a-z0-9ñ ]+/g," ")+" ",k=ingredientKey(nombre);
+  if(!PALABRAS_SUPER){
+    PALABRAS_SUPER=[
+      ["Almacén","pan rallado|harina|fecula|maicena|frutos secos|semillas|atun|caballa en lata|arroz|fideo|fideos|pasta|pastas|avena|polenta|quinoa|cuscus|aceite|sal|azucar|cafe|te|yerba|vinagre|granola|mani|lenteja|lentejas|garbanzo|garbanzos|poroto|porotos|arveja|arvejas|soja|comino|oregano|pimienta|pimenton|especias|caldo|tomate triturado|pure de tomate|galletitas|cacao|miel|mermelada|amaranto|mijo|sorgo|cebada|centeno|tapioca|trigo|lupino|habas".split("|")],
+      ["Congelados",["congelado","congelada","congelados","congeladas","helado"]],
+      ["Limpieza",["detergente","lavandina","jabon","servilleta","servilletas","papel","esponja","limpiador","desinfectante","bolsas","rollo"]],
+      ["Lácteos y huevos",["leche","yogur","queso","quesos","manteca","crema","huevo","huevos","ricota","clara"]],
+      ["Carnicería y pescadería",["carne","pollo","cerdo","vacuna","asado","vacio","bondiola","pechito","merluza","pescado","salmon","milanesa","milanesas","hamburguesa","pavo","cordero","nalga","cuadril","lomo","picada","jamon","caballa","trucha","mariscos"]],
+      ["Panadería",["pan","pancitos","tortillas","facturas","tostadas"]]
+    ];
+  }
+  if(n.includes(" pan rallado "))return "Almacén";
+  const enLista=arr=>arr.some(x=>ingredientKey(Array.isArray(x)?x[0]:x)===k);
+  if(enLista(data.verduras)||enLista(data.frutas)||/ (fruta|frutas|papa|papas|batata|mandioca|choclo|palta|limon|perejil|albahaca|verdura|verduras) /.test(n))return "Verdulería";
+  for(const [sec,palabras] of PALABRAS_SUPER){
+    if(palabras.some(p=>n.includes(" "+p+" ")))return sec
+  }
+  return "Otros"
+}
 // Cada ítem del plan va a un grupo: "pendiente", "tenes" (ya está en la despensa y alcanza, o no hay cantidad para
 // comparar) o "comprado" (pasó con "Lo compré" esta semana). Si hay cantidad y no alcanza, sigue pendiente con
 // "faltan X". Los tres grupos juntos son siempre la misma lista, con las cantidades del plan.
+// Desde la v15.4: si la despensa tiene otra unidad ("la unidad no coincide"), queda pendiente con "revisá"; con el
+// interruptor "Descontar lo que tengo" apagado, nada va a "Ya tenés" y no se muestra "faltan".
 function shoppingDisplayItems(){
-  const stock=loadStockQuantities(),marked=pantryMarkedMatcher(),bought=shoppingBoughtSet();
+  const stock=loadStockQuantities(),marked=pantryMarkedMatcher(),bought=shoppingBoughtSet(),descontar=comprasDescontar();
   return shoppingPlanItems().map(e=>{
-    const label=shoppingItemLabel(e),suggestion=shoppingSuggestion(e,stock,marked),partial=!!suggestion&&suggestion.kind==="partial",group=bought.has(e.key)?"comprado":suggestion&&!partial?"tenes":"pendiente";return {
-      key:e.key,name:e.name,label,suggestion,group,text:partial&&group==="pendiente"?label+" · faltan "+suggestion.buy:label
+    const label=shoppingItemLabel(e),suggestion=shoppingSuggestion(e,stock,marked),partial=!!suggestion&&suggestion.kind==="partial",revisar=!!suggestion&&suggestion.kind==="info"&&/la unidad no coincide/.test(suggestion.text),group=bought.has(e.key)?"comprado":descontar&&suggestion&&!partial&&!revisar?"tenes":"pendiente";return {
+      key:e.key,name:e.name,label,suggestion,group,seccion:seccionDelSuper(e.name),text:descontar&&group==="pendiente"&&partial?label+" · faltan "+suggestion.buy:descontar&&group==="pendiente"&&revisar?label+" · revisá":label
     }
   }).sort((a,b)=>a.label.localeCompare(b.label,"es"))
 }
 function shoppingRow(x,i,checked,detail){
-  const row=ce("div","shop-item"+(checked?" is-done":"")),cb=ce("input"),lab=ce("label",null,x.text);
+  const row=ce("div","shop-item"+(checked?" is-done":"")),cb=ce("input"),lab=ce("label",null,textoLegible(x.text));
   cb.type="checkbox";
   cb.checked=checked;
   cb.dataset.shopKey=x.key;
   cb.id="shopItem_"+i;
   lab.htmlFor=cb.id;
   row.append(cb,lab);
-  if(detail)row.append(ce("span","shop-item__detail",detail));
+  if(detail)row.append(ce("span","shop-item__detail",textoLegible(detail)));
   return row
 }
-function shoppingGroup(title,list,open,onToggle,checked,detail){
+function shoppingGroup(title,list,open,onToggle){
   const box=ce("details","home-group shop-group");
   box.open=open;
+  box.dataset.grupo=title;
   box.addEventListener("toggle",()=>onToggle(box.open));
   box.append(ce("summary",null,title+" ("+list.length+")"));
   return box
@@ -6884,6 +6992,12 @@ function renderCompras(){
   const cont=document.getElementById("comprasList"),hint=document.getElementById("comprasHint"),summary=document.getElementById("comprasSummary");
   if(!cont)return;
   syncShoppingWeek();
+  const sw=document.getElementById("comprasDescontar");
+  if(sw)sw.checked=comprasDescontar();
+  try{
+    renderPresupuestoCompras()
+  }catch(e){
+  }
   let items;
   try{
     items=shoppingDisplayItems()
@@ -6891,15 +7005,22 @@ function renderCompras(){
     cont.replaceChildren(ce("p","screen__hint","No se pudo calcular la lista: "+e.message));
     return
   }
-  const pend=items.filter(x=>x.group==="pendiente"),tenes=items.filter(x=>x.group==="tenes"),comprados=items.filter(x=>x.group==="comprado"),pending=pend.filter(x=>!comprasDone[x.key]);
-  summary.textContent=pending.length+" pendientes · "+(pend.length-pending.length)+" tachados";
-  hint.textContent=isSimpleMode()?"Lo que marcás en “Con lo que tengo” pasa a Ya tenés.":"Con cantidades en 🧰 Más herramientas, la lista te dice cuánto falta.";
-  document.getElementById("comprasShowPending").setAttribute("aria-pressed",String(!comprasShowAll));
-  document.getElementById("comprasShowAll").setAttribute("aria-pressed",String(comprasShowAll));
-  const visible=comprasShowAll?pend:pending,nodes=[];
+  const pend=items.filter(x=>x.group==="pendiente"),tenes=items.filter(x=>x.group==="tenes"),comprados=items.filter(x=>x.group==="comprado"),pending=pend.filter(x=>!comprasDone[x.key]),tachados=pend.length-pending.length+tenes.filter(x=>comprasDone[x.key]).length;
+  summary.textContent=pending.length+" pendientes · "+tachados+" tachados";
+  hint.textContent="Tachá lo que comprás. Lo que tenés en la Despensa pasa a Ya tenés.";
+  const nodes=[];
   let i=0;
-  for(const x of visible)nodes.push(shoppingRow(x,i++,!!comprasDone[x.key]));
-  if(!visible.length)nodes.push(ce("p","screen__hint",items.length?(pend.length?"No quedan pendientes. Los tachados están en Todos.":"No queda nada por comprar."):"No hay compras pendientes. Agregá comidas a la semana."));
+  for(const sec of SECCIONES_SUPER){
+    const lista=pend.filter(x=>x.seccion===sec);
+    if(!lista.length)continue;
+    const box=ce("div","compras-seccion");
+    box.dataset.seccion=sec;
+    box.append(ce("h3","compras-seccion__titulo",sec));
+    // Lo tachado queda a la vista, al final de su sección.
+    for(const x of [...lista.filter(x=>!comprasDone[x.key]),...lista.filter(x=>comprasDone[x.key])])box.append(shoppingRow(x,i++,!!comprasDone[x.key],x.text.endsWith(" · revisá")&&x.suggestion?"💡 "+x.suggestion.text:""));
+    nodes.push(box)
+  }
+  if(!pending.length)nodes.push(ce("p","screen__hint",items.length?"No queda nada por comprar.":"No hay compras pendientes. Agregá comidas a la semana."));
   if(tenes.length){
     const g=shoppingGroup("Ya tenés",tenes,comprasTenesOpen,v=>{
       comprasTenesOpen=v
@@ -6916,12 +7037,6 @@ function renderCompras(){
   }
   cont.replaceChildren(...nodes)
 }
-document.getElementById("comprasShowPending").addEventListener("click",()=>{
-  comprasShowAll=false;renderCompras()
-});
-document.getElementById("comprasShowAll").addEventListener("click",()=>{
-  comprasShowAll=true;renderCompras()
-});
 // Tachar o destachar. Destachar algo de "Ya en tu despensa" lo devuelve a Pendientes sin tocar la despensa
 // (para revertir la despensa está el Deshacer de "Lo compré").
 function toggleShop(key,checked){
@@ -6940,7 +7055,12 @@ function toggleShop(key,checked){
   renderCompras()
 }
 function comprasText(){
-  const lines=shoppingDisplayItems().filter(x=>x.group==="pendiente"&&!comprasDone[x.key]).map(x=>"• "+x.text),extras=manualShoppingText();
+  const pend=shoppingDisplayItems().filter(x=>x.group==="pendiente"&&!comprasDone[x.key]),lines=[],extras=manualShoppingText();
+  // Por secciones del súper y con cantidades legibles (desde la v15.4).
+  for(const sec of SECCIONES_SUPER){
+    const l=pend.filter(x=>x.seccion===sec);
+    if(l.length)lines.push(...(lines.length?[""]:[]),sec,...l.map(x=>"• "+textoLegible(x.text)))
+  }
   if(!lines.length&&!extras)return "";
   return "🛒 Lista de compras — Mi plato fácil"+NL+lines.join(NL)+(extras?(lines.length?NL+NL:"")+"Productos extra"+NL+extras:"")
 }
@@ -7672,7 +7792,7 @@ document.getElementById("currentPlanPanel").addEventListener("toggle",()=>syncPl
 // Mi Plato Fácil · Productos extra de la lista de compras.
 // Parte 18: los archivos se unen en orden según su número, que define el orden de arranque.
 const MANUAL_SHOP_KEY="miPlatoFacil_manualShopping_v1";
-let manualShopEditing=null;
+let manualShopEditing=null,manualShopUndo=null;
 function loadManualShopping(){
   try{
     const a=JSON.parse(localStorage.getItem(MANUAL_SHOP_KEY)||"[]");
@@ -7701,9 +7821,9 @@ function resetManualShoppingForm(){
 function renderManualShopping(){
   const box=document.getElementById("manualShopList"),a=loadManualShopping();
   box.replaceChildren(...a.map(item=>{
-    const row=ce("div","manual-shop-row"),remove=ce("button","manual-shop-remove","×");remove.type="button";remove.dataset.manualDelete=item.id;remove.setAttribute("aria-label","Eliminar "+item.name);remove.title="Eliminar producto";const label=ce("label","shop-item"+(item.done?" is-done":"")),check=ce("input");check.type="checkbox";check.checked=item.done;check.dataset.manualCheck=item.id;const text=ce("span",null,item.name+(item.amount?" · "+item.amount:""));if(item.done)text.style.textDecoration="line-through";label.append(check,text);row.append(remove,label);return row
+    const row=ce("div","manual-shop-row"),remove=ce("button","filter-chip filter-chip--danger","Quitar");remove.type="button";remove.dataset.manualDelete=item.id;remove.setAttribute("aria-label","Eliminar "+item.name);remove.title="Eliminar producto";const label=ce("label","shop-item"+(item.done?" is-done":"")),check=ce("input");check.type="checkbox";check.checked=item.done;check.dataset.manualCheck=item.id;const text=ce("span",null,item.name+(item.amount?" · "+item.amount:""));if(item.done)text.style.textDecoration="line-through";label.append(check,text);const edit=ce("button","filter-chip","Editar");edit.type="button";edit.dataset.manualEdit=item.id;edit.setAttribute("aria-label","Editar "+item.name);row.append(label,edit,remove);return row
   }));
-  if(!a.length)box.append(ce("p","screen__hint","Todavía no agregaste productos extra."))
+  if(!a.length)box.append(ce("p","screen__hint","Nada agregado a mano."))
 }
 function manualShoppingText(){
   return loadManualShopping().filter(x=>!x.done).map(x=>"• "+x.name+(x.amount?" ("+x.amount+")":"")).join(NL)
@@ -7729,19 +7849,28 @@ document.addEventListener("change",e=>{
 document.addEventListener("click",e=>{
   const b=e.target.closest("button");if(!b)return;if(b.dataset.manualCancel!==undefined)return resetManualShoppingForm();if(b.dataset.manualEdit){
     const item=loadManualShopping().find(x=>x.id===b.dataset.manualEdit);if(item){
-      manualShopEditing=item.id;document.getElementById("manualShopName").value=item.name;document.getElementById("manualShopAmount").value=item.amount;document.getElementById("manualShopSubmit").textContent="Guardar cambios";document.querySelector("[data-manual-cancel]").classList.remove("is-hidden");document.getElementById("manualShopName").focus()
+      manualShopEditing=item.id;document.getElementById("manualShopName").value=item.name;document.getElementById("manualShopAmount").value=item.amount;document.getElementById("manualShopSubmit").textContent="Guardar cambios";document.querySelector("[data-manual-cancel]").classList.remove("is-hidden");document.getElementById("manualShoppingPanel").open=true;document.getElementById("manualShopName").focus()
     }
   }if(b.dataset.manualDelete){
-    if(!window.confirm("¿Eliminar este producto extra?"))return;const a=loadManualShopping().filter(x=>x.id!==b.dataset.manualDelete);if(persistManualShopping(a)){
-      if(manualShopEditing===b.dataset.manualDelete)resetManualShoppingForm();renderManualShopping()
+    // Desde la v15.4, sin confirmación y con Deshacer (vuelve el arreglo tal como estaba).
+    const antes=localStorage.getItem(MANUAL_SHOP_KEY),todos=loadManualShopping(),quitado=todos.find(x=>x.id===b.dataset.manualDelete);if(!quitado)return;if(persistManualShopping(todos.filter(x=>x.id!==quitado.id))){
+      if(manualShopEditing===quitado.id)resetManualShoppingForm();renderManualShopping();manualShopUndo={antes,despues:localStorage.getItem(MANUAL_SHOP_KEY)};const st=document.getElementById("manualShopStatus"),u=ce("button","filter-chip","Deshacer");u.type="button";u.dataset.manualUndo="";st.replaceChildren(document.createTextNode("Quitado: "+quitado.name+". "),u)
+    }
+  }if(b.dataset.manualUndo!==undefined&&manualShopUndo){
+    const u=manualShopUndo,st=document.getElementById("manualShopStatus");manualShopUndo=null;if(localStorage.getItem(MANUAL_SHOP_KEY)!==u.despues){
+      st.textContent="No se pudo deshacer: la lista cambió después.";return
+    }try{
+      if(u.antes===null)localStorage.removeItem(MANUAL_SHOP_KEY);else localStorage.setItem(MANUAL_SHOP_KEY,u.antes);renderManualShopping();st.textContent="Listo, se recuperó."
+    }catch(err){
+      st.textContent="No se pudo deshacer."
     }
   }
 });
 startupGuard("Productos extra",renderManualShopping);
 // Mi Plato Fácil · Respaldo completo: descargar, validar y restaurar.
 // Parte 19: los archivos se unen en orden según su número, que define el orden de arranque.
-const COMPLETE_BACKUP_KEYS=["miPlatoFacil_adviceFavorites", "miPlatoFacil_datedWeeks_v1", "miPlatoFacil_manualShopping_v1", "miPlatoFacil_pantry", "miPlatoFacil_plan", "miPlatoFacil_planVars", "miPlatoFacil_saved", "miPlatoFacil_theme", "miPlatoFacil_trainingExceptions", "miPlatoFacil_trainingWeek", "miPlatoFacil_cookingHistory_v1", "miPlatoFacil_recipeAmounts_v1", "miPlatoFacil_referencePrices_v1", "miPlatoFacil_recipeDetails_v1", "miPlatoFacil_pantryQuantities_v1", "miPlatoFacil_shoppingBudget_v1", "miPlatoFacil_recipePreferences_v1", "miPlatoFacil_ingredientAliases_v1", "miPlatoFacil_planPortions_v1", "miPlatoFacil_planHistory_v1", "miPlatoFacil_consumption_v1", "miPlatoFacil_habitGoals_v1", "miPlatoFacil_purchases_v1", "miPlatoFacil_pantryMoves_v1", "miPlatoFacil_shoppingChecks_v1","miPlatoFacil_bienvenida_v1"];
-const COMPLETE_BACKUP_OPTIONAL_KEYS=["miPlatoFacil_cookingHistory_v1","miPlatoFacil_recipeAmounts_v1","miPlatoFacil_referencePrices_v1","miPlatoFacil_recipeDetails_v1","miPlatoFacil_pantryQuantities_v1","miPlatoFacil_shoppingBudget_v1","miPlatoFacil_recipePreferences_v1","miPlatoFacil_ingredientAliases_v1","miPlatoFacil_planPortions_v1","miPlatoFacil_planHistory_v1","miPlatoFacil_consumption_v1","miPlatoFacil_habitGoals_v1","miPlatoFacil_purchases_v1","miPlatoFacil_pantryMoves_v1","miPlatoFacil_shoppingChecks_v1","miPlatoFacil_bienvenida_v1"];
+const COMPLETE_BACKUP_KEYS=["miPlatoFacil_adviceFavorites", "miPlatoFacil_datedWeeks_v1", "miPlatoFacil_manualShopping_v1", "miPlatoFacil_pantry", "miPlatoFacil_plan", "miPlatoFacil_planVars", "miPlatoFacil_saved", "miPlatoFacil_theme", "miPlatoFacil_trainingExceptions", "miPlatoFacil_trainingWeek", "miPlatoFacil_cookingHistory_v1", "miPlatoFacil_recipeAmounts_v1", "miPlatoFacil_referencePrices_v1", "miPlatoFacil_recipeDetails_v1", "miPlatoFacil_pantryQuantities_v1", "miPlatoFacil_shoppingBudget_v1", "miPlatoFacil_recipePreferences_v1", "miPlatoFacil_ingredientAliases_v1", "miPlatoFacil_planPortions_v1", "miPlatoFacil_planHistory_v1", "miPlatoFacil_consumption_v1", "miPlatoFacil_habitGoals_v1", "miPlatoFacil_purchases_v1", "miPlatoFacil_pantryMoves_v1", "miPlatoFacil_shoppingChecks_v1","miPlatoFacil_bienvenida_v1","miPlatoFacil_comprasOpciones_v1"];
+const COMPLETE_BACKUP_OPTIONAL_KEYS=["miPlatoFacil_cookingHistory_v1","miPlatoFacil_recipeAmounts_v1","miPlatoFacil_referencePrices_v1","miPlatoFacil_recipeDetails_v1","miPlatoFacil_pantryQuantities_v1","miPlatoFacil_shoppingBudget_v1","miPlatoFacil_recipePreferences_v1","miPlatoFacil_ingredientAliases_v1","miPlatoFacil_planPortions_v1","miPlatoFacil_planHistory_v1","miPlatoFacil_consumption_v1","miPlatoFacil_habitGoals_v1","miPlatoFacil_purchases_v1","miPlatoFacil_pantryMoves_v1","miPlatoFacil_shoppingChecks_v1","miPlatoFacil_bienvenida_v1","miPlatoFacil_comprasOpciones_v1"];
 function validStockQuantitiesStore(o){
   return !!o&&typeof o==="object"&&!Array.isArray(o)&&Object.keys(o).length<=1000&&Object.entries(o).every(([key,v])=>!["__proto__","constructor","prototype"].includes(key)&&!!v&&typeof v==="object"&&typeof v.name==="string"&&v.name.trim().length>0&&v.name.length<=100&&typeof v.unit==="string"&&RECIPE_AMOUNT_UNITS.includes(v.unit)&&typeof v.quantity==="number"&&Number.isFinite(v.quantity)&&v.quantity>=0&&v.quantity<=100000000&&key===stockKey(v.name,v.unit))
 }
@@ -7758,7 +7887,7 @@ function validBienvenida(o){
 let completeBackupPending=null;
 function completeBackupSnapshot(storage){
   return {
-    app:"MiPlatoFacil",format:"complete-local-v1",createdAt:new Date().toISOString(),data:Object.fromEntries(COMPLETE_BACKUP_KEYS.map(k=>[k,storage.getItem(k)]).filter(([k,v])=>!([INGREDIENT_ALIASES_KEY,"miPlatoFacil_planPortions_v1","miPlatoFacil_planHistory_v1","miPlatoFacil_consumption_v1","miPlatoFacil_habitGoals_v1","miPlatoFacil_purchases_v1","miPlatoFacil_pantryMoves_v1","miPlatoFacil_shoppingChecks_v1","miPlatoFacil_bienvenida_v1"].includes(k)&&v===null)))
+    app:"MiPlatoFacil",format:"complete-local-v1",createdAt:new Date().toISOString(),data:Object.fromEntries(COMPLETE_BACKUP_KEYS.map(k=>[k,storage.getItem(k)]).filter(([k,v])=>!([INGREDIENT_ALIASES_KEY,"miPlatoFacil_planPortions_v1","miPlatoFacil_planHistory_v1","miPlatoFacil_consumption_v1","miPlatoFacil_habitGoals_v1","miPlatoFacil_purchases_v1","miPlatoFacil_pantryMoves_v1","miPlatoFacil_shoppingChecks_v1","miPlatoFacil_bienvenida_v1","miPlatoFacil_comprasOpciones_v1"].includes(k)&&v===null)))
   }
 }
 function validateCompleteBackup(o){
@@ -7799,6 +7928,7 @@ function validateCompleteBackup(o){
     if(k==="miPlatoFacil_habitGoals_v1"&&!validHabitGoals(v))throw new Error("Objetivos semanales inválidos.");
     if(k==="miPlatoFacil_purchases_v1"&&!validPurchases(v))throw new Error("Compras registradas inválidas.");
     if(k==="miPlatoFacil_bienvenida_v1"&&!validBienvenida(v))throw new Error("Marca de bienvenida inválida.");
+    if(k==="miPlatoFacil_comprasOpciones_v1"&&!validComprasOpciones(v))throw new Error("Opciones de compras inválidas.");
     if(k==="miPlatoFacil_shoppingChecks_v1"&&!validShoppingChecks(v))throw new Error("Tachados de la lista inválidos.");
     if(k==="miPlatoFacil_pantryMoves_v1"&&!validPantryMoves(v))throw new Error("Movimientos de despensa inválidos.");
     if(k==="miPlatoFacil_recipeAmounts_v1"&&!validRecipeAmountsStore(v))throw new Error("Cantidades por receta inválidas.");
@@ -10077,8 +10207,16 @@ function renderPantryMoves(){
   const a=loadPantryMoves().slice(-30).reverse(),fmt=n=>(n>0?"+":"−")+Math.abs(n).toLocaleString("es-AR",{
     maximumFractionDigits:6
   });
-  box.replaceChildren(...a.map(m=>ce("p","screen__hint",fmtWhen(m.at)+" · "+m.name+" "+fmt(m.delta)+" "+m.unit+" · "+m.reason)));
+  box.replaceChildren(...a.map(m=>ce("p","screen__hint",fmtWhen(m.at)+" · "+m.name+" "+(m.delta>0?"+":"−")+cantidadLegible(Math.abs(m.delta),m.unit)+" · "+m.reason)));
   if(!a.length)box.append(ce("p","screen__hint","Todavía no hay movimientos."))
+}
+// Movimientos de un ingrediente (v15.4, historial por ítem de la Despensa): del más nuevo al más viejo. Solo lee.
+function movimientosDe(nombre,max){
+  const k=ingredientKey(nombre);
+  return loadPantryMoves().filter(m=>ingredientKey(m.name)===k).reverse().slice(0,max||10)
+}
+function textoMovimiento(m){
+  return fmtWhen(m.at)+" · "+(m.delta>0?"+":"−")+cantidadLegible(Math.abs(m.delta),m.unit)+" · "+m.reason
 }
 function applyStockChanges(changes,reason){
   const stock=loadStockQuantities(),moves=[],short=[];
@@ -10606,9 +10744,11 @@ document.getElementById("aiSettingsOpen").addEventListener("click",()=>go("asist
 // siguen generando sugerencias en Compras): solo dejan de verse hasta que se elige el modo completo.
 // Semana (desde la v15.1) no oculta nada: sus herramientas están en su menú ⋯ en los dos modos.
 const ADVANCED_TOOLS={
+  // Desde la v15.4 las herramientas de Compras están en su menú ⋯ en los dos modos; el modo simple esconde la barra
+  // de presupuesto de la lista.
   compras:{
-    list:"presupuesto, compras realizadas, existencias, precios y cálculos",
-    items:()=>[document.getElementById("shoppingToolsPanel")]
+    list:"la barra de presupuesto",
+    items:()=>[document.getElementById("comprasPresupuesto")]
   },
   // Desde la v15.3 cada herramienta vive en la pantalla de su tema; la lista de elementos es la misma de antes.
   ingredientes:{
@@ -10710,9 +10850,8 @@ function renderUiModeControls(){
     button.type="button";
     button.dataset.uiModeToggle="";
     note.append(ce("p","screen__hint"),button);
-    // En Compras va justo antes de las herramientas; en las demás pantallas, al final.
-    if(key==="compras")document.getElementById("shoppingToolsPanel").before(note);
-    else document.getElementById(key).append(note)
+    // Al final de cada pantalla.
+    document.getElementById(key).append(note)
   }
   const card=ce("button","tool-button");
   card.type="button";
@@ -11140,7 +11279,7 @@ function renderPantryItems(){
   box.replaceChildren(...rows.map(r=>{
     const row=ce("div","pantry-item"),text=ce("span","pantry-item__text"),edit=ce("button","filter-chip",r.key?"Editar":"Agregar cantidad"),del=ce("button","filter-chip filter-chip--danger","Quitar");
     row.dataset.pantryItem=r.key||r.name;
-    text.append(ce("strong",null,r.name),document.createTextNode(" · "+(r.key?pantryQtyText(r.quantity)+" "+r.unit+(r.quantity===0?" (se terminó)":""):"sin cantidad")));
+    text.append(ce("strong",null,r.name),document.createTextNode(" · "+(r.key?cantidadLegible(r.quantity,r.unit)+(r.quantity===0?" (se terminó)":""):"sin cantidad")));
     edit.type=del.type="button";
     if(r.key){
       edit.dataset.pantryItemEdit=r.key;
@@ -11152,6 +11291,13 @@ function renderPantryItems(){
     edit.setAttribute("aria-label",(r.key?"Editar ":"Agregar cantidad a ")+r.name);
     del.setAttribute("aria-label","Quitar "+r.name+" de la despensa");
     row.append(text,edit,del);
+    // Historial del ítem (v15.4): sus movimientos, plegados. Solo lee.
+    const movs=movimientosDe(r.name);
+    if(movs.length){
+      const h=ce("details","pantry-item__historial");
+      h.append(ce("summary",null,"Historial ("+movs.length+")"),...movs.map(m=>ce("p","screen__hint",textoMovimiento(m))));
+      row.append(h)
+    }
     return row
   }))
 }
@@ -11243,11 +11389,19 @@ function savePantryItem(){
 document.getElementById("pantryItemForm").addEventListener("submit",e=>{
   e.preventDefault();
   try{
+    // Editar ofrece Deshacer (v15.4): se guarda cómo estaban la despensa y las marcas antes del cambio.
+    const editando=!!pantryEditKey,antes={
+      stock:localStorage.getItem(STOCK_QUANT_KEY),pantry:localStorage.getItem(PANKEY)
+    };
     const msg=savePantryItem();
     resetPantryForm();
-    pantryUndo=null;
+    pantryUndo=editando?{
+      kind:"edit",antes,despues:{
+        stock:localStorage.getItem(STOCK_QUANT_KEY),pantry:localStorage.getItem(PANKEY)
+      }
+    }:null;
     afterPantryChange();
-    pantryStatus(msg)
+    pantryStatus(msg,editando)
   }catch(err){
     pantryStatus(err.message)
   }
@@ -11324,7 +11478,20 @@ document.addEventListener("click",e=>{
     }else if(b.dataset.pantryUndo!==undefined&&pantryUndo){
       const u=pantryUndo;
       pantryUndo=null;
-      if(u.kind==="stock"){
+      if(u.kind==="edit"){
+        if(localStorage.getItem(STOCK_QUANT_KEY)!==u.despues.stock||localStorage.getItem(PANKEY)!==u.despues.pantry)throw Error("No se pudo deshacer: la despensa cambió después.");
+        const ahora=loadStockQuantities(),volver=JSON.parse(u.antes.stock||"{}"),moves=[];
+        for(const key of new Set([...Object.keys(ahora),...Object.keys(volver)])){
+          const a=ahora[key],v=volver[key],d=(v?v.quantity:0)-(a?a.quantity:0);
+          if(d)moves.push({
+            name:(v||a).name,unit:(v||a).unit,delta:d,reason:"Deshacer: edición"
+          })
+        }
+        if(u.antes.stock===null)localStorage.removeItem(STOCK_QUANT_KEY);else localStorage.setItem(STOCK_QUANT_KEY,u.antes.stock);
+        if(u.antes.pantry===null)localStorage.removeItem(PANKEY);else localStorage.setItem(PANKEY,u.antes.pantry);
+        pantrySel=loadPantry();
+        logPantryMoves(moves)
+      }else if(u.kind==="stock"){
         const stock=loadStockQuantities();
         if(stock[u.key])throw Error("No se pudo deshacer: ya hay otra cantidad guardada para ese ingrediente.");
         stock[u.key]=u.item;
@@ -11442,9 +11609,10 @@ function boughtNow(){
   if(!items.length)return {
     text:all.some(e=>comprasDone[e.key])?"Lo tachado ya está en tu despensa.":"Primero tachá lo que compraste en la lista."
   };
-  const stock=loadStockQuantities(),marked=pantryMarkedMatcher(),before=oneTapSnapshot(BOUGHT_UNDO_KEYS),changes=[],marks=[],alcanzaba=[];
+  const stock=loadStockQuantities(),marked=pantryMarkedMatcher(),before=oneTapSnapshot(BOUGHT_UNDO_KEYS),changes=[],marks=[],alcanzaba=[],descontar=comprasDescontar();
   for(const e of items){
-    const sugg=shoppingSuggestion(e,stock,marked);
+    // Con "Descontar lo que tengo" apagado (v15.4) no se descontó nada: se suma la cantidad completa del plan.
+    const sugg=descontar?shoppingSuggestion(e,stock,marked):null;
     // Si la despensa ya alcanzaba ("Ya tenés"), no se suma nada: así no se inflan las existencias.
     if(sugg&&sugg.kind==="covered"){
       alcanzaba.push(e.name);continue
@@ -11490,7 +11658,7 @@ function boughtNow(){
   }
   const parts=res.moves.map(oneTapQty).concat(marks.map(n=>n+" (sin cantidad)"),alcanzaba.map(n=>n+" (ya alcanzaba)"));
   return {
-    text:"Pasó a tu despensa: "+parts.join(", ")+". Lo ves en Ya en tu despensa.",before,after:oneTapSnapshot(BOUGHT_UNDO_KEYS),keys:items.map(e=>e.key),keysList:BOUGHT_UNDO_KEYS
+    text:textoLegible("Pasó a tu despensa: "+parts.join(", ")+"."),before,after:oneTapSnapshot(BOUGHT_UNDO_KEYS),keys:items.map(e=>e.key),keysList:BOUGHT_UNDO_KEYS
   }
 }
 document.addEventListener("click",e=>{
@@ -11522,7 +11690,15 @@ document.addEventListener("click",e=>{
         afterOneTap();
         renderCompras()
       }
-      oneTapStatus(st,r.text,r.before?"bought":null)
+      oneTapStatus(st,r.text,r.before?"bought":null);
+      // "Terminé de comprar" (v15.4): después, opcional, anotar el gasto y los precios del ticket.
+      if(r.before){
+        ultimaCompraClaves=r.keys;
+        const g=ce("button","filter-chip","🧾 Anotar gasto");
+        g.type="button";
+        g.dataset.anotarGasto="";
+        st.append(" ",g)
+      }
     }else if(b.dataset.oneTapUndo){
       const key=b.dataset.oneTapUndo,u=oneTapUndo[key];
       if(!u)return;
@@ -12882,4 +13058,89 @@ try{
   if(esUsuarioNuevo())abrirBienvenida()
 }catch(e){
 }
+// Mi Plato Fácil · Compras y Despensa (desde la v15.4): segmento "Lista | Despensa", interruptor "Descontar lo que
+// tengo", menú ⋯ con las herramientas de compras (una pantalla que muestra solo la elegida) y "Anotar gasto".
+// Parte 42: los archivos se unen en orden según su número, que define el orden de arranque.
+// init() corre durante la carga de 14, antes que este archivo: acá solo hay funciones, var y manejadores, que se
+// usan recién al tocar. renderCompras (12) no depende de nada de este archivo.
+var COMPRAS_HERRAMIENTAS={
+  realizadas:"Compras realizadas",presupuesto:"Presupuesto",precios:"Mis precios",costoReceta:"Costo de una receta",otrasRecetas:"Calcular para otras recetas",existencias:"Porciones, existencias y costos",compartir:"Compartir o copiar la lista"
+};
+// Abre una herramienta (o "todas", que usan las capturas para medir) en la pantalla comprasHerramientas.
+function abrirHerramientaCompras(nombre){
+  if(nombre!=="todas"&&!COMPRAS_HERRAMIENTAS[nombre])return;
+  try{
+    if(hoja.abierta())hoja.cerrar()
+  }catch(e){
+  }
+  document.querySelectorAll("#comprasHerramientas [data-herr]").forEach(g=>{
+    g.hidden=nombre!=="todas"&&g.dataset.herr!==nombre
+  });
+  document.getElementById("shoppingToolsPanel").open=true;
+  document.getElementById("comprasHerrTitulo").textContent=nombre==="todas"?"Herramientas de compras":COMPRAS_HERRAMIENTAS[nombre];
+  if(activeTab!=="compras")openTab("compras");
+  const paneles={
+    realizadas:["purchasesPanel"],presupuesto:["shoppingBudgetPanel"],precios:["pricePanel"],costoReceta:["recipeCostPanel"],otrasRecetas:["quantShoppingPanel","stockDeductionPanel"],existencias:["shoppingQuantCostPanel"]
+  };
+  const ids=nombre==="todas"?Object.values(paneles).flat():paneles[nombre]||[];
+  for(const id of ids){
+    const p=document.getElementById(id);
+    if(p&&!p.open)p.open=true
+  }
+  go("comprasHerramientas")
+}
+function abrirMenuCompras(){
+  const lista=ce("div","menu-semana");
+  for(const [nombre,texto] of Object.entries(COMPRAS_HERRAMIENTAS))lista.append(botonHoja(texto,"button--soft",{
+    comprasHerr:nombre
+  }));
+  hoja.abrir({
+    titulo:"Más opciones de compras",contenido:[lista],botones:[],foco:false
+  })
+}
+// "Anotar gasto" después de "Terminé de comprar": abre el formulario de siempre de Compras realizadas, ya cargado con
+// lo que acaba de pasar a la despensa. Los precios se guardan en Mis precios; la despensa no se vuelve a sumar.
+var ultimaCompraClaves=[];
+function anotarGasto(){
+  const claves=new Set(ultimaCompraClaves),items=shoppingPlanItems().filter(e=>claves.has(e.key)),box=document.getElementById("purchaseItems");
+  box.replaceChildren();
+  for(const e of items){
+    const m=mergeUnits(e.units),one=m.size===1?[...m.entries()][0]:null;
+    appendPurchaseItem({
+      name:e.name,quantity:one&&!e.unknown?one[1]:null,unit:one&&!e.unknown?one[0]:null,price:null
+    })
+  }
+  const budget=shoppingBudgetRead();
+  document.getElementById("purchaseDate").value=typedAppDateLabel(localTrainingDate(new Date()));
+  document.getElementById("purchaseCurrency").value=budget?budget.currency:"ARS";
+  document.getElementById("purchaseUpdatePrices").checked=true;
+  document.getElementById("purchaseAddStock").checked=false;
+  abrirHerramientaCompras("realizadas");
+  document.getElementById("purchaseStatus").textContent=items.length?"Cargá el total y, si querés, los precios: actualizan Mis precios.":"Cargá el total de la compra.";
+  document.getElementById("purchaseTotal").focus({
+    preventScroll:true
+  })
+}
+document.addEventListener("click",e=>{
+  const b=e.target.closest&&e.target.closest("button");
+  if(!b)return;
+  const d=b.dataset;
+  if(d.comprasMenu!==undefined)return abrirMenuCompras();
+  if(d.comprasHerr)return abrirHerramientaCompras(d.comprasHerr);
+  if(d.comprasVista==="lista")return openTab("compras");
+  if(d.comprasVista==="despensa"&&stack.at(-1)!=="ingredientes"){
+    renderPantry();
+    return go("ingredientes")
+  }
+  if(d.anotarGasto!==undefined)return anotarGasto()
+});
+document.getElementById("comprasDescontar").addEventListener("change",e=>{
+  try{
+    guardarComprasDescontar(e.target.checked)
+  }catch(err){
+    e.target.checked=!e.target.checked;
+    comprasStatus("No se pudo guardar el cambio.")
+  }
+  renderCompras()
+});
 </script></body></html>

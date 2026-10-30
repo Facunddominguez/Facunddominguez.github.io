@@ -17,7 +17,7 @@
   // M2 Herramientas avanzadas ocultas en Compras, Recetas y Plan (aunque los paneles estén abiertos)
   // v15.3: la misma lista de ids, repartida por la pantalla de su tema (antes las tres estaban en "ingredientes").
   const expected = {
-    compras: ["shoppingToolsPanel"],
+    compras: ["comprasPresupuesto"],
     ingredientes: ["pantryReviewPanel"],
     recetaEditar: ["recipeAmountsPanel"],
     preferencias: ["ingredientAliasPanel"],
@@ -45,7 +45,21 @@
   // M3 Lo esencial sigue a la vista
   const essentials = [];
   go("compras"); await wait(20);
-  for (const sel of ["#comprasList", "#manualShoppingPanel", "[data-share-compras]", "[data-copy-compras]", "#comprasShowPending"]) if (!shown(document.querySelector(sel))) essentials.push(sel);
+  // v15.4: la lista, agregar producto, el interruptor y Terminé de comprar en la vista; Compartir, Copiar y las
+  // herramientas de compras en el menú ⋯ (en los dos modos), cada una visible y con sus controles.
+  for (const sel of ["#comprasList", "#manualShoppingPanel", "#comprasDescontar", "#comprasBought"]) if (!shown(document.querySelector(sel))) essentials.push(sel);
+  const herramientasCompras = async () => {
+    let ok = true;
+    for (const [herr, sels] of [["compartir", ["[data-share-compras]", "[data-copy-compras]"]], ["realizadas", ["#purchasesPanel", "#purchaseSave", "#purchaseFromList"]], ["presupuesto", ["#shoppingBudgetPanel", "#shoppingBudgetSave"]], ["precios", ["#pricePanel", "#priceForm"]], ["costoReceta", ["#recipeCostPanel", "#recipeCostPrepare"]], ["otrasRecetas", ["#quantShoppingPanel", "#quantShoppingCalculate", "#stockDeductionPanel", "#stockPrepare"]], ["existencias", ["#shoppingQuantCostPanel", "#shoppingPortionMultiplier", "#stockSave"]]]) {
+      go("compras"); await wait(20); document.querySelector("#compras [data-compras-menu]").click(); await wait(30);
+      const b = document.querySelector('.hoja [data-compras-herr="' + herr + '"]');
+      if (!shown(b)) { essentials.push("menú ⋯ de Compras sin " + herr); ok = false; hoja.cerrar(); continue }
+      b.click(); await wait(60);
+      const faltan = sels.filter(s => !shown(document.querySelector(s))); if (faltan.length) { essentials.push(...faltan); ok = false }
+    }
+    go("compras"); await wait(20); return ok
+  };
+  await herramientasCompras();
   // v15.3: los mismos elementos, cada uno en su pantalla (despensa, Ideas, Preferencias y Fuentes de datos).
   for (const [pant, sels] of [["ingredientes", ["#pantryChips"]], ["ideas", ["#recipeCatalogSearch", "#recipeCatalogTime", "#aiIdeasPanel", "#recipeCatalogResults", "#recipeViewCreate"]], ["preferencias", ["#recipeAvoidWords"]], ["fuentes", ["#nutritionLookupPanel"]]]) {
     go(pant); if (pant === "ideas") showRecipeView("browse"); openAll(pant); await wait(30);
@@ -91,7 +105,7 @@
   const notes = ["compras", "ingredientes", "ideas", "comida", "recetaEditar", "preferencias", "backupScreen"].map(id => document.querySelector("#" + id + " [data-mode-note]"));
   await menuSemana(); const itemsMenu = [...document.querySelectorAll(".hoja .menu-semana button")].filter(shown).map(b => b.textContent); hoja.cerrar();
   const menuCompleto = ["Repetir semana anterior", "Copiar un día", "Vaciar la semana", "Planes guardados", "Semanas anteriores y mes", "Historial de cambios", "Descargar", "Buscar en mis recetas", "Lo que comí y objetivos"].every(t => itemsMenu.includes(t));
-  T.ok("M4 aviso en Compras y Recetas con lo que está oculto; Semana no oculta nada y su menú lo lista todo", notes.every(n => n && /Tus datos siguen guardados/.test(n.textContent) && n.querySelector("button").textContent === "Mostrar herramientas avanzadas") && /presupuesto/.test(notes[0].textContent) && $("shoppingToolsPanel").previousElementSibling === notes[0] && !document.querySelector("#plan [data-mode-note]") && menuCompleto, notes.map(n => n && n.textContent.slice(0, 60)).join(" | ") + " | " + itemsMenu.join(", "));
+  T.ok("M4 aviso en Compras y Recetas con lo que está oculto; Semana no oculta nada y su menú lo lista todo", notes.every(n => n && /Tus datos siguen guardados/.test(n.textContent) && n.querySelector("button").textContent === "Mostrar herramientas avanzadas") && /presupuesto/.test(notes[0].textContent) && notes[0].parentElement === $("compras") && !document.querySelector("#plan [data-mode-note]") && menuCompleto, notes.map(n => n && n.textContent.slice(0, 60)).join(" | ") + " | " + itemsMenu.join(", "));
   // M5 Tarjeta en Configuración: cambia el modo y lo recuerda
   const card = $("uiModeToggle");
   const inSettings = !!card && $("preferencias").contains(card) && card.classList.contains("tool-button");
@@ -102,7 +116,7 @@
   T.ok("M5 la tarjeta de Configuración activa el modo completo y lo recuerda", inSettings && label1 === "Modo simple: activado" && label2 === "Modo simple: desactivado" && getUiMode() === "completo" && localStorage.getItem(UI_MODE_KEY) === "completo" && document.documentElement.dataset.modo === "completo", label1 + " → " + label2);
   // M6 En modo completo se ve todo otra vez
   go("compras"); await wait(20);
-  const toolsShown = shown($("shoppingToolsPanel"));
+  const toolsShown = shown($("comprasPresupuesto")) && await herramientasCompras();
   // Semana: las mismas herramientas desde el menú ⋯, en modo completo y (ya comprobado en M3) en modo simple.
   const planShown = planHerrSimple && await herramientasPlan();
   let ingShown = true;
@@ -113,7 +127,7 @@
   T.ok("M6 en modo completo vuelven a verse todas las herramientas", toolsShown && planShown && ingShown && notes.every(n => n.querySelector("button").textContent === "Ocultar herramientas avanzadas"));
   // M7 El aviso de cada pantalla vuelve al modo simple
   notes[0].querySelector("button").click(); await wait(20); go("compras"); await wait(20);
-  T.ok("M7 el botón del aviso vuelve al modo simple", getUiMode() === "simple" && localStorage.getItem(UI_MODE_KEY) === "simple" && !shown($("shoppingToolsPanel")) && card.querySelector(".tool-button__label").textContent === "Modo simple: activado");
+  T.ok("M7 el botón del aviso vuelve al modo simple", getUiMode() === "simple" && localStorage.getItem(UI_MODE_KEY) === "simple" && !shown($("comprasPresupuesto")) && card.querySelector(".tool-button__label").textContent === "Modo simple: activado");
   // M8 Cambiar de modo no toca ningún dato
   card.click(); await wait(10); card.click(); await wait(10);
   T.ok("M8 cambiar de modo no modifica ningún dato guardado", appData() === before && Object.keys(localStorage).filter(k => k.startsWith("miPlatoFacil_")).includes(UI_MODE_KEY));

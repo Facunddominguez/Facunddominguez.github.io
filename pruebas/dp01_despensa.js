@@ -53,7 +53,7 @@
   // DP10 Compras usa la despensa: marca sin cantidad y existencia con cantidad
   setSaved([tradPlate("t1", ["Quinoa roja"], ["Comino"], ["Merluza"])]); setPlan([["lunes", "almuerzo", "t1"]]);
   const items = shoppingDisplayItems(), quinoa = items.find(x => x.name === "Quinoa roja"), comino = items.find(x => x.name === "Comino");
-  T.ok("DP10 Compras sugiere con lo de la despensa (con y sin cantidad), sin cambiar la lista", !!quinoa && /Despensa: tenés 300 g/.test(quinoa.suggestion.text) && !!comino && /Lo marcaste en “Con lo que tengo”/.test(comino.suggestion.text) && items.length === 3, (quinoa && quinoa.suggestion && quinoa.suggestion.text) + " | " + (comino && comino.suggestion && comino.suggestion.text));
+  T.ok("DP10 Compras sugiere con lo de la despensa (con y sin cantidad), sin cambiar la lista", !!quinoa && /Despensa: tenés 300 g/.test(quinoa.suggestion.text) && !!comino && /Lo marcaste en tu Despensa/.test(comino.suggestion.text) && items.length === 3, (quinoa && quinoa.suggestion && quinoa.suggestion.text) + " | " + (comino && comino.suggestion && comino.suggestion.text));
   // DP11 Las ideas y el asistente de IA usan también lo agregado a mano y las existencias
   localStorage.setItem("miPlatoFacil_pantry", JSON.stringify(["Merluza fresca"])); pantrySel = loadPantry();
   localStorage.setItem("miPlatoFacil_pantryQuantities_v1", JSON.stringify({ [stockKey("Lentejas", "g")]: { name: "Lentejas", quantity: 300, unit: "g" } }));

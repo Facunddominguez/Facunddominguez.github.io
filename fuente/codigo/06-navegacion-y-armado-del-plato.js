@@ -151,9 +151,10 @@ let activeTab="hoy";
 function activeTabRoot(){
   return TABS[activeTab].root
 }
-// En Comidas, Ideas es la otra mitad del segmento "Mis comidas | Ideas": no muestra "← Comidas".
+// En Comidas, Ideas es la otra mitad del segmento "Mis comidas | Ideas": no muestra "← Comidas". Igual la Despensa en
+// Compras ("Lista | Despensa", desde la v15.4).
 function esRaizDePestana(cur){
-  return cur===activeTabRoot()||(activeTab==="miscomidas"&&cur==="ideas")
+  return cur===activeTabRoot()||(activeTab==="miscomidas"&&cur==="ideas")||(activeTab==="compras"&&cur==="ingredientes")
 }
 function nav(){
   const cur=stack.at(-1),home=cur==="home",sum=cur==="resumen",next=nextFor(cur);
