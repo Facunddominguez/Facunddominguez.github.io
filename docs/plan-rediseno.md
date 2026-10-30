@@ -246,7 +246,7 @@ Estados: ✅ hecha · ⏳ en curso · ⛔ parada. Cada etapa entra a `rediseno` 
 | 2. Selector de comida y nueva Semana | ✅ | `etapa-2-ok` | 15.1.0 |
 | 3. Hoy | ✅ | `etapa-3-ok` | 15.2.0 |
 | 4. Comidas y nueva estructura | ✅ | `etapa-4-ok` | 15.3.0 |
-| 5. Compras y Despensa | ⏳ | — | 15.4.0 |
+| 5. Compras y Despensa | ✅ | `etapa-5-ok` | 15.4.0 |
 | 6. Un solo registro | — | — | — |
 | 7. Precios automáticos de INDEC | — | — | — |
 | 8. Resto de las herramientas avanzadas | — | — | — |
@@ -1081,7 +1081,7 @@ Rama `rediseno-etapa-4-comidas`. Versión 15.3.0.
 - El detalle de un plato no calcula los nutrientes del plato entero (el armado no guarda gramos); muestra los de cada ingrediente.
 - Eliminar sigue con confirmación, no con Deshacer.
 
-### Etapa 5 · Compras y Despensa ⏳
+### Etapa 5 · Compras y Despensa ✅
 
 Rama `rediseno-etapa-5-compras`. Versión 15.4.0.
 
@@ -1259,3 +1259,22 @@ Rama `rediseno-etapa-5-compras`. Versión 15.4.0.
 - La tabla de secciones del súper se arma a mano: conviene revisarla con los ingredientes reales del catálogo (Etapa 10).
 - La herramienta "Porciones, existencias y costos" repite la lista de existencias de la Despensa; podría quedar solo el multiplicador (Etapa 8).
 - El ≈ precio por ítem en la lista y la sugerencia de equivalencias llegan en las Etapas 7 y 8.
+
+**Revisores**
+- revisor-codigo, sobre el plan: BLOQUEANTE en la primera versión. Los paneles mudados a `comprasHerramientas` quedaban sin tope, y S4b de r2_shop podía pasar vacía.
+  - Lo resolví sumando a `criterios.json` (más estricto) E5-palabras-herramientas-compras ≤ 742,8, con la vista nueva `compras-herramientas` en las capturas.
+  - S4b quedó con una comprobación positiva. Se verificó en el diff.
+- revisor-codigo, sobre el diff: NO BLOQUEANTE (los dos bloqueantes, resueltos; datos y pruebas, bien).
+- revisor-usuario: NO BLOQUEANTE. Compras con todo abierto pasó de 15.490 a 4.212 px. "Lista | Despensa" se entiende y no hay textos cortados ni superpuestos.
+
+**Mejoras sugeridas**
+- Las cantidades mezclan formatos ("Brócoli (×2)", "Ajo: 1,5 unidades", "1 unidad + sin cantidad en 1 plato").
+- Las notas de "Ya tenés" ocupan 2 o 3 líneas: llevarlas a una línea o a "ⓘ".
+- En "Otros productos", "Quitar" queda solo en una línea debajo de cada ítem.
+- Con la lista vacía, el botón lleno es "Terminé de comprar": debería llevar a Semana.
+- La despensa creció a 3.165 px por "Historial (N)" en cada ítem, y repite un alimento como chip de lo básico y como ítem con cantidad ("Huevos" y "Huevo · 6 unidades").
+- El aviso de herramientas ocultas sigue ocupando 3 líneas.
+- "Anotar gasto" carga la cantidad completa del plan aunque se haya comprado solo lo que faltaba (el precio por unidad puede quedar mal): Etapa 8.
+- La barra de presupuesto antepone "$" también con USD: Etapa 8.
+- Se perdieron dos aclaraciones: "Existencia sin cantidad registrada" y el signo de la diferencia en compras realizadas.
+- La tabla de secciones del súper es manual. `#budgetAlternative_0` es un select cortado que ya venía de antes.
