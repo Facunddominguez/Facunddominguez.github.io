@@ -61,6 +61,9 @@
     go(id); if (id === 'ideas') { showRecipeView('browse'); abrirIdeas(true) } if (id === 'bienvenida') abrirBienvenida();
     await wait(30); medir('#' + id + ' .filter-chip')
   }
+  // v15.5: el Registro, con sus plegables abiertos.
+  abrirRegistro(); document.querySelectorAll('#registro details').forEach(d => { d.open = true }); await wait(40); medir('#registro .filter-chip, #registro .button');
+  document.querySelectorAll('#registro details').forEach(d => { d.open = false });
   go('misplatos'); document.querySelector('#misplatos [data-comida-nueva]').click(); await wait(30); medir('.hoja .filter-chip, .hoja .tool-button'); hoja.cerrar();
   ideasConLoQueTengo = false; pintarFiltroConLoQueTengo(); restart();
   go('home');

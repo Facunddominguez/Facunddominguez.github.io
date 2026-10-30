@@ -87,14 +87,38 @@ function renameSaved(id){
   renderSaved();
   savedStatus(it.note?"Nota guardada.":"Nota eliminada.")
 }
+// Lo cociné de un plato: suma el contador, como siempre, y desde la v15.5 también anota la preparación de hoy en el
+// historial (el mismo formato que una receta), así se ve en el Registro. Deshacer vuelve las dos cosas.
 function cookedPlate(id){
   const a=loadSaved();
   const it=a.find(x=>x.id===id);
   if(!it)return;
+  const antes=registroFoto();
+  try{
+    const rec=cookingHistoryRecord(it,localTrainingDate(new Date()),"Otra");
+    rec.title=String(mealName(it)||rec.title).slice(0,200);
+    agregarPreparacion(rec)
+  }catch(err){
+    savedStatus(err.message||"No se pudo anotar.");
+    return
+  }
   it.cooked=(it.cooked||0)+1;
-  persistSaved(a);
+  if(!persistSaved(a)){
+    for(const [k,v] of Object.entries(antes)){
+      if(v===null)localStorage.removeItem(k);else localStorage.setItem(k,v)
+    }
+    savedStatus("No se pudo guardar (falta de espacio u otro error). No se modificó nada.");
+    return
+  }
   renderSaved();
-  savedStatus("¡Registrado! Cocinaste este plato "+it.cooked+" ve"+(it.cooked===1?"z":"ces")+".")
+  const msg="¡Registrado! Cocinaste este plato "+it.cooked+" ve"+(it.cooked===1?"z":"ces")+".";
+  savedStatus(msg);
+  const det=document.getElementById("comidaEstado");
+  registroAviso(stack.at(-1)==="comida"&&det?det:document.getElementById("savedStatus"),msg,antes);
+  try{
+    if(stack.at(-1)==="registro")renderRegistro()
+  }catch(e){
+  }
 }
 function clearAllSaved(){
   const a=loadSaved();
@@ -142,7 +166,7 @@ function savedCard(item){
   tog.dataset.toggleActions=item.id;
   tog.setAttribute("aria-expanded",String(open));
   const acts=ce("div","summary-actions"+(open?"":" is-hidden"));
-  const bCook=ce("button","button button--soft","✓ Cociné");
+  const bCook=ce("button","button button--soft","🍳 Lo cociné");
   bCook.type="button";
   bCook.dataset.cookSaved=item.id;
   const bFav=ce("button","button button--soft",item.fav?"⭐ Favorito":"☆ Favorito");

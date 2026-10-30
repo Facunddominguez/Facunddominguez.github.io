@@ -11,6 +11,24 @@ function loadCookingHistory(){
     return []
   }
 }
+// La única alta en el historial (formulario, "+ Lo cociné" del Registro, Lo cociné de un plato y de una receta).
+// Agrega sobre el arreglo crudo, sin filtrar: los registros que no validan quedan como estaban. Si lo guardado no se
+// puede leer, no escribe nada y avisa. El registro nuevo siempre valida (así el respaldo lo acepta).
+function agregarPreparacion(record){
+  if(!validCookingHistoryRecord(record))throw new Error("La preparación no es válida.");
+  let a=null;
+  try{
+    a=JSON.parse(localStorage.getItem(COOKING_HISTORY_KEY)||"[]")
+  }catch(e){
+  }
+  if(!Array.isArray(a))throw new Error("No se pudo leer tu historial de preparaciones: no se anotó nada.");
+  a.push(record);
+  try{
+    localStorage.setItem(COOKING_HISTORY_KEY,JSON.stringify(a))
+  }catch(e){
+    throw new Error("No se pudo guardar (falta de espacio u otro error). No se modificó nada.")
+  }
+}
 function cookingHistoryRecord(plate,date,meal){
   if(!plate||!validTrainingDate(date)||date>localTrainingDate(new Date()))throw new Error("Elegí un plato y una fecha válida, no futura.");
   return {
@@ -30,7 +48,7 @@ function renderCookingHistory(){
   if(Array.from(select.options).some(o=>o.value===previous))select.value=previous;
   const list=document.getElementById("cookingHistoryList"),items=loadCookingHistory().sort((a,b)=>b.date.localeCompare(a.date));
   list.replaceChildren(...items.map(item=>{
-    const row=ce("div","summary__line");row.append(ce("strong",null,typedAppDateLabel(item.date)+" · "+item.meal),ce("p",null,item.title),ce("p","screen__hint",item.lines.join(" · ")));const remove=ce("button","button button--danger","Eliminar registro");remove.type="button";remove.dataset.cookingHistoryDelete=item.id;row.append(remove);return row
+    const row=ce("div","summary__line");row.append(ce("strong",null,typedAppDateLabel(item.date)+" · "+item.meal),ce("p",null,item.title),ce("p","screen__hint",item.lines.join(" · ")));const remove=ce("button","button button--danger","Quitar");remove.type="button";remove.setAttribute("aria-label","Quitar registro: "+item.title);remove.dataset.cookingHistoryDelete=item.id;row.append(remove);return row
   }));
   if(!items.length)list.append(ce("p","screen__hint","Todavía no registraste preparaciones."))
 }
@@ -43,15 +61,16 @@ document.getElementById("cookingHistoryPanel").addEventListener("toggle",e=>{
 });
 document.getElementById("cookingHistoryForm").addEventListener("submit",e=>{
   e.preventDefault();const status=document.getElementById("cookingHistoryStatus");try{
-    const date=parseTypedAppDate(document.getElementById("cookingHistoryDate").value),plate=loadSaved().find(p=>p.id===document.getElementById("cookingHistoryPlate").value),meal=document.getElementById("cookingHistoryMeal").value,record=cookingHistoryRecord(plate,date,meal),items=loadCookingHistory();if(items.some(x=>x.date===date&&x.meal===meal&&x.sourceId===record.sourceId)&&!window.confirm("Ya hay un registro de este plato en esa fecha y comida. ¿Agregar otra preparación?"))return;items.push(record);localStorage.setItem(COOKING_HISTORY_KEY,JSON.stringify(items));renderCookingHistory();status.textContent="Preparación registrada. El contador Cociné no cambió."
+    const date=parseTypedAppDate(document.getElementById("cookingHistoryDate").value),plate=loadSaved().find(p=>p.id===document.getElementById("cookingHistoryPlate").value),meal=document.getElementById("cookingHistoryMeal").value,record=cookingHistoryRecord(plate,date,meal),repetida=loadCookingHistory().some(x=>x.date===date&&x.meal===meal&&x.sourceId===record.sourceId),antes=registroFoto();agregarPreparacion(record);registroRepintar();renderCookingHistory();registroAviso(status,"Preparación registrada."+(repetida?" Ya había una igual ese día.":""),antes)
   }catch(err){
     status.textContent=err.message||"No se pudo guardar."
   }
 });
 document.addEventListener("click",e=>{
-  const b=e.target.closest("[data-cooking-history-delete]");if(!b||!window.confirm("¿Eliminar solo este registro del historial?"))return;try{
-    localStorage.setItem(COOKING_HISTORY_KEY,JSON.stringify(loadCookingHistory().filter(x=>x.id!==b.dataset.cookingHistoryDelete)));renderCookingHistory();document.getElementById("cookingHistoryStatus").textContent="Registro eliminado."
+  // Sin confirmación: Quitar ofrece Deshacer (v15.5). Saca solo ese id del arreglo crudo.
+  const b=e.target.closest("[data-cooking-history-delete]");if(!b)return;const st=document.getElementById("cookingHistoryStatus");try{
+    const antes=quitarRegistro("cocine",b.dataset.cookingHistoryDelete);registroRepintar();renderCookingHistory();registroAviso(st,"Registro eliminado.",antes)
   }catch(err){
-    document.getElementById("cookingHistoryStatus").textContent="No se pudo eliminar el registro."
+    st.textContent=err.message||"No se pudo eliminar el registro."
   }
 });

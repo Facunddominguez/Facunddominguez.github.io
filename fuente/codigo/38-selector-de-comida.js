@@ -70,7 +70,7 @@ function actualizarHuecoLleno(h){
   if(h.loComi){
     const it=loadSaved().find(p=>p.id===h.id),hecho=!!it&&eatenToday(it,h.slot);
     h.loComi.disabled=hecho;
-    h.loComi.textContent=hecho?"✓ Comido hoy":"Lo comí hoy"
+    h.loComi.textContent=hecho?"✓ Lo comí hoy":"Lo comí hoy"
   }
 }
 // Después de cada cambio del plan: si el hueco abierto cambió de comida, la hoja se cierra; si no, se actualiza.
@@ -332,7 +332,7 @@ function abrirMenuSemana(){
   }),botonHoja("Vaciar la semana","button--danger",{
     clearPlan:""
   }));
-  for(const [nombre,texto] of [["variaciones","Planes guardados"],["semanas","Semanas anteriores y mes"],["historial","Historial de cambios"],["descargar","Descargar"],["recetas","Buscar en mis recetas"],["consumo","Lo que comí y objetivos"]])lista.append(botonHoja(texto,"button--soft",{
+  for(const [nombre,texto] of [["variaciones","Planes guardados"],["semanas","Semanas anteriores y mes"],["historial","Historial de cambios"],["descargar","Descargar"],["recetas","Buscar en mis recetas"],["consumo","Registro y objetivos"]])lista.append(botonHoja(texto,"button--soft",{
     planHerr:nombre
   }));
   huecoAbierto=null;
@@ -382,9 +382,13 @@ function abrirCopiarDia(){
 // Herramientas de la Semana: una pantalla que muestra solo la elegida (los paneles de siempre, con sus datos).
 function abrirHerramientaPlan(nombre){
   const titulos={
-    variaciones:"Planes guardados",semanas:"Semanas anteriores y mes",historial:"Historial de cambios",descargar:"Descargar",recetas:"Buscar en mis recetas",consumo:"Lo que comí y objetivos"
+    variaciones:"Planes guardados",semanas:"Semanas anteriores y mes",historial:"Historial de cambios",descargar:"Descargar",recetas:"Buscar en mis recetas",consumo:"Registro y objetivos"
   };
   if(!titulos[nombre])return;
+  // v15.5: "Lo que comí" vive en el Registro (un solo lugar para lo registrado).
+  if(nombre==="consumo")return abrirRegistro({
+    abrir:"comi"
+  });
   try{
     if(hoja.abierta())hoja.cerrar()
   }catch(e){
@@ -411,7 +415,6 @@ function abrirHerramientaPlan(nombre){
   if(nombre==="recetas"){
     abrirPanel("planRecipeReference");renderPlanRecipeReference()
   }
-  if(nombre==="consumo"&&!abrirPanel("consumptionPanel"))renderConsumption();
   go("planHerramientas")
 }
 // Las acciones de las hojas que llevan a otra pantalla (armar) o piden confirmación (vaciar) cierran la hoja antes.

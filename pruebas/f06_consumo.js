@@ -20,7 +20,7 @@
   T.ok("C2a el plan ofrece 'Lo comí hoy' solo en las comidas de hoy", !!eatBtn && eatBtn.dataset.planEaten === `${wd}|almuerzo` && enOtroDia === 0 && enCena.join() === `${wd}|cena` && hoja.elemento.querySelectorAll("[data-plan-eaten]").length === 1);
   eatBtn.click(); await wait(20);
   const after = hoja.elemento.querySelector(`[data-plan-eaten="${wd}|almuerzo"]`); hoja.cerrar();
-  T.ok("C2b registrar desde el plan marca '✓ Comido hoy' y no cambia el plan", after.disabled && after.textContent === "✓ Comido hoy" && loadPlan()[wd].almuerzo === "tp1" && loadConsumption().length === 1 && loadConsumption()[0].planned === true && loadConsumption()[0].date === today);
+  T.ok("C2b registrar desde el plan marca '✓ Lo comí hoy' y no cambia el plan", after.disabled && after.textContent === "✓ Lo comí hoy" && loadPlan()[wd].almuerzo === "tp1" && loadConsumption().length === 1 && loadConsumption()[0].planned === true && loadConsumption()[0].date === today);
   // Form: plate from plan (cena) and free text
   await R.openPanel("consumptionPanel");
   T.ok("C3a la fecha se completa con hoy", $("consumptionDate").value === typedAppDateLabel(today));
@@ -40,8 +40,16 @@
   document.querySelector('[data-consumption-week="-7"]').click(); await wait(10);
   T.ok("C6a navegar a la semana anterior", /Sin registros esta semana/.test($("consumptionView").textContent));
   document.querySelector('[data-consumption-week="7"]').click(); await wait(10);
+  // v15.5: Quitar no pide confirmación (si la pidiera, la prueba falla) y ofrece Deshacer.
+  let pidioConfirmar = false; window.confirm = () => { pidioConfirmar = true; return false };
+  const antesDeQuitar = localStorage.getItem("miPlatoFacil_consumption_v1");
   document.querySelector("[data-consumption-remove]").click(); await wait(10);
-  T.ok("C6b quitar un registro", loadConsumption().length === 2 && /Registro quitado/.test($("consumptionStatus").textContent));
+  const quitado = loadConsumption().length === 2 && /Registro quitado/.test($("consumptionStatus").textContent), deshacerQuitar = $("consumptionStatus").querySelector("[data-registro-deshacer]");
+  if (deshacerQuitar) { deshacerQuitar.click(); await wait(10) }
+  const vuelto = localStorage.getItem("miPlatoFacil_consumption_v1") === antesDeQuitar;
+  document.querySelector("[data-consumption-remove]").click(); await wait(10);
+  window.confirm = () => true;
+  T.ok("C6b quitar un registro, sin confirmación y con Deshacer", !pidioConfirmar && quitado && !!deshacerQuitar && vuelto && loadConsumption().length === 2 && /Registro quitado/.test($("consumptionStatus").textContent));
   T.ok("C7 las preparaciones (Cociné) no cambian", loadSaved().every(p => (p.cooked || 0) === 0) && !localStorage.getItem("miPlatoFacil_cookingHistory_v1"));
   let err = null; const snap = completeBackupSnapshot(localStorage); try { validateCompleteBackup(snap) } catch (e) { err = e.message }
   const bad = JSON.parse(JSON.stringify(snap)); bad.data["miPlatoFacil_consumption_v1"] = JSON.stringify([{ id: "x", date: "2026-13-40", meal: "cena", title: "x", groups: [], sourceId: null, planned: false }]);

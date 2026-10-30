@@ -57,6 +57,7 @@ var resetTabs=null;
     if(id==="compras")renderCompras();
     if(id==="ingredientes")renderPantry();
     if(id==="ideas")renderContextAdvice();
+    if(id==="registro"&&typeof renderRegistro==="function")renderRegistro();
     nav()
   }
   function switchTab(tab){

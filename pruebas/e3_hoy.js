@@ -49,7 +49,7 @@
   const asignado = plan()[hoy()].almuerzo === "plato_p3" && !hojaAbierta() && pantalla() === "home" && !!estado().querySelector("[data-plan-deshacer]");
   await tocar(q('#todayRows [data-today-slot="almuerzo"] [data-plan-eaten]'));
   const rec = consumo().at(-1) || {};
-  ok("C3-1 desde Hoy, elegir y marcar Lo comí en un hueco vacío lleva 3 toques o menos", enSelector && asignado && toques <= 3 && pantalla() === "home" && rec.date === fechaHoy() && rec.meal === "almuerzo" && rec.planned === true && rec.sourceId === "plato_p3" && /✓ Comido/.test(fila("almuerzo").textContent), toques + " toques");
+  ok("C3-1 desde Hoy, elegir y marcar Lo comí en un hueco vacío lleva 3 toques o menos", enSelector && asignado && toques <= 3 && pantalla() === "home" && rec.date === fechaHoy() && rec.meal === "almuerzo" && rec.planned === true && rec.sourceId === "plato_p3" && /✓ Lo comí/.test(fila("almuerzo").textContent), toques + " toques");
   await tocar(q("#todayStatus [data-today-undo]"));
   ok("C3-1b el Lo comí de ese hueco se puede deshacer y el plan queda asignado", !consumo().some(x => x.id === rec.id) && plan()[hoy()].almuerzo === "plato_p3");
 

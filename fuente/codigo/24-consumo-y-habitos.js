@@ -78,6 +78,16 @@ function recordConsumption({
   if(!CONSUMPTION_MEALS.includes(meal))throw Error("Elegí una comida.");
   const name=item?savedItemTitle(item):String(title||"").trim();
   if(!name)throw Error("Elegí un plato guardado o escribí qué comiste.");
+  // Si hay algo guardado que no se puede leer, no se pisa (v15.5): no se anota y se avisa.
+  const raw=localStorage.getItem(CONSUMPTION_KEY);
+  if(raw!==null){
+    let ok=false;
+    try{
+      ok=validConsumption(JSON.parse(raw))
+    }catch(e){
+    }
+    if(!ok)throw Error("No se pudo leer tu registro de comidas: no se anotó nada.")
+  }
   const a=loadConsumption();
   a.push({
     id:Date.now().toString(36)+"_"+Math.random().toString(36).slice(2,8),date,meal,title:name.slice(0,120),groups:item?plateGroups(item):[],sourceId:item?item.id:null,planned:!!planned
@@ -136,9 +146,9 @@ document.getElementById("consumptionDate").addEventListener("input",e=>{
 });
 document.getElementById("consumptionSave").addEventListener("click",()=>{
   const st=document.getElementById("consumptionStatus");try{
-    const date=parseTypedAppDate(document.getElementById("consumptionDate").value);if(!date)throw Error("Ingresá una fecha.");const meal=document.getElementById("consumptionMeal").value,id=document.getElementById("consumptionPlate").value,item=id?loadSaved().find(p=>p.id===id):null,wd=DAYS[(new Date(date+"T12:00:00").getDay()+6)%7][0],plan=loadPlan(),planned=!!item&&!!plan[wd]&&plan[wd][meal]===item.id&&mondayOf(date)===mondayOf(localTrainingDate(new Date()));recordConsumption({
+    const date=parseTypedAppDate(document.getElementById("consumptionDate").value);if(!date)throw Error("Ingresá una fecha.");const meal=document.getElementById("consumptionMeal").value,id=document.getElementById("consumptionPlate").value,item=id?loadSaved().find(p=>p.id===id):null,wd=DAYS[(new Date(date+"T12:00:00").getDay()+6)%7][0],plan=loadPlan(),planned=!!item&&!!plan[wd]&&plan[wd][meal]===item.id&&mondayOf(date)===mondayOf(localTrainingDate(new Date())),antes=registroFoto();recordConsumption({
       date,meal,item,title:document.getElementById("consumptionText").value,planned
-    });document.getElementById("consumptionText").value="";consumptionWeek=mondayOf(date);st.textContent="Registrado. No cambia el plan ni el contador Cociné.";renderConsumption();renderPlan()
+    });document.getElementById("consumptionText").value="";consumptionWeek=mondayOf(date);renderConsumption();registroRepintar();registroAviso(st,"Registrado.",antes)
   }catch(err){
     st.textContent=err.message
   }
@@ -161,8 +171,9 @@ document.addEventListener("click",e=>{
   const b=e.target.closest("button");if(!b)return;if(b.dataset.consumptionWeek){
     const d=new Date((consumptionWeek||mondayOf(localTrainingDate(new Date())))+"T12:00:00");d.setDate(d.getDate()+Number(b.dataset.consumptionWeek));consumptionWeek=localTrainingDate(d);renderConsumption()
   }if(b.dataset.consumptionRemove){
-    if(!window.confirm("¿Quitar este registro de consumo?"))return;try{
-      saveConsumption(loadConsumption().filter(x=>x.id!==b.dataset.consumptionRemove));renderConsumption();renderPlan();document.getElementById("consumptionStatus").textContent="Registro quitado."
+    // Sin confirmación: Quitar ofrece Deshacer (v15.5).
+    try{
+      const antes=quitarRegistro("comi",b.dataset.consumptionRemove);renderConsumption();registroRepintar();registroAviso(document.getElementById("consumptionStatus"),"Registro quitado.",antes)
     }catch(err){
       document.getElementById("consumptionStatus").textContent=err.message
     }

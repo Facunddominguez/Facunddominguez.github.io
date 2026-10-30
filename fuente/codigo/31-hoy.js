@@ -1,6 +1,6 @@
 // Mi Plato Fácil · Hoy: las comidas de hoy según el plan de la semana (desde la v15.2, con el Selector de comida).
 // Parte 32: los archivos se unen en orden según su número, que define el orden de arranque.
-// "Lo comí" usa el mismo registro que el plan (Lo que comí): no cambia el plan ni las compras.
+// "Lo comí" usa el mismo registro que el plan (se ve en Más → Registro): no cambia el plan ni las compras.
 // renderToday corre durante el arranque (la pestaña recordada la pinta antes de que carguen 36 a 38): por eso todo
 // lo que lee son funciones o var; la hoja, el Selector y las sugerencias se usan recién al tocar.
 // El tipo de día lo dice el chip de entrenamiento: la línea de ayuda queda vacía.
@@ -33,7 +33,7 @@ function filaHoy(day,slot,plan,byId,esHoy,primera){
     action.type="button";
     if(esHoy)action.dataset.todayChoose=slot;else action.dataset.huecoHoy=day+"|"+slot;
     action.setAttribute("aria-label","Elegir "+nombreDelHueco(day,slot).toLowerCase())
-  }else if(esHoy&&eatenToday(it,slot))action=ce("span","today-row__done","✓ Comido");
+  }else if(esHoy&&eatenToday(it,slot))action=ce("span","today-row__done","✓ Lo comí");
   else if(esHoy){
     action=ce("button","button button--soft","Lo comí");
     action.type="button";
@@ -180,14 +180,14 @@ document.addEventListener("click",e=>{
     renderToday();
     const rec=it?loadConsumption().filter(x=>x.date===today&&x.meal===slot&&x.sourceId===it.id).at(-1):null;
     if(!rec){
-      status.textContent="No se pudo registrar. Probá desde la Semana → Lo que comí.";
+      status.textContent="No se pudo registrar. Probá desde Más → Registro.";
       return
     }
     todayUndoId=rec.id;
     const undo=ce("button","filter-chip","Deshacer");
     undo.type="button";
     undo.dataset.todayUndo="";
-    status.replaceChildren(document.createTextNode("Registrado en Lo que comí ("+planSlotName(slot)+"). El plan no cambió. "),undo);
+    status.replaceChildren(document.createTextNode("Anotado en tu registro ("+planSlotName(slot)+"). El plan no cambió. "),undo);
     return
   }
   if(b.dataset.todayUndo!==undefined&&todayUndoId){
@@ -198,6 +198,7 @@ document.addEventListener("click",e=>{
       renderToday();
       renderPlan();
       if(document.getElementById("consumptionPanel").open)renderConsumption();
+      if(stack.at(-1)==="registro")renderRegistro();
       status.textContent="Listo, se deshizo."
     }catch(err){
       status.textContent=err.message

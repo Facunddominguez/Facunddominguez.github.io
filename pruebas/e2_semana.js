@@ -169,7 +169,7 @@
   // C2-6 El menú ⋯ tiene lo del plan y cada ítem abre su herramienta funcionando
   await irA("semana"); await tocar(q("[data-plan-menu]"));
   const items = [...doc().querySelectorAll(".hoja .menu-semana button")].map(b => b.textContent);
-  const esperados = ["Repetir semana anterior", "Copiar un día", "Vaciar la semana", "Planes guardados", "Semanas anteriores y mes", "Historial de cambios", "Descargar", "Buscar en mis recetas", "Lo que comí y objetivos"];
+  const esperados = ["Repetir semana anterior", "Copiar un día", "Vaciar la semana", "Planes guardados", "Semanas anteriores y mes", "Historial de cambios", "Descargar", "Buscar en mis recetas", "Registro y objetivos"];
   const herr = {};
   const abrirHerr = async nombre => { if (pantalla() !== "plan") await irA("semana"); await tocar(q("[data-plan-menu]")); await tocar(q('.hoja [data-plan-herr="' + nombre + '"]')); return pantalla() === "planHerramientas" && !q('#planHerramientas [data-herr="' + nombre + '"]').hidden };
   herr.variaciones = await abrirHerr("variaciones") && [...$("varSelect").options].some(x => x.value === "Semana liviana") && visible(q("#planHerramientas [data-del-var]"));
@@ -177,7 +177,9 @@
   herr.historial = await abrirHerr("historial") && $("planHistoryList").querySelectorAll("p").length >= 6;
   herr.descargar = await abrirHerr("descargar") && visible(q("[data-download-week]"));
   herr.recetas = await abrirHerr("recetas") && visible($("planRecipeReference")) && [...$("planRecipeSelect").options].some(x => x.value === "recipe_guiso001");
-  herr.consumo = await abrirHerr("consumo") && visible($("consumptionPanel")) && $("consumptionView").textContent.trim().length > 0;
+  // v15.5: "Registro y objetivos" abre el Registro (un solo lugar para lo registrado) con Lo que comí abierto.
+  await abrirHerr("consumo"); await espera(80);
+  herr.consumo = pantalla() === "registro" && visible($("consumptionPanel")) && $("consumptionPanel").open && $("consumptionView").textContent.trim().length > 0;
   ok("C2-6 el menú ⋯ lista lo del plan y cada herramienta abre con sus datos", esperados.every(t => items.includes(t)) && Object.values(herr).every(Boolean), JSON.stringify(herr));
   await tocar(q("#homeTop"));
   ok("C2-6b desde una herramienta se vuelve a la Semana", pantalla() === "plan");

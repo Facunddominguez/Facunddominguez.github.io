@@ -76,7 +76,8 @@ function abrirComida(origen,id){
 function pintarCabeceraComida(nombre,etiquetas,conservarAviso){
   document.getElementById("comidaTitulo").textContent=nombre;
   document.getElementById("comidaEtiquetas").textContent=etiquetas.join(" · ");
-  if(!conservarAviso)document.getElementById("comidaEstado").textContent=""
+  if(!conservarAviso)document.getElementById("comidaEstado").textContent="";
+  if(typeof pintarEnlaceRegistro==="function")pintarEnlaceRegistro()
 }
 function mostrarDetalleReceta(r){
   let amounts={
