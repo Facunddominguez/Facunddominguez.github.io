@@ -11141,7 +11141,14 @@ document.addEventListener("click",e=>{
   if(b.dataset.todayUndo!==undefined&&todayUndoId){
     const status=document.getElementById("todayStatus");
     try{
-      saveConsumption(loadConsumption().filter(x=>x.id!==todayUndoId));
+      // Si ese registro ya no está (por ejemplo, se quitó en el Registro), no se reescribe nada.
+      const a=loadConsumption();
+      if(!a.some(x=>x.id===todayUndoId)){
+        todayUndoId=null;
+        status.textContent="No se puede deshacer: ese registro ya no está.";
+        return
+      }
+      saveConsumption(a.filter(x=>x.id!==todayUndoId));
       todayUndoId=null;
       renderToday();
       renderPlan();
@@ -13233,7 +13240,10 @@ document.getElementById("comprasDescontar").addEventListener("change",e=>{
 // y muestra aparte el contador "cooked" de cada plato, que no tiene fecha. Nada se combina ni se borra solo.
 // init() corre antes de este archivo: todo lo que se llama al pintar es una declaración function y el estado va en var.
 var registroFecha=null;
-var registroUndo=null;
+// Cada chip Deshacer tiene su propia foto (por número): un chip viejo nunca deshace una acción más nueva.
+var registroUndos={
+};
+var registroUndoN=0;
 var REGISTRO_COMIDAS=["desayuno","almuerzo","merienda","cena","otra"];
 function registroHoy(){
   return localTrainingDate(new Date())
@@ -13247,20 +13257,22 @@ function registroFoto(){
 // Aviso con Deshacer: vuelve las tres claves a como estaban (o las borra si no existían), si nada cambió después.
 function registroAviso(el,texto,antes){
   if(!el)return;
-  registroUndo={
+  const n=String(++registroUndoN);
+  registroUndos[n]={
     antes,despues:registroFoto(),el
   };
   const b=ce("button","filter-chip","Deshacer");
   b.type="button";
-  b.dataset.registroDeshacer="";
+  b.dataset.registroDeshacer=n;
   el.replaceChildren(document.createTextNode(texto+" "),b)
 }
-function deshacerRegistro(){
-  const u=registroUndo;
-  if(!u)return;
-  registroUndo=null;
-  if(JSON.stringify(registroFoto())!==JSON.stringify(u.despues)){
-    u.el.textContent="No se puede deshacer: los datos cambiaron después.";
+// Solo deshace si los datos siguen exactamente como los dejó esa acción; si no, no toca nada y avisa.
+function deshacerRegistro(n,el){
+  const u=registroUndos[n];
+  delete registroUndos[n];
+  const aviso=(el&&el.isConnected?el:u&&u.el)||document.getElementById("registroEstado");
+  if(!u||JSON.stringify(registroFoto())!==JSON.stringify(u.despues)){
+    if(aviso)aviso.textContent="No se puede deshacer: los datos cambiaron después.";
     return
   }
   try{
@@ -13491,7 +13503,7 @@ document.addEventListener("click",e=>{
   if(d.openRegistro!==undefined)return abrirRegistro({
     fecha:d.registroFecha
   });
-  if(d.registroDeshacer!==undefined)return deshacerRegistro();
+  if(d.registroDeshacer!==undefined)return deshacerRegistro(d.registroDeshacer,b.parentElement);
   if(stack.at(-1)!=="registro")return;
   const st=document.getElementById("registroEstado");
   if(d.registroDia){

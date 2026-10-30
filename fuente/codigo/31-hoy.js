@@ -193,7 +193,14 @@ document.addEventListener("click",e=>{
   if(b.dataset.todayUndo!==undefined&&todayUndoId){
     const status=document.getElementById("todayStatus");
     try{
-      saveConsumption(loadConsumption().filter(x=>x.id!==todayUndoId));
+      // Si ese registro ya no está (por ejemplo, se quitó en el Registro), no se reescribe nada.
+      const a=loadConsumption();
+      if(!a.some(x=>x.id===todayUndoId)){
+        todayUndoId=null;
+        status.textContent="No se puede deshacer: ese registro ya no está.";
+        return
+      }
+      saveConsumption(a.filter(x=>x.id!==todayUndoId));
       todayUndoId=null;
       renderToday();
       renderPlan();
