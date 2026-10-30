@@ -1,7 +1,7 @@
 // Mi Plato Fácil · Respaldo completo: descargar, validar y restaurar.
 // Parte 19: los archivos se unen en orden según su número, que define el orden de arranque.
-const COMPLETE_BACKUP_KEYS=["miPlatoFacil_adviceFavorites", "miPlatoFacil_datedWeeks_v1", "miPlatoFacil_manualShopping_v1", "miPlatoFacil_pantry", "miPlatoFacil_plan", "miPlatoFacil_planVars", "miPlatoFacil_saved", "miPlatoFacil_theme", "miPlatoFacil_trainingExceptions", "miPlatoFacil_trainingWeek", "miPlatoFacil_cookingHistory_v1", "miPlatoFacil_recipeAmounts_v1", "miPlatoFacil_referencePrices_v1", "miPlatoFacil_recipeDetails_v1", "miPlatoFacil_pantryQuantities_v1", "miPlatoFacil_shoppingBudget_v1", "miPlatoFacil_recipePreferences_v1", "miPlatoFacil_ingredientAliases_v1", "miPlatoFacil_planPortions_v1", "miPlatoFacil_planHistory_v1", "miPlatoFacil_consumption_v1", "miPlatoFacil_habitGoals_v1", "miPlatoFacil_purchases_v1", "miPlatoFacil_pantryMoves_v1"];
-const COMPLETE_BACKUP_OPTIONAL_KEYS=["miPlatoFacil_cookingHistory_v1","miPlatoFacil_recipeAmounts_v1","miPlatoFacil_referencePrices_v1","miPlatoFacil_recipeDetails_v1","miPlatoFacil_pantryQuantities_v1","miPlatoFacil_shoppingBudget_v1","miPlatoFacil_recipePreferences_v1","miPlatoFacil_ingredientAliases_v1","miPlatoFacil_planPortions_v1","miPlatoFacil_planHistory_v1","miPlatoFacil_consumption_v1","miPlatoFacil_habitGoals_v1","miPlatoFacil_purchases_v1","miPlatoFacil_pantryMoves_v1"];
+const COMPLETE_BACKUP_KEYS=["miPlatoFacil_adviceFavorites", "miPlatoFacil_datedWeeks_v1", "miPlatoFacil_manualShopping_v1", "miPlatoFacil_pantry", "miPlatoFacil_plan", "miPlatoFacil_planVars", "miPlatoFacil_saved", "miPlatoFacil_theme", "miPlatoFacil_trainingExceptions", "miPlatoFacil_trainingWeek", "miPlatoFacil_cookingHistory_v1", "miPlatoFacil_recipeAmounts_v1", "miPlatoFacil_referencePrices_v1", "miPlatoFacil_recipeDetails_v1", "miPlatoFacil_pantryQuantities_v1", "miPlatoFacil_shoppingBudget_v1", "miPlatoFacil_recipePreferences_v1", "miPlatoFacil_ingredientAliases_v1", "miPlatoFacil_planPortions_v1", "miPlatoFacil_planHistory_v1", "miPlatoFacil_consumption_v1", "miPlatoFacil_habitGoals_v1", "miPlatoFacil_purchases_v1", "miPlatoFacil_pantryMoves_v1", "miPlatoFacil_shoppingChecks_v1","miPlatoFacil_bienvenida_v1","miPlatoFacil_comprasOpciones_v1"];
+const COMPLETE_BACKUP_OPTIONAL_KEYS=["miPlatoFacil_cookingHistory_v1","miPlatoFacil_recipeAmounts_v1","miPlatoFacil_referencePrices_v1","miPlatoFacil_recipeDetails_v1","miPlatoFacil_pantryQuantities_v1","miPlatoFacil_shoppingBudget_v1","miPlatoFacil_recipePreferences_v1","miPlatoFacil_ingredientAliases_v1","miPlatoFacil_planPortions_v1","miPlatoFacil_planHistory_v1","miPlatoFacil_consumption_v1","miPlatoFacil_habitGoals_v1","miPlatoFacil_purchases_v1","miPlatoFacil_pantryMoves_v1","miPlatoFacil_shoppingChecks_v1","miPlatoFacil_bienvenida_v1","miPlatoFacil_comprasOpciones_v1"];
 function validStockQuantitiesStore(o){
   return !!o&&typeof o==="object"&&!Array.isArray(o)&&Object.keys(o).length<=1000&&Object.entries(o).every(([key,v])=>!["__proto__","constructor","prototype"].includes(key)&&!!v&&typeof v==="object"&&typeof v.name==="string"&&v.name.trim().length>0&&v.name.length<=100&&typeof v.unit==="string"&&RECIPE_AMOUNT_UNITS.includes(v.unit)&&typeof v.quantity==="number"&&Number.isFinite(v.quantity)&&v.quantity>=0&&v.quantity<=100000000&&key===stockKey(v.name,v.unit))
 }
@@ -11,10 +11,14 @@ function validShoppingBudget(o){
 function validRecipePreferences(o){
   return !!o&&typeof o==="object"&&!Array.isArray(o)&&typeof o.words==="string"&&o.words.length<=1000&&typeof o.enabled==="boolean"
 }
+// v15.3: la marca "ya vio la bienvenida" (miPlatoFacil_bienvenida_v1). Solo vale {"vista":true}.
+function validBienvenida(o){
+  return !!o&&typeof o==="object"&&!Array.isArray(o)&&Object.keys(o).length===1&&o.vista===true
+}
 let completeBackupPending=null;
 function completeBackupSnapshot(storage){
   return {
-    app:"MiPlatoFacil",format:"complete-local-v1",createdAt:new Date().toISOString(),data:Object.fromEntries(COMPLETE_BACKUP_KEYS.map(k=>[k,storage.getItem(k)]).filter(([k,v])=>!([INGREDIENT_ALIASES_KEY,"miPlatoFacil_planPortions_v1","miPlatoFacil_planHistory_v1","miPlatoFacil_consumption_v1","miPlatoFacil_habitGoals_v1","miPlatoFacil_purchases_v1","miPlatoFacil_pantryMoves_v1"].includes(k)&&v===null)))
+    app:"MiPlatoFacil",format:"complete-local-v1",createdAt:new Date().toISOString(),data:Object.fromEntries(COMPLETE_BACKUP_KEYS.map(k=>[k,storage.getItem(k)]).filter(([k,v])=>!([INGREDIENT_ALIASES_KEY,"miPlatoFacil_planPortions_v1","miPlatoFacil_planHistory_v1","miPlatoFacil_consumption_v1","miPlatoFacil_habitGoals_v1","miPlatoFacil_purchases_v1","miPlatoFacil_pantryMoves_v1","miPlatoFacil_shoppingChecks_v1","miPlatoFacil_bienvenida_v1","miPlatoFacil_comprasOpciones_v1"].includes(k)&&v===null)))
   }
 }
 function validateCompleteBackup(o){
@@ -54,6 +58,9 @@ function validateCompleteBackup(o){
     if(k==="miPlatoFacil_consumption_v1"&&!validConsumption(v))throw new Error("Registro de consumo inválido.");
     if(k==="miPlatoFacil_habitGoals_v1"&&!validHabitGoals(v))throw new Error("Objetivos semanales inválidos.");
     if(k==="miPlatoFacil_purchases_v1"&&!validPurchases(v))throw new Error("Compras registradas inválidas.");
+    if(k==="miPlatoFacil_bienvenida_v1"&&!validBienvenida(v))throw new Error("Marca de bienvenida inválida.");
+    if(k==="miPlatoFacil_comprasOpciones_v1"&&!validComprasOpciones(v))throw new Error("Opciones de compras inválidas.");
+    if(k==="miPlatoFacil_shoppingChecks_v1"&&!validShoppingChecks(v))throw new Error("Tachados de la lista inválidos.");
     if(k==="miPlatoFacil_pantryMoves_v1"&&!validPantryMoves(v))throw new Error("Movimientos de despensa inválidos.");
     if(k==="miPlatoFacil_recipeAmounts_v1"&&!validRecipeAmountsStore(v))throw new Error("Cantidades por receta inválidas.");
     if(k==="miPlatoFacil_cookingHistory_v1"&&(!Array.isArray(v)||v.some(x=>!validCookingHistoryRecord(x))))throw new Error("Historial inválido.");
@@ -127,12 +134,6 @@ document.getElementById("backupRestore").addEventListener("click",()=>{
     button.classList.remove("backup-selected");button.removeAttribute("aria-busy");button.textContent="Restaurar copia seleccionada";updateCompleteBackupButton();completeBackupStatus(e.message)
   }
 });
-{
-  const b=ce("button","tool-button");
-  b.type="button";
-  b.append(ce("span","tool-button__emoji","💾"),ce("span","tool-button__label","Respaldo y restauración"),ce("span","tool-button__desc","Descargá o restaurá todos tus datos"));
-  b.addEventListener("click",()=>go("backupScreen"));
-  const settings=document.getElementById("sectionSettings");
-  (settings.querySelector(".tools-grid")||settings).append(b)
-}
+// Tarjeta "Mis datos" en Más (desde la v15.3 está en el HTML): abre el respaldo.
+document.getElementById("backupOpen").addEventListener("click",()=>go("backupScreen"));
 const COOKING_HISTORY_KEY="miPlatoFacil_cookingHistory_v1";

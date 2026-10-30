@@ -8,10 +8,11 @@
   reset();
   // D1 Inicio: todas las entradas son tarjetas iguales (emoji, título y descripción)
   go('home');
-  const homeButtons = [...document.querySelectorAll('#home .home-group button, #sectionSettings button')];
+  // v15.3: cada entrada es un hijo de la grilla de Atajos o de Más. "Armar una comida" es una tarjeta con sus dos opciones.
+  const homeButtons = [...document.querySelectorAll('#home .home-group .home-grid > *, #sectionSettings .tools-grid > *')];
   const notCards = homeButtons.filter(b => !b.classList.contains('tool-button') || !b.querySelector('.tool-button__emoji') || !b.querySelector('.tool-button__label') || !b.querySelector('.tool-button__desc')).map(b => b.textContent.trim().slice(0, 30));
-  // v14.9.91: Plan, Compras y Mis platos pasaron a la barra de pestañas; quedan 9 tarjetas (3 para armar, 3 de ideas y 3 ajustes).
-  T.ok('D1 todas las entradas del inicio son tarjetas iguales', homeButtons.length >= 9 && notCards.length === 0, notCards.join(' | '));
+  // v15.3: 3 atajos en Hoy y 7 entradas en Más (antes: 9 tarjetas).
+  T.ok('D1 todas las entradas del inicio son tarjetas iguales', homeButtons.length >= 10 && notCards.length === 0, notCards.join(' | '));
   // D2 Tema: la tarjeta muestra el tema elegido
   const before = localStorage.getItem('miPlatoFacil_theme');
   localStorage.setItem('miPlatoFacil_theme', 'dark'); applyTheme();
@@ -41,9 +42,10 @@
   T.ok('D4 los botones secundarios tienen un solo color', !!soft && !!second && css(soft, 'background-color') === css(second, 'background-color') && css(soft, 'color') === css(second, 'color'), css(soft, 'background-color') + ' / ' + (second && css(second, 'background-color')));
   // D5 Botones que alternan: el activo se distingue y usa el verde de la app
   go('compras'); await wait(20);
-  const pend = $('comprasShowPending'), all = $('comprasShowAll');
-  const pressed = [pend, all].find(b => b.getAttribute('aria-pressed') === 'true'), other = [pend, all].find(b => b !== pressed);
-  T.ok('D5 en Compras se nota cuál filtro está activo', !!pressed && css(pressed, 'border-top-color') === rgb(green()) && css(pressed, 'background-color') !== css(other, 'background-color'));
+  // v15.4: el filtro "Pendientes | Todos" salió (los tachados quedan a la vista); el botón que alterna es el segmento "Lista | Despensa".
+  const pend = document.querySelector('#compras [data-compras-vista="lista"]'), all = $('comprasDespensa');
+  const pressed = [pend, all].find(b => b && b.getAttribute('aria-pressed') === 'true'), other = [pend, all].find(b => b !== pressed);
+  T.ok('D5 en Compras se nota cuál filtro está activo', !!pressed && !!other && css(pressed, 'background-color') === rgb(green()) && css(pressed, 'background-color') !== css(other, 'background-color'));
   // D6 Opción elegida (Usar almidones/proteínas) en verde, no en naranja
   go('lunch_carb'); await wait(20);
   const sel = document.querySelector('#lunch_carb .toggle-button.is-selected');
@@ -53,12 +55,23 @@
   T.ok('D6 la opción elegida se marca igual que el resto (verde, no naranja)', !!sel && css(sel, 'border-top-color') === refBorder && css(sel, 'background-color') === refBg && css(sel, 'border-top-color') !== orange, sel && css(sel, 'border-top-color') + ' vs ' + refBorder);
   // D7 Chips con la misma altura en toda la app
   const heights = new Set();
-  for (const id of ['misplatos', 'ingredientes', 'trainingCalendar']) { go(id); if (id === 'ingredientes') showRecipeView('browse'); await wait(30); document.querySelectorAll('#' + id + ' .filter-chip').forEach(c => { if (c.getClientRects().length) heights.add(Math.round(c.getBoundingClientRect().height)) }) }
+  // v15.3: también Ideas (con Buscar con filtros y Con lo que tengo abiertos), el detalle, Preferencias, la bienvenida y la hoja "+ Nueva".
+  const medir = sel => document.querySelectorAll(sel).forEach(c => { if (c.getClientRects().length) heights.add(Math.round(c.getBoundingClientRect().height)) });
+  for (const id of ['misplatos', 'ingredientes', 'trainingCalendar', 'ideas', 'comida', 'preferencias', 'bienvenida']) {
+    go(id); if (id === 'ideas') { showRecipeView('browse'); abrirIdeas(true) } if (id === 'bienvenida') abrirBienvenida();
+    await wait(30); medir('#' + id + ' .filter-chip')
+  }
+  go('misplatos'); document.querySelector('#misplatos [data-comida-nueva]').click(); await wait(30); medir('.hoja .filter-chip, .hoja .tool-button'); hoja.cerrar();
+  ideasConLoQueTengo = false; pintarFiltroConLoQueTengo(); restart();
   go('home');
   T.ok('D7 los chips tienen todos la misma altura mínima (44 px)', [...heights].length > 0 && [...heights].every(h => h >= 44), [...heights].join(','));
   // D8 Casillas de tamaño normal y en línea con su texto
-  go('ingredientes'); showRecipeView('browse'); document.querySelectorAll('#ingredientes details').forEach(d => { d.open = true }); await wait(30);
-  const boxes = ['recipeApplyAvoid', 'recipeRecommendPantry', 'recipeRecommendCosts'].map($).filter(Boolean).filter(b => b.getClientRects().length);
+  // v15.3: las casillas están en Ideas (Buscar con filtros) y en Preferencias.
+  for (const id of ['ingredientes', 'ideas', 'comida', 'recetaEditar', 'preferencias', 'fuentes']) document.querySelectorAll('#' + id + ' details').forEach(d => { d.open = true });
+  go('preferencias'); await wait(30);
+  const boxesPref = ['recipeApplyAvoid'].map($).filter(b => b && b.getClientRects().length);
+  showRecipeView('browse'); await wait(30);
+  const boxes = boxesPref.concat(['recipeRecommendPantry', 'recipeRecommendCosts'].map($).filter(Boolean).filter(b => b.getClientRects().length));
   T.ok('D8 las casillas tienen tamaño normal', boxes.length >= 1 && boxes.every(b => b.getBoundingClientRect().width <= 24 && b.getBoundingClientRect().height <= 24), boxes.map(b => Math.round(b.getBoundingClientRect().width) + 'x' + Math.round(b.getBoundingClientRect().height)).join(' '));
   go('home');
   return T;

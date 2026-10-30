@@ -39,7 +39,7 @@ function shoppingQuantityAndCost(){
       else entry.quantity+=convertQuantity(row.quantity,row.unit,entry.unit)*multiplier*portionFactor(portions,amount)
     }
   }
-  const summary=ce("p","screen__hint",planned.length+" asignaciones de recetas con cantidades. Los platos sin receta vinculada permanecen en la lista tradicional.");
+  const summary=ce("p","screen__hint",planned.length+" recetas de la semana con cantidades.");
   box.append(summary);
   if(!planned.length){
     box.append(ce("p","screen__hint","Asigná recetas con cantidades al plan para ver el detalle."));
@@ -51,7 +51,7 @@ function shoppingQuantityAndCost(){
     const li=ce("li"),quantity=Number(item.quantity.toFixed(6)),available=stockQuantityFor(stock,item.name,item.unit),known=Number.isFinite(available),needed=known?Math.max(0,item.quantity-available):item.quantity;
     let label=item.name+(markPantry&&pantryNames.has(normalizeSearchText(item.name))?" (marcado en despensa; cantidad disponible desconocida)":"")+": "+quantity.toLocaleString("es-AR",{
       maximumFractionDigits:6
-    })+" "+item.unit+(item.unknown?" (más cantidades desconocidas)":"")+(known?" · Disponible: "+available.toLocaleString("es-AR")+" "+item.unit+" · Falta comprar: "+Number(needed.toFixed(6)).toLocaleString("es-AR")+" "+item.unit:" · Existencia sin cantidad registrada: compra estimada sin descuento");
+    })+" "+item.unit+(item.unknown?" (más cantidades desconocidas)":"")+(known?" · Disponible: "+available.toLocaleString("es-AR")+" "+item.unit+" · Falta comprar: "+Number(needed.toFixed(6)).toLocaleString("es-AR")+" "+item.unit:"");
     const matches=pricesFor(prices,item.name,item.unit).filter(p=>true);
     if(item.unknown||!item.quantity){
       missing.push(item.name+": cantidad incompleta")
@@ -66,20 +66,27 @@ function shoppingQuantityAndCost(){
         })+" "+price.currency+" (referencia: "+typedAppDateLabel(price.date)+")"
       }else missing.push(item.name+": costo fuera de rango")
     }
-    li.textContent=label;
+    li.textContent=textoLegible(label);
     ul.append(li)
   }
   box.append(ul);
   for(const [currency,total] of Object.entries(currencyTotals))box.append(ce("p","shop-item","Subtotal estimado con referencias inequívocas: "+total.toLocaleString("es-AR",{
     minimumFractionDigits:2,maximumFractionDigits:2
   })+" "+currency));
+  // Lo que falta estimar, agrupado por motivo (v15.4: una línea por motivo en vez de una por ingrediente).
   if(missing.length||issues.length){
     box.append(ce("strong",null,"Pendiente de estimar:"));
-    const list=ce("ul");
-    for(const issue of [...issues,...missing])list.append(ce("li",null,issue));
+    const list=ce("ul"),porMotivo=new Map();
+    for(const m of missing){
+      const i=m.lastIndexOf(": "),motivo=m.slice(i+2);
+      if(!porMotivo.has(motivo))porMotivo.set(motivo,[]);
+      porMotivo.get(motivo).push(m.slice(0,i))
+    }
+    for(const issue of issues)list.append(ce("li",null,issue));
+    for(const [motivo,nombres] of porMotivo)list.append(ce("li",null,motivo.charAt(0).toUpperCase()+motivo.slice(1)+": "+nombres.join(", ")));
     box.append(list)
   }
-  box.append(ce("p","screen__hint","Simulación con multiplicador "+multiplier+". Descuenta solo existencias registradas con cantidad y unidad compatible. Los costos corresponden al faltante calculable. No estima envases enteros ni incluye platos sin cantidades vinculadas."))
+  box.append(ce("p","screen__hint","Multiplicador "+multiplier+"."))
 }
 document.getElementById("shoppingPortionMultiplier").addEventListener("change",()=>{
   shoppingQuantityAndCost();renderCompras()
@@ -117,9 +124,58 @@ function shoppingMissingRows(){
     }
   }).sort((a,b)=>a.name.localeCompare(b.name,"es"))
 }
-let comprasShowAll=false;
-let comprasApplied={
-};
+let comprasShowAll=false,comprasTenesOpen=false,comprasCompradosOpen=false;
+// Tachados y comprados por semana (desde la v15), en miPlatoFacil_shoppingChecks_v1:
+// {"2026-10-26": {"t": [tachados], "c": [comprados con "Lo compré"]}}. La semana empieza el lunes (mondayOf).
+// Se escribe solo cuando el usuario actúa (nunca al mostrar) y al escribir se conservan las últimas 12 semanas.
+const SHOPPING_CHECKS_KEY="miPlatoFacil_shoppingChecks_v1";
+function validShoppingChecksWeek(v){
+  const lista=a=>Array.isArray(a)&&a.length<=1000&&a.every(x=>typeof x==="string"&&x.length>0&&x.length<=200);
+  return !!v&&typeof v==="object"&&!Array.isArray(v)&&Object.keys(v).every(k=>k==="t"||k==="c")&&lista(v.t)&&lista(v.c)
+}
+function validShoppingChecks(o){
+  return !!o&&typeof o==="object"&&!Array.isArray(o)&&Object.keys(o).length<=520&&Object.entries(o).every(([k,v])=>validTrainingDate(k)&&validShoppingChecksWeek(v))
+}
+// Lectura tolerante: lo que no tiene el formato esperado se ignora (semana por semana).
+function loadShoppingChecks(){
+  try{
+    const o=JSON.parse(localStorage.getItem(SHOPPING_CHECKS_KEY)||"{}");
+    if(!o||typeof o!=="object"||Array.isArray(o))return {};
+    return Object.fromEntries(Object.entries(o).filter(([k,v])=>!["__proto__","constructor","prototype"].includes(k)&&validTrainingDate(k)&&validShoppingChecksWeek(v)))
+  }catch(e){
+    return {}
+  }
+}
+function shoppingChecksWeek(){
+  return mondayOf(localTrainingDate(new Date()))
+}
+let comprasWeek=null;
+// Trae los tachados de la semana actual (al abrir la app o si empezó otra semana: cada lunes arranca sin tachados).
+function syncShoppingWeek(){
+  const wk=shoppingChecksWeek();
+  if(wk===comprasWeek)return;
+  comprasWeek=wk;
+  const w=loadShoppingChecks()[wk];
+  comprasDone=Object.fromEntries((w?w.t:[]).map(k=>[k,true]))
+}
+// Lo que pasó a la despensa con "Lo compré" esta semana.
+function shoppingBoughtSet(){
+  const w=loadShoppingChecks()[shoppingChecksWeek()];
+  return new Set(w?w.c:[])
+}
+function saveShoppingChecks(bought){
+  syncShoppingWeek();
+  const all=loadShoppingChecks(),cur=all[comprasWeek],t=Object.keys(comprasDone).filter(k=>comprasDone[k]).sort(),c=[...(bought||new Set(cur?cur.c:[]))].sort();
+  if(t.length||c.length)all[comprasWeek]={
+    t,c
+  };
+  else delete all[comprasWeek];
+  const keep=Object.keys(all).sort().reverse().slice(0,12),out=Object.fromEntries(keep.sort().map(k=>[k,all[k]]));
+  if(!validShoppingChecks(out))throw Error("No se pudieron guardar los tachados.");
+  if(Object.keys(out).length)localStorage.setItem(SHOPPING_CHECKS_KEY,JSON.stringify(out));
+  else localStorage.removeItem(SHOPPING_CHECKS_KEY)
+}
+syncShoppingWeek();
 function shoppingQtyText(units){
   return [...units.entries()].map(([unit,q])=>Number(q.toFixed(6)).toLocaleString("es-AR",{
     maximumFractionDigits:6
@@ -175,7 +231,7 @@ function shoppingItemLabel(e){
 function shoppingSuggestion(e,stock,marked){
   const own=Object.values(stock).filter(s=>ingredientKey(s.name)===e.key);
   if(!own.length)return marked.has(e.name)?{
-    kind:"info",text:"Lo marcaste en “Con lo que tengo” (sin cantidad registrada)."
+    kind:"info",text:"Lo marcaste en tu Despensa (sin cantidad registrada)."
   }:null;
   const fmt=n=>Number(n.toFixed(6)).toLocaleString("es-AR",{
     maximumFractionDigits:6
@@ -213,17 +269,90 @@ function shoppingSuggestion(e,stock,marked){
     kind:"partial",text:"Despensa: tenés "+have+". Podrías comprar "+buy+(e.unknown?", más lo que no tiene cantidad.":"."),buy,missing
   }
 }
+// Interruptor "Descontar lo que tengo" (desde la v15.4), en miPlatoFacil_comprasOpciones_v1: {"descontar": true|false}.
+// Encendido por defecto (el comportamiento de antes). Se escribe solo al tocarlo. Es var por el orden de arranque.
+var COMPRAS_OPCIONES_KEY="miPlatoFacil_comprasOpciones_v1";
+function validComprasOpciones(o){
+  return !!o&&typeof o==="object"&&!Array.isArray(o)&&Object.keys(o).length===1&&typeof o.descontar==="boolean"
+}
+function comprasDescontar(){
+  try{
+    const o=JSON.parse(localStorage.getItem(COMPRAS_OPCIONES_KEY)||"null");
+    return validComprasOpciones(o)?o.descontar:true
+  }catch(e){
+    return true
+  }
+}
+function guardarComprasDescontar(valor){
+  localStorage.setItem(COMPRAS_OPCIONES_KEY,JSON.stringify({
+    descontar:!!valor
+  }))
+}
+// Secciones del súper (desde la v15.4). Primero las listas del armado; después, palabras sueltas.
+var SECCIONES_SUPER=["Verdulería","Carnicería y pescadería","Lácteos y huevos","Panadería","Almacén","Congelados","Limpieza","Otros"];
+var PALABRAS_SUPER=null;
+function seccionDelSuper(nombre){
+  const n=" "+normalizeSearchText(nombre).replace(/[^a-z0-9ñ ]+/g," ")+" ",k=ingredientKey(nombre);
+  if(!PALABRAS_SUPER){
+    PALABRAS_SUPER=[
+      ["Almacén","pan rallado|harina|fecula|maicena|frutos secos|semillas|atun|caballa en lata|arroz|fideo|fideos|pasta|pastas|avena|polenta|quinoa|cuscus|aceite|sal|azucar|cafe|te|yerba|vinagre|granola|mani|lenteja|lentejas|garbanzo|garbanzos|poroto|porotos|arveja|arvejas|soja|comino|oregano|pimienta|pimenton|especias|caldo|tomate triturado|pure de tomate|galletitas|cacao|miel|mermelada|amaranto|mijo|sorgo|cebada|centeno|tapioca|trigo|lupino|habas".split("|")],
+      ["Congelados",["congelado","congelada","congelados","congeladas","helado"]],
+      ["Limpieza",["detergente","lavandina","jabon","servilleta","servilletas","papel","esponja","limpiador","desinfectante","bolsas","rollo"]],
+      ["Lácteos y huevos",["leche","yogur","queso","quesos","manteca","crema","huevo","huevos","ricota","clara"]],
+      ["Carnicería y pescadería",["carne","pollo","cerdo","vacuna","asado","vacio","bondiola","pechito","merluza","pescado","salmon","milanesa","milanesas","hamburguesa","pavo","cordero","nalga","cuadril","lomo","picada","jamon","caballa","trucha","mariscos"]],
+      ["Panadería",["pan","pancitos","tortillas","facturas","tostadas"]]
+    ];
+  }
+  if(n.includes(" pan rallado "))return "Almacén";
+  const enLista=arr=>arr.some(x=>ingredientKey(Array.isArray(x)?x[0]:x)===k);
+  if(enLista(data.verduras)||enLista(data.frutas)||/ (fruta|frutas|papa|papas|batata|mandioca|choclo|palta|limon|perejil|albahaca|verdura|verduras) /.test(n))return "Verdulería";
+  for(const [sec,palabras] of PALABRAS_SUPER){
+    if(palabras.some(p=>n.includes(" "+p+" ")))return sec
+  }
+  return "Otros"
+}
+// Cada ítem del plan va a un grupo: "pendiente", "tenes" (ya está en la despensa y alcanza, o no hay cantidad para
+// comparar) o "comprado" (pasó con "Lo compré" esta semana). Si hay cantidad y no alcanza, sigue pendiente con
+// "faltan X". Los tres grupos juntos son siempre la misma lista, con las cantidades del plan.
+// Desde la v15.4: si la despensa tiene otra unidad ("la unidad no coincide"), queda pendiente con "revisá"; con el
+// interruptor "Descontar lo que tengo" apagado, nada va a "Ya tenés" y no se muestra "faltan".
 function shoppingDisplayItems(){
-  const stock=loadStockQuantities(),marked=pantryMarkedMatcher();
+  const stock=loadStockQuantities(),marked=pantryMarkedMatcher(),bought=shoppingBoughtSet(),descontar=comprasDescontar();
   return shoppingPlanItems().map(e=>{
-    const label=shoppingItemLabel(e),suggestion=shoppingSuggestion(e,stock,marked),a=comprasApplied[e.key],applied=!!(a&&suggestion&&suggestion.kind==="partial"&&a.label===label&&a.buy===suggestion.buy);if(a&&!applied)delete comprasApplied[e.key];return {
-      key:e.key,name:e.name,label,suggestion,applied,text:applied?label+" → comprar "+suggestion.buy+" (sugerencia aplicada)":label
+    const label=shoppingItemLabel(e),suggestion=shoppingSuggestion(e,stock,marked),partial=!!suggestion&&suggestion.kind==="partial",revisar=!!suggestion&&suggestion.kind==="info"&&/la unidad no coincide/.test(suggestion.text),group=bought.has(e.key)?"comprado":descontar&&suggestion&&!partial&&!revisar?"tenes":"pendiente";return {
+      key:e.key,name:e.name,label,suggestion,group,seccion:seccionDelSuper(e.name),text:descontar&&group==="pendiente"&&partial?label+" · faltan "+suggestion.buy:descontar&&group==="pendiente"&&revisar?label+" · revisá":label
     }
   }).sort((a,b)=>a.label.localeCompare(b.label,"es"))
+}
+function shoppingRow(x,i,checked,detail){
+  const row=ce("div","shop-item"+(checked?" is-done":"")),cb=ce("input"),lab=ce("label",null,textoLegible(x.text));
+  cb.type="checkbox";
+  cb.checked=checked;
+  cb.dataset.shopKey=x.key;
+  cb.id="shopItem_"+i;
+  lab.htmlFor=cb.id;
+  row.append(cb,lab);
+  if(detail)row.append(ce("span","shop-item__detail",textoLegible(detail)));
+  return row
+}
+function shoppingGroup(title,list,open,onToggle){
+  const box=ce("details","home-group shop-group");
+  box.open=open;
+  box.dataset.grupo=title;
+  box.addEventListener("toggle",()=>onToggle(box.open));
+  box.append(ce("summary",null,title+" ("+list.length+")"));
+  return box
 }
 function renderCompras(){
   const cont=document.getElementById("comprasList"),hint=document.getElementById("comprasHint"),summary=document.getElementById("comprasSummary");
   if(!cont)return;
+  syncShoppingWeek();
+  const sw=document.getElementById("comprasDescontar");
+  if(sw)sw.checked=comprasDescontar();
+  try{
+    renderPresupuestoCompras()
+  }catch(e){
+  }
   let items;
   try{
     items=shoppingDisplayItems()
@@ -231,69 +360,62 @@ function renderCompras(){
     cont.replaceChildren(ce("p","screen__hint","No se pudo calcular la lista: "+e.message));
     return
   }
-  const pending=items.filter(x=>!comprasDone[x.key]);
-  summary.textContent=pending.length+" pendientes · "+(items.length-pending.length)+" tachados";
-  hint.textContent=isSimpleMode()?"Lista del plan. La despensa y las porciones no la cambian: si marcaste algo en “Con lo que tengo”, lo vas a ver como sugerencia debajo del ingrediente.":"Lista del plan. La despensa y las porciones no la cambian. Si registrás existencias en 🧰 Más herramientas, verás sugerencias debajo de cada ingrediente, que aplicás vos.";
-  document.getElementById("comprasShowPending").setAttribute("aria-pressed",String(!comprasShowAll));
-  document.getElementById("comprasShowAll").setAttribute("aria-pressed",String(comprasShowAll));
-  const visible=comprasShowAll?items:pending;
-  if(!visible.length){
-    cont.replaceChildren(ce("p","screen__hint",items.length?"No quedan productos pendientes. Podés ver los tachados en Todos.":"No hay compras pendientes. Agregá platos al plan semanal."));
-    return
-  }
+  const pend=items.filter(x=>x.group==="pendiente"),tenes=items.filter(x=>x.group==="tenes"),comprados=items.filter(x=>x.group==="comprado"),pending=pend.filter(x=>!comprasDone[x.key]),tachados=pend.length-pending.length+tenes.filter(x=>comprasDone[x.key]).length;
+  summary.textContent=pending.length+" pendientes · "+tachados+" tachados";
+  hint.textContent="Tachá lo que comprás. Lo que tenés en la Despensa pasa a Ya tenés.";
   const nodes=[];
-  for(const x of visible){
-    const done=!!comprasDone[x.key],row=ce("div","shop-item"+(done?" is-done":"")),cb=ce("input"),lab=ce("label",null,x.text);
-    cb.type="checkbox";
-    cb.checked=done;
-    cb.dataset.shopKey=x.key;
-    cb.id="shopItem_"+nodes.length;
-    lab.htmlFor=cb.id;
-    row.append(cb,lab);
-    nodes.push(row);
-    if(done||!x.suggestion)continue;
-    const box=ce("div","shop-suggestion"),button=(text,key,aria)=>{
-      const b=ce("button","filter-chip",text);
-      b.type="button";
-      b.dataset[key]=x.key;
-      b.setAttribute("aria-label",aria);
-      box.append(b)
-    };
-    if(x.applied){
-      box.append(ce("span",null,"💡 Aplicada: comprar "+x.suggestion.buy+" según tu despensa."));
-      button("Deshacer","shopSuggestUndo","Deshacer la sugerencia aplicada a "+x.name)
-    }else{
-      box.append(ce("span",null,"💡 "+x.suggestion.text));
-      if(x.suggestion.kind==="partial")button("Anotar "+x.suggestion.buy,"shopSuggestApply","Anotar comprar "+x.suggestion.buy+" de "+x.name);
-      else if(x.suggestion.kind==="covered")button("Tachar","shopSuggestTick","Tachar "+x.name+" de la lista")
-    }
+  let i=0;
+  for(const sec of SECCIONES_SUPER){
+    const lista=pend.filter(x=>x.seccion===sec);
+    if(!lista.length)continue;
+    const box=ce("div","compras-seccion");
+    box.dataset.seccion=sec;
+    box.append(ce("h3","compras-seccion__titulo",sec));
+    // Lo tachado queda a la vista, al final de su sección.
+    for(const x of [...lista.filter(x=>!comprasDone[x.key]),...lista.filter(x=>comprasDone[x.key])])box.append(shoppingRow(x,i++,!!comprasDone[x.key],x.text.endsWith(" · revisá")&&x.suggestion?"💡 "+x.suggestion.text:""));
     nodes.push(box)
+  }
+  if(!pending.length)nodes.push(ce("p","screen__hint",items.length?"No queda nada por comprar.":"No hay compras pendientes. Agregá comidas a la semana."));
+  if(tenes.length){
+    const g=shoppingGroup("Ya tenés",tenes,comprasTenesOpen,v=>{
+      comprasTenesOpen=v
+    });
+    for(const x of tenes)g.append(shoppingRow(x,i++,!!comprasDone[x.key],x.suggestion?"💡 "+x.suggestion.text:""));
+    nodes.push(g)
+  }
+  if(comprados.length){
+    const g=shoppingGroup("Ya en tu despensa",comprados,comprasCompradosOpen,v=>{
+      comprasCompradosOpen=v
+    });
+    for(const x of comprados)g.append(shoppingRow(x,i++,true));
+    nodes.push(g)
   }
   cont.replaceChildren(...nodes)
 }
-document.getElementById("comprasList").addEventListener("click",e=>{
-  const b=e.target.closest("button");if(!b)return;if(b.dataset.shopSuggestApply!==undefined){
-    const x=shoppingDisplayItems().find(i=>i.key===b.dataset.shopSuggestApply);if(x&&x.suggestion&&x.suggestion.kind==="partial")comprasApplied[x.key]={
-      label:x.label,buy:x.suggestion.buy
-    };renderCompras();return
-  }if(b.dataset.shopSuggestUndo!==undefined){
-    delete comprasApplied[b.dataset.shopSuggestUndo];renderCompras();return
-  }if(b.dataset.shopSuggestTick!==undefined){
-    comprasDone[b.dataset.shopSuggestTick]=true;renderCompras()
-  }
-});
-document.getElementById("comprasShowPending").addEventListener("click",()=>{
-  comprasShowAll=false;renderCompras()
-});
-document.getElementById("comprasShowAll").addEventListener("click",()=>{
-  comprasShowAll=true;renderCompras()
-});
+// Tachar o destachar. Destachar algo de "Ya en tu despensa" lo devuelve a Pendientes sin tocar la despensa
+// (para revertir la despensa está el Deshacer de "Lo compré").
 function toggleShop(key,checked){
+  syncShoppingWeek();
   comprasDone[key]=checked;
+  let bought;
+  if(!checked){
+    bought=shoppingBoughtSet();
+    bought.delete(key)
+  }
+  try{
+    saveShoppingChecks(bought)
+  }catch(e){
+    comprasStatus(e.message)
+  }
   renderCompras()
 }
 function comprasText(){
-  const lines=shoppingDisplayItems().filter(x=>!comprasDone[x.key]).map(x=>"• "+x.text),extras=manualShoppingText();
+  const pend=shoppingDisplayItems().filter(x=>x.group==="pendiente"&&!comprasDone[x.key]),lines=[],extras=manualShoppingText();
+  // Por secciones del súper y con cantidades legibles (desde la v15.4).
+  for(const sec of SECCIONES_SUPER){
+    const l=pend.filter(x=>x.seccion===sec);
+    if(l.length)lines.push(...(lines.length?[""]:[]),sec,...l.map(x=>"• "+textoLegible(x.text)))
+  }
   if(!lines.length&&!extras)return "";
   return "🛒 Lista de compras — Mi plato fácil"+NL+lines.join(NL)+(extras?(lines.length?NL+NL:"")+"Productos extra"+NL+extras:"")
 }

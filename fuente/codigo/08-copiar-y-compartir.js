@@ -11,7 +11,7 @@ function plateLines(){
   const L=[];
   if(state.type==="desayuno"){
     L.push("Desayuno / Merienda");
-    L.push("Fruta: "+txtOne(state.fruta));
+    L.push("Fruta: "+(state.fruta?txtOne({name:frutaTexto(state.fruta),quantity:state.fruta.quantity}):txtOne(null)));
     L.push("Proteína: "+txtOne(state.bfprot));
     L.push("Cereal: "+txtOne(state.bfcarb));
     L.push("Grasa opcional: "+txtOne(state.grasa))

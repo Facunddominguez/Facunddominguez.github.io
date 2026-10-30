@@ -23,8 +23,9 @@ function renderCookingHistory(){
   const placeholder=ce("option",null,"Elegí un plato guardado");
   placeholder.value="";
   select.append(placeholder);
-  loadSaved().forEach(p=>{
-    const option=ce("option",null,p.note||p.title||"Plato");option.value=p.id;select.append(option)
+  const saved=loadSaved(),labels=mealLabels(saved);
+  saved.forEach(p=>{
+    const option=ce("option",null,labels.get(p.id));option.value=p.id;select.append(option)
   });
   if(Array.from(select.options).some(o=>o.value===previous))select.value=previous;
   const list=document.getElementById("cookingHistoryList"),items=loadCookingHistory().sort((a,b)=>b.date.localeCompare(a.date));

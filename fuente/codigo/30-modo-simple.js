@@ -2,37 +2,52 @@
 // Parte 31: los archivos se unen en orden según su número, que define el orden de arranque.
 // Las herramientas ocultas siguen funcionando con lo que ya guardaste (por ejemplo, las existencias
 // siguen generando sugerencias en Compras): solo dejan de verse hasta que se elige el modo completo.
+// Semana (desde la v15.1) no oculta nada: sus herramientas están en su menú ⋯ en los dos modos.
 const ADVANCED_TOOLS={
+  // Desde la v15.4 las herramientas de Compras están en su menú ⋯ en los dos modos; el modo simple esconde la barra
+  // de presupuesto de la lista.
   compras:{
-    list:"presupuesto, compras realizadas, existencias, precios y cálculos",
-    items:()=>[document.getElementById("shoppingToolsPanel")]
+    list:"la barra de presupuesto",
+    items:()=>[document.getElementById("comprasPresupuesto")]
   },
+  // Desde la v15.3 cada herramienta vive en la pantalla de su tema; la lista de elementos es la misma de antes.
   ingredientes:{
-    list:"revisar una idea, recomendaciones por costo, mis cantidades por receta, ingredientes equivalentes y descontar de la despensa",
+    list:"revisar una idea con tu despensa",
+    items:()=>[document.getElementById("pantryReviewPanel")]
+  },
+  ideas:{
+    list:"recomendaciones por despensa o costo y el orden de las recetas",
     items:()=>[
-      document.getElementById("pantryReviewPanel"),
       document.getElementById("recipeRecommendPantry").closest("details"),
       document.getElementById("recipeCatalogSort").closest(".portion-field"),
-      document.getElementById("recipeCatalogPageSize").closest(".portion-field"),
-      document.getElementById("recipeReadCooked"),
-      document.getElementById("recipeDetailsAmounts").closest(".portion-field"),
-      document.getElementById("recipeAmountsPanel"),
-      document.getElementById("ingredientAliasPanel")
+      document.getElementById("recipeCatalogPageSize").closest(".portion-field")
     ]
   },
-  misplatos:{
-    list:"exportar o importar platos, vaciar la lista y las copias de recetas que usa el plan",
+  comida:{
+    list:"descontar de la despensa al cocinar",
+    items:()=>[document.getElementById("recipeReadCooked")]
+  },
+  recetaEditar:{
+    list:"cantidades vinculadas y mis cantidades por receta",
+    items:()=>[
+      document.getElementById("recipeDetailsAmounts").closest(".portion-field"),
+      document.getElementById("recipeAmountsPanel")
+    ]
+  },
+  preferencias:{
+    list:"ingredientes equivalentes",
+    items:()=>[document.getElementById("ingredientAliasPanel")]
+  },
+  backupScreen:{
+    list:"exportar o importar platos y vaciar la lista",
     items:()=>{
       const tools=document.getElementById("savedTools"),divider=tools&&tools.previousElementSibling;
       return [divider&&divider.classList.contains("divider")?divider:null,tools]
     }
   },
-  plan:{
-    list:"variaciones, semanas por fecha, vista del mes, historial de cambios y objetivos semanales",
-    items:()=>{
-      const vars=document.querySelector("#plan .plan-vars"),label=vars&&vars.previousElementSibling;
-      return [label&&label.classList.contains("home-section-label")?label:null,vars,document.querySelector("#plan [data-del-var]"),document.getElementById("monthlyPlanPanel"),document.getElementById("datedWeeksPanel"),document.getElementById("datedEditPanel"),document.getElementById("planHistoryPanel"),document.getElementById("habitGoalsPanel")]
-    }
+  misplatos:{
+    list:"las copias de recetas que usa el plan",
+    items:()=>[]
   }
 };
 function setUiMode(mode){
@@ -95,17 +110,16 @@ function renderUiModeControls(){
     button.type="button";
     button.dataset.uiModeToggle="";
     note.append(ce("p","screen__hint"),button);
-    // En Compras va justo antes de las herramientas; en las demás pantallas, al final.
-    if(key==="compras")document.getElementById("shoppingToolsPanel").before(note);
-    else document.getElementById(key).append(note)
+    // Al final de cada pantalla.
+    document.getElementById(key).append(note)
   }
   const card=ce("button","tool-button");
   card.type="button";
   card.id="uiModeToggle";
   card.dataset.uiModeToggle="";
   card.append(ce("span","tool-button__emoji","🧰"),ce("span","tool-button__label"),ce("span","tool-button__desc"));
-  const settings=document.getElementById("sectionSettings");
-  (settings.querySelector(".tools-grid")||settings).append(card);
+  // Desde la v15.3 la tarjeta está en Más → Preferencias.
+  document.getElementById("preferenciasModo").append(card);
   document.addEventListener("click",e=>{
     if(e.target.closest("[data-ui-mode-toggle]"))setUiMode(isSimpleMode()?"completo":"simple")
   });

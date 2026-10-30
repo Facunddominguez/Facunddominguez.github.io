@@ -22,9 +22,10 @@ function plateSignature(){
   return state.type+"|"+plateLines().join("|")
 }
 function currentSnapshot(){
-  const L=plateLines();
+  const L=plateLines(),st=JSON.parse(JSON.stringify(state));
+  delete st.nombreSugerido;
   return {
-    id:Date.now()+"_"+Math.random().toString(36).slice(2,7),savedAt:new Date().toISOString(),type:state.type,title:L[0],lines:L.slice(1),sig:plateSignature(),text:plateText(),cooked:0,state:JSON.parse(JSON.stringify(state))
+    id:Date.now()+"_"+Math.random().toString(36).slice(2,7),savedAt:new Date().toISOString(),type:state.type,title:L[0],lines:L.slice(1),sig:plateSignature(),text:plateText(),cooked:0,state:st
   }
 }
 let savedStatusTimer=null;
@@ -32,25 +33,32 @@ function savedStatus(msg){
   const s=document.getElementById("savedStatus");
   if(!s)return;
   s.textContent=msg;
+  // v15.3: si se actuó desde el detalle de la comida, el aviso también se ve ahí.
+  const det=document.getElementById("comidaEstado");
+  if(det&&stack.at(-1)==="comida")det.textContent=msg;
   clearTimeout(savedStatusTimer);
   savedStatusTimer=setTimeout(()=>{
     s.textContent=""
   },3600)
 }
-function savePlate(){
+// Guarda la comida armada. Desde la v15 el nombre (la hoja "Guardar comida") va en note, el campo de "Renombrar".
+function savePlate(nombre){
   if(!state.type){
     shareStatus("Primero armá un plato.");
     return
   }
   const a=loadSaved();
   const snap=currentSnapshot();
-  if(a.some(x=>(x.sig||x.text)===snap.sig)){
+  const igual=a.find(x=>(x.sig||x.text)===snap.sig);
+  if(igual){
     shareStatus("Este plato ya está guardado.");
-    return
+    return igual
   }
+  if(typeof nombre==="string"&&nombre.trim())snap.note=nombre.trim().slice(0,80);
   a.unshift(snap);
   const ok=persistSaved(a);
-  shareStatus(ok?"¡Plato guardado en este dispositivo!":"No se pudo guardar (almacenamiento no disponible).")
+  shareStatus(ok?"¡Guardado en Mis comidas!":"No se pudo guardar (almacenamiento no disponible).");
+  return ok?snap:null
 }
 function deleteSaved(id){
   const a=loadSaved().filter(x=>x.id!==id);
@@ -71,8 +79,8 @@ function renameSaved(id){
   const a=loadSaved();
   const it=a.find(x=>x.id===id);
   if(!it)return;
-  const cur=it.note||"";
-  const val=window.prompt("Nombre o nota para este plato:",cur);
+  const cur=it.note||mealName(it);
+  const val=window.prompt("Nombre de esta comida:",cur);
   if(val===null)return;
   it.note=val.trim();
   persistSaved(a);
@@ -102,7 +110,7 @@ function clearAllSaved(){
 }
 function matchSaved(it,q){
   if(!q)return true;
-  const hay=normalizeSearchText(savedItemTitle(it)+" "+(it.title||"")+" "+savedItemLines(it).join(" ")+" "+(it.note||""));
+  const hay=normalizeSearchText(mealName(it)+" "+savedItemTitle(it)+" "+(it.title||"")+" "+savedItemLines(it).join(" ")+" "+(it.note||""));
   return hay.includes(q)
 }
 function fmtWhen(iso){
@@ -115,16 +123,8 @@ function fmtWhen(iso){
 function savedCard(item){
   const card=ce("div","summary__line");
   const head=ce("div",null);
-  head.append(ce("strong",null,(item.fav?"⭐ ":"")+(item.recipeSourceId?"📖":typeEmoji(item.type))+" "+savedItemTitle(item)));
-  if(item.note){
-    const nt=ce("div",null,"🏷️ "+item.note);
-    nt.style.color="var(--green)";
-    nt.style.fontSize="13px";
-    nt.style.fontWeight="800";
-    nt.style.marginTop="4px";
-    head.append(nt)
-  }
-  const lines=Array.isArray(item.lines)?savedItemLines(item):(item.text?item.text.split(NL).slice(1).map(x=>x.replace(/^•\s*/,"")):[]);
+  head.append(ce("strong",null,(item.fav?"⭐ ":"")+(item.recipeSourceId?"📖":typeEmoji(item.type))+" "+mealName(item)));
+  const lines=(Array.isArray(item.lines)?savedItemLines(item):(item.text?item.text.split(NL).slice(1).map(x=>x.replace(/^•\s*/,"")):[])).map(textoCorregido);
   const ul=ce("ul");
   ul.style.margin="6px 0 0";
   ul.style.paddingLeft="18px";
@@ -170,7 +170,7 @@ function toggleSavedActions(id){
 function sortSaved(arr){
   const s=arr.slice();
   if(savedSort==="az"){
-    s.sort((x,y)=>normalizeSearchText((x.note||x.title||"")).localeCompare(normalizeSearchText((y.note||y.title||""))))
+    s.sort((x,y)=>normalizeSearchText(mealName(x)).localeCompare(normalizeSearchText(mealName(y))))
   }else if(savedSort==="tipo"){
     const ord={
       desayuno:0,plato:1,snack:2,pre:3
@@ -241,46 +241,39 @@ function renderSaved(){
   const nP=plates.length,nR=storeError?copies.length:recipes.length+orphans.length,plural=(n,one,many)=>n+" "+(n===1?one:many);
   if(hint){
     if(!nP&&!nR)hint.textContent="";
-    else if(q)hint.textContent="Encontré "+plural(platesF.length,"plato","platos")+" y "+plural(recipesF.length+orphansF.length,"receta","recetas")+".";
-    else hint.textContent="Tenés "+plural(nP,"plato","platos")+" y "+plural(nR,"receta","recetas")+" guardados en este dispositivo."
+    else if(q)hint.textContent="Encontré "+plural((savedKind==="recetas"?0:platesF.length)+(savedKind==="platos"?0:recipesF.length+orphansF.length),"comida","comidas")+".";
+    else hint.textContent="Tenés "+plural(nP+nR,"comida guardada","comidas guardadas")+"."
   }
   if(!nP&&!nR&&!copies.length&&!storeError){
-    list.replaceChildren(emptyState("🍽️","Todavía no guardaste comidas","Armá un plato y tocá Guardar, o creá una receta en Más → Con lo que tengo.",{
+    list.replaceChildren(emptyState("🍽️","Todavía no guardaste comidas","Tocá + Nueva para armar una comida o escribir una receta.",{
       label:"Armar mi primer plato",key:"start",value:"plato"
     }));
     return
   }
-  const nodes=[];
-  if(savedKind!=="recetas"){
-    nodes.push(ce("h3","saved-section__title","🍽️ Platos ("+(q?platesF.length+" de "+nP:nP)+")"));
-    if(platesF.length)nodes.push(...platesF.map(savedCard));
-    else nodes.push(ce("p","screen__hint",q?"Ningún plato coincide con tu búsqueda.":"Todavía no guardaste platos. Armá una comida y tocá Guardar."))
-  }
+  // v15.3: una sola lista con la misma tarjeta para platos y recetas (39-comidas.js). Los datos siguen separados:
+  // el adaptador solo los lee. Las copias de recetas borradas se ven como recetas, con su aviso.
+  const comidas=[];
+  if(savedKind!=="recetas")comidas.push(...platesF.map(comidaDesdePlato));
   if(savedKind!=="platos"){
-    if(storeError){
-      const shownCopies=copies.filter(it=>matchSaved(it,q));
-      nodes.push(ce("h3","saved-section__title","📖 Recetas"),ce("p","screen__hint",storeError),...shownCopies.map(savedCard));
-      list.replaceChildren(...nodes);
-      return
+    if(storeError)comidas.push(...copies.filter(it=>matchSaved(it,q)).map(it=>comidaDesdeCopia(it,"")));
+    else{
+      comidas.push(...recipesF.map(r=>comidaDesdeReceta(r,amounts,recipesInPlan.has(r.id))));
+      comidas.push(...orphansF.map(it=>comidaDesdeCopia(it,"Copia del plan: la receta original se borró.")))
     }
-    nodes.push(ce("h3","saved-section__title","📖 Recetas ("+(q?recipesF.length+orphansF.length+" de "+nR:nR)+")"));
-    nodes.push(...recipesF.map(r=>savedRecipeCard(r,amounts,recipesInPlan.has(r.id))));
-    for(const it of orphansF){
-      const card=savedCard(it);
-      card.insertBefore(ce("p","screen__hint","Copia guardada en el plan: la receta original se borró."),card.children[1]||null);
-      nodes.push(card)
-    }
-    if(!recipesF.length&&!orphansF.length&&!storeError)nodes.push(ce("p","screen__hint",q?"Ninguna receta coincide con tu búsqueda.":"Todavía no tenés recetas. Creá una en Más → Con lo que tengo → Crear receta."));
-    if(copiesF.length){
-      const box=ce("details","home-group saved-recipes");
-      box.setAttribute("data-avanzado","misplatos");
-      box.open=savedRecipesOpen;
-      box.addEventListener("toggle",()=>{
-        savedRecipesOpen=box.open
-      });
-      box.append(ce("summary",null,"🗂️ Copias de recetas usadas en el plan ("+copiesF.length+")"),ce("p","screen__hint","Se crean al asignar una receta al plan y guardan su nombre e ingredientes por si la receta se borra. La receta se edita en Más → Con lo que tengo."),...copiesF.map(savedCard));
-      nodes.push(box)
-    }
+  }
+  const nodes=[];
+  if(storeError&&savedKind!=="platos")nodes.push(ce("p","screen__hint",storeError));
+  if(comidas.length)nodes.push(...ordenarComidas(comidas).map(tarjetaComida));
+  else nodes.push(ce("p","screen__hint",q?"Ninguna comida coincide con tu búsqueda.":savedKind==="recetas"?"Todavía no tenés recetas. Tocá + Nueva → Escribir receta.":savedKind==="platos"?"Todavía no guardaste platos. Armá una comida y tocá Guardar.":"Todavía no guardaste comidas."));
+  if(savedKind!=="platos"&&!storeError&&copiesF.length){
+    const box=ce("details","home-group saved-recipes");
+    box.setAttribute("data-avanzado","misplatos");
+    box.open=savedRecipesOpen;
+    box.addEventListener("toggle",()=>{
+      savedRecipesOpen=box.open
+    });
+    box.append(ce("summary",null,"🗂️ Copias de recetas usadas en el plan ("+copiesF.length+")"),ce("p","screen__hint","Se crean al asignar una receta al plan y guardan su nombre e ingredientes por si la receta se borra."),...copiesF.map(savedCard));
+    nodes.push(box)
   }
   list.replaceChildren(...nodes)
 }
@@ -310,10 +303,9 @@ document.addEventListener("click",e=>{
     savedStatus(err.message)
   }
 });
-// "Planificar": abre la Semana con la receta elegida en "Consultar mis recetas mientras planifico".
+// "Planificar": abre Semana → Buscar en mis recetas con la receta elegida.
 function planSavedRecipe(id){
-  openTab("semana");
-  document.getElementById("currentPlanPanel").open=true;
+  abrirHerramientaPlan("recetas");
   document.getElementById("planRecipeSearch").value="";
   const ref=document.getElementById("planRecipeReference");
   ref.open=true;

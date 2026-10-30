@@ -116,8 +116,9 @@ function renderConsumption(){
   const sel=document.getElementById("consumptionPlate"),prev=sel.value,first=ce("option",null,"— Escribir otro —");
   first.value="";
   sel.replaceChildren(first);
-  loadSaved().forEach(p=>{
-    const o=ce("option",null,(p.recipeSourceId?"📖 ":"")+savedItemTitle(p));o.value=p.id;sel.append(o)
+  const saved=loadSaved(),plateLabels=mealLabels(saved);
+  saved.forEach(p=>{
+    const o=ce("option",null,(p.recipeSourceId?"📖 ":"")+plateLabels.get(p.id));o.value=p.id;sel.append(o)
   });
   if([...sel.options].some(o=>o.value===prev))sel.value=prev;
   for(const g of HABIT_GROUPS){

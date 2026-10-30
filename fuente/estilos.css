@@ -1507,10 +1507,6 @@ body{
   bottom:var(--section-nav-h)
 }
 
-#adviceFab{
-  bottom:calc(var(--section-nav-h) + var(--step-nav-h) + 12px)
-}
-
 #themeToggle{
   position:static;
   display:inline-flex!important;
@@ -1893,7 +1889,7 @@ body:has(#home.is-active) .app-shell{
   min-height:44px
 }
 
-/* Compact favorite controls scoped to Advice; preserve click handlers. */#adviceModal button[data-advice-fav]{
+/* Compact favorite controls scoped to Ideas; preserve click handlers. */#ideas button[data-advice-fav]{
   display:flex;
   align-items:center;
   justify-content:center;
@@ -1903,7 +1899,7 @@ body:has(#home.is-active) .app-shell{
   width:max-content;
   max-width:100%;
   min-width:0;
-  min-height:40px;
+  min-height:var(--tap);
   padding:8px 13px;
   border:1px solid var(--line);
   border-radius:999px;
@@ -1916,23 +1912,23 @@ body:has(#home.is-active) .app-shell{
   box-shadow:none
 }
 
-#adviceModal button[data-advice-fav][aria-pressed="true"]{
+#ideas button[data-advice-fav][aria-pressed="true"]{
   background:var(--green2);
   border-color:var(--green);
   color:var(--green)
 }
 
-#adviceModal button[data-advice-fav]:focus-visible{
+#ideas button[data-advice-fav]:focus-visible{
   outline:2px solid var(--green);
   outline-offset:2px
 }
 
-#adviceModal .menu-search{
+#ideas .menu-search{
   grid-template-columns:minmax(0,1fr) auto;
   align-items:center
 }
 
-#adviceModal #menuSearchInput{
+#ideas #menuSearchInput{
   min-width:0;
   width:100%;
   font-size:14px
@@ -2897,3 +2893,597 @@ body:has(#home.is-active) .app-shell{
 .bought-box>#comprasBoughtStatus:empty{
   display:none
 }
+
+/* ============================================================================
+   Etapa 1 (v15): campos con el estilo del sistema, hoja inferior, Ideas, paso
+   Frutas, chip del día y grupos de la lista de compras.
+   ========================================================================== */
+/* Campos de texto y archivo sin estilo propio: especificidad cero, así cualquier regla existente manda. */
+:where(input[type="text"],input[type="search"],input[type="password"],input[type="number"],input:not([type])){
+  box-sizing:border-box;
+  width:100%;
+  min-width:0;
+  min-height:44px;
+  padding:9px 12px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:var(--surface);
+  color:var(--text);
+  font:inherit
+}
+:where(input[type="file"]){
+  box-sizing:border-box;
+  width:100%;
+  min-height:44px;
+  padding:8px;
+  border:1px dashed var(--line);
+  border-radius:12px;
+  background:var(--surface);
+  color:var(--text);
+  font:inherit
+}
+:where(input[type="file"])::file-selector-button{
+  min-height:36px;
+  margin-right:10px;
+  padding:6px 12px;
+  border:1px solid var(--green);
+  border-radius:10px;
+  background:var(--green2);
+  color:var(--green);
+  font:inherit;
+  font-weight:800
+}
+/* Hoja inferior (guardar con nombre, detalle de una idea) */
+.hoja-fondo{
+  position:fixed;
+  inset:0;
+  z-index:1000;
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
+  background:rgba(0,0,0,.45)
+}
+.hoja-fondo[hidden]{
+  display:none
+}
+.hoja{
+  box-sizing:border-box;
+  width:100%;
+  max-width:560px;
+  max-height:85vh;
+  overflow:auto;
+  padding:18px 16px calc(16px + env(safe-area-inset-bottom));
+  border-radius:20px 20px 0 0;
+  background:var(--surface);
+  color:var(--text);
+  box-shadow:var(--shadow)
+}
+.hoja__titulo{
+  margin:0 0 10px;
+  font-size:18px;
+  line-height:1.3
+}
+.hoja__acciones{
+  display:grid;
+  gap:8px;
+  margin-top:12px
+}
+.hoja__acciones>.button{
+  width:100%;
+  margin:0
+}
+.hoja__estado:empty{
+  display:none
+}
+body.con-hoja{
+  overflow:hidden
+}
+/* Ideas: cada idea se puede tocar */
+.idea-link{
+  display:block;
+  width:100%;
+  min-height:44px;
+  padding:6px 0;
+  border:0;
+  background:none;
+  color:var(--text);
+  font:inherit;
+  font-weight:750;
+  text-align:left;
+  cursor:pointer
+}
+.idea-link:hover{
+  color:var(--green)
+}
+#ideas .advice-tabs{
+  margin-top:8px
+}
+/* Paso Frutas: la forma arriba y las frutas en dos columnas */
+#fruitForms{
+  margin:0 0 12px
+}
+#fruit{
+  grid-template-columns:repeat(2,minmax(0,1fr))
+}
+/* Chip "Día de entrenamiento · cambiar" de los pasos del almuerzo o cena */
+.day-chip{
+  margin:0 0 10px
+}
+.day-chip[hidden]{
+  display:none
+}
+/* Almidones: "Más opciones" plegado dentro de la lista */
+.almidones-mas{
+  display:grid;
+  gap:10px
+}
+/* Lista de compras: grupos plegados "Ya tenés" y "Ya en tu despensa" */
+.shop-group{
+  margin-top:12px
+}
+.shop-group>.shop-item{
+  margin:0
+}
+.shop-item__detail{
+  flex:1 1 100%;
+  color:var(--muted);
+  font-size:13px
+}
+.shop-group .shop-item{
+  flex-wrap:wrap
+}
+/* Semana (v15.1): un día a la vez, chips de lunes a domingo y huecos que se tocan */
+.semana-cabeza{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:10px
+}
+.semana-cabeza .screen__title{
+  margin:0;
+  font-size:19px;
+  line-height:1.25;
+  text-wrap:balance
+}
+.semana-menu{
+  flex:0 0 auto;
+  min-width:44px;
+  font-size:20px;
+  line-height:1
+}
+#plan>.screen__hint{
+  margin:4px 0 10px
+}
+.semana-nueva{
+  margin:0 0 12px;
+  padding:12px;
+  border:1px solid var(--category-border,var(--line));
+  border-radius:16px;
+  background:var(--soft)
+}
+.semana-nueva[hidden]{
+  display:none
+}
+.semana-nueva p{
+  margin:0 0 10px;
+  font-size:14.5px;
+  line-height:1.35
+}
+.semana-nueva__acciones{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px
+}
+.semana-nueva__acciones .button{
+  margin:0;
+  padding:10px 8px
+}
+.semana-dias{
+  display:grid;
+  grid-template-columns:repeat(7,minmax(0,1fr));
+  gap:4px;
+  margin:0 0 12px
+}
+.semana-dia-chip{
+  position:relative;
+  display:grid;
+  justify-items:center;
+  gap:1px;
+  min-height:62px;
+  padding:6px 0 9px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:var(--surface);
+  color:var(--text);
+  font:inherit;
+  cursor:pointer;
+  overflow:hidden
+}
+.semana-dia-chip__letra{
+  font-size:12px;
+  font-weight:800;
+  color:var(--muted)
+}
+.semana-dia-chip__num{
+  font-size:16px;
+  font-weight:850
+}
+.semana-dia-chip__cuenta{
+  font-size:11px;
+  font-weight:750;
+  color:var(--muted)
+}
+.semana-dia-chip__barra{
+  position:absolute;
+  left:6px;
+  right:6px;
+  bottom:4px;
+  height:3px;
+  border-radius:3px;
+  background:var(--line)
+}
+.semana-dia-chip__barra::after{
+  content:"";
+  display:block;
+  width:calc(var(--completo,0)*100%);
+  height:100%;
+  border-radius:3px;
+  background:var(--green)
+}
+.semana-dia-chip.es-hoy{
+  border-color:var(--green)
+}
+.semana-dia-chip[aria-pressed="true"]{
+  border-color:var(--green);
+  background:var(--green);
+  color:#fff
+}
+.semana-dia-chip[aria-pressed="true"] .semana-dia-chip__letra,.semana-dia-chip[aria-pressed="true"] .semana-dia-chip__cuenta{
+  color:inherit
+}
+.semana-dia-chip[aria-pressed="true"] .semana-dia-chip__barra{
+  background:rgba(255,255,255,.35)
+}
+.semana-dia-chip[aria-pressed="true"] .semana-dia-chip__barra::after{
+  background:currentColor
+}
+[data-theme="dark"] .semana-dia-chip[aria-pressed="true"]{
+  color:var(--bg)
+}
+.semana-dia__titulo{
+  margin:0 0 8px;
+  font-size:16px
+}
+.semana-huecos{
+  display:grid;
+  gap:8px
+}
+.hueco{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:center;
+  gap:10px;
+  width:100%;
+  min-height:64px;
+  padding:8px 12px 8px 14px;
+  border:1px solid var(--category-border,var(--line));
+  border-radius:16px;
+  background:var(--surface);
+  color:var(--text);
+  font:inherit;
+  text-align:left;
+  cursor:pointer;
+  box-shadow:var(--shadow)
+}
+.hueco--vacio{
+  border-style:dashed;
+  box-shadow:none
+}
+.hueco__texto{
+  display:grid;
+  gap:2px;
+  min-width:0
+}
+.hueco__comida{
+  font-size:12px;
+  font-weight:800;
+  color:var(--muted)
+}
+.hueco__plato{
+  display:-webkit-box;
+  -webkit-box-orient:vertical;
+  -webkit-line-clamp:2;
+  overflow:hidden;
+  font-size:15px;
+  font-weight:800;
+  line-height:1.3;
+  overflow-wrap:anywhere
+}
+.hueco__plato.is-empty{
+  color:var(--muted);
+  font-weight:700
+}
+.hueco__detalle{
+  display:-webkit-box;
+  -webkit-box-orient:vertical;
+  -webkit-line-clamp:1;
+  overflow:hidden;
+  font-size:12.5px;
+  color:var(--muted);
+  overflow-wrap:anywhere
+}
+.hueco__accion{
+  font-size:14px;
+  font-weight:850;
+  color:var(--green)
+}
+.hueco--vacio .hueco__accion{
+  padding:8px 12px;
+  border-radius:12px;
+  background:var(--soft)
+}
+.semana-aviso:empty,#planStatus:empty{
+  display:none
+}
+.semana-aviso .filter-chip{
+  margin-left:4px
+}
+/* Hoja de un hueco lleno, Selector de comida y menú ⋯ */
+.hueco-hoja__plato{
+  margin:0 0 4px;
+  font-size:16px;
+  font-weight:850
+}
+.hueco-hoja__acciones,.menu-semana,.copiar-dia{
+  display:grid;
+  gap:8px;
+  margin-top:12px
+}
+.hueco-hoja__acciones .button,.menu-semana .button,.copiar-dia .button{
+  width:100%;
+  margin:0
+}
+.menu-semana .button{
+  text-align:left
+}
+.copiar-dia p{
+  margin:0
+}
+.selector input[type="search"]{
+  width:100%
+}
+.selector__acciones{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin:10px 0 4px
+}
+.selector__acciones .button{
+  margin:0;
+  padding:10px 8px
+}
+.selector__sugerencia{
+  margin:8px 0;
+  padding:10px 12px;
+  border-radius:14px;
+  background:var(--soft)
+}
+.selector__sugerencia[hidden]{
+  display:none
+}
+.selector__propuesta{
+  margin:0 0 8px;
+  font-weight:800
+}
+.selector-seccion{
+  margin-top:12px
+}
+.selector-seccion__titulo{
+  margin:0 0 6px;
+  font-size:13px;
+  font-weight:850;
+  color:var(--muted);
+  text-transform:uppercase;
+  letter-spacing:.03em
+}
+.selector-item{
+  display:grid;
+  gap:2px;
+  width:100%;
+  min-height:48px;
+  margin:0 0 6px;
+  padding:8px 12px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:var(--surface);
+  color:var(--text);
+  font:inherit;
+  text-align:left;
+  cursor:pointer
+}
+.selector-item.is-actual{
+  border-color:var(--green);
+  background:var(--green2)
+}
+.selector-item__nombre{
+  font-weight:750;
+  overflow-wrap:anywhere
+}
+.selector-item__detalle{
+  display:-webkit-box;
+  -webkit-box-orient:vertical;
+  -webkit-line-clamp:1;
+  overflow:hidden;
+  font-size:12.5px;
+  color:var(--muted)
+}
+/* Pantalla con las herramientas de la Semana (una a la vez, desde el menú ⋯) */
+#planHerramientas [data-herr][hidden]{
+  display:none
+}
+#planHerramientas [data-herr]>.button{
+  width:100%
+}
+/* Listas largas del armado: grilla de chips de dos columnas con buscador */
+.opciones-buscador{
+  width:100%;
+  margin:0 0 10px
+}
+.grid--chips{
+  grid-template-columns:repeat(2,minmax(0,1fr))
+}
+.grid--chips .choice{
+  min-height:44px;
+  padding:10px 11px;
+  font-size:14.5px
+}
+.grid--chips .choice[hidden]{
+  display:none
+}
+.grid--chips>.home-section-label,.grid--chips>details{
+  grid-column:1/-1
+}
+.grid--chips>.home-section-label[hidden]{
+  display:none
+}
+.grid--chips details.almidones-mas{
+  grid-template-columns:repeat(2,minmax(0,1fr))
+}
+.grid--chips details.almidones-mas>summary{
+  grid-column:1/-1
+}
+
+/* Hoy (v15.2): chip de entrenamiento, primera vez, comidas con el nombre tocable y Mañana plegado */
+#home .screen__hint:empty{
+  display:none
+}
+.today__entreno{
+  display:flex
+}
+.today__chip{
+  min-height:44px;
+  gap:2px;
+  font-weight:800
+}
+.today__chip-accion{
+  color:var(--green);
+  font-weight:850
+}
+.today__primera{
+  margin:0;
+  padding:10px 14px;
+  border-radius:14px;
+  background:var(--soft);
+  color:var(--text);
+  font-size:14px;
+  line-height:1.4
+}
+.today-row--vacia{
+  border-style:dashed;
+  box-shadow:none
+}
+.today-row__nombre{
+  grid-column:1;
+  grid-row:1/span 2;
+  display:grid;
+  gap:2px;
+  min-width:0;
+  min-height:44px;
+  margin:0;
+  padding:0;
+  border:0;
+  background:none;
+  color:inherit;
+  font:inherit;
+  text-align:left;
+  cursor:pointer
+}
+.today-row__nombre .today-row__plate{
+  display:-webkit-box;
+  -webkit-box-orient:vertical;
+  -webkit-line-clamp:2;
+  overflow:hidden
+}
+.today__manana{
+  border:1px solid var(--category-border,var(--line));
+  border-radius:16px;
+  background:var(--surface);
+  padding:0 10px
+}
+.today__manana>summary{
+  display:flex;
+  align-items:center;
+  min-height:44px;
+  font-size:14px;
+  font-weight:800;
+  color:var(--muted);
+  cursor:pointer
+}
+.today__manana[open]>summary{
+  margin-bottom:6px
+}
+.today__manana .today__rows{
+  padding-bottom:10px
+}
+.today__manana .today-row{
+  box-shadow:none
+}
+.sugerime__comidas{
+  margin-bottom:10px
+}
+/* v15.3 · Comidas y nueva estructura: segmento "Mis comidas | Ideas", tarjeta única, detalle, formulario de receta,
+   bienvenida y Más. Usa los tokens del sistema de diseño (verde para acciones, 44 px, claro y oscuro). */
+.visually-hidden{position:absolute!important;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.segmento{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin:10px 0 12px;padding:4px;border:1px solid var(--line);border-radius:999px;background:var(--soft)}
+.segmento__boton{min-height:var(--tap);border:0;border-radius:999px;background:transparent;color:var(--text);font:inherit;font-weight:700;cursor:pointer}
+.segmento__boton[aria-pressed="true"]{background:var(--green);color:#fff}
+.comidas-nueva{margin:0 0 8px}
+.comida-card{display:flex;flex-direction:column;align-items:flex-start;gap:3px;width:100%;min-height:var(--tap);margin:0 0 8px;padding:12px 14px;border:1px solid var(--line);border-radius:16px;background:var(--surface);color:var(--text);font:inherit;text-align:left;cursor:pointer}
+.comida-card:focus-visible{outline:3px solid var(--focus-ring);outline-offset:2px}
+.comida-card__nombre{font-size:15px;line-height:1.3;overflow-wrap:anywhere}
+.comida-card__componentes{max-width:100%;color:var(--muted);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.comida-card__etiquetas{color:var(--green);font-size:12px;font-weight:700}
+.comida-card__aviso{color:var(--muted);font-size:12px;font-style:italic}
+.comida-acciones{margin:6px 0}
+.comida-componentes{list-style:none;margin:6px 0;padding:0;display:flex;flex-wrap:wrap;gap:6px}
+.comida-ingrediente{min-height:var(--tap);padding:6px 12px;border:1px solid var(--line);border-radius:999px;background:var(--surface);color:var(--text);font:inherit;font-size:14px;text-align:left;cursor:pointer}
+#comida #recipeReadTitle{display:none}
+.receta-seccion>summary{font-weight:800}
+.receta-seccion .recipe-ingredients{border:0;padding:0;margin:0}
+.ideas-despensa{margin:0 0 12px}
+.ideas-ver-todas{list-style:none;margin-top:6px}
+.nueva-comida .tool-button{text-align:left}
+.bienvenida__plato{display:block;width:min(220px,70%);height:auto;margin:12px auto}
+.bienvenida__borde{fill:var(--surface);stroke:var(--line);stroke-width:4}
+.bienvenida__verduras{fill:#7cc58f}
+.bienvenida__almidones{fill:#f2c14e}
+.bienvenida__proteinas{fill:#e98a6b}
+.bienvenida__texto{font:700 13px system-ui,sans-serif;fill:#1d2b22}
+.bienvenida__ideas .filter-chip{text-align:left}
+#bienvenida .filter-chip[aria-pressed="true"],#preferencias .filter-chip[aria-pressed="true"],#ideasFiltros .filter-chip[aria-pressed="true"]{border-color:var(--green);background:var(--green);color:#fff}
+.armar-comida{cursor:default;grid-column:1/-1}
+.armar-comida__opciones{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;margin-top:8px}
+.armar-comida__opciones .button{width:100%}
+/* v15.4 · Compras y Despensa: barra de presupuesto, interruptor, secciones del súper, agregar producto e historial. */
+.compras-presupuesto{display:block;width:100%;min-height:var(--tap);margin:4px 0 8px;padding:10px 14px;border:1px solid var(--line);border-radius:14px;background:var(--soft);color:var(--text);font:inherit;font-weight:600;text-align:left;cursor:pointer}
+.compras-presupuesto.is-excedido{border-color:var(--danger,#c0392b)}
+.compras-controles{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:4px 0}
+.interruptor{display:inline-flex;align-items:center;gap:10px;min-height:var(--tap);cursor:pointer;font-weight:600}
+.interruptor input{appearance:none;-webkit-appearance:none;position:relative;width:46px;height:28px;margin:0;border-radius:999px;background:var(--line);cursor:pointer;transition:background .15s}
+.interruptor input::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.25);transition:left .15s}
+.interruptor input:checked{background:var(--green)}
+.interruptor input:checked::after{left:21px}
+.interruptor input:focus-visible{outline:3px solid var(--green);outline-offset:2px}
+.compras-agregar{margin:4px 0}
+.compras-agregar>summary{display:inline-flex;align-items:center;min-height:var(--tap);padding:0 16px;border:1px solid var(--green);border-radius:999px;color:var(--green);font-weight:700;cursor:pointer;list-style:none}
+.compras-agregar>summary::-webkit-details-marker{display:none}
+.compras-seccion{margin:10px 0 4px}
+.compras-seccion__titulo{margin:12px 0 2px;font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.compras-seccion .shop-item{min-height:var(--tap)}
+.compras-seccion .shop-item input{width:24px;height:24px}
+#manualShopList .manual-shop-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+#manualShopList .manual-shop-row .shop-item{flex:1 1 60%}
+#manualShopList .manual-shop-row .filter-chip{min-height:var(--tap)}
+.pantry-item__historial{flex:1 1 100%;margin:2px 0 4px}
+.pantry-item__historial>summary{min-height:var(--tap);display:flex;align-items:center;cursor:pointer;color:var(--muted);font-size:14px}
+.herr-contenedor>summary{list-style:none}

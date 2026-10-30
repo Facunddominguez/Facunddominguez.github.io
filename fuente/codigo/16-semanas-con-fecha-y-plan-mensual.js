@@ -306,31 +306,6 @@ function commitTypedAppDate(id,required){
     return false
   }
 }
-function appendPlanAssignmentControls(wrap,day,slot,pool,item){
-  if(wrap.querySelector("[data-plan-select]"))return;
-  const row=ce("div","plan-slot__row"),select=ce("select");
-  select.dataset.planSelect=day+"|"+slot;
-  select.setAttribute("aria-label","Elegir plato para "+day+" "+slot);
-  const empty=ce("option",null,pool.length?"Elegir un plato…":"No hay platos guardados de este tipo");
-  empty.value="";
-  select.append(empty);
-  pool.forEach(p=>{
-    const o=ce("option",null,planPlateLabel(p).slice(0,54));o.value=p.id;select.append(o)
-  });
-  const assign=ce("button","button button--soft",item?"Reemplazar":"Asignar");
-  assign.type="button";
-  assign.dataset.planSet=day+"|"+slot;
-  assign.disabled=!pool.length;
-  select.disabled=!pool.length;
-  row.append(select,assign);
-  wrap.append(row);
-  if(!pool.length){
-    const create=ce("button","button button--soft","Crear y guardar un plato");
-    create.type="button";
-    create.dataset.start=slotPool(slot);
-    wrap.append(create)
-  }
-}
 const typedDateIds=["trainingExceptionDate","datedWeekStart","planExportStart"];
 typedDateIds.forEach(id=>{
   const text=document.getElementById(id+"Text");syncTypedAppDate(id);text.addEventListener("input",()=>{

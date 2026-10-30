@@ -3,13 +3,14 @@
 function init(){
   renderTrainingWeek();
   renderTrainingExceptions();
-  renderChoice("fruit",data.fruit,"fruta","bf_prot");
+  renderChoice("fruit",data.frutas,"fruta","bf_prot");
+  renderFrutaFormas();
   renderChoice("bfprot",data.bfprot,"bfprot","bf_carb");
   renderChoice("bfcarb",data.bfcarb,"bfcarb","bf_fat");
   renderChoice("bffat",data.bffat,"grasa","resumen");
   renderChoice("snacks",data.snacks,"snack","resumen");
   renderMulti("boxv",data.verduras,"verduras");
-  renderMulti("boxa",data.almidones,"almidones");
+  renderAlmidones();
   renderProteins();
   renderMulti("boxLegCarb",data.legumbres,"legCarb");
   renderMulti("boxLegProt",data.legumbres,"legProt");
@@ -21,11 +22,94 @@ function init(){
   liList(el.advicePreIdeas,data.preIdeas);
   liList(el.advicePreCombos,data.preCombos);
   pantrySel=loadPantry();
-  renderPantry()
+  renderPantry();
+  // Listas largas del armado (más de 12 opciones): grilla de chips con buscador.
+  for(const [id,etiqueta] of [["fruit","Buscar fruta"],["boxv","Buscar verdura"],["boxa","Buscar almidón"],["boxp","Buscar proteína"],["boxLegCarb","Buscar legumbre"],["boxLegProt","Buscar legumbre"],["bfprot","Buscar proteína"],["bfcarb","Buscar cereal"],["bffat","Buscar grasa"],["snacks","Buscar snack"]]){
+    const box=document.getElementById(id);
+    if(box&&box.querySelectorAll(".choice").length>12)conBuscador(box,etiqueta)
+  }
 }
-function start(type){
+function conBuscador(box,etiqueta){
+  if(box.dataset.buscador)return;
+  box.dataset.buscador="1";
+  box.classList.add("grid--chips");
+  const input=ce("input");
+  input.type="search";
+  input.id=box.id+"Buscar";
+  input.className="opciones-buscador";
+  input.placeholder=etiqueta;
+  input.autocomplete="off";
+  input.setAttribute("aria-label",etiqueta);
+  input.dataset.filtra=box.id;
+  input.addEventListener("input",()=>filtrarOpciones(box,input.value));
+  box.before(input)
+}
+// Lo elegido sigue a la vista aunque no coincida con lo que se busca.
+function filtrarOpciones(box,q){
+  const n=normalizeSearchText(String(q||"").trim());
+  box.querySelectorAll(".choice").forEach(c=>{
+    c.hidden=!!n&&!c.classList.contains("is-selected")&&!normalizeSearchText(c.textContent+" "+(c.dataset.name||"")).includes(n)
+  });
+  box.querySelectorAll(".home-section-label").forEach(l=>{
+    l.hidden=!!n
+  });
+  box.querySelectorAll("details").forEach(d=>{
+    if(n&&d.querySelector(".choice:not([hidden])"))d.open=true
+  })
+}
+function limpiarBuscadores(){
+  document.querySelectorAll("[data-filtra]").forEach(i=>{
+    i.value="";const box=document.getElementById(i.dataset.filtra);if(box)filtrarOpciones(box,"")
+  })
+}
+// Pasos del armado: solo en ellos se ve la barra "Volver al paso anterior".
+const ARMADO_PASOS=["bf_fruit","bf_prot","bf_carb","bf_fat","day","plate_static","lunch_veg","lunch_carb","lunch_prot","snack","pre"];
+// Paso Frutas (desde la v15): qué fruta y, arriba, la forma de comerla (Entera por defecto).
+function renderFrutaFormas(){
+  const box=document.getElementById("fruitForms");
+  if(!box)return;
+  box.replaceChildren(...data.frutaFormas.map(f=>{
+    const b=ce("button","filter-chip"+(f===frutaForma?" is-selected":""),f);b.type="button";b.dataset.frutaForma=f;b.setAttribute("aria-pressed",String(f===frutaForma));return b
+  }))
+}
+function setFrutaForma(f){
+  if(!data.frutaFormas.includes(f))return;
+  frutaForma=f;
+  renderFrutaFormas()
+}
+// Almidones: harinas, féculas y pan rallado quedan en "Más opciones" (plegado).
+function renderAlmidones(){
+  const box=document.getElementById("boxa"),mas=data.almidonesMas,det=ce("details","home-group almidones-mas");
+  det.append(ce("summary",null,"Más opciones: harinas, féculas y pan rallado"),...mas.map(label=>choice({
+    label,key:"almidones",multi:true
+  })));
+  box.replaceChildren(...data.almidones.filter(x=>!mas.includes(x)).map(label=>choice({
+    label,key:"almidones",multi:true
+  })),det)
+}
+// Almuerzo o cena: si la rutina sabe si ese día se entrena, no se pregunta y se arranca en Verduras.
+// dayKey: el día del plan cuando el armado empieza desde un hueco de la Semana (usa la rutina de ese día).
+// slot: la comida del hueco desde el que se arma (Selector de comida); al guardar, se asigna ahí y se vuelve a la Semana.
+var armadoDestino=null;
+function start(type,dayKey,slot){
   lastRandomType=null;
+  armadoDestino=slot&&dayKey&&SLOTS.some(s=>s[0]===slot)&&DAYS.some(d=>d[0]===dayKey)?{
+    dia:dayKey,slot,tab:activeTab
+  }:null;
+  limpiarBuscadores();
   state.type=type;
+  armadoFecha=dayKey&&DAYS.some(d=>d[0]===dayKey)?fechaDelDiaDelPlan(dayKey):null;
+  if(type==="plato"){
+    const dia=diaDeRutina(armadoFecha||new Date());
+    if(dia){
+      state.day=dia;
+      state.customPortions=null;
+      closePortionEditor();
+      updatePlate();
+      go("lunch_veg");
+      return
+    }
+  }
   go({
     desayuno:"bf_fruit",plato:"day",snack:"snack",pre:"pre"
   }[type])
@@ -44,6 +128,11 @@ function go(id){
   if(id==="plan")renderPlan();
   if(id==="compras")renderCompras();
   if(id==="ingredientes")renderPantry();
+  if(id==="ideas")renderContextAdvice();
+  if(id==="bf_fruit"){
+    if(state.fruta&&state.fruta.forma&&data.frutaFormas.includes(state.fruta.forma))frutaForma=state.fruta.forma;
+    renderFrutaFormas()
+  }
   window.scrollTo({
     top:0,behavior:"smooth"
   })
@@ -56,23 +145,26 @@ function nextFor(id){
 }
 // Pestañas de la barra inferior y la pantalla de inicio de cada una. La barra está en 32-pestanas.js.
 const TABS={
-  hoy:{root:"home",label:"Hoy"},semana:{root:"plan",label:"Semana"},compras:{root:"compras",label:"Compras"},miscomidas:{root:"misplatos",label:"Mis comidas"},mas:{root:"home",label:"Más"}
+  hoy:{root:"home",label:"Hoy"},semana:{root:"plan",label:"Semana"},compras:{root:"compras",label:"Compras"},miscomidas:{root:"misplatos",label:"Comidas"},mas:{root:"home",label:"Más"}
 };
 let activeTab="hoy";
 function activeTabRoot(){
   return TABS[activeTab].root
 }
+// En Comidas, Ideas es la otra mitad del segmento "Mis comidas | Ideas": no muestra "← Comidas". Igual la Despensa en
+// Compras ("Lista | Despensa", desde la v15.4).
+function esRaizDePestana(cur){
+  return cur===activeTabRoot()||(activeTab==="miscomidas"&&cur==="ideas")||(activeTab==="compras"&&cur==="ingredientes")
+}
 function nav(){
   const cur=stack.at(-1),home=cur==="home",sum=cur==="resumen",next=nextFor(cur);
-  const bottomVisible=!home&&!sum&&cur!=="misplatos"&&cur!=="azar"&&cur!=="plan"&&cur!=="compras"&&cur!=="ingredientes"&&cur!=="trainingCalendar";
+  const bottomVisible=ARMADO_PASOS.includes(cur);
   el.bottom.classList.toggle("is-visible",bottomVisible);
   // Arriba: vuelve al inicio de la pestaña actual; no se muestra si ya estás ahí.
-  el.homeTop.classList.toggle("is-visible",cur!==activeTabRoot());
+  el.homeTop.classList.toggle("is-visible",!esRaizDePestana(cur));
   el.homeTop.textContent="← "+TABS[activeTab].label;
   el.homeTop.setAttribute("aria-label","Volver al inicio de "+TABS[activeTab].label);
   document.getElementById("themeToggle").classList.toggle("is-hidden",!home);
-  el.adviceFab.classList.toggle("is-visible",home||sum||bottomVisible);
-  el.adviceFab.classList.toggle("advice-fab--raised",bottomVisible);
   el.nextBottom.classList.toggle("is-hidden",!next);
   el.bottomInner.classList.toggle("has-next",!!next);
   if(next)el.nextBottom.dataset.go=next;
@@ -106,6 +198,8 @@ function pick(k,n,q,next){
   state[k]={
     name:n,quantity:q
   };
+  if(k==="fruta")state.fruta.forma=frutaForma;
+  state.nombreSugerido="";
   if(editReturn){
     editReturn=false;
     go("resumen");
@@ -114,6 +208,7 @@ function pick(k,n,q,next){
   go(next)
 }
 function toggleMulti(b,k,n){
+  state.nombreSugerido="";
   const arr=state[k];
   const i=arr.findIndex(x=>x.name===n);
   if(i>=0){
@@ -152,6 +247,13 @@ function toggleDay(){
   updatePlate();
   go("plate_static")
 }
+// Chip "Día de entrenamiento · cambiar" de los pasos del almuerzo o cena: cambia el día sin salir del paso.
+function cambiarDiaDelArmado(){
+  state.day=state.day==="Día de entrenamiento"?"Día libre":"Día de entrenamiento";
+  state.customPortions=null;
+  closePortionEditor();
+  updatePlate()
+}
 function syncPortionEditor(){
   const p=portions();
   el.portionVeg.value=p.vegetables;
@@ -166,9 +268,12 @@ function closePortionEditor(){
 function updatePlate(){
   const p=portions();
   el.plateTitle.textContent=state.day;
-  el.vegHint.textContent=`Cantidad general: ${p.vegetables} del plato. Podés elegir más de una opción.`;
-  el.carbHint.textContent=`Cantidad general: ${p.carbs} del plato. Podés elegir más de una opción. Podés seleccionar legumbres dentro del grupo de almidones. Cambiar de lista no borra lo que ya elegiste; revisá la combinación en el resumen.`;
-  el.protHint.textContent=`Cantidad general: ${p.protein} del plato. Podés elegir más de una opción. Podés seleccionar legumbres dentro del grupo de proteínas. Cambiar de lista no borra lo que ya elegiste; revisá la combinación en el resumen.`;
+  el.vegHint.textContent=`${p.vegetables} del plato. Podés elegir varias.`;
+  el.carbHint.textContent=`${p.carbs} del plato. Podés elegir varios, también legumbres.`;
+  el.protHint.textContent=`${p.protein} del plato. Podés elegir varias, también legumbres.`;
+  document.querySelectorAll("[data-day-chip]").forEach(c=>{
+    c.hidden=!state.day;c.textContent=(state.day||"")+" · cambiar";c.setAttribute("aria-label",(state.day||"")+". Tocá para cambiar el tipo de día")
+  });
   syncPortionEditor();
   renderPlate()
 }
@@ -221,7 +326,7 @@ function toggle(b,s){
   b.setAttribute("aria-pressed",String(s))
 }
 function fmt(o){
-  return o?`${o.name}${o.quantity?` <span class="quantity">${o.quantity}</span>`:""}`:"No elegido"
+  return o?`${opcionVisible(o.name)}${o.quantity?` <span class="quantity">${cantidadVisible(o.quantity)}</span>`:""}`:"No elegido"
 }
 function fmtList(a){
   return a&&a.length?`<span class="selection-list">${a.map(x=>`<span class="selection-chip">${x.name}</span>`).join("")}</span>`:"No elegido"
@@ -241,7 +346,7 @@ function groupLabel(base,leg,baseArr,legArr){
 }
 function summary(){
   let h="";
-  if(state.type==="desayuno")h=`<div class="summary__line"><strong>Desayuno / Merienda</strong></div>${editLine("Fruta",fmt(state.fruta),"bf_fruit","🍓")}${editLine("Proteína",fmt(state.bfprot),"bf_prot","🥛")}${editLine("Cereal",fmt(state.bfcarb),"bf_carb","🌾")}${editLine("Grasa opcional",fmt(state.grasa),"bf_fat","🥑")}`;
+  if(state.type==="desayuno")h=`<div class="summary__line"><strong>${nombreDesdeEstado(state,"desayuno")||"Desayuno / Merienda"}</strong></div>${editLine("Fruta",state.fruta?fmt({name:frutaTexto(state.fruta),quantity:state.fruta.quantity}):fmt(null),"bf_fruit","🍓")}${editLine("Proteína",fmt(state.bfprot),"bf_prot","🥛")}${editLine("Cereal",fmt(state.bfcarb),"bf_carb","🌾")}${editLine("Grasa opcional",fmt(state.grasa),"bf_fat","🥑")}`;
   else if(state.type==="plato"){
     const p=portions(),other=state.day==="Día de entrenamiento"?"Día libre":"Día de entrenamiento",carbArr=merged(state.almidones,state.legCarb),protArr=merged(state.proteinas,state.legProt),carb=groupLabel("Almidones","Legumbres como almidón",state.almidones,state.legCarb),prot=groupLabel("Proteínas","Legumbres como proteína",state.proteinas,state.legProt);
     const platoMissing=[],platoPresent=[];
@@ -254,7 +359,7 @@ function summary(){
     const joinY=a=>a.length===1?a[0]:a.slice(0,-1).join(", ")+" y "+a[a.length-1];
     const platoRedis=platoPresent.length?` Si querés mantener el plato completo, podés editar las proporciones para redistribuir ese espacio ${platoPresent.length===1?"en "+platoPresent[0]:"entre "+joinY(platoPresent)}.`:" Si querés, podés editar las proporciones antes de finalizar.";
     const platoWarn=platoMissing.length?`<article class="notice">No seleccionaste ${joinY(platoMissing)}.${platoRedis}<div class="divider"></div><button class="button button--soft" type="button" data-edit-portions-summary>Editar proporciones</button></article>`:"";
-    h=`<div class="summary__line"><strong>Almuerzo / Cena · ${state.day}</strong></div>${editLine(`Verduras · ${p.vegetables} del plato`,fmtList(state.verduras),"lunch_veg","🥗")}${editLine(`${carb} · ${p.carbs} del plato`,fmtList(carbArr),"lunch_carb","🍚")}${editLine(`${prot} · ${p.protein} del plato`,fmtList(protArr),"lunch_prot","🔵")}${platoWarn}<div class="divider"></div><div class="summary-actions"><button class="button button--soft" type="button" data-toggle-day>Cambiar a ${other}</button><button class="button button--soft" type="button" data-edit-portions-summary>Editar proporciones</button></div>`
+    h=`<div class="summary__line"><strong>${nombreDesdeEstado(state,"plato")||"Almuerzo / Cena"} · ${state.day}</strong></div>${editLine(`Verduras · ${p.vegetables} del plato`,fmtList(state.verduras),"lunch_veg","🥗")}${editLine(`${carb} · ${p.carbs} del plato`,fmtList(carbArr),"lunch_carb","🍚")}${editLine(`${prot} · ${p.protein} del plato`,fmtList(protArr),"lunch_prot","🔵")}${platoWarn}<div class="divider"></div><div class="summary-actions"><button class="button button--soft" type="button" data-toggle-day>Cambiar a ${other}</button><button class="button button--soft" type="button" data-edit-portions-summary>Editar proporciones</button></div>`
   }else if(state.type==="snack")h=`<div class="summary__line"><strong>Snack</strong></div>${editLine("Opción",fmt(state.snack),"snack","🥜")}`;
   else h=`<div class="summary__line"><strong>Pre-entreno</strong></div><div class="summary__line">${fmt(state.pre)}</div>`;
   if(lastRandomType){
@@ -280,21 +385,35 @@ function resetAdviceTemporaryState(){
     const box=document.getElementById(id);if(box)box.classList.remove("is-visible")
   })
 }
-function restart(){
+// Deja el armado vacío (sin tocar pestañas ni pantallas).
+function limpiarArmado(){
   Object.assign(state,{
-    type:"",day:"",fruta:null,bfprot:null,bfcarb:null,grasa:null,pre:null,snack:null,verduras:[],almidones:[],proteinas:[],legCarb:[],legProt:[],replaceCarb:false,replaceProt:false,customPortions:null
+    type:"",day:"",fruta:null,bfprot:null,bfcarb:null,grasa:null,pre:null,snack:null,verduras:[],almidones:[],proteinas:[],legCarb:[],legProt:[],replaceCarb:false,replaceProt:false,customPortions:null,nombreSugerido:""
   });
+  frutaForma="Entera";
+  armadoFecha=null;
+  renderFrutaFormas();
   editReturn=false;
   portionEditReturn=false;
   lastRandomType=null;
-  stack=["home"];
   document.querySelectorAll(".choice.is-selected,.toggle-button.is-selected").forEach(e=>e.classList.remove("is-selected"));
   document.querySelectorAll('.choice[aria-pressed="true"]').forEach(e=>e.setAttribute("aria-pressed","false"));
   setReplace("carb",false);
   setReplace("prot",false);
   closePortionEditor();
   el.preIdeas.classList.add("is-hidden");
-  el.adviceModal.classList.remove("is-visible");
+  limpiarBuscadores()
+}
+function restart(){
+  limpiarArmado();
+  // El Deshacer de la Semana no se pierde por volver al inicio: vale hasta el próximo cambio del plan.
+  armadoDestino=null;
+  planDiaElegido=null;
+  try{
+    if(hoja.abierta())hoja.cerrar()
+  }catch(e){
+  }
+  stack=["home"];
   resetAdviceTemporaryState();
   renderContextAdvice();
   document.querySelectorAll(".screen").forEach(s=>{
@@ -380,7 +499,7 @@ function renderContextAdvice(){
   let title="",tip="";
   if(state.type==="desayuno"&&(state.fruta||state.bfprot||state.bfcarb||state.grasa)){
     title="Tu desayuno / merienda";
-    if(state.fruta)lines.push(`Fruta: ${state.fruta.name}`);
+    if(state.fruta)lines.push(`Fruta: ${frutaTexto(state.fruta)}`);
     if(state.bfprot)lines.push(`Proteína: ${state.bfprot.name}`);
     if(state.bfcarb)lines.push(`Cereal: ${state.bfcarb.name}`);
     if(state.grasa)lines.push(`Grasa opcional: ${state.grasa.name}`);

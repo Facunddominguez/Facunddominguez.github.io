@@ -29,6 +29,13 @@
     "bkp01.js",
     "bkp02.js",
     "imp01.js",
-    "regression.js"
+    "regression.js",
+    "k01_respaldo_ejemplo.js",
+    "j01_recorridos.js",
+    "e1_confianza.js",
+    "e2_semana.js",
+    "e3_hoy.js",
+    "e4_comidas.js",
+    "e5_compras.js"
   ]
 }

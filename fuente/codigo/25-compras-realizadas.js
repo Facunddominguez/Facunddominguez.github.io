@@ -69,7 +69,7 @@ function budgetRealLines(box,budget,estimated){
     minimumFractionDigits:2,maximumFractionDigits:2
   }),period=budget.period==="mes"?"mes":"semana",[from,to]=budgetPeriodRange(period),list=loadPurchases().filter(p=>p.date>=from&&p.date<=to),same=list.filter(p=>p.currency===budget.currency),other=list.length-same.length,real=same.reduce((t,p)=>t+p.total,0);
   box.append(ce("p","shop-item","Gasto real "+(period==="mes"?"del mes":"de esta semana")+" (compras registradas): "+fmt(real)+" "+budget.currency),ce("p","screen__hint","Disponible según gasto real: "+fmt(budget.limit-real)+" "+budget.currency+(other?" · "+other+" compra"+(other===1?"":"s")+" en otra moneda sin sumar":"")));
-  if(period==="semana")box.append(ce("p","screen__hint","Estimado de faltantes "+fmt(estimated)+" vs. gastado "+fmt(real)+": diferencia "+fmt(real-estimated)+" "+budget.currency+" (positivo = se gastó más que lo estimado)."));
+  if(period==="semana")box.append(ce("p","screen__hint","Gastado menos estimado: diferencia "+fmt(real-estimated)+" "+budget.currency+"."));
   if(budget.people)box.append(ce("p","screen__hint","Por persona: "+fmt(budget.limit/budget.people)+" "+budget.currency+" por "+period+"."));
   const full=planFullCost(budget.currency);
   if(full.count)box.append(ce("p","screen__hint","Costo de todas las recetas del plan (sin descontar despensa): "+fmt(full.total)+" "+budget.currency+(full.missing?" · "+full.missing+" ingrediente"+(full.missing===1?"":"s")+" sin precio o sin cantidad":"")))

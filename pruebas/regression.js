@@ -10,14 +10,15 @@
   ok("R0 versión visible " + expectVersion, document.getElementById("deploymentGuide").textContent.includes("Versión " + expectVersion));
   // Breakfast flow
   await click('[data-start="desayuno"]');
-  await click('#fruit [data-name="Licuado"]'); await wait(100);
+  // v15: el paso Frutas pide la forma (arriba) y la fruta.
+  await click('#fruitForms [data-fruta-forma="Licuado"]'); await click('#fruit [data-name="Banana"]'); await wait(100);
   await click('#bfprot [data-name="Yogur natural descremado"]'); await wait(100);
   await click('#bfcarb [data-name="Pan de molde integral o blanco"]'); await wait(100);
   await click('#bffat [data-name="Palta"]'); await wait(100);
   ok("R1 desayuno completo llega al resumen", scr() === "resumen" && /Licuado/.test(el.summary.textContent) && /Palta/.test(el.summary.textContent));
   await click('#summary [data-edit="bf_prot"]'); await click('#bfprot [data-name="Huevo | Clara de huevo"]'); await wait(100);
   ok("R2 editar desde el resumen vuelve al resumen", scr() === "resumen" && /Huevo/.test(el.summary.textContent));
-  await click('[data-save-plate]');
+  await click('[data-save-plate]'); await click('.hoja .button--primary');
   await click('[data-restart]');
   ok("R3 Armar otro plato reinicia", scr() === "home" && state.type === "");
   // Lunch flow
@@ -35,7 +36,7 @@
   const blocked = el.portionError.classList.contains("is-visible") && scr() === "plate_static";
   el.portionVeg.value = "1/2"; el.portionCarb.value = "1/4"; el.portionProt.value = "1/4"; await click("[data-save-portions]");
   ok("R6 proporciones inválidas bloquean y válidas vuelven al resumen", blocked && scr() === "resumen");
-  await click('[data-save-plate]');
+  await click('[data-save-plate]'); await click('.hoja .button--primary');
   await click('#homeTop');
   ok("R7 Inicio vuelve a la portada sin borrar la selección", scr() === "home" && state.type === "plato");
   await click('[data-restart]');
@@ -44,25 +45,30 @@
   await click('[data-section-tab="semana"]');
   ok("R8b la pestaña Semana abre el plan", scr() === "plan");
   const plate = loadSaved().find(p => p.type === "plato"), bf = loadSaved().find(p => p.type === "desayuno");
-  document.querySelector('[data-plan-select="lunes|almuerzo"]').value = plate.id; await click('[data-plan-set="lunes|almuerzo"]');
-  document.querySelector('[data-plan-select="lunes|desayuno"]').value = bf.id; await click('[data-plan-set="lunes|desayuno"]');
+  // v15.1: se asigna tocando el día, la comida y la comida guardada en el Selector (si está llena, Cambiar);
+  // se quita desde la hoja de la comida y las herramientas se abren desde el menú ⋯.
+  const asignar = async (dia, comida, id) => { await click('#planDias [data-plan-dia="' + dia + '"]'); await click('[data-hueco="' + dia + '|' + comida + '"]'); if (!hoja.elemento.querySelector("[data-selector-id]")) await click(".hoja [data-hueco-cambiar]"); await click('.hoja [data-selector-id="' + id + '"]') };
+  const quitar = async (dia, comida) => { if (scr() !== "plan") await click("#homeTop"); await click('#planDias [data-plan-dia="' + dia + '"]'); await click('[data-hueco="' + dia + '|' + comida + '"]'); await click('.hoja [data-plan-clear="' + dia + '|' + comida + '"]') };
+  const herramienta = async nombre => { if (scr() !== "plan") await click("#homeTop"); await click("[data-plan-menu]"); await click('.hoja [data-plan-herr="' + nombre + '"]') };
+  await asignar("lunes", "almuerzo", plate.id);
+  await asignar("lunes", "desayuno", bf.id);
   ok("R9 asignar platos al plan", loadPlan().lunes.almuerzo === plate.id && loadPlan().lunes.desayuno === bf.id);
-  document.querySelector('[data-plan-select="lunes|almuerzo"]').value = plate.id; await click('[data-plan-set="lunes|almuerzo"]');
+  await asignar("lunes", "almuerzo", plate.id);
   ok("R10 Reemplazar sigue operativo", loadPlan().lunes.almuerzo === plate.id);
-  await click('[data-save-var]'); await click('[data-plan-clear="lunes|almuerzo"]');
+  await herramienta("variaciones"); await click('[data-save-var]'); await quitar("lunes", "almuerzo"); await herramienta("variaciones");
   const vs = document.getElementById("varSelect"); vs.value = "Var A"; vs.dispatchEvent(new Event("change", { bubbles: true })); await wait(100);
   ok("R11 variaciones independientes del plan actual", !!loadVars()["Var A"].lunes.almuerzo && loadPlan().lunes.almuerzo === plate.id);
-  document.getElementById("datedWeeksPanel").open = true; await wait(50); await click('[data-dated-save]');
-  await click('[data-plan-clear="lunes|almuerzo"]');
+  await herramienta("semanas"); await wait(50); await click('[data-dated-save]');
+  await quitar("lunes", "almuerzo");
   const weeks = loadDatedWeeks(), k = Object.keys(weeks)[0];
   ok("R12 semana fechada es una copia independiente", !!weeks[k].plan.lunes.almuerzo && !loadPlan().lunes.almuerzo);
-  document.getElementById("monthlyPlanPanel").open = true; renderMonthlyPlan(); await wait(50);
+  await herramienta("semanas"); await wait(50);
   ok("R13 vista mensual marca días con comidas", document.querySelectorAll('#monthlyPlanGrid [data-mark]').length >= 1);
   // Compras
-  await click('[data-plan-set="lunes|almuerzo"]'); document.querySelector('[data-plan-select="lunes|almuerzo"]').value = plate.id; await click('[data-plan-set="lunes|almuerzo"]');
+  await click("#homeTop"); await asignar("lunes", "almuerzo", plate.id);
   go("compras"); await wait(100);
   const items = [...document.querySelectorAll("#comprasList .shop-item")].map(x => x.textContent);
-  ok("R14 Compras lista los ingredientes del plan", ["Tomate", "Lentejas", "Merluza", "Licuado"].every(n => items.some(t => t.includes(n))), items.join(" | "));
+  ok("R14 Compras lista los ingredientes del plan (la fruta elegida, no su forma)", ["Tomate", "Lentejas", "Merluza", "Banana"].every(n => items.some(t => t.includes(n))) && !items.some(t => /Licuado/.test(t)), items.join(" | "));
   document.getElementById("manualShopName").value = "Detergente"; document.getElementById("manualShoppingForm").requestSubmit(); await wait(80);
   ok("R15 productos extra se agregan", loadManualShopping().some(x => x.name === "Detergente"));
   // Training
@@ -72,8 +78,10 @@
   await click('[data-train-quick="1"]'); await click('[data-train-type="rest"]'); await click("[data-training-exception-save]");
   ok("R17 excepción por fecha se guarda", Object.keys(loadTrainingExceptions()).length === 1);
   // Recipes
-  go("ingredientes"); await wait(80);
-  await click("#recipeViewCreate");
+  // v15.3: la receta se escribe desde Comidas → "+ Nueva" → Escribir receta, en su pantalla propia.
+  go("misplatos"); await wait(80);
+  await click("#misplatos [data-comida-nueva]"); await click(".hoja [data-nueva-receta]");
+  ok("R18b Escribir receta abre el formulario en su pantalla", scr() === "recetaEditar");
   document.getElementById("recipeDetailsTitle").value = "Receta de prueba"; document.getElementById("recipeDetailsSteps").value = "Paso 1\nPaso 2";
   await click("#recipeDetailsSave");
   const own = loadRecipeDetails(), rid = Object.keys(own)[0];
@@ -81,9 +89,15 @@
   await click("#recipeViewBrowse"); showRecipeRead(rid); await click("#recipeReadDuplicate");
   ok("R19 duplicar receta", Object.keys(loadRecipeDetails()).length === 2);
   // Theme + advice modal
-  await click('[data-section-tab="hoy"]');
-  await click("#adviceFab"); const modalOpen = el.adviceModal.classList.contains("is-visible"); await click("[data-close-advice]");
-  ok("R20 Consejos abre y cierra", modalOpen && !el.adviceModal.classList.contains("is-visible"));
+  await click('[data-section-tab="mas"]');
+  // v15: "Consejos" pasó a ser la pantalla Ideas; una idea abre su detalle en una hoja que se cierra (v15.2: desde Más).
+  // v15.3: Ideas está en Comidas (segmento "Mis comidas | Ideas"); muestra 8 y "Ver todas".
+  await click('[data-section-tab="miscomidas"]'); await click('#misplatos [data-comidas-vista="ideas"]'); await click("#menuIdeas [data-ideas-ver-todas]");
+  const ideasOpen = scr() === "ideas" && document.querySelectorAll("#menuIdeas [data-idea-open]").length === data.menuCatalog.length;
+  await click("#menuIdeas [data-ideas-ver-todas]");
+  await click("#menuIdeas [data-idea-open]"); const sheetOpen = hoja.abierta() && document.getElementById("hojaTitulo").textContent === data.menuCatalog[0].text;
+  await click(".hoja [data-hoja-cerrar]");
+  ok("R20 Consejos abre y cierra", ideasOpen && sheetOpen && !hoja.abierta() && !document.getElementById("bottom").classList.contains("is-visible"));
   ok("R21 sin aviso de arranque con datos válidos", !document.getElementById("startupIssues"));
   localStorage.clear(); restart();
   return T;
