@@ -1459,3 +1459,41 @@ Rama `rediseno-etapa-6-registro`. Versión 15.5.0.
 - C6-4 suma respaldar y restaurar después de Lo cociné de un plato: el historial nuevo pasa la validación y vuelve igual.
 - Topes: se miden `registro` normal y todo con capturas antes de fijarlos. Si no entran en ≤ 391 y ≤ 742,8, se acortan textos; ningún control existente se afloja.
 - Los chips de "Días con registros" y la línea de Hoy quedan si no complican; si salen, se anota acá.
+
+**Implementación** (manda sobre las dos versiones del plan donde difieren)
+- Commits:
+  - `60e75c3`: vista Registro, altas sobre el arreglo crudo, Deshacer en vez de confirmaciones y pruebas de interfaz adaptadas;
+  - `ed75a66`: batería `e6_registro.js`;
+  - `e31bb47`: vista `registro` en las capturas y sus dos topes en `criterios.json`.
+- Pruebas: 513 de 513 (eran 504). `e6_registro.js` tiene 9, de C6-1 a C6-9. Ninguna batería bajó.
+- Pruebas adaptadas, con la misma fuerza o más (ninguna borrada):
+  - `e2_semana` C2-6: el ítem del menú es "Registro y objetivos". `herr.consumo` exige la pantalla `registro`, `#consumptionPanel` abierto y visible y `#consumptionView` con texto.
+  - `m01_modo` M4: `menuCompleto` con "Registro y objetivos". `porMenu("consumo", …)` no cambió.
+  - `e5_compras` C5-1: las preparaciones se cuentan desde Más → Registro → "Todas las preparaciones", con las mismas exigencias, y además se exige la pantalla `registro`.
+  - `bkp02` C6: el título con XSS se exige como texto en `#cookingHistoryList` y también en la fila del día, sin elementos inyectados.
+  - Texto "✓ Comido" → "✓ Lo comí":
+    - `u01_toque` U1, `e3_hoy` C3-1 y `n01_nav` N9 cambian el texto que buscan;
+    - N9, además, pasa de "Registrado" a "Anotado en tu registro";
+    - `f06_consumo` C2b: "✓ Lo comí hoy".
+  - `f06_consumo` C6b: un `confirm` que anota si se llama. Exige que no se llame, "Registro quitado", el Deshacer (que deja la clave byte a byte) y vuelve a quitar.
+  - `e4_comidas` C4-4: Lo cociné del plato exige además la preparación de hoy con su `sourceId`.
+  - `d01_diseno` D7: mide también los chips y botones del Registro, con los plegables abiertos.
+- Medidas (palabras visibles, tema claro; capturas de la compuerta):
+  - Registro: 65 en normal y 427 en todo (topes: 391 y 742,8);
+  - Mis comidas, normal: 296 (tope 607);
+  - Hoy, normal: 77.
+- Compuerta: "VALIDACIÓN ETAPA 6: OK (40 controles, 5.8 min)", 513/513 pruebas, con los mismos números en tema oscuro.
+
+**Decisiones que tomé sin vos**
+- Lo comí guarda el título viejo del plato (`savedItemTitle`, desde la Etapa 1). En el Registro se muestra el nombre de hoy (`mealName`) si el plato sigue guardado; si no, el título guardado. Lo guardado no cambia.
+- Lo cociné de un plato anota la preparación con comida "Otra" y el nombre del plato como título, igual que una receta.
+- "Eliminar registro" del historial pasa a "Quitar", como en Lo comí.
+- Los chips de "Días con registros" muestran los últimos 14 días que tienen algo, sin importar cuán viejos sean.
+- La línea de Hoy y los chips quedaron: no complicaron.
+- "+ Lo comí" es el botón lleno del Registro; "+ Lo cociné" es secundario.
+- `abrirHerramientaPlan("consumo")` sigue aceptado y abre el Registro.
+
+**Mejoras sugeridas**
+- "Corregir" es quitar y volver a anotar. Cambiar la comida o la fecha de un registro en el lugar sería más directo.
+- La fila de Lo comí repite "(del plan)" y puede ocupar tres líneas: se podría pasar a una etiqueta.
+- El contador `cooked` y el historial siguen pudiendo no coincidir en los datos viejos. Se podría ofrecer "anotar con fecha" las veces sin fecha, sin inventar fechas.
