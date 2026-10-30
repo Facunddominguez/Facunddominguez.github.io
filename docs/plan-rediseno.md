@@ -247,7 +247,7 @@ Estados: ✅ hecha · ⏳ en curso · ⛔ parada. Cada etapa entra a `rediseno` 
 | 3. Hoy | ✅ | `etapa-3-ok` | 15.2.0 |
 | 4. Comidas y nueva estructura | ✅ | `etapa-4-ok` | 15.3.0 |
 | 5. Compras y Despensa | ✅ | `etapa-5-ok` | 15.4.0 |
-| 6. Un solo registro | — | — | — |
+| 6. Un solo registro | ⏳ | — | 15.5.0 |
 | 7. Precios automáticos de INDEC | — | — | — |
 | 8. Resto de las herramientas avanzadas | — | — | — |
 | 9. Precios de SEPA | — | — | — |
@@ -1278,3 +1278,171 @@ Rama `rediseno-etapa-5-compras`. Versión 15.4.0.
 - La barra de presupuesto antepone "$" también con USD: Etapa 8.
 - Se perdieron dos aclaraciones: "Existencia sin cantidad registrada" y el signo de la diferencia en compras realizadas.
 - La tabla de secciones del súper es manual. `#budgetAlternative_0` es un select cortado que ya venía de antes.
+
+### Etapa 6 · Un solo registro ⏳
+
+Rama `rediseno-etapa-6-registro`. Versión 15.5.0.
+
+**Plan corto**
+- Qué hay hoy (P11, reproducido en el código):
+  - "Lo comí" (Hoy y la hoja de un hueco de hoy) y "Lo que comí" (`#consumptionPanel`, Semana ⋯ → `planHerramientas`) escriben `miPlatoFacil_consumption_v1`. Quitar pide confirmación y no tiene Deshacer.
+  - "Lo cociné" de una receta (`cookRecipeNow`, 34) escribe `miPlatoFacil_cookingHistory_v1` (comida "Otra") y descuenta la despensa, con Deshacer.
+  - "Lo cociné" de un plato (`cookedPlate`, 09; el viejo "✓ Cociné") solo suma el contador `cooked` del plato en `miPlatoFacil_saved`: no tiene fecha, no deja registro y no tiene Deshacer.
+  - "Historial de comidas preparadas" (`#cookingHistoryPanel`, plegado en Mis comidas) escribe `cookingHistory_v1` a mano, sin tocar el contador. Eliminar pide confirmación.
+  - Resultado: lo que comiste se ve en una herramienta de la Semana; lo que cocinaste, en Comidas, y el contador, en las tarjetas. Ninguno muestra a los otros.
+- La vista Registro (pantalla nueva `registro`, "Registro"):
+  - Arriba, el día: "‹" día anterior, la fecha ("Hoy · lunes 26 de octubre", "Ayer…" o "Miércoles 21 de octubre") y "›" día siguiente (no pasa de hoy). Abre en hoy.
+  - Abajo, las comidas de ese día en orden (desayuno, almuerzo, merienda, cena, otra). Cada fila dice qué fue y de qué tipo: "🍽️ Lo comí · Almuerzo · Pollo con arroz (del plan)" o "🍳 Lo cociné · Cena · Merluza con puré". Lo comí sale de `consumption_v1` y Lo cociné, de `cookingHistory_v1`. Si los dos son de la misma comida en el mismo hueco, quedan juntos, pero cada registro es una fila propia: no se combinan ni se deduplican.
+  - Cada fila tiene "Quitar" (rojo, 44 px).
+  - Día sin nada: "Nada registrado este día." Siempre hay dos botones: "+ Lo comí" y "+ Lo cociné", que abren el formulario de cada uno con la fecha de ese día ya puesta.
+  - "Días con registros": una fila de chips con los últimos 14 días que tienen algo (fecha corta y cantidad), para saltar sin pasar día por día.
+  - Plegables, al pie y cerrados:
+    - "Anotar otra comida y ver la semana": el mismo `#consumptionPanel`, con su formulario, la semana con "N comidas registradas", los grupos y `#habitGoalsPanel` (Objetivos).
+    - "Todas las preparaciones": el mismo `#cookingHistoryPanel`, con su formulario y `#cookingHistoryList`.
+    - "Veces que cocinaste cada comida": el contador `cooked` (ver Riesgos).
+  - El resumen en la Semana ("Verduras en 9 de 14 comidas") sigue siendo de la Etapa 8.
+- Cómo se llega (la pantalla vive en la pestaña desde la que se abre, como `planHerramientas` o `comida`; arriba muestra "← Hoy", "← Semana", "← Comidas" o "← Más"):
+  - Más: un botón nuevo en la grilla, "📒 Registro · Lo que comiste y cocinaste" (`data-open-registro`).
+  - Hoy: debajo de las 4 comidas, la línea "Ver tu registro de hoy →" (`data-open-registro`). El aviso de Lo comí pasa a "Anotado en tu registro (Almuerzo). Deshacer", con el mismo `data-today-undo`.
+  - Semana ⋯: el ítem `data-plan-herr="consumo"` cambia de texto a "Registro y objetivos" y abre `registro` en hoy, con "Anotar otra comida y ver la semana" abierto (`abrirHerramientaPlan("consumo")` llama a `abrirRegistro({abrir:"comi"})`). El grupo `data-herr="consumo"` se vacía y sale de `planHerramientas`, pero el nombre sigue aceptado.
+  - Detalle de una comida (`comida`): debajo de las etiquetas va "Cocinado 4 veces · Ver en el registro" ("Ver en el registro" si no tiene contador). Abre el último día con un registro de esa comida, o hoy si no hay ninguno. Se buscan su `sourceId` y, en las recetas, la receta y sus copias del plan (`recipeSourceId`).
+  - `abrirRegistro({fecha, abrir})` es la única entrada; los cuatro caminos la usan.
+- Cómo se corrige cada tipo (Deshacer en vez de confirmaciones; ninguna de estas acciones pide `confirm`):
+  - Lo comí:
+    - Quitar saca solo ese `id` de `consumption_v1`. El aviso dice "Quitaste: … · Deshacer".
+    - Deshacer vuelve a escribir la clave byte a byte, si nada cambió después; si cambió, dice "No se puede deshacer: los datos cambiaron después", como `oneTapRestore`.
+    - "+ Lo comí" usa `recordConsumption`, como el formulario de siempre, y también tiene Deshacer.
+  - Lo cociné (registro con fecha):
+    - Quitar saca solo ese `id` de `cookingHistory_v1`, con el mismo Deshacer.
+    - No toca la despensa ni el contador. El aviso lo dice: "La despensa no cambia". El descuento de la despensa se deshace solo con el Deshacer inmediato de Lo cociné, como hoy.
+    - "+ Lo cociné" usa `cookingHistoryRecord`. El aviso de duplicado ("Ya hay un registro…") deja de ser un `confirm`: se anota igual y se ofrece Deshacer.
+  - Lo cociné de un plato (el botón del detalle y de Mis comidas):
+    - Suma el contador, como hoy, y además anota la preparación de hoy en `cookingHistory_v1` con `cookingHistoryRecord(plato, hoy, "Otra")`, el mismo formato que una receta. Así aparece en el día.
+    - El aviso conserva "Cocinaste este plato N veces" (lo fija `e4`) y suma Deshacer, que vuelve `saved` y `cookingHistory_v1` byte a byte.
+  - El contador: en "Veces que cocinaste cada comida", cada plato con `cooked > 0` tiene "−1", con Deshacer. Nunca baja de 0 y escribe solo el campo `cooked` de ese plato con `persistSaved`, como `cookedPlate`.
+  - Los Quitar viejos (`[data-consumption-remove]` y `[data-cooking-history-delete]`) quedan dentro de los plegables del Registro y usan las mismas funciones nuevas: sin `confirm` y con Deshacer. Conservan los textos que fijan las pruebas ("Registro quitado.", "Registro eliminado.").
+  - `quitarRegistro(tipo, id)` y `deshacerRegistro()` van en el archivo nuevo. Usan una lista de claves propia, `REGISTRO_UNDO_KEYS = [CONSUMPTION_KEY, COOKING_HISTORY_KEY, "miPlatoFacil_saved"]`, así no interfieren con el Deshacer de Lo cociné ni con el de Lo compré.
+- Qué pasa con los paneles viejos (se integran, nada se elimina):
+  - `#consumptionPanel` y `#habitGoalsPanel` se mudan de `23-planHerramientas.html` al Registro, con todos sus ids, su lógica (24) y su navegación por semanas (`data-consumption-week`).
+  - `#cookingHistoryPanel` se muda de `18-misplatos.html` al Registro, con todos sus ids y su lógica (19). Mis comidas queda sin él.
+  - Las ayudas largas de los dos paneles quedan en una línea ("Lo que comiste, por semana, con tus objetivos." y "Preparaciones con fecha."). El aviso "No modifica el contador Cociné…" sale: ahora el Registro muestra los dos juntos.
+  - Las etiquetas "Cocinado N veces" de las tarjetas y el orden "Más cocinadas" de Mis comidas siguen como están: son un resumen, no un lugar para corregir.
+  - El botón "✓ Cociné" de `savedCard` (09, que ya no se pinta) pasa a "🍳 Lo cociné", por vocabulario.
+  - Vocabulario (mejora de la Etapa 3):
+    - "✓ Comido" en Hoy pasa a "✓ Lo comí".
+    - "✓ Comido hoy" en la hoja del hueco (38) pasa a "✓ Lo comí hoy".
+    - "Lo que comí y objetivos" pasa a "Registro y objetivos".
+- Archivos:
+  - `fuente/cuerpo/pantallas/`:
+    - nueva `31-registro.html`: el día, la lista, "+ Lo comí" y "+ Lo cociné", los chips de días, `#registroEstado` y los plegables, con los paneles que se mudan;
+    - `18-misplatos.html`, sin `#cookingHistoryPanel`;
+    - `23-planHerramientas.html`, sin el grupo `consumo`;
+    - `01-home.html`, con el botón de Más y la línea de Hoy;
+    - `24-comida.html`, con la línea "Ver en el registro".
+  - `fuente/codigo/`:
+    - nuevo `42-registro.js`: `abrirRegistro`, `renderRegistro`, `registrosDelDia(fecha)` (pura: junta y ordena, no escribe), `quitarRegistro`, `deshacerRegistro`, el "−1" del contador y los manejadores;
+    - 09: `cookedPlate` anota la preparación y ofrece Deshacer;
+    - 19 y 24: Quitar sin `confirm`, que llama a `quitarRegistro`;
+    - 31: el texto "✓ Lo comí", el aviso y la línea;
+    - 38: el ítem y `abrirHerramientaPlan("consumo")`;
+    - 39: la línea del detalle;
+    - 14 y 32: `go("registro")` llama a `renderRegistro`.
+  - `fuente/estilos.css`: filas del registro, navegación por día y chips, con el sistema de diseño (44 px, rojo para Quitar, verde para "+ Lo comí" y "+ Lo cociné", tema claro y oscuro).
+  - `herramientas/capturas.mjs`: la vista nueva `registro` (`openTab("mas"); abrirRegistro()`), para la compuerta y para revisor-usuario.
+  - `docs/validacion/criterios.json` (más estricto, solo suma):
+    - E6-palabras-registro: vista `registro`, estado `normal`, ≤ 391, el tope de la Despensa de la Etapa 1;
+    - E6-palabras-registro-todo: estado `todo`, ≤ 742,8, el tope de las herramientas de Compras.
+    - Así lo que se muda no queda en una pantalla sin tope.
+  - `fuente/version.json` → 15.5.0.
+- Orden de arranque: `init()` corre durante la carga de 14, antes de que cargue 42. Las pestañas no se recuerdan entre cargas, así que nada abre `registro` en el arranque. Igual, `renderRegistro`, `registrosDelDia` y lo que pinta son declaraciones `function` y sus tablas van en `var`. 14 y 32 la llaman con `typeof renderRegistro==="function"`. En 42 no hay `const` ni `let` de nivel superior que lea el render. Los paneles mudados se siguen enganchando por id en 19 y 24, que cargan después de que el HTML ya está.
+- Riesgos para los datos (ningún formato cambia; no hay claves nuevas ni migraciones):
+  - `miPlatoFacil_consumption_v1`:
+    - arreglo (máximo 2000) de `{id, date, meal (desayuno…otra), title ≤ 120, groups, sourceId|null, planned}`;
+    - se escribe solo con `recordConsumption` y `saveConsumption`;
+    - si lo guardado no es válido, `loadConsumption` devuelve `[]`: el Registro no muestra nada y Quitar no escribe (solo escribe si encontró el `id`), así no se pisa un arreglo que no se pudo leer.
+  - `miPlatoFacil_cookingHistory_v1`:
+    - arreglo de `{id, date, meal (texto libre: "Almuerzo", "Otra"…), title, lines, sourceId, status}`;
+    - `loadCookingHistory` descarta lo inválido, y el Eliminar de hoy reescribía sin eso. Quitar ahora lee el arreglo crudo y saca solo el `id`, así los registros que no se muestran quedan como estaban;
+    - la comida se compara sin mayúsculas solo para ordenar; lo guardado no cambia.
+  - `miPlatoFacil_saved`:
+    - solo cambia el campo `cooked` (entero de 0 a 100000, como valida `importSavedItem`), con `persistSaved`;
+    - "−1" no baja de 0.
+  - El contador y el historial pueden no coincidir. En el ejemplo, `plato_p1` tiene `cooked: 4` y una sola preparación con fecha; `plato_b1` tiene 6 y ninguna. Nada se reescribe para igualarlos:
+    - el contador no tiene fecha: se muestra en "Veces que cocinaste cada comida", como "Pollo con arroz · 4 veces (1 con fecha)";
+    - el día muestra solo lo que tiene fecha;
+    - desde esta etapa, Lo cociné de un plato suma en los dos, así la diferencia no crece;
+    - quitar una preparación con fecha no resta del contador (así era el Eliminar del historial), y "−1" no quita preparaciones;
+    - el texto de la sección explica la diferencia en una línea: "Incluye veces anotadas antes de que hubiera fecha".
+  - Mirar el Registro, cambiar de día, abrir los plegables o los chips no escribe nada (C6-1 lo compara byte a byte).
+  - Respaldo: no hay claves nuevas, así que 18 no cambia; `consumption_v1` y `cookingHistory_v1` siguen en el respaldo con su validación, y los respaldos viejos se restauran igual (k01, bkp01 y bkp02).
+- Pruebas existentes que cambian porque miran la interfaz vieja (la misma cantidad y la misma fuerza; las comprobaciones de datos quedan):
+  - `e2_semana` C2-6:
+    - `esperados` dice "Registro y objetivos" en vez de "Lo que comí y objetivos";
+    - `herr.consumo` exige pantalla `registro` (en vez de `planHerramientas`), `#consumptionPanel` visible y `#consumptionView` con texto;
+    - las otras cinco herramientas, igual.
+  - `m01_modo`:
+    - M4: `menuCompleto` con "Registro y objetivos";
+    - M3: `porMenu("consumo", …)` no cambia, porque exige que se vean `#consumptionPanel`, `#consumptionSave` y `#consumptionView`, ahora en el Registro; registrar a mano, igual.
+  - `e5_compras` C5-1:
+    - las preparaciones se cuentan entrando al Registro desde Más (dos toques) y abriendo "Todas las preparaciones" (`#cookingHistoryPanel summary`), no desde Mis comidas;
+    - las mismas exigencias: todas las filas visibles y cada fecha;
+    - Lo que comí sigue por Semana ⋯ (`menuSemana("consumo")`) y cuenta igual.
+  - `bkp02` C6: `go("misplatos")` pasa a `abrirRegistro()`; el título con XSS se exige igual, como texto, en `#cookingHistoryList` y además en la fila del día.
+  - `u01_toque` U1: `/✓ Comido/` pasa a `/✓ Lo comí/`; lo demás, igual.
+  - `f06_consumo`:
+    - C2b: "✓ Comido hoy" pasa a "✓ Lo comí hoy";
+    - C6b: Quitar ya no pasa por `confirm`; exige lo mismo (2 registros y "Registro quitado") y además que el aviso tenga Deshacer;
+    - `R.openPanel("consumptionPanel")` lo abre por id: no cambia.
+  - `e4_comidas` C4: Lo cociné del plato sigue exigiendo el contador +1 y "Cocinaste". Ahora además hay una preparación de hoy con ese `sourceId`, que se agrega a la comprobación.
+  - `d01_diseno`: D7 y D8 suman la pantalla `registro` (44 px, Quitar en rojo, "+" en verde, plegables).
+  - Sin cambios:
+    - `k01` K5: cuenta `loQueComi` y `preparaciones` con `loadConsumption` y `loadCookingHistory`, sin migración;
+    - `e3_hoy` C3-1 y C3-1b: `data-plan-eaten` y `data-today-undo` siguen;
+    - `j01` J5 y `n01` N9;
+    - `bkp01`;
+    - `f06` C7: Lo comí no toca preparaciones ni contador;
+    - `imp01`: el contador `cooked`;
+    - `u01` U2 a U4: Lo cociné de receta y su Deshacer, con `ONE_TAP_KEYS`.
+- Pruebas nuevas, batería `e6_registro.js` (al final de `suites.json`), en un marco con reloj fijo:
+  - C6-1 (E6-un-registro): con el respaldo de ejemplo restaurado, desde Más → Registro y recorriendo los días con "‹" y los chips:
+    - cada uno de los 14 registros de `consumption_v1` y de los 4 de `cookingHistory_v1` aparece exactamente una vez, en su día y con su tipo;
+    - "Veces que cocinaste" lista los 5 platos con `cooked > 0` con su número y cuántos tienen fecha;
+    - cada fila tiene Quitar;
+    - quitar uno de cada tipo y deshacer deja las tres claves byte a byte;
+    - recorrer sin tocar Quitar no escribe nada;
+    - ninguna otra pantalla (Hoy, Semana, `planHerramientas`, Mis comidas, `comida`, Compras y Más) tiene a la vista una lista de registros ni un Quitar de registros: `[data-consumption-remove]`, `[data-cooking-history-delete]`, `[data-registro-quitar]`, `#consumptionView` y `#cookingHistoryList` se ven solo dentro de `#registro`.
+  - C6-2: las cuatro entradas llegan al Registro en 2 toques o menos:
+    - Más → botón;
+    - Hoy → línea;
+    - Semana → ⋯ → "Registro y objetivos";
+    - detalle de una comida → "Ver en el registro", que abre el último día con un registro de esa comida (`plato_p3` → 21/10; una receta del plan → su día).
+  - C6-3: "Lo comí" en Hoy:
+    - la fila dice "✓ Lo comí" y el registro aparece en el día de hoy del Registro;
+    - Quitar ahí, con Deshacer, vuelve a "Lo comí" en Hoy y Deshacer lo restituye byte a byte;
+    - el plan no cambia.
+  - C6-4: Lo cociné de un plato:
+    - contador +1 y una preparación de hoy con su `sourceId`;
+    - Deshacer vuelve `saved` y `cookingHistory_v1` byte a byte;
+    - quitar la preparación no cambia el contador;
+    - "−1" baja 1 y su Deshacer lo restituye; con `cooked: 0` no hay "−1".
+  - C6-5: Lo cociné de una receta aparece en el día. Quitarla en el Registro no toca la despensa ni los movimientos.
+  - C6-6: "+ Lo comí" y "+ Lo cociné" desde un día pasado:
+    - el formulario trae esa fecha;
+    - se anota en ese día;
+    - una fecha futura se rechaza sin escribir;
+    - una preparación repetida se anota sin `confirm` y se deshace;
+    - "›" no pasa de hoy.
+  - C6-7: datos raros:
+    - un `cookingHistory_v1` con un registro inválido y comidas con mayúsculas: el inválido no se muestra y, al quitar otro, queda igual byte a byte; el orden del día es desayuno → otra;
+    - un `consumption_v1` inválido: el Registro no muestra nada y Quitar no escribe;
+    - títulos con HTML se muestran como texto.
+  - C6-8: sin `confirm`: con `window.confirm` que falla si se llama, todos los Quitar del Registro y de sus plegables funcionan y ofrecen Deshacer; "Anotar" avisa con Deshacer.
+  - C6-9: primera vez (sin datos): el Registro abre en hoy con "Nada registrado este día" y los dos "+", sin errores; el día y los chips no escriben nada.
+- Cómo se mantienen los controles anteriores:
+  - E6-un-registro: C6-1. E6-un-registro-revision: revisor-usuario con las capturas de `registro`, `hoy`, `semana`, `comidas` y `mas`.
+  - E4-palabras-comidas (≤ 607): Mis comidas pierde el plegable del historial, así que baja.
+  - Hoy suma una línea y cambia "✓ Comido" por "✓ Lo comí": sus topes (E1 y E3) siguen.
+  - E2-semana-alto: la Semana no cambia (solo el texto de un ítem del menú).
+  - E5-palabras-compras-todo, E5-palabras-herramientas-compras y C1-1 a C5-10 no se tocan.
+  - Las pruebas de respaldo, despensa, compras y plan no bajan. El total sube (9 nuevas como mínimo: eran 504).
+  - `validar-etapa.mjs 6` corre los criterios de las Etapas 1 a 5, los dos de la Etapa 6 y las dos medidas nuevas.
