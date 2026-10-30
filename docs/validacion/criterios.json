@@ -36,6 +36,8 @@
     { "id": "E5-respaldo-completo", "etapa": 5, "hecho": "El respaldo de ejemplo se ve completo.", "tipo": "prueba", "prueba": "C5-1" },
     { "id": "E6-un-registro", "etapa": 6, "hecho": "Hay un solo lugar para ver y corregir lo registrado.", "tipo": "prueba", "prueba": "C6-1" },
     { "id": "E6-un-registro-revision", "etapa": 6, "hecho": "Hay un solo lugar para ver y corregir lo registrado (sin registros sueltos en otras pantallas).", "tipo": "revisor", "revisor": "revisor-usuario" },
+    { "id": "E6-palabras-registro", "etapa": 6, "hecho": "Lo que se muda al Registro no queda en una pantalla sin tope: en estado normal no supera el tope de la Despensa de la Etapa 1 (391).", "tipo": "medida", "vista": "registro", "estado": "normal", "metrica": "palabras", "operador": "<=", "umbral": 391 },
+    { "id": "E6-palabras-registro-todo", "etapa": 6, "hecho": "Con todo abierto (Lo que comí, objetivos, preparaciones y contadores), el Registro no supera el tope de las herramientas de Compras (0,4 × 1857).", "tipo": "medida", "vista": "registro", "estado": "todo", "metrica": "palabras", "operador": "<=", "umbral": 742.8 },
     { "id": "E7-precio-item-total", "etapa": 7, "hecho": "La lista muestra ≈ precio por ítem y total.", "tipo": "prueba", "prueba": "C7-1" },
     { "id": "E7-costo-porcion", "etapa": 7, "hecho": "Cada comida muestra ≈ costo por porción.", "tipo": "prueba", "prueba": "C7-2" },
     { "id": "E7-region", "etapa": 7, "hecho": "Cambiar la región cambia los valores.", "tipo": "prueba", "prueba": "C7-3" },
