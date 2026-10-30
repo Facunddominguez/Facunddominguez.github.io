@@ -35,6 +35,7 @@
     "e1_confianza.js",
     "e2_semana.js",
     "e3_hoy.js",
-    "e4_comidas.js"
+    "e4_comidas.js",
+    "e5_compras.js"
   ]
 }
