@@ -8,7 +8,7 @@
     "navegador": "Chrome/156.0.8078.73"
   },
   "pruebas": {
-    "total": 493,
+    "total": 504,
     "suites": {
       "d01_diseno.js": 8,
       "m01_modo.js": 13,
@@ -44,13 +44,15 @@
       "e1_confianza.js": 26,
       "e2_semana.js": 29,
       "e3_hoy.js": 30,
-      "e4_comidas.js": 20
+      "e4_comidas.js": 20,
+      "e5_compras.js": 11
     }
   },
   "claves": [
     "miPlatoFacil_adviceFavorites",
     "miPlatoFacil_aiSettings_v1",
     "miPlatoFacil_bienvenida_v1",
+    "miPlatoFacil_comprasOpciones_v1",
     "miPlatoFacil_consumption_v1",
     "miPlatoFacil_cookingHistory_v1",
     "miPlatoFacil_datedWeeks_v1",
@@ -80,6 +82,7 @@
   "clavesRespaldo": [
     "miPlatoFacil_adviceFavorites",
     "miPlatoFacil_bienvenida_v1",
+    "miPlatoFacil_comprasOpciones_v1",
     "miPlatoFacil_consumption_v1",
     "miPlatoFacil_cookingHistory_v1",
     "miPlatoFacil_datedWeeks_v1",
@@ -107,6 +110,7 @@
   ],
   "clavesRespaldoOpcionales": [
     "miPlatoFacil_bienvenida_v1",
+    "miPlatoFacil_comprasOpciones_v1",
     "miPlatoFacil_consumption_v1",
     "miPlatoFacil_cookingHistory_v1",
     "miPlatoFacil_habitGoals_v1",
@@ -1015,8 +1019,8 @@
     }
   },
   "actualizada": {
-    "etapa": 4,
-    "version": "15.3.0",
-    "fecha": "2026-10-29"
+    "etapa": 5,
+    "version": "15.4.0",
+    "fecha": "2026-10-30"
   }
 }
