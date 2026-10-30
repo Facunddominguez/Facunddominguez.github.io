@@ -1446,3 +1446,16 @@ Rama `rediseno-etapa-6-registro`. Versión 15.5.0.
   - E5-palabras-compras-todo, E5-palabras-herramientas-compras y C1-1 a C5-10 no se tocan.
   - Las pruebas de respaldo, despensa, compras y plan no bajan. El total sube (9 nuevas como mínimo: eran 504).
   - `validar-etapa.mjs 6` corre los criterios de las Etapas 1 a 5, los dos de la Etapa 6 y las dos medidas nuevas.
+
+**Plan corto, segunda versión** (revisor-codigo marcó un bloqueante en la primera; esto lo corrige y manda sobre lo de arriba)
+- Altas en `cookingHistory_v1` (bloqueante):
+  - Todas pasan por una sola función, `agregarPreparacion(registro)` (19): el formulario, "+ Lo cociné", `cookRecipeNow` (34) y el nuevo `cookedPlate` (09).
+  - Lee el arreglo crudo de `localStorage` y le agrega el registro, sin filtrar: los registros que no validan quedan como estaban.
+  - Si lo guardado no se puede leer o no es un arreglo, no escribe y avisa ("No se pudo leer tu historial de preparaciones: no se anotó nada").
+  - El registro nuevo se valida con `validCookingHistoryRecord` antes de escribir: lo que crea "Lo cociné" siempre pasa la validación del respaldo (18).
+- `consumption_v1`: `recordConsumption` hace lo mismo. Si hay algo guardado y `validConsumption` lo rechaza, no escribe y avisa; antes lo pisaba al agregar sobre `[]`.
+- Deshacer "byte a byte": se guarda el valor anterior de cada clave, o `null` si no existía, y se vuelve a ese estado. `saveConsumption` borra la clave cuando queda vacía: quitar el único registro y deshacer la vuelve a crear igual. C6-3 lo prueba.
+- `f06_consumo` deja de depender de `window.confirm=()=>true` para Quitar: un `confirm` que falla si se llama alrededor de C6b. Sigue exigiendo "Registro quitado" y suma el Deshacer.
+- C6-4 suma respaldar y restaurar después de Lo cociné de un plato: el historial nuevo pasa la validación y vuelve igual.
+- Topes: se miden `registro` normal y todo con capturas antes de fijarlos. Si no entran en ≤ 391 y ≤ 742,8, se acortan textos; ningún control existente se afloja.
+- Los chips de "Días con registros" y la línea de Hoy quedan si no complican; si salen, se anota acá.
