@@ -20,7 +20,8 @@
   T.ok("N3 la pestaña activa está marcada", tab("compras").getAttribute("aria-current") === "page" && document.querySelectorAll('#sectionNav [aria-current="page"]').length === 1);
   // N4 Botón de arriba: oculto en el inicio de la pestaña; más adentro vuelve a ese inicio
   const topHiddenAtRoot = !$("homeTop").classList.contains("is-visible");
-  go("ingredientes"); await wait(40);
+  // v15.4: la Despensa es la otra mitad del segmento de Compras (raíz); más adentro está la pantalla de herramientas.
+  go("comprasHerramientas"); await wait(40);
   const topLabel = $("homeTop").classList.contains("is-visible") ? $("homeTop").textContent : "(oculto)";
   $("homeTop").click(); await wait(60);
   T.ok("N4 el botón de arriba vuelve al inicio de la pestaña y no aparece si ya estás ahí", topHiddenAtRoot && topLabel === "← Compras" && scr() === "compras" && !$("homeTop").classList.contains("is-visible"), topLabel);

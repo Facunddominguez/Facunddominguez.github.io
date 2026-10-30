@@ -28,8 +28,16 @@ function renderPantryMoves(){
   const a=loadPantryMoves().slice(-30).reverse(),fmt=n=>(n>0?"+":"−")+Math.abs(n).toLocaleString("es-AR",{
     maximumFractionDigits:6
   });
-  box.replaceChildren(...a.map(m=>ce("p","screen__hint",fmtWhen(m.at)+" · "+m.name+" "+fmt(m.delta)+" "+m.unit+" · "+m.reason)));
+  box.replaceChildren(...a.map(m=>ce("p","screen__hint",fmtWhen(m.at)+" · "+m.name+" "+(m.delta>0?"+":"−")+cantidadLegible(Math.abs(m.delta),m.unit)+" · "+m.reason)));
   if(!a.length)box.append(ce("p","screen__hint","Todavía no hay movimientos."))
+}
+// Movimientos de un ingrediente (v15.4, historial por ítem de la Despensa): del más nuevo al más viejo. Solo lee.
+function movimientosDe(nombre,max){
+  const k=ingredientKey(nombre);
+  return loadPantryMoves().filter(m=>ingredientKey(m.name)===k).reverse().slice(0,max||10)
+}
+function textoMovimiento(m){
+  return fmtWhen(m.at)+" · "+(m.delta>0?"+":"−")+cantidadLegible(Math.abs(m.delta),m.unit)+" · "+m.reason
 }
 function applyStockChanges(changes,reason){
   const stock=loadStockQuantities(),moves=[],short=[];

@@ -149,3 +149,16 @@ function pricesFor(list,name,unit){
     ...p,amount:convertQuantity(p.amount,p.unit,unit),unit,sourceAmount:p.amount,sourceUnit:p.unit
   })
 }
+// Cantidades legibles (desde la v15.4): redondeo y plural, solo al mostrar. Lo guardado y los textos internos
+// de la lista (label, buy, suggestion.text) no cambian.
+var UNIDADES_PLURAL={unidad:"unidades",cucharada:"cucharadas",cucharadita:"cucharaditas",taza:"tazas"};
+function cantidadLegible(n,unidad){
+  const q=Number(n);
+  if(!Number.isFinite(q))return String(n)+" "+unidad;
+  const dec=unidad==="g"||unidad==="ml"?(Math.abs(q)<10?1:0):2,r=Math.round(q*10**dec)/10**dec,num=r.toLocaleString("es-AR",{maximumFractionDigits:dec});
+  return num+" "+(UNIDADES_PLURAL[unidad]&&r>1?UNIDADES_PLURAL[unidad]:unidad)
+}
+// Aplica cantidadLegible a cada "número unidad" de un texto ("166,666667 g", "5 unidad", "1.250,5 ml").
+function textoLegible(texto){
+  return String(texto).replace(/(\d{1,3}(?:\.\d{3})+|\d+)(?:,(\d+))? (g|kg|ml|l|unidad|cucharada|cucharadita|taza)(?![\p{L}])/gu,(m,ent,dec,u)=>cantidadLegible(Number(ent.replace(/\./g,"")+(dec?"."+dec:"")),u))
+}

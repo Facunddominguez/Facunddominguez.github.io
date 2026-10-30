@@ -8,7 +8,7 @@
   plan([{ name: "Papa", quantity: 200, unit: "g" }, { name: "Papas", quantity: 1, unit: "kg" }, { name: "Leche", quantity: 300, unit: "ml" }, { name: "Leche", quantity: 1, unit: "l" }, { name: "Aceite", quantity: 1, unit: "cucharada" }, { name: "Aceite", quantity: 2, unit: "cucharadita" }, { name: "Huevo", quantity: 200, unit: "g" }, { name: "Huevo", quantity: 2, unit: "unidad" }]);
   go("compras"); await wait(50);
   const rows = R.renderedRows();
-  T.ok("U2 Compras suma unidades compatibles y separa las incompatibles", rows.includes("Papa: 1,2 kg") && rows.includes("Leche: 1,3 l") && rows.includes("Aceite: 1 cucharada + 2 cucharadita") && rows.includes("Huevo: 200 g + 2 unidad"), rows.join(" | "));
+  T.ok("U2 Compras suma unidades compatibles y separa las incompatibles", rows.includes("Papa: 1,2 kg") && rows.includes("Leche: 1,3 l") && rows.includes("Aceite: 1 cucharada + 2 cucharaditas") && rows.includes("Huevo: 200 g + 2 unidades") && R.item("Aceite").label === "Aceite: 1 cucharada + 2 cucharadita" && R.item("Huevo").label === "Huevo: 200 g + 2 unidad", rows.join(" | "));
   plan([{ name: "Papa", quantity: 200, unit: "g" }]); go("compras"); await wait(30);
   T.ok("U3 con una sola unidad, la lista no cambia el formato", R.renderedRows().includes("Papa: 200 g"));
   setStock([["Papa", 1, "kg"]]); renderCompras();

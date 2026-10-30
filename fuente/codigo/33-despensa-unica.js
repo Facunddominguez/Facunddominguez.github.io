@@ -31,7 +31,7 @@ function renderPantryItems(){
   box.replaceChildren(...rows.map(r=>{
     const row=ce("div","pantry-item"),text=ce("span","pantry-item__text"),edit=ce("button","filter-chip",r.key?"Editar":"Agregar cantidad"),del=ce("button","filter-chip filter-chip--danger","Quitar");
     row.dataset.pantryItem=r.key||r.name;
-    text.append(ce("strong",null,r.name),document.createTextNode(" · "+(r.key?pantryQtyText(r.quantity)+" "+r.unit+(r.quantity===0?" (se terminó)":""):"sin cantidad")));
+    text.append(ce("strong",null,r.name),document.createTextNode(" · "+(r.key?cantidadLegible(r.quantity,r.unit)+(r.quantity===0?" (se terminó)":""):"sin cantidad")));
     edit.type=del.type="button";
     if(r.key){
       edit.dataset.pantryItemEdit=r.key;
@@ -43,6 +43,13 @@ function renderPantryItems(){
     edit.setAttribute("aria-label",(r.key?"Editar ":"Agregar cantidad a ")+r.name);
     del.setAttribute("aria-label","Quitar "+r.name+" de la despensa");
     row.append(text,edit,del);
+    // Historial del ítem (v15.4): sus movimientos, plegados. Solo lee.
+    const movs=movimientosDe(r.name);
+    if(movs.length){
+      const h=ce("details","pantry-item__historial");
+      h.append(ce("summary",null,"Historial ("+movs.length+")"),...movs.map(m=>ce("p","screen__hint",textoMovimiento(m))));
+      row.append(h)
+    }
     return row
   }))
 }
@@ -134,11 +141,19 @@ function savePantryItem(){
 document.getElementById("pantryItemForm").addEventListener("submit",e=>{
   e.preventDefault();
   try{
+    // Editar ofrece Deshacer (v15.4): se guarda cómo estaban la despensa y las marcas antes del cambio.
+    const editando=!!pantryEditKey,antes={
+      stock:localStorage.getItem(STOCK_QUANT_KEY),pantry:localStorage.getItem(PANKEY)
+    };
     const msg=savePantryItem();
     resetPantryForm();
-    pantryUndo=null;
+    pantryUndo=editando?{
+      kind:"edit",antes,despues:{
+        stock:localStorage.getItem(STOCK_QUANT_KEY),pantry:localStorage.getItem(PANKEY)
+      }
+    }:null;
     afterPantryChange();
-    pantryStatus(msg)
+    pantryStatus(msg,editando)
   }catch(err){
     pantryStatus(err.message)
   }
@@ -215,7 +230,20 @@ document.addEventListener("click",e=>{
     }else if(b.dataset.pantryUndo!==undefined&&pantryUndo){
       const u=pantryUndo;
       pantryUndo=null;
-      if(u.kind==="stock"){
+      if(u.kind==="edit"){
+        if(localStorage.getItem(STOCK_QUANT_KEY)!==u.despues.stock||localStorage.getItem(PANKEY)!==u.despues.pantry)throw Error("No se pudo deshacer: la despensa cambió después.");
+        const ahora=loadStockQuantities(),volver=JSON.parse(u.antes.stock||"{}"),moves=[];
+        for(const key of new Set([...Object.keys(ahora),...Object.keys(volver)])){
+          const a=ahora[key],v=volver[key],d=(v?v.quantity:0)-(a?a.quantity:0);
+          if(d)moves.push({
+            name:(v||a).name,unit:(v||a).unit,delta:d,reason:"Deshacer: edición"
+          })
+        }
+        if(u.antes.stock===null)localStorage.removeItem(STOCK_QUANT_KEY);else localStorage.setItem(STOCK_QUANT_KEY,u.antes.stock);
+        if(u.antes.pantry===null)localStorage.removeItem(PANKEY);else localStorage.setItem(PANKEY,u.antes.pantry);
+        pantrySel=loadPantry();
+        logPantryMoves(moves)
+      }else if(u.kind==="stock"){
         const stock=loadStockQuantities();
         if(stock[u.key])throw Error("No se pudo deshacer: ya hay otra cantidad guardada para ese ingrediente.");
         stock[u.key]=u.item;

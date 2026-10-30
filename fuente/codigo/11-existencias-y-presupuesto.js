@@ -30,9 +30,7 @@ function renderStockQuantities(){
     return
   }
   for(const [key,item] of values){
-    const row=ce("div","shop-item"),label=ce("span",null,item.name+": "+item.quantity.toLocaleString("es-AR",{
-      maximumFractionDigits:6
-    })+" "+item.unit),edit=ce("button","button button--soft","Editar"),remove=ce("button","button button--danger","Quitar");
+    const row=ce("div","shop-item"),label=ce("span",null,item.name+": "+cantidadLegible(item.quantity,item.unit)),edit=ce("button","button button--soft","Editar"),remove=ce("button","button button--danger","Quitar");
     edit.type=remove.type="button";
     edit.addEventListener("click",()=>{
       document.getElementById("stockIngredient").value=item.name;document.getElementById("stockQuantity").value=item.quantity;document.getElementById("stockUnit").value=item.unit;document.getElementById("stockIngredient").focus()
@@ -123,22 +121,9 @@ function shoppingBudgetRead(){
     return null
   }
 }
-function shoppingBudgetRender(){
-  const box=document.getElementById("shoppingBudgetResult");
-  box.replaceChildren();
-  const budget=shoppingBudgetRead();
-  if(!budget){
-    box.append(ce("p","screen__hint","Guardá un presupuesto para ver la comparación."));
-    return
-  }
-  let rows;
-  try{
-    rows=shoppingMissingRows()
-  }catch(err){
-    box.append(ce("p","screen__hint",err.message));
-    return
-  }
-  const prices=Object.values(loadReferencePrices()),currency=budget.currency;
+// El costo estimado de lo que falta comprar (desde la v15.4 también lo usa la barra de presupuesto de la lista).
+function estimadoDeLaLista(rows,currency){
+  const prices=Object.values(loadReferencePrices());
   let estimated=0,covered=0,unpriced=0,otherCurrency=0;
   for(const row of rows){
     if(row.missing<=0&&!row.unknown)continue;
@@ -164,15 +149,55 @@ function shoppingBudgetRender(){
     estimated+=cost;
     covered++
   }
+  return {
+    estimated,covered,unpriced,otherCurrency
+  }
+}
+// Barra de presupuesto arriba de la lista (v15.4). Solo lee; tocarla abre el panel de presupuesto.
+function renderPresupuestoCompras(){
+  const bar=document.getElementById("comprasPresupuesto");
+  if(!bar)return;
+  const budget=shoppingBudgetRead(),fmt=n=>"$"+Math.round(n).toLocaleString("es-AR");
+  if(!budget){
+    bar.textContent="💰 Poner un presupuesto";
+    return
+  }
+  let e;
+  try{
+    e=estimadoDeLaLista(shoppingMissingRows(),budget.currency)
+  }catch(err){
+    bar.textContent="💰 Presupuesto "+fmt(budget.limit);
+    return
+  }
+  const faltan=e.unpriced+e.otherCurrency;
+  bar.textContent="💰 Presupuesto "+fmt(budget.limit)+" · ≈ "+fmt(e.estimated)+" estimado"+(faltan?" (faltan "+faltan+" precio"+(faltan===1?"":"s")+")":"");
+  bar.classList.toggle("is-excedido",e.estimated>budget.limit)
+}
+function shoppingBudgetRender(){
+  const box=document.getElementById("shoppingBudgetResult");
+  box.replaceChildren();
+  const budget=shoppingBudgetRead();
+  if(!budget){
+    box.append(ce("p","screen__hint","Guardá un presupuesto para ver la comparación."));
+    return
+  }
+  let rows;
+  try{
+    rows=shoppingMissingRows()
+  }catch(err){
+    box.append(ce("p","screen__hint",err.message));
+    return
+  }
+  const currency=budget.currency,{estimated,covered,unpriced,otherCurrency}=estimadoDeLaLista(rows,currency);
   const fmt=n=>n.toLocaleString("es-AR",{
     minimumFractionDigits:2,maximumFractionDigits:2
   });
   box.append(ce("p","shop-item","Presupuesto: "+fmt(budget.limit)+" "+currency),ce("p","shop-item","Costo parcial estimado: "+fmt(estimated)+" "+currency));
   const difference=budget.limit-estimated;
-  box.append(ce("p","shop-item",difference>=0?"Margen sobre costos calculados: "+fmt(difference)+" "+currency:"Los costos calculados superan el presupuesto en "+fmt(-difference)+" "+currency));
+  box.append(ce("p","shop-item",difference>=0?"Margen: "+fmt(difference)+" "+currency:"Te pasás por "+fmt(-difference)+" "+currency));
   box.append(ce("p","screen__hint",covered+" ingredientes valorizados; "+unpriced+" sin costo completo; "+otherCurrency+" con precio en otra moneda."));
-  if(unpriced||otherCurrency)box.append(ce("p","screen__hint","Comparación parcial: no se puede confirmar que el presupuesto alcance para toda la compra."));
-  else box.append(ce("p","screen__hint","Estimación basada en precios registrados, no en comprobantes ni precios actuales de tienda."));
+  if(unpriced||otherCurrency)box.append(ce("p","screen__hint","Comparación parcial: faltan precios."));
+  else box.append(ce("p","screen__hint","Con tus precios guardados."));
   budgetRealLines(box,budget,estimated)
 }
 function budgetCompareData(rows,prices,currency){
@@ -253,13 +278,13 @@ function budgetCompareRender(){
         compared++
       }
     }
-    result.replaceChildren(ce("p","shop-item","Escenario parcial: "+fmt(total)+" "+budget.currency),ce("p","screen__hint","Diferencia presupuesto menos escenario: "+fmt(budget.limit-total)+" "+budget.currency));
-    if(compared)result.append(ce("p","screen__hint","Ahorro sobre "+compared+" ingredientes frente a su primera referencia seleccionada: "+fmt(baseTotal-comparableTotal)+" "+budget.currency+" (negativo = mayor costo)."));
-    result.append(ce("p","screen__hint",model.pending.length+" ingredientes sin referencia compatible; "+unselected+" sin selección. No incluye platos sin cantidades vinculadas ni productos extra. No confirma que alcance el presupuesto total."));
+    result.replaceChildren(ce("p","shop-item","Escenario parcial: "+fmt(total)+" "+budget.currency),ce("p","screen__hint","Margen: "+fmt(budget.limit-total)+" "+budget.currency));
+    if(compared)result.append(ce("p","screen__hint","Ahorro en "+compared+" ingredientes: "+fmt(baseTotal-comparableTotal)+" "+budget.currency+"."));
+    result.append(ce("p","screen__hint",model.pending.length+" sin precio; "+unselected+" sin elegir."));
     budgetScenarioText=["Mi Plato Fácil · Escenario de presupuesto","Presupuesto: "+fmt(budget.limit)+" "+budget.currency,"Costo parcial seleccionado: "+fmt(total)+" "+budget.currency,"Diferencia parcial: "+fmt(budget.limit-total)+" "+budget.currency,...controls.filter(x=>x.select.value!=="").map(x=>{
       const p=x.entry.options[Number(x.select.value)];return x.entry.row.name+": "+x.entry.row.missing+" "+x.entry.row.unit+" · "+fmt(x.entry.row.missing*p.price/p.amount)+" "+budget.currency
     }),"Sin referencia: "+model.pending.length+"; sin selección: "+unselected,"Estimación incompleta. No modifica planificación ni precios."].join("\n");
-    if(model.pending.length)result.append(ce("p","screen__hint",model.pending.join("; ")))
+    if(model.pending.length)result.append(ce("p","screen__hint","Sin precio: "+model.pending.map(x=>x.slice(0,x.lastIndexOf(": "))).join(", ")))
   }
   controls.forEach(x=>x.select.addEventListener("change",recalc));
   recalc()

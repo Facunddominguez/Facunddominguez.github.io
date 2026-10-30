@@ -42,9 +42,10 @@
   T.ok('D4 los botones secundarios tienen un solo color', !!soft && !!second && css(soft, 'background-color') === css(second, 'background-color') && css(soft, 'color') === css(second, 'color'), css(soft, 'background-color') + ' / ' + (second && css(second, 'background-color')));
   // D5 Botones que alternan: el activo se distingue y usa el verde de la app
   go('compras'); await wait(20);
-  const pend = $('comprasShowPending'), all = $('comprasShowAll');
-  const pressed = [pend, all].find(b => b.getAttribute('aria-pressed') === 'true'), other = [pend, all].find(b => b !== pressed);
-  T.ok('D5 en Compras se nota cuál filtro está activo', !!pressed && css(pressed, 'border-top-color') === rgb(green()) && css(pressed, 'background-color') !== css(other, 'background-color'));
+  // v15.4: el filtro "Pendientes | Todos" salió (los tachados quedan a la vista); el botón que alterna es el segmento "Lista | Despensa".
+  const pend = document.querySelector('#compras [data-compras-vista="lista"]'), all = $('comprasDespensa');
+  const pressed = [pend, all].find(b => b && b.getAttribute('aria-pressed') === 'true'), other = [pend, all].find(b => b !== pressed);
+  T.ok('D5 en Compras se nota cuál filtro está activo', !!pressed && !!other && css(pressed, 'background-color') === rgb(green()) && css(pressed, 'background-color') !== css(other, 'background-color'));
   // D6 Opción elegida (Usar almidones/proteínas) en verde, no en naranja
   go('lunch_carb'); await wait(20);
   const sel = document.querySelector('#lunch_carb .toggle-button.is-selected');

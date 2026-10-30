@@ -88,9 +88,10 @@ function boughtNow(){
   if(!items.length)return {
     text:all.some(e=>comprasDone[e.key])?"Lo tachado ya está en tu despensa.":"Primero tachá lo que compraste en la lista."
   };
-  const stock=loadStockQuantities(),marked=pantryMarkedMatcher(),before=oneTapSnapshot(BOUGHT_UNDO_KEYS),changes=[],marks=[],alcanzaba=[];
+  const stock=loadStockQuantities(),marked=pantryMarkedMatcher(),before=oneTapSnapshot(BOUGHT_UNDO_KEYS),changes=[],marks=[],alcanzaba=[],descontar=comprasDescontar();
   for(const e of items){
-    const sugg=shoppingSuggestion(e,stock,marked);
+    // Con "Descontar lo que tengo" apagado (v15.4) no se descontó nada: se suma la cantidad completa del plan.
+    const sugg=descontar?shoppingSuggestion(e,stock,marked):null;
     // Si la despensa ya alcanzaba ("Ya tenés"), no se suma nada: así no se inflan las existencias.
     if(sugg&&sugg.kind==="covered"){
       alcanzaba.push(e.name);continue
@@ -136,7 +137,7 @@ function boughtNow(){
   }
   const parts=res.moves.map(oneTapQty).concat(marks.map(n=>n+" (sin cantidad)"),alcanzaba.map(n=>n+" (ya alcanzaba)"));
   return {
-    text:"Pasó a tu despensa: "+parts.join(", ")+". Lo ves en Ya en tu despensa.",before,after:oneTapSnapshot(BOUGHT_UNDO_KEYS),keys:items.map(e=>e.key),keysList:BOUGHT_UNDO_KEYS
+    text:textoLegible("Pasó a tu despensa: "+parts.join(", ")+"."),before,after:oneTapSnapshot(BOUGHT_UNDO_KEYS),keys:items.map(e=>e.key),keysList:BOUGHT_UNDO_KEYS
   }
 }
 document.addEventListener("click",e=>{
@@ -168,7 +169,15 @@ document.addEventListener("click",e=>{
         afterOneTap();
         renderCompras()
       }
-      oneTapStatus(st,r.text,r.before?"bought":null)
+      oneTapStatus(st,r.text,r.before?"bought":null);
+      // "Terminé de comprar" (v15.4): después, opcional, anotar el gasto y los precios del ticket.
+      if(r.before){
+        ultimaCompraClaves=r.keys;
+        const g=ce("button","filter-chip","🧾 Anotar gasto");
+        g.type="button";
+        g.dataset.anotarGasto="";
+        st.append(" ",g)
+      }
     }else if(b.dataset.oneTapUndo){
       const key=b.dataset.oneTapUndo,u=oneTapUndo[key];
       if(!u)return;

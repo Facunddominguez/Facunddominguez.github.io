@@ -3464,3 +3464,26 @@ body.con-hoja{
 .armar-comida{cursor:default;grid-column:1/-1}
 .armar-comida__opciones{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;margin-top:8px}
 .armar-comida__opciones .button{width:100%}
+/* v15.4 · Compras y Despensa: barra de presupuesto, interruptor, secciones del súper, agregar producto e historial. */
+.compras-presupuesto{display:block;width:100%;min-height:var(--tap);margin:4px 0 8px;padding:10px 14px;border:1px solid var(--line);border-radius:14px;background:var(--soft);color:var(--text);font:inherit;font-weight:600;text-align:left;cursor:pointer}
+.compras-presupuesto.is-excedido{border-color:var(--danger,#c0392b)}
+.compras-controles{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:4px 0}
+.interruptor{display:inline-flex;align-items:center;gap:10px;min-height:var(--tap);cursor:pointer;font-weight:600}
+.interruptor input{appearance:none;-webkit-appearance:none;position:relative;width:46px;height:28px;margin:0;border-radius:999px;background:var(--line);cursor:pointer;transition:background .15s}
+.interruptor input::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.25);transition:left .15s}
+.interruptor input:checked{background:var(--green)}
+.interruptor input:checked::after{left:21px}
+.interruptor input:focus-visible{outline:3px solid var(--green);outline-offset:2px}
+.compras-agregar{margin:4px 0}
+.compras-agregar>summary{display:inline-flex;align-items:center;min-height:var(--tap);padding:0 16px;border:1px solid var(--green);border-radius:999px;color:var(--green);font-weight:700;cursor:pointer;list-style:none}
+.compras-agregar>summary::-webkit-details-marker{display:none}
+.compras-seccion{margin:10px 0 4px}
+.compras-seccion__titulo{margin:12px 0 2px;font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.compras-seccion .shop-item{min-height:var(--tap)}
+.compras-seccion .shop-item input{width:24px;height:24px}
+#manualShopList .manual-shop-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+#manualShopList .manual-shop-row .shop-item{flex:1 1 60%}
+#manualShopList .manual-shop-row .filter-chip{min-height:var(--tap)}
+.pantry-item__historial{flex:1 1 100%;margin:2px 0 4px}
+.pantry-item__historial>summary{min-height:var(--tap);display:flex;align-items:center;cursor:pointer;color:var(--muted);font-size:14px}
+.herr-contenedor>summary{list-style:none}

@@ -4,9 +4,11 @@
 // siguen generando sugerencias en Compras): solo dejan de verse hasta que se elige el modo completo.
 // Semana (desde la v15.1) no oculta nada: sus herramientas están en su menú ⋯ en los dos modos.
 const ADVANCED_TOOLS={
+  // Desde la v15.4 las herramientas de Compras están en su menú ⋯ en los dos modos; el modo simple esconde la barra
+  // de presupuesto de la lista.
   compras:{
-    list:"presupuesto, compras realizadas, existencias, precios y cálculos",
-    items:()=>[document.getElementById("shoppingToolsPanel")]
+    list:"la barra de presupuesto",
+    items:()=>[document.getElementById("comprasPresupuesto")]
   },
   // Desde la v15.3 cada herramienta vive en la pantalla de su tema; la lista de elementos es la misma de antes.
   ingredientes:{
@@ -108,9 +110,8 @@ function renderUiModeControls(){
     button.type="button";
     button.dataset.uiModeToggle="";
     note.append(ce("p","screen__hint"),button);
-    // En Compras va justo antes de las herramientas; en las demás pantallas, al final.
-    if(key==="compras")document.getElementById("shoppingToolsPanel").before(note);
-    else document.getElementById(key).append(note)
+    // Al final de cada pantalla.
+    document.getElementById(key).append(note)
   }
   const card=ce("button","tool-button");
   card.type="button";
