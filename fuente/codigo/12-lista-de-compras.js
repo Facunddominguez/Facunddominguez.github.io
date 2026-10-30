@@ -39,7 +39,7 @@ function shoppingQuantityAndCost(){
       else entry.quantity+=convertQuantity(row.quantity,row.unit,entry.unit)*multiplier*portionFactor(portions,amount)
     }
   }
-  const summary=ce("p","screen__hint",planned.length+" asignaciones de recetas con cantidades. Los platos sin receta vinculada permanecen en la lista tradicional.");
+  const summary=ce("p","screen__hint",planned.length+" recetas de la semana con cantidades.");
   box.append(summary);
   if(!planned.length){
     box.append(ce("p","screen__hint","Asigná recetas con cantidades al plan para ver el detalle."));
@@ -51,7 +51,7 @@ function shoppingQuantityAndCost(){
     const li=ce("li"),quantity=Number(item.quantity.toFixed(6)),available=stockQuantityFor(stock,item.name,item.unit),known=Number.isFinite(available),needed=known?Math.max(0,item.quantity-available):item.quantity;
     let label=item.name+(markPantry&&pantryNames.has(normalizeSearchText(item.name))?" (marcado en despensa; cantidad disponible desconocida)":"")+": "+quantity.toLocaleString("es-AR",{
       maximumFractionDigits:6
-    })+" "+item.unit+(item.unknown?" (más cantidades desconocidas)":"")+(known?" · Disponible: "+available.toLocaleString("es-AR")+" "+item.unit+" · Falta comprar: "+Number(needed.toFixed(6)).toLocaleString("es-AR")+" "+item.unit:" · Existencia sin cantidad registrada: compra estimada sin descuento");
+    })+" "+item.unit+(item.unknown?" (más cantidades desconocidas)":"")+(known?" · Disponible: "+available.toLocaleString("es-AR")+" "+item.unit+" · Falta comprar: "+Number(needed.toFixed(6)).toLocaleString("es-AR")+" "+item.unit:"");
     const matches=pricesFor(prices,item.name,item.unit).filter(p=>true);
     if(item.unknown||!item.quantity){
       missing.push(item.name+": cantidad incompleta")
@@ -66,20 +66,27 @@ function shoppingQuantityAndCost(){
         })+" "+price.currency+" (referencia: "+typedAppDateLabel(price.date)+")"
       }else missing.push(item.name+": costo fuera de rango")
     }
-    li.textContent=label;
+    li.textContent=textoLegible(label);
     ul.append(li)
   }
   box.append(ul);
   for(const [currency,total] of Object.entries(currencyTotals))box.append(ce("p","shop-item","Subtotal estimado con referencias inequívocas: "+total.toLocaleString("es-AR",{
     minimumFractionDigits:2,maximumFractionDigits:2
   })+" "+currency));
+  // Lo que falta estimar, agrupado por motivo (v15.4: una línea por motivo en vez de una por ingrediente).
   if(missing.length||issues.length){
     box.append(ce("strong",null,"Pendiente de estimar:"));
-    const list=ce("ul");
-    for(const issue of [...issues,...missing])list.append(ce("li",null,issue));
+    const list=ce("ul"),porMotivo=new Map();
+    for(const m of missing){
+      const i=m.lastIndexOf(": "),motivo=m.slice(i+2);
+      if(!porMotivo.has(motivo))porMotivo.set(motivo,[]);
+      porMotivo.get(motivo).push(m.slice(0,i))
+    }
+    for(const issue of issues)list.append(ce("li",null,issue));
+    for(const [motivo,nombres] of porMotivo)list.append(ce("li",null,motivo.charAt(0).toUpperCase()+motivo.slice(1)+": "+nombres.join(", ")));
     box.append(list)
   }
-  box.append(ce("p","screen__hint","Simulación con multiplicador "+multiplier+". Descuenta solo existencias registradas con cantidad y unidad compatible. Los costos corresponden al faltante calculable. No estima envases enteros ni incluye platos sin cantidades vinculadas."))
+  box.append(ce("p","screen__hint","Multiplicador "+multiplier+"."))
 }
 document.getElementById("shoppingPortionMultiplier").addEventListener("change",()=>{
   shoppingQuantityAndCost();renderCompras()

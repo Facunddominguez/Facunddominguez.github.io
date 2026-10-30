@@ -194,10 +194,10 @@ function shoppingBudgetRender(){
   });
   box.append(ce("p","shop-item","Presupuesto: "+fmt(budget.limit)+" "+currency),ce("p","shop-item","Costo parcial estimado: "+fmt(estimated)+" "+currency));
   const difference=budget.limit-estimated;
-  box.append(ce("p","shop-item",difference>=0?"Margen sobre costos calculados: "+fmt(difference)+" "+currency:"Los costos calculados superan el presupuesto en "+fmt(-difference)+" "+currency));
+  box.append(ce("p","shop-item",difference>=0?"Margen: "+fmt(difference)+" "+currency:"Te pasás por "+fmt(-difference)+" "+currency));
   box.append(ce("p","screen__hint",covered+" ingredientes valorizados; "+unpriced+" sin costo completo; "+otherCurrency+" con precio en otra moneda."));
-  if(unpriced||otherCurrency)box.append(ce("p","screen__hint","Comparación parcial: no se puede confirmar que el presupuesto alcance para toda la compra."));
-  else box.append(ce("p","screen__hint","Estimación basada en precios registrados, no en comprobantes ni precios actuales de tienda."));
+  if(unpriced||otherCurrency)box.append(ce("p","screen__hint","Comparación parcial: faltan precios."));
+  else box.append(ce("p","screen__hint","Con tus precios guardados."));
   budgetRealLines(box,budget,estimated)
 }
 function budgetCompareData(rows,prices,currency){
@@ -278,13 +278,13 @@ function budgetCompareRender(){
         compared++
       }
     }
-    result.replaceChildren(ce("p","shop-item","Escenario parcial: "+fmt(total)+" "+budget.currency),ce("p","screen__hint","Diferencia presupuesto menos escenario: "+fmt(budget.limit-total)+" "+budget.currency));
-    if(compared)result.append(ce("p","screen__hint","Ahorro sobre "+compared+" ingredientes frente a su primera referencia seleccionada: "+fmt(baseTotal-comparableTotal)+" "+budget.currency+" (negativo = mayor costo)."));
-    result.append(ce("p","screen__hint",model.pending.length+" ingredientes sin referencia compatible; "+unselected+" sin selección. No incluye platos sin cantidades vinculadas ni productos extra. No confirma que alcance el presupuesto total."));
+    result.replaceChildren(ce("p","shop-item","Escenario parcial: "+fmt(total)+" "+budget.currency),ce("p","screen__hint","Margen: "+fmt(budget.limit-total)+" "+budget.currency));
+    if(compared)result.append(ce("p","screen__hint","Ahorro en "+compared+" ingredientes: "+fmt(baseTotal-comparableTotal)+" "+budget.currency+"."));
+    result.append(ce("p","screen__hint",model.pending.length+" sin precio; "+unselected+" sin elegir."));
     budgetScenarioText=["Mi Plato Fácil · Escenario de presupuesto","Presupuesto: "+fmt(budget.limit)+" "+budget.currency,"Costo parcial seleccionado: "+fmt(total)+" "+budget.currency,"Diferencia parcial: "+fmt(budget.limit-total)+" "+budget.currency,...controls.filter(x=>x.select.value!=="").map(x=>{
       const p=x.entry.options[Number(x.select.value)];return x.entry.row.name+": "+x.entry.row.missing+" "+x.entry.row.unit+" · "+fmt(x.entry.row.missing*p.price/p.amount)+" "+budget.currency
     }),"Sin referencia: "+model.pending.length+"; sin selección: "+unselected,"Estimación incompleta. No modifica planificación ni precios."].join("\n");
-    if(model.pending.length)result.append(ce("p","screen__hint",model.pending.join("; ")))
+    if(model.pending.length)result.append(ce("p","screen__hint","Sin precio: "+model.pending.map(x=>x.slice(0,x.lastIndexOf(": "))).join(", ")))
   }
   controls.forEach(x=>x.select.addEventListener("change",recalc));
   recalc()
