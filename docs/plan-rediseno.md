@@ -1854,7 +1854,7 @@ Rama `rediseno-etapa-9-sepa`. Versión 15.8.0.
 - `e7_precios.js` C7-5: el JSON real ya no exige `p` en cada ingrediente (acepta `p` o `s`); los precios de huevo, leche y arroz se comparan con `precioAuto` (SEPA o INDEC, según haya) en vez de con la columna de INDEC, y "sin precio" se comprueba con "Cardamomo" porque "Zapallito" ahora tiene precio. Protege lo mismo: conversión de unidades y el mismo dato que `precioDe`.
 - Nuevas: `e9_sepa.js` (C9-1 a C9-8) y la comprobación de Node `sepa-lector.mjs` (C9-9, siete líneas).
 
-**Tarea de SEPA en el PR**: pendiente. Corre cuando `rediseno-etapa-9-sepa` entre al PR #1 y llegue el push; el artifact `precios-descargado` se compara con `datos/precios.json` (SEPA del 2026-11-02) con `gh api`. Si el portal estuviera caído queda como aviso y se anota acá.
+**Tarea de SEPA en el PR** · Decisión: todavía no pudo correr en el PR (queda para el próximo push) y se probó antes con otra cosa: la herramienta completa con el ZIP real del 2026-11-02, bajado una vez a una carpeta nueva fuera del repo y borrado al terminar, y con el ZIP armado de la prueba C9-9. Corre cuando `rediseno-etapa-9-sepa` entre al PR #1 y llegue el push; el artifact `precios-descargado` se compara con `datos/precios.json` (SEPA del 2026-11-02) con `gh api`. Si el portal estuviera caído queda como aviso y se anota acá.
 
 **Mejoras sugeridas**
 - Puerro, cebolla de verdeo, quinoa, zucchini, cuscús y otros quedan afuera por oferta chica en pocas banderas: mirar con la corrida semanal si suben.
