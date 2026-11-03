@@ -124,7 +124,7 @@
   localStorage.removeItem(GOALS); ev("renderPlan()");
   const oculto = doc().getElementById("planObjetivos").hidden && texto("planObjetivos") === "";
   ok("C8-3 Semana resume los objetivos con el plan de la semana y no muestra nada sin objetivos",
-    t1 === "Verduras en 2 de 14 comidas · Pescado 0 de 2" && t2 === "Verduras en 2 de 2 comidas ✓" && oculto && /comidas en la semana/.test(texto("planHint")), [t1, t2].join(" | "));
+    t1 === "Verduras en 2 de 14 comidas · Pescado 0 de 2" && t2 === "Verduras: 2 comidas (objetivo 2) ✓" && oculto && /comidas en la semana/.test(texto("planHint")), [t1, t2].join(" | "));
 
   // C8-4 Costo semanal en Semana: suma los días y dice cuántos precios faltan
   cargar(base({ [UI]: "completo", miPlatoFacil_plan: planDe([["lunes", "almuerzo", "rp_recipe_e7prue01"], ["martes", "almuerzo", "rp_recipe_e7prue01"]]) })); await abrirConEjemplo();
@@ -203,7 +203,7 @@
   await tocar($("prefPresupuesto"));
   const abre = pantalla() === "comprasHerramientas" && visible($("shoppingBudgetPanel"));
   localStorage.setItem(MP, '{"mostrar":false}'); w.refrescarPrecios(); ev('go("preferencias")'); await espera(40);
-  ok("C8-9 la fila de presupuesto de Preferencias muestra lo guardado, abre el panel y se esconde con los precios apagados", fila9 && abre && !visible($("prefPresupuesto")));
+  ok("C8-9 la fila de presupuesto de Preferencias muestra lo guardado, abre el panel y se esconde con los precios apagados (igual que la región de los precios)", fila9 && abre && !visible($("prefPresupuesto")) && !visible($("preferenciasRegion")));
 
   // C8-10 La diferencia entre lo gastado y lo estimado vuelve con signo y sentido
   const hoy10 = ev("localTrainingDate(new Date())");

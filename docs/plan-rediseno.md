@@ -1688,7 +1688,10 @@ Convención del inventario: "✅" = hecha (antes o en esta etapa); "Decisión" =
 - Resumen de objetivos en Semana: cuenta comidas del plan con ese grupo (`plateGroups`) sobre el objetivo; solo aparece si hay objetivos.
 - Anotar gasto: una fila por cada cantidad realmente sumada a la despensa (en su unidad), una sin cantidad por cada ítem marcado sin cantidad, y nada de lo que ya alcanzaba. Quitar una fila del ticket la saca de Mis precios y de la compra.
 - Existencias y movimientos: Decisión de no restaurar "Existencia sin cantidad registrada" (ver el inventario).
-- La diferencia de compras realizadas dice "+X (se gastó más)" o "-X (se gastó menos)".
+- La diferencia de compras realizadas dice "+X (se gastó más)" o "-X (se gastó menos)"; se redondea a 2 decimales antes de elegir el signo y, si queda en 0, dice "sin diferencia".
+- Resumen de Semana: por debajo del objetivo, "Verduras en 9 de 14 comidas"; al llegar o pasarse, "Verduras: 14 comidas (objetivo 10) ✓" (nunca "14 de 10").
+- La tarjeta de Más dice "Evitar, objetivos y precios".
+- La región de los precios va en un campo normal (con el espacio de los demás) y solo se ve con los precios prendidos (C8-9); el valor guardado no cambia.
 
 **Pruebas adaptadas** (ninguna se borra; la cantidad sube de 521 a 531)
 - `m01_modo.js`: M4/M6/M7 (aviso de Despensa, Compras sin aviso, la barra se ve al prender los precios y se esconde al apagarlos, y sigue visible al volver a simple), M5/M7 (texto de la tarjeta), M2 (sin `habitGoalsPanel` en la lista de Semana) y M8 (excluye `mostrarPrecios_v1` del chequeo de datos y afirma que vale `{"mostrar":true}`, el valor que dejó el usuario; ninguna otra clave cambia).

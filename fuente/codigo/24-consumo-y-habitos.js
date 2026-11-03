@@ -61,8 +61,10 @@ function resumenObjetivosSemana(plan,saved,goals){
   for(const g of HABIT_GROUPS){
     const goal=(goals||{})[g];
     if(!goal)continue;
-    const n=counts[g],base=labels[g]+(partes.length?" ":" en ")+n+" de "+goal+(partes.length?"":" comida"+(goal===1?"":"s"));
-    partes.push(base+(n>=goal?" ✓":""))
+    const n=counts[g];
+    // Por debajo del objetivo: "Verduras en 9 de 14 comidas" (planificado de objetivo). Si se llega o se pasa, no se lee "14 de 10": "Verduras: 14 comidas (objetivo 10) ✓".
+    if(n>=goal)partes.push(labels[g]+": "+n+" comida"+(n===1?"":"s")+" (objetivo "+goal+") ✓");
+    else partes.push(labels[g]+(partes.length?" ":" en ")+n+" de "+goal+(partes.length?"":" comida"+(goal===1?"":"s")))
   }
   return partes.join(" · ")
 }

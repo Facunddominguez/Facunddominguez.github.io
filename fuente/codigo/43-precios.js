@@ -88,6 +88,9 @@ function aplicarPrecios(){
     const e=document.getElementById(id);
     if(e)e.hidden=!on
   }
+  // La región solo sirve con los precios prendidos.
+  const reg=document.getElementById("preferenciasRegion");
+  if(reg)reg.hidden=!on;
   const t=document.getElementById("preciosToggle");
   if(t){
     t.querySelector(".tool-button__label").textContent="Mostrar precios y presupuesto: "+(on?"activado":"desactivado");

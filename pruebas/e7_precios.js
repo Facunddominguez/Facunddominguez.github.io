@@ -1,6 +1,6 @@
 // E7: Etapa 7 del rediseño (precios automáticos de INDEC). Se usa SIEMPRE el archivo de ejemplo datos/precios-ejemplo.json
 // (valores redondos, no son precios reales) y nunca una descarga. Los precios se ven con "Mostrar precios y presupuesto"
-// (desde la v15.7 independiente del modo simple: miPlatoFacil_mostrarPrecios_v1, que se deriva de uiMode_v1 si no existe). La app se abre en un marco aparte para poder recargarla.
+// (desde la v15.7 es independiente del modo simple: miPlatoFacil_mostrarPrecios_v1; si no existe, se deriva de uiMode_v1). La app se abre en un marco aparte para poder recargarla.
 // C7-1 a C7-4 son los controles E7-precio-item-total, E7-costo-porcion, E7-region y E7-mi-precio de criterios.json.
 (async () => {
   const T = []; const ok = (n, c, d) => T.push((c ? "PASA " : "FALLA ") + n + (d !== undefined && d !== "" ? " · " + d : ""));
