@@ -53,6 +53,7 @@ const VISTAS = [
   { id: 'ideas', ir: 'openTab("miscomidas"); go("ideas")' },
   { id: 'armado-desayuno', ir: 'openTab("hoy"); start("desayuno")' },
   { id: 'armado-almuerzo', ir: 'openTab("hoy"); start("plato")' },
+  { id: 'armado-plato', ir: 'openTab("hoy"); start("plato"); setDay("Día libre"); go("plate_static")' },
   { id: 'armado-verduras', ir: 'openTab("hoy"); start("plato"); setDay("Día libre"); go("lunch_veg")' },
   { id: 'bienvenida', ir: 'abrirBienvenida()' },
   { id: 'receta-editar', ir: 'openTab("miscomidas"); showRecipeView("edit")' },
