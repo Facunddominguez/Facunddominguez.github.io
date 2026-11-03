@@ -155,9 +155,15 @@ function estimadoDeLaLista(rows,currency){
 }
 // Barra de presupuesto arriba de la lista (v15.4). Solo lee; tocarla abre el panel de presupuesto.
 function renderPresupuestoCompras(){
-  const bar=document.getElementById("comprasPresupuesto");
+  const bar=document.getElementById("comprasPresupuesto"),pref=document.getElementById("prefPresupuesto");
   if(!bar)return;
+  const on=preciosActivos();
+  bar.hidden=!on;
+  if(pref)pref.hidden=!on;
   const budget=shoppingBudgetRead(),fmt=n=>(budget&&budget.currency==="USD"?"US$":"$")+Math.round(n).toLocaleString("es-AR");
+  // Fila de Preferencias: el presupuesto guardado, sin cálculos (abre el mismo panel).
+  if(pref)pref.textContent=budget?"💰 Presupuesto: "+fmt(budget.limit)+" por "+(budget.period==="mes"?"mes":"semana")+" · Cambiar":"💰 Poner un presupuesto";
+  if(!on)return;
   if(!budget){
     bar.textContent="💰 Poner un presupuesto";
     return
@@ -255,6 +261,8 @@ function budgetCompareRender(){
     select.value=entry.base?String(entry.options.indexOf(entry.base)):"";
     label.htmlFor=select.id="budgetAlternative_"+controls.length;
     wrap.append(label,select);
+    const rango=typeof textoRangoPrecios==="function"?textoRangoPrecios(entry.row.name,entry.row.unit):"";
+    if(rango)wrap.append(ce("p","screen__hint",rango));
     box.append(wrap);
     controls.push({
       entry,select,baseline:entry.base
@@ -318,7 +326,7 @@ function shoppingBudgetInit(){
     }const budget={
       currency,limit,period
     };if(peopleRaw)budget.people=Number(peopleRaw);try{
-      localStorage.setItem(SHOP_BUDGET_KEY,JSON.stringify(budget));shoppingBudgetRender();budgetCompareRender()
+      localStorage.setItem(SHOP_BUDGET_KEY,JSON.stringify(budget));shoppingBudgetRender();budgetCompareRender();renderPresupuestoCompras()
     }catch(e){
       document.getElementById("shoppingBudgetResult").textContent="No se pudo guardar el presupuesto."
     }

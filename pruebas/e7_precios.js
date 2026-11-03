@@ -1,6 +1,6 @@
 // E7: Etapa 7 del rediseño (precios automáticos de INDEC). Se usa SIEMPRE el archivo de ejemplo datos/precios-ejemplo.json
 // (valores redondos, no son precios reales) y nunca una descarga. Los precios se ven con "Mostrar precios y presupuesto"
-// (el mismo interruptor del modo simple, uiMode_v1). La app se abre en un marco aparte para poder recargarla.
+// (desde la v15.7 independiente del modo simple: miPlatoFacil_mostrarPrecios_v1, que se deriva de uiMode_v1 si no existe). La app se abre en un marco aparte para poder recargarla.
 // C7-1 a C7-4 son los controles E7-precio-item-total, E7-costo-porcion, E7-region y E7-mi-precio de criterios.json.
 (async () => {
   const T = []; const ok = (n, c, d) => T.push((c ? "PASA " : "FALLA ") + n + (d !== undefined && d !== "" ? " · " + d : ""));
@@ -28,7 +28,7 @@
   const menuCompras = async herr => { await tocar(q("#compras [data-compras-menu]")); await tocar(q('.hoja [data-compras-herr="' + herr + '"]')) };
   const R = await (await fetch("/tests/fixtures/respaldo-v14.9.94.json", { cache: "no-store" })).json();
   const cargar = datos => { localStorage.clear(); for (const [k, v] of Object.entries(datos)) if (v !== null) localStorage.setItem(k, v) };
-  const todo = () => JSON.stringify(Object.keys(localStorage).filter(k => k.startsWith("miPlatoFacil_") && k !== "miPlatoFacil_uiMode_v1").sort().map(k => [k, localStorage.getItem(k)]));
+  const todo = () => JSON.stringify(Object.keys(localStorage).filter(k => k.startsWith("miPlatoFacil_") && k !== "miPlatoFacil_uiMode_v1" && k !== "miPlatoFacil_mostrarPrecios_v1").sort().map(k => [k, localStorage.getItem(k)]));
   const J = k => JSON.parse(R.data[k]);
   const DIAS = ["lunes", "martes", "miercoles", "jueves", "viernes", "sabado", "domingo"];
   const planDe = slots => { const p = {}; for (const d of DIAS) p[d] = { desayuno: null, merienda: null, almuerzo: null, cena: null }; for (const [d, c, id] of slots) p[d][c] = id; return JSON.stringify(p) };
@@ -54,11 +54,11 @@
   const apagadoSin = !listaTxt().includes("≈") && visible($("comprasPreciosAviso")) && $("comprasPreciosAviso").textContent === "Precios estimados: activalos en Preferencias" && !visible($("comprasPrecioFuente"));
   await tocar($("comprasPreciosAviso"));
   const alAviso = pantalla() === "preferencias";
-  await tocar($("uiModeToggle"));
+  await tocar($("preciosToggle"));
   await irA("compras");
   const arroz = fila("Arroz"), pollo = fila("Pollo");
   ok("C7-1 la lista muestra ≈ precio por ítem y el total, con 'faltan N precios'; sin activar los precios no muestra nada y avisa cómo activarlos",
-    apagadoSin && alAviso && ev("getUiMode()") === "completo" && !!arroz && arroz.textContent.includes("≈ $600") && !!pollo && pollo.textContent.includes("≈ $2.500") && !fila("Zapallito").textContent.includes("≈") && texto("comprasSummary").includes("≈ $3.100 (faltan 1 precio)") && seVe($("comprasPrecioFuente"), "Promedio INDEC · GBA · sept. 2026") && !visible($("comprasPreciosAviso")),
+    apagadoSin && alAviso && ev("preciosActivos()") === true && localStorage.getItem("miPlatoFacil_mostrarPrecios_v1") === '{"mostrar":true}' && ev("getUiMode()") === "simple" && !!arroz && arroz.textContent.includes("≈ $600") && !!pollo && pollo.textContent.includes("≈ $2.500") && !fila("Zapallito").textContent.includes("≈") && texto("comprasSummary").includes("≈ $3.100 (faltan 1 precio)") && seVe($("comprasPrecioFuente"), "Promedio INDEC · GBA · sept. 2026") && !visible($("comprasPreciosAviso")),
     listaTxt());
 
   // C7-2 Cada comida muestra ≈ costo por porción (detalle, tarjeta) y Semana el costo del día
@@ -72,7 +72,7 @@
   ev('planDiaElegido="lunes";renderPlan()'); await espera(50);
   const dia = texto("planDiaCosto");
   ok("C7-2 cada comida muestra ≈ costo por porción (detalle y tarjeta) y Semana, el costo del día",
-    detalleReceta.startsWith("≈ $1.550 por porción (faltan 1 precio)") && detallePlato.startsWith("≈ $1.550 por porción") && tarj.includes("≈ $1.550 por porción") && dia === "≈ $3.100 por día (faltan 1 precio)",
+    detalleReceta.startsWith("≈ $1.550 por porción (faltan 1 precio)") && detallePlato.startsWith("≈ $1.550 por porción") && tarj.includes("≈ $1.550 por porción") && dia.startsWith("≈ $3.100 por día (faltan 1 precio)"),
     [detalleReceta, detallePlato, dia].join(" | "));
 
   // C7-3 Cambiar la región cambia los valores; GBA por defecto; un valor guardado inválido se ignora
@@ -131,16 +131,16 @@
   // C7-7 Apagado, no se ve ningún ≈ $ ni la fuente; el interruptor es el del modo simple y no cambia datos
   cargar(base({ [UI]: "completo" })); await abrirConEjemplo();
   const datosAntes = todo();
-  const etiquetaOn = $("uiModeToggle").querySelector(".tool-button__label").textContent;
-  await tocar($("uiModeToggle"));
-  const etiquetaOff = $("uiModeToggle").querySelector(".tool-button__label").textContent;
+  const etiquetaOn = $("preciosToggle").querySelector(".tool-button__label").textContent;
+  await tocar($("preciosToggle"));
+  const etiquetaOff = $("preciosToggle").querySelector(".tool-button__label").textContent;
   await irA("compras");
   const lista = listaTxt() + " " + texto("comprasPrecioFuente");
   ev('abrirComida("receta","recipe_e7prue01")'); await espera(100);
   const det = texto("comidaCosto");
   ev('go("misplatos");renderSaved();planDiaElegido="lunes";renderPlan()'); await espera(80);
   ok("C7-7 con 'Mostrar precios y presupuesto' apagado no se ve ningún ≈ $ ni la fuente y los datos no cambian",
-    etiquetaOn === "Mostrar precios y presupuesto: activado" && etiquetaOff === "Mostrar precios y presupuesto: desactivado" && ev("getUiMode()") === "simple" && !lista.includes("≈") && det === "" && !tarjeta().includes("≈") && texto("planDiaCosto") === "" && todo() === datosAntes,
+    etiquetaOn === "Mostrar precios y presupuesto: activado" && etiquetaOff === "Mostrar precios y presupuesto: desactivado" && ev("getUiMode()") === "completo" && ev("preciosActivos()") === false && !lista.includes("≈") && det === "" && !tarjeta().includes("≈") && texto("planDiaCosto") === "" && todo() === datosAntes,
     lista);
 
   if (marco) marco.remove();

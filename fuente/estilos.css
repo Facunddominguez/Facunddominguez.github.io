@@ -3466,6 +3466,7 @@ body.con-hoja{
 .armar-comida__opciones .button{width:100%}
 /* v15.4 · Compras y Despensa: barra de presupuesto, interruptor, secciones del súper, agregar producto e historial. */
 .compras-presupuesto{display:block;width:100%;min-height:var(--tap);margin:4px 0 8px;padding:10px 14px;border:1px solid var(--line);border-radius:14px;background:var(--soft);color:var(--text);font:inherit;font-weight:600;text-align:left;cursor:pointer}
+.compras-presupuesto[hidden]{display:none}
 .compras-presupuesto.is-excedido{border-color:var(--danger,#c0392b)}
 .compras-controles{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:4px 0}
 .interruptor{display:inline-flex;align-items:center;gap:10px;min-height:var(--tap);cursor:pointer;font-weight:600}
