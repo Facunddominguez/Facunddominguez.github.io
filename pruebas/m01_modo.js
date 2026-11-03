@@ -113,7 +113,7 @@
   const label1 = card.querySelector(".tool-button__label").textContent;
   card.click(); await wait(20);
   const label2 = card.querySelector(".tool-button__label").textContent;
-  T.ok("M5 la tarjeta de Configuración activa el modo completo y lo recuerda", inSettings && label1 === "Modo simple: activado" && label2 === "Modo simple: desactivado" && getUiMode() === "completo" && localStorage.getItem(UI_MODE_KEY) === "completo" && document.documentElement.dataset.modo === "completo", label1 + " → " + label2);
+  T.ok("M5 la tarjeta de Configuración activa el modo completo y lo recuerda", inSettings && label1 === "Mostrar precios y presupuesto: desactivado" && label2 === "Mostrar precios y presupuesto: activado" && getUiMode() === "completo" && localStorage.getItem(UI_MODE_KEY) === "completo" && document.documentElement.dataset.modo === "completo", label1 + " → " + label2);
   // M6 En modo completo se ve todo otra vez
   go("compras"); await wait(20);
   const toolsShown = shown($("comprasPresupuesto")) && await herramientasCompras();
@@ -127,7 +127,7 @@
   T.ok("M6 en modo completo vuelven a verse todas las herramientas", toolsShown && planShown && ingShown && notes.every(n => n.querySelector("button").textContent === "Ocultar herramientas avanzadas"));
   // M7 El aviso de cada pantalla vuelve al modo simple
   notes[0].querySelector("button").click(); await wait(20); go("compras"); await wait(20);
-  T.ok("M7 el botón del aviso vuelve al modo simple", getUiMode() === "simple" && localStorage.getItem(UI_MODE_KEY) === "simple" && !shown($("comprasPresupuesto")) && card.querySelector(".tool-button__label").textContent === "Modo simple: activado");
+  T.ok("M7 el botón del aviso vuelve al modo simple", getUiMode() === "simple" && localStorage.getItem(UI_MODE_KEY) === "simple" && !shown($("comprasPresupuesto")) && card.querySelector(".tool-button__label").textContent === "Mostrar precios y presupuesto: desactivado");
   // M8 Cambiar de modo no toca ningún dato
   card.click(); await wait(10); card.click(); await wait(10);
   T.ok("M8 cambiar de modo no modifica ningún dato guardado", appData() === before && Object.keys(localStorage).filter(k => k.startsWith("miPlatoFacil_")).includes(UI_MODE_KEY));

@@ -153,6 +153,7 @@ export function armar(libro, mapa, hoy) {
       o.p[r] = redondeo(v / m.envase);
     }
     if (m.aprox) o.a = true;
+    if (m.densidad) o.d = m.densidad;
     items.push(o);
   }
   const mes = String(Math.floor(ultima / 100)) + '-' + String(ultima % 100).padStart(2, '0');

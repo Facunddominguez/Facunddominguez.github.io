@@ -194,7 +194,7 @@
   await irA("mas"); await tocar(q("#sectionSettings [data-open-preferencias]"));
   ver("Ingredientes a evitar", visible($("recipeAvoidWords")));
   ver("Ingredientes equivalentes", visible($("ingredientAliasPanel")));
-  ver("Modo simple", visible($("uiModeToggle")));
+  ver("Mostrar precios y presupuesto", visible($("uiModeToggle")));
   await irA("mas"); await tocar(q("#sectionSettings [data-open-fuentes]"));
   ver("Consultar nutrientes", visible($("nutritionLookupPanel")));
   await irA("miscomidas"); await tocar(q('.comida-card[data-recipe-id="recipe_e4test1"]'));

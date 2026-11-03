@@ -320,12 +320,12 @@ function shoppingDisplayItems(){
   const stock=loadStockQuantities(),marked=pantryMarkedMatcher(),bought=shoppingBoughtSet(),descontar=comprasDescontar();
   return shoppingPlanItems().map(e=>{
     const label=shoppingItemLabel(e),suggestion=shoppingSuggestion(e,stock,marked),partial=!!suggestion&&suggestion.kind==="partial",revisar=!!suggestion&&suggestion.kind==="info"&&/la unidad no coincide/.test(suggestion.text),group=bought.has(e.key)?"comprado":descontar&&suggestion&&!partial&&!revisar?"tenes":"pendiente";return {
-      key:e.key,name:e.name,label,suggestion,group,seccion:seccionDelSuper(e.name),text:descontar&&group==="pendiente"&&partial?label+" · faltan "+suggestion.buy:descontar&&group==="pendiente"&&revisar?label+" · revisá":label
+      key:e.key,name:e.name,units:e.units,unknown:e.unknown,label,suggestion,group,seccion:seccionDelSuper(e.name),text:descontar&&group==="pendiente"&&partial?label+" · faltan "+suggestion.buy:descontar&&group==="pendiente"&&revisar?label+" · revisá":label
     }
   }).sort((a,b)=>a.label.localeCompare(b.label,"es"))
 }
 function shoppingRow(x,i,checked,detail){
-  const row=ce("div","shop-item"+(checked?" is-done":"")),cb=ce("input"),lab=ce("label",null,textoLegible(x.text));
+  const row=ce("div","shop-item"+(checked?" is-done":"")),cb=ce("input"),lab=ce("label",null,textoLegible(x.text)+(x.precioTxt?" · "+x.precioTxt:""));
   cb.type="checkbox";
   cb.checked=checked;
   cb.dataset.shopKey=x.key;
@@ -361,7 +361,13 @@ function renderCompras(){
     return
   }
   const pend=items.filter(x=>x.group==="pendiente"),tenes=items.filter(x=>x.group==="tenes"),comprados=items.filter(x=>x.group==="comprado"),pending=pend.filter(x=>!comprasDone[x.key]),tachados=pend.length-pending.length+tenes.filter(x=>comprasDone[x.key]).length;
-  summary.textContent=pending.length+" pendientes · "+tachados+" tachados";
+  let precios=null;
+  try{
+    precios=preciosDeLaLista(items)
+  }catch(e){
+  }
+  summary.textContent=pending.length+" pendientes · "+tachados+" tachados"+resumenPrecios(precios);
+  pintarPreciosCompras(precios);
   hint.textContent="Tachá lo que comprás. Lo que tenés en la Despensa pasa a Ya tenés.";
   const nodes=[];
   let i=0;
@@ -372,6 +378,9 @@ function renderCompras(){
     box.dataset.seccion=sec;
     box.append(ce("h3","compras-seccion__titulo",sec));
     // Lo tachado queda a la vista, al final de su sección.
+    if(precios)lista.forEach(x=>{
+      x.precioTxt=precios.porClave.get(x.key)||""
+    });
     for(const x of [...lista.filter(x=>!comprasDone[x.key]),...lista.filter(x=>comprasDone[x.key])])box.append(shoppingRow(x,i++,!!comprasDone[x.key],x.text.endsWith(" · revisá")&&x.suggestion?"💡 "+x.suggestion.text:""));
     nodes.push(box)
   }

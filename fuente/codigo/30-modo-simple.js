@@ -61,7 +61,8 @@ function setUiMode(mode){
   applyUiMode();
   if(next==="simple")resetHiddenSessionControls();
   renderUiModeControls();
-  if(stack.at(-1)==="compras")renderCompras()
+  if(stack.at(-1)==="compras")renderCompras();
+  if(typeof refrescarPrecios==="function")refrescarPrecios()
 }
 // Controles de la sesión que quedan ocultos: vuelven a su valor inicial para que no cambien
 // en silencio lo que se ve (por ejemplo, el orden de las recetas). No guardan datos.
@@ -97,9 +98,10 @@ function renderUiModeControls(){
   const card=document.getElementById("uiModeToggle");
   if(card){
     const state=simple?"activado":"desactivado";
-    card.querySelector(".tool-button__label").textContent="Modo simple: "+state;
-    card.querySelector(".tool-button__desc").textContent=simple?"Oculta presupuesto, precios y cálculos":"Se ven todas las herramientas";
-    card.setAttribute("aria-label","Modo simple: "+state+". Tocar para cambiar")
+    const estado=simple?"desactivado":"activado";
+    card.querySelector(".tool-button__label").textContent="Mostrar precios y presupuesto: "+estado;
+    card.querySelector(".tool-button__desc").textContent=simple?"Activalo para ver precios, presupuesto y todas las herramientas":"Se ven precios, presupuesto y todas las herramientas";
+    card.setAttribute("aria-label","Mostrar precios y presupuesto: "+estado+". Tocar para cambiar")
   }
 }
 (()=>{

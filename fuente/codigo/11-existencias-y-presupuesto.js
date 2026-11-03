@@ -157,14 +157,17 @@ function estimadoDeLaLista(rows,currency){
 function renderPresupuestoCompras(){
   const bar=document.getElementById("comprasPresupuesto");
   if(!bar)return;
-  const budget=shoppingBudgetRead(),fmt=n=>"$"+Math.round(n).toLocaleString("es-AR");
+  const budget=shoppingBudgetRead(),fmt=n=>(budget&&budget.currency==="USD"?"US$":"$")+Math.round(n).toLocaleString("es-AR");
   if(!budget){
     bar.textContent="💰 Poner un presupuesto";
     return
   }
   let e;
   try{
-    e=estimadoDeLaLista(shoppingMissingRows(),budget.currency)
+    const auto=budget.currency==="ARS"?totalAutomaticoLista():null;
+    e=auto?{
+      estimated:auto.total,unpriced:auto.faltan,otherCurrency:0
+    }:estimadoDeLaLista(shoppingMissingRows(),budget.currency)
   }catch(err){
     bar.textContent="💰 Presupuesto "+fmt(budget.limit);
     return
