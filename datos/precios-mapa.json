@@ -1,0 +1,438 @@
+{
+ "_descripcion": "Mapa curado de ingredientes de la app a productos del archivo de precios promedio de INDEC (hojas GBA y Nacional). \"b\" es la unidad base del precio (kg, l o unidad) y \"envase\" cuánto trae la unidad de medida de INDEC en esa base (500 g = 0,5 kg; docena = 12 unidades). \"gba\" y \"nac\" son [producto, unidad de medida] tal como están en cada hoja: si INDEC los cambia, la tarea falla y nombra el producto. \"aprox\" marca un producto solo parecido. \"densidad\" (kg por litro) pasa gramos a mililitros en líquidos. Los ingredientes que no están acá no tienen precio automático (quedan para SEPA, Etapa 9).",
+ "regiones": [
+  "GBA",
+  "Pampeana",
+  "Noreste",
+  "Noroeste",
+  "Cuyo",
+  "Patagonia"
+ ],
+ "items": [
+  {
+   "n": "Arroz",
+   "b": "kg",
+   "envase": 1,
+   "gba": [
+    "Arroz blanco simple",
+    "kg"
+   ],
+   "nac": [
+    "Arroz blanco simple",
+    "kg"
+   ]
+  },
+  {
+   "n": "Fideos",
+   "b": "kg",
+   "envase": 0.5,
+   "gba": [
+    "Fideos secos tipo guisero",
+    "500 g"
+   ],
+   "nac": [
+    "Fideos secos tipo guisero",
+    "500 g"
+   ]
+  },
+  {
+   "n": "Harina de trigo",
+   "b": "kg",
+   "envase": 1,
+   "gba": [
+    "Harina de trigo común 000",
+    "kg"
+   ],
+   "nac": [
+    "Harina de trigo común",
+    "kg"
+   ]
+  },
+  {
+   "n": "Pan",
+   "b": "kg",
+   "envase": 1,
+   "gba": [
+    "Pan francés tipo flauta",
+    "kg"
+   ],
+   "nac": [
+    "Pan francés",
+    "kg"
+   ]
+  },
+  {
+   "n": "Pan de molde",
+   "b": "kg",
+   "envase": 0.39,
+   "gba": [
+    "Pan de mesa",
+    "390 g"
+   ]
+  },
+  {
+   "n": "Galletitas de agua",
+   "b": "kg",
+   "envase": 0.25,
+   "gba": [
+    "Galletitas de agua envasadas",
+    "250 g"
+   ]
+  },
+  {
+   "n": "Carne picada",
+   "b": "kg",
+   "envase": 1,
+   "gba": [
+    "Carne picada común",
+    "kg"
+   ],
+   "nac": [
+    "Carne picada común",
+    "kg"
+   ]
+  },
+  {
+   "n": "Carne picada especial",
+   "b": "kg",
+   "envase": 1,
+   "gba": [
+    "Carne picada común",
+    "kg"
+   ],
+   "nac": [
+    "Carne picada común",
+    "kg"
+   ],
+   "aprox": true
+  },
+  {
+   "n": "Asado",
+   "b": "kg",
+   "envase": 1,
+   "gba": [
+    "Asado",
+    "kg"
+   ]
+  },
+  {
+   "n": "Vacío",
+   "b": "kg",
+   "envase": 1,
+   "gba": [
+    "Asado",
+    "kg"
+   ],
+   "aprox": true
+  },
+  {
+   "n": "Jamón cocido",
+   "b": "kg",
+   "envase": 1,
+   "gba": [
+    "Jamón cocido",
+    "kg"
+   ]
+  },
+  {
+   "n": "Pollo",
+   "b": "kg",
+   "envase": 1,
+   "gba": [
+    "Pollo entero",
+    "kg"
+   ],
+   "nac": [
+    "Pollo entero",
+    "kg"
+   ]
+  },
+  {
+   "n": "Muslo de pollo",
+   "b": "kg",
+   "envase": 1,
+   "gba": [
+    "Pollo entero",
+    "kg"
+   ],
+   "nac": [
+    "Pollo entero",
+    "kg"
+   ],
+   "aprox": true
+  },
+  {
+   "n": "Merluza",
+   "b": "kg",
+   "envase": 1,
+   "gba": [
+    "Filet de merluza fresco",
+    "kg"
+   ]
+  },
+  {
+   "n": "Queso cremoso",
+   "b": "kg",
+   "envase": 1,
+   "gba": [
+    "Queso cremoso",
+    "kg"
+   ]
+  },
+  {
+   "n": "Mozzarella",
+   "b": "kg",
+   "envase": 1,
+   "gba": [
+    "Queso cremoso",
+    "kg"
+   ],
+   "aprox": true
+  },
+  {
+   "n": "Manteca",
+   "b": "kg",
+   "envase": 0.2,
+   "gba": [
+    "Manteca",
+    "200 g"
+   ]
+  },
+  {
+   "n": "Dulce de leche",
+   "b": "kg",
+   "envase": 0.4,
+   "gba": [
+    "Dulce de leche",
+    "400 g"
+   ]
+  },
+  {
+   "n": "Azúcar",
+   "b": "kg",
+   "envase": 1,
+   "gba": [
+    "Azúcar",
+    "kg"
+   ],
+   "nac": [
+    "Azúcar",
+    "kg"
+   ]
+  },
+  {
+   "n": "Sal",
+   "b": "kg",
+   "envase": 0.5,
+   "gba": [
+    "Sal fina",
+    "500 g"
+   ]
+  },
+  {
+   "n": "Manzana",
+   "b": "kg",
+   "envase": 1,
+   "gba": [
+    "Manzana deliciosa",
+    "kg"
+   ]
+  },
+  {
+   "n": "Limón",
+   "b": "kg",
+   "envase": 1,
+   "gba": [
+    "Limón",
+    "kg"
+   ]
+  },
+  {
+   "n": "Naranja",
+   "b": "kg",
+   "envase": 1,
+   "gba": [
+    "Naranja",
+    "kg"
+   ]
+  },
+  {
+   "n": "Banana",
+   "b": "kg",
+   "envase": 1,
+   "gba": [
+    "Banana",
+    "kg"
+   ]
+  },
+  {
+   "n": "Papa",
+   "b": "kg",
+   "envase": 1,
+   "gba": [
+    "Papa",
+    "kg"
+   ],
+   "nac": [
+    "Papa",
+    "kg"
+   ]
+  },
+  {
+   "n": "Batata",
+   "b": "kg",
+   "envase": 1,
+   "gba": [
+    "Batata",
+    "kg"
+   ]
+  },
+  {
+   "n": "Cebolla",
+   "b": "kg",
+   "envase": 1,
+   "gba": [
+    "Cebolla",
+    "kg"
+   ]
+  },
+  {
+   "n": "Lechuga",
+   "b": "kg",
+   "envase": 1,
+   "gba": [
+    "Lechuga",
+    "kg"
+   ]
+  },
+  {
+   "n": "Tomate",
+   "b": "kg",
+   "envase": 1,
+   "gba": [
+    "Tomate redondo",
+    "kg"
+   ]
+  },
+  {
+   "n": "Tomate perita",
+   "b": "kg",
+   "envase": 1,
+   "gba": [
+    "Tomate redondo",
+    "kg"
+   ],
+   "aprox": true
+  },
+  {
+   "n": "Zapallo",
+   "b": "kg",
+   "envase": 1,
+   "gba": [
+    "Zapallo anco",
+    "kg"
+   ]
+  },
+  {
+   "n": "Tomate en lata",
+   "b": "kg",
+   "envase": 0.23,
+   "gba": [
+    "Tomate entero en conserva",
+    "Lata 230 g"
+   ]
+  },
+  {
+   "n": "Tomate triturado",
+   "b": "kg",
+   "envase": 0.23,
+   "gba": [
+    "Tomate entero en conserva",
+    "Lata 230 g"
+   ],
+   "aprox": true
+  },
+  {
+   "n": "Puré de tomate",
+   "b": "kg",
+   "envase": 0.23,
+   "gba": [
+    "Tomate entero en conserva",
+    "Lata 230 g"
+   ],
+   "aprox": true
+  },
+  {
+   "n": "Leche en polvo descremada",
+   "b": "kg",
+   "envase": 0.8,
+   "gba": [
+    "Leche en polvo entera",
+    "800 g"
+   ],
+   "aprox": true
+  },
+  {
+   "n": "Leche",
+   "b": "l",
+   "envase": 1,
+   "gba": [
+    "Leche fresca entera en sachet",
+    "Litro"
+   ],
+   "nac": [
+    "Leche fresca entera sachet",
+    "Litro"
+   ],
+   "densidad": 1.03
+  },
+  {
+   "n": "Aceite de girasol",
+   "b": "l",
+   "envase": 1.5,
+   "gba": [
+    "Aceite de girasol",
+    "Bot. 1,5 litros"
+   ],
+   "nac": [
+    "Aceite de girasol",
+    "1,5 litros"
+   ],
+   "densidad": 0.92
+  },
+  {
+   "n": "Agua",
+   "b": "l",
+   "envase": 1.5,
+   "gba": [
+    "Agua sin gas",
+    "1,5 litros"
+   ],
+   "densidad": 1
+  },
+  {
+   "n": "Yogur natural",
+   "b": "l",
+   "envase": 0.195,
+   "gba": [
+    "Yogur firme",
+    "195 cc"
+   ],
+   "aprox": true,
+   "densidad": 1.03
+  },
+  {
+   "n": "Huevo",
+   "b": "unidad",
+   "envase": 12,
+   "gba": [
+    "Huevos de gallina",
+    "Docena"
+   ],
+   "nac": [
+    "Huevos de gallina",
+    "Docena"
+   ]
+  }
+ ]
+}

@@ -438,6 +438,7 @@ function renderPlan(){
   const i=DAYS.findIndex(d=>d[0]===dia),f=new Date(lunes+"T12:00:00");
   f.setDate(f.getDate()+i);
   document.getElementById("planDiaTitulo").textContent=planDayName(dia)+" "+f.getDate()+(dia===hoy?" · hoy":"");
+  if(typeof pintarCostoDia==="function")pintarCostoDia();
   cont.replaceChildren(...["desayuno","almuerzo","merienda","cena"].map(slot=>{
     const id=plan[dia]&&plan[dia][slot],it=id?byId.get(id):null,b=ce("button","hueco"+(it?"":" hueco--vacio")),texto=ce("span","hueco__texto");
     b.type="button";

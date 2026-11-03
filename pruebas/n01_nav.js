@@ -60,7 +60,7 @@
   T.ok("N10 'Elegir' en una comida sin plan abre el Selector sin salir de Hoy", scr() === "home" && tab("hoy").getAttribute("aria-current") === "page" && hoja.abierta() && /^Elegir cena del /.test(document.getElementById("hojaTitulo").textContent) && !!hoja.elemento.querySelector("[data-selector-seccion=\"mias\"]"), document.getElementById("hojaTitulo").textContent);
   hoja.cerrar();
   // N11 Más según la estructura objetivo (v15.3): Mi rutina, Preferencias, Mis datos, IA, Apariencia, Fuentes y Cómo funciona.
-  // Ideas pasó a Comidas y Con lo que tengo quedó en Hoy; el modo simple está en Preferencias.
+  // Ideas pasó a Comidas y Con lo que tengo quedó en Hoy; "Mostrar precios y presupuesto" (el modo simple) está en Preferencias.
   await clickTab("mas");
   const masCards = [...document.querySelectorAll("#sectionSettings button")].filter(shown).map(b => b.querySelector(".tool-button__label").textContent);
   T.ok("N11 Más reúne Mi rutina, Preferencias, Mis datos, Asistente de IA, Apariencia, Fuentes de datos y Cómo funciona", ["Mi rutina", "Preferencias", "Mis datos", "Asistente de IA", "Fuentes de datos", "Cómo funciona"].every(x => masCards.includes(x)) && ![...document.querySelectorAll("#home .tool-button")].filter(shown).some(b => /Plato del día|Sugerir al azar/.test(b.textContent)) && masCards.some(x => /^Tema:/.test(x)) && !shown($("todayPanel")), masCards.join(" | "));

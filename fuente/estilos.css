@@ -3505,3 +3505,7 @@ body.con-hoja{
 .comida-registro:empty{display:none}
 .comida-registro .button{min-height:var(--tap)}
 #registro [data-registro-deshacer]{min-height:var(--tap)}
+
+/* Precios automáticos (v15.6): aviso para quien no los activó y línea de fuente. */
+.precios-aviso{display:block;min-height:44px;margin:0 0 8px;padding:0;border:0;background:none;color:var(--primary,var(--accent));font:inherit;text-align:left;text-decoration:underline;cursor:pointer}
+.precios-aviso[hidden]{display:none}

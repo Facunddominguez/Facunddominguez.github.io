@@ -37,6 +37,7 @@
     "e3_hoy.js",
     "e4_comidas.js",
     "e5_compras.js",
-    "e6_registro.js"
+    "e6_registro.js",
+    "e7_precios.js"
   ]
 }

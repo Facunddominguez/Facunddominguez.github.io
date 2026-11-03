@@ -33,10 +33,14 @@ const codigo = (await Promise.all((await listar('fuente/codigo')).map(f => leer(
 const datos = JSON.stringify(JSON.parse(await leer('datos/nutricion.json')))
   .replace(/<\//g, '<\\/').split('\u2028').join('\\u2028').split('\u2029').join('\\u2029');
 
+// Precios de INDEC incluidos en la app (misma idea que la nutrición).
+const datosPrecios = JSON.stringify(JSON.parse(await leer('datos/precios.json')))
+  .replace(/<\//g, '<\\/').split('\u2028').join('\\u2028').split('\u2029').join('\\u2029');
+
 let html = await leer('fuente/plantilla.html');
 html = unaVez(html, '{{ESTILOS}}', (await leer('fuente/estilos.css')).replace(/\n+$/, ''));
 html = unaVez(html, '{{CUERPO}}', cuerpo);
-html = unaVez(html, '{{CODIGO}}', unaVez(codigo, '__DATOS_NUTRICION__', datos));
+html = unaVez(html, '{{CODIGO}}', unaVez(unaVez(codigo, '__DATOS_NUTRICION__', datos), '__DATOS_PRECIOS__', datosPrecios));
 html = unaVez(html, '{{VERSION}}', version);
 const sw = unaVez(await leer('fuente/sw.js'), '{{VERSION}}', version);
 
@@ -44,7 +48,7 @@ const sw = unaVez(await leer('fuente/sw.js'), '{{VERSION}}', version);
 const script = html.slice(html.indexOf('<script>') + 8, html.lastIndexOf('</script>'));
 new vm.Script(script, { filename: 'index.html' });
 new vm.Script(sw, { filename: 'sw.js' });
-if (/\{\{[A-Z]+\}\}|__DATOS_NUTRICION__/.test(html)) throw new Error('Quedaron marcas sin reemplazar en index.html');
+if (/\{\{[A-Z]+\}\}|__DATOS_NUTRICION__|__DATOS_PRECIOS__/.test(html)) throw new Error('Quedaron marcas sin reemplazar en index.html');
 
 const salidas = { 'index.html': html, 'sw.js': sw };
 if (args.includes('--verificar')) {

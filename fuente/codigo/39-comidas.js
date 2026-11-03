@@ -49,7 +49,7 @@ function ordenarComidas(lista){
   });
   return s.map(x=>x.c)
 }
-// La tarjeta: nombre, componentes en una línea y etiquetas. El "≈ costo por porción" llega en la Etapa 7.
+// La tarjeta: nombre, componentes en una línea y etiquetas. Desde la v15.6 suma el "≈ costo por porción" cuando los precios están activos.
 function tarjetaComida(c){
   const b=ce("button","comida-card");
   b.type="button";
@@ -59,7 +59,8 @@ function tarjetaComida(c){
   if(c.origen==="receta")b.dataset.recipeId=c.id;
   b.append(ce("strong","comida-card__nombre",(c.fav?"⭐ ":"")+c.nombre));
   b.append(ce("span","comida-card__componentes",c.componentes.length?c.componentes.join(", "):"Sin ingredientes cargados"));
-  if(c.etiquetas.length)b.append(ce("span","comida-card__etiquetas",c.etiquetas.join(" · ")));
+  const costo=typeof etiquetaCostoComida==="function"?etiquetaCostoComida(c):"",etiq=costo?c.etiquetas.concat([costo]):c.etiquetas;
+  if(etiq.length)b.append(ce("span","comida-card__etiquetas",etiq.join(" · ")));
   if(c.aviso)b.append(ce("span","comida-card__aviso",c.aviso));
   b.setAttribute("aria-label",c.nombre+(c.tipo==="receta"?" (receta)":"")+". Ver detalle");
   return b
@@ -77,7 +78,8 @@ function pintarCabeceraComida(nombre,etiquetas,conservarAviso){
   document.getElementById("comidaTitulo").textContent=nombre;
   document.getElementById("comidaEtiquetas").textContent=etiquetas.join(" · ");
   if(!conservarAviso)document.getElementById("comidaEstado").textContent="";
-  if(typeof pintarEnlaceRegistro==="function")pintarEnlaceRegistro()
+  if(typeof pintarEnlaceRegistro==="function")pintarEnlaceRegistro();
+  if(typeof pintarCostoComida==="function")pintarCostoComida()
 }
 function mostrarDetalleReceta(r){
   let amounts={
