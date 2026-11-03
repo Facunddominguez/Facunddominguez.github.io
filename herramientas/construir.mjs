@@ -37,6 +37,8 @@ const datos = JSON.stringify(JSON.parse(await leer('datos/nutricion.json')))
 const datosPrecios = JSON.stringify(JSON.parse(await leer('datos/precios.json')))
   .replace(/<\//g, '<\\/').split('\u2028').join('\\u2028').split('\u2029').join('\\u2029');
 
+if (Buffer.byteLength(datosPrecios) > 60000) throw new Error('datos/precios.json pesa más de 60.000 bytes: ' + Buffer.byteLength(datosPrecios));
+
 let html = await leer('fuente/plantilla.html');
 html = unaVez(html, '{{ESTILOS}}', (await leer('fuente/estilos.css')).replace(/\n+$/, ''));
 html = unaVez(html, '{{CUERPO}}', cuerpo);
@@ -49,6 +51,8 @@ const script = html.slice(html.indexOf('<script>') + 8, html.lastIndexOf('</scri
 new vm.Script(script, { filename: 'index.html' });
 new vm.Script(sw, { filename: 'sw.js' });
 if (/\{\{[A-Z]+\}\}|__DATOS_NUTRICION__|__DATOS_PRECIOS__/.test(html)) throw new Error('Quedaron marcas sin reemplazar en index.html');
+
+if (Buffer.byteLength(html) > 770000) throw new Error('index.html pesa más de 770.000 bytes: ' + Buffer.byteLength(html));
 
 const salidas = { 'index.html': html, 'sw.js': sw };
 if (args.includes('--verificar')) {
