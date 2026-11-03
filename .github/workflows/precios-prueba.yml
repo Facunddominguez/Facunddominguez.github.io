@@ -1,0 +1,29 @@
+name: Prueba de precios de INDEC
+
+# Tarea de PRUEBA para los pull requests: baja el archivo real de INDEC, lo procesa, lo valida y sube el
+# resultado como artifact. No commitea, no hace push y no publica nada: solo sirve para ver que la descarga
+# y la lectura andan antes de que la tarea mensual (actualizar-precios.yml) corra en main.
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  precios:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - name: Descargar, procesar y validar (sin tocar datos/precios.json)
+        run: |
+          mkdir -p "$RUNNER_TEMP/salida"
+          node herramientas/actualizar-precios.mjs --salida "$RUNNER_TEMP/salida/precios-descargado.json"
+          node herramientas/actualizar-precios.mjs --verificar --archivo-json "$RUNNER_TEMP/salida/precios-descargado.json"
+          node -e "const d=require(process.argv[1]);console.log('mes '+d.mes+' · '+d.items.length+' ingredientes · GBA arroz '+d.items.find(i=>i.n==='Arroz').p.GBA)" "$RUNNER_TEMP/salida/precios-descargado.json" | tee "$RUNNER_TEMP/salida/resumen.txt"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: precios-descargado
+          path: ${{ runner.temp }}/salida/
+          retention-days: 14

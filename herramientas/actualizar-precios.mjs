@@ -10,9 +10,9 @@
 import { readFile, writeFile, rename, mkdtemp, mkdir } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
 import { createHash } from 'node:crypto';
-import { pathToFileURL } from "node:url";
+import { pathToFileURL, fileURLToPath } from "node:url";
 
 const RAIZ = new URL('../', import.meta.url);
 const DESCARGA = 'https://www.indec.gob.ar/ftp/cuadros/economia/sh_ipc_precios_promedio.xls';
@@ -222,7 +222,7 @@ async function descargar() {
   return { buf, archivo };
 }
 async function principal() {
-  const leerJson = async rel => JSON.parse(await readFile(ruta(rel), 'utf8'));
+  const leerJson = async rel => JSON.parse(await readFile(/^([a-z]:|[\/])/i.test(rel) ? rel : ruta(rel), 'utf8'));
   const catalogo = await catalogoNutricion(), mapa = await leerJson('datos/precios-mapa.json');
   if (args.includes('--verificar')) {
     const fallas = [...validarMapa(mapa, catalogo)];
@@ -238,12 +238,12 @@ async function principal() {
   const datos = armar(leerLibro(leerOle(buf)), mapa, hoy);
   const fallas = validar(datos, { catalogo, mapa, hoy });
   if (fallas.length) throw new Error('El resultado no pasa la validación:\n- ' + fallas.join('\n- '));
-  const salida = arg('--salida') ? new URL(arg('--salida'), 'file://' + process.cwd().replace(/\\/g, '/') + '/') : ruta('datos/precios.json');
+  const salida = arg("--salida") ? resolve(arg("--salida")) : fileURLToPath(ruta("datos/precios.json"));
   let previo = null; try { previo = JSON.parse(await readFile(salida, 'utf8')) } catch { /* no existe */ }
   const igual = previo && JSON.stringify({ ...previo, revisado: 0 }) === JSON.stringify({ ...datos, revisado: 0 });
   console.log(`INDEC ${datos.mes}: ${datos.items.length} ingredientes · sha256 ${createHash('sha256').update(buf).digest('hex').slice(0, 16)} · ${igual ? 'sin cambios' : 'actualizado'}`);
   if (igual) return;
-  const tmp = new URL(salida.href + '.tmp'); await writeFile(tmp, JSON.stringify(datos) + '\n'); await rename(tmp, salida);
+  const tmp = salida + '.tmp'; await writeFile(tmp, JSON.stringify(datos) + '\n'); await rename(tmp, salida);
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   principal().catch(e => { console.error('No se actualizaron los precios (se conserva el último archivo): ' + e.message); process.exit(1) });
