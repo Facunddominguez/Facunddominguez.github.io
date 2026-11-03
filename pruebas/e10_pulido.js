@@ -89,7 +89,8 @@
     raiz.setAttribute("data-theme", tema);
     const v = n => w.getComputedStyle(raiz).getPropertyValue(n).trim();
     const pares = [["--on-green", "--green"], ["--muted", "--surface"], ["--muted", "--bg"], ["--green", "--surface"], ["--danger", "--surface"], ["--danger", "--danger-bg"], ["--text", "--surface"]];
-    for (const [a, b] of pares) { const r = razon(v(a), v(b)); minimos.push(tema[0] + ":" + a.slice(2) + "/" + b.slice(2) + "=" + r.toFixed(1)); if (r < 4.5) fallas.push(tema + " " + a + " sobre " + b + " " + r.toFixed(2)) }
+    const platos = ["--plato-verduras", "--plato-almidones", "--plato-proteinas"].map(x => ["--plato-tinta", x]);
+    for (const [a, b] of pares.concat(platos)) { const r = razon(v(a), v(b)); minimos.push(tema[0] + ":" + a.slice(2) + "/" + b.slice(2) + "=" + r.toFixed(1)); if (!Number.isFinite(r) || r < 4.5) fallas.push(tema + " " + a + " sobre " + b + " " + r.toFixed(2)) }
   }
   if (anterior) raiz.setAttribute("data-theme", anterior); else raiz.removeAttribute("data-theme");
   ok("C10-5 el texto sobre el verde (--on-green), el gris (--muted), el verde y el rojo de borrar pasan 4,5:1 en claro y oscuro", fallas.length === 0, fallas.join(" | ") || minimos.slice(0, 3).join(" "));

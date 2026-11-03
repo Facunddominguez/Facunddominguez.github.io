@@ -205,7 +205,8 @@ const MEDIR = sel => `(() => {
     const cs = getComputedStyle(e), t = rgba(cs.color), fondos = fondosDe(e);
     if (!t) { excluidos.sinColor++; continue }
     if (!fondos) { excluidos.sobreImagen++; continue }
-    const op = Number(cs.opacity);
+    // La transparencia es la del elemento por la de todos sus ancestros (un contenedor con opacity .5 aclara su texto).
+    let op = 1; for (let p = e; p; p = p.parentElement) op *= Number(getComputedStyle(p).opacity);
     let peor = 99;
     for (const f of fondos) { const x = mezcla({ ...t, a: t.a * op }, f), a = lum(x), b = lum(f), r = (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05); if (r < peor) peor = r }
     const px = parseFloat(cs.fontSize), grande = px >= 24 || (px >= 18.66 && Number(cs.fontWeight) >= 700);
