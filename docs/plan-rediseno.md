@@ -247,7 +247,7 @@ Estados: ✅ hecha · ⏳ en curso · ⛔ parada. Cada etapa entra a `rediseno` 
 | 3. Hoy | ✅ | `etapa-3-ok` | 15.2.0 |
 | 4. Comidas y nueva estructura | ✅ | `etapa-4-ok` | 15.3.0 |
 | 5. Compras y Despensa | ✅ | `etapa-5-ok` | 15.4.0 |
-| 6. Un solo registro | ⏳ | — | 15.5.0 |
+| 6. Un solo registro | ✅ | `etapa-6-ok` | 15.5.0 |
 | 7. Precios automáticos de INDEC | — | — | — |
 | 8. Resto de las herramientas avanzadas | — | — | — |
 | 9. Precios de SEPA | — | — | — |
@@ -1279,7 +1279,7 @@ Rama `rediseno-etapa-5-compras`. Versión 15.4.0.
 - Se perdieron dos aclaraciones: "Existencia sin cantidad registrada" y el signo de la diferencia en compras realizadas.
 - La tabla de secciones del súper es manual. `#budgetAlternative_0` es un select cortado que ya venía de antes.
 
-### Etapa 6 · Un solo registro ⏳
+### Etapa 6 · Un solo registro ✅
 
 Rama `rediseno-etapa-6-registro`. Versión 15.5.0.
 
@@ -1497,3 +1497,19 @@ Rama `rediseno-etapa-6-registro`. Versión 15.5.0.
 - "Corregir" es quitar y volver a anotar. Cambiar la comida o la fecha de un registro en el lugar sería más directo.
 - La fila de Lo comí repite "(del plan)" y puede ocupar tres líneas: se podría pasar a una etiqueta.
 - El contador `cooked` y el historial siguen pudiendo no coincidir en los datos viejos. Se podría ofrecer "anotar con fecha" las veces sin fecha, sin inventar fechas.
+
+**Revisores**
+- revisor-codigo, sobre el plan: BLOQUEANTE en la primera versión. Las altas de `cookingHistory_v1` filtraban y descartaban en silencio los registros que no validan. Se unificaron en `agregarPreparacion`, que agrega sobre lo guardado tal cual (C6-7). Se verificó en el diff.
+- revisor-codigo, sobre el diff: NO BLOQUEANTE. Encontró un error real: había un solo "Deshacer" para toda la app, y un chip viejo deshacía la acción más nueva. Ahora cada chip tiene su propia foto, uno vencido no toca nada y avisa, y el "Deshacer" de Hoy no reescribe si el registro ya no está (prueba C6-10, commit `90f16d0`).
+- revisor-usuario: NO BLOQUEANTE. **E6-un-registro-revision se cumple:** todo lo registrado se ve y se corrige en el Registro.
+
+**Mejoras sugeridas**
+- "Cocinado N veces" en las tarjetas de Comidas podría llevar al Registro.
+- Dentro del Registro con todo abierto quedan dos formularios más ("Registrar" y "Registrar preparación") que repiten "+ Lo comí" y "+ Lo cociné"; "Registrar preparación" no usa el vocabulario. Unificarlos.
+- Mover "Objetivos semanales" a Preferencias (Etapa 8).
+- Con 2.000 registros de Lo comí, `slice(-2000)` descarta el más viejo sin avisar (viene de antes): avisar y no anotar.
+- Cambiar la comida o la fecha de un registro en el lugar: hoy corregir es Quitar y volver a anotar.
+- El desplegable "Plato o receta guardada" del Registro llega al borde de la tarjeta.
+
+**Pendientes para vos**
+- Ninguno nuevo.
