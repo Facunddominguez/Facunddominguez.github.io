@@ -121,7 +121,7 @@ function fuentePrecios(region,cual){
   const reg=region||regionPrecios(),sepa=datosSepaPrecios(d),indec="Promedio INDEC · "+reg+" · "+mesCortoPrecios(d.meta.mes);
   if(cual==="indec"||!sepa)return indec;
   const s="SEPA · mediana · "+reg+" · "+fechaCortaPrecios(sepa.fecha);
-  return cual==="sepa"?s:s+" (INDEC si falta · "+mesCortoPrecios(d.meta.mes)+")"
+  return cual==="sepa"?s:s+" (INDEC si falta)"
 }
 var PRECIOS_CAZUELA=null;
 // Cantidad en la unidad base del precio (kg, l o unidad), o null si no se puede pasar.
@@ -314,7 +314,7 @@ function pintarCostoComida(){
 // Línea del día en Semana: ≈ costo de las comidas con cantidades de ese día y de toda la semana (misma línea).
 function costosDelPlan(){
   const dia=diaPlanElegido(),r={
-    dia:0,diaFaltan:0,semana:0,semanaFaltan:0
+    dia:0,diaFaltan:0,semana:0,semanaFaltan:0,comidas:0
   };
   for(const e of planEntriesFlat()){
     const a=cantidadesDeComida("plato",e.item.id);
@@ -325,6 +325,7 @@ function costosDelPlan(){
       costo=c.costo;
       faltan=c.faltan
     }
+    r.comidas++;
     r.semana+=costo;
     r.semanaFaltan+=faltan;
     if(e.day===dia){
@@ -342,7 +343,7 @@ function pintarCostoDia(){
     if(preciosActivos()&&preciosDataset()){
       const c=costosDelPlan();
       if(c.semana>0){
-        t=(c.dia>0?formatoPesos(c.dia)+" por día"+(c.diaFaltan?" ("+faltanTexto(c.diaFaltan)+")":"")+" · ":"")+formatoPesos(c.semana)+" la semana"+(c.semanaFaltan?" ("+faltanTexto(c.semanaFaltan)+")":"")
+        t=(c.dia>0?formatoPesos(c.dia)+" por día"+(c.diaFaltan?" ("+faltanTexto(c.diaFaltan)+")":"")+" · ":"")+(c.semanaFaltan*2>c.comidas?"al menos ":"")+formatoPesos(c.semana)+" la semana"+(c.semanaFaltan?" ("+faltanTexto(c.semanaFaltan)+")":"")
       }
     }
   }catch(e){
@@ -390,7 +391,7 @@ function pintarPreciosCompras(p){
   if(a)a.hidden=preciosActivos();
   aplicarPrecios();
   if(f){
-    f.textContent=p&&p.porClave.size?fuentePrecios()+(p.aprox?" · hay precios aprox.":""):"";
+    f.textContent=p&&p.porClave.size?fuentePrecios()+(p.aprox?" · algunos aprox.":""):"";
     f.hidden=!f.textContent
   }
 }

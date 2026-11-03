@@ -88,7 +88,7 @@ function renderUiModeControls(){
   const simple=isSimpleMode();
   document.querySelectorAll("[data-mode-note]").forEach(note=>{
     const group=ADVANCED_TOOLS[note.dataset.modeNote];
-    note.querySelector("p").textContent=simple?"🧰 Para que la app sea más simple, hay herramientas ocultas: "+group.list+". Tus datos siguen guardados.":"🧰 Estás viendo todas las herramientas, también las avanzadas.";
+    note.querySelector("p").textContent=simple?"🧰 Herramientas ocultas: "+group.list+". Tus datos siguen guardados.":"🧰 Estás viendo todas las herramientas, también las avanzadas.";
     note.querySelector("button").textContent=simple?"Mostrar herramientas avanzadas":"Ocultar herramientas avanzadas"
   });
   const card=document.getElementById("uiModeToggle");

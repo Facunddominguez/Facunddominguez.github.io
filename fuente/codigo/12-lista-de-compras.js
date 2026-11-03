@@ -405,7 +405,17 @@ function renderCompras(){
     for(const x of [...lista.filter(x=>!comprasDone[x.key]),...lista.filter(x=>comprasDone[x.key])])box.append(shoppingRow(x,i++,!!comprasDone[x.key],x.text.endsWith(" · revisá")&&x.suggestion?"💡 "+x.suggestion.text:""));
     nodes.push(box)
   }
-  if(!pending.length)nodes.push(ce("p","screen__hint",items.length?"No queda nada por comprar.":"No hay compras pendientes. Agregá comidas a la semana."));
+  if(!pending.length){
+    if(items.length)nodes.push(ce("p","screen__hint","No queda nada por comprar."));
+    else{
+      const vacio=emptyState("🛒","Todavía no hay nada para comprar","Con comidas en la semana, la lista se arma sola.",{label:"Armar mi semana",key:"comprasArmar",value:"1"});
+      vacio.querySelector("button").className="button button--primary";
+      vacio.querySelector("button").addEventListener("click",()=>openTab("semana"));
+      nodes.push(vacio)
+    }
+  }
+  const terminar=document.getElementById("comprasBought");
+  if(terminar){terminar.classList.toggle("button--primary",!!pending.length);terminar.classList.toggle("button--soft",!pending.length)}
   if(tenes.length){
     const g=shoppingGroup("Ya tenés",tenes,comprasTenesOpen,v=>{
       comprasTenesOpen=v

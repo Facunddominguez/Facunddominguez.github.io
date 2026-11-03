@@ -132,7 +132,7 @@
   const sem = texto("planDiaCosto");
   localStorage.setItem(MP, '{"mostrar":false}'); w.refrescarPrecios();
   ok("C8-4 Semana muestra el costo del día y de la semana, con 'faltan N precios', y nada con los precios apagados",
-    sem === "≈ $3.100 por día (faltan 1 precio) · ≈ $6.200 la semana (faltan 2 precios)" && texto("planDiaCosto") === "" && doc().getElementById("planDiaCosto").hidden, sem);
+    sem === "≈ $3.100 por día (faltan 1 precio) · al menos ≈ $6.200 la semana (faltan 2 precios)" && texto("planDiaCosto") === "" && doc().getElementById("planDiaCosto").hidden, sem);
 
   // C8-5 Anotar gasto con lo realmente sumado a la despensa
   const filasReceta = [{ name: "Arroz", quantity: 500, unit: "g" }, { name: "Papa", quantity: 2, unit: "kg" }, { name: "Aceite", quantity: 100, unit: "ml" }, { name: "Sal", quantity: null, unit: "g" }];

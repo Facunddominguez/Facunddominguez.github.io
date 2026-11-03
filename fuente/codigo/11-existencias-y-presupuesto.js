@@ -172,14 +172,14 @@ function renderPresupuestoCompras(){
   try{
     const auto=budget.currency==="ARS"?totalAutomaticoLista():null;
     e=auto?{
-      estimated:auto.total,unpriced:auto.faltan,otherCurrency:0
+      estimated:auto.total,unpriced:auto.faltan,otherCurrency:0,alMenos:auto.faltan*2>auto.pendientes
     }:estimadoDeLaLista(shoppingMissingRows(),budget.currency)
   }catch(err){
     bar.textContent="💰 Presupuesto "+fmt(budget.limit);
     return
   }
   const faltan=e.unpriced+e.otherCurrency;
-  bar.textContent="💰 Presupuesto "+fmt(budget.limit)+" · ≈ "+fmt(e.estimated)+" estimado"+(faltan?" (faltan "+faltan+" precio"+(faltan===1?"":"s")+")":"");
+  bar.textContent="💰 Presupuesto "+fmt(budget.limit)+" · "+(e.alMenos||(e.covered!==undefined&&faltan>e.covered)?"al menos ":"")+"≈ "+fmt(e.estimated)+" estimado"+(faltan?" (faltan "+faltan+" precio"+(faltan===1?"":"s")+")":"");
   bar.classList.toggle("is-excedido",e.estimated>budget.limit)
 }
 function shoppingBudgetRender(){
@@ -252,11 +252,11 @@ function budgetCompareRender(){
     minimumFractionDigits:2,maximumFractionDigits:2
   }),controls=[];
   for(const entry of model.entries){
-    const wrap=ce("div","portion-field"),label=ce("label",null,entry.row.name+" · "+entry.row.missing.toLocaleString("es-AR")+" "+entry.row.unit),select=ce("select"),blank=ce("option",null,"Elegí una referencia para simular");
+    const wrap=ce("div","portion-field"),label=ce("label",null,entry.row.name+" · "+entry.row.missing.toLocaleString("es-AR")+" "+entry.row.unit),select=ce("select"),blank=ce("option",null,"Elegí una referencia");
     blank.value="";
     select.append(blank);
     entry.options.forEach((p,i)=>{
-      const option=ce("option",null,fmt(entry.row.missing*p.price/p.amount)+" "+budget.currency+" · "+p.price+" / "+p.amount+" "+p.unit+" · "+(p.date||"sin fecha"));option.value=String(i);select.append(option)
+      const option=ce("option",null,fmt(entry.row.missing*p.price/p.amount)+" "+budget.currency+" · "+p.price+" / "+p.amount+" "+p.unit);option.title="Precio de "+(p.date||"fecha desconocida");option.value=String(i);select.append(option)
     });
     select.value=entry.base?String(entry.options.indexOf(entry.base)):"";
     label.htmlFor=select.id="budgetAlternative_"+controls.length;

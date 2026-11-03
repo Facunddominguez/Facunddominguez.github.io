@@ -57,7 +57,7 @@ function savePlate(nombre){
   if(typeof nombre==="string"&&nombre.trim())snap.note=nombre.trim().slice(0,80);
   a.unshift(snap);
   const ok=persistSaved(a);
-  shareStatus(ok?"¡Guardado en Mis comidas!":"No se pudo guardar (almacenamiento no disponible).");
+  shareStatus(ok?"¡Guardado en Comidas!":"No se pudo guardar (almacenamiento no disponible).");
   return ok?snap:null
 }
 function deleteSaved(id){
