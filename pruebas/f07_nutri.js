@@ -53,6 +53,6 @@
   const ignoredBad = nutritionFor("Papa").v[0] === 99;
   const infoNew = /revisados el 01\/01\/2099/.test($("nutritionSourceInfo").textContent);
   window.fetch = realFetch; nutritionDataset.data = null; nutritionDataset.cache = null; refreshNutritionData.started = true; renderNutritionLookup();
-  T.ok("N16 publicada: toma datos más nuevos y descarta viejos o inválidos", updated && keptNewer && ignoredBad && infoNew && nutritionFor("Papa").v[0] === papa.v[0] && /revisados el 26\/10\/2026/.test($("nutritionSourceInfo").textContent), $("nutritionSourceInfo").textContent);
+  T.ok("N16 publicada: toma datos más nuevos y descarta viejos o inválidos", updated && keptNewer && ignoredBad && infoNew && nutritionFor("Papa").v[0] === papa.v[0] && $("nutritionSourceInfo").textContent.includes("revisados el " + NUTRITION_SNAPSHOT.revisado.split("-").reverse().join("/")), $("nutritionSourceInfo").textContent);
   return T;
 })()

@@ -1964,3 +1964,9 @@ Rama `rediseno-etapa-10-pulido`. Versión 15.9.0.
 
 **Pendientes para vos**
 - Ninguno nuevo en esta etapa (ver el informe final).
+
+### Cierre · `main` cambió durante el rediseño
+
+- Después de la Etapa 10 y de publicar el informe, la tarea mensual de nutrición commiteó en `main` (`a4c3fd4`, 3/11/2026 14:29 UTC): solo `datos/nutricion.json` e `index.html`. Como pide el plan, se trajo a `rediseno` con merge (sin rebase), sin conflictos, se reconstruyó (`construir.mjs --verificar` OK, v15.9.0) y se pasó la compuerta completa otra vez.
+- La compuerta falló en una prueba que ya existía: `f07_nutri.js` N16 ("publicada: toma datos más nuevos y descarta viejos o inválidos") tenía escrita a mano la fecha de los datos de nutrición incluidos (26/10/2026), así que se rompía con cada revisión mensual. La lógica que prueba no cambió (toma los datos más nuevos, descarta los viejos y los inválidos, y al terminar vuelve a los incluidos): ahora la última comprobación compara con la fecha real de los datos incluidos (`NUTRITION_SNAPSHOT.revisado`). Misma exigencia, y deja de romperse cada mes.
+- Decisión: no se movieron los tags (`etapa-10-ok` queda en el commit validado antes del merge); el merge y la corrección son commits posteriores en `rediseno`.
