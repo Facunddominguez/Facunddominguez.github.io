@@ -107,9 +107,13 @@
   await irA("miscomidas");
   const tarjetas = t => qa('#savedList > .comida-card[data-comida-tipo="' + t + '"]').filter(visible).length;
   exigir("comidas", tarjetas("plato") === 9 && tarjetas("receta") === 5, tarjetas("plato") + " y " + tarjetas("receta"));
+  // v15.5: las preparaciones están en el Registro (Más → Registro → Todas las preparaciones).
+  await irA("mas"); await tocar(q('#sectionSettings [data-open-registro]'));
+  exigir("pantalla Registro", pantalla() === "registro");
   await tocar(q("#cookingHistoryPanel summary"));
   const preparaciones = J("miPlatoFacil_cookingHistory_v1");
   exigir("preparaciones", qa("#cookingHistoryList > *").filter(visible).length >= preparaciones.length && preparaciones.every(p => seVe($("cookingHistoryList"), w.typedAppDateLabel(p.date))), qa("#cookingHistoryList > *").length + " de " + preparaciones.length);
+  await irA("miscomidas");
   const recetas = J("miPlatoFacil_recipeDetails_v1"), cantidades = J("miPlatoFacil_recipeAmounts_v1");
   const conCantidades = Object.values(recetas).filter(r => r.amountsTitle && cantidades[r.amountsTitle]);
   exigir("cantidades vinculadas", conCantidades.length === Object.keys(cantidades).length, conCantidades.length + " de " + Object.keys(cantidades).length);

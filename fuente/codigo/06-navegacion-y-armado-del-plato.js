@@ -129,6 +129,7 @@ function go(id){
   if(id==="compras")renderCompras();
   if(id==="ingredientes")renderPantry();
   if(id==="ideas")renderContextAdvice();
+  if(id==="registro"&&typeof renderRegistro==="function")renderRegistro();
   if(id==="bf_fruit"){
     if(state.fruta&&state.fruta.forma&&data.frutaFormas.includes(state.fruta.forma))frutaForma=state.fruta.forma;
     renderFrutaFormas()

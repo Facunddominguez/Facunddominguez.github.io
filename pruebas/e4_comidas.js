@@ -98,7 +98,8 @@
   ev("hoja.cerrar()");
   const cocinadoAntes = guardados().find(x => x.id === idPlato).cooked || 0;
   await tocar(q('#comidaPlatoAcciones [data-cook-saved="' + idPlato + '"]'));
-  const cocinado = (guardados().find(x => x.id === idPlato).cooked || 0) === cocinadoAntes + 1 && /Cocinaste/.test($("comidaEstado").textContent);
+  const prepHoy = JSON.parse(localStorage.getItem("miPlatoFacil_cookingHistory_v1") || "[]").filter(x => x.sourceId === idPlato && x.date === w.localTrainingDate(new w.Date())).length === 1;
+  const cocinado = (guardados().find(x => x.id === idPlato).cooked || 0) === cocinadoAntes + 1 && /Cocinaste/.test($("comidaEstado").textContent) && prepHoy;
   const antesCompartir = todo(); let compartido = "";
   w.navigator.share = d => { compartido = d.text; return Promise.resolve() };
   await tocar(q("#comida [data-comida-compartir]"));

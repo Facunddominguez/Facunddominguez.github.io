@@ -37,6 +37,7 @@ function afterOneTap(){
   }catch(e){
   }
   if(document.getElementById("cookingHistoryPanel").open)renderCookingHistory();
+  if(stack.at(-1)==="registro")renderRegistro();
   if(stack.at(-1)==="compras")renderCompras()
 }
 function oneTapQty(m){
@@ -50,15 +51,11 @@ function cookRecipeNow(id){
   const r=loadRecipeDetails()[id];
   if(!r)throw Error("La receta ya no está disponible.");
   const amounts=loadRecipeAmounts(),a=r.amountsTitle&&Object.prototype.hasOwnProperty.call(amounts,r.amountsTitle)?amounts[r.amountsTitle]:null,names=a?a.rows.map(x=>String(x.name||"").trim()).filter(Boolean):[],hasQty=!!a&&a.rows.some(x=>x.quantity!==null&&String(x.name||"").trim());
-  const before=oneTapSnapshot(),history=loadCookingHistory();
-  history.push({
-    id:Date.now().toString(36)+"_"+Math.random().toString(36).slice(2),date:localTrainingDate(new Date()),meal:"Otra",title:r.title,lines:names.length?["Ingredientes: "+names.join(", ")]:[],sourceId:id,status:"prepared"
+  const before=oneTapSnapshot();
+  // La misma alta que todas (19): agrega sobre lo guardado sin descartar nada.
+  agregarPreparacion({
+    id:Date.now().toString(36)+"_"+Math.random().toString(36).slice(2),date:localTrainingDate(new Date()),meal:"Otra",title:String(r.title),lines:names.length?["Ingredientes: "+names.join(", ")]:[],sourceId:id,status:"prepared"
   });
-  try{
-    localStorage.setItem(COOKING_HISTORY_KEY,JSON.stringify(history))
-  }catch(e){
-    throw Error("No se pudo guardar (falta de espacio u otro error). No se modificó nada.")
-  }
   let res={
     moves:[],short:[]
   };

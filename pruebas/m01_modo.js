@@ -104,7 +104,7 @@
   // v15.3: cada pantalla nueva que oculta herramientas tiene su aviso con el botón.
   const notes = ["compras", "ingredientes", "ideas", "comida", "recetaEditar", "preferencias", "backupScreen"].map(id => document.querySelector("#" + id + " [data-mode-note]"));
   await menuSemana(); const itemsMenu = [...document.querySelectorAll(".hoja .menu-semana button")].filter(shown).map(b => b.textContent); hoja.cerrar();
-  const menuCompleto = ["Repetir semana anterior", "Copiar un día", "Vaciar la semana", "Planes guardados", "Semanas anteriores y mes", "Historial de cambios", "Descargar", "Buscar en mis recetas", "Lo que comí y objetivos"].every(t => itemsMenu.includes(t));
+  const menuCompleto = ["Repetir semana anterior", "Copiar un día", "Vaciar la semana", "Planes guardados", "Semanas anteriores y mes", "Historial de cambios", "Descargar", "Buscar en mis recetas", "Registro y objetivos"].every(t => itemsMenu.includes(t));
   T.ok("M4 aviso en Compras y Recetas con lo que está oculto; Semana no oculta nada y su menú lo lista todo", notes.every(n => n && /Tus datos siguen guardados/.test(n.textContent) && n.querySelector("button").textContent === "Mostrar herramientas avanzadas") && /presupuesto/.test(notes[0].textContent) && notes[0].parentElement === $("compras") && !document.querySelector("#plan [data-mode-note]") && menuCompleto, notes.map(n => n && n.textContent.slice(0, 60)).join(" | ") + " | " + itemsMenu.join(", "));
   // M5 Tarjeta en Configuración: cambia el modo y lo recuerda
   const card = $("uiModeToggle");

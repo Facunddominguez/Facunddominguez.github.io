@@ -44,6 +44,7 @@ const VISTAS = [
   { id: 'mas', ir: 'openTab("mas")' },
   { id: 'despensa', ir: 'openTab("compras"); go("ingredientes")' },
   { id: 'compras-herramientas', ir: 'openTab("compras"); abrirHerramientaCompras("todas")' },
+  { id: 'registro', ir: 'openTab("mas"); abrirRegistro()' },
   { id: 'entrenamiento', ir: 'openTab("mas"); go("trainingCalendar")' },
   { id: 'respaldo', ir: 'openTab("mas"); go("backupScreen")' },
   { id: 'ia', ir: 'openTab("mas"); go("asistente")' },

@@ -13,7 +13,7 @@
   tab("semana").click(); await wait(40); tab("hoy").click(); await wait(60);
   const s0 = keys();
   document.querySelector('#todayRows [data-today-slot="almuerzo"] button').click(); await wait(60);
-  const eaten = loadConsumption().length === 1 && /✓ Comido/.test(document.querySelector('#todayRows [data-today-slot="almuerzo"]').textContent);
+  const eaten = loadConsumption().length === 1 && /✓ Lo comí/.test(document.querySelector('#todayRows [data-today-slot="almuerzo"]').textContent);
   $("todayStatus").querySelector("[data-today-undo]").click(); await wait(40);
   T.ok("U1 'Lo comí' en Hoy se puede deshacer", eaten && loadConsumption().length === 0 && keys() === s0 && document.querySelector('#todayRows [data-today-slot="almuerzo"] button').textContent === "Lo comí" && /se deshizo/.test($("todayStatus").textContent));
   // U2 "Lo cociné" desde Mis comidas: anota la preparación de hoy y descuenta lo que tenés

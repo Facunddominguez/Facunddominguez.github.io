@@ -3487,3 +3487,21 @@ body.con-hoja{
 .pantry-item__historial{flex:1 1 100%;margin:2px 0 4px}
 .pantry-item__historial>summary{min-height:var(--tap);display:flex;align-items:center;cursor:pointer;color:var(--muted);font-size:14px}
 .herr-contenedor>summary{list-style:none}
+/* v15.5 · Registro: un día con lo que comiste y cocinaste, Quitar con Deshacer y los contadores. */
+.registro-dia{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:8px 0}
+.registro-dia strong{flex:1;text-align:center}
+.registro-dia__nav{min-width:var(--tap);min-height:var(--tap);padding:0 12px;font-size:20px}
+.registro-dia__nav:disabled{opacity:.4;cursor:default}
+.registro-lista{display:grid;gap:6px;margin:4px 0 8px}
+.registro-fila{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--line)}
+.registro-fila__texto{flex:1;min-width:0;overflow-wrap:anywhere}
+.registro-fila__quitar{min-height:var(--tap);flex:0 0 auto}
+.registro-anotar .button{flex:1 1 40%}
+.registro-dias{margin:6px 0 10px}
+.registro-dias .filter-chip{min-height:var(--tap)}
+.registro-dias .filter-chip[aria-pressed="true"]{border-color:var(--green);background:var(--green);color:#fff}
+.today__registro{margin:4px 0 0}
+.today__registro .button{min-height:var(--tap)}
+.comida-registro:empty{display:none}
+.comida-registro .button{min-height:var(--tap)}
+#registro [data-registro-deshacer]{min-height:var(--tap)}

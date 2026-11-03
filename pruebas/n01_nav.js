@@ -54,7 +54,7 @@
   const planBefore = localStorage.getItem("miPlatoFacil_plan");
   lunch.querySelector("button").click(); await wait(60);
   const recs = loadConsumption(), lunchAfter = document.querySelector('#todayRows [data-today-slot="almuerzo"]');
-  T.ok("N9 'Lo comí' en Hoy registra la comida (del plan, hoy) sin cambiar el plan", recs.length === 1 && recs[0].meal === "almuerzo" && recs[0].planned === true && recs[0].date === localTrainingDate(new Date()) && recs[0].sourceId === "t1" && localStorage.getItem("miPlatoFacil_plan") === planBefore && /✓ Comido/.test(lunchAfter.textContent) && /Registrado/.test($("todayStatus").textContent), $("todayStatus").textContent);
+  T.ok("N9 'Lo comí' en Hoy registra la comida (del plan, hoy) sin cambiar el plan", recs.length === 1 && recs[0].meal === "almuerzo" && recs[0].planned === true && recs[0].date === localTrainingDate(new Date()) && recs[0].sourceId === "t1" && localStorage.getItem("miPlatoFacil_plan") === planBefore && /✓ Lo comí/.test(lunchAfter.textContent) && /Anotado en tu registro/.test($("todayStatus").textContent), $("todayStatus").textContent);
   // N10 "Elegir" en una comida sin plan abre el Selector de esa comida sin salir de Hoy (v15.2; antes abría la Semana)
   document.querySelector('#todayRows [data-today-slot="cena"] button').click(); await wait(150);
   T.ok("N10 'Elegir' en una comida sin plan abre el Selector sin salir de Hoy", scr() === "home" && tab("hoy").getAttribute("aria-current") === "page" && hoja.abierta() && /^Elegir cena del /.test(document.getElementById("hojaTitulo").textContent) && !!hoja.elemento.querySelector("[data-selector-seccion=\"mias\"]"), document.getElementById("hojaTitulo").textContent);
