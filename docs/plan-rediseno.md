@@ -249,7 +249,7 @@ Estados: ✅ hecha · ⏳ en curso · ⛔ parada. Cada etapa entra a `rediseno` 
 | 5. Compras y Despensa | ✅ | `etapa-5-ok` | 15.4.0 |
 | 6. Un solo registro | ✅ | `etapa-6-ok` | 15.5.0 |
 | 7. Precios automáticos de INDEC | ✅ | `etapa-7-ok` | 15.6.0 |
-| 8. Resto de las herramientas avanzadas | ⏳ | — | 15.7.0 |
+| 8. Resto de las herramientas avanzadas | ✅ | `etapa-8-ok` | 15.7.0 |
 | 9. Precios de SEPA | — | — | — |
 | 10. Pulido | — | — | — |
 
@@ -1599,7 +1599,7 @@ Rama `rediseno-etapa-7-precios`. Versión 15.6.0.
 **Pendientes para vos**
 - Ninguno (la tarea de precios ya corrió en el PR y quedó ✅).
 
-### Etapa 8 · Resto de las herramientas avanzadas ⏳
+### Etapa 8 · Resto de las herramientas avanzadas ✅
 
 Rama `rediseno-etapa-8-herramientas`. Versión 15.7.0.
 
@@ -1701,3 +1701,25 @@ Convención del inventario: "✅" = hecha (antes o en esta etapa); "Decisión" =
 **Medidas** (estado normal, tema claro)
 - Compras: 230 → 209 palabras (tope 262,8). Semana: 1.013 → 1.061 px (tope 1.266; suma el resumen de objetivos del respaldo de ejemplo). Registro con todo abierto: 427 → 398 palabras. Preferencias con todo abierto: 206 palabras (vista nueva).
 - Controles nuevos en `criterios.json` (solo se agregan): E8-precios-separados (C8-1), E8-objetivos-en-preferencias (C8-2), E8-palabras-registro-todo (≤ 427) y E8-palabras-preferencias (≤ 227, la medida más 10 %).
+
+**Compuerta**
+- "VALIDACIÓN ETAPA 8: OK (51 controles)". Pruebas: 531/531 (eran 521), con la batería nueva `e8_herramientas.js` (C8-1 a C8-10).
+
+**Revisores**
+- revisor-codigo, sobre el plan: NO BLOQUEANTE con sugerencias, todas incorporadas (objetivos que no se borran al guardar, C8-1 con clave ausente, "Costos" y "Presupuesto" con ✅ solo si están hechos).
+- revisor-codigo, sobre el diff: NO BLOQUEANTE. **Verificó que las 11 líneas con ✅ o "Decisión" son verdad**, contra el código y las pruebas.
+- revisor-usuario: NO BLOQUEANTE. Compras y Registro quedaron más simples que en la Etapa 7. Corregí en esta etapa lo que pidió con claridad:
+  - "Verduras en 14 de 10 comidas ✓" se leía al revés: ahora "Verduras: 14 comidas (objetivo 10) ✓";
+  - la tarjeta de Más;
+  - el redondeo de la diferencia de compras realizadas;
+  - "Región de los precios" solo con los precios prendidos.
+
+**Mejoras sugeridas**
+- Títulos de los interruptores largos ("Mostrar precios y presupuesto: activado" ocupa 3 líneas); la bajada de "herramientas avanzadas" es vaga.
+- "Ingredientes equivalentes": ayuda de 5 líneas (pasar a ⓘ); sacar el pie "Estás viendo todas las herramientas"; el aviso de herramientas ocultas en Preferencias duplica la tarjeta de arriba.
+- Semana: "≈ $840 por día (faltan 5 precios) · ≈ $11.975 la semana (faltan 36 precios)" es denso: un solo "faltan N".
+- Registro con todo abierto: "Anotar otra comida" sigue largo y duplica "Todas las preparaciones".
+- El plan corto prometía restaurar "Existencia sin cantidad registrada"; la implementación lo dejó como Decisión (el renglón y la lista ya lo dicen). Esta sección es la versión vigente.
+
+**Pendientes para vos**
+- Ninguno nuevo.
