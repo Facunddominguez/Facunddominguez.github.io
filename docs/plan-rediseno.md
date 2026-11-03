@@ -1815,3 +1815,13 @@ Rama `rediseno-etapa-9-sepa`. Versión 15.8.0.
 - SEPA gana a INDEC cuando están los dos (más nueva, por región y con rango); INDEC queda de respaldo.
 - La mediana es sobre filas producto-sucursal (pondera por cantidad de sucursales); SEPA no trae ventas para ponderar mejor.
 - La tarea de precios pasa de mensual a semanal para no tener dos tareas que escriban el mismo archivo.
+
+**Plan corto, segunda versión** (manda sobre la primera; resuelve los bloqueantes de revisor-codigo)
+- **Denominador del 80 %**: el TOTAL es núcleo (41 ideas + comidas y recetas del respaldo de ejemplo) + opciones del armado (97 ingredientes). Se apunta a que el total llegue a 80 % (78 de 97) con datos honestos: reglas de búsqueda para lo envasado (legumbres, cereales, harinas, fideos, lácteos, aceites, etc.). C9-1 mide e imprime tres números (núcleo, armado y total). Si el total llega a 80 %, C9-1 exige el total; si no llega con datos honestos, exige 80 % del núcleo y el porcentaje real del total queda en "Pendientes para vos". El texto del control en `criterios.json` no se toca.
+- **Piso de honestidad**: dentro de lo que se cuenta para el 80 %, como máximo 15 % puede ser aproximado (`a`/`sa`); la prueba imprime cuáles y el umbral cuenta solo los no aproximados. C9-1 lee el `datos/precios.json` REAL y verifica que cada precio contado tenga `s` o `p` finito y mayor que 0 y observaciones `c` suficientes.
+- **Mínimo para publicar un precio de SEPA**: 10 observaciones y 3 comercios distintos (herramienta y `--verificar`). Si no, queda sin precio de SEPA (INDEC si hay, o ninguno).
+- **Cruce SEPA vs INDEC**: si los dos existen y SEPA queda fuera de 0,5× a 2× de INDEC, se publica solo INDEC (no se publica `s`). Los productos por atado (ajo, puerro, rúcula, cebolla de verdeo, albahaca) solo con `ini` y `t` estrechos o sin precio.
+- La app muestra "SEPA · mediana · región · fecha" y "aprox." también para `sa`. C9-2 prueba que `precioDe` no escribe en `localStorage`.
+- **Tamaño**: `--verificar` falla si `datos/precios.json` pasa 60.000 bytes; `construir --verificar` garantiza que `index.html` incrusta el mismo JSON y no pasa de 770.000 bytes.
+- **Workflows**: `precios-prueba.yml` con `workflow_dispatch` y `pull_request` con `paths` (herramientas/**, datos/precios-mapa.json, .github/workflows/precios-*.yml), `concurrency` con `cancel-in-progress: true` y descarga con `continue-on-error` más aviso. `actualizar-precios.yml` semanal con permisos mínimos, `timeout-minutes: 25`, sin secretos, versiones fijadas y `git pull --rebase` antes del push.
+- C9-1 corre contra el JSON real generado por la herramienta con el día de SEPA bajado una vez (carpeta nueva fuera del repo, borrada al terminar).
