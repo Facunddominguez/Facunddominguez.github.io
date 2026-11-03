@@ -54,7 +54,7 @@
   T.ok("L5 la búsqueda encuentra recetas por ingrediente o etiqueta y platos por su contenido", s1 === "recipe_lib0002" && s2 === "recipe_lib0001" && s3 && $("savedSearch").value === "", s1 + " / " + s2);
   // L6 Tocar la tarjeta abre el detalle de la receta; Volver regresa a Mis comidas
   list.querySelector('.comida-card[data-recipe-id="recipe_lib0001"]').click(); await wait(60);
-  const opened = scr() === "comida" && shown($("recipeReadView")) && $("recipeReadTitle").textContent === "Guiso de lentejas" && $("comidaTitulo").textContent === "Guiso de lentejas" && $("recipeReadBack").textContent === "← Volver a Mis comidas" && tab("miscomidas").getAttribute("aria-current") === "page";
+  const opened = scr() === "comida" && shown($("recipeReadView")) && $("recipeReadTitle").textContent === "Guiso de lentejas" && $("comidaTitulo").textContent === "Guiso de lentejas" && $("recipeReadBack").textContent === "← Volver a Comidas" && tab("miscomidas").getAttribute("aria-current") === "page";
   $("recipeReadBack").click(); await wait(60);
   T.ok("L6 tocar la receta abre su detalle y Volver regresa a Mis comidas", opened && scr() === "misplatos" && tab("miscomidas").getAttribute("aria-current") === "page");
   // L7 Editar (desde el detalle) abre el formulario con la receta cargada

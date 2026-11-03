@@ -62,7 +62,7 @@ function pintarBienvenida(){
   }));
   const n=bienvenidaIdeas.length;
   document.querySelector("#bienvenida [data-bienvenida-armar]").disabled=n<3;
-  document.getElementById("bienvenidaIdeasEstado").textContent=n?"Elegiste "+n+" de 5.":"Se guardan en Mis comidas para armar tu semana."
+  document.getElementById("bienvenidaIdeasEstado").textContent=n?"Elegiste "+n+" de 5.":"Se guardan en Comidas para armar tu semana."
 }
 function abrirBienvenida(){
   bienvenidaPaso=1;

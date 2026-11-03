@@ -303,10 +303,29 @@ function slice(type,name,amount,half=false){
   s.append(ce("span","plate__name",name),ce("span","plate__amount",amount),ce("span","plate__caption","del plato"));
   return s
 }
+// Dibujo del plato: un círculo con un sector por grupo, en el orden Verduras, Almidones y Proteínas desde las 12 y en sentido horario.
+// Un sector de 0 no se dibuja y uno de 1 entero es un círculo (un arco de 360° no existe en SVG). Sin texto: los nombres están en las tarjetas.
+function dibujoDelPlato(p){
+  const grupos=[["vegetables","verduras","Verduras"],["carbs","almidones","Almidones"],["protein","proteinas","Proteínas"]].map(g=>({clase:g[1],nombre:g[2],f:frac(p[g[0]])})),suma=grupos.reduce((a,g)=>a+g.f,0)||1,NS="http://www.w3.org/2000/svg";
+  const svg=document.createElementNS(NS,"svg"),t=document.createElementNS(NS,"title"),mk=(n,a)=>{const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);return e};
+  svg.setAttribute("viewBox","0 0 200 200");svg.setAttribute("role","img");svg.setAttribute("class","plato-dibujo");
+  t.textContent="Tu plato: "+grupos.filter(g=>g.f>0).map(g=>g.nombre.toLowerCase()+" "+(Math.round(g.f/suma*100))+" %").join(", ");
+  svg.append(t,mk("circle",{cx:100,cy:100,r:96,class:"plato-dibujo__borde"}));
+  let desde=0;
+  for(const g of grupos){
+    const parte=g.f/suma;
+    if(parte<=0)continue;
+    if(parte>=0.9999){svg.append(mk("circle",{cx:100,cy:100,r:92,class:"plato-dibujo__"+g.clase}));break}
+    const a0=desde*2*Math.PI,a1=(desde+parte)*2*Math.PI,pt=a=>(100+92*Math.sin(a)).toFixed(2)+" "+(100-92*Math.cos(a)).toFixed(2);
+    svg.append(mk("path",{d:"M100 100 L"+pt(a0)+" A92 92 0 "+(parte>0.5?1:0)+" 1 "+pt(a1)+" Z",class:"plato-dibujo__"+g.clase}));
+    desde+=parte
+  }
+  return svg
+}
 function renderPlate(){
   const p=portions(),free=state.day==="Día libre"&&!state.customPortions,w=ce("div","plate");
   w.append(slice("vegetables","Verduras",p.vegetables,free),slice("carbs","Almidones",p.carbs),slice("protein","Proteínas",p.protein));
-  el.plateViz.replaceChildren(w)
+  el.plateViz.replaceChildren(dibujoDelPlato(p),w)
 }
 function setReplace(which,value){
   if(which==="carb"){
@@ -538,7 +557,7 @@ function renderMenuSearch(){
   }
   box.classList.add("is-visible");
   if(!results.length){
-    list.replaceChildren(ce("li","search-empty",`No encontré ideas con “${q}”. Probá otra palabra, por ejemplo pescado, pollo, garbanzos o tomate.`));
+    const vacio=ce("li","search-empty",`No encontré ideas con “${q}”. Probá con pescado, pollo o tomate.`),limpiar=ce("button","button button--soft","Limpiar búsqueda");limpiar.type="button";limpiar.addEventListener("click",()=>{input.value="";renderMenuSearch();input.focus()});vacio.append(limpiar);list.replaceChildren(vacio);
     return
   }
   renderMenuList(list,results,true)

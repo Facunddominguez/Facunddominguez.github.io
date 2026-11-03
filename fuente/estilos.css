@@ -7,6 +7,10 @@
   --line:#dfe9e5;
   --green:#0b6b57;
   --on-green:#fff;
+  --plato-verduras:#7cc58f;
+  --plato-almidones:#f2c14e;
+  --plato-proteinas:#e98a6b;
+  --plato-tinta:#1d2b22;
   --green2:#e0f5ed;
   --orange:#e76f51;
   --orange2:#fff0ea;
@@ -1058,6 +1062,9 @@ button:active{
   --line:#26332e;
   --green:#57c8a4;
   --on-green:#06231b;
+  --plato-verduras:#5fae75;
+  --plato-almidones:#d9a93a;
+  --plato-proteinas:#e0866a;
   --green2:#123329;
   --orange:#ef9e86;
   --orange2:#3a251e;
@@ -3457,10 +3464,13 @@ body.con-hoja{
 .nueva-comida .tool-button{text-align:left}
 .bienvenida__plato{display:block;width:min(220px,70%);height:auto;margin:12px auto}
 .bienvenida__borde{fill:var(--surface);stroke:var(--line);stroke-width:4}
-.bienvenida__verduras{fill:#7cc58f}
-.bienvenida__almidones{fill:#f2c14e}
-.bienvenida__proteinas{fill:#e98a6b}
-.bienvenida__texto{font:700 13px system-ui,sans-serif;fill:#1d2b22}
+.bienvenida__verduras,.plato-dibujo__verduras{fill:var(--plato-verduras)}
+.bienvenida__almidones,.plato-dibujo__almidones{fill:var(--plato-almidones)}
+.bienvenida__proteinas,.plato-dibujo__proteinas{fill:var(--plato-proteinas)}
+.bienvenida__texto{font:700 13px system-ui,sans-serif;fill:var(--plato-tinta)}
+.plato-dibujo{display:block;width:min(180px,56%);height:auto;margin:6px auto 10px}
+.plato-dibujo__borde{fill:var(--surface);stroke:var(--line);stroke-width:4}
+.plato-dibujo__verduras,.plato-dibujo__almidones,.plato-dibujo__proteinas{stroke:var(--surface);stroke-width:2}
 .bienvenida__ideas .filter-chip{text-align:left}
 #bienvenida .filter-chip[aria-pressed="true"],#preferencias .filter-chip[aria-pressed="true"],#ideasFiltros .filter-chip[aria-pressed="true"]{border-color:var(--green);background:var(--green);color:var(--on-green)}
 .armar-comida{cursor:default;grid-column:1/-1}

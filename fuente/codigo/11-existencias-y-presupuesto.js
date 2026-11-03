@@ -172,14 +172,14 @@ function renderPresupuestoCompras(){
   try{
     const auto=budget.currency==="ARS"?totalAutomaticoLista():null;
     e=auto?{
-      estimated:auto.total,unpriced:auto.faltan,otherCurrency:0
+      estimated:auto.total,unpriced:auto.faltan,otherCurrency:0,alMenos:auto.faltan*2>auto.pendientes
     }:estimadoDeLaLista(shoppingMissingRows(),budget.currency)
   }catch(err){
     bar.textContent="💰 Presupuesto "+fmt(budget.limit);
     return
   }
   const faltan=e.unpriced+e.otherCurrency;
-  bar.textContent="💰 Presupuesto "+fmt(budget.limit)+" · ≈ "+fmt(e.estimated)+" estimado"+(faltan?" (faltan "+faltan+" precio"+(faltan===1?"":"s")+")":"");
+  bar.textContent="💰 Presupuesto "+fmt(budget.limit)+" · "+(e.alMenos||(e.covered!==undefined&&faltan>e.covered)?"al menos ":"")+"≈ "+fmt(e.estimated)+" estimado"+(faltan?" (faltan "+faltan+" precio"+(faltan===1?"":"s")+")":"");
   bar.classList.toggle("is-excedido",e.estimated>budget.limit)
 }
 function shoppingBudgetRender(){

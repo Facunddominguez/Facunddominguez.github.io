@@ -224,7 +224,7 @@ function renderPantryReview(reset){
   document.getElementById("pantryReviewStatus").textContent="Marcados disponibles: "+(available.join(", ")||"ninguno")+". Sin confirmar / por conseguir: "+(missing.join(", ")||"ninguno de los componentes listados")+". Esto no confirma una receta completa ni cantidades suficientes."
 }
 document.getElementById("pantryReviewRecipe").replaceChildren(...data.menuCatalog.map(rec=>{
-  const option=ce("option",null,rec.text.split(" + ")[0]);option.title=rec.text;option.value=rec.text;return option
+  const option=ce("option",null,(t=>{for(const re of [/ con /,/[,:]/])if(t.length>40)t=t.split(re)[0];return t.length>40?t.slice(0,38).replace(/ S*$/,""):t})(rec.text.split(" + ")[0]));option.title=rec.text;option.value=rec.text;return option
 }));
 document.getElementById("pantryReviewRecipe").addEventListener("change",()=>renderPantryReview(true));
 document.getElementById("pantryReviewPanel").addEventListener("toggle",e=>{

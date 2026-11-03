@@ -175,7 +175,7 @@ function abrirIdea(idea){
   fila.append(dia,comida);
   hoja.abrir({
     titulo:idea.text,contenido:[lleva,fila],botones:[["Agregar a la semana","button--primary",()=>agregarIdeaALaSemana(idea,document.getElementById("hojaIdeaDia").value,document.getElementById("hojaIdeaComida").value)],["Guardar","button--soft",()=>{
-      const r=guardarIdea(idea);hoja.estado.textContent=r.nueva?"Guardada en Mis comidas.":"Ya estaba en Mis comidas."
+      const r=guardarIdea(idea);hoja.estado.textContent=r.nueva?"Guardada en Comidas.":"Ya estaba en Comidas."
     }]]
   })
 }
