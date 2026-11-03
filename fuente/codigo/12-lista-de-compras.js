@@ -343,6 +343,26 @@ function shoppingGroup(title,list,open,onToggle){
   box.append(ce("summary",null,title+" ("+list.length+")"));
   return box
 }
+// Equivalencias (v15.7): una sola sugerencia en la lista, con los pares que detecta Preferencias → Ingredientes.
+// "Ahora no" la oculta solo en esta sesión y no guarda nada.
+var equivalenciasOcultas=new Set();
+function equivalenciaSugerida(items){
+  try{
+    const names=[...new Set(items.filter(x=>x.group==="pendiente"||x.group==="tenes").map(x=>x.name))];
+    const par=ingredientAliasSuggestions(names).find(([a,b])=>names.includes(a)&&names.includes(b)&&!equivalenciasOcultas.has(a+"|"+b));
+    if(!par)return null;
+    const row=ce("p","screen__hint compras-equiv"),unir=ce("button","filter-chip","Unir"),no=ce("button","filter-chip","Ahora no");
+    row.id="comprasEquivalencia";
+    row.append("¿“"+par[0]+"” es lo mismo que “"+par[1]+"”? ",unir," ",no);
+    unir.type=no.type="button";
+    unir.dataset.equivUnir=par[0]+"|"+par[1];
+    no.dataset.equivNo=par[0]+"|"+par[1];
+    unir.setAttribute("aria-label","Unir "+par[0]+" con "+par[1]);
+    return row
+  }catch(e){
+    return null
+  }
+}
 function renderCompras(){
   const cont=document.getElementById("comprasList"),hint=document.getElementById("comprasHint"),summary=document.getElementById("comprasSummary");
   if(!cont)return;
@@ -369,7 +389,8 @@ function renderCompras(){
   summary.textContent=pending.length+" pendientes · "+tachados+" tachados"+resumenPrecios(precios);
   pintarPreciosCompras(precios);
   hint.textContent="Tachá lo que comprás. Lo que tenés en la Despensa pasa a Ya tenés.";
-  const nodes=[];
+  const nodes=[],equiv=equivalenciaSugerida(items);
+  if(equiv)nodes.push(equiv);
   let i=0;
   for(const sec of SECCIONES_SUPER){
     const lista=pend.filter(x=>x.seccion===sec);

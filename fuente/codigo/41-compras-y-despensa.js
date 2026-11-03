@@ -40,16 +40,19 @@ function abrirMenuCompras(){
 }
 // "Anotar gasto" después de "Terminé de comprar": abre el formulario de siempre de Compras realizadas, ya cargado con
 // lo que acaba de pasar a la despensa. Los precios se guardan en Mis precios; la despensa no se vuelve a sumar.
-var ultimaCompraClaves=[];
+var ultimaCompraClaves=[],ultimaCompraCambios=[],ultimaCompraSinCantidad=[];
 function anotarGasto(){
-  const claves=new Set(ultimaCompraClaves),items=shoppingPlanItems().filter(e=>claves.has(e.key)),box=document.getElementById("purchaseItems");
+  const box=document.getElementById("purchaseItems");
   box.replaceChildren();
-  for(const e of items){
-    const m=mergeUnits(e.units),one=m.size===1?[...m.entries()][0]:null;
-    appendPurchaseItem({
-      name:e.name,quantity:one&&!e.unknown?one[1]:null,unit:one&&!e.unknown?one[0]:null,price:null
-    })
-  }
+  // Una fila por lo que realmente se sumó a la despensa (en la unidad en que se sumó: 200 g, no los 500 g del plan), y
+  // una fila sin cantidad por cada ítem que quedó marcado sin cantidad. Lo que ya alcanzaba no entra en el ticket.
+  for(const c of ultimaCompraCambios)appendPurchaseItem({
+    name:c.name,quantity:c.delta,unit:c.unit,price:null
+  });
+  for(const n of ultimaCompraSinCantidad)appendPurchaseItem({
+    name:n,quantity:null,unit:null,price:null
+  });
+  const items=ultimaCompraCambios.concat(ultimaCompraSinCantidad);
   const budget=shoppingBudgetRead();
   document.getElementById("purchaseDate").value=typedAppDateLabel(localTrainingDate(new Date()));
   document.getElementById("purchaseCurrency").value=budget?budget.currency:"ARS";
@@ -71,6 +74,19 @@ document.addEventListener("click",e=>{
   if(d.comprasVista==="despensa"&&stack.at(-1)!=="ingredientes"){
     renderPantry();
     return go("ingredientes")
+  }
+  if(d.equivNo){
+    equivalenciasOcultas.add(d.equivNo);
+    return renderCompras()
+  }
+  if(d.equivUnir){
+    const [a,c]=d.equivUnir.split("|");
+    try{
+      saveIngredientAlias(a,c)
+    }catch(err){
+      comprasStatus(err.message)
+    }
+    return renderCompras()
   }
   if(d.anotarGasto!==undefined)return anotarGasto()
 });
