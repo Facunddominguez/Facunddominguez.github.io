@@ -38,6 +38,7 @@
     "e4_comidas.js",
     "e5_compras.js",
     "e6_registro.js",
-    "e7_precios.js"
+    "e7_precios.js",
+    "e8_herramientas.js"
   ]
 }

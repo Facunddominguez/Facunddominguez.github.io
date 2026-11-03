@@ -134,7 +134,7 @@ function boughtNow(){
   }
   const parts=res.moves.map(oneTapQty).concat(marks.map(n=>n+" (sin cantidad)"),alcanzaba.map(n=>n+" (ya alcanzaba)"));
   return {
-    text:textoLegible("Pasó a tu despensa: "+parts.join(", ")+"."),before,after:oneTapSnapshot(BOUGHT_UNDO_KEYS),keys:items.map(e=>e.key),keysList:BOUGHT_UNDO_KEYS
+    text:textoLegible("Pasó a tu despensa: "+parts.join(", ")+"."),before,after:oneTapSnapshot(BOUGHT_UNDO_KEYS),keys:items.map(e=>e.key),keysList:BOUGHT_UNDO_KEYS,cambios:changes.map(c=>({name:c.name,unit:c.unit,delta:c.delta})),sinCantidad:marks.slice()
   }
 }
 document.addEventListener("click",e=>{
@@ -170,6 +170,8 @@ document.addEventListener("click",e=>{
       // "Terminé de comprar" (v15.4): después, opcional, anotar el gasto y los precios del ticket.
       if(r.before){
         ultimaCompraClaves=r.keys;
+        ultimaCompraCambios=r.cambios||[];
+        ultimaCompraSinCantidad=r.sinCantidad||[];
         const g=ce("button","filter-chip","🧾 Anotar gasto");
         g.type="button";
         g.dataset.anotarGasto="";

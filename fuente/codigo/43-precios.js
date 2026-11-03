@@ -49,8 +49,54 @@ function guardarRegionPrecios(r){
   if(!validRegionPrecios(o))throw new Error("Región inválida.");
   localStorage.setItem(REGION_PRECIOS_KEY,JSON.stringify(o))
 }
+var MOSTRAR_PRECIOS_KEY="miPlatoFacil_mostrarPrecios_v1";
+function validMostrarPrecios(v){
+  return!!v&&typeof v==="object"&&!Array.isArray(v)&&Object.keys(v).length===1&&typeof v.mostrar==="boolean"
+}
+// true, false o null (sin valor guardado o inválido).
+function mostrarPreciosGuardado(){
+  try{
+    const v=JSON.parse(localStorage.getItem(MOSTRAR_PRECIOS_KEY)||"null");
+    return validMostrarPrecios(v)?v.mostrar:null
+  }catch(e){
+    return null
+  }
+}
 function preciosActivos(){
-  return!isSimpleMode()
+  const g=mostrarPreciosGuardado();
+  return g===null?!isSimpleMode():g
+}
+function guardarMostrarPrecios(valor){
+  const o={
+    mostrar:!!valor
+  };
+  localStorage.setItem(MOSTRAR_PRECIOS_KEY,JSON.stringify(o))
+}
+// Antes de cambiar el modo simple/completo se fija el valor que tenían los precios: activar las herramientas avanzadas
+// no los enciende (ni apagarlas los apaga). Si ya hay un valor guardado no escribe nada.
+function fijarPreciosAntesDelModo(){
+  if(mostrarPreciosGuardado()!==null)return;
+  try{
+    guardarMostrarPrecios(preciosActivos())
+  }catch(e){
+  }
+}
+// Barra de presupuesto, fila de Preferencias y tarjeta del interruptor: según los precios.
+function aplicarPrecios(){
+  const on=preciosActivos();
+  for(const id of ["comprasPresupuesto","prefPresupuesto"]){
+    const e=document.getElementById(id);
+    if(e)e.hidden=!on
+  }
+  // La región solo sirve con los precios prendidos.
+  const reg=document.getElementById("preferenciasRegion");
+  if(reg)reg.hidden=!on;
+  const t=document.getElementById("preciosToggle");
+  if(t){
+    t.querySelector(".tool-button__label").textContent="Mostrar precios y presupuesto: "+(on?"activado":"desactivado");
+    t.querySelector(".tool-button__desc").textContent=on?"Se ven los ≈ $ y el presupuesto":"Activalo para ver los ≈ $ y el presupuesto";
+    t.setAttribute("aria-label","Mostrar precios y presupuesto: "+(on?"activado":"desactivado")+". Tocar para cambiar")
+  }
 }
 function mesCortoPrecios(mes){
   const m=/^(\d{4})-(\d{2})$/.exec(mes||"");
@@ -109,6 +155,52 @@ function precioDe(nombre,q,unit){
   return {
     costo:base*p.precio,propio:false,fuente:fuentePrecios(p.region),aprox:!!p.it.a,region:p.region
   }
+}
+// Rango de precios de un ingrediente por unidad (para Comparar alternativas): lo más barato y lo típico (mediana) de Mi
+// precio, el promedio automático de la región y cuánto se aparta Mi precio (el más nuevo) del automático.
+// Si el dato automático trae percentiles (r:[p25,p75], Etapa 9) se usan como rango del automático.
+function rangoDePrecios(nombre,unidad){
+  const out={
+    n:0,masBarato:null,tipico:null,mio:null,auto:null,autoBajo:null,autoAlto:null,difPct:null
+  };
+  try{
+    const propios=pricesFor(Object.values(loadReferencePrices()),nombre,unidad).filter(p=>p.currency==="ARS"&&Number.isFinite(p.price)&&p.price>=0&&Number.isFinite(p.amount)&&p.amount>0);
+    const vals=propios.map(p=>p.price/p.amount).sort((a,b)=>a-b);
+    out.n=vals.length;
+    if(vals.length){
+      out.masBarato=vals[0];
+      const m=vals.length>>1;
+      out.tipico=vals.length%2?vals[m]:(vals[m-1]+vals[m])/2;
+      const nuevo=[...propios].sort((a,b)=>String(b.date).localeCompare(String(a.date)))[0];
+      out.mio=nuevo.price/nuevo.amount
+    }
+  }catch(e){
+  }
+  if(preciosActivos()){
+    const p=precioIndec(nombre),base=p&&cantidadBasePrecio({
+      b:p.it.b,d:p.it.d
+    },nombre,1,unidad);
+    if(p&&base){
+      out.auto=base*p.precio;
+      if(Array.isArray(p.it.r)&&p.it.r.length===2&&p.it.r.every(x=>Number.isFinite(x)&&x>0)){
+        out.autoBajo=base*p.it.r[0];
+        out.autoAlto=base*p.it.r[1]
+      }
+      if(out.mio!==null&&out.auto>0)out.difPct=Math.round((out.mio/out.auto-1)*100)
+    }
+  }
+  return out
+}
+// Una línea corta con el rango (o "" si no hay nada que mostrar).
+function textoRangoPrecios(nombre,unidad){
+  // Los precios por gramo o mililitro se muestran por kilo o litro.
+  const r=rangoDePrecios(nombre,unidad),k=unidad==="g"||unidad==="ml"?1000:1,u=unidad==="g"?"kg":unidad==="ml"?"l":unidad,$=n=>"$"+Math.round(n*k).toLocaleString("es-AR"),partes=[];
+  if(r.n>1)partes.push("más barato "+$(r.masBarato),"típico "+$(r.tipico));
+  else if(r.mio!==null)partes.push("Mi precio "+$(r.mio));
+  if(r.autoBajo!==null)partes.push("promedio "+$(r.autoBajo)+" a "+$(r.autoAlto));
+  else if(r.auto!==null)partes.push("promedio ≈ "+$(r.auto));
+  if(r.difPct!==null)partes.push("Mi precio "+(r.difPct>0?"+":r.difPct<0?"−":"")+Math.abs(r.difPct)+" %");
+  return partes.length?"Por "+u+": "+partes.join(" · "):""
 }
 function formatoPesos(n){
   return "≈ $"+Math.round(n).toLocaleString("es-AR")
@@ -180,27 +272,39 @@ function pintarCostoComida(){
   p.textContent=t?t+" · "+fuentePrecios():"";
   p.hidden=!t
 }
-// Línea del día en Semana: ≈ costo de las comidas con cantidades de ese día.
+// Línea del día en Semana: ≈ costo de las comidas con cantidades de ese día y de toda la semana (misma línea).
+function costosDelPlan(){
+  const dia=diaPlanElegido(),r={
+    dia:0,diaFaltan:0,semana:0,semanaFaltan:0
+  };
+  for(const e of planEntriesFlat()){
+    const a=cantidadesDeComida("plato",e.item.id);
+    let costo=0,faltan=0;
+    if(!a)faltan=1;
+    else{
+      const c=costoDeFilas(a.rows,portionFactor(e.portions,a));
+      costo=c.costo;
+      faltan=c.faltan
+    }
+    r.semana+=costo;
+    r.semanaFaltan+=faltan;
+    if(e.day===dia){
+      r.dia+=costo;
+      r.diaFaltan+=faltan
+    }
+  }
+  return r
+}
 function pintarCostoDia(){
   const p=document.getElementById("planDiaCosto");
   if(!p)return;
   let t="";
   try{
     if(preciosActivos()&&preciosDataset()){
-      const c=contextoCostos(),dia=diaPlanElegido();
-      let costo=0,faltan=0;
-      for(const e of planEntriesFlat()){
-        if(e.day!==dia)continue;
-        const a=cantidadesDeComida("plato",e.item.id);
-        if(!a){
-          faltan++;
-          continue
-        }
-        const r=costoDeFilas(a.rows,portionFactor(e.portions,a));
-        costo+=r.costo;
-        faltan+=r.faltan
+      const c=costosDelPlan();
+      if(c.semana>0){
+        t=(c.dia>0?formatoPesos(c.dia)+" por día"+(c.diaFaltan?" ("+faltanTexto(c.diaFaltan)+")":"")+" · ":"")+formatoPesos(c.semana)+" la semana"+(c.semanaFaltan?" ("+faltanTexto(c.semanaFaltan)+")":"")
       }
-      if(costo>0)t=formatoPesos(costo)+" por día"+(faltan?" ("+faltanTexto(faltan)+")":"")
     }
   }catch(e){
     t=""
@@ -243,6 +347,7 @@ function totalAutomaticoLista(){
 function pintarPreciosCompras(p){
   const f=document.getElementById("comprasPrecioFuente"),a=document.getElementById("comprasPreciosAviso");
   if(a)a.hidden=preciosActivos();
+  aplicarPrecios();
   if(f){
     f.textContent=p&&p.porClave.size?fuentePrecios():"";
     f.hidden=!f.textContent
@@ -298,7 +403,6 @@ function atribucionPrecios(){
     const f=ce("p","screen__hint");
     f.id="comprasPrecioFuente";
     f.hidden=true;
-    f.setAttribute("data-avanzado","compras");
     const a=ce("button","precios-aviso","Precios estimados: activalos en Preferencias");
     a.type="button";
     a.id="comprasPreciosAviso";

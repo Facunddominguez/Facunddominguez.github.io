@@ -4,12 +4,8 @@
 // siguen generando sugerencias en Compras): solo dejan de verse hasta que se elige el modo completo.
 // Semana (desde la v15.1) no oculta nada: sus herramientas están en su menú ⋯ en los dos modos.
 const ADVANCED_TOOLS={
-  // Desde la v15.4 las herramientas de Compras están en su menú ⋯ en los dos modos; el modo simple esconde la barra
-  // de presupuesto de la lista.
-  compras:{
-    list:"la barra de presupuesto",
-    items:()=>[document.getElementById("comprasPresupuesto")]
-  },
+  // Desde la v15.4 las herramientas de Compras están en su menú ⋯ en los dos modos. Desde la v15.7 la barra de
+  // presupuesto y los precios no dependen del modo: los maneja "Mostrar precios y presupuesto" (43-precios.js).
   // Desde la v15.3 cada herramienta vive en la pantalla de su tema; la lista de elementos es la misma de antes.
   ingredientes:{
     list:"revisar una idea con tu despensa",
@@ -52,6 +48,7 @@ const ADVANCED_TOOLS={
 };
 function setUiMode(mode){
   const next=mode==="completo"?"completo":"simple";
+  if(typeof fijarPreciosAntesDelModo==="function")fijarPreciosAntesDelModo();
   try{
     localStorage.setItem(UI_MODE_KEY,next);
     uiModeMemory=null
@@ -61,7 +58,6 @@ function setUiMode(mode){
   applyUiMode();
   if(next==="simple")resetHiddenSessionControls();
   renderUiModeControls();
-  if(stack.at(-1)==="compras")renderCompras();
   if(typeof refrescarPrecios==="function")refrescarPrecios()
 }
 // Controles de la sesión que quedan ocultos: vuelven a su valor inicial para que no cambien
@@ -97,11 +93,10 @@ function renderUiModeControls(){
   });
   const card=document.getElementById("uiModeToggle");
   if(card){
-    const state=simple?"activado":"desactivado";
     const estado=simple?"desactivado":"activado";
-    card.querySelector(".tool-button__label").textContent="Mostrar precios y presupuesto: "+estado;
-    card.querySelector(".tool-button__desc").textContent=simple?"Activalo para ver precios, presupuesto y todas las herramientas":"Se ven precios, presupuesto y todas las herramientas";
-    card.setAttribute("aria-label","Mostrar precios y presupuesto: "+estado+". Tocar para cambiar")
+    card.querySelector(".tool-button__label").textContent="Mostrar herramientas avanzadas: "+estado;
+    card.querySelector(".tool-button__desc").textContent=simple?"Activalo para ver calculadoras, recomendaciones y equivalencias":"Se ven las calculadoras, recomendaciones y equivalencias";
+    card.setAttribute("aria-label","Mostrar herramientas avanzadas: "+estado+". Tocar para cambiar")
   }
 }
 (()=>{
@@ -120,9 +115,22 @@ function renderUiModeControls(){
   card.id="uiModeToggle";
   card.dataset.uiModeToggle="";
   card.append(ce("span","tool-button__emoji","🧰"),ce("span","tool-button__label"),ce("span","tool-button__desc"));
-  // Desde la v15.3 la tarjeta está en Más → Preferencias.
-  document.getElementById("preferenciasModo").append(card);
+  // Desde la v15.3 la tarjeta está en Más → Preferencias; desde la v15.7 junto a la de los precios.
+  const precios=ce("button","tool-button");
+  precios.type="button";
+  precios.id="preciosToggle";
+  precios.dataset.preciosToggle="";
+  precios.append(ce("span","tool-button__emoji","💲"),ce("span","tool-button__label"),ce("span","tool-button__desc"));
+  document.getElementById("preferenciasModo").append(precios,card);
   document.addEventListener("click",e=>{
+    if(e.target.closest("[data-precios-toggle]")){
+      try{
+        guardarMostrarPrecios(!preciosActivos())
+      }catch(err){
+      }
+      if(typeof refrescarPrecios==="function")refrescarPrecios();
+      return
+    }
     if(e.target.closest("[data-ui-mode-toggle]"))setUiMode(isSimpleMode()?"completo":"simple")
   });
   renderUiModeControls()
