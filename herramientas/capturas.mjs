@@ -9,7 +9,8 @@
 //   normal → el respaldo de ejemplo (pruebas/fixtures/respaldo-v14.9.94.json, semana completa), modo simple;
 //   todo   → el respaldo de ejemplo en modo completo, con todos los paneles de la vista abiertos.
 // Medidas por vista: alto de la página (px), palabras visibles, errores de JavaScript, scroll horizontal,
-// campos sin etiqueta, elementos que se salen de la pantalla, textos cortados y controles superpuestos.
+// campos sin etiqueta, elementos que se salen de la pantalla, textos cortados, controles superpuestos y textos con poco
+// contraste (contraste; contrasteExcluidos cuenta lo que no se puede medir: deshabilitados, sobre imagen y sin color).
 // --raiz mide otra copia del repositorio (por ejemplo, el tag de la etapa anterior), siempre en el mismo equipo.
 // La salida por omisión es capturas/actual (capturas/ está en .gitignore). Sin dependencias: Node 18+.
 import { createServer } from 'node:http';
@@ -53,7 +54,18 @@ const VISTAS = [
   { id: 'armado-desayuno', ir: 'openTab("hoy"); start("desayuno")' },
   { id: 'armado-almuerzo', ir: 'openTab("hoy"); start("plato")' },
   { id: 'armado-verduras', ir: 'openTab("hoy"); start("plato"); setDay("Día libre"); go("lunch_veg")' },
-  { id: 'resumen', ir: 'openTab("hoy"); start("desayuno"); for (const id of ["fruit", "bfprot", "bfcarb", "bffat"]) { document.querySelector("#" + id + " .choice").click(); await new Promise(r => setTimeout(r, 150)) }' }
+  { id: 'bienvenida', ir: 'abrirBienvenida()' },
+  { id: 'receta-editar', ir: 'openTab("miscomidas"); showRecipeView("edit")' },
+  { id: 'fuentes', ir: 'openTab("mas"); abrirFuentes()' },
+  // Hojas: el contenedor real es .hoja (section con rol dialog, su propio scroll y sus campos).
+  { id: 'selector', ir: 'openTab("semana"); abrirSelector(todayPlanDay(), "almuerzo")', medir: '.hoja' },
+  { id: 'sugerime', ir: 'openTab("hoy"); abrirSugerime("almuerzo")', medir: '.hoja' },
+  { id: 'semana-menu', ir: 'openTab("semana"); abrirMenuSemana()', medir: '.hoja' },
+  { id: 'comidas-nueva', ir: 'openTab("miscomidas"); abrirNuevaComida()', medir: '.hoja' },
+  { id: 'hueco', ir: 'openTab("semana"); abrirHueco(todayPlanDay(), "almuerzo")', medir: '.hoja' },
+  { id: 'resumen', ir: 'openTab("hoy"); start("desayuno"); for (const id of ["fruit", "bfprot", "bfcarb", "bffat"]) { document.querySelector("#" + id + " .choice").click(); await new Promise(r => setTimeout(r, 150)) }' },
+  // Última: en el estado vacío guarda una idea para tener un detalle que mostrar (no contamina las vistas anteriores).
+  { id: 'comida', ir: 'openTab("miscomidas"); const g = loadSaved()[0] || guardarIdea(data.menuCatalog[0]).item; abrirComida("plato", g.id)' }
 ].filter(v => !arg('--vistas') || arg('--vistas').split(',').includes(v.id));
 
 const navegador = [arg('--navegador'), process.env.CHROME_PATH, '/usr/bin/google-chrome', '/usr/bin/google-chrome-stable', '/usr/bin/chromium', '/usr/bin/chromium-browser',
@@ -155,10 +167,53 @@ const MEDIR = sel => `(() => {
   const superpuestos = [];
   for (let i = 0; i < propios.length; i++) for (let j = i + 1; j < propios.length; j++) { const a = propios[i], b = propios[j]; if (!a.contains(b) && !b.contains(a) && choca(a, b)) superpuestos.push(nombre(a) + " / " + nombre(b)) }
   for (const f of fijos.filter(f => !barra(f))) for (const n of propios) if (choca(f, n)) superpuestos.push(nombre(f) + " tapa " + nombre(n));
+  // Contraste (WCAG): textos visibles de la vista por debajo de 4,5:1 (3:1 si son grandes: 24 px o más, o 18,66 px o más en negrita).
+  // Se mide contra el fondo efectivo y, si hay un degradado, contra su extremo MÁS desfavorable (cada color del degradado).
+  // Cuentan los elementos con texto propio y también input, select y textarea (el texto escrito o elegido).
+  // Exclusiones, con conteo en contrasteExcluidos (no se omiten en silencio):
+  //   deshabilitados: controles disabled o aria-disabled (exención de WCAG);
+  //   sobreImagen: texto sobre background-image que no es un degradado (url) o dentro de un <img>/<svg>/<canvas> (no se puede calcular);
+  //   sinColor: colores que el navegador no devuelve como rgb().
+  const rgba = c => { const m = /rgba?\\(([^)]+)\\)/.exec(c || ""); if (!m) return null; const p = m[1].split(/[ ,\\/]+/).filter(Boolean).map(Number); return { r: p[0], g: p[1], b: p[2], a: p.length > 3 ? p[3] : 1 } };
+  const lum = c => { const f = v => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4) }; return 0.2126 * f(c.r) + 0.7152 * f(c.g) + 0.0722 * f(c.b) };
+  const mezcla = (a, b) => ({ r: a.r * a.a + b.r * (1 - a.a), g: a.g * a.a + b.g * (1 - a.a), b: a.b * a.a + b.b * (1 - a.a), a: 1 });
+  const excluidos = { deshabilitados: 0, sobreImagen: 0, sinColor: 0 };
+  // Fondos posibles del elemento: de afuera hacia adentro; cada degradado abre una variante por cada color suyo.
+  const fondosDe = e => {
+    const cadena = []; for (let p = e; p; p = p.parentElement) cadena.unshift(p);
+    let bases = [rgba(getComputedStyle(document.body).backgroundColor)]; if (!bases[0] || bases[0].a < 1) bases = [{ r: 255, g: 255, b: 255, a: 1 }];
+    for (const p of cadena) {
+      const cs = getComputedStyle(p), c = rgba(cs.backgroundColor);
+      if (c && c.a > 0) bases = bases.map(b => mezcla(c, b));
+      if (cs.backgroundImage !== "none") {
+        const g = [...cs.backgroundImage.matchAll(/rgba?\\([^)]+\\)/g)].map(x => rgba(x[0]));
+        if (!/gradient/.test(cs.backgroundImage) || !g.length) return null;
+        bases = g.flatMap(c => bases.map(b => mezcla(c, b)));
+      }
+    }
+    return bases;
+  };
+  const contraste = [];
+  for (const e of objetivo.querySelectorAll("*")) {
+    if (!visible(e)) continue;
+    const campo = /^(INPUT|SELECT|TEXTAREA)$/.test(e.tagName);
+    const tiene = campo ? (e.tagName === "SELECT" ? !!(e.options[e.selectedIndex] || {}).text : !["checkbox", "radio", "range", "file", "hidden", "button", "submit", "color"].includes(e.type) && !!e.value) : [...e.childNodes].some(n => n.nodeType === 3 && /[\\p{L}\\p{N}]/u.test(n.textContent));
+    if (!tiene) continue;
+    if (e.disabled || e.closest("[disabled],[aria-disabled=true],fieldset:disabled")) { excluidos.deshabilitados++; continue }
+    if (e.closest("img,svg,canvas")) { excluidos.sobreImagen++; continue }
+    const cs = getComputedStyle(e), t = rgba(cs.color), fondos = fondosDe(e);
+    if (!t) { excluidos.sinColor++; continue }
+    if (!fondos) { excluidos.sobreImagen++; continue }
+    const op = Number(cs.opacity);
+    let peor = 99;
+    for (const f of fondos) { const x = mezcla({ ...t, a: t.a * op }, f), a = lum(x), b = lum(f), r = (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05); if (r < peor) peor = r }
+    const px = parseFloat(cs.fontSize), grande = px >= 24 || (px >= 18.66 && Number(cs.fontWeight) >= 700);
+    if (peor < (grande ? 3 : 4.5)) contraste.push(peor.toFixed(2) + " " + nombre(e));
+  }
   ir(document.documentElement.scrollHeight);
   for (const f of fijos) for (const n of propios) if (choca(f, n)) superpuestos.push(nombre(f) + " tapa al final " + nombre(n));
   ir(0);
-  return { pantalla, alto, palabras, scrollHorizontal, sinEtiqueta, fueraDePantalla, cortados, superpuestos };
+  return { pantalla, alto, palabras, scrollHorizontal, sinEtiqueta, fueraDePantalla, cortados, superpuestos, contraste, contrasteExcluidos: excluidos };
 })()`;
 
 let codigo = 1;
@@ -194,7 +249,7 @@ try {
         const desde = eventos.length;
         let m;
         try {
-          await evaluar(`(async () => { window.scrollTo({ top: 0, behavior: "instant" }); restart(); await new Promise(r => setTimeout(r, 60)); ${vista.ir}; await new Promise(r => setTimeout(r, 250)); ${estado === 'todo' ? `const o = ${vista.medir ? `document.querySelector(${JSON.stringify(vista.medir)})` : 'null'} || document.querySelector(".screen.is-active"); o.querySelectorAll("details").forEach(d => { d.open = true }); await new Promise(r => setTimeout(r, 300)); for (const d of [...o.querySelectorAll("details")].filter(d => !d.open).reverse()) { d.open = true; await new Promise(r => setTimeout(r, 120)) }` : ''} document.querySelectorAll("input,textarea").forEach(e => e.blur()); window.scrollTo({ top: 0, behavior: "instant" }); await new Promise(r => setTimeout(r, 200)); return true })()`);
+          await evaluar(`(async () => { window.scrollTo({ top: 0, behavior: "instant" }); try { hoja.cerrar() } catch (e) { } restart(); await new Promise(r => setTimeout(r, 60)); ${vista.ir}; await new Promise(r => setTimeout(r, 250)); ${estado === 'todo' ? `const o = ${vista.medir ? `document.querySelector(${JSON.stringify(vista.medir)})` : 'null'} || document.querySelector(".screen.is-active"); o.querySelectorAll("details").forEach(d => { d.open = true }); await new Promise(r => setTimeout(r, 300)); for (const d of [...o.querySelectorAll("details")].filter(d => !d.open).reverse()) { d.open = true; await new Promise(r => setTimeout(r, 120)) }` : ''} document.querySelectorAll("input,textarea").forEach(e => e.blur()); window.scrollTo({ top: 0, behavior: "instant" }); await new Promise(r => setTimeout(r, 200)); return true })()`);
           m = await evaluar(MEDIR(vista.medir));
         } catch (err) { m = { error: err.message } }
         m.errores = (vista === VISTAS[0] ? erroresCarga : []).concat(errores(desde));

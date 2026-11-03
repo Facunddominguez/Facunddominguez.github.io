@@ -58,6 +58,8 @@
     { "id": "E10-sin-textos-cortados", "etapa": 10, "hecho": "Las capturas en tema claro y oscuro no muestran textos cortados.", "tipo": "medida-todas", "metrica": "cortados", "operador": "<=", "umbral": 0 },
     { "id": "E10-nada-fuera-de-pantalla", "etapa": 10, "hecho": "Nada se sale de la pantalla en tema claro ni oscuro.", "tipo": "medida-todas", "metrica": "fueraDePantalla", "operador": "<=", "umbral": 0 },
     { "id": "E10-campos-con-etiqueta", "etapa": 10, "hecho": "Todos los campos tienen etiqueta.", "tipo": "medida-todas", "metrica": "sinEtiqueta", "operador": "<=", "umbral": 0 },
+    { "id": "E10-contraste", "etapa": 10, "hecho": "Ningún texto visible tiene menos de 4,5:1 de contraste (3:1 si es grande), medido contra el extremo más desfavorable del fondo, en claro y oscuro. Se excluyen y se cuentan (contrasteExcluidos): deshabilitados, textos sobre imagen y sin color medible.", "tipo": "medida-todas", "metrica": "contraste", "operador": "<=", "umbral": 0 },
+    { "id": "E10-pulido-pruebas", "etapa": 10, "hecho": "Estados vacíos con próximo paso, dibujo del plato, nombres accesibles, selects que entran, colores con contraste y textos del presupuesto.", "tipo": "prueba", "prueba": "C10-1" },
     { "id": "E10-revision-visual", "etapa": 10, "hecho": "Las capturas en tema claro y oscuro no muestran superposiciones ni textos cortados (revisión visual).", "tipo": "revisor", "revisor": "revisor-usuario" }
   ]
 }

@@ -252,11 +252,11 @@ function budgetCompareRender(){
     minimumFractionDigits:2,maximumFractionDigits:2
   }),controls=[];
   for(const entry of model.entries){
-    const wrap=ce("div","portion-field"),label=ce("label",null,entry.row.name+" · "+entry.row.missing.toLocaleString("es-AR")+" "+entry.row.unit),select=ce("select"),blank=ce("option",null,"Elegí una referencia para simular");
+    const wrap=ce("div","portion-field"),label=ce("label",null,entry.row.name+" · "+entry.row.missing.toLocaleString("es-AR")+" "+entry.row.unit),select=ce("select"),blank=ce("option",null,"Elegí una referencia");
     blank.value="";
     select.append(blank);
     entry.options.forEach((p,i)=>{
-      const option=ce("option",null,fmt(entry.row.missing*p.price/p.amount)+" "+budget.currency+" · "+p.price+" / "+p.amount+" "+p.unit+" · "+(p.date||"sin fecha"));option.value=String(i);select.append(option)
+      const option=ce("option",null,fmt(entry.row.missing*p.price/p.amount)+" "+budget.currency+" · "+p.price+" / "+p.amount+" "+p.unit);option.title="Precio de "+(p.date||"fecha desconocida");option.value=String(i);select.append(option)
     });
     select.value=entry.base?String(entry.options.indexOf(entry.base)):"";
     label.htmlFor=select.id="budgetAlternative_"+controls.length;
