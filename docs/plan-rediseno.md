@@ -248,7 +248,7 @@ Estados: ✅ hecha · ⏳ en curso · ⛔ parada. Cada etapa entra a `rediseno` 
 | 4. Comidas y nueva estructura | ✅ | `etapa-4-ok` | 15.3.0 |
 | 5. Compras y Despensa | ✅ | `etapa-5-ok` | 15.4.0 |
 | 6. Un solo registro | ✅ | `etapa-6-ok` | 15.5.0 |
-| 7. Precios automáticos de INDEC | — | — | — |
+| 7. Precios automáticos de INDEC | ✅ | `etapa-7-ok` | 15.6.0 |
 | 8. Resto de las herramientas avanzadas | — | — | — |
 | 9. Precios de SEPA | — | — | — |
 | 10. Pulido | — | — | — |
@@ -1514,7 +1514,7 @@ Rama `rediseno-etapa-6-registro`. Versión 15.5.0.
 **Pendientes para vos**
 - Ninguno nuevo.
 
-### Etapa 7 · Precios automáticos de INDEC ⏳
+### Etapa 7 · Precios automáticos de INDEC ✅
 
 Rama `rediseno-etapa-7-precios`. Versión 15.6.0.
 
@@ -1575,7 +1575,23 @@ Rama `rediseno-etapa-7-precios`. Versión 15.6.0.
 - Mi precio gana si está en pesos y las unidades son compatibles; con varios, el de fecha más nueva; los precios en otra moneda se ignoran.
 - La tarea mensual corre el día 20 a las 06:23 UTC; el `.xls` no se guarda en el repo; `actualizar-precios.yml` hace `git pull --rebase` antes del push.
 
+**Medidas** (estado normal, modo simple, tema claro: los precios están apagados por defecto)
+- Compras: 225 → 230 palabras (por la línea "Precios estimados: activalos en Preferencias"; tope 262,8). Semana: 1.013 px, sin cambios. Con los precios prendidos (estado "todo"): Compras 388 palabras (tope 742,8) y Registro 427.
+- Pruebas: 521/521 (eran 514), con la batería nueva `e7_precios.js`. Compuerta: "VALIDACIÓN ETAPA 7: OK (46 controles)".
+
+**Revisores**
+- revisor-codigo, sobre el plan: NO BLOQUEANTE con sugerencias, todas incorporadas (la línea para activar los precios en Compras, versiones y límite de tiempo en los workflows, `git pull --rebase` en la tarea mensual, el error de la herramienta nombra el producto).
+- revisor-codigo, sobre el diff: NO BLOQUEANTE. Verificó los datos reales (sept. 2026), las conversiones de unidad (huevo 3.940,5 / 12; fideos de 500 g; aceite de 1,5 l), que `fuente/` no tiene direcciones de INDEC y que los workflows tienen permisos mínimos.
+  - Apliqué su sugerencia sobre `precios-prueba.yml`: la descarga de INDEC queda como aviso (`continue-on-error`) para que una caída de INDEC no ponga en rojo el PR; la verificación de los datos incluidos, sin red, sigue siendo obligatoria.
+- revisor-usuario: NO BLOQUEANTE. Los precios se ven como estimaciones (≈, fuente y mes); la línea para activarlos es clara y no estorba.
+
 **Mejoras sugeridas**
+- Con pocos precios, el total engaña: "≈ $2.222 (faltan 26 precios)" parece el costo de la compra. El formato es el que pide el plan; la cobertura sube con la Etapa 9 (SEPA). Evaluar no mostrar el total si faltan más de la mitad.
+- El total aparece dos veces (barra de presupuesto y línea de resumen); la fuente "Promedio INDEC · GBA · sept. 2026" queda lejos del total.
+- Los renglones sin precio no dicen por qué.
+- Las tarjetas de Comidas y Preferencias no tienen captura con el "≈ $ por porción" ni el interruptor ni la región: sumar vistas en la Etapa 10.
+- Cachear la región y los precios en `contextoCostos()` (hoy se leen por cada ingrediente de cada tarjeta).
+- La tarea mensual debería correr también `construir --verificar` antes de publicar; simplificar una línea redundante de `actualizar-precios.mjs`.
 - Una prueba del lector de `.xls` con un archivo de ejemplo armado en la prueba (C7-8 del plan corto).
 - Separar "Mostrar precios" del modo simple (Etapa 8).
 - Costo semanal en Semana y comparación de alternativas con el rango de precios.
