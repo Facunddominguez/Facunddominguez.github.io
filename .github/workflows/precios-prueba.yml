@@ -1,36 +1,46 @@
-name: Prueba de precios de INDEC
+name: Prueba de precios (SEPA e INDEC)
 
-# Tarea de PRUEBA para los pull requests: baja el archivo real de INDEC, lo procesa, lo valida y sube el
-# resultado como artifact. No commitea, no hace push y no publica nada: solo sirve para ver que la descarga
-# y la lectura andan antes de que la tarea mensual (actualizar-precios.yml) corra en main.
-# Si INDEC no responde (o cambió algo), la descarga queda como AVISO y no pone en rojo el pull request por algo ajeno
-# al cambio; la verificación de los datos incluidos (sin red) sí es obligatoria.
+# Tarea de PRUEBA para los pull requests: baja el día más nuevo de SEPA y el archivo de INDEC, los procesa, los valida y sube
+# el resultado como artifact. No commitea, no hace push y no publica nada: sirve para ver que la descarga y la lectura andan
+# antes de que la tarea semanal (actualizar-precios.yml) corra en main.
+# Si el portal de datos o INDEC no responden (o cambió algo), la descarga queda como AVISO y no pone en rojo el pull request
+# por algo ajeno al cambio; la verificación de los datos incluidos (sin red) sí es obligatoria.
 on:
   pull_request:
+    paths:
+      - "herramientas/**"
+      - "datos/precios-mapa.json"
+      - ".github/workflows/precios-*.yml"
   workflow_dispatch:
 
 permissions:
   contents: read
 
+concurrency:
+  group: precios-prueba-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   precios:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v5
       - name: Datos incluidos válidos (sin red)
         run: node herramientas/actualizar-precios.mjs --verificar
-      - name: Descargar, procesar y validar lo de INDEC (sin tocar datos/precios.json)
+      - name: Lector de SEPA con un ZIP armado en la prueba (sin red)
+        run: node pruebas/sepa-lector.mjs
+      - name: Descargar, procesar y validar SEPA e INDEC (sin tocar datos/precios.json)
         id: descarga
         continue-on-error: true
         run: |
           mkdir -p "$RUNNER_TEMP/salida"
-          node herramientas/actualizar-precios.mjs --salida "$RUNNER_TEMP/salida/precios-descargado.json"
-          node herramientas/actualizar-precios.mjs --verificar --archivo-json "$RUNNER_TEMP/salida/precios-descargado.json"
-          node -e "const d=require(process.argv[1]);console.log('mes '+d.mes+' · '+d.items.length+' ingredientes · GBA arroz '+d.items.find(i=>i.n==='Arroz').p.GBA)" "$RUNNER_TEMP/salida/precios-descargado.json" | tee "$RUNNER_TEMP/salida/resumen.txt"
-      - name: Avisar si la descarga de INDEC falló
+          node herramientas/actualizar-precios.mjs --salida "$RUNNER_TEMP/salida/precios-descargado.json" | tee "$RUNNER_TEMP/salida/resumen.txt"
+          node herramientas/actualizar-precios.mjs --verificar --archivo-json "$RUNNER_TEMP/salida/precios-descargado.json" | tee -a "$RUNNER_TEMP/salida/resumen.txt"
+          node -e "const d=require(process.argv[1]);console.log('mes '+d.mes+' · '+d.items.length+' ingredientes · SEPA '+(d.sepa&&d.sepa.fecha)+' · arroz GBA INDEC '+d.items.find(i=>i.n==='Arroz').p.GBA)" "$RUNNER_TEMP/salida/precios-descargado.json" | tee -a "$RUNNER_TEMP/salida/resumen.txt"
+      - name: Avisar si la descarga falló
         if: steps.descarga.outcome == 'failure'
-        run: echo "::warning title=Precios de INDEC::No se pudo descargar o validar el archivo de INDEC. Si INDEC está caído, reintentá más tarde; si cambió el formato, hay que revisar herramientas/actualizar-precios.mjs."
+        run: echo "::warning title=Precios de SEPA e INDEC::No se pudo descargar o validar SEPA o INDEC. Si el portal está caído, reintentá más tarde; si cambió el formato, hay que revisar herramientas/actualizar-precios.mjs."
       - uses: actions/upload-artifact@v4
         if: steps.descarga.outcome == 'success'
         with:
