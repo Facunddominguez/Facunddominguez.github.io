@@ -1854,7 +1854,7 @@ Rama `rediseno-etapa-9-sepa`. Versión 15.8.0.
 - `e7_precios.js` C7-5: el JSON real ya no exige `p` en cada ingrediente (acepta `p` o `s`); los precios de huevo, leche y arroz se comparan con `precioAuto` (SEPA o INDEC, según haya) en vez de con la columna de INDEC, y "sin precio" se comprueba con "Cardamomo" porque "Zapallito" ahora tiene precio. Protege lo mismo: conversión de unidades y el mismo dato que `precioDe`.
 - Nuevas: `e9_sepa.js` (C9-1 a C9-8) y la comprobación de Node `sepa-lector.mjs` (C9-9, siete líneas).
 
-**Tarea de SEPA en el PR** · Decisión: todavía no pudo correr en el PR (queda para el próximo push) y se probó antes con otra cosa: la herramienta completa con el ZIP real del 2026-11-02, bajado una vez a una carpeta nueva fuera del repo y borrado al terminar, y con el ZIP armado de la prueba C9-9. Corre cuando `rediseno-etapa-9-sepa` entre al PR #1 y llegue el push; el artifact `precios-descargado` se compara con `datos/precios.json` (SEPA del 2026-11-02) con `gh api`. Si el portal estuviera caído queda como aviso y se anota acá.
+**Tarea de SEPA en el PR** ✅: corrió en el PR #1 con el push de `etapa-9-ok` (commit `5db3c08`) y las dos tareas dieron "success". La tarea de prueba bajó desde el runner los datos reales de SEPA del 2 de noviembre de 2026 (14.308.918 filas, 43 s de procesamiento), los procesó sin commitear nada y subió el artifact `precios-descargado` con la misma cobertura que la corrida local (núcleo 49/52, armado 32/45, total 81/97, 11 aproximados, 95 ingredientes con SEPA). Sin avisos de descarga.
 
 **Compuerta**
 - "VALIDACIÓN ETAPA 9: OK (56 controles)". Pruebas: 539/539 (eran 531), con `e9_sepa.js` (C9-1 a C9-8) y `pruebas/sepa-lector.mjs` (C9-9, el lector de ZIP, en Node).
@@ -1878,7 +1878,7 @@ Rama `rediseno-etapa-9-sepa`. Versión 15.8.0.
 
 **Pendientes para vos**
 - Total real del catálogo con precio: **81 de 97 (83,5 %)**, núcleo 94 % y armado 71 %. C9-1 exige el total; si preferís que exija solo el núcleo, decilo.
-- Revisar en GitHub la corrida de `precios-prueba.yml` en el PR (descarga real de ~325 MB desde el runner): la miro yo tras el push de `etapa-9-ok` y paso la línea "Tarea de SEPA en el PR" a ✅.
+- Revisar en GitHub la corrida de `precios-prueba.yml` en el PR (descarga real de ~325 MB desde el runner): ya corrió y quedó ✅ (ver "Tarea de SEPA en el PR").
 
 ### Etapa 10 · Pulido ⏳
 
