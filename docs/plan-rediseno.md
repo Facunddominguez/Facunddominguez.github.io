@@ -1825,3 +1825,42 @@ Rama `rediseno-etapa-9-sepa`. Versión 15.8.0.
 - **Tamaño**: `--verificar` falla si `datos/precios.json` pasa 60.000 bytes; `construir --verificar` garantiza que `index.html` incrusta el mismo JSON y no pasa de 770.000 bytes.
 - **Workflows**: `precios-prueba.yml` con `workflow_dispatch` y `pull_request` con `paths` (herramientas/**, datos/precios-mapa.json, .github/workflows/precios-*.yml), `concurrency` con `cancel-in-progress: true` y descarga con `continue-on-error` más aviso. `actualizar-precios.yml` semanal con permisos mínimos, `timeout-minutes: 25`, sin secretos, versiones fijadas y `git pull --rebase` antes del push.
 - C9-1 corre contra el JSON real generado por la herramienta con el día de SEPA bajado una vez (carpeta nueva fuera del repo, borrada al terminar).
+
+**Implementación (v15.8.0)**
+- `herramientas/actualizar-precios.mjs` (sin dependencias): descarga el ZIP más nuevo de SEPA desde CKAN a una carpeta temporal nueva (tope 600 MB, 15 minutos), lo lee con `node:zlib` y `node:readline` en una sola pasada (~65 s para las 14,3 millones de filas), sin extraer nada a disco. Opciones `--solo-indec`, `--solo-sepa`, `--archivo-sepa`, `--salida`, `--hoy` y `--verificar` (sin red). Si una fuente falla se conserva lo último de esa fuente; si fallan las dos, sale con código 1 sin tocar `datos/precios.json`. Escritura atómica.
+- Mínimo para publicar un precio de SEPA: 10 observaciones y 3 comercios distintos **en esa región** (un comercio es una bandera: `id_comercio` más `id_bandera`; con solo `id_comercio` Cencosud y otras cadenas cuentan como uno y quedaban 67 de 97). Cruce con INDEC: si SEPA queda fuera de 0,5 a 2 veces INDEC no se publica el precio de SEPA de esa región (pasó con pollo entero y papa en Noroeste). Salto semanal de más de 2,5 veces o menos de 0,4: se conserva el anterior; más de un cuarto de saltos hace fallar la tarea. Piso de cobertura en `--verificar`: 60 % del ámbito.
+- `datos/precios-mapa.json`: 118 ingredientes (40 de INDEC más los de SEPA), reglas `sepa` por frases, `ambito` con los 52 del núcleo y los 45 del armado, y `sepaExcluir`.
+- `datos/precios.json` real: SEPA del 2026-11-02 (Lunes, 324.136.705 bytes, 14.308.918 filas) más INDEC de septiembre de 2026 sin cambios; 104 ingredientes; **35.961 bytes** (tope 60.000). `index.html` pasa de 705.405 a 739.151 bytes (tope 770.000). `datos/precios-ejemplo-sepa.json` (8 ingredientes, 3 regiones) para las pruebas.
+- App (`43-precios.js`): `precioAuto` elige SEPA de la región, INDEC de la región, SEPA de GBA, INDEC de GBA; `precioDe` suma `origen`, `aprox` y la fuente escrita ("SEPA · mediana · Pampeana · 2 nov. 2026"); la línea general dice "SEPA · mediana · GBA · 2 nov. 2026 (INDEC si falta · sept. 2026)"; `rangoDePrecios` usa los percentiles reales de la región (acepta el par suelto de la Etapa 8); la lista avisa "hay precios aprox."; el total dice "al menos ≈ $X" si falta más de la mitad; Más → Fuentes de datos suma SEPA con enlaces y CC BY 4.0 (salen del JSON). `construir.mjs` falla si `precios.json` pasa 60.000 bytes o `index.html` 770.000.
+- Workflows: `actualizar-precios.yml` semanal (martes 06:23 UTC), 25 minutos, `actions/checkout@v5`, sin secretos, `git pull --rebase` antes del push, y `construir --verificar` antes de publicar. `precios-prueba.yml` en `pull_request` con `paths` (`herramientas/**`, `datos/precios-mapa.json`, `.github/workflows/precios-*.yml`) y a mano, `concurrency` con `cancel-in-progress`, descarga con `continue-on-error` más aviso, `contents: read`, sin commit ni push; sube el JSON, el resumen y la verificación como artifact.
+
+**Cobertura real** (medida por C9-1 con la app y el JSON real, en GBA)
+- Núcleo (41 ideas + comidas y recetas del respaldo de ejemplo): **49 de 52 (94 %)**. Faltan Puerro, Cebolla de verdeo y Quinoa (poca oferta con los mínimos).
+- Armado (45 que no están en el núcleo): **32 de 45 (71 %)**. Faltan Nabo, Zucchini, Amaranto, Cebada, Centeno, Mijo, Sorgo, Tapioca, Habas, Porotos aduki, Caballa, Lenguado y Clara de huevo.
+- **Total: 81 de 97 (83,5 %)**, con 11 aproximados (Rúcula, Tortillas de trigo, Espinaca, Salmón, Albahaca, Ajo, Espárragos, Kale, Radicheta, Lupino y Queso untable descremado). Contando a lo sumo el 15 % de 78 (11) aproximados, el total contado es 81 (83,5 %): C9-1 exige el total. Hoy solo con INDEC eran 16 de 97.
+- Excluidos por no ser un ingrediente con nombre de la nutrición: Fruta de estación, Frutos secos, Semillas de chía o sésamo, Granola, Leche fluida o en polvo descremada, Pan de molde integral o blanco, Romero, Trigo y los textos "Opción ocasional…", "Budín", "Waffle", etc. (22 en total).
+
+**Decisiones que tomé sin vos**
+- C9-1 exige el TOTAL (81/97) porque llega a 80 % con datos honestos; si en una actualización semanal el total bajara de 78, la prueba falla y hay que mirar qué cambió (no se afloja).
+- "Comercio distinto" = bandera (`id_comercio` + `id_bandera`).
+- Regiones de SEPA: GBA = CABA más Buenos Aires con código postal 1600 a 1899; resto de Buenos Aires = Pampeana. Se publica por región, no por provincia (peso del JSON).
+- SEPA gana a INDEC cuando están los dos y la diferencia es razonable (0,5 a 2 veces); si no, se queda INDEC.
+- Yogur natural: INDEC lo mide por litro y SEPA por kilo; la regla `u: "kg"` trata 1 kg = 1 l (densidad ≈ 1).
+- Los productos por atado o envase chico (ajo, rúcula, albahaca, espárragos, kale, radicheta, lupino) y los equivalentes (espinaca congelada, salmón ahumado o en lata, queso untable, tortillas) llevan `sa: true` y la app los marca "aprox.".
+- El lector de ZIP se prueba en Node (`pruebas/sepa-lector.mjs`, control E9-lector-sepa), no en el navegador: las baterías del navegador no pueden importar la herramienta. Sus 7 comprobaciones llevan el prefijo "C9-9 ". La suite del navegador `e9_sepa.js` tiene C9-1 a C9-8 (C9-7 pasó a ser "sin clave nueva ni llamadas a internet" y C9-8 el "al menos").
+- Pollo (entero) quedó con INDEC solamente (los cortes de SEPA, 2 veces más caros, no son lo mismo); Muslo de pollo usa SEPA.
+
+**Pruebas adaptadas** (ninguna se borra; la cantidad sube de 531 a 539)
+- `e7_precios.js` C7-5: el JSON real ya no exige `p` en cada ingrediente (acepta `p` o `s`); los precios de huevo, leche y arroz se comparan con `precioAuto` (SEPA o INDEC, según haya) en vez de con la columna de INDEC, y "sin precio" se comprueba con "Cardamomo" porque "Zapallito" ahora tiene precio. Protege lo mismo: conversión de unidades y el mismo dato que `precioDe`.
+- Nuevas: `e9_sepa.js` (C9-1 a C9-8) y la comprobación de Node `sepa-lector.mjs` (C9-9, siete líneas).
+
+**Tarea de SEPA en el PR**: pendiente. Corre cuando `rediseno-etapa-9-sepa` entre al PR #1 y llegue el push; el artifact `precios-descargado` se compara con `datos/precios.json` (SEPA del 2026-11-02) con `gh api`. Si el portal estuviera caído queda como aviso y se anota acá.
+
+**Mejoras sugeridas**
+- Puerro, cebolla de verdeo, quinoa, zucchini, cuscús y otros quedan afuera por oferta chica en pocas banderas: mirar con la corrida semanal si suben.
+- Sumar sinónimos (`INGREDIENT_SYNONYMS`) para "Leche fluida o en polvo descremada", "Pan de molde integral o blanco" y "Frutos secos" subiría la cobertura real (tocan equivalencias guardadas: no se hizo).
+- Elegir provincia además de región.
+
+**Pendientes para vos**
+- Total real del catálogo con precio: **81 de 97 (83,5 %)**, núcleo 94 % y armado 71 %. C9-1 exige el total; si preferís que exija solo el núcleo, decilo.
+- Revisar en GitHub la corrida de `precios-prueba.yml` en el PR (descarga real de ~325 MB desde el runner).
