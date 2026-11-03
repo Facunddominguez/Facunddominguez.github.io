@@ -251,7 +251,7 @@ Estados: ✅ hecha · ⏳ en curso · ⛔ parada. Cada etapa entra a `rediseno` 
 | 7. Precios automáticos de INDEC | ✅ | `etapa-7-ok` | 15.6.0 |
 | 8. Resto de las herramientas avanzadas | ✅ | `etapa-8-ok` | 15.7.0 |
 | 9. Precios de SEPA | ✅ | `etapa-9-ok` | 15.8.0 |
-| 10. Pulido | ⏳ | — | 15.9.0 |
+| 10. Pulido | ✅ | `etapa-10-ok` | 15.9.0 |
 
 ### Etapa 0 · Red de seguridad ✅
 
@@ -1880,7 +1880,7 @@ Rama `rediseno-etapa-9-sepa`. Versión 15.8.0.
 - Total real del catálogo con precio: **81 de 97 (83,5 %)**, núcleo 94 % y armado 71 %. C9-1 exige el total; si preferís que exija solo el núcleo, decilo.
 - Revisar en GitHub la corrida de `precios-prueba.yml` en el PR (descarga real de ~325 MB desde el runner): ya corrió y quedó ✅ (ver "Tarea de SEPA en el PR").
 
-### Etapa 10 · Pulido ⏳
+### Etapa 10 · Pulido ✅
 
 Rama `rediseno-etapa-10-pulido`. Versión 15.9.0.
 
@@ -1947,3 +1947,20 @@ Rama `rediseno-etapa-10-pulido`. Versión 15.9.0.
 - **Pruebas adaptadas con su reemplazo de igual fuerza:** C8-4 (e8) espera "al menos ≈ $6.200 la semana (faltan 2 precios)" en lugar de "≈ $6.200 la semana…" (faltan 2 de 2 comidas); L6 (l01) espera "← Volver a Comidas". Ninguna se borró. **Nuevas:** C10-1 a C10-6 en `pruebas/e10_pulido.js` (545 en total); `criterios.json` suma `E10-contraste` y `E10-vacios`, `E10-plato`, `E10-nombres`, `E10-selects`, `E10-colores`, `E10-al-menos` (una por prueba, porque cada control exige un código); no se aflojó ni se quitó ninguno.
 - **`capturas.mjs`:** solo se agregó la métrica `contraste` (con `contrasteExcluidos`), diez vistas (`bienvenida`, `receta-editar`, `fuentes`, `selector`, `sugerime`, `semana-menu`, `comidas-nueva`, `hueco`, `armado-plato` y `comida`, esta última al final porque en el estado vacío guarda una idea para tener un detalle) y el cierre de la hoja antes de cada vista. MEDIR no cambió en nada más.
 - **Mejoras sugeridas** (para el informe final): todo lo de la lista del plan corto que no se hizo (auditoría completa de textos, "Desayuno o merienda" en 3 líneas, "Mis comidas" en el título, un solo "faltan N" en Semana, las ayudas de más de una línea), colores del dibujo iguales a los de las tarjetas, superposición dentro de las hojas, menú ⋯ de Compras y Preferencias con precios encendidos sin captura.
+
+**Compuerta**
+- "VALIDACIÓN ETAPA 10: OK (67 controles)". Pruebas: 545/545 (eran 539), con `e10_pulido.js` (C10-1 a C10-6). Las 162 capturas (27 vistas × 3 estados × 2 temas) dan 0 superpuestos, 0 textos cortados, 0 elementos fuera de pantalla, 0 campos sin etiqueta y 0 textos con poco contraste.
+
+**Revisores**
+- revisor-codigo, sobre el plan: NO BLOQUEANTE, con sugerencias incorporadas (contraste contra el peor extremo del fondo y exclusiones contadas, sin recorte vertical, `data-section-tab="miscomidas"` y ids intactos).
+- revisor-codigo, sobre el diff: NO BLOQUEANTE. Verificó que `MEDIR` no mide menos que antes (solo se sumaron `contraste` y `contrasteExcluidos`), que `criterios.json` solo tiene agregados y que ningún arreglo usa recorte vertical. Sus dos endurecimientos se aplicaron antes del cierre (commit `bf6952e`): el contraste multiplica la opacidad de los contenedores y C10-5 falla si falta un color.
+- revisor-usuario: NO BLOQUEANTE. **E10-revision-visual se cumple**, con una salvedad: miró con los ojos una muestra de 18 de las 162 capturas y el resto lo cubren las mediciones. Concluyó que la app quedó más simple que en la Etapa 0 y con vocabulario consistente.
+
+**Mejoras sugeridas** (van al informe final)
+- Detalle de una comida y formulario de receta siguen recargados (muchos botones apilados, acordeones antes de "Guardar receta").
+- En "Otros productos" de Compras, "Quitar" queda en su propia fila; la fila del aceite de oliva es angosta con el aviso de Despensa en 3 líneas.
+- "Fuentes de datos": párrafos de atribución de 5 a 8 líneas por fuente.
+- `superpuestos` no mira dentro de las hojas; faltan capturas del menú ⋯ de Compras y de Preferencias con precios encendidos.
+
+**Pendientes para vos**
+- Ninguno nuevo en esta etapa (ver el informe final).
