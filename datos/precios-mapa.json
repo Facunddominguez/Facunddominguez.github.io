@@ -1,5 +1,5 @@
 {
- "_descripcion": "Mapa curado de ingredientes de la app a productos del archivo de precios promedio de INDEC (hojas GBA y Nacional). \"b\" es la unidad base del precio (kg, l o unidad) y \"envase\" cuánto trae la unidad de medida de INDEC en esa base (500 g = 0,5 kg; docena = 12 unidades). \"gba\" y \"nac\" son [producto, unidad de medida] tal como están en cada hoja: si INDEC los cambia, la tarea falla y nombra el producto. \"aprox\" marca un producto solo parecido. \"densidad\" (kg por litro) pasa gramos a mililitros en líquidos. Los ingredientes que no están acá no tienen precio automático (quedan para SEPA, Etapa 9).",
+ "_descripcion": "Mapa curado de ingredientes de la app a precios. INDEC: \"gba\" y \"nac\" son [producto, unidad de medida] tal como están en cada hoja del archivo de precios promedio, \"envase\" cuánto trae esa unidad en la base (500 g = 0,5 kg; docena = 12 unidades), \"aprox\" marca un producto solo parecido y \"densidad\" (kg por litro) pasa gramos a mililitros. SEPA (Precios Claros): \"sepa\" busca por descripción: \"q\" frases (cualquiera; * al final = prefijo), \"ini\" exige la frase al comienzo, \"x\" palabras que descartan, \"marca\" y \"ean\" (id_producto) opcionales, \"t\" tamaño de envase aceptado en la unidad base, \"u\" unidad en que SEPA mide el producto si no es la base (kg para un líquido de densidad 1) y \"a\" producto solo parecido. \"sepaExcluir\" son palabras que descartan en todos. \"ambito\" lista los ingredientes del catálogo (núcleo: 41 ideas y comidas del respaldo de ejemplo; armado: opciones del armado de platos) que mide la prueba C9-1.",
  "regiones": [
   "GBA",
   "Pampeana",
@@ -8,6 +8,170 @@
   "Cuyo",
   "Patagonia"
  ],
+ "sepaExcluir": [
+  "gato",
+  "gatos",
+  "perro",
+  "perros",
+  "mascota*",
+  "shampoo",
+  "acondicionador",
+  "desodor*",
+  "jabon",
+  "crema de enjuague",
+  "bronceador",
+  "aromatiz*",
+  "detergente",
+  "lavandina",
+  "limpia*",
+  "suavizante",
+  "tratamiento",
+  "repelente",
+  "gaseosa",
+  "isotonica",
+  "bebida",
+  "jugo",
+  "mermelada",
+  "dulce",
+  "galletita*",
+  "galle",
+  "snack",
+  "sabor*",
+  "sopa",
+  "caldo",
+  "saborizador",
+  "mix",
+  "knorr",
+  "medallon",
+  "nugget*",
+  "formita*",
+  "bocadito*",
+  "patita*",
+  "pizza",
+  "prepizza",
+  "tarta",
+  "relleno",
+  "rell",
+  "empanada*",
+  "hamburguesa*",
+  "pasta",
+  "salsa",
+  "budin",
+  "torta",
+  "helado",
+  "alfajor",
+  "chocolate*",
+  "bombon*",
+  "cereal*",
+  "barra",
+  "chips",
+  "pancake",
+  "hummus",
+  "pure"
+ ],
+ "ambito": {
+  "nucleo": [
+   "Tomate",
+   "Fideos",
+   "Atún",
+   "Garbanzos",
+   "Zanahoria",
+   "Zapallito",
+   "Cebolla",
+   "Merluza",
+   "Lechuga",
+   "Pan rallado",
+   "Huevo",
+   "Puerro",
+   "Cebolla de verdeo",
+   "Harina de trigo",
+   "Pollo",
+   "Remolacha",
+   "Rúcula",
+   "Pan",
+   "Queso fresco",
+   "Repollo colorado",
+   "Tortillas de trigo",
+   "Yogur natural",
+   "Morrón rojo",
+   "Porotos colorados",
+   "Queso cremoso",
+   "Arvejas",
+   "Lentejas",
+   "Brócoli",
+   "Quinoa",
+   "Zapallo",
+   "Espinaca",
+   "Salmón",
+   "Carne vacuna",
+   "Arroz integral",
+   "Batata",
+   "Choclo",
+   "Porotos negros",
+   "Albahaca",
+   "Apio",
+   "Papa",
+   "Repollo blanco",
+   "Acelga",
+   "Polenta",
+   "Ajo",
+   "Palta",
+   "Yogur descremado",
+   "Avena",
+   "Pepino",
+   "Aceite de oliva",
+   "Sal",
+   "Queso rallado",
+   "Limón"
+  ],
+  "armado": [
+   "Alcaucil",
+   "Berenjena",
+   "Chauchas",
+   "Coliflor",
+   "Escarola",
+   "Espárragos",
+   "Hinojo",
+   "Kale",
+   "Morrón amarillo",
+   "Morrón verde",
+   "Nabo",
+   "Rabanito",
+   "Radicheta",
+   "Zucchini",
+   "Amaranto",
+   "Cebada",
+   "Centeno",
+   "Cuscús",
+   "Fécula de maíz",
+   "Fécula de mandioca",
+   "Harina de arroz",
+   "Harina de avena",
+   "Harina de maíz",
+   "Mandioca",
+   "Mijo",
+   "Sorgo",
+   "Tapioca",
+   "Habas",
+   "Lupino",
+   "Maní",
+   "Porotos aduki",
+   "Porotos alubia",
+   "Porotos manteca",
+   "Porotos mung",
+   "Porotos pallar",
+   "Soja",
+   "Caballa",
+   "Carré de cerdo",
+   "Leche",
+   "Lenguado",
+   "Queso Port Salut",
+   "Queso untable descremado",
+   "Sardina",
+   "Clara de huevo",
+   "Harina de trigo integral"
+  ]
+ },
  "items": [
   {
    "n": "Arroz",
@@ -20,7 +184,31 @@
    "nac": [
     "Arroz blanco simple",
     "kg"
-   ]
+   ],
+   "sepa": {
+    "q": [
+     "arroz largo fino",
+     "arroz",
+     "arroz blanco"
+    ],
+    "ini": true,
+    "x": [
+     "integral",
+     "parboil*",
+     "preparado",
+     "dulce",
+     "yamani",
+     "basmati",
+     "risotto",
+     "rapido",
+     "aritos",
+     "con"
+    ],
+    "t": [
+     0.45,
+     5
+    ]
+   }
   },
   {
    "n": "Fideos",
@@ -33,7 +221,31 @@
    "nac": [
     "Fideos secos tipo guisero",
     "500 g"
-   ]
+   ],
+   "sepa": {
+    "q": [
+     "fideos",
+     "fideo",
+     "spaghetti",
+     "tallarines",
+     "mostachol*",
+     "tirabuzon*"
+    ],
+    "ini": true,
+    "x": [
+     "instantaneo*",
+     "sopa",
+     "arroz",
+     "integral",
+     "sin",
+     "wakas",
+     "multicereal"
+    ],
+    "t": [
+     0.2,
+     5
+    ]
+   }
   },
   {
    "n": "Harina de trigo",
@@ -46,7 +258,34 @@
    "nac": [
     "Harina de trigo común",
     "kg"
-   ]
+   ],
+   "sepa": {
+    "q": [
+     "harina",
+     "harina 000",
+     "harina 0000",
+     "harina de trigo"
+    ],
+    "ini": true,
+    "x": [
+     "integral",
+     "leudante",
+     "maiz",
+     "arroz",
+     "mandioca",
+     "almendra*",
+     "coco",
+     "garbanzo*",
+     "avena",
+     "soja",
+     "chia",
+     "tortilla"
+    ],
+    "t": [
+     0.45,
+     5
+    ]
+   }
   },
   {
    "n": "Pan",
@@ -68,7 +307,25 @@
    "gba": [
     "Pan de mesa",
     "390 g"
-   ]
+   ],
+   "sepa": {
+    "q": [
+     "pan de molde",
+     "pan lactal"
+    ],
+    "ini": true,
+    "x": [
+     "salvado",
+     "integral",
+     "multicereal",
+     "doble",
+     "sin"
+    ],
+    "t": [
+     0.2,
+     2
+    ]
+   }
   },
   {
    "n": "Galletitas de agua",
@@ -90,7 +347,23 @@
    "nac": [
     "Carne picada común",
     "kg"
-   ]
+   ],
+   "sepa": {
+    "q": [
+     "carne picada",
+     "picada comun",
+     "carne picada comun"
+    ],
+    "ini": true,
+    "x": [
+     "especial",
+     "cerdo"
+    ],
+    "t": [
+     0.4,
+     8
+    ]
+   }
   },
   {
    "n": "Carne picada especial",
@@ -113,7 +386,24 @@
    "gba": [
     "Asado",
     "kg"
-   ]
+   ],
+   "sepa": {
+    "q": [
+     "asado",
+     "tira de asado",
+     "asado de tira"
+    ],
+    "ini": true,
+    "x": [
+     "sazonador",
+     "salsa",
+     "vacio"
+    ],
+    "t": [
+     0.4,
+     8
+    ]
+   }
   },
   {
    "n": "Vacío",
@@ -145,7 +435,26 @@
    "nac": [
     "Pollo entero",
     "kg"
-   ]
+   ],
+   "sepa": {
+    "q": [
+     "pollo entero",
+     "pollo fresco entero"
+    ],
+    "ini": true,
+    "x": [
+     "milanesa*",
+     "caldo",
+     "tiras",
+     "empanado*",
+     "congelad*",
+     "iqf"
+    ],
+    "t": [
+     0.8,
+     6
+    ]
+   }
   },
   {
    "n": "Muslo de pollo",
@@ -159,7 +468,28 @@
     "Pollo entero",
     "kg"
    ],
-   "aprox": true
+   "aprox": true,
+   "sepa": {
+    "q": [
+     "pata muslo",
+     "muslo",
+     "pollo muslo",
+     "muslos"
+    ],
+    "ini": true,
+    "x": [
+     "milanesa*",
+     "caldo",
+     "empanado*",
+     "congelad*",
+     "iqf"
+    ],
+    "t": [
+     0.4,
+     8
+    ],
+    "a": false
+   }
   },
   {
    "n": "Merluza",
@@ -168,7 +498,26 @@
    "gba": [
     "Filet de merluza fresco",
     "kg"
-   ]
+   ],
+   "sepa": {
+    "q": [
+     "merluza",
+     "filet de merluza",
+     "filet merluza"
+    ],
+    "ini": true,
+    "x": [
+     "formitas",
+     "bastones",
+     "romana",
+     "empanad*",
+     "rebozad*"
+    ],
+    "t": [
+     0.2,
+     3
+    ]
+   }
   },
   {
    "n": "Queso cremoso",
@@ -177,7 +526,22 @@
    "gba": [
     "Queso cremoso",
     "kg"
-   ]
+   ],
+   "sepa": {
+    "q": [
+     "queso cremoso"
+    ],
+    "ini": true,
+    "x": [
+     "untable",
+     "rallado",
+     "sin"
+    ],
+    "t": [
+     0.2,
+     5
+    ]
+   }
   },
   {
    "n": "Mozzarella",
@@ -187,7 +551,23 @@
     "Queso cremoso",
     "kg"
    ],
-   "aprox": true
+   "aprox": true,
+   "sepa": {
+    "q": [
+     "mozzarella",
+     "muzzarella",
+     "muzarella"
+    ],
+    "ini": true,
+    "x": [
+     "prepizza",
+     "pizza"
+    ],
+    "t": [
+     0.2,
+     5
+    ]
+   }
   },
   {
    "n": "Manteca",
@@ -196,7 +576,21 @@
    "gba": [
     "Manteca",
     "200 g"
-   ]
+   ],
+   "sepa": {
+    "q": [
+     "manteca"
+    ],
+    "ini": true,
+    "x": [
+     "mani",
+     "cacao"
+    ],
+    "t": [
+     0.1,
+     2
+    ]
+   }
   },
   {
    "n": "Dulce de leche",
@@ -218,7 +612,29 @@
    "nac": [
     "Azúcar",
     "kg"
-   ]
+   ],
+   "sepa": {
+    "q": [
+     "azucar",
+     "azucar comun",
+     "azucar refinada"
+    ],
+    "ini": true,
+    "x": [
+     "impalpable",
+     "mascabo",
+     "organica",
+     "light",
+     "vainillada",
+     "glass",
+     "cubos",
+     "stevia"
+    ],
+    "t": [
+     0.45,
+     5
+    ]
+   }
   },
   {
    "n": "Sal",
@@ -227,7 +643,26 @@
    "gba": [
     "Sal fina",
     "500 g"
-   ]
+   ],
+   "sepa": {
+    "q": [
+     "sal fina",
+     "sal gruesa",
+     "sal entrefina",
+     "sal de mesa"
+    ],
+    "ini": true,
+    "x": [
+     "dietetica",
+     "light",
+     "bajo",
+     "sodio"
+    ],
+    "t": [
+     0.2,
+     5
+    ]
+   }
   },
   {
    "n": "Manzana",
@@ -236,7 +671,27 @@
    "gba": [
     "Manzana deliciosa",
     "kg"
-   ]
+   ],
+   "sepa": {
+    "q": [
+     "manzana",
+     "manzanas",
+     "manzana roja",
+     "manzana verde"
+    ],
+    "ini": true,
+    "x": [
+     "vinagre",
+     "isotonica",
+     "beb",
+     "compota",
+     "deshidrat*"
+    ],
+    "t": [
+     0.9,
+     6
+    ]
+   }
   },
   {
    "n": "Limón",
@@ -245,7 +700,25 @@
    "gba": [
     "Limón",
     "kg"
-   ]
+   ],
+   "sepa": {
+    "q": [
+     "limon",
+     "limones"
+    ],
+    "ini": true,
+    "x": [
+     "gaseo",
+     "amargo",
+     "lavaj*",
+     "deter*",
+     "exprimido"
+    ],
+    "t": [
+     0.9,
+     6
+    ]
+   }
   },
   {
    "n": "Naranja",
@@ -254,7 +727,25 @@
    "gba": [
     "Naranja",
     "kg"
-   ]
+   ],
+   "sepa": {
+    "q": [
+     "naranja",
+     "naranjas",
+     "naranja ombligo"
+    ],
+    "ini": true,
+    "x": [
+     "mermelada",
+     "fanta",
+     "bizcoch*",
+     "mermel"
+    ],
+    "t": [
+     0.9,
+     10
+    ]
+   }
   },
   {
    "n": "Banana",
@@ -263,7 +754,22 @@
    "gba": [
     "Banana",
     "kg"
-   ]
+   ],
+   "sepa": {
+    "q": [
+     "banana",
+     "bananas"
+    ],
+    "ini": true,
+    "x": [
+     "yog",
+     "tostones"
+    ],
+    "t": [
+     0.9,
+     6
+    ]
+   }
   },
   {
    "n": "Papa",
@@ -276,7 +782,30 @@
    "nac": [
     "Papa",
     "kg"
-   ]
+   ],
+   "sepa": {
+    "q": [
+     "papa",
+     "papas",
+     "papa negra",
+     "papa blanca"
+    ],
+    "ini": true,
+    "x": [
+     "frit*",
+     "precocid*",
+     "congelad*",
+     "tradicional",
+     "noisette",
+     "rustic*",
+     "bastones",
+     "lays"
+    ],
+    "t": [
+     0.9,
+     15
+    ]
+   }
   },
   {
    "n": "Batata",
@@ -285,7 +814,26 @@
    "gba": [
     "Batata",
     "kg"
-   ]
+   ],
+   "sepa": {
+    "q": [
+     "batata",
+     "batatas"
+    ],
+    "ini": true,
+    "x": [
+     "dulce",
+     "frit*",
+     "chips",
+     "congelad*",
+     "cubos",
+     "dulcor"
+    ],
+    "t": [
+     0.9,
+     6
+    ]
+   }
   },
   {
    "n": "Cebolla",
@@ -294,7 +842,29 @@
    "gba": [
     "Cebolla",
     "kg"
-   ]
+   ],
+   "sepa": {
+    "q": [
+     "cebolla",
+     "cebollas"
+    ],
+    "ini": true,
+    "x": [
+     "verdeo",
+     "polvo",
+     "deshidrat*",
+     "congelad*",
+     "grisines",
+     "aritos",
+     "frita*",
+     "crocante*",
+     "crema"
+    ],
+    "t": [
+     0.9,
+     6
+    ]
+   }
   },
   {
    "n": "Lechuga",
@@ -303,7 +873,22 @@
    "gba": [
     "Lechuga",
     "kg"
-   ]
+   ],
+   "sepa": {
+    "q": [
+     "lechuga",
+     "lechuga mantecosa",
+     "lechuga criolla"
+    ],
+    "ini": true,
+    "x": [
+     "ensal*"
+    ],
+    "t": [
+     0.9,
+     6
+    ]
+   }
   },
   {
    "n": "Tomate",
@@ -312,7 +897,33 @@
    "gba": [
     "Tomate redondo",
     "kg"
-   ]
+   ],
+   "sepa": {
+    "q": [
+     "tomate",
+     "tomate redondo",
+     "tomates"
+    ],
+    "ini": true,
+    "x": [
+     "triturado",
+     "cubeteado",
+     "lata",
+     "perita",
+     "prepizza",
+     "pelado*",
+     "seco*",
+     "cherry",
+     "tetra",
+     "trit",
+     "salsa",
+     "extracto"
+    ],
+    "t": [
+     0.9,
+     6
+    ]
+   }
   },
   {
    "n": "Tomate perita",
@@ -322,7 +933,24 @@
     "Tomate redondo",
     "kg"
    ],
-   "aprox": true
+   "aprox": true,
+   "sepa": {
+    "q": [
+     "tomate perita",
+     "tomates perita"
+    ],
+    "ini": true,
+    "x": [
+     "lata",
+     "tetra",
+     "pelado*",
+     "triturado"
+    ],
+    "t": [
+     0.9,
+     6
+    ]
+   }
   },
   {
    "n": "Zapallo",
@@ -331,7 +959,26 @@
    "gba": [
     "Zapallo anco",
     "kg"
-   ]
+   ],
+   "sepa": {
+    "q": [
+     "zapallo",
+     "calabaza",
+     "anco"
+    ],
+    "ini": true,
+    "x": [
+     "tarta",
+     "sopa",
+     "congelad*",
+     "porcionado",
+     "comercial"
+    ],
+    "t": [
+     0.9,
+     10
+    ]
+   }
   },
   {
    "n": "Tomate en lata",
@@ -384,7 +1031,40 @@
     "Leche fresca entera sachet",
     "Litro"
    ],
-   "densidad": 1.03
+   "densidad": 1.03,
+   "sepa": {
+    "q": [
+     "leche",
+     "leche entera",
+     "leche entera sachet",
+     "leche larga vida",
+     "leche uat"
+    ],
+    "ini": true,
+    "x": [
+     "infantil",
+     "chocolatada",
+     "condensada",
+     "descremada",
+     "polvo",
+     "sin",
+     "dulce",
+     "cremosa",
+     "crema",
+     "achocolatada",
+     "fermentada",
+     "deslactosada",
+     "soja",
+     "almendras",
+     "coco",
+     "zero",
+     "ent"
+    ],
+    "t": [
+     0.9,
+     2
+    ]
+   }
   },
   {
    "n": "Aceite de girasol",
@@ -398,7 +1078,29 @@
     "Aceite de girasol",
     "1,5 litros"
    ],
-   "densidad": 0.92
+   "densidad": 0.92,
+   "sepa": {
+    "q": [
+     "aceite de girasol",
+     "aceite girasol",
+     "aceite mezcla",
+     "aceite"
+    ],
+    "ini": true,
+    "x": [
+     "oliva",
+     "maiz",
+     "uva",
+     "coco",
+     "sesamo",
+     "spray",
+     "vegetal"
+    ],
+    "t": [
+     0.4,
+     6
+    ]
+   }
   },
   {
    "n": "Agua",
@@ -419,7 +1121,27 @@
     "195 cc"
    ],
    "aprox": true,
-   "densidad": 1.03
+   "densidad": 1.03,
+   "sepa": {
+    "q": [
+     "yogur natural",
+     "yogurt natural",
+     "yogur batido natural",
+     "yog natural"
+    ],
+    "ini": true,
+    "x": [
+     "griego",
+     "bebible",
+     "beb",
+     "cremoso"
+    ],
+    "t": [
+     0.1,
+     1.5
+    ],
+    "u": "kg"
+   }
   },
   {
    "n": "Huevo",
@@ -432,7 +1154,1494 @@
    "nac": [
     "Huevos de gallina",
     "Docena"
-   ]
+   ],
+   "sepa": {
+    "q": [
+     "huevo",
+     "huevos",
+     "huevo blanco",
+     "huevos frescos"
+    ],
+    "ini": true,
+    "x": [
+     "chocolate",
+     "pascua",
+     "color",
+     "codorniz",
+     "kinder",
+     "sorpresa",
+     "tapa"
+    ],
+    "t": [
+     5,
+     60
+    ]
+   }
+  },
+  {
+   "n": "Zanahoria",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "zanahoria",
+     "zanahorias"
+    ],
+    "ini": true,
+    "x": [
+     "lata",
+     "congelad*",
+     "supercongel*",
+     "enter*",
+     "rallad*",
+     "baby"
+    ],
+    "t": [
+     0.9,
+     6
+    ]
+   }
+  },
+  {
+   "n": "Zapallito",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "zapallito",
+     "zapallitos"
+    ],
+    "ini": true,
+    "x": [
+     "lata",
+     "congelad*"
+    ],
+    "t": [
+     0.9,
+     6
+    ]
+   }
+  },
+  {
+   "n": "Cebolla de verdeo",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "cebolla de verdeo"
+    ],
+    "ini": true,
+    "x": [
+     "arroz",
+     "polvo"
+    ],
+    "t": [
+     0.5,
+     6
+    ],
+    "a": true
+   }
+  },
+  {
+   "n": "Puerro",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "puerro",
+     "puerros"
+    ],
+    "ini": true,
+    "x": [
+     "tarta",
+     "sopa",
+     "mix"
+    ],
+    "t": [
+     0.5,
+     6
+    ],
+    "a": true
+   }
+  },
+  {
+   "n": "Remolacha",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "remolacha",
+     "remolachas"
+    ],
+    "ini": true,
+    "x": [
+     "chips",
+     "cubos",
+     "lata",
+     "conserva*"
+    ],
+    "t": [
+     0.9,
+     6
+    ]
+   }
+  },
+  {
+   "n": "Rúcula",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "rucula"
+    ],
+    "ini": true,
+    "x": [
+     "sueno",
+     "ensal",
+     "sem"
+    ],
+    "t": [
+     0.05,
+     2
+    ],
+    "a": true
+   }
+  },
+  {
+   "n": "Repollo blanco",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "repollo",
+     "repollo blanco"
+    ],
+    "ini": true,
+    "x": [
+     "colorado",
+     "morado"
+    ],
+    "t": [
+     0.9,
+     6
+    ]
+   }
+  },
+  {
+   "n": "Repollo colorado",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "repollo colorado",
+     "repollo morado"
+    ],
+    "ini": true,
+    "t": [
+     0.9,
+     6
+    ]
+   }
+  },
+  {
+   "n": "Morrón rojo",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "morron rojo",
+     "pimiento rojo",
+     "morron"
+    ],
+    "ini": true,
+    "x": [
+     "vinagre",
+     "conserva*",
+     "lata",
+     "asado*",
+     "verde",
+     "amarillo"
+    ],
+    "t": [
+     0.9,
+     6
+    ]
+   }
+  },
+  {
+   "n": "Morrón amarillo",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "morron amarillo",
+     "pimiento amarillo"
+    ],
+    "ini": true,
+    "x": [
+     "vinagre",
+     "conserva*",
+     "lata"
+    ],
+    "t": [
+     0.9,
+     6
+    ]
+   }
+  },
+  {
+   "n": "Morrón verde",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "morron verde",
+     "pimiento verde"
+    ],
+    "ini": true,
+    "x": [
+     "vinagre",
+     "conserva*",
+     "lata"
+    ],
+    "t": [
+     0.9,
+     6
+    ]
+   }
+  },
+  {
+   "n": "Brócoli",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "brocoli"
+    ],
+    "ini": true,
+    "x": [
+     "supercongel*",
+     "pasta",
+     "menu",
+     "congelad*",
+     "iqf"
+    ],
+    "t": [
+     0.9,
+     6
+    ]
+   }
+  },
+  {
+   "n": "Espinaca",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "espinaca",
+     "espinacas"
+    ],
+    "ini": true,
+    "x": [
+     "medallon",
+     "veg",
+     "tarta",
+     "rell",
+     "crema"
+    ],
+    "t": [
+     0.3,
+     6
+    ],
+    "a": true
+   }
+  },
+  {
+   "n": "Acelga",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "acelga",
+     "acelgas"
+    ],
+    "ini": true,
+    "x": [
+     "supercongel*",
+     "iqf",
+     "congelad*",
+     "congelada*"
+    ],
+    "t": [
+     0.5,
+     6
+    ]
+   }
+  },
+  {
+   "n": "Apio",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "apio"
+    ],
+    "ini": true,
+    "x": [
+     "sopa",
+     "vegetales"
+    ],
+    "t": [
+     0.3,
+     6
+    ]
+   }
+  },
+  {
+   "n": "Ajo",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "ajo",
+     "ajos",
+     "ajo cabeza"
+    ],
+    "ini": true,
+    "x": [
+     "triturad*",
+     "deshid*",
+     "pan",
+     "polvo",
+     "hummus",
+     "mayo",
+     "salsa",
+     "aji",
+     "ahumado",
+     "pasta",
+     "frasco",
+     "molido"
+    ],
+    "t": [
+     0.05,
+     1
+    ],
+    "a": true
+   }
+  },
+  {
+   "n": "Pepino",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "pepino",
+     "pepinos"
+    ],
+    "ini": true,
+    "x": [
+     "desodor*",
+     "jabon",
+     "encurtido*"
+    ],
+    "t": [
+     0.9,
+     6
+    ]
+   }
+  },
+  {
+   "n": "Choclo",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "choclo",
+     "choclos"
+    ],
+    "ini": true,
+    "x": [
+     "sopa",
+     "jardi",
+     "congelad*"
+    ],
+    "t": [
+     0.2,
+     6
+    ]
+   }
+  },
+  {
+   "n": "Albahaca",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "albahaca"
+    ],
+    "ini": true,
+    "x": [
+     "deshidrat*",
+     "saborizante",
+     "saborizador",
+     "caldo",
+     "seca"
+    ],
+    "t": [
+     0.02,
+     0.3
+    ],
+    "a": true
+   }
+  },
+  {
+   "n": "Zucchini",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "zucchini",
+     "zuchini",
+     "zucchinis"
+    ],
+    "ini": true,
+    "x": [
+     "congelad*"
+    ],
+    "t": [
+     0.5,
+     6
+    ]
+   }
+  },
+  {
+   "n": "Berenjena",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "berenjena",
+     "berenjenas"
+    ],
+    "ini": true,
+    "x": [
+     "escabeche",
+     "lata",
+     "congelad*",
+     "milanesa*",
+     "vinagre"
+    ],
+    "t": [
+     0.5,
+     6
+    ]
+   }
+  },
+  {
+   "n": "Coliflor",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "coliflor"
+    ],
+    "ini": true,
+    "x": [
+     "congelad*",
+     "supercongel*"
+    ],
+    "t": [
+     0.3,
+     6
+    ]
+   }
+  },
+  {
+   "n": "Chauchas",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "chauchas",
+     "chaucha"
+    ],
+    "ini": true,
+    "x": [
+     "congelad*",
+     "supercongel*"
+    ],
+    "t": [
+     0.2,
+     6
+    ]
+   }
+  },
+  {
+   "n": "Rabanito",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "rabanito",
+     "rabanitos",
+     "rabano"
+    ],
+    "ini": true,
+    "t": [
+     0.1,
+     3
+    ]
+   }
+  },
+  {
+   "n": "Escarola",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "escarola"
+    ],
+    "ini": true,
+    "t": [
+     0.1,
+     3
+    ]
+   }
+  },
+  {
+   "n": "Hinojo",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "hinojo"
+    ],
+    "ini": true,
+    "x": [
+     "te",
+     "infusion*"
+    ],
+    "t": [
+     0.2,
+     5
+    ]
+   }
+  },
+  {
+   "n": "Alcaucil",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "alcaucil",
+     "alcauciles"
+    ],
+    "ini": true,
+    "x": [
+     "lata"
+    ],
+    "t": [
+     0.2,
+     5
+    ]
+   }
+  },
+  {
+   "n": "Espárragos",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "esparragos",
+     "esparrago"
+    ],
+    "ini": true,
+    "t": [
+     0.1,
+     3
+    ],
+    "a": true
+   }
+  },
+  {
+   "n": "Kale",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "kale"
+    ],
+    "ini": true,
+    "t": [
+     0.05,
+     2
+    ],
+    "a": true
+   }
+  },
+  {
+   "n": "Radicheta",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "radicheta",
+     "radicchio"
+    ],
+    "ini": true,
+    "t": [
+     0.1,
+     3
+    ],
+    "a": true
+   }
+  },
+  {
+   "n": "Nabo",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "nabo",
+     "nabos"
+    ],
+    "ini": true,
+    "t": [
+     0.5,
+     6
+    ]
+   }
+  },
+  {
+   "n": "Mandioca",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "mandioca"
+    ],
+    "ini": true,
+    "x": [
+     "fecula",
+     "harina",
+     "almidon",
+     "chips",
+     "frita*"
+    ],
+    "t": [
+     0.5,
+     6
+    ]
+   }
+  },
+  {
+   "n": "Palta",
+   "b": "unidad",
+   "sepa": {
+    "q": [
+     "palta",
+     "paltas"
+    ],
+    "ini": true,
+    "x": [
+     "aguacate"
+    ],
+    "t": [
+     1,
+     8
+    ]
+   }
+  },
+  {
+   "n": "Arroz integral",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "arroz integral",
+     "arroz yamani"
+    ],
+    "ini": true,
+    "x": [
+     "preparado",
+     "estuche"
+    ],
+    "t": [
+     0.2,
+     5
+    ]
+   }
+  },
+  {
+   "n": "Harina de trigo integral",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "harina integral",
+     "harina de trigo integral"
+    ],
+    "ini": true,
+    "x": [
+     "pizza",
+     "leudante"
+    ],
+    "t": [
+     0.45,
+     5
+    ]
+   }
+  },
+  {
+   "n": "Harina de arroz",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "harina de arroz"
+    ],
+    "ini": true,
+    "t": [
+     0.2,
+     5
+    ]
+   }
+  },
+  {
+   "n": "Harina de avena",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "harina de avena"
+    ],
+    "ini": true,
+    "t": [
+     0.2,
+     5
+    ]
+   }
+  },
+  {
+   "n": "Harina de maíz",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "harina de maiz",
+     "harina maiz"
+    ],
+    "ini": true,
+    "x": [
+     "pre*"
+    ],
+    "t": [
+     0.2,
+     5
+    ]
+   }
+  },
+  {
+   "n": "Fécula de maíz",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "maicena",
+     "fecula de maiz",
+     "almidon de maiz"
+    ],
+    "ini": true,
+    "t": [
+     0.1,
+     5
+    ]
+   }
+  },
+  {
+   "n": "Fécula de mandioca",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "fecula de mandioca",
+     "almidon de mandioca"
+    ],
+    "ini": true,
+    "t": [
+     0.1,
+     5
+    ]
+   }
+  },
+  {
+   "n": "Pan rallado",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "pan rallado",
+     "rebozador"
+    ],
+    "ini": true,
+    "x": [
+     "crunch",
+     "integral"
+    ],
+    "t": [
+     0.2,
+     5
+    ]
+   }
+  },
+  {
+   "n": "Polenta",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "polenta"
+    ],
+    "ini": true,
+    "x": [
+     "vegetales",
+     "4 quesos",
+     "instantanea",
+     "queso"
+    ],
+    "t": [
+     0.2,
+     5
+    ]
+   }
+  },
+  {
+   "n": "Avena",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "avena",
+     "avena instantanea",
+     "avena tradicional",
+     "avena arrollada"
+    ],
+    "ini": true,
+    "x": [
+     "box",
+     "pasas"
+    ],
+    "t": [
+     0.2,
+     5
+    ]
+   }
+  },
+  {
+   "n": "Quinoa",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "quinoa",
+     "quinua"
+    ],
+    "ini": true,
+    "x": [
+     "wakas",
+     "fusilli",
+     "facil",
+     "fideos"
+    ],
+    "t": [
+     0.1,
+     5
+    ]
+   }
+  },
+  {
+   "n": "Amaranto",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "amaranto"
+    ],
+    "ini": true,
+    "x": [
+     "soplado*"
+    ],
+    "t": [
+     0.1,
+     5
+    ]
+   }
+  },
+  {
+   "n": "Cebada",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "cebada",
+     "cebada perlada"
+    ],
+    "ini": true,
+    "x": [
+     "cerveza",
+     "malta"
+    ],
+    "t": [
+     0.2,
+     5
+    ]
+   }
+  },
+  {
+   "n": "Cuscús",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "cuscus",
+     "cous cous",
+     "couscous"
+    ],
+    "ini": true,
+    "t": [
+     0.1,
+     5
+    ]
+   }
+  },
+  {
+   "n": "Mijo",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "mijo"
+    ],
+    "ini": true,
+    "t": [
+     0.1,
+     5
+    ]
+   }
+  },
+  {
+   "n": "Tapioca",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "tapioca"
+    ],
+    "ini": true,
+    "t": [
+     0.1,
+     5
+    ]
+   }
+  },
+  {
+   "n": "Lentejas",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "lentejas",
+     "lenteja"
+    ],
+    "ini": true,
+    "x": [
+     "guiso",
+     "chocolate",
+     "tetra",
+     "lata"
+    ],
+    "t": [
+     0.2,
+     5
+    ]
+   }
+  },
+  {
+   "n": "Garbanzos",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "garbanzos",
+     "garbanzo"
+    ],
+    "ini": true,
+    "x": [
+     "hummus"
+    ],
+    "t": [
+     0.2,
+     5
+    ]
+   }
+  },
+  {
+   "n": "Arvejas",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "arvejas",
+     "arveja"
+    ],
+    "ini": true,
+    "x": [
+     "supercongel*",
+     "congelad*"
+    ],
+    "t": [
+     0.2,
+     5
+    ]
+   }
+  },
+  {
+   "n": "Porotos colorados",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "porotos colorados",
+     "poroto colorado",
+     "porotos rojos"
+    ],
+    "ini": true,
+    "t": [
+     0.2,
+     5
+    ]
+   }
+  },
+  {
+   "n": "Porotos negros",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "porotos negros",
+     "poroto negro"
+    ],
+    "ini": true,
+    "t": [
+     0.2,
+     5
+    ]
+   }
+  },
+  {
+   "n": "Porotos alubia",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "porotos alubia",
+     "poroto alubia",
+     "alubias",
+     "porotos alubias"
+    ],
+    "ini": true,
+    "t": [
+     0.2,
+     5
+    ]
+   }
+  },
+  {
+   "n": "Porotos manteca",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "porotos manteca",
+     "poroto manteca"
+    ],
+    "ini": true,
+    "t": [
+     0.2,
+     5
+    ]
+   }
+  },
+  {
+   "n": "Porotos mung",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "porotos mung",
+     "poroto mung",
+     "poroto mungo"
+    ],
+    "ini": true,
+    "t": [
+     0.1,
+     5
+    ]
+   }
+  },
+  {
+   "n": "Porotos aduki",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "porotos aduki",
+     "poroto aduki",
+     "porotos azuki"
+    ],
+    "ini": true,
+    "t": [
+     0.1,
+     5
+    ]
+   }
+  },
+  {
+   "n": "Porotos pallar",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "porotos pallar",
+     "poroto pallar",
+     "pallares"
+    ],
+    "ini": true,
+    "t": [
+     0.1,
+     5
+    ]
+   }
+  },
+  {
+   "n": "Habas",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "habas"
+    ],
+    "ini": true,
+    "t": [
+     0.1,
+     5
+    ]
+   }
+  },
+  {
+   "n": "Lupino",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "lupino",
+     "lupinos",
+     "lupines"
+    ],
+    "ini": true,
+    "t": [
+     0.1,
+     5
+    ],
+    "a": true
+   }
+  },
+  {
+   "n": "Maní",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "mani",
+     "mani tostado",
+     "mani pelado"
+    ],
+    "ini": true,
+    "x": [
+     "pasta",
+     "manteca",
+     "garrapinad*",
+     "confitad*",
+     "japones",
+     "salado*",
+     "frito*"
+    ],
+    "t": [
+     0.1,
+     5
+    ]
+   }
+  },
+  {
+   "n": "Soja",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "soja",
+     "porotos de soja",
+     "poroto de soja"
+    ],
+    "ini": true,
+    "x": [
+     "aceite",
+     "salsa",
+     "leche",
+     "yogur",
+     "harina",
+     "milanesa*",
+     "hamburguesa*",
+     "texturizada"
+    ],
+    "t": [
+     0.1,
+     5
+    ]
+   }
+  },
+  {
+   "n": "Atún",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "atun"
+    ],
+    "ini": true,
+    "x": [
+     "alim*",
+     "paste*",
+     "sandwich*",
+     "empanada*",
+     "rell*"
+    ],
+    "t": [
+     0.1,
+     2
+    ]
+   }
+  },
+  {
+   "n": "Caballa",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "caballa",
+     "filet de caballa"
+    ],
+    "ini": true,
+    "t": [
+     0.1,
+     3
+    ]
+   }
+  },
+  {
+   "n": "Sardina",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "sardina",
+     "sardinas"
+    ],
+    "ini": true,
+    "t": [
+     0.05,
+     3
+    ]
+   }
+  },
+  {
+   "n": "Salmón",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "salmon",
+     "filet de salmon",
+     "salmon rosado"
+    ],
+    "ini": true,
+    "x": [
+     "alim*",
+     "snack*",
+     "petit",
+     "paste*"
+    ],
+    "t": [
+     0.1,
+     3
+    ],
+    "a": true
+   }
+  },
+  {
+   "n": "Lenguado",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "lenguado",
+     "filet de lenguado"
+    ],
+    "ini": true,
+    "t": [
+     0.2,
+     3
+    ]
+   }
+  },
+  {
+   "n": "Carne vacuna",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "nalga",
+     "cuadril",
+     "colita de cuadril",
+     "bola de lomo",
+     "lomo",
+     "roast beef",
+     "peceto",
+     "bife ancho",
+     "bife de chorizo"
+    ],
+    "ini": true,
+    "x": [
+     "milanesa*",
+     "feta*",
+     "fiambre",
+     "embutido*"
+    ],
+    "t": [
+     0.4,
+     8
+    ]
+   }
+  },
+  {
+   "n": "Carré de cerdo",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "carre de cerdo",
+     "carre",
+     "carre cerdo"
+    ],
+    "ini": true,
+    "x": [
+     "milanesa*"
+    ],
+    "t": [
+     0.4,
+     8
+    ]
+   }
+  },
+  {
+   "n": "Clara de huevo",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "clara de huevo",
+     "claras",
+     "claras pasteurizadas"
+    ],
+    "ini": true,
+    "t": [
+     0.1,
+     5
+    ],
+    "a": true
+   }
+  },
+  {
+   "n": "Yogur descremado",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "yogur descremado",
+     "yogurt descremado",
+     "yog descremado"
+    ],
+    "ini": true,
+    "x": [
+     "griego",
+     "bebible",
+     "beb"
+    ],
+    "t": [
+     0.1,
+     1.5
+    ]
+   }
+  },
+  {
+   "n": "Queso fresco",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "queso fresco",
+     "queso blanco",
+     "ricota"
+    ],
+    "ini": true,
+    "x": [
+     "untable",
+     "sin"
+    ],
+    "t": [
+     0.1,
+     5
+    ]
+   }
+  },
+  {
+   "n": "Queso Port Salut",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "queso port salut",
+     "port salut"
+    ],
+    "ini": true,
+    "x": [
+     "descremado",
+     "light"
+    ],
+    "t": [
+     0.1,
+     5
+    ]
+   }
+  },
+  {
+   "n": "Queso untable descremado",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "queso untable descremado",
+     "queso crema descremado",
+     "queso untable light",
+     "queso untable"
+    ],
+    "ini": true,
+    "x": [
+     "jamon",
+     "salame",
+     "clasic*"
+    ],
+    "t": [
+     0.1,
+     2
+    ],
+    "a": true
+   }
+  },
+  {
+   "n": "Queso rallado",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "queso rallado",
+     "rallado"
+    ],
+    "ini": true,
+    "x": [
+     "rallador",
+     "pan",
+     "coco"
+    ],
+    "t": [
+     0.02,
+     2
+    ]
+   }
+  },
+  {
+   "n": "Aceite de oliva",
+   "b": "l",
+   "sepa": {
+    "q": [
+     "aceite de oliva",
+     "aceite oliva",
+     "aceite extra virgen"
+    ],
+    "ini": true,
+    "t": [
+     0.2,
+     5
+    ]
+   }
+  },
+  {
+   "n": "Tortillas de trigo",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "tortillas de trigo",
+     "tortilla de trigo",
+     "wraps",
+     "wrap",
+     "tortillas"
+    ],
+    "ini": true,
+    "x": [
+     "chips",
+     "grasa",
+     "tapa*"
+    ],
+    "t": [
+     0.1,
+     3
+    ],
+    "a": true
+   }
   }
  ]
 }

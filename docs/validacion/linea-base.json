@@ -8,7 +8,7 @@
     "navegador": "Chrome/156.0.8078.73"
   },
   "pruebas": {
-    "total": 531,
+    "total": 539,
     "suites": {
       "d01_diseno.js": 8,
       "m01_modo.js": 13,
@@ -48,7 +48,8 @@
       "e5_compras.js": 11,
       "e6_registro.js": 10,
       "e7_precios.js": 7,
-      "e8_herramientas.js": 10
+      "e8_herramientas.js": 10,
+      "e9_sepa.js": 8
     }
   },
   "claves": [
@@ -1028,8 +1029,8 @@
     }
   },
   "actualizada": {
-    "etapa": 8,
-    "version": "15.7.0",
+    "etapa": 9,
+    "version": "15.8.0",
     "fecha": "2026-11-03"
   }
 }

@@ -12,8 +12,12 @@ var REGIONES_PRECIOS=["GBA","Pampeana","Noreste","Noroeste","Cuyo","Patagonia"];
 function validRegionPrecios(v){
   return!!v&&typeof v==="object"&&!Array.isArray(v)&&Object.keys(v).length===1&&typeof v.region==="string"&&["GBA","Pampeana","Noreste","Noroeste","Cuyo","Patagonia"].includes(v.region)
 }
+// Precio finito y positivo de un objeto {región: precio}, o null.
+function valorRegionPrecio(o,r){
+  return!!o&&typeof o==="object"&&Number.isFinite(o[r])&&o[r]>0&&o[r]<1e7?o[r]:null
+}
 function validPreciosData(d){
-  return!!d&&typeof d==="object"&&d.version===1&&/^\d{4}-\d{2}$/.test(d.mes||"")&&!!d.fuente&&typeof d.fuente==="object"&&Array.isArray(d.items)&&d.items.length>0&&d.items.length<=500&&d.items.every(i=>!!i&&typeof i.n==="string"&&["kg","l","unidad"].includes(i.b)&&!!i.p&&typeof i.p==="object"&&Number.isFinite(i.p.GBA)&&i.p.GBA>0)
+  return!!d&&typeof d==="object"&&d.version===1&&/^\d{4}-\d{2}$/.test(d.mes||"")&&!!d.fuente&&typeof d.fuente==="object"&&Array.isArray(d.items)&&d.items.length>0&&d.items.length<=500&&d.items.every(i=>!!i&&typeof i.n==="string"&&["kg","l","unidad"].includes(i.b)&&(valorRegionPrecio(i.p,"GBA")!==null||valorRegionPrecio(i.s,"GBA")!==null))
 }
 function preciosDataset(){
   let sig="";
@@ -102,9 +106,22 @@ function mesCortoPrecios(mes){
   const m=/^(\d{4})-(\d{2})$/.exec(mes||"");
   return m?["ene.","feb.","mar.","abr.","may.","jun.","jul.","ago.","sept.","oct.","nov.","dic."][Number(m[2])-1]+" "+m[1]:""
 }
-function fuentePrecios(region){
+function fechaCortaPrecios(f){
+  const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(f||"");
+  return m?Number(m[3])+" "+["ene.","feb.","mar.","abr.","may.","jun.","jul.","ago.","sept.","oct.","nov.","dic."][Number(m[2])-1]+" "+m[1]:""
+}
+function datosSepaPrecios(d){
+  const s=d&&d.meta.sepa;
+  return s&&typeof s==="object"&&/^\d{4}-\d{2}-\d{2}$/.test(s.fecha||"")?s:null
+}
+// Fuente escrita. Sin datos de SEPA es la de siempre; con ellos, la línea general dice las dos.
+function fuentePrecios(region,cual){
   const d=preciosDataset();
-  return d?"Promedio INDEC · "+(region||regionPrecios())+" · "+mesCortoPrecios(d.meta.mes):""
+  if(!d)return "";
+  const reg=region||regionPrecios(),sepa=datosSepaPrecios(d),indec="Promedio INDEC · "+reg+" · "+mesCortoPrecios(d.meta.mes);
+  if(cual==="indec"||!sepa)return indec;
+  const s="SEPA · mediana · "+reg+" · "+fechaCortaPrecios(sepa.fecha);
+  return cual==="sepa"?s:s+" (INDEC si falta · "+mesCortoPrecios(d.meta.mes)+")"
 }
 var PRECIOS_CAZUELA=null;
 // Cantidad en la unidad base del precio (kg, l o unidad), o null si no se puede pasar.
@@ -125,14 +142,35 @@ function cantidadBasePrecio(it,nombre,q,unit){
   const g=nutritionGrams(nut,q,unit);
   return g===null?null:g/1000
 }
-// Precio de INDEC de un ingrediente en una región: {precio por unidad base, región usada} o null.
+// Percentiles 25 y 75 de SEPA en una región: el par suelto (formato de la Etapa 8) o un objeto por región.
+function rangoSepaPrecios(it,reg){
+  const r=Array.isArray(it.r)?it.r:it.r&&typeof it.r==="object"?it.r[reg]:null;
+  return Array.isArray(r)&&r.length===2&&r.every(x=>Number.isFinite(x)&&x>0)&&r[0]<=r[1]?r:null
+}
+// Precio automático de un ingrediente: SEPA de la región, INDEC de la región, SEPA de GBA, INDEC de GBA.
+// Devuelve {it, precio por unidad base, region usada, fuente: "sepa"|"indec", rango: [p25, p75]|null, aprox} o null.
+function precioAuto(nombre){
+  const d=preciosDataset();
+  if(!d)return null;
+  const it=d.byKey.get(ingredientKey(String(nombre||"")));
+  if(!it)return null;
+  const r=regionPrecios();
+  for(const [f,reg] of [["sepa",r],["indec",r],["sepa","GBA"],["indec","GBA"]]){
+    const v=valorRegionPrecio(f==="sepa"?it.s:it.p,reg);
+    if(v!==null)return {
+      it,precio:v,region:reg,fuente:f,rango:f==="sepa"?rangoSepaPrecios(it,reg):null,aprox:f==="sepa"?!!it.sa:!!it.a
+    }
+  }
+  return null
+}
+// Precio de INDEC solo (se conserva para quien lo use): {precio por unidad base, región usada} o null.
 function precioIndec(nombre){
   const d=preciosDataset();
   if(!d)return null;
   const it=d.byKey.get(ingredientKey(String(nombre||"")));
   if(!it)return null;
-  const r=regionPrecios(),usada=Number.isFinite(it.p[r])&&it.p[r]>0?r:"GBA";
-  return {
+  const r=regionPrecios(),usada=valorRegionPrecio(it.p,r)!==null?r:"GBA";
+  return valorRegionPrecio(it.p,usada)===null?null:{
     it,precio:it.p[usada],region:usada
   }
 }
@@ -146,14 +184,15 @@ function precioDe(nombre,q,unit){
     }
   }catch(e){
   }
-  const p=precioIndec(nombre);
+  // Solo lee: no guarda nada (C9-2).
+  const p=precioAuto(nombre);
   if(!p)return null;
   const base=cantidadBasePrecio({
     b:p.it.b,d:p.it.d
   },nombre,q,unit);
   if(base===null)return null;
   return {
-    costo:base*p.precio,propio:false,fuente:fuentePrecios(p.region),aprox:!!p.it.a,region:p.region
+    costo:base*p.precio,propio:false,fuente:fuentePrecios(p.region,p.fuente),origen:p.fuente,aprox:p.aprox,region:p.region
   }
 }
 // Rango de precios de un ingrediente por unidad (para Comparar alternativas): lo más barato y lo típico (mediana) de Mi
@@ -177,14 +216,14 @@ function rangoDePrecios(nombre,unidad){
   }catch(e){
   }
   if(preciosActivos()){
-    const p=precioIndec(nombre),base=p&&cantidadBasePrecio({
+    const p=precioAuto(nombre),base=p&&cantidadBasePrecio({
       b:p.it.b,d:p.it.d
     },nombre,1,unidad);
     if(p&&base){
       out.auto=base*p.precio;
-      if(Array.isArray(p.it.r)&&p.it.r.length===2&&p.it.r.every(x=>Number.isFinite(x)&&x>0)){
-        out.autoBajo=base*p.it.r[0];
-        out.autoAlto=base*p.it.r[1]
+      if(p.rango){
+        out.autoBajo=base*p.rango[0];
+        out.autoAlto=base*p.rango[1]
       }
       if(out.mio!==null&&out.auto>0)out.difPct=Math.round((out.mio/out.auto-1)*100)
     }
@@ -316,27 +355,29 @@ function pintarCostoDia(){
 function preciosDeLaLista(items){
   if(!preciosActivos()||!preciosDataset())return null;
   const porClave=new Map();
-  let total=0,faltan=0,pendientes=0;
+  let total=0,faltan=0,pendientes=0,aprox=0;
   for(const x of items){
     if(x.group!=="pendiente")continue;
     pendientes++;
     const faltaMapa=x.suggestion&&x.suggestion.kind==="partial"&&x.suggestion.missing&&comprasDescontar()?x.suggestion.missing:x.units;
-    let costo=0,ok=!!faltaMapa&&faltaMapa.size>0;
+    let costo=0,ok=!!faltaMapa&&faltaMapa.size>0,esAprox=false;
     if(ok)for(const [u,q] of faltaMapa){
       const r=precioDe(x.name,q,u);
       if(!r){
         ok=false;
         break
       }
-      costo+=r.costo
+      costo+=r.costo;
+      if(r.aprox)esAprox=true
     }
     if(ok){
       total+=costo;
+      if(esAprox)aprox++;
       porClave.set(x.key,formatoPesos(costo))
     }else faltan++
   }
   return {
-    porClave,total,faltan,pendientes
+    porClave,total,faltan,pendientes,aprox
   }
 }
 function totalAutomaticoLista(){
@@ -349,12 +390,13 @@ function pintarPreciosCompras(p){
   if(a)a.hidden=preciosActivos();
   aplicarPrecios();
   if(f){
-    f.textContent=p&&p.porClave.size?fuentePrecios():"";
+    f.textContent=p&&p.porClave.size?fuentePrecios()+(p.aprox?" · hay precios aprox.":""):"";
     f.hidden=!f.textContent
   }
 }
 function resumenPrecios(p){
-  return p&&p.porClave.size?" · "+formatoPesos(p.total)+(p.faltan?" ("+faltanTexto(p.faltan)+")":""):""
+  // Si faltan más de la mitad, el total es solo una parte de la compra.
+  return p&&p.porClave.size?" · "+(p.faltan*2>p.pendientes?"al menos ":"")+formatoPesos(p.total)+(p.faltan?" ("+faltanTexto(p.faltan)+")":""):""
 }
 function refrescarPrecios(){
   for(const fn of [renderCompras,renderPlan,renderSaved,pintarCostoComida,renderRegionPrecios,renderPresupuestoCompras]){
@@ -383,7 +425,11 @@ function atribucionPrecios(){
     }
     return a
   };
-  box.append(ce("strong",null,"Precios: "+(f.nombre||"INDEC")),ce("br"),document.createTextNode((f.atribucion||"")+" Último mes: "+mesCortoPrecios(d.meta.mes)+". "),enlace(f.informe,"Informe"),document.createTextNode(" · "),enlace(f.url,"Archivo"),ce("br"),document.createTextNode(f.nota||""))
+  box.append(ce("strong",null,"Precios: "+(f.nombre||"INDEC")),ce("br"),document.createTextNode((f.atribucion||"")+" Último mes: "+mesCortoPrecios(d.meta.mes)+". "),enlace(f.informe,"Informe"),document.createTextNode(" · "),enlace(f.url,"Archivo"),ce("br"),document.createTextNode(f.nota||""));
+  const s=datosSepaPrecios(d);
+  if(s){
+    box.append(ce("br"),ce("br"),ce("strong",null,"Precios de supermercados: "+(s.nombre||"SEPA")),ce("br"),document.createTextNode((s.atribucion||"")+" Archivo del "+fechaCortaPrecios(s.fecha)+". "),enlace(s.dataset,"Datos"),document.createTextNode(" · "),enlace(s.licenciaUrl,"Licencia "+(s.licencia||"CC BY 4.0")),ce("br"),document.createTextNode(s.nota||""))
+  }
 }
 (()=>{
   const sel=document.getElementById("preciosRegion");

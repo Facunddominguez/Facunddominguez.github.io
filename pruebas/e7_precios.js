@@ -102,14 +102,15 @@
 
   // C7-5 Los datos: el de ejemplo y el incrustado en la app cumplen las mismas comprobaciones y convierten bien las unidades
   const valido = ev("validPreciosData(PRECIOS_SNAPSHOT)") && w.validPreciosData(EJEMPLO);
-  const nombresOk = ev("PRECIOS_SNAPSHOT.items.every(i=>nutritionFor(i.n)!==null&&['kg','l','unidad'].includes(i.b)&&i.p.GBA>0)") && EJEMPLO.items.every(i => w.nutritionFor(i.n));
+  const nombresOk = ev("PRECIOS_SNAPSHOT.items.every(i=>nutritionFor(i.n)!==null&&['kg','l','unidad'].includes(i.b)&&((i.p&&i.p.GBA>0)||(i.s&&i.s.GBA>0)))") && EJEMPLO.items.every(i => w.nutritionFor(i.n));
   const sinRed = !/https?:\/\/[^"]*indec/i.test(ev("preciosDataset.toString()+precioDe.toString()+atribucionPrecios.toString()"));
   cargar({}); await abrir();
   const huevos = ev('precioDe("Huevo",6,"unidad").costo'), leche = ev('precioDe("Leche",1030,"g").costo'), arrozKg = ev('precioDe("Arroz",1,"kg").costo');
   const real = ev("PRECIOS_SNAPSHOT.items");
-  const px = n => real.find(i => i.n === n).p.GBA;
+  // Desde la Etapa 9 el precio automático es SEPA si está y si no INDEC: se compara con el precio automático de la región (GBA).
+  const px = n => ev('precioAuto("' + n + '").precio');
   ok("C7-5 los datos de ejemplo y los incrustados pasan las mismas comprobaciones y las unidades se convierten (huevo por unidad, leche en litros)",
-    valido && nombresOk && sinRed && Math.abs(huevos - 6 * px("Huevo")) < 0.01 && Math.abs(px("Huevo") * 12 - 3940.5) < 0.1 && Math.abs(leche - px("Leche")) < 0.01 && Math.abs(arrozKg - px("Arroz")) < 0.01 && ev('precioDe("Sal",1,"taza")') !== undefined && ev('precioDe("Zapallito",1,"kg")') === null,
+    valido && nombresOk && sinRed && Math.abs(huevos - 6 * px("Huevo")) < 0.01 && px("Huevo") === real.find(i => i.n === "Huevo").s.GBA && Math.abs(px("Huevo") * 12 - 12 * real.find(i => i.n === "Huevo").s.GBA) < 0.01 && Math.abs(leche - px("Leche")) < 0.01 && Math.abs(arrozKg - px("Arroz")) < 0.01 && ev('precioDe("Sal",1,"taza")') !== undefined && ev('precioDe("Cardamomo",1,"kg")') === null,
     [huevos, leche, arrozKg].join(" · "));
 
   // C7-6 La región va al respaldo como opcional: un respaldo viejo (sin ella) se restaura y la deja como está; uno inválido se rechaza
