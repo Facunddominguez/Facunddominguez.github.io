@@ -250,7 +250,7 @@ Estados: ✅ hecha · ⏳ en curso · ⛔ parada. Cada etapa entra a `rediseno` 
 | 6. Un solo registro | ✅ | `etapa-6-ok` | 15.5.0 |
 | 7. Precios automáticos de INDEC | ✅ | `etapa-7-ok` | 15.6.0 |
 | 8. Resto de las herramientas avanzadas | ✅ | `etapa-8-ok` | 15.7.0 |
-| 9. Precios de SEPA | — | — | — |
+| 9. Precios de SEPA | ✅ | `etapa-9-ok` | 15.8.0 |
 | 10. Pulido | — | — | — |
 
 ### Etapa 0 · Red de seguridad ✅
@@ -1724,7 +1724,7 @@ Convención del inventario: "✅" = hecha (antes o en esta etapa); "Decisión" =
 **Pendientes para vos**
 - Ninguno nuevo.
 
-### Etapa 9 · Precios de SEPA (ampliación) ⏳
+### Etapa 9 · Precios de SEPA (ampliación) ✅
 
 Rama `rediseno-etapa-9-sepa`. Versión 15.8.0.
 
@@ -1856,11 +1856,26 @@ Rama `rediseno-etapa-9-sepa`. Versión 15.8.0.
 
 **Tarea de SEPA en el PR** · Decisión: todavía no pudo correr en el PR (queda para el próximo push) y se probó antes con otra cosa: la herramienta completa con el ZIP real del 2026-11-02, bajado una vez a una carpeta nueva fuera del repo y borrado al terminar, y con el ZIP armado de la prueba C9-9. Corre cuando `rediseno-etapa-9-sepa` entre al PR #1 y llegue el push; el artifact `precios-descargado` se compara con `datos/precios.json` (SEPA del 2026-11-02) con `gh api`. Si el portal estuviera caído queda como aviso y se anota acá.
 
+**Compuerta**
+- "VALIDACIÓN ETAPA 9: OK (56 controles)". Pruebas: 539/539 (eran 531), con `e9_sepa.js` (C9-1 a C9-8) y `pruebas/sepa-lector.mjs` (C9-9, el lector de ZIP, en Node).
+- Cobertura real (C9-1, con la app y el `datos/precios.json` real, región GBA): núcleo 49/52 (94 %), armado 32/45 (71 %), total 81/97 (83,5 %), con 11 aproximados (14 % de lo necesario, dentro del tope de 15 %). Con INDEC solo eran 16/97.
+- Tamaños: `datos/precios.json` 35.961 B (tope 60.000); `index.html` 739.151 B (tope 770.000), verificados por `construir.mjs`.
+
+**Revisores**
+- revisor-codigo, sobre el plan: BLOQUEANTE en la primera versión. El control del 80 % dejaba afuera el armado (46 % de los ingredientes) y nada limitaba los aproximados.
+  - Se resolvió así: C9-1 imprime núcleo, armado y total y exige el total (81/97); solo se admiten aproximados hasta el 15 % de lo necesario; cada precio de SEPA exige 10 observaciones y 3 banderas.
+  - El texto del control en `criterios.json` no se tocó.
+- revisor-codigo, sobre el diff: NO BLOQUEANTE. Verificó que C9-1 lee el JSON real y no puede pasar con datos de ejemplo, y que ningún cruce SEPA/INDEC sale de 0,5×–2×. Sugerencia aplicada: C7-5 volvió a una comprobación exacta (huevo SEPA = 388 por unidad).
+- revisor-usuario: NO BLOQUEANTE. El total engaña menos que en la Etapa 7 ("al menos ≈ $X" se entiende) y no hay textos cortados ni superpuestos nuevos.
+
 **Mejoras sugeridas**
+- Poner "al menos" también en el cartel de la barra de presupuesto de Compras ("≈ $21.523 estimado (faltan 20 precios)") y en el total semanal de Semana ("≈ $32.618 la semana (faltan 25 precios)"), igual que en la línea de pendientes: es la misma cifra con dos fórmulas (Etapa 10).
+- Acortar la línea de fuente "SEPA · mediana · GBA · 2 nov. 2026 (INDEC si falta · sept. 2026) · hay precios aprox." (3 líneas) (Etapa 10).
+- Sumar la vista `fuentes` (Más → Fuentes de datos) a las capturas para confirmar la atribución a SEPA e INDEC (Etapa 10).
 - Puerro, cebolla de verdeo, quinoa, zucchini, cuscús y otros quedan afuera por oferta chica en pocas banderas: mirar con la corrida semanal si suben.
 - Sumar sinónimos (`INGREDIENT_SYNONYMS`) para "Leche fluida o en polvo descremada", "Pan de molde integral o blanco" y "Frutos secos" subiría la cobertura real (tocan equivalencias guardadas: no se hizo).
 - Elegir provincia además de región.
 
 **Pendientes para vos**
 - Total real del catálogo con precio: **81 de 97 (83,5 %)**, núcleo 94 % y armado 71 %. C9-1 exige el total; si preferís que exija solo el núcleo, decilo.
-- Revisar en GitHub la corrida de `precios-prueba.yml` en el PR (descarga real de ~325 MB desde el runner).
+- Revisar en GitHub la corrida de `precios-prueba.yml` en el PR (descarga real de ~325 MB desde el runner): la miro yo tras el push de `etapa-9-ok` y paso la línea "Tarea de SEPA en el PR" a ✅.
