@@ -47,6 +47,7 @@ const VISTAS = [
   { id: 'registro', ir: 'openTab("mas"); abrirRegistro()' },
   { id: 'entrenamiento', ir: 'openTab("mas"); go("trainingCalendar")' },
   { id: 'respaldo', ir: 'openTab("mas"); go("backupScreen")' },
+  { id: 'preferencias', ir: 'openTab("mas"); go("preferencias")' },
   { id: 'ia', ir: 'openTab("mas"); go("asistente")' },
   { id: 'ideas', ir: 'openTab("miscomidas"); go("ideas")' },
   { id: 'armado-desayuno', ir: 'openTab("hoy"); start("desayuno")' },

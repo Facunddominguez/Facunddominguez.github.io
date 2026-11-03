@@ -1605,20 +1605,20 @@ Rama `rediseno-etapa-8-herramientas`. Versión 15.7.0.
 
 **Plan corto**
 
-Convención del inventario: "✅" = ya está hecha en una etapa anterior y no se toca; "⏳" = se hace en esta etapa y pasa a ✅ (o a "Decisión") al cerrar. Todo se mira contra el código de la v15.6.0.
+Convención del inventario: "✅" = hecha (antes o en esta etapa); "Decisión" = se escribe por qué no se hace. Se miró contra el código de la v15.6.0.
 
 - Inventario de las 11 líneas de "Herramientas avanzadas":
   - Mi precio: ✅ Etapa 7. "Mis precios de referencia" se llama "Mi precio" (`22`, herramienta de Compras y menú ⋯), misma clave `referencePrices_v1`, y `precioDe()` (`43`) lo prefiere al automático (C7-4). Lo que queda, el rango y la diferencia con Mi precio, va en "Comparar alternativas de precio".
-  - Costos: ⏳ Por porción en cada comida, por ítem y total en Compras y "≈ $X por día" en Semana ya están (Etapa 7, C7-1 y C7-2, con "(faltan N precios)"). Falta el costo de la semana (se suma en `pintarCostoDia`, `43`).
-  - Presupuesto: ⏳ La barra arriba de la lista, tocable, y el panel (`#comprasPresupuesto`, `#shoppingBudgetPanel`, `renderPresupuestoCompras` en `11`) están desde la Etapa 5, y el "$" con USD, corregido en la 7. Falta "o en Preferencias": hoy Preferencias no lo tiene. Además hoy la barra se esconde con el modo simple, no con "Mostrar precios" (ver más abajo).
-  - Compras realizadas: ⏳ "Terminé de comprar" con monto y comercio opcionales, ticket que actualiza Mis precios y el historial en el menú ⋯ de Compras, hechos en la Etapa 5 (C5-5). Faltan "Anotar gasto" con la cantidad realmente comprada y el signo de la diferencia (aclaraciones perdidas).
-  - Existencias y movimientos: ⏳ Una sola despensa con cantidad e historial por ítem (`41`, `26`), Lo compré suma (`boughtNow`, `34`) y Lo cociné descuenta (C5-6, E6). Solo falta una aclaración perdida en la Etapa 5: "Existencia sin cantidad registrada".
+  - Costos: ✅ Etapa 7 y 8. Por porción en cada comida, por ítem y total en Compras y "≈ $X por día" en Semana ya están (Etapa 7, C7-1 y C7-2, con "(faltan N precios)"). En la Etapa 8 se suma el costo de la semana en la misma línea del día ("≈ $3.100 por día · ≈ $6.200 la semana", `costosDelPlan` y `pintarCostoDia`, `43`; C8-4).
+  - Presupuesto: ✅ Etapa 5 y 8. La barra arriba de la lista, tocable, y el panel (`#comprasPresupuesto`, `#shoppingBudgetPanel`, `renderPresupuestoCompras` en `11`) están desde la Etapa 5, y el "$" con USD, corregido en la 7. En la Etapa 8, Preferencias tiene la fila `#prefPresupuesto` que muestra lo guardado y abre el panel (C8-9), y la barra se esconde con "Mostrar precios y presupuesto" y no con el modo simple (C8-1).
+  - Compras realizadas: ✅ Etapa 5 y 8. "Terminé de comprar" con monto y comercio opcionales, ticket que actualiza Mis precios y el historial en el menú ⋯ de Compras, hechos en la Etapa 5 (C5-5). En la Etapa 8, "Anotar gasto" trae lo realmente sumado a la despensa (C8-5) y la diferencia vuelve con signo y sentido (C8-10).
+  - Existencias y movimientos: ✅ Etapa 5. Una sola despensa con cantidad e historial por ítem (`41`, `26`), Lo compré suma (`boughtNow`, `34`) y Lo cociné descuenta (C5-6, E6). Decisión: la aclaración "Existencia sin cantidad registrada" no se restaura, porque el renglón del detalle ya dice "(marcado en despensa; cantidad disponible desconocida)" y la lista dice "Lo marcaste en tu Despensa (sin cantidad registrada)"; repetirla sumaría palabras a las herramientas de Compras sin decir nada nuevo.
   - Calcular compras por recetas: ✅ Etapa 5. La lista suma las recetas del plan con las porciones de la Semana y el interruptor "Descontar lo que tengo" (C5-2, C5-3); las recetas que no están en la semana, en "Calcular para otras recetas" (menú ⋯ de Compras). Decisión: "Porciones, existencias y costos" (`#shoppingQuantCostPanel`) repite la lista de existencias de la Despensa; no se saca nada (regla 3) y la mejora sugerida de la Etapa 5 queda como está.
-  - Comparar alternativas de precio: ⏳ Existe en `budgetCompareRender` (`11`, dentro de Presupuesto), pero solo compara contra Mi precio, sin rango ni diferencia. Se agregan.
-  - Equivalencias: ⏳ La administración está en Preferencias (`23`) y ahí mismo hay "Posibles equivalencias en tus datos". Falta la sugerencia en la lista ("¿Tomate perita es lo mismo que Tomate?").
-  - Objetivos semanales: ⏳ Viven dentro de "Anotar otra comida y ver la semana" del Registro (`#habitGoalsPanel`, `24`/`42`) y Semana no los resume. Se mudan a Preferencias y Semana suma el resumen.
+  - Comparar alternativas de precio: ✅ Etapa 8. Existía en `budgetCompareRender` (`11`, dentro de Presupuesto), pero solo contra Mi precio; ahora cada ingrediente suma una línea con el rango (más barato y típico), el promedio de la región y cuánto se aparta Mi precio (C8-6).
+  - Equivalencias: ✅ Etapa 8. La administración está en Preferencias (`23`) y ahí mismo hay "Posibles equivalencias en tus datos". La lista ahora sugiere una ("¿“Tomate perita” es lo mismo que “Tomate”?", con Unir y Ahora no; C8-7).
+  - Objetivos semanales: ✅ Etapa 8. Vivían dentro de "Anotar otra comida y ver la semana" del Registro (`#habitGoalsPanel`, `24`); ahora están en Preferencias (C8-2) y Semana resume lo planificado ("Verduras en 2 de 14 comidas", C8-3).
   - Historial del plan: ✅ Etapa 2. Menú ⋯ de Semana → "Historial de cambios" (`planHistory_v1`, `renderPlanHistory` en `10`), junto con "Planes guardados" y "Semanas anteriores y mes" (`16`); lo prueba C2-6. No se toca.
-  - Modo simple: ⏳ "Mostrar precios y presupuesto" (Etapa 7) es hoy el mismo interruptor que el modo simple (`#uiModeToggle`, `uiMode_v1`). Se separan.
+  - Modo simple: ✅ Etapa 8. "Mostrar precios y presupuesto" (Etapa 7) era el mismo interruptor que el modo simple. Ahora son dos: `#preciosToggle` y `#uiModeToggle` ("Mostrar herramientas avanzadas", el modo simple de siempre, que se conserva); C8-1.
 - Diseño de las piezas nuevas:
   - **Separar "Mostrar precios y presupuesto" del modo simple.**
     - Dos interruptores en Preferencias, uno al lado del otro (tarjetas `tool-button`, 44 px):
@@ -1672,3 +1672,29 @@ Convención del inventario: "✅" = ya está hecha en una etapa anterior y no se
   - E8-palabras-registro-todo: el Registro con todo abierto no supera lo que mide al cerrar la Etapa 7 (427 palabras), para probar que lo que se muda no queda duplicado.
   - E8-palabras-preferencias: vista nueva `preferencias` en `capturas.mjs`, estado "todo", tope = la medida real de esta etapa más 10 %, para que Preferencias no quede sin tope al recibir objetivos, presupuesto e interruptores.
   - `E8-herramientas-avanzadas` (tipo registro) ya existe: exige las 11 líneas con ✅ o "Decisión".
+
+**Implementación (v15.7.0)**
+- Interruptores (`30`, `43`): `#preciosToggle` ("Mostrar precios y presupuesto") y `#uiModeToggle` ("Mostrar herramientas avanzadas"), uno al lado del otro en Preferencias. Clave nueva `miPlatoFacil_mostrarPrecios_v1` = `{"mostrar":bool}`, opcional en el respaldo, en la lista de omitir si es null y validada (`validMostrarPrecios`). `uiMode_v1` no se toca. Sin clave o con una inválida, `preciosActivos()` deriva de `uiMode_v1`. `setUiMode` fija antes el valor de los precios (`fijarPreciosAntesDelModo`): quien está en simple con la clave ausente y toca "Mostrar herramientas avanzadas" queda con los precios apagados (se escribe `false`, C8-1).
+- Preferencias (`26`): objetivos (mismos ids, `#habitGoalsStatus` propio) y la fila de presupuesto. `renderObjetivosPreferencias()` llena los campos al arrancar, al pintar Preferencias (`go` y `showScreen`) y tras guardar: guardar con todo vacío ya no puede borrar objetivos guardados (C8-2 abre Preferencias sin pasar por el Registro y guarda).
+- Semana (`10`, `24`, `43`): `#planObjetivos` con `resumenObjetivosSemana` y costo del día y de la semana en `#planDiaCosto`.
+- Compras: sugerencia de equivalencia (`12`, `41`), `boughtNow` devuelve `cambios` y `sinCantidad` y `anotarGasto` los usa (`34`, `41`); diferencia con signo (`25`); rango en Comparar (`rangoDePrecios` y `textoRangoPrecios`, `43`; `11`).
+- `herramientas/capturas.mjs`: vista nueva `preferencias` (solo se suma al camino de las vistas; las medidas no cambian).
+
+**Decisiones que tomé sin vos**
+- Los dos interruptores viven en Preferencias. Se saca el grupo `compras` de `ADVANCED_TOOLS` y con él el aviso de modo de Compras: la barra de presupuesto y la fuente ya no dependen del modo. `m01_modo.js` M4, M6 y M7 usan el aviso de Despensa y M4 suma "Compras sin aviso".
+- El estado inicial no escribe nada; la clave nueva se escribe solo al tocar `#preciosToggle` o, antes de cambiar el modo, con el valor que tenían los precios.
+- Equivalencias: una sola sugerencia, con el texto completo ("¿“A” es lo mismo que “B”? Unir · Ahora no"), porque Compras en estado normal midió 209 palabras (antes 230; tope 262,8) y el respaldo de ejemplo no dispara ninguna. "Ahora no" vale solo en la sesión.
+- "Típico" en Comparar es la mediana de las referencias de Mi precio; los percentiles del promedio llegan con SEPA (Etapa 9, campo opcional `r` ya contemplado). Sin Mi precio no hay rango propio: se muestra el promedio si los precios están prendidos.
+- Resumen de objetivos en Semana: cuenta comidas del plan con ese grupo (`plateGroups`) sobre el objetivo; solo aparece si hay objetivos.
+- Anotar gasto: una fila por cada cantidad realmente sumada a la despensa (en su unidad), una sin cantidad por cada ítem marcado sin cantidad, y nada de lo que ya alcanzaba. Quitar una fila del ticket la saca de Mis precios y de la compra.
+- Existencias y movimientos: Decisión de no restaurar "Existencia sin cantidad registrada" (ver el inventario).
+- La diferencia de compras realizadas dice "+X (se gastó más)" o "-X (se gastó menos)".
+
+**Pruebas adaptadas** (ninguna se borra; la cantidad sube de 521 a 531)
+- `m01_modo.js`: M4/M6/M7 (aviso de Despensa, Compras sin aviso, la barra se ve al prender los precios y se esconde al apagarlos, y sigue visible al volver a simple), M5/M7 (texto de la tarjeta), M2 (sin `habitGoalsPanel` en la lista de Semana) y M8 (excluye `mostrarPrecios_v1` del chequeo de datos y afirma que vale `{"mostrar":true}`, el valor que dejó el usuario; ninguna otra clave cambia).
+- `e7_precios.js`: C7-1 y C7-7 usan `#preciosToggle` (mismas aserciones sobre lo que se ve y los datos; ahora además afirman que `uiMode_v1` no cambia) y C7-2 compara con `startsWith` porque la línea del día suma "· ≈ $X la semana" (la semana se prueba en C8-4). `e4_comidas.js`: apunta a `#preciosToggle`. `f06_consumo.js`: lee el mensaje de objetivos en `#habitGoalsStatus`.
+- Nuevas: `e8_herramientas.js` con C8-1 a C8-10 (precios separados, objetivos, resumen en Semana, costo semanal, Anotar gasto con g y kg, ítem sin cantidad y solo las filas incluidas, rango en Comparar, equivalencias, respaldo, fila de presupuesto, diferencia con signo).
+
+**Medidas** (estado normal, tema claro)
+- Compras: 230 → 209 palabras (tope 262,8). Semana: 1.013 → 1.061 px (tope 1.266; suma el resumen de objetivos del respaldo de ejemplo). Registro con todo abierto: 427 → 398 palabras. Preferencias con todo abierto: 206 palabras (vista nueva).
+- Controles nuevos en `criterios.json` (solo se agregan): E8-precios-separados (C8-1), E8-objetivos-en-preferencias (C8-2), E8-palabras-registro-todo (≤ 427) y E8-palabras-preferencias (≤ 227, la medida más 10 %).
