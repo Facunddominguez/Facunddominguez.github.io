@@ -34,9 +34,9 @@
   const view = $("consumptionView").textContent;
   T.ok("C4 resumen semanal: total, del plan y grupos", /3 comidas registradas · 2 del plan · 1 fuera del plan/.test(view) && /Con verduras: 2/.test(view) && /Con legumbres: 1/.test(view) && /Con pescado: 1/.test(view) && /1 registro sin grupos identificados/.test(view), view.slice(0, 260));
   $("goal_legumbres").value = "3"; $("goal_pescado").value = "1"; $("goal_verduras").value = "x"; $("habitGoalsSave").click(); await wait(10);
-  const badGoal = $("consumptionStatus").textContent;
+  const badGoal = $("habitGoalsStatus").textContent;
   $("goal_verduras").value = ""; $("habitGoalsSave").click(); await wait(10);
-  T.ok("C5 objetivos: valida y muestra el progreso", /entre 0 y 21/.test(badGoal) && JSON.stringify(loadHabitGoals()) === '{"legumbres":3,"pescado":1}' && /Con legumbres: 1 de 3 \(objetivo\)/.test($("consumptionView").textContent) && /Con pescado: 1 de 1 \(objetivo\) ✓/.test($("consumptionView").textContent));
+  T.ok("C5 objetivos: valida y muestra el progreso", /entre 0 y 21/.test(badGoal) && JSON.stringify(loadHabitGoals()) === '{"legumbres":3,"pescado":1}' && /Con legumbres: 1 de 3 \(objetivo\)/.test($("consumptionView").textContent) && /Con pescado: 1 de 1 \(objetivo\) ✓/.test($("consumptionView").textContent), badGoal + " | " + JSON.stringify(loadHabitGoals()));
   document.querySelector('[data-consumption-week="-7"]').click(); await wait(10);
   T.ok("C6a navegar a la semana anterior", /Sin registros esta semana/.test($("consumptionView").textContent));
   document.querySelector('[data-consumption-week="7"]').click(); await wait(10);

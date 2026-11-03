@@ -458,6 +458,17 @@ function renderPlan(){
   }));
   const hint=document.getElementById("planHint");
   if(hint)hint.textContent=total?total+" de 28 comidas en la semana.":"Tocá una comida para elegir qué vas a comer.";
+  const obj=document.getElementById("planObjetivos");
+  if(obj){
+    let t="";
+    try{
+      t=resumenObjetivosSemana(plan,loadSaved(),loadHabitGoals())
+    }catch(e){
+      // init() puede pintar antes de que 24 defina sus constantes: se repinta al terminar la carga.
+    }
+    obj.textContent=t;
+    obj.hidden=!t
+  }
   const nueva=document.getElementById("planSemanaNueva");
   if(nueva){
     const pendiente=semanaNuevaPendiente(plan);

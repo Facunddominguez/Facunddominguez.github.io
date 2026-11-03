@@ -35,6 +35,37 @@ function loadHabitGoals(){
     }
   }
 }
+// Objetivos semanales (desde la v15.7 se editan en Preferencias). Los campos se llenan con lo guardado cada vez que se
+// pinta Preferencias (y al arrancar), antes de que se pueda tocar Guardar: guardar con todo vacío borra la clave.
+function renderObjetivosPreferencias(){
+  const goals=loadHabitGoals();
+  for(const g of HABIT_GROUPS){
+    const i=document.getElementById("goal_"+g);
+    if(i&&document.activeElement!==i)i.value=goals[g]?String(goals[g]):""
+  }
+}
+// Resumen de la Semana: "Verduras en 9 de 14 comidas · Legumbres 2 de 3 ✓" (comidas del plan con ese grupo, sobre el
+// objetivo). Sin objetivos devuelve "".
+function resumenObjetivosSemana(plan,saved,goals){
+  const byId=new Map((saved||[]).map(p=>[p.id,p])),labels={
+    verduras:"Verduras",legumbres:"Legumbres",pescado:"Pescado",fruta:"Fruta"
+  },counts={
+  };
+  for(const g of HABIT_GROUPS)counts[g]=0;
+  for(const [day] of DAYS)for(const [slot] of SLOTS){
+    const it=plan&&plan[day]&&plan[day][slot]?byId.get(plan[day][slot]):null;
+    if(!it)continue;
+    for(const g of plateGroups(it))if(g in counts)counts[g]++
+  }
+  const partes=[];
+  for(const g of HABIT_GROUPS){
+    const goal=(goals||{})[g];
+    if(!goal)continue;
+    const n=counts[g],base=labels[g]+(partes.length?" ":" en ")+n+" de "+goal+(partes.length?"":" comida"+(goal===1?"":"s"));
+    partes.push(base+(n>=goal?" ✓":""))
+  }
+  return partes.join(" · ")
+}
 function plateGroups(item){
   const g=new Set();
   if(!item)return [];
@@ -154,19 +185,30 @@ document.getElementById("consumptionSave").addEventListener("click",()=>{
   }
 });
 document.getElementById("habitGoalsSave").addEventListener("click",()=>{
-  const st=document.getElementById("consumptionStatus");try{
+  const st=document.getElementById("habitGoalsStatus");
+  try{
     const o={
-    };for(const g of HABIT_GROUPS){
-      const v=document.getElementById("goal_"+g).value.trim();if(!v)continue;if(!/^\d{1,2}$/.test(v)||Number(v)>21)throw Error("Usá números enteros entre 0 y 21.");if(Number(v)>0)o[g]=Number(v)
-    }try{
+    };
+    for(const g of HABIT_GROUPS){
+      const v=document.getElementById("goal_"+g).value.trim();
+      if(!v)continue;
+      if(!/^\d{1,2}$/.test(v)||Number(v)>21)throw Error("Usá números enteros entre 0 y 21.");
+      if(Number(v)>0)o[g]=Number(v)
+    }
+    try{
       if(Object.keys(o).length)localStorage.setItem(HABIT_GOALS_KEY,JSON.stringify(o));else localStorage.removeItem(HABIT_GOALS_KEY)
     }catch(e){
       throw Error("No se pudieron guardar los objetivos.")
-    }st.textContent="Objetivos guardados.";renderConsumption()
+    }
+    st.textContent="Objetivos guardados.";
+    renderObjetivosPreferencias();
+    renderConsumption();
+    if(typeof renderPlan==="function")renderPlan()
   }catch(err){
     st.textContent=err.message
   }
 });
+renderObjetivosPreferencias();
 document.addEventListener("click",e=>{
   const b=e.target.closest("button");if(!b)return;if(b.dataset.consumptionWeek){
     const d=new Date((consumptionWeek||mondayOf(localTrainingDate(new Date())))+"T12:00:00");d.setDate(d.getDate()+Number(b.dataset.consumptionWeek));consumptionWeek=localTrainingDate(d);renderConsumption()
