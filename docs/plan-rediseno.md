@@ -1565,7 +1565,7 @@ Rama `rediseno-etapa-7-precios`. Versión 15.6.0.
 - Respaldo: `miPlatoFacil_region_v1` (`{"region":"Pampeana"}`, objeto porque el respaldo exige un objeto por clave) entró como opcional, en la lista de omitir si es null y con validación; el fixture `respaldo-v14.9.94.json` no lo tiene y se restaura igual (C7-6). `k01`, `bkp02` y `j01` no cuentan claves fijas: pasaron sin cambios.
 - Dominios: ningún literal con la dirección de INDEC en `fuente/` (ni en comentarios); la atribución sale del JSON incrustado y la dirección real solo está en `herramientas/` y en `datos/`.
 
-**Tarea de precios en el PR**: Decisión: la tarea de prueba (`.github/workflows/precios-prueba.yml`, en cada `pull_request`, con `contents: read`, sin commitear ni publicar, y con el resultado como artifact `precios-descargado`) todavía no pudo correr porque esta rama no está publicada en el PR #1. Mientras tanto, la misma lectura se probó acá con el archivo real bajado a mano (40 ingredientes, septiembre de 2026) y el ejemplo pasa las mismas comprobaciones (`--verificar`, código 0). Cuando `rediseno` se publique en el PR, el coordinador confirma el resultado de la corrida y esta línea pasa a ✅.
+**Tarea de precios en el PR** ✅: corrió en el PR #1 con el push de `etapa-7-ok` (commit `e81fa88`) y las dos tareas dieron "success". La tarea de prueba bajó el archivo real de INDEC, lo procesó sin commitear nada y subió el artifact `precios-descargado` (septiembre de 2026, 40 ingredientes, arroz en GBA a $1.905,45, igual que la referencia del plan). Sin avisos de descarga.
 
 **Decisiones que tomé sin vos**
 - Precios apagados por defecto (valor inicial desde `uiMode_v1`). "Mostrar precios y presupuesto" es el mismo interruptor que el modo simple, así que también destapa las herramientas avanzadas; separarlos queda para la Etapa 8. Quien no los prendió ve en Compras una línea: "Precios estimados: activalos en Preferencias" (toca y abre Preferencias).
@@ -1597,7 +1597,7 @@ Rama `rediseno-etapa-7-precios`. Versión 15.6.0.
 - Costo semanal en Semana y comparación de alternativas con el rango de precios.
 
 **Pendientes para vos**
-- Confirmar la corrida de `precios-prueba.yml` en el PR #1 y pasar la línea "Tarea de precios en el PR" a ✅.
+- Ninguno (la tarea de precios ya corrió en el PR y quedó ✅).
 
 ### Etapa 8 · Resto de las herramientas avanzadas ⏳
 
