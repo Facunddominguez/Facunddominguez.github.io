@@ -1,7 +1,7 @@
 // Mi Plato Fácil · Productos extra de la lista de compras.
 // Parte 18: los archivos se unen en orden según su número, que define el orden de arranque.
 const MANUAL_SHOP_KEY="miPlatoFacil_manualShopping_v1";
-let manualShopEditing=null;
+let manualShopEditing=null,manualShopUndo=null;
 function loadManualShopping(){
   try{
     const a=JSON.parse(localStorage.getItem(MANUAL_SHOP_KEY)||"[]");
@@ -30,9 +30,9 @@ function resetManualShoppingForm(){
 function renderManualShopping(){
   const box=document.getElementById("manualShopList"),a=loadManualShopping();
   box.replaceChildren(...a.map(item=>{
-    const row=ce("div","manual-shop-row"),remove=ce("button","manual-shop-remove","×");remove.type="button";remove.dataset.manualDelete=item.id;remove.setAttribute("aria-label","Eliminar "+item.name);remove.title="Eliminar producto";const label=ce("label","shop-item"+(item.done?" is-done":"")),check=ce("input");check.type="checkbox";check.checked=item.done;check.dataset.manualCheck=item.id;const text=ce("span",null,item.name+(item.amount?" · "+item.amount:""));if(item.done)text.style.textDecoration="line-through";label.append(check,text);row.append(remove,label);return row
+    const row=ce("div","manual-shop-row"),remove=ce("button","filter-chip filter-chip--danger","Quitar");remove.type="button";remove.dataset.manualDelete=item.id;remove.setAttribute("aria-label","Eliminar "+item.name);remove.title="Eliminar producto";const label=ce("label","shop-item"+(item.done?" is-done":"")),check=ce("input");check.type="checkbox";check.checked=item.done;check.dataset.manualCheck=item.id;const text=ce("span",null,item.name+(item.amount?" · "+item.amount:""));if(item.done)text.style.textDecoration="line-through";label.append(check,text);const edit=ce("button","filter-chip","Editar");edit.type="button";edit.dataset.manualEdit=item.id;edit.setAttribute("aria-label","Editar "+item.name);row.append(label,edit,remove);return row
   }));
-  if(!a.length)box.append(ce("p","screen__hint","Todavía no agregaste productos extra."))
+  if(!a.length)box.append(ce("p","screen__hint","Nada agregado a mano."))
 }
 function manualShoppingText(){
   return loadManualShopping().filter(x=>!x.done).map(x=>"• "+x.name+(x.amount?" ("+x.amount+")":"")).join(NL)
@@ -58,11 +58,20 @@ document.addEventListener("change",e=>{
 document.addEventListener("click",e=>{
   const b=e.target.closest("button");if(!b)return;if(b.dataset.manualCancel!==undefined)return resetManualShoppingForm();if(b.dataset.manualEdit){
     const item=loadManualShopping().find(x=>x.id===b.dataset.manualEdit);if(item){
-      manualShopEditing=item.id;document.getElementById("manualShopName").value=item.name;document.getElementById("manualShopAmount").value=item.amount;document.getElementById("manualShopSubmit").textContent="Guardar cambios";document.querySelector("[data-manual-cancel]").classList.remove("is-hidden");document.getElementById("manualShopName").focus()
+      manualShopEditing=item.id;document.getElementById("manualShopName").value=item.name;document.getElementById("manualShopAmount").value=item.amount;document.getElementById("manualShopSubmit").textContent="Guardar cambios";document.querySelector("[data-manual-cancel]").classList.remove("is-hidden");document.getElementById("manualShoppingPanel").open=true;document.getElementById("manualShopName").focus()
     }
   }if(b.dataset.manualDelete){
-    if(!window.confirm("¿Eliminar este producto extra?"))return;const a=loadManualShopping().filter(x=>x.id!==b.dataset.manualDelete);if(persistManualShopping(a)){
-      if(manualShopEditing===b.dataset.manualDelete)resetManualShoppingForm();renderManualShopping()
+    // Desde la v15.4, sin confirmación y con Deshacer (vuelve el arreglo tal como estaba).
+    const antes=localStorage.getItem(MANUAL_SHOP_KEY),todos=loadManualShopping(),quitado=todos.find(x=>x.id===b.dataset.manualDelete);if(!quitado)return;if(persistManualShopping(todos.filter(x=>x.id!==quitado.id))){
+      if(manualShopEditing===quitado.id)resetManualShoppingForm();renderManualShopping();manualShopUndo={antes,despues:localStorage.getItem(MANUAL_SHOP_KEY)};const st=document.getElementById("manualShopStatus"),u=ce("button","filter-chip","Deshacer");u.type="button";u.dataset.manualUndo="";st.replaceChildren(document.createTextNode("Quitado: "+quitado.name+". "),u)
+    }
+  }if(b.dataset.manualUndo!==undefined&&manualShopUndo){
+    const u=manualShopUndo,st=document.getElementById("manualShopStatus");manualShopUndo=null;if(localStorage.getItem(MANUAL_SHOP_KEY)!==u.despues){
+      st.textContent="No se pudo deshacer: la lista cambió después.";return
+    }try{
+      if(u.antes===null)localStorage.removeItem(MANUAL_SHOP_KEY);else localStorage.setItem(MANUAL_SHOP_KEY,u.antes);renderManualShopping();st.textContent="Listo, se recuperó."
+    }catch(err){
+      st.textContent="No se pudo deshacer."
     }
   }
 });

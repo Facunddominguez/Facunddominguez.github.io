@@ -1,9 +1,9 @@
 // Corre todas las pruebas automáticas de pruebas/ en un navegador sin ventana (Chrome, Chromium o Edge).
-// Uso: node herramientas/probar.mjs [--navegador <ruta>] [--suites a.js,b.js]
+// Uso: node herramientas/probar.mjs [--navegador <ruta>] [--suites a.js,b.js] [--json <archivo>]
 // Sirve el repositorio en una dirección local temporal, abre index.html y ejecuta las baterías.
 // Las pruebas usan solo datos inventados y un perfil de navegador nuevo que se borra al terminar.
 import { createServer } from 'node:http';
-import { readFile, mkdtemp, rm } from 'node:fs/promises';
+import { readFile, writeFile, mkdtemp, rm } from 'node:fs/promises';
 import { existsSync, statSync, createReadStream } from 'node:fs';
 import { join, extname, resolve, sep } from 'node:path';
 import { tmpdir } from 'node:os';
@@ -68,6 +68,8 @@ try {
   console.log(`TOTAL ${res.TOTAL}`);
   const errores = eventos.filter(e => e.method === 'Runtime.exceptionThrown').map(e => e.params.exceptionDetails.exception ? e.params.exceptionDetails.exception.description.split('\n')[0] : e.params.exceptionDetails.text);
   errores.forEach(e => console.log('ERROR en la página: ' + e));
+  // --json: resultados con el nombre de cada prueba, para la compuerta (herramientas/validar-etapa.mjs).
+  if (arg('--json')) await writeFile(arg('--json'), JSON.stringify({ version, navegador: navegador.split(/[\\/]/).pop(), total: res.TOTAL, suites: Object.fromEntries(suites.map(s => [s, { resultado: res[s] || null, pruebas: (res.__detalle || {})[s] || [] }])), erroresPagina: errores }, null, 2) + '\n');
   codigo = ok === total && total > 0 && !errores.length ? 0 : 1;
 } catch (e) { console.error('No se pudieron correr las pruebas: ' + e.message); codigo = 2 }
 await terminar(codigo);

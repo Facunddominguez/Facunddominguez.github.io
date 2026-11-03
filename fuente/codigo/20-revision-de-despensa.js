@@ -213,6 +213,9 @@ function renderPantryReview(reset){
   if(reset){
     pantryReviewConfirmed=new Set(pantryReviewPartition(title,pantrySel,null).filter(x=>x.available).map(x=>x.index))
   }
+  let completo=document.getElementById("pantryReviewFull");
+  if(!completo){completo=ce("p","screen__hint");completo.id="pantryReviewFull";document.getElementById("pantryReviewRecipe").after(completo)}
+  completo.textContent=title;
   const rows=pantryReviewPartition(title,pantrySel,pantryReviewConfirmed),box=document.getElementById("pantryReviewItems");
   box.replaceChildren(...rows.map(r=>{
     const label=ce("label","shop-item"),input=ce("input");input.type="checkbox";input.checked=r.available;input.dataset.pantryReviewIndex=String(r.index);label.append(input,ce("span",null,r.label));return label
@@ -221,7 +224,7 @@ function renderPantryReview(reset){
   document.getElementById("pantryReviewStatus").textContent="Marcados disponibles: "+(available.join(", ")||"ninguno")+". Sin confirmar / por conseguir: "+(missing.join(", ")||"ninguno de los componentes listados")+". Esto no confirma una receta completa ni cantidades suficientes."
 }
 document.getElementById("pantryReviewRecipe").replaceChildren(...data.menuCatalog.map(rec=>{
-  const option=ce("option",null,rec.text);option.value=rec.text;return option
+  const option=ce("option",null,(t=>{for(const re of [/ con /,/[,:]/])if(t.length>40)t=t.split(re)[0];return t.length>40?t.slice(0,38).replace(/ S*$/,""):t})(rec.text.split(" + ")[0]));option.title=rec.text;option.value=rec.text;return option
 }));
 document.getElementById("pantryReviewRecipe").addEventListener("change",()=>renderPantryReview(true));
 document.getElementById("pantryReviewPanel").addEventListener("toggle",e=>{

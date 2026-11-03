@@ -8,7 +8,7 @@ function menuRecordMatches(record,query){
   return text.includes(q)||tags.some(t=>t.includes(q)||q.includes(t))
 }
 const MENU_EXTRA_CLASSIFICATION={
-  "carne":["Tarta de jamón cocido, queso y huevo","Guiso de lentejas con calabaza, zanahoria y carne magra"],"vegetariano":["Fideos integrales con salsa de tomate + albóndigas de garbanzo","Milanesas de zapallito con ensalada de hojas verdes y zanahoria","Tacos de maíz con garbanzos especiados + repollo morado + salsa de yogur","Tacos de porotos colorados con verduras salteadas","Tortilla de maíz rellena de revuelto de huevo y arvejas + cebolla de verdeo","Wrap integral de crema de lentejas + palta + verduras crudas","Ensalada tibia de garbanzos, espinaca y huevo","Hamburguesa casera de lentejas con ensalada y batata al horno","Cazuela de porotos negros con calabaza y choclo","Omelette de espinaca y queso con pan integral"]
+  "carne":["Tarta de jamón cocido, queso y huevo","Guiso de lentejas con calabaza, zanahoria y carne magra","Bife a la plancha con ensalada mixta y papas al horno","Pastel de papa con ensalada verde"],"vegetariano":["Fideos integrales con salsa de tomate + albóndigas de garbanzo","Milanesas de zapallito con ensalada de hojas verdes y zanahoria","Tacos de maíz con garbanzos especiados + repollo morado + salsa de yogur","Tacos de porotos colorados con verduras salteadas","Tortilla de maíz rellena de revuelto de huevo y arvejas + cebolla de verdeo","Wrap integral de crema de lentejas + palta + verduras crudas","Ensalada tibia de garbanzos, espinaca y huevo","Hamburguesa casera de lentejas con ensalada y batata al horno","Cazuela de porotos negros con calabaza y choclo","Omelette de espinaca y queso con pan integral","Tarta de acelga y huevo con ensalada de tomate","Ñoquis de papa con salsa de tomate y queso","Lentejas guisadas con arroz y verduras","Revuelto de zapallitos con huevo y arroz"]
 };
 function menuMatches(record,filter){
   if(filter==="carne"||filter==="vegetariano")return MENU_EXTRA_CLASSIFICATION[filter].includes(record.text);
@@ -40,7 +40,16 @@ function filteredSnacks(){
 function renderMenuIdeas(){
   adviceFavFilter("menu");
   const items=adviceFavItems("menu",filteredMenuRecords());
-  renderMenuList(el.menuIdeas,items,false);
+  // v15.3: se ven 8 ideas y "Ver todas (N)"; con Solo favoritas se ven todas las que coinciden.
+  const todas=(typeof ideasMenuTodas!=="undefined"&&ideasMenuTodas===true)||adviceFavOnly.menu||items.length<=8;
+  renderMenuList(el.menuIdeas,todas?items:items.slice(0,8),false);
+  if(items.length>8&&!adviceFavOnly.menu){
+    const li=ce("li","ideas-ver-todas"),b=ce("button","button button--soft",todas?"Ver menos":"Ver todas ("+items.length+")");
+    b.type="button";
+    b.dataset.ideasVerTodas="";
+    li.append(b);
+    el.menuIdeas.append(li)
+  }
   if(!items.length&&adviceFavOnly.menu){
     const li=ce("li");
     li.append(emptyState("☆","Sin favoritos para este filtro","Guardá ideas con la estrella o desactivá Solo favoritos para ver el menú."));

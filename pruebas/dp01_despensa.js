@@ -11,10 +11,11 @@
   const add = async (name, qty, unit) => { $("pantryItemName").value = name; $("pantryItemQty").value = qty || ""; if (unit) $("pantryItemUnit").value = unit; $("pantryItemForm").requestSubmit(); await wait(30); return $("pantryItemStatus").textContent };
   const btn = (attr, value) => [...document.querySelectorAll("#pantryItemList [" + attr + "]")].find(b => b.getAttribute(attr) === value);
   window.confirm = () => true;
-  reset(); go("ingredientes"); showRecipeView("browse"); await wait(40);
-  // DP1 Pantalla: Mi despensa, Lo básico, otros ingredientes e ideas justo debajo (también en modo simple)
+  reset(); go("ingredientes"); await wait(40);
+  // DP1 Pantalla: Mi despensa, Lo básico, otros ingredientes y, justo debajo, el enlace a las ideas (también en modo simple).
+  // v15.3: las ideas con lo que tenés se ven en Comidas → Ideas ("Con lo que tengo") y las recetas salieron de esta pantalla.
   const sec = $("ingredientes"), pos = id => [...sec.querySelectorAll("[id]")].indexOf($(id));
-  T.ok("DP1 Mi despensa: lo básico, otros ingredientes e ideas justo debajo", sec.querySelector(".screen__title").textContent === "Mi despensa" && shown($("pantryItemsPanel")) && shown($("pantryItemForm")) && pos("pantryChips") < pos("pantryItemsPanel") && pos("pantryItemsPanel") < pos("pantryResults") && pos("pantryResults") < pos("recipeDetailsPanel") && $("pantryItemUnit").options.length === RECIPE_AMOUNT_UNITS.length);
+  T.ok("DP1 Mi despensa: lo básico, otros ingredientes y el enlace a las ideas justo debajo", sec.querySelector(".screen__title").textContent === "Mi despensa" && shown($("pantryItemsPanel")) && shown($("pantryItemForm")) && pos("pantryChips") < pos("pantryItemsPanel") && pos("pantryItemsPanel") < pos("pantryIdeasLink") && shown($("pantryIdeasLink")) && $("ideasConLoQueTengo").contains($("pantryResults")) && !sec.contains($("recipeDetailsPanel")) && $("pantryItemUnit").options.length === RECIPE_AMOUNT_UNITS.length);
   // DP2 Sin cantidad: se guarda como ingrediente de la despensa (marca), sin tocar existencias
   const m2 = await add("Quinoa roja");
   T.ok("DP2 sin cantidad se agrega a la despensa como marca", pantry().includes("Quinoa roja") && !Object.keys(stock()).length && rowText().includes("Quinoa roja · sin cantidad") && /sin cantidad/.test(m2), m2);
@@ -52,7 +53,7 @@
   // DP10 Compras usa la despensa: marca sin cantidad y existencia con cantidad
   setSaved([tradPlate("t1", ["Quinoa roja"], ["Comino"], ["Merluza"])]); setPlan([["lunes", "almuerzo", "t1"]]);
   const items = shoppingDisplayItems(), quinoa = items.find(x => x.name === "Quinoa roja"), comino = items.find(x => x.name === "Comino");
-  T.ok("DP10 Compras sugiere con lo de la despensa (con y sin cantidad), sin cambiar la lista", !!quinoa && /Despensa: tenés 300 g/.test(quinoa.suggestion.text) && !!comino && /Lo marcaste en “Con lo que tengo”/.test(comino.suggestion.text) && items.length === 3, (quinoa && quinoa.suggestion && quinoa.suggestion.text) + " | " + (comino && comino.suggestion && comino.suggestion.text));
+  T.ok("DP10 Compras sugiere con lo de la despensa (con y sin cantidad), sin cambiar la lista", !!quinoa && /Despensa: tenés 300 g/.test(quinoa.suggestion.text) && !!comino && /Lo marcaste en tu Despensa/.test(comino.suggestion.text) && items.length === 3, (quinoa && quinoa.suggestion && quinoa.suggestion.text) + " | " + (comino && comino.suggestion && comino.suggestion.text));
   // DP11 Las ideas y el asistente de IA usan también lo agregado a mano y las existencias
   localStorage.setItem("miPlatoFacil_pantry", JSON.stringify(["Merluza fresca"])); pantrySel = loadPantry();
   localStorage.setItem("miPlatoFacil_pantryQuantities_v1", JSON.stringify({ [stockKey("Lentejas", "g")]: { name: "Lentejas", quantity: 300, unit: "g" } }));

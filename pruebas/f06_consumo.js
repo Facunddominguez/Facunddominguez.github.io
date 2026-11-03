@@ -10,12 +10,17 @@
   setSaved([tradPlate("tp1", ["Arroz"], ["Tomate"], ["Merluza"]), recipePlate("rp1", "recipe_test0001", "Guiso de lentejas", ["Lentejas", "Zanahoria"]), { id: "bf1", type: "desayuno", title: "Desayuno / Merienda", lines: ["Fruta: Licuado"], sig: "bf", text: "bf", cooked: 0, state: { type: "desayuno", fruta: { name: "Licuado" }, bfprot: { name: "Yogur" } } }]);
   setPlan([[wd, "almuerzo", "tp1"], [wd, "cena", "rp1"]]);
   T.ok("C1 grupos detectados desde los ingredientes registrados", JSON.stringify(plateGroups(loadSaved()[0])) === '["verduras","pescado","almidones","proteinas"]' && JSON.stringify(plateGroups(loadSaved()[1])) === '["verduras","legumbres"]' && plateGroups(loadSaved()[2]).includes("fruta"), JSON.stringify(loadSaved().map(plateGroups)));
-  go("plan"); await wait(30);
-  const eatBtn = document.querySelector(`[data-plan-eaten="${wd}|almuerzo"]`);
-  T.ok("C2a el plan ofrece 'Lo comí hoy' solo en las comidas de hoy", !!eatBtn && document.querySelectorAll("[data-plan-eaten]").length === 2);
+  // v15.1: "Lo comí hoy" está en la hoja de cada comida de hoy (Semana → hoy → comida), no en los otros días.
+  const otro = DAYS.map(d => d[0]).find(d => d !== wd);
+  setPlan([[wd, "almuerzo", "tp1"], [wd, "cena", "rp1"], [otro, "almuerzo", "tp1"]]);
+  const hojaDe = async (dia, comida) => { if (hoja.abierta()) hoja.cerrar(); go("plan"); await wait(20); document.querySelector(`[data-plan-dia="${dia}"]`).click(); document.querySelector(`[data-hueco="${dia}|${comida}"]`).click(); await wait(20); return [...hoja.elemento.querySelectorAll("[data-plan-eaten]")] };
+  const enOtroDia = (await hojaDe(otro, "almuerzo")).length, enCena = (await hojaDe(wd, "cena")).map(b => b.dataset.planEaten);
+  setPlan([[wd, "almuerzo", "tp1"], [wd, "cena", "rp1"]]);
+  const eatBtn = (await hojaDe(wd, "almuerzo"))[0];
+  T.ok("C2a el plan ofrece 'Lo comí hoy' solo en las comidas de hoy", !!eatBtn && eatBtn.dataset.planEaten === `${wd}|almuerzo` && enOtroDia === 0 && enCena.join() === `${wd}|cena` && hoja.elemento.querySelectorAll("[data-plan-eaten]").length === 1);
   eatBtn.click(); await wait(20);
-  const after = document.querySelector(`[data-plan-eaten="${wd}|almuerzo"]`);
-  T.ok("C2b registrar desde el plan marca '✓ Comido hoy' y no cambia el plan", after.disabled && after.textContent === "✓ Comido hoy" && loadPlan()[wd].almuerzo === "tp1" && loadConsumption().length === 1 && loadConsumption()[0].planned === true && loadConsumption()[0].date === today);
+  const after = hoja.elemento.querySelector(`[data-plan-eaten="${wd}|almuerzo"]`); hoja.cerrar();
+  T.ok("C2b registrar desde el plan marca '✓ Lo comí hoy' y no cambia el plan", after.disabled && after.textContent === "✓ Lo comí hoy" && loadPlan()[wd].almuerzo === "tp1" && loadConsumption().length === 1 && loadConsumption()[0].planned === true && loadConsumption()[0].date === today);
   // Form: plate from plan (cena) and free text
   await R.openPanel("consumptionPanel");
   T.ok("C3a la fecha se completa con hoy", $("consumptionDate").value === typedAppDateLabel(today));
@@ -29,14 +34,22 @@
   const view = $("consumptionView").textContent;
   T.ok("C4 resumen semanal: total, del plan y grupos", /3 comidas registradas · 2 del plan · 1 fuera del plan/.test(view) && /Con verduras: 2/.test(view) && /Con legumbres: 1/.test(view) && /Con pescado: 1/.test(view) && /1 registro sin grupos identificados/.test(view), view.slice(0, 260));
   $("goal_legumbres").value = "3"; $("goal_pescado").value = "1"; $("goal_verduras").value = "x"; $("habitGoalsSave").click(); await wait(10);
-  const badGoal = $("consumptionStatus").textContent;
+  const badGoal = $("habitGoalsStatus").textContent;
   $("goal_verduras").value = ""; $("habitGoalsSave").click(); await wait(10);
-  T.ok("C5 objetivos: valida y muestra el progreso", /entre 0 y 21/.test(badGoal) && JSON.stringify(loadHabitGoals()) === '{"legumbres":3,"pescado":1}' && /Con legumbres: 1 de 3 \(objetivo\)/.test($("consumptionView").textContent) && /Con pescado: 1 de 1 \(objetivo\) ✓/.test($("consumptionView").textContent));
+  T.ok("C5 objetivos: valida y muestra el progreso", /entre 0 y 21/.test(badGoal) && JSON.stringify(loadHabitGoals()) === '{"legumbres":3,"pescado":1}' && /Con legumbres: 1 de 3 \(objetivo\)/.test($("consumptionView").textContent) && /Con pescado: 1 de 1 \(objetivo\) ✓/.test($("consumptionView").textContent), badGoal + " | " + JSON.stringify(loadHabitGoals()));
   document.querySelector('[data-consumption-week="-7"]').click(); await wait(10);
   T.ok("C6a navegar a la semana anterior", /Sin registros esta semana/.test($("consumptionView").textContent));
   document.querySelector('[data-consumption-week="7"]').click(); await wait(10);
+  // v15.5: Quitar no pide confirmación (si la pidiera, la prueba falla) y ofrece Deshacer.
+  let pidioConfirmar = false; window.confirm = () => { pidioConfirmar = true; return false };
+  const antesDeQuitar = localStorage.getItem("miPlatoFacil_consumption_v1");
   document.querySelector("[data-consumption-remove]").click(); await wait(10);
-  T.ok("C6b quitar un registro", loadConsumption().length === 2 && /Registro quitado/.test($("consumptionStatus").textContent));
+  const quitado = loadConsumption().length === 2 && /Registro quitado/.test($("consumptionStatus").textContent), deshacerQuitar = $("consumptionStatus").querySelector("[data-registro-deshacer]");
+  if (deshacerQuitar) { deshacerQuitar.click(); await wait(10) }
+  const vuelto = localStorage.getItem("miPlatoFacil_consumption_v1") === antesDeQuitar;
+  document.querySelector("[data-consumption-remove]").click(); await wait(10);
+  window.confirm = () => true;
+  T.ok("C6b quitar un registro, sin confirmación y con Deshacer", !pidioConfirmar && quitado && !!deshacerQuitar && vuelto && loadConsumption().length === 2 && /Registro quitado/.test($("consumptionStatus").textContent));
   T.ok("C7 las preparaciones (Cociné) no cambian", loadSaved().every(p => (p.cooked || 0) === 0) && !localStorage.getItem("miPlatoFacil_cookingHistory_v1"));
   let err = null; const snap = completeBackupSnapshot(localStorage); try { validateCompleteBackup(snap) } catch (e) { err = e.message }
   const bad = JSON.parse(JSON.stringify(snap)); bad.data["miPlatoFacil_consumption_v1"] = JSON.stringify([{ id: "x", date: "2026-13-40", meal: "cena", title: "x", groups: [], sourceId: null, planned: false }]);

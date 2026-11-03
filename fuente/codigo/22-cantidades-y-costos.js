@@ -274,7 +274,7 @@ function renderQuantifiedChoices(){
   box.replaceChildren(...Object.keys(recipes).map((title,i)=>{
     const row=ce("div","summary__line"),label=ce("label","shop-item"),check=ce("input");check.type="checkbox";check.dataset.quantRecipe=title;label.append(check,ce("span",null,amountsLabel(title,ownRecipes)));const qtyLabel=ce("label",null,"Porciones a preparar"),qty=ce("input");qty.type="text";qty.inputMode="decimal";qty.value=String(recipes[title].yield);qty.id="quantPortions_"+i;qty.dataset.quantPortions="";qtyLabel.htmlFor=qty.id;row.append(label,qtyLabel,qty);return row
   }));
-  if(!Object.keys(recipes).length)box.append(ce("p","screen__hint","Primero cargá los ingredientes con cantidades de tus recetas (Más → Con lo que tengo → Editar receta)."));
+  if(!Object.keys(recipes).length)box.append(ce("p","screen__hint","Primero cargá los ingredientes con cantidades de tus recetas (Comidas → tu receta → Editar receta)."));
   document.getElementById("quantShoppingResult").replaceChildren();
   document.getElementById("quantShoppingStatus").textContent=""
 }
@@ -466,7 +466,7 @@ function refreshRecipeCostChoices(){
     const op=ce("option",null,amountsLabel(title,ownRecipes));op.value=title;return op
   }));
   invalidateRecipeCost();
-  if(!select.options.length)document.getElementById("recipeCostStatus").textContent="Primero cargá los ingredientes con cantidades de tus recetas (Más → Con lo que tengo → Editar receta)."
+  if(!select.options.length)document.getElementById("recipeCostStatus").textContent="Primero cargá los ingredientes con cantidades de tus recetas (Comidas → tu receta → Editar receta)."
 }
 document.getElementById("recipeCostPanel").addEventListener("toggle",e=>{
   if(e.target.open)refreshRecipeCostChoices()

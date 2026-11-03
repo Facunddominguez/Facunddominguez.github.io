@@ -46,7 +46,7 @@
   delete pr.old; localStorage.setItem("miPlatoFacil_referencePrices_v1", JSON.stringify(pr));
   go("ingredientes"); showRecipeView("browse"); showRecipeRead("recipe_test0001");
   T.ok("G10a la receta muestra costo total y por porción", /Costo estimado con tus precios: 1\.500,00 ARS \(375,00 por porción\) · 1 ingrediente sin precio o sin cantidad/.test($("recipeReadIngredients").textContent), $("recipeReadIngredients").textContent);
-  closeRecipeRead(false); $("recipeRecommendCosts").checked = true; renderRecipeCatalog();
+  closeRecipeRead(false); $("recipeRecommendCosts").checked = true; $("recipeCatalogSearch").value = "Papas al horno"; recipeCatalogPage = 0; renderRecipeCatalog();
   T.ok("G10b la tarjeta permite comparar el costo entre recetas", /Costo estimado con tus precios: 1\.500,00 ARS \(375,00 por porción\)/.test($("recipeCatalogResults").textContent));
   $("recipeRecommendCosts").checked = false; renderRecipeCatalog();
   // Remove purchase and backup

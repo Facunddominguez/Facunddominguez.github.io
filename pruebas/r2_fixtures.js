@@ -6,7 +6,7 @@ window.R2 = (() => {
   const wait = ms => new Promise(r => setTimeout(r, ms));
   const results = () => { const T = []; T.ok = (name, cond, detail) => T.push((cond ? "PASA " : "FALLA ") + name + (detail !== undefined && detail !== "" ? " · " + detail : "")); return T };
   // Each battery starts like a new device: empty storage and the default mode (simple).
-  const reset = () => { localStorage.clear(); restart(); comprasDone = {}; if (typeof comprasApplied !== "undefined") comprasApplied = {}; if (typeof applyUiMode === "function") { uiModeMemory = null; applyUiMode(); renderUiModeControls() } };
+  const reset = () => { localStorage.clear(); restart(); comprasDone = {}; if (typeof comprasApplied !== "undefined") comprasApplied = {}; if (typeof comprasTenesOpen !== "undefined") { comprasTenesOpen = false; comprasCompradosOpen = false; comprasShowAll = false } if (typeof applyUiMode === "function") { uiModeMemory = null; applyUiMode(); renderUiModeControls() } };
   const setAmounts = obj => localStorage.setItem("miPlatoFacil_recipeAmounts_v1", JSON.stringify(obj));
   const setRecipes = list => localStorage.setItem("miPlatoFacil_recipeDetails_v1", JSON.stringify(Object.fromEntries(list.map(r => [r.id, { id: r.id, title: r.title, sourceTitle: null, amountsTitle: r.amountsTitle, steps: ["Cocinar"], notes: "" }]))));
   const recipePlate = (id, recipeId, title, names) => ({ id, savedAt: "2026-10-26T10:00:00.000Z", type: "plato", title, lines: [], sig: "recipe-ref:" + recipeId + ":plato", text: title, cooked: 0, state: null, recipeSourceId: recipeId, recipeIngredients: names });

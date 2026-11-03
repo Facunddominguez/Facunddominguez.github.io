@@ -97,8 +97,8 @@ function choice({
     b.dataset.pick=key;
     b.dataset.next=next
   }
-  b.append(ce("span","choice__title",label));
-  if(quantity)b.append(ce("span","quantity",quantity));
+  b.append(ce("span","choice__title",opcionVisible(label)));
+  if(quantity)b.append(ce("span","quantity",cantidadVisible(quantity)));
   return b
 }
 function renderChoice(id,items,key,next){
@@ -151,9 +151,18 @@ function snackList(target,items){
 function methodCards(target,items){
   target.replaceChildren(...items.map(x=>ce("li","advice-card-item",`${x}: ${data.cookingTips[x]||""}`)))
 }
+// Una idea del catálogo que se puede tocar: abre su detalle (Guardar y Agregar a la semana, 37-ideas-y-hoja.js).
+function ideaBoton(obj,texto){
+  const t=obj?obj.text:String(texto);
+  if(!obj)return document.createTextNode(t);
+  const b=ce("button","idea-link",t);
+  b.type="button";
+  b.dataset.ideaOpen=t;
+  return b
+}
 function renderMenuList(target,items,showTags=false){
   target.replaceChildren(...items.map(item=>{
-    const obj=typeof item==="string"?data.menuCatalog.find(x=>x.text===item):item;const li=ce("li",null,obj?obj.text:item);if(target===el.menuIdeas||target.id==="menuSearchList")li.append(adviceFavButton("menu",obj?obj.text:item));if(showTags&&obj&&obj.tags){
+    const obj=typeof item==="string"?data.menuCatalog.find(x=>x.text===item):item;const li=ce("li");li.append(ideaBoton(obj,item));if(target===el.menuIdeas||target.id==="menuSearchList")li.append(adviceFavButton("menu",obj?obj.text:item));if(showTags&&obj&&obj.tags){
       const wrap=ce("div","menu-item-tags");obj.tags.slice(0,5).forEach(t=>wrap.append(ce("span","tag-chip",t)));li.append(wrap)
     }return li
   }))

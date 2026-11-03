@@ -1,16 +1,21 @@
 // Mi Plato Fácil · Registrar en un toque: "Lo cociné" (recetas) y "Lo compré" (Compras). "Lo comí" está en Hoy.
 // Parte 35: los archivos se unen en orden según su número, que define el orden de arranque.
 // Cada acción usa los registros de siempre (historial de preparaciones, despensa y movimientos) y se puede
-// deshacer enseguida, volviendo exactamente a como estaba. La lista de compras no cambia: solo la despensa.
+// deshacer enseguida, volviendo exactamente a como estaba. Desde la v15, lo comprado pasa a "Ya en tu despensa".
 const ONE_TAP_KEYS=[PANKEY,STOCK_QUANT_KEY,"miPlatoFacil_pantryMoves_v1",COOKING_HISTORY_KEY];
+// "Lo compré" tiene su propia lista: también guarda los tachados y comprados de la semana (así tachar algo después
+// de "Lo cociné" no bloquea su Deshacer).
+const BOUGHT_UNDO_KEYS=[...ONE_TAP_KEYS,SHOPPING_CHECKS_KEY];
 const oneTapUndo={
 };
+// Hasta la v14 lo pasado a la despensa se recordaba solo en memoria; desde la v15 se guarda por semana. Se conserva
+// la variable porque otras partes (y las pruebas) la reinician.
 let comprasTransferred=new Set();
-function oneTapSnapshot(){
-  return Object.fromEntries(ONE_TAP_KEYS.map(k=>[k,localStorage.getItem(k)]))
+function oneTapSnapshot(keys){
+  return Object.fromEntries((keys||ONE_TAP_KEYS).map(k=>[k,localStorage.getItem(k)]))
 }
 function oneTapRestore(u){
-  if(JSON.stringify(oneTapSnapshot())!==JSON.stringify(u.after))throw Error("No se puede deshacer: los datos cambiaron después.");
+  if(JSON.stringify(oneTapSnapshot(u.keysList))!==JSON.stringify(u.after))throw Error("No se puede deshacer: los datos cambiaron después.");
   for(const [k,v] of Object.entries(u.before)){
     if(v===null)localStorage.removeItem(k);else localStorage.setItem(k,v)
   }
@@ -32,6 +37,7 @@ function afterOneTap(){
   }catch(e){
   }
   if(document.getElementById("cookingHistoryPanel").open)renderCookingHistory();
+  if(stack.at(-1)==="registro")renderRegistro();
   if(stack.at(-1)==="compras")renderCompras()
 }
 function oneTapQty(m){
@@ -45,15 +51,11 @@ function cookRecipeNow(id){
   const r=loadRecipeDetails()[id];
   if(!r)throw Error("La receta ya no está disponible.");
   const amounts=loadRecipeAmounts(),a=r.amountsTitle&&Object.prototype.hasOwnProperty.call(amounts,r.amountsTitle)?amounts[r.amountsTitle]:null,names=a?a.rows.map(x=>String(x.name||"").trim()).filter(Boolean):[],hasQty=!!a&&a.rows.some(x=>x.quantity!==null&&String(x.name||"").trim());
-  const before=oneTapSnapshot(),history=loadCookingHistory();
-  history.push({
-    id:Date.now().toString(36)+"_"+Math.random().toString(36).slice(2),date:localTrainingDate(new Date()),meal:"Otra",title:r.title,lines:names.length?["Ingredientes: "+names.join(", ")]:[],sourceId:id,status:"prepared"
+  const before=oneTapSnapshot();
+  // La misma alta que todas (19): agrega sobre lo guardado sin descartar nada.
+  agregarPreparacion({
+    id:Date.now().toString(36)+"_"+Math.random().toString(36).slice(2),date:localTrainingDate(new Date()),meal:"Otra",title:String(r.title),lines:names.length?["Ingredientes: "+names.join(", ")]:[],sourceId:id,status:"prepared"
   });
-  try{
-    localStorage.setItem(COOKING_HISTORY_KEY,JSON.stringify(history))
-  }catch(e){
-    throw Error("No se pudo guardar (falta de espacio u otro error). No se modificó nada.")
-  }
   let res={
     moves:[],short:[]
   };
@@ -75,26 +77,35 @@ function cookRecipeNow(id){
     text,before,after:oneTapSnapshot()
   }
 }
-// Lo compré: lo tachado en Compras pasa a la despensa. Con cantidad conocida suma a las existencias
-// (o la cantidad de la sugerencia que aplicaste); sin cantidad, queda marcado como que lo tenés.
+// Lo compré: lo tachado en Compras pasa a la despensa y a "Ya en tu despensa". Si se sabe cuánto falta, suma
+// solo eso (lo que antes hacía "Anotar"); si no, la cantidad del plan; sin cantidad, queda marcado que lo tenés.
 function boughtNow(){
-  const all=shoppingPlanItems(),ticked=all.filter(e=>comprasDone[e.key]);
-  if(!ticked.length)return {
-    text:"Primero tachá lo que compraste en la lista."
-  };
-  const items=ticked.filter(e=>!comprasTransferred.has(e.key));
+  syncShoppingWeek();
+  const all=shoppingPlanItems(),boughtBefore=shoppingBoughtSet(),items=all.filter(e=>comprasDone[e.key]&&!boughtBefore.has(e.key));
   if(!items.length)return {
-    text:"Lo tachado ya está en tu despensa."
+    text:all.some(e=>comprasDone[e.key])?"Lo tachado ya está en tu despensa.":"Primero tachá lo que compraste en la lista."
   };
-  const stock=loadStockQuantities(),marked=pantryMarkedMatcher(),before=oneTapSnapshot(),changes=[],marks=[];
+  const stock=loadStockQuantities(),marked=pantryMarkedMatcher(),before=oneTapSnapshot(BOUGHT_UNDO_KEYS),changes=[],marks=[],alcanzaba=[],descontar=comprasDescontar();
   for(const e of items){
-    const label=shoppingItemLabel(e),sugg=shoppingSuggestion(e,stock,marked),a=comprasApplied[e.key],applied=!!(a&&sugg&&sugg.kind==="partial"&&a.label===label&&a.buy===sugg.buy),qty=applied?sugg.missing:mergeUnits(e.units);
+    // Con "Descontar lo que tengo" apagado (v15.4) no se descontó nada: se suma la cantidad completa del plan.
+    const sugg=descontar?shoppingSuggestion(e,stock,marked):null;
+    // Si la despensa ya alcanzaba ("Ya tenés"), no se suma nada: así no se inflan las existencias.
+    if(sugg&&sugg.kind==="covered"){
+      alcanzaba.push(e.name);continue
+    }
+    const qty=sugg&&sugg.kind==="partial"?sugg.missing:mergeUnits(e.units);
     if(qty&&qty.size)for(const [unit,q] of qty){
       if(q>0)changes.push({
         name:e.name,unit,delta:q
       })
     }else marks.push(e.name)
   }
+  const deshacer=()=>{
+    for(const [k,v] of Object.entries(before)){
+      if(v===null)localStorage.removeItem(k);else localStorage.setItem(k,v)
+    }
+    pantrySel=loadPantry()
+  };
   let newMarks=0;
   for(const name of marks){
     const chip=pantryChipFor(name),k=ingredientKey(name);
@@ -112,21 +123,18 @@ function boughtNow(){
   let res={
     moves:[]
   };
-  if(changes.length){
-    try{
-      res=applyStockChanges(changes,("Lo compré · "+typedAppDateLabel(localTrainingDate(new Date()))).slice(0,80))
-    }catch(err){
-      for(const [k,v] of Object.entries(before)){
-        if(v===null)localStorage.removeItem(k);else localStorage.setItem(k,v)
-      }
-      pantrySel=loadPantry();
-      throw err
-    }
+  try{
+    if(changes.length)res=applyStockChanges(changes,("Lo compré · "+typedAppDateLabel(localTrainingDate(new Date()))).slice(0,80));
+    const bought=shoppingBoughtSet();
+    items.forEach(e=>bought.add(e.key));
+    saveShoppingChecks(bought)
+  }catch(err){
+    deshacer();
+    throw err
   }
-  items.forEach(e=>comprasTransferred.add(e.key));
-  const parts=res.moves.map(oneTapQty).concat(marks.map(n=>n+" (sin cantidad)"));
+  const parts=res.moves.map(oneTapQty).concat(marks.map(n=>n+" (sin cantidad)"),alcanzaba.map(n=>n+" (ya alcanzaba)"));
   return {
-    text:"Pasó a tu despensa: "+parts.join(", ")+"."+(ticked.length>items.length?" Lo que ya habías pasado no se repite.":"")+" La lista no cambió.",before,after:oneTapSnapshot(),keys:items.map(e=>e.key)
+    text:textoLegible("Pasó a tu despensa: "+parts.join(", ")+"."),before,after:oneTapSnapshot(BOUGHT_UNDO_KEYS),keys:items.map(e=>e.key),keysList:BOUGHT_UNDO_KEYS,cambios:changes.map(c=>({name:c.name,unit:c.unit,delta:c.delta})),sinCantidad:marks.slice()
   }
 }
 document.addEventListener("click",e=>{
@@ -153,12 +161,22 @@ document.addEventListener("click",e=>{
       const st=document.getElementById("comprasBoughtStatus"),r=boughtNow();
       if(r.before){
         oneTapUndo.bought={
-          before:r.before,after:r.after,status:st,keys:r.keys
+          before:r.before,after:r.after,status:st,keys:r.keys,keysList:r.keysList
         };
         afterOneTap();
         renderCompras()
       }
-      oneTapStatus(st,r.text,r.before?"bought":null)
+      oneTapStatus(st,r.text,r.before?"bought":null);
+      // "Terminé de comprar" (v15.4): después, opcional, anotar el gasto y los precios del ticket.
+      if(r.before){
+        ultimaCompraClaves=r.keys;
+        ultimaCompraCambios=r.cambios||[];
+        ultimaCompraSinCantidad=r.sinCantidad||[];
+        const g=ce("button","filter-chip","🧾 Anotar gasto");
+        g.type="button";
+        g.dataset.anotarGasto="";
+        st.append(" ",g)
+      }
     }else if(b.dataset.oneTapUndo){
       const key=b.dataset.oneTapUndo,u=oneTapUndo[key];
       if(!u)return;

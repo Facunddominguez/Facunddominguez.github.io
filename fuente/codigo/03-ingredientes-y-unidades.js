@@ -4,7 +4,7 @@ function normalizeSearchText(value){
   return String(value||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").trim()
 }
 const INGREDIENT_ALIASES_KEY="miPlatoFacil_ingredientAliases_v1";
-const INGREDIENT_SYNONYMS=[["Papa","patata"],["Batata","boniato","camote"],["Palta","aguacate"],["Arvejas","guisante","chicharo"],["Chauchas","chauchas (judias verdes)","judia verde","ejote","vainita"],["Porotos negros","frijol negro"],["Porotos colorados","frijol rojo"],["Porotos alubia (blanco)","poroto alubia","alubia","poroto blanco"],["Soja (poroto de soja)","soja","poroto de soja"],["Fécula de maíz (maicena)","maicena","fecula de maiz"],["Morrón rojo","pimiento rojo"],["Morrón verde","pimiento verde"],["Morrón amarillo","pimiento amarillo"],["Zucchini","calabacin","zuchini","zukini"],["Remolacha","betarraga","betabel"],["Choclo","elote","mazorca"],["Huevo","huevo entero de gallina","huevo de gallina","huevo entero"],["Pollo","pollo (pechuga, muslo, pata-muslo)"],["Yogur","yogur (natural, bebible, griego)","yogurt","yoghurt"],["Fideos","fideos y pastas (de trigo, maiz o arroz)","pasta"],["Leche","leche (preferentemente descremada, parcialmente descremada)"],["Cebolla de verdeo","verdeo","cebollita de verdeo"],["Tomate","tomate fresco"],["Ajo","diente de ajo"],["Repollo colorado","repollo morado","col lombarda"],["Mandioca","yuca"],["Quinoa","quinua"],["Cuscús","cous cous","couscous","cus cus"],["Maní","cacahuate","cacahuete"],["Manteca","mantequilla"]];
+const INGREDIENT_SYNONYMS=[["Papa","patata"],["Batata","boniato","camote"],["Palta","aguacate"],["Arvejas","guisante","chicharo"],["Chauchas","chauchas (judias verdes)","judia verde","ejote","vainita"],["Porotos negros","frijol negro"],["Porotos colorados","frijol rojo"],["Porotos alubia (blanco)","poroto alubia","alubia","poroto blanco"],["Soja (poroto de soja)","soja","poroto de soja"],["Fécula de maíz (maicena)","maicena","fecula de maiz"],["Morrón rojo","pimiento rojo"],["Morrón verde","pimiento verde"],["Morrón amarillo","pimiento amarillo"],["Zucchini","calabacin","zuchini","zukini"],["Remolacha","betarraga","betabel"],["Choclo","elote","mazorca"],["Huevos","huevo entero de gallina","huevo de gallina","huevo entero","huevo | clara de huevo"],["Pollo","pollo (pechuga, muslo, pata-muslo)"],["Yogur","yogur (natural, bebible, griego)","yogurt","yoghurt"],["Fideos","fideos y pastas (de trigo, maiz o arroz)","pasta"],["Leche","leche (preferentemente descremada, parcialmente descremada)"],["Cebolla de verdeo","verdeo","cebollita de verdeo"],["Tomate","tomate fresco"],["Ajo","diente de ajo"],["Repollo colorado","repollo morado","col lombarda"],["Mandioca","yuca"],["Quinoa","quinua"],["Cuscús","cous cous","couscous","cus cus"],["Maní","cacahuate","cacahuete"],["Manteca","mantequilla"]];
 let ingredientCatalogCache=null,ingredientAliasCache={
   raw:undefined,map:{
   }
@@ -148,4 +148,17 @@ function pricesFor(list,name,unit){
   return list.filter(p=>p&&sameIngredient(p.name,name)&&sameDimension(p.unit,unit)).map(p=>p.unit===unit?p:{
     ...p,amount:convertQuantity(p.amount,p.unit,unit),unit,sourceAmount:p.amount,sourceUnit:p.unit
   })
+}
+// Cantidades legibles (desde la v15.4): redondeo y plural, solo al mostrar. Lo guardado y los textos internos
+// de la lista (label, buy, suggestion.text) no cambian.
+var UNIDADES_PLURAL={unidad:"unidades",cucharada:"cucharadas",cucharadita:"cucharaditas",taza:"tazas"};
+function cantidadLegible(n,unidad){
+  const q=Number(n);
+  if(!Number.isFinite(q))return String(n)+" "+unidad;
+  const dec=unidad==="g"||unidad==="ml"?(Math.abs(q)<10?1:0):2,r=Math.round(q*10**dec)/10**dec,num=r.toLocaleString("es-AR",{maximumFractionDigits:dec});
+  return num+" "+(UNIDADES_PLURAL[unidad]&&r>1?UNIDADES_PLURAL[unidad]:unidad)
+}
+// Aplica cantidadLegible a cada "número unidad" de un texto ("166,666667 g", "5 unidad", "1.250,5 ml").
+function textoLegible(texto){
+  return String(texto).replace(/(\d{1,3}(?:\.\d{3})+|\d+)(?:,(\d+))? (g|kg|ml|l|unidad|cucharada|cucharadita|taza)(?![\p{L}])/gu,(m,ent,dec,u)=>cantidadLegible(Number(ent.replace(/\./g,"")+(dec?"."+dec:"")),u))
 }

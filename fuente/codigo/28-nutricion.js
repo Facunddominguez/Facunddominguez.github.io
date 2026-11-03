@@ -122,11 +122,15 @@ function renderNutritionLookup(){
   const q=input.value.trim();
   out.replaceChildren();
   if(!q)return;
-  const it=nutritionFor(q);
+  out.append(...nutrientesDeIngrediente(q).childNodes)
+}
+// Nutrientes de un ingrediente cada 100 g (v15.3): la usan "Consultar nutrientes" y el detalle de cada comida.
+function nutrientesDeIngrediente(q){
+  const out=ce("div","nutrientes-ingrediente"),it=nutritionFor(q);
   if(!it){
     const nq=normalizeSearchText(q),sug=nutritionDataset().names.filter(n=>normalizeSearchText(n).includes(nq)).slice(0,6);
     out.append(ce("p","screen__hint","No hay datos para “"+q+"”."+(sug.length?" Probá con: "+sug.join(", ")+".":"")));
-    return
+    return out
   }
   const v=it.v,dl=ce("dl","nutrition-facts");
   for(const [k,val,u] of [["Energía",v[0],"kcal"],["Proteínas",v[1],"g"],["Carbohidratos",v[3],"g"],["Grasas",v[2],"g"],["Fibra",v[4],"g"],["Azúcares",v[5],"g"],["Sodio",v[6],"mg"]])dl.append(ce("dt",null,k),ce("dd",null,val===null?"sin dato":nutritionNumber(val,u)));
@@ -137,7 +141,8 @@ function renderNutritionLookup(){
   if(it.nota)out.append(ce("p","screen__hint",it.nota));
   const srcP=ce("p","screen__hint","Dato de USDA: "+it.d+" ("+(it.b==="F"?"Foundation Foods":"SR Legacy")+")"+(it.c?"; "+it.c.k.map(nutrientLabel).join(", ")+" de SR Legacy":"")+" · ");
   srcP.append(nutritionLink(it));
-  out.append(srcP)
+  out.append(srcP);
+  return out
 }
 function refreshNutritionData(){
   if(refreshNutritionData.started||!/^https?:$/.test(location.protocol))return;

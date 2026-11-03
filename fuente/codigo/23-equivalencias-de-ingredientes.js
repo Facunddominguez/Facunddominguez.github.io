@@ -131,7 +131,7 @@ document.addEventListener("change",e=>{
   const t=e.target;if(!t||!t.dataset||t.dataset.planPortions===undefined)return;const key=t.dataset.planPortions,raw=t.value.trim();try{
     const p=loadPlanPortions();if(!raw)delete p[key];else{
       const n=Number(raw.replace(",","."));if(!Number.isFinite(n)||n<0.25||n>100)throw Error("Indicá porciones entre 0,25 y 100.");p[key]=Math.round(n*100)/100
-    }savePlanPortions(p);const [d,s]=key.split("|");logPlanChange(planDayName(d)+" · "+planSlotName(s)+": porciones "+(raw?String(p[key]).replace(".",","):"según la receta"));renderPlan();planStatus("Porciones guardadas. Compras las usa.")
+    }if(!copiaAutomaticaDeSemana())throw Error(errorDelPlan);savePlanPortions(p);const [d,s]=key.split("|");logPlanChange(planDayName(d)+" · "+planSlotName(s)+": porciones "+(raw?String(p[key]).replace(".",","):"según la receta"));renderPlan();planStatus("Porciones guardadas. Compras las usa.")
   }catch(err){
     planStatus(err.message||"No se pudieron guardar las porciones.");renderPlan()
   }
