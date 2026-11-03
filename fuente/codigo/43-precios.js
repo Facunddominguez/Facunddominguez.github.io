@@ -3,13 +3,14 @@
 // Los datos los baja una tarea de GitHub Actions y se incrustan al construir. init() corre durante la carga de 14, antes
 // que este archivo: acá solo hay function, var y manejadores (nada de const/let que usen los archivos anteriores), y al
 // final se repinta lo que ya se había dibujado sin precios.
+// La región se guarda como {"region":"Pampeana"} (el respaldo pide un objeto por clave).
 // Los precios se ven con el interruptor "Mostrar precios y presupuesto" (el mismo del modo simple, uiMode_v1): apagado
 // no aparece ningún "≈ $". "Mi precio" (referencePrices_v1) gana sobre el promedio de INDEC.
 var PRECIOS_SNAPSHOT=__DATOS_PRECIOS__;
 var REGION_PRECIOS_KEY="miPlatoFacil_region_v1";
 var REGIONES_PRECIOS=["GBA","Pampeana","Noreste","Noroeste","Cuyo","Patagonia"];
 function validRegionPrecios(v){
-  return typeof v==="string"&&["GBA","Pampeana","Noreste","Noroeste","Cuyo","Patagonia"].includes(v)
+  return!!v&&typeof v==="object"&&!Array.isArray(v)&&Object.keys(v).length===1&&typeof v.region==="string"&&["GBA","Pampeana","Noreste","Noroeste","Cuyo","Patagonia"].includes(v.region)
 }
 function validPreciosData(d){
   return!!d&&typeof d==="object"&&d.version===1&&/^\d{4}-\d{2}$/.test(d.mes||"")&&!!d.fuente&&typeof d.fuente==="object"&&Array.isArray(d.items)&&d.items.length>0&&d.items.length<=500&&d.items.every(i=>!!i&&typeof i.n==="string"&&["kg","l","unidad"].includes(i.b)&&!!i.p&&typeof i.p==="object"&&Number.isFinite(i.p.GBA)&&i.p.GBA>0)
@@ -36,14 +37,17 @@ function preciosDataset(){
 function regionPrecios(){
   try{
     const v=JSON.parse(localStorage.getItem(REGION_PRECIOS_KEY)||"null");
-    return validRegionPrecios(v)?v:"GBA"
+    return validRegionPrecios(v)?v.region:"GBA"
   }catch(e){
     return "GBA"
   }
 }
 function guardarRegionPrecios(r){
-  if(!validRegionPrecios(r))throw new Error("Región inválida.");
-  localStorage.setItem(REGION_PRECIOS_KEY,JSON.stringify(r))
+  const o={
+    region:r
+  };
+  if(!validRegionPrecios(o))throw new Error("Región inválida.");
+  localStorage.setItem(REGION_PRECIOS_KEY,JSON.stringify(o))
 }
 function preciosActivos(){
   return!isSimpleMode()
