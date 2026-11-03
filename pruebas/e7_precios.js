@@ -110,7 +110,7 @@
   // Desde la Etapa 9 el precio automático es SEPA si está y si no INDEC: se compara con el precio automático de la región (GBA).
   const px = n => ev('precioAuto("' + n + '").precio');
   ok("C7-5 los datos de ejemplo y los incrustados pasan las mismas comprobaciones y las unidades se convierten (huevo por unidad, leche en litros)",
-    valido && nombresOk && sinRed && Math.abs(huevos - 6 * px("Huevo")) < 0.01 && px("Huevo") > 100 && px("Huevo") < 1000 && Math.abs(leche - px("Leche")) < 0.01 && Math.abs(arrozKg - px("Arroz")) < 0.01 && ev('precioDe("Sal",1,"taza")') !== undefined && ev('precioDe("Cardamomo",1,"kg")') === null,
+    valido && nombresOk && sinRed && Math.abs(huevos - 6 * px("Huevo")) < 0.01 && px("Huevo") === real.find(i => i.n === "Huevo").s.GBA && Math.abs(px("Huevo") * 12 - 12 * real.find(i => i.n === "Huevo").s.GBA) < 0.01 && Math.abs(leche - px("Leche")) < 0.01 && Math.abs(arrozKg - px("Arroz")) < 0.01 && ev('precioDe("Sal",1,"taza")') !== undefined && ev('precioDe("Cardamomo",1,"kg")') === null,
     [huevos, leche, arrozKg].join(" · "));
 
   // C7-6 La región va al respaldo como opcional: un respaldo viejo (sin ella) se restaura y la deja como está; uno inválido se rechaza
