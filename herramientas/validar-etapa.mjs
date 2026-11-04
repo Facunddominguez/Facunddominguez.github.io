@@ -172,6 +172,22 @@ for (const c of aplican) {
   } else if (c.tipo === 'prueba') {
     const suyas = todas.filter(p => p.texto.startsWith(c.prueba + ' '));
     control(suyas.length > 0 && suyas.every(p => p.ok), `${titulo} · ${suyas.length} prueba(s) ${c.prueba}`, suyas.length ? suyas.filter(p => !p.ok).map(p => p.texto.slice(0, 200)).join(' | ') : `no existe ninguna prueba que empiece con "${c.prueba} "`);
+  } else if (c.tipo === 'anchos') {
+    // Capturas en otros anchos (por ejemplo 360 y 320 px, tema claro): ninguna métrica de la lista puede tener hallazgos.
+    const malos = [];
+    for (const ancho of c.anchos) {
+      const sal = join(carpeta, `etapa-${N}-${ancho}`);
+      rmSync(join(sal, 'medidas.json'), { force: true });
+      nota(`Tomando medidas a ${ancho} px (${minutos()})…`);
+      const r = nodo('capturas.mjs', ['--ancho', String(ancho), '--temas', 'claro', '--sin-imagenes', '--salida', sal, ...navegador]);
+      if (r.status !== 0 || !existsSync(join(sal, 'medidas.json'))) { malos.push(`${ancho}: no se pudieron tomar las medidas (${ultimas(r)})`); continue }
+      const med = JSON.parse(readFileSync(join(sal, 'medidas.json'), 'utf8'));
+      for (const [v, es] of Object.entries(med.vistas)) for (const [e, ts] of Object.entries(es)) for (const [t, m] of Object.entries(ts)) for (const k of c.metricas) {
+        const x = valor(m, k);
+        if (x === null || x > 0) malos.push(`${ancho}/${v}/${e}/${t} ${k}: ${Array.isArray(m[k]) ? m[k].slice(0, 2).join(' | ') : x}`)
+      }
+    }
+    control(!malos.length, `${titulo} · ${c.metricas.join(', ')} = 0 a ${c.anchos.join(' y ')} px`, malos.slice(0, 10).join('\n    '));
   } else if (c.tipo === 'comando') {
     const r = spawnSync(c.comando, { cwd: RAIZ, encoding: 'utf8', shell: true, maxBuffer: 64 << 20 });
     control(r.status === 0, `${titulo} · \`${c.comando}\``, `código ${r.status}: ${ultimas(r)}`);

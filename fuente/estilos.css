@@ -3544,3 +3544,11 @@ body:has(#bottom.is-visible){padding-bottom:calc(var(--step-nav-h) + 24px)}
 @media (max-width:340px){
   select,.portion-field select{font-size:14px!important;padding-left:8px!important;padding-right:4px!important}
 }
+/* Etapa 17: nada sobresale de su tarjeta a 320 px. */
+.armar-comida__opciones{grid-column:1/-1}
+select{max-width:100%;min-width:0}
+.portion-field select,.portion-field input{max-width:100%;min-width:0}
+@media (max-width:380px){
+  #comprasHerramientas .shop-item,#pantryItemList .shop-item{flex-wrap:wrap}
+  #comprasHerramientas .shop-item>span{flex:1 1 100%}
+}
