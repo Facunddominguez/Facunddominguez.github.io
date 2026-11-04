@@ -43,6 +43,13 @@
   const nut = ["Yogur natural descremado", "Arroz (integral, yamaní)", "Avena arrollada o instantánea"].map(n => ev(`(() => { const x = nutritionFor(${JSON.stringify(n)}); return x ? x.n : null })()`));
   ok("E19-resolvedor la nutrición y el precio resuelven las variantes del nombre (paréntesis, 'o …', integral/descremado)", nut.every(Boolean) && ev(`Ingredientes.variantesNombre("Arroz (integral, yamaní)")`)[0] === "Arroz integral", JSON.stringify(nut));
 
+  // El resolvedor no confunde ingredientes distintos con una variante del nombre.
+  const dest = n => ev(`(() => { const p = precioAuto(${JSON.stringify(n)}); return p ? p.it.n : null })()`);
+  const neg = { "Pan rallado": dest("Pan rallado"), "Queso rallado": dest("Queso rallado"), "Queso fresco": dest("Queso fresco"), "Leche de almendras": dest("Leche de almendras"), "Queso blanco": dest("Queso blanco") };
+  ok("E19-no-confunde 'Pan rallado' y 'Queso rallado' tienen precio propio y 'Leche de almendras' o 'Queso blanco' no se reducen a otro ingrediente",
+    neg["Pan rallado"] === "Pan rallado" && neg["Queso rallado"] === "Queso rallado" && neg["Queso fresco"] === "Queso fresco" && neg["Leche de almendras"] !== "Leche" && neg["Queso blanco"] === null, JSON.stringify(neg));
+  ok("E19-cobertura-real la cobertura con precio real no baja de 70 % (hoy 76 %; sube cuando 'Actualizar precios' sume los ítems anotados sin dato)", pct >= 0.7, "real " + Math.round(pct * 100) + " % · sin: " + sin.join(", "));
+
   // E19-plausibilidad: por categoría, ningún precio por kg o litro se aparta más de 4 veces de la mediana de su categoría salvo excepciones anotadas.
   const r = ev(`(() => { const d = preciosDataset(); const reg = "GBA"; const por = {}; const cats = new Set();
     for (const it of d.meta.items) { const v = (it.s && it.s[reg] > 0) ? it.s[reg] : (it.p && it.p[reg]); if (!(v > 0) || it.b === "unidad") continue; (por[(it.k || "?") + "/" + it.b] = por[(it.k || "?") + "/" + it.b] || []).push([it.n, v]) }
@@ -51,7 +58,7 @@
     for (const [c, a] of Object.entries(por)) { const m = med(a); for (const [n, v] of a) if (v > 4 * m || v < m / 4) fuera.push(c + "/" + n + " " + Math.round(v) + " vs mediana " + Math.round(m)) }
     return JSON.stringify({ fuera, sinCat, cats: Object.keys(por) }) })()`);
   const pl = JSON.parse(r), EXCEPCIONES = notas.excepcionesPlausibilidad.map(x => x.n);
-  const fueraSinExc = pl.fuera.filter(f => !EXCEPCIONES.some(e => f.split("/")[2].startsWith(e)));
+  const fueraSinExc = pl.fuera.filter(f => !EXCEPCIONES.some(e => f.split("/")[2].replace(/ \d+ vs mediana.*/, "") === e));
   ok("E19-plausibilidad en cada categoría ningún precio por kg o litro se aparta más de 4 veces de la mediana (salvo excepciones anotadas) y todo ítem tiene categoría",
     !fueraSinExc.length && !pl.sinCat.length, JSON.stringify({ fueraSinExc, sinCat: pl.sinCat, excepciones: EXCEPCIONES }));
 

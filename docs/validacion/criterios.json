@@ -111,6 +111,8 @@
     {"id": "E19-doce", "etapa": 19, "hecho": "Los 12 productos de la v16.7.0 sin precio ahora lo tienen o están anotados como sin dato.", "tipo": "prueba", "prueba": "E19-doce"},
     {"id": "E19-resolvedor", "etapa": 19, "hecho": "Un solo resolvedor de nombres para precios y nutrición (paréntesis, 'o …', integral/descremado).", "tipo": "prueba", "prueba": "E19-resolvedor"},
     {"id": "E19-plausibilidad", "etapa": 19, "hecho": "Cada ingrediente del mapa tiene categoría y ningún precio por kg o litro se aparta más de 4 veces de la mediana de su categoría sin una excepción anotada.", "tipo": "prueba", "prueba": "E19-plausibilidad"},
-    {"id": "E19-registro", "etapa": 19, "hecho": "Qué variante se elige y qué productos quedan sin dato queda en el Registro.", "tipo": "registro", "seccion": "Etapa 19", "debeNombrar": ["Variantes", "Sin dato"]}
+    {"id": "E19-registro", "etapa": 19, "hecho": "Qué variante se elige y qué productos quedan sin dato queda en el Registro.", "tipo": "registro", "seccion": "Etapa 19", "debeNombrar": ["Variantes", "Sin dato"]},
+    {"id": "E19-cobertura-real", "etapa": 19, "hecho": "La cobertura con precio real (SEPA o INDEC) en la semana armada de la prueba no baja de 70 % (hoy 76 %).", "tipo": "prueba", "prueba": "E19-cobertura-real"},
+    {"id": "E19-no-confunde", "etapa": 19, "hecho": "El resolvedor no confunde ingredientes distintos con una variante de nombre.", "tipo": "prueba", "prueba": "E19-no-confunde"}
   ]
 }
