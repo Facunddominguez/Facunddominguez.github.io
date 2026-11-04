@@ -50,6 +50,7 @@
     "e16_dieta.js",
     "e17_pulido.js",
     "e19_precios_resuelven.js",
-    "e20_un_costo.js"
+    "e20_un_costo.js",
+    "e21_ficha_precio.js"
   ]
 }

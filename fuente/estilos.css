@@ -3522,6 +3522,12 @@ body.con-hoja{
 /* Precios automáticos (v15.6): aviso para quien no los activó y línea de fuente. */
 .precios-aviso{display:block;min-height:44px;margin:0 0 8px;padding:0;border:0;background:none;color:var(--primary,var(--accent));font:inherit;text-align:left;text-decoration:underline;cursor:pointer}
 .precios-aviso[hidden]{display:none}
+.shop-item__nombre{text-decoration:underline dotted;text-underline-offset:3px;cursor:pointer}
+.ficha-precio{margin-top:12px;display:grid;gap:8px}
+.ficha-precio__titulo{margin:0;font-size:16px}
+.ficha-precio__linea{margin:0;font-weight:600}
+.ficha-precio__form{display:grid;gap:8px}
+.ficha-precio__form input,.ficha-precio__form select{min-height:44px}
 #planDiaCosto{margin-bottom:2px}
 #planPreciosEstado{margin-top:0;margin-bottom:6px}
 .precios-aviso--inline{display:inline-flex;align-items:center;min-height:44px;margin:0 0 0 4px;padding:0 4px;vertical-align:middle}

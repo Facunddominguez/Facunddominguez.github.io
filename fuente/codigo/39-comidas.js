@@ -130,8 +130,13 @@ eliminarRecetaDesdeDetalle(id){
 },
 abrirNutrientesDeIngrediente(nombre){
   const limpio=String(nombre||"").split(":")[0].trim();
+  const contenido=[nutrientesDeIngrediente(limpio)];
+  try{
+    if(preciosActivos()&&preciosDataset())contenido.push(fichaPrecio(limpio))
+  }catch(e){
+  }
   hoja.abrir({
-    titulo:limpio,contenido:[nutrientesDeIngrediente(limpio)],botones:[],foco:false
+    titulo:limpio,contenido,botones:[],foco:false
   })
 },
 abrirNuevaComida(){

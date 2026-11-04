@@ -210,14 +210,48 @@ function precioAuto(nombre){
   return null
 }
 // Precio de INDEC solo (se conserva para quien lo use): {precio por unidad base, región usada} o null.
+// ---- Etapa 21: Mi precio ----
+// Gramos de una cantidad de un ingrediente (null si no se puede pasar a peso).
+function gramosDe(nombre,q,unit){
+  if(unit==="g")return q;
+  if(unit==="kg")return q*1000;
+  const pu=pesoUnidadCurado(nombre);
+  if(pu&&unit==="unidad")return q*pu;
+  return nutritionGrams(nutritionFor(nombre),q,unit)
+}
+// Nombres con que se busca Mi precio de un ingrediente: el que se ve y el del ítem de precios o de nutrición.
+function nombresDePrecio(nombre){
+  const out=[String(nombre||"")],it=Precios.itemDe(nombre),nut=nutritionFor(nombre);
+  for(const x of [it&&it.n,nut&&nut.n])if(x&&!out.includes(x))out.push(x);
+  return out
+}
+function misPreciosDe(nombre){
+  const todos=Object.values(loadReferencePrices()).filter(p=>p.currency==="ARS"&&Number.isFinite(p.price)&&p.price>0&&Number.isFinite(p.amount)&&p.amount>0);
+  const nombres=nombresDePrecio(nombre);
+  return todos.filter(p=>nombres.some(n=>Ingredientes.sameIngredient(p.name,n))).sort((a,b)=>String(b.date).localeCompare(String(a.date)))
+}
+// Costo con Mi precio (el más nuevo): en la misma unidad o, si no, pasando las dos cantidades a gramos.
+function miPrecioDe(nombre,q,unit){
+  const lista=misPreciosDe(nombre);
+  if(!lista.length)return null;
+  const mismo=lista.filter(p=>Ingredientes.sameDimension(p.unit,unit));
+  if(mismo.length){
+    const p=mismo[0],amount=p.unit===unit?p.amount:convertQuantity(p.amount,p.unit,unit);
+    return {costo:q*p.price/amount,propio:true,fuente:"Mi precio",aprox:false}
+  }
+  const gq=gramosDe(nombre,q,unit);
+  for(const p of lista){
+    const gp=gramosDe(nombre,p.amount,p.unit);
+    if(gq!==null&&gp)return {costo:gq*p.price/gp,propio:true,fuente:"Mi precio",aprox:false}
+  }
+  return null
+}
 // Cuánto cuesta una cantidad: Mi precio (referencePrices_v1, en pesos) y si no el promedio de INDEC.
 function precioDe(nombre,q,unit){
   if(typeof q!=="number"||!(q>0)||!nombre)return null;
   try{
-    const propios=Ingredientes.pricesFor(Object.values(loadReferencePrices()),nombre,unit).filter(p=>p.currency==="ARS"&&Number.isFinite(p.price)&&p.price>=0&&Number.isFinite(p.amount)&&p.amount>0).sort((a,b)=>String(b.date).localeCompare(String(a.date)));
-    if(propios.length)return {
-      costo:q*propios[0].price/propios[0].amount,propio:true,fuente:"Mi precio",aprox:false
-    }
+    const mio=miPrecioDe(nombre,q,unit);
+    if(mio)return mio
   }catch(e){
   }
   // Solo lee: no guarda nada (C9-2).
@@ -480,10 +514,9 @@ function pintarCostoDia(){
   if(q){
     q.replaceChildren();
     if(u){
-      q.append(document.createTextNode("Con precio: "+u.conPrecio+" de "+u.pendientes+" productos"));
+      q.append(document.createTextNode("Con precio: "+u.conPrecio+" de "+u.pendientes+" productos"+(u.faltan?" · ":"")));
       if(u.faltan){
-        q.append(document.createTextNode(" · "));
-        const b=ce("button","precios-aviso precios-aviso--inline","Completar "+u.faltan+" precio"+(u.faltan===1?"":"s"));
+        const b=ce("button","button button--soft precios-aviso--inline","Completar "+u.faltan+" precio"+(u.faltan===1?"":"s"));
         b.type="button";
         b.dataset.completarPrecios="";
         q.append(b)
@@ -491,6 +524,158 @@ function pintarCostoDia(){
     }
     q.hidden=!u
   }
+}
+// ---- Etapa 21: ficha de ingrediente con precio ----
+var FICHA_UNIDADES=[["kg","kg"],["g","g"],["unidad","unidad"],["paquete","paquete"]];
+function pesosCortos(n){
+  return "$"+Math.round(n).toLocaleString("es-AR")
+}
+// Línea de precio de la ficha: "≈ $2.200/kg · SEPA GBA · nov. 2026 · entre $1.980 y $2.900".
+function textoPrecioFicha(nombre){
+  const mio=misPreciosDe(nombre)[0];
+  if(mio)return "Mi precio: "+pesosCortos(mio.price)+" por "+(mio.pack==="paquete"?"paquete de "+cantidadLegible(mio.amount,mio.unit):cantidadLegible(mio.amount,mio.unit));
+  const p=precioAuto(nombre),d=preciosDataset();
+  if(p&&d){
+    const ub=p.it.b==="l"?"l":p.it.b==="unidad"?"unidad":"kg",sepa=datosSepaPrecios(d);
+    const fuente=p.fuente==="sepa"?"SEPA "+p.region+(sepa?" · "+mesCortoPrecios(sepa.fecha.slice(0,7)):""):"INDEC "+p.region+" · "+mesCortoPrecios(d.meta.mes);
+    return "≈ "+pesosCortos(p.precio)+"/"+ub+" · "+fuente+(p.rango?" · entre "+pesosCortos(p.rango[0])+" y "+pesosCortos(p.rango[1]):"")+(p.aprox?" · aproximado":"")
+  }
+  const cat=categoriaDePrecio(nombre),med=cat&&medianaDeCategoria(cat.k,cat.b);
+  return med?"Sin precio publicado · estimado ≈ "+pesosCortos(med)+"/"+(cat.b==="l"?"l":cat.b==="unidad"?"unidad":"kg")+" (precio típico de "+cat.k+")":"Sin precio publicado."
+}
+// Cuánto se aparta Mi precio del precio típico de su categoría: razón (1 = igual) o null si no se puede comparar.
+function razonContraCategoria(nombre,price,amount,unit){
+  const cat=categoriaDePrecio(nombre);
+  if(!cat||cat.b==="unidad")return null;
+  const med=medianaDeCategoria(cat.k,cat.b),base=cantidadBasePrecio({b:cat.b,d:1},nombre,amount,unit);
+  return med&&base?{razon:(price/base)/med,categoria:cat.k}:null
+}
+// Guarda (o borra, con precio null) Mi precio de un ingrediente en referencePrices_v1 y devuelve el texto anterior para Deshacer.
+function guardarMiPrecio(nombre,precio,cantidad,unidad){
+  const antes=localStorage.getItem(REFERENCE_PRICES_KEY),todos=loadReferencePrices(),canon=nombresDePrecio(nombre).at(-1),id="ficha_"+ingredientKey(canon).replace(/[^a-z0-9]+/g,"_");
+  if(precio===null)delete todos[id];
+  else{
+    const esPaquete=unidad==="paquete",item={
+      id,name:canon,pack:esPaquete?"paquete":"",amount:cantidad,unit:esPaquete?"g":unidad,price:precio,currency:"ARS",date:Rutina.localTrainingDate(new Date())
+    };
+    if(!validReferencePrices({[id]:item}))throw new Error("Revisá el monto y la cantidad.");
+    todos[id]=item
+  }
+  localStorage.setItem(REFERENCE_PRICES_KEY,JSON.stringify(todos));
+  return antes
+}
+function fichaPrecio(nombre){
+  const cont=ce("div","ficha-precio");
+  let deshacer=null,aviso=null;
+  const repintar=()=>{
+    try{
+      refrescarPrecios()
+    }catch(e){
+    }
+    pintar()
+  };
+  function pintar(){
+    cont.replaceChildren();
+    const mio=misPreciosDe(nombre)[0];
+    cont.append(ce("h3","ficha-precio__titulo","Precio"),ce("p","ficha-precio__linea",textoPrecioFicha(nombre)));
+    if(mio){
+      const auto=precioAuto(nombre);
+      if(auto)cont.append(ce("p","screen__hint","Promedio de la zona: ≈ "+pesosCortos(auto.precio)+"/"+(auto.it.b==="l"?"l":auto.it.b==="unidad"?"unidad":"kg")))
+    }
+    const form=ce("div","ficha-precio__form"),monto=ce("input"),cant=ce("input"),uni=ce("select"),estado=ce("p","screen__hint");
+    form.hidden=true;
+    estado.setAttribute("aria-live","polite");
+    monto.type="text";monto.inputMode="decimal";monto.id="fichaPrecioMonto";
+    cant.type="text";cant.inputMode="decimal";cant.id="fichaPrecioCantidad";cant.value="1";
+    uni.id="fichaPrecioUnidad";
+    for(const [v,t] of FICHA_UNIDADES)uni.append(new Option(t,v));
+    const campo=(texto,el)=>{
+      const f=ce("div","portion-field"),l=ce("label",null,texto);
+      l.htmlFor=el.id;
+      f.append(l,el);
+      return f
+    };
+    const lCant=ce("label",null,"Cantidad");
+    lCant.htmlFor=cant.id;
+    const fCant=ce("div","portion-field");
+    fCant.append(lCant,cant);
+    uni.addEventListener("change",()=>{
+      lCant.textContent=uni.value==="paquete"?"Gramos del paquete":"Cantidad";
+      if(uni.value==="paquete"&&cant.value==="1")cant.value=""
+    });
+    const guardar=ce("button","button button--primary","Guardar"),cancelar=ce("button","button button--soft","Cancelar");
+    guardar.type="button";cancelar.type="button";
+    const numero=t=>{
+      const n=Number(String(t).trim().replace(/\./g,"").replace(",","."));
+      return Number.isFinite(n)&&n>0?n:null
+    };
+    const confirmar=(precio,cantidad,unidad)=>{
+      deshacer=guardarMiPrecio(nombre,precio,cantidad,unidad);
+      aviso=precio===null?"Se borró tu precio.":"Guardado.";
+      repintar()
+    };
+    guardar.addEventListener("click",()=>{
+      const precio=numero(monto.value),cantidad=numero(cant.value);
+      if(precio===null||cantidad===null||precio>1000000){
+        estado.textContent="Escribí el monto y la cantidad con números mayores que cero.";
+        return
+      }
+      const unidad=uni.value,uBase=unidad==="paquete"?"g":unidad,r=razonContraCategoria(nombre,precio,cantidad,uBase);
+      if(r&&(r.razon>3||r.razon<1/3)){
+        const veces=Math.round(r.razon>1?r.razon:1/r.razon);
+        estado.replaceChildren(document.createTextNode("Con ese monto, "+nombre.toLowerCase()+" te queda "+veces+(veces===1?" vez":" veces")+(r.razon>1?" más caro":" más barato")+" que el precio típico de "+r.categoria+". ¿Está bien? "));
+        const igual=ce("button","button button--primary","Guardar igual");
+        igual.type="button";
+        igual.dataset.fichaPrecioIgual="";
+        igual.addEventListener("click",()=>confirmar(precio,cantidad,unidad));
+        estado.append(igual);
+        return
+      }
+      confirmar(precio,cantidad,unidad)
+    });
+    cancelar.addEventListener("click",()=>{
+      form.hidden=true;
+      abrir.hidden=false
+    });
+    form.append(campo("Monto ($)",monto),fCant,campo("Unidad",uni),ce("div","hoja__acciones"),estado);
+    form.querySelector(".hoja__acciones").append(guardar,cancelar);
+    const abrir=ce("button","button button--soft",mio?"Cambiar mi precio":"Agregar mi precio");
+    abrir.type="button";
+    abrir.dataset.fichaPrecioAbrir="";
+    abrir.addEventListener("click",()=>{
+      form.hidden=false;
+      abrir.hidden=true;
+      monto.focus({preventScroll:true})
+    });
+    cont.append(abrir,form);
+    if(mio){
+      const borrar=ce("button","button button--danger","Borrar mi precio");
+      borrar.type="button";
+      borrar.dataset.fichaPrecioBorrar="";
+      borrar.addEventListener("click",()=>confirmar(null));
+      cont.append(borrar)
+    }
+    if(aviso){
+      const p=ce("p","screen__hint",aviso+" ");
+      p.setAttribute("role","status");
+      if(deshacer!==undefined){
+        const d=ce("button","button button--soft","Deshacer"),previo=deshacer;
+        d.type="button";
+        d.dataset.fichaPrecioDeshacer="";
+        d.addEventListener("click",()=>{
+          if(previo===null)localStorage.removeItem(REFERENCE_PRICES_KEY);
+          else localStorage.setItem(REFERENCE_PRICES_KEY,previo);
+          aviso="Listo, volvió lo anterior.";
+          deshacer=undefined;
+          repintar()
+        });
+        p.append(d)
+      }
+      cont.append(p)
+    }
+  }
+  pintar();
+  return cont
 }
 // Productos de la lista sin precio real (para "Completar precios"): [{key,name,estimado:número|null,costo}].
 function productosSinPrecioReal(){

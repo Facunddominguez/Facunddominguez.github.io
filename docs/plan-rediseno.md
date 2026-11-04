@@ -2439,3 +2439,21 @@ Rama `rediseno-3-etapa-20-un-costo`. Versión 17.1.0.
 **Revisor y ajustes (Etapa 20)**: `revisor-codigo` NO BLOQUEANTE. Se aplicaron sus sugerencias: el aviso cuenta `estimados` (no todos los faltantes), la barra usa `sinEstimar` como Semana y Compras, y sin ningún precio la barra y la fuente no aparecen. Un producto sin cantidad ("Romero") se ve en la lista pero no cuenta como faltante. Los totales de Compras y la barra son "lo que falta comprar" (descuentan lo tachado y la Despensa); coinciden con Semana cuando no hay nada tachado ni en la Despensa. Semana (E2-semana-alto 1266 px) se ajustó con márgenes y un botón en línea cuya zona táctil es de 44 px.
 
 **Revisor de usuario (Etapa 20)**: NO BLOQUEANTE. Sugerencias que quedan para las etapas siguientes: el "·" suelto antes del botón y que el botón parezca un enlace (Etapa 21), aclarar que Compras muestra "lo que falta comprar" y no el total de la semana (Etapa 24), y las cantidades raras ("Fruta de estación: 23 unidades", cucharaditas de semillas sin estimado: Etapa 23). Compuerta: VALIDACIÓN ETAPA 20: OK (118 controles, 586 pruebas).
+
+### Etapa 21 ✅ Ficha de ingrediente con precio
+Rama `rediseno-3-etapa-21-ficha-precio`. Versión 17.2.0.
+
+**Plan corto**
+- `43-precios.js`: `fichaPrecio()` (precio con fuente, región, mes y rango; "Agregar/Cambiar mi precio"; "Borrar mi precio"; Deshacer), `miPrecioDe()`/`misPreciosDe()` (Mi precio gana sobre el automático, también entre unidades distintas pasando a gramos), `razonContraCategoria()`. `39-comidas.js`: la ficha de un ingrediente (`abrirNutrientesDeIngrediente`) suma el bloque de precio debajo de los nutrientes. `12-lista-de-compras.js`: el nombre en la fila de la lista abre la ficha (sin tachar). La hoja "Completar precios" y los ingredientes de cada comida ya abrían esa ficha. Prueba nueva `e21_ficha_precio.js`.
+- Riesgos para los datos: se escribe en `miPlatoFacil_referencePrices_v1` con el mismo formato (una entrada por ingrediente, id `ficha_<ingrediente>`, siempre en ARS); no se borra nada que ya hubiera ahí.
+
+**Hecho cuando**
+- ✅ E21-un-toque: desde la lista (tocando el nombre), desde "Completar precios" y desde un ingrediente de una comida se llega a la ficha en un toque; muestra, por ejemplo, "≈ $2.750/kg · SEPA GBA · nov. 2026 · entre $2.598 y $3.180".
+- ✅ E21-mi-precio: guardar $2.500/kg de arroz cambia el total de la semana al instante (de $69.223 a $68.973), queda en `referencePrices_v1` con el modo simple (sin herramientas avanzadas), la ficha dice "Mi precio: $2.500 por 1 kg" y Deshacer vuelve al total anterior y deja la clave como estaba.
+- ✅ E21-aviso: $40.000/kg de frutillas avisa ("frutillas te queda 16 veces más caro que el precio típico de frutas. ¿Está bien?") y deja "Guardar igual"; $4.000/kg no avisa.
+
+**Mi precio** (Decisión): unidades kg, g, unidad o paquete; "paquete" pide los gramos del paquete y se guarda como gramos con `pack:"paquete"` (el formato viejo no tiene unidad paquete). Se guarda con el nombre del ítem de precios o de la nutrición (por ejemplo "Yogur descremado") para que sirva para todas las formas del nombre. Un solo Mi precio por ingrediente desde la ficha (el más nuevo gana; los que se cargaron en herramientas avanzadas se siguen respetando). Si las unidades no coinciden (precio por kg y receta en unidades) se pasan las dos cantidades a gramos.
+
+**Aviso de rango** (Decisión): compara el precio por kg o litro con la mediana de su categoría y avisa si es más de 3 veces más caro o más de 3 veces más barato; no compara productos por unidad. Siempre deja guardar.
+
+**Revisor de usuario (Etapa 20) aplicado**: el botón "Completar precios" ahora es un botón secundario con borde.
