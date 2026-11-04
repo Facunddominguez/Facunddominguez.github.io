@@ -33,7 +33,7 @@
   await tocar(q('#fruit [data-name="Pera"]'));
   await tocar(q('#fruitForms [data-fruta-forma="Licuado"]'));
   const texto = ev("frutaTexto(state.fruta)");
-  const compra = ev("JSON.stringify(extractIngredients({state:{fruta:state.fruta}}))");
+  const compra = ev("JSON.stringify(Semana.extractIngredients({state:{fruta:state.fruta}}))");
   await tocar(q("#nextBottom"));
   ok("C11-1 se pueden elegir 2 frutas en un desayuno, no avanza solo, el tope es 3 y se compran las dos",
     sigueAhi && dos === JSON.stringify({ name: "Banana + Manzana", quantity: "1 unidad + 1 unidad", forma: "Entera" }) && cuartaBloqueada && texto === "Licuado de banana y manzana" && compra === JSON.stringify(["Banana", "Manzana"]) && ev("stack.at(-1)") === "bf_prot",
@@ -58,12 +58,12 @@
   const faltan = ev(`data.menuCatalog.filter(i => { const g = i.ingredientes || {}; const n = (...ks) => ks.reduce((t, k) => t + (Array.isArray(g[k]) ? g[k].length : 0), 0); return !(n("verduras") && n("almidones", "legCarb") && n("proteinas", "legProt")) }).map(i => i.text)`);
   ok("C11-3 el 100 % de las ideas de almuerzo o cena tiene verduras, almidón y proteína", ev("data.menuCatalog.length") >= 40 && !faltan.length, faltan.join(" | "));
   // Y la idea completada se guarda sin "No elegido".
-  const filet = ev('(() => { const i = data.menuCatalog.find(x => x.text.startsWith("Filet de pescado")); const r = guardarIdea(i, "Día libre").item; return JSON.stringify((r.state.almidones || []).map(o => o.name)) })()');
+  const filet = ev('(() => { const i = data.menuCatalog.find(x => x.text.startsWith("Filet de pescado")); const r = IdeasHoja.guardarIdea(i, "Día libre").item; return JSON.stringify((r.state.almidones || []).map(o => o.name)) })()');
   ok("C11-3b \"Filet de pescado con verduras salteadas\" se guarda con almidón", filet === '["Papa"]', filet);
 
   // C11-4 Ningún nombre se repite en el selector (una idea ya guardada aparece solo en Mis comidas).
   cargar(MARCA); await abrir();
-  ev('guardarIdea(data.menuCatalog[0], "Día libre")'); ev('guardarIdea(data.menuCatalog[1], "Día libre")');
+  ev('IdeasHoja.guardarIdea(data.menuCatalog[0], "Día libre")'); ev('IdeasHoja.guardarIdea(data.menuCatalog[1], "Día libre")');
   ev('openTab("semana")'); await espera(150);
   ev('abrirSelector("lunes", "almuerzo")'); await espera(200);
   const nombres = [...doc().querySelectorAll(".selector-seccion .selector-item__nombre")].map(e => norm(e.textContent.replace(/^[^\p{L}\p{N}]+/u, "").replace(/\s*·.*$/, "")));

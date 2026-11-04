@@ -40,7 +40,7 @@
   showRecipeRead(r.id);
   T.ok("E6 la lectura muestra tiempo, etiquetas y reemplazos con la despensa", /⏱ 30 min · Etiquetas: rápido, horno/.test($("recipeReadMeta").textContent) && /Papa → Batata \(en tu despensa: 500 g\)/.test($("recipeReadSubstitutions").textContent), $("recipeReadMeta").textContent + " | " + $("recipeReadSubstitutions").textContent);
   // Variants
-  duplicateRecipeFromButton(r.id); await wait(10);
+  Recetas.duplicateRecipeFromButton(r.id); await wait(10);
   const all2 = loadRecipeDetails(), copy = Object.values(all2).find(x => x.title === "Copia de Papas rústicas");
   T.ok("E7a duplicar crea una variante con etiquetas, tiempo y reemplazos", !!copy && copy.variantOf === r.id && copy.minutes === 30 && copy.tags.length === 2 && copy.substitutions.length === 1);
   closeRecipeRead(false); showRecipeView("browse"); showRecipeRead(copy.id);
@@ -49,13 +49,13 @@
   T.ok("E7b la lectura muestra 'Variante de' y 'Otras versiones'", /Variante de: Papas rústicas/.test(metaCopy) && /Otras versiones: Copia de Papas rústicas/.test($("recipeReadMeta").textContent), metaCopy + " | " + $("recipeReadMeta").textContent);
   closeRecipeRead(false);
   // Substitutions in recommendations
-  const score = recipePantryScore({ kind: "propia", key: r.id }, loadRecipeDetails(), loadRecipeAmounts(), pantryMarkedMatcher(), loadStockQuantities());
+  const score = recipePantryScore({ kind: "propia", key: r.id }, loadRecipeDetails(), loadRecipeAmounts(), MarcasDespensa.pantryMarkedMatcher(), loadStockQuantities());
   T.ok("E8 recomendaciones sugieren el reemplazo disponible", score.subs.length === 1 && /Papa → Batata \(tenés 500 g\)/.test(score.subs[0]), JSON.stringify(score.subs));
   $("recipeRecommendPantry").checked = true; renderRecipeCatalog();
   T.ok("E8b la tarjeta muestra 'Reemplazos disponibles'", /Reemplazos disponibles: Papa → Batata/.test($("recipeCatalogResults").textContent));
   $("recipeRecommendPantry").checked = false; renderRecipeCatalog();
   // Start from an idea: ingredients proposed without quantities
-  startRecipeFromIdea("Bowl de quinoa + pollo grillado + brócoli y zanahoria");
+  Recetas.startRecipeFromIdea("Bowl de quinoa + pollo grillado + brócoli y zanahoria");
   const proposed = [...rowsBox().querySelectorAll("[data-amount-name]")].map(i => i.value);
   T.ok("E9 'Usar idea como base' propone ingredientes sin inventar cantidades", proposed.join(",") === "Quinoa,Pollo,Brócoli,Zanahoria" && [...rowsBox().querySelectorAll("[data-amount-quantity]")].every(i => i.value === ""));
   $("recipeDetailsSave").click(); await wait(20);
@@ -67,7 +67,7 @@
   go("compras"); await wait(30);
   T.ok("E10 el plan usa los ingredientes cargados en la receta", R.renderedRows().includes("Papa: 400 g") && R.renderedRows().includes("Perejil") && R.renderedRows().includes("Quinoa"), R.renderedRows().join(" | "));
   // Backup validity and rejection of invalid new fields
-  let berr = null; try { validateCompleteBackup(completeBackupSnapshot(localStorage)) } catch (e) { berr = e.message }
+  let berr = null; try { Respaldo.validateCompleteBackup(completeBackupSnapshot(localStorage)) } catch (e) { berr = e.message }
   const badStore = JSON.parse(localStorage.getItem("miPlatoFacil_recipeDetails_v1")); badStore[r.id].minutes = 0;
   T.ok("E11 respaldo válido; tiempo inválido se rechaza", berr === null && validRecipeDetails(badStore) === false, berr);
   // Rollback when saving the recipe fails

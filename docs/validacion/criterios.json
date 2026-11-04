@@ -103,6 +103,9 @@
     { "id": "E17-sin-desbordes", "etapa": 17, "hecho": "Ningún elemento sobresale de su contenedor (390 px, claro y oscuro).", "tipo": "medida-todas", "metrica": "desbordes", "operador": "<=", "umbral": 0 },
     { "id": "E17-anchos", "etapa": 17, "hecho": "En 360 y 320 px no hay textos cortados, controles superpuestos, elementos fuera de pantalla, desbordes ni scroll horizontal (incluidas las hojas inferiores).", "tipo": "anchos", "anchos": [360, 320], "metricas": ["cortados", "superpuestos", "fueraDePantalla", "desbordes", "scrollHorizontal"] },
     { "id": "E17-revision-visual", "etapa": 17, "hecho": "A 390, 360 y 320 px no se ven textos cortados ni controles superpuestos (revisión visual).", "tipo": "revisor", "revisor": "revisor-usuario" },
-    { "id": "E17-registro", "etapa": 17, "hecho": "Lo que se corrigió y lo que no hubo que reproducir quedan en el Registro.", "tipo": "registro", "seccion": "Etapa 17", "debeNombrar": ["Barra de pasos", "Interruptor único", "Captura de botones superpuestos"] }
+    { "id": "E17-registro", "etapa": 17, "hecho": "Lo que se corrigió y lo que no hubo que reproducir quedan en el Registro.", "tipo": "registro", "seccion": "Etapa 17", "debeNombrar": ["Barra de pasos", "Interruptor único", "Captura de botones superpuestos"] },
+    { "id": "E18-globales", "etapa": 18, "hecho": "Las funciones globales bajan al menos un 30 % (de 678 a 474 o menos).", "tipo": "comando", "comando": "node herramientas/contar-globales.mjs --maximo 474" },
+    { "id": "E18-archivo-local", "etapa": 18, "hecho": "La app abre igual como archivo local (file://), sin errores de JavaScript ni pedidos a internet.", "tipo": "comando", "comando": "node herramientas/capturas.mjs --archivo --temas claro --estados vacio,normal --vistas hoy,semana,compras,preferencias,armado-desayuno --sin-imagenes --salida capturas/archivo" },
+    { "id": "E18-registro", "etapa": 18, "hecho": "Cómo se agrupó el código y qué quedó global queda en el Registro.", "tipo": "registro", "seccion": "Etapa 18", "debeNombrar": ["Módulos", "Funciones que quedan globales"] }
   ]
 }

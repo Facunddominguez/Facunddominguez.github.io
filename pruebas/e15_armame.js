@@ -49,12 +49,12 @@
   const tipoOk = Object.keys(plan).every(d => ["desayuno", "merienda"].every(s => !plan[d][s] || porId.get(plan[d][s]).type === "desayuno") && ["almuerzo", "cena"].every(s => !plan[d][s] || porId.get(plan[d][s]).type === "plato"));
   const cuentas = {}; for (const l of nombres()) { const n = l.split("|")[2]; cuentas[n] = (cuentas[n] || 0) + 1 }
   const maxRep = Math.max(...Object.values(cuentas));
-  const conPollo = saved.filter(x => Object.values(plan).some(d => Object.values(d).includes(x.id)) && /pollo|cerdo/i.test(ev("mealName(" + JSON.stringify(x) + ")") + " " + ev("extractIngredients(" + JSON.stringify(x) + ")").join(" ")));
+  const conPollo = saved.filter(x => Object.values(plan).some(d => Object.values(d).includes(x.id)) && /pollo|cerdo/i.test(ev("mealName(" + JSON.stringify(x) + ")") + " " + ev("Semana.extractIngredients(" + JSON.stringify(x) + ")").join(" ")));
   const diaDe = d => (porId.get(plan[d].almuerzo).state || {}).day, rutinaOk = diaDe("lunes") === "Día de entrenamiento" && diaDe("miercoles") === "Día de entrenamiento" && diaDe("martes") === "Día libre";
   // Completar solo los vacíos: lo que había queda igual.
   cargar({ ...MARCA }); await abrir();
   const idea = ev('data.menuCatalog[3].text');
-  ev('(() => { const it = guardarIdea(data.menuCatalog[3], "Día libre").item; setSlot("martes", "almuerzo", it.id); setSlot("jueves", "cena", it.id) })()'); await espera(80);
+  ev('(() => { const it = IdeasHoja.guardarIdea(data.menuCatalog[3], "Día libre").item; setSlot("martes", "almuerzo", it.id); setSlot("jueves", "cena", it.id) })()'); await espera(80);
   const antesPlan = planPlano();
   ev('ArmameSemana.aplicar(ArmameSemana.armar({ modo: "vacios" }))'); await espera(100);
   const despues = planPlano(), igual = antesPlan.martes.almuerzo === despues.martes.almuerzo && antesPlan.jueves.cena === despues.jueves.cena;
@@ -64,13 +64,13 @@
 
   // C15-5 Cambiar un hueco (parecida o más barata) no toca los demás y se puede deshacer.
   await armar(PRES(60000)); await espera(100);
-  const antes = planPlano(), costoDe = id => ev(`(() => { const a = cantidadesDeComida("plato", ${JSON.stringify(id)}); return a ? costoDeFilas(a.rows, portionFactor(null, a) * personasHogar()).costo : null })()`);
+  const antes = planPlano(), costoDe = id => ev(`(() => { const a = cantidadesDeComida("plato", ${JSON.stringify(id)}); return a ? costoDeFilas(a.rows, Semana.portionFactor(null, a) * personasHogar()).costo : null })()`);
   const rb = ev('ArmameSemana.cambiarHueco("miercoles", "cena", "barata")'); await espera(200);
   const trasBarata = planPlano();
   const distintos = []; for (const d of Object.keys(antes)) for (const s of Object.keys(antes[d])) if (antes[d][s] !== trasBarata[d][s]) distintos.push(d + "|" + s);
   const cb = costoDe(antes.miercoles.cena), cn = costoDe(trasBarata.miercoles.cena);
   const hayAviso = /Deshacer/.test(doc().getElementById("planAviso").textContent);
-  ev("deshacerCambioDelPlan()"); await espera(100);
+  ev("Semana.deshacerCambioDelPlan()"); await espera(100);
   const trasDeshacer = JSON.stringify(planPlano()) === JSON.stringify(antes);
   const rp = ev('ArmameSemana.cambiarHueco("viernes", "desayuno", "parecida")'); await espera(200);
   const trasParecida = planPlano(), dist2 = []; for (const d of Object.keys(antes)) for (const s of Object.keys(antes[d])) if (antes[d][s] !== trasParecida[d][s]) dist2.push(d + "|" + s);

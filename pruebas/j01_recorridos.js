@@ -21,7 +21,7 @@
   const $ = id => { const e = doc().getElementById(id); if (!e) throw Error("no está en la pantalla: #" + id); return e };
   const q = s => { const e = doc().querySelector(s); if (!e) throw Error("no está en la pantalla: " + s + " (pantalla: " + w.eval("stack.at(-1)") + ")"); return e };
   const tocar = async el => { if (!el) throw Error("no se encontró el control"); el.click(); await espera(120) };
-  const irA = async pestana => { await tocar(q('#sectionNav [data-section-tab="' + pestana + '"]')); if (w.eval("stack.at(-1) !== activeTabRoot()")) await tocar(q('#sectionNav [data-section-tab="' + pestana + '"]')) };
+  const irA = async pestana => { await tocar(q('#sectionNav [data-section-tab="' + pestana + '"]')); if (w.eval("stack.at(-1) !== Armado.activeTabRoot()")) await tocar(q('#sectionNav [data-section-tab="' + pestana + '"]')) };
   const plan = () => JSON.parse(localStorage.getItem("miPlatoFacil_plan") || "{}");
   const guardados = () => JSON.parse(localStorage.getItem("miPlatoFacil_saved") || "[]");
   const hoy = () => w.eval("DAYS[(new Date().getDay()+6)%7][0]");

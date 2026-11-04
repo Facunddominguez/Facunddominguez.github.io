@@ -2088,6 +2088,7 @@ Estados: ✅ hecha · ⏳ en curso · ⛔ parada.
 | 15. "Armame la semana" | ✅ | `etapa-15-ok` | 16.4.0 |
 | 16. Filtros de dieta reales | ✅ | `etapa-16-ok` | 16.5.0 |
 | 17. Pulido de pantalla | ✅ | `etapa-17-ok` | 16.6.0 |
+| 18. Deuda técnica, sin riesgo | ✅ | `etapa-18-ok` | 16.7.0 |
 
 - Arranque: rama `rediseno-2` creada desde `main` (v15.9.0) con este plan.
 - Herramientas: `validar-etapa.mjs` acepta las etapas 11 a 18 y, desde la 11, compara contra `rediseno-2` (versión y línea base) en vez de `rediseno`.
@@ -2267,3 +2268,24 @@ Rama `rediseno-2-etapa-17-pulido`.
 **Revisores (Etapa 17)**: `revisor-codigo` NO BLOQUEANTE. `revisor-usuario` respondió BLOQUEANTE con las capturas a 390, 360 y 320 px: a 320 px el nombre del desayuno en Hoy seguía cortado ("Fruta en trozos con huevo y p…") porque la fila de comida recortaba a 2 renglones. Se corrigió (hasta 4 renglones en `.today-row__plate`; ahora se lee "Fruta en trozos con huevo y pan de molde") y se volvió a la compuerta. Sugerencias que quedan (no bloqueantes): las dos tarjetas de interruptores de Preferencias podrían tener la ayuda en una línea; "Ocultar coincidencias" queda pegado a su campo; el hueco entre el subtítulo y la primera fila de Más; `.mode-note` y el recorrido de `[data-mode-note]` en `30-modo-simple.js` son código muerto (se limpian en la Etapa 18); dos recetas con el mismo comienzo se ven iguales en el select corto de la revisión de despensa (el nombre completo se ve debajo).
 
 Compuerta: VALIDACIÓN ETAPA 17: OK (103 controles, con las medidas a 360 y 320 px).
+
+### Etapa 18 · Deuda técnica, sin riesgo ✅
+
+Rama `rediseno-2-etapa-18-modulos`.
+
+**Plan corto**
+- Herramienta de una sola vez `herramientas/modularizar.mjs` (con `--simular` cuenta sin escribir): agrupa en objetos de módulo las funciones globales de `fuente/codigo/` y reescribe las llamadas en el código, las pruebas y las herramientas. `herramientas/contar-globales.mjs` cuenta lo que queda global. `capturas.mjs` suma `--archivo` (abre `index.html` como archivo local y falla con código 4 si hay errores). Sin cambios de comportamiento: no se toca ninguna clave ni formato, la compuerta compara las mismas pruebas.
+- Riesgos para los datos: ninguno (solo se mueve código de lugar).
+
+**Hecho cuando**
+- ✅ Las funciones globales bajan de 678 a 311 (−54 %; el control pide 474 o menos, es decir, al menos −30 %).
+- ✅ Todas las pruebas en verde (576 de 576 en la corrida completa).
+- ✅ La app abre igual como archivo local (control `E18-archivo-local`, 5 vistas en 2 estados, sin errores ni pedidos a internet) y publicada (las pruebas la abren por una dirección local y el PR corre las pruebas en GitHub).
+
+**Módulos** (Decisión): 37 objetos `var Nombre={ funcion(){…}, … }`, uno por archivo, declarado al principio del archivo: `Precios` (43), `Compras` (12), `Semana` (10), `Armado` (06), `Selector` (38), `Comidas` (39), `Registro` (42), `Respaldo` (18), `Dieta` (46), `CantidadesPlatos` (44), `Hoy` (31), `Bienvenida` (40), `Recetas` (21), `CantidadesCostos` (22) y los demás (ver el principio de cada archivo). Son `var` y no `const` para que las pruebas los lean como `w.Compras…` desde el marco. Las llamadas son `Compras.shoppingDisplayItems()`; las pruebas y `capturas.mjs` se reescribieron igual. `index.html` sigue siendo un solo archivo con los datos incrustados (construir.mjs sin cambios; 808.000 bytes, bajo el tope de 820.000).
+
+**Funciones que quedan globales** (Decisión): 311 de 678, por reglas que evitan cambiar el comportamiento: (1) las que usa un archivo con número menor (el arranque corre antes de que los archivos de número mayor declaren su módulo: 130), (2) las que llaman esas, si están en un archivo posterior al arranque (104), (3) las que aparecen de otra forma que una llamada (callback, `typeof`, asignación en una prueba, clave de objeto: 64) y (4) las de menos de 6 letras (`go`, `start`, `nav`: 12). Mover más habría exigido reordenar el arranque, que es el riesgo que la etapa pide evitar.
+
+**Tests adaptados**: ninguna prueba cambió de exigencia; solo se reescribieron los nombres de las funciones que llaman (`shoppingDisplayItems()` → `Compras.shoppingDisplayItems()`, `w.restoreCompleteBackup(` → `w.Respaldo.restoreCompleteBackup(`, etc.) con la misma herramienta.
+
+**Revisores (Etapa 18)**: `revisor-codigo` NO BLOQUEANTE. Sugerencias que quedan: la condición de `--archivo` en `capturas.mjs` es redundante; `.mode-note` y el recorrido de `[data-mode-note]` en `30-modo-simple.js` siguen como código muerto (quedan para una limpieza futura); quedan 311 funciones globales por el orden de arranque. Compuerta: VALIDACIÓN ETAPA 18: OK (106 controles, 9,5 min).

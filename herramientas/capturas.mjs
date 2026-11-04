@@ -1,7 +1,9 @@
 // Capturas y medidas de cada vista de Mi Plato Fácil a 390×844 (o al ancho de --ancho), en tema claro y oscuro.
 // Uso: node herramientas/capturas.mjs [--salida <carpeta>] [--vistas a,b] [--estados vacio,normal,todo]
 //                                     [--temas claro,oscuro] [--navegador <ruta>] [--raiz <copia del repositorio>]
-//                                     [--sin-imagenes] [--ancho 360]
+//                                     [--sin-imagenes] [--ancho 360] [--archivo]
+// --archivo abre index.html como archivo local (file://) en vez de por la dirección local; si alguna vista tiene errores de
+// JavaScript o pedidos a internet, termina con código 4 (la app tiene que abrir igual como archivo y publicada).
 // Sirve el repositorio en una dirección local con un reloj fijo (lunes 26/10/2026 12:00, Argentina) y, por cada
 // vista, estado y tema, guarda una captura (<vista>-<estado>-<tema>.png) y sus medidas en medidas.json.
 // Estados:
@@ -19,7 +21,7 @@ import { existsSync, statSync, createReadStream } from 'node:fs';
 import { join, extname, resolve, sep } from 'node:path';
 import { tmpdir, platform, release } from 'node:os';
 import { spawn } from 'node:child_process';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { StringDecoder } from 'node:string_decoder';
 
 const args = process.argv.slice(2), arg = n => { const i = args.indexOf(n); return i >= 0 ? args[i + 1] : null };
@@ -45,7 +47,7 @@ const VISTAS = [
   { id: 'comidas', ir: 'openTab("miscomidas")' },
   { id: 'mas', ir: 'openTab("mas")' },
   { id: 'despensa', ir: 'openTab("compras"); go("ingredientes")' },
-  { id: 'compras-herramientas', ir: 'openTab("compras"); abrirHerramientaCompras("todas")' },
+  { id: 'compras-herramientas', ir: 'openTab("compras"); ComprasDespensa.abrirHerramientaCompras("todas")' },
   { id: 'registro', ir: 'openTab("mas"); abrirRegistro()' },
   { id: 'entrenamiento', ir: 'openTab("mas"); go("trainingCalendar")' },
   { id: 'respaldo', ir: 'openTab("mas"); go("backupScreen")' },
@@ -54,20 +56,20 @@ const VISTAS = [
   { id: 'ideas', ir: 'openTab("miscomidas"); go("ideas")' },
   { id: 'armado-desayuno', ir: 'openTab("hoy"); start("desayuno")' },
   { id: 'armado-almuerzo', ir: 'openTab("hoy"); start("plato")' },
-  { id: 'armado-plato', ir: 'openTab("hoy"); start("plato"); setDay("Día libre"); go("plate_static")' },
-  { id: 'armado-verduras', ir: 'openTab("hoy"); start("plato"); setDay("Día libre"); go("lunch_veg")' },
-  { id: 'bienvenida', ir: 'abrirBienvenida()' },
+  { id: 'armado-plato', ir: 'openTab("hoy"); start("plato"); Armado.setDay("Día libre"); go("plate_static")' },
+  { id: 'armado-verduras', ir: 'openTab("hoy"); start("plato"); Armado.setDay("Día libre"); go("lunch_veg")' },
+  { id: 'bienvenida', ir: 'Bienvenida.abrirBienvenida()' },
   { id: 'receta-editar', ir: 'openTab("miscomidas"); showRecipeView("edit")' },
-  { id: 'fuentes', ir: 'openTab("mas"); abrirFuentes()' },
+  { id: 'fuentes', ir: 'openTab("mas"); Comidas.abrirFuentes()' },
   // Hojas: el contenedor real es .hoja (section con rol dialog, su propio scroll y sus campos).
   { id: 'selector', ir: 'openTab("semana"); abrirSelector(todayPlanDay(), "almuerzo")', medir: '.hoja' },
   { id: 'sugerime', ir: 'openTab("hoy"); abrirSugerime("almuerzo")', medir: '.hoja' },
-  { id: 'semana-menu', ir: 'openTab("semana"); abrirMenuSemana()', medir: '.hoja' },
-  { id: 'comidas-nueva', ir: 'openTab("miscomidas"); abrirNuevaComida()', medir: '.hoja' },
+  { id: 'semana-menu', ir: 'openTab("semana"); Selector.abrirMenuSemana()', medir: '.hoja' },
+  { id: 'comidas-nueva', ir: 'openTab("miscomidas"); Comidas.abrirNuevaComida()', medir: '.hoja' },
   { id: 'hueco', ir: 'openTab("semana"); abrirHueco(todayPlanDay(), "almuerzo")', medir: '.hoja' },
   { id: 'resumen', ir: 'openTab("hoy"); start("desayuno"); for (const id of ["fruit", "bfprot", "bfcarb", "bffat"]) { document.querySelector("#" + id + " .choice").click(); await new Promise(r => setTimeout(r, 150)) }' },
   // Última: en el estado vacío guarda una idea para tener un detalle que mostrar (no contamina las vistas anteriores).
-  { id: 'comida', ir: 'openTab("miscomidas"); const g = loadSaved()[0] || guardarIdea(data.menuCatalog[0]).item; abrirComida("plato", g.id)' }
+  { id: 'comida', ir: 'openTab("miscomidas"); const g = MisPlatos.loadSaved()[0] || IdeasHoja.guardarIdea(data.menuCatalog[0]).item; Comidas.abrirComida("plato", g.id)' }
 ].filter(v => !arg('--vistas') || arg('--vistas').split(',').includes(v.id));
 
 const navegador = [arg('--navegador'), process.env.CHROME_PATH, '/usr/bin/google-chrome', '/usr/bin/google-chrome-stable', '/usr/bin/chromium', '/usr/bin/chromium-browser',
@@ -243,7 +245,7 @@ try {
   await enviar('Page.addScriptToEvaluateOnNewDocument', { source: FIJO }, S);
   await enviar('Emulation.setDeviceMetricsOverride', { width: ANCHO, height: ALTO, deviceScaleFactor: 1, mobile: true }, S);
   const evaluar = async expr => { const r = await enviar('Runtime.evaluate', { expression: expr, awaitPromise: true, returnByValue: true }, S); if (r.exceptionDetails) throw new Error((r.exceptionDetails.exception && r.exceptionDetails.exception.description) || r.exceptionDetails.text); return r.result.value };
-  const cargar = async () => { const desde = eventos.length; await enviar('Page.navigate', { url: origen + '/index.html' }, S); for (let t = 0; t < 400 && !eventos.slice(desde).some(e => e.method === 'Page.loadEventFired' && e.sessionId === S); t++) await espera(50); await espera(600) };
+  const cargar = async () => { const desde = eventos.length; await enviar('Page.navigate', { url: arg('--archivo') !== null || args.includes('--archivo') ? pathToFileURL(join(RAIZ, 'index.html')).href : origen + '/index.html' }, S); for (let t = 0; t < 400 && !eventos.slice(desde).some(e => e.method === 'Page.loadEventFired' && e.sessionId === S); t++) await espera(50); await espera(600) };
   // Errores: excepciones, console.error y cualquier pedido a internet (la app solo puede pedir a su propio origen).
   const externo = u => { try { const x = new URL(u); return /^(https?|wss?):$/.test(x.protocol) && x.origin !== origen } catch (e) { return false } };
   const errores = desde => eventos.slice(desde).filter(e => e.sessionId === S && (e.method === 'Runtime.exceptionThrown' || (e.method === 'Runtime.consoleAPICalled' && e.params.type === 'error') || (e.method === 'Network.requestWillBeSent' && externo(e.params.request.url)))).map(e => e.method === 'Runtime.exceptionThrown' ? (e.params.exceptionDetails.exception ? e.params.exceptionDetails.exception.description.split('\n')[0] : e.params.exceptionDetails.text) : e.method === 'Network.requestWillBeSent' ? 'Pedido a internet: ' + e.params.request.url.slice(0, 120) : e.params.args.map(a => a.value || a.description).join(' '));
@@ -285,5 +287,9 @@ try {
   await writeFile(join(salida, 'medidas.json'), JSON.stringify(medidas, null, 2) + '\n');
   console.log(`Medidas en ${join(salida, 'medidas.json')}`);
   codigo = 0;
+  if (args.includes('--archivo')) {
+    const malas = Object.entries(medidas.vistas).flatMap(([v, es]) => Object.entries(es).flatMap(([e, ts]) => Object.entries(ts).filter(([, m]) => m.error || (m.errores && m.errores.length)).map(([t, m]) => `${v}/${e}/${t}: ${(m.errores || [m.error]).join(' | ').slice(0, 160)}`)));
+    if (malas.length) { console.error('Como archivo local hay errores:\n  ' + malas.slice(0, 6).join('\n  ')); codigo = 4 } else console.log('Como archivo local: sin errores en ' + Object.keys(medidas.vistas).length + ' vistas.');
+  }
 } catch (e) { console.error('No se pudieron tomar las capturas: ' + e.message); codigo = 2 }
 await terminar(codigo);

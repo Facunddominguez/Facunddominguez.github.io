@@ -4,8 +4,8 @@
   window.confirm = () => true;
   const $ = id => document.getElementById(id);
   reset();
-  T.ok("G0 montos en formato argentino", parseMoneyText("25000") === 25000 && parseMoneyText("25.000") === 25000 && parseMoneyText("25.000,50") === 25000.5 && parseMoneyText("1500.5") === 1500.5 && parseMoneyText("1,5") === 1.5 && parseMoneyText("", true) === null);
-  const today = localTrainingDate(new Date());
+  T.ok("G0 montos en formato argentino", ComprasHechas.parseMoneyText("25000") === 25000 && ComprasHechas.parseMoneyText("25.000") === 25000 && ComprasHechas.parseMoneyText("25.000,50") === 25000.5 && ComprasHechas.parseMoneyText("1500.5") === 1500.5 && ComprasHechas.parseMoneyText("1,5") === 1.5 && ComprasHechas.parseMoneyText("", true) === null);
+  const today = Rutina.localTrainingDate(new Date());
   setAmounts({ [IDEA1]: { yield: 4, rows: [{ name: "Papa", quantity: 1, unit: "kg" }, { name: "Perejil", quantity: null, unit: "g" }] } });
   setRecipes([{ id: "recipe_test0001", title: "Papas al horno", amountsTitle: IDEA1 }]);
   setSaved([recipePlate("rp1", "recipe_test0001", "Papas al horno", ["Papa", "Perejil"])]); setPlan([[todayPlanDay(), "almuerzo", "rp1"]]);
@@ -26,7 +26,7 @@
   const before = localStorage.getItem("miPlatoFacil_purchases_v1");
   $("purchaseDate").value = "01/01/2099"; $("purchaseTotal").value = "100"; $("purchaseSave").click(); await wait(5); const e1 = $("purchaseStatus").textContent;
   $("purchaseDate").value = typedAppDateLabel(today); $("purchaseCurrency").value = "pesos"; $("purchaseSave").click(); await wait(5); const e2 = $("purchaseStatus").textContent;
-  $("purchaseCurrency").value = "ARS"; appendPurchaseItem({ name: "Leche", quantity: 2, unit: null }); $("purchaseSave").click(); await wait(5); const e3 = $("purchaseStatus").textContent;
+  $("purchaseCurrency").value = "ARS"; ComprasHechas.appendPurchaseItem({ name: "Leche", quantity: 2, unit: null }); $("purchaseSave").click(); await wait(5); const e3 = $("purchaseStatus").textContent;
   $("purchaseItems").replaceChildren(); $("purchaseTotal").value = "abc"; $("purchaseSave").click(); await wait(5); const e4 = $("purchaseStatus").textContent;
   T.ok("G5 datos inválidos no se registran", /no puede ser futura/.test(e1) && /3 letras/.test(e2) && /Elegí la unidad de Leche/.test(e3) && /Total: ingresá un número positivo/.test(e4) && localStorage.getItem("miPlatoFacil_purchases_v1") === before, [e1, e2, e3, e4].join(" | "));
   // Budget with period and people
@@ -34,7 +34,7 @@
   $("shoppingBudgetCurrency").value = "ARS"; $("shoppingBudgetLimit").value = "100000"; $("shoppingBudgetPeriod").value = "mes"; $("shoppingBudgetPeople").value = "2";
   $("shoppingBudgetSave").click(); await wait(20);
   const b = shoppingBudgetRead(), txt = $("shoppingBudgetResult").textContent;
-  T.ok("G6a presupuesto mensual por persona guardado", b.period === "mes" && b.people === 2 && validShoppingBudget(b) && !validShoppingBudget({ currency: "ARS", limit: 1, period: "año" }));
+  T.ok("G6a presupuesto mensual por persona guardado", b.period === "mes" && b.people === 2 && Respaldo.validShoppingBudget(b) && !Respaldo.validShoppingBudget({ currency: "ARS", limit: 1, period: "año" }));
   T.ok("G6b muestra gasto real del mes, disponible y por persona", /Gasto real del mes \(compras registradas\): 25\.000,50 ARS/.test(txt) && /Disponible según gasto real: 74\.999,50 ARS/.test(txt) && /Por persona: 50\.000,00 ARS por mes/.test(txt), txt.slice(0, 400));
   T.ok("G7 costo de todas las recetas del plan con porciones (0,5 kg a 1500/kg = 750)", /Costo de todas las recetas del plan \(sin descontar despensa\): 750,00 ARS · 1 ingrediente sin precio o sin cantidad/.test(txt), txt);
   $("shoppingBudgetPeriod").value = "semana"; $("shoppingBudgetPeople").value = ""; $("shoppingBudgetSave").click(); await wait(20);
@@ -51,9 +51,9 @@
   $("recipeRecommendCosts").checked = false; renderRecipeCatalog();
   // Remove purchase and backup
   go("compras"); await R.openPanel("shoppingToolsPanel"); await R.openPanel("purchasesPanel");
-  let err = null; const snap = completeBackupSnapshot(localStorage); try { validateCompleteBackup(snap) } catch (e) { err = e.message }
+  let err = null; const snap = completeBackupSnapshot(localStorage); try { Respaldo.validateCompleteBackup(snap) } catch (e) { err = e.message }
   const bad = JSON.parse(JSON.stringify(snap)); bad.data["miPlatoFacil_purchases_v1"] = JSON.stringify([{ id: "x", date: today, store: "", currency: "ARS", total: -5, items: [] }]);
-  let e5 = null; try { validateCompleteBackup(bad) } catch (e) { e5 = e.message }
+  let e5 = null; try { Respaldo.validateCompleteBackup(bad) } catch (e) { e5 = e.message }
   T.ok("G11 respaldo con compras válido; montos negativos se rechazan", err === null && "miPlatoFacil_purchases_v1" in snap.data && /Compras registradas inválidas/.test(e5 || ""), err + " / " + e5);
   document.querySelector("[data-purchase-remove]").click(); await wait(10);
   T.ok("G12 quitar la compra no borra los precios guardados", loadPurchases().length === 0 && Object.keys(loadReferencePrices()).length === 1 && localStorage.getItem("miPlatoFacil_purchases_v1") === null);

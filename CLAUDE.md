@@ -20,6 +20,8 @@ El plan del rediseño y el Registro están en docs/plan-rediseno.md.
 - `datos/`: archivos que generan las tareas de GitHub Actions y `construir.mjs` incrusta (nutrición; precios desde la Etapa 7).
 - `docs/validacion/`: `criterios.json` (un control por cada "Hecho cuando") y `linea-base.json` (pruebas, claves y medidas de la v14.9.94).
 
+- Desde la v16.7 las funciones de cada archivo de `fuente/codigo/` viven en un objeto de módulo declarado al principio del archivo (`var Compras={…}`, se llaman `Compras.nombre()`); quedan globales las que usa el arranque (ver el Registro, Etapa 18). `herramientas/contar-globales.mjs` cuenta las globales.
+
 ## Reglas (resumen; el texto completo está en el plan)
 
 1. Nunca trabajar, hacer push ni merge en `main`. Cada etapa va en su rama y entra a `rediseno` solo con la compuerta en verde. Sin force push, `reset --hard` ni reescribir historia.

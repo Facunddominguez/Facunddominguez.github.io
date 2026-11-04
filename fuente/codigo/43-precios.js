@@ -6,6 +6,19 @@
 // La región se guarda como {"region":"Pampeana"} (el respaldo pide un objeto por clave).
 // Los precios se ven con el interruptor "Mostrar precios y presupuesto" (el mismo del modo simple, uiMode_v1): apagado
 // no aparece ningún "≈ $". "Mi precio" (referencePrices_v1) gana sobre el promedio de INDEC.
+// Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como Precios.nombre().
+var Precios={
+precioIndec(nombre){
+  const d=preciosDataset();
+  if(!d)return null;
+  const it=d.byKey.get(ingredientKey(String(nombre||"")));
+  if(!it)return null;
+  const r=regionPrecios(),usada=valorRegionPrecio(it.p,r)!==null?r:"GBA";
+  return valorRegionPrecio(it.p,usada)===null?null:{
+    it,precio:it.p[usada],region:usada
+  }
+}
+};
 var PRECIOS_SNAPSHOT=__DATOS_PRECIOS__;
 var REGION_PRECIOS_KEY="miPlatoFacil_region_v1";
 var REGIONES_PRECIOS=["GBA","Pampeana","Noreste","Noroeste","Cuyo","Patagonia"];
@@ -75,7 +88,7 @@ function preciosActivos(){
     elegido=localStorage.getItem(UI_MODE_KEY)
   }catch(e){
   }
-  return elegido===null?true:!isSimpleMode()
+  return elegido===null?true:!Interfaz.isSimpleMode()
 }
 function guardarMostrarPrecios(valor){
   const o={
@@ -173,21 +186,11 @@ function precioAuto(nombre){
   return null
 }
 // Precio de INDEC solo (se conserva para quien lo use): {precio por unidad base, región usada} o null.
-function precioIndec(nombre){
-  const d=preciosDataset();
-  if(!d)return null;
-  const it=d.byKey.get(ingredientKey(String(nombre||"")));
-  if(!it)return null;
-  const r=regionPrecios(),usada=valorRegionPrecio(it.p,r)!==null?r:"GBA";
-  return valorRegionPrecio(it.p,usada)===null?null:{
-    it,precio:it.p[usada],region:usada
-  }
-}
 // Cuánto cuesta una cantidad: Mi precio (referencePrices_v1, en pesos) y si no el promedio de INDEC.
 function precioDe(nombre,q,unit){
   if(typeof q!=="number"||!(q>0)||!nombre)return null;
   try{
-    const propios=pricesFor(Object.values(loadReferencePrices()),nombre,unit).filter(p=>p.currency==="ARS"&&Number.isFinite(p.price)&&p.price>=0&&Number.isFinite(p.amount)&&p.amount>0).sort((a,b)=>String(b.date).localeCompare(String(a.date)));
+    const propios=Ingredientes.pricesFor(Object.values(loadReferencePrices()),nombre,unit).filter(p=>p.currency==="ARS"&&Number.isFinite(p.price)&&p.price>=0&&Number.isFinite(p.amount)&&p.amount>0).sort((a,b)=>String(b.date).localeCompare(String(a.date)));
     if(propios.length)return {
       costo:q*propios[0].price/propios[0].amount,propio:true,fuente:"Mi precio",aprox:false
     }
@@ -212,7 +215,7 @@ function rangoDePrecios(nombre,unidad){
     n:0,masBarato:null,tipico:null,mio:null,auto:null,autoBajo:null,autoAlto:null,difPct:null
   };
   try{
-    const propios=pricesFor(Object.values(loadReferencePrices()),nombre,unidad).filter(p=>p.currency==="ARS"&&Number.isFinite(p.price)&&p.price>=0&&Number.isFinite(p.amount)&&p.amount>0);
+    const propios=Ingredientes.pricesFor(Object.values(loadReferencePrices()),nombre,unidad).filter(p=>p.currency==="ARS"&&Number.isFinite(p.price)&&p.price>=0&&Number.isFinite(p.amount)&&p.amount>0);
     const vals=propios.map(p=>p.price/p.amount).sort((a,b)=>a-b);
     out.n=vals.length;
     if(vals.length){
@@ -272,7 +275,7 @@ function costoDeFilas(rows,factor){
 function contextoCostos(){
   if(!PRECIOS_CAZUELA){
     PRECIOS_CAZUELA={
-      details:loadRecipeDetails(),amounts:loadRecipeAmounts(),saved:loadSaved()
+      details:loadRecipeDetails(),amounts:loadRecipeAmounts(),saved:MisPlatos.loadSaved()
     };
     setTimeout(()=>{
       PRECIOS_CAZUELA=null
@@ -328,15 +331,15 @@ function pintarCostoComida(){
 }
 // Línea del día en Semana: ≈ costo de las comidas con cantidades de ese día y de toda la semana (misma línea).
 function costosDelPlan(){
-  const dia=diaPlanElegido(),r={
+  const dia=Semana.diaPlanElegido(),r={
     dia:0,diaFaltan:0,semana:0,semanaFaltan:0,comidas:0
   };
-  for(const e of planEntriesFlat()){
+  for(const e of Semana.planEntriesFlat()){
     const a=cantidadesDeComida("plato",e.item.id);
     let costo=0,faltan=0;
     if(!a)faltan=1;
     else{
-      const c=costoDeFilas(a.rows,portionFactor(e.portions,a)*personasHogar());
+      const c=costoDeFilas(a.rows,Semana.portionFactor(e.portions,a)*personasHogar());
       costo=c.costo;
       faltan=c.faltan
     }
@@ -355,7 +358,7 @@ function costoDeLaComida(item,porciones){
   if(!preciosActivos()||!preciosDataset()||!item)return "";
   const a=cantidadesDeComida("plato",item.id);
   if(!a)return "";
-  const c=costoDeFilas(a.rows,portionFactor(porciones===undefined?null:porciones,a)*personasHogar());
+  const c=costoDeFilas(a.rows,Semana.portionFactor(porciones===undefined?null:porciones,a)*personasHogar());
   return c.costo>0?formatoPesos(c.costo):""
 }
 function pintarCostoDia(){

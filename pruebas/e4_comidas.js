@@ -20,7 +20,7 @@
   const $ = id => { const e = doc().getElementById(id); if (!e) throw Error("no está en la pantalla: #" + id); return e };
   const q = s => { const e = doc().querySelector(s); if (!e) throw Error("no está en la pantalla: " + s + " (pantalla: " + ev("stack.at(-1)") + ")"); return e };
   const tocar = async el => { el.click(); toques++; await espera(120) };
-  const irA = async pestana => { await tocar(q('#sectionNav [data-section-tab="' + pestana + '"]')); if (ev("stack.at(-1) !== activeTabRoot()")) await tocar(q('#sectionNav [data-section-tab="' + pestana + '"]')) };
+  const irA = async pestana => { await tocar(q('#sectionNav [data-section-tab="' + pestana + '"]')); if (ev("stack.at(-1) !== Armado.activeTabRoot()")) await tocar(q('#sectionNav [data-section-tab="' + pestana + '"]')) };
   const pantalla = () => ev("stack.at(-1)");
   const visible = e => !!e && e.getClientRects().length > 0;
   const hojaAbierta = () => ev("hoja.abierta()");
@@ -73,7 +73,7 @@
   ok("C4-2 pestañas Hoy, Semana, Comidas, Compras y Más; segmento Mis comidas | Ideas; moverse no escribe", nombres === "Hoy,Semana,Comidas,Compras,Más" && enMis && enIdeas && recuerda && pantalla() === "misplatos" && todo() === antes2, nombres);
 
   // C4-3 Adaptador: la misma tarjeta para platos y recetas, sin juntar ni escribir los datos
-  const cp = ev("comidaDesdePlato(loadSaved().find(x => !x.recipeSourceId))"), cr = ev("comidaDesdeReceta(Object.values(loadRecipeDetails())[0], loadRecipeAmounts(), false)");
+  const cp = ev("comidaDesdePlato(MisPlatos.loadSaved().find(x => !x.recipeSourceId))"), cr = ev("comidaDesdeReceta(Object.values(loadRecipeDetails())[0], loadRecipeAmounts(), false)");
   const mismasClaves = JSON.stringify(Object.keys(cp).sort()) === JSON.stringify(Object.keys(cr).sort()) && cp.tipo === "plato" && cr.tipo === "receta";
   const estructura = tarjetas().every(c => c.querySelector(".comida-card__nombre") && c.querySelector(".comida-card__componentes") && c.querySelector(".comida-card__etiquetas"));
   const platosGuardados = guardados().filter(x => !x.recipeSourceId).length, recetasGuardadas = Object.keys(recetas()).length;
@@ -99,12 +99,12 @@
   ev("hoja.cerrar()");
   const cocinadoAntes = guardados().find(x => x.id === idPlato).cooked || 0;
   await tocar(q('#comidaPlatoAcciones [data-cook-saved="' + idPlato + '"]'));
-  const prepHoy = JSON.parse(localStorage.getItem("miPlatoFacil_cookingHistory_v1") || "[]").filter(x => x.sourceId === idPlato && x.date === w.localTrainingDate(new w.Date())).length === 1;
+  const prepHoy = JSON.parse(localStorage.getItem("miPlatoFacil_cookingHistory_v1") || "[]").filter(x => x.sourceId === idPlato && x.date === w.Rutina.localTrainingDate(new w.Date())).length === 1;
   const cocinado = (guardados().find(x => x.id === idPlato).cooked || 0) === cocinadoAntes + 1 && /Cocinaste/.test($("comidaEstado").textContent) && prepHoy;
   const antesCompartir = todo(); let compartido = "";
   w.navigator.share = d => { compartido = d.text; return Promise.resolve() };
   await tocar(q("#comida [data-comida-compartir]"));
-  ok("C4-4b Lo cociné cuenta como antes y Compartir manda el texto sin escribir nada", cocinado && compartido.startsWith(ev("mealName(loadSaved().find(x => x.id === " + JSON.stringify(idPlato) + "))")) && todo() === antesCompartir, compartido.slice(0, 40));
+  ok("C4-4b Lo cociné cuenta como antes y Compartir manda el texto sin escribir nada", cocinado && compartido.startsWith(ev("mealName(MisPlatos.loadSaved().find(x => x.id === " + JSON.stringify(idPlato) + "))")) && todo() === antesCompartir, compartido.slice(0, 40));
   await tocar(q("#comida [data-comida-menu]")); await tocar(q('.hoja [data-del-saved="' + idPlato + '"]')); await espera(60);
   ok("C4-4c Eliminar (menú ⋯) borra solo ese plato y vuelve a Mis comidas", !guardados().some(x => x.id === idPlato) && pantalla() === "misplatos" && !hojaAbierta());
   cargar(conReceta()); await abrir(); await irA("miscomidas");
@@ -166,8 +166,8 @@
   await tocar(q('#bienvenida [data-bienvenida-paso="4"] [data-bienvenida-saltar]'));
   ok("C4-7b Más → Cómo funciona la vuelve a abrir; la rutina se guarda con su formato y la marca no se reescribe", reabierta && JSON.parse(localStorage.getItem("miPlatoFacil_trainingWeek")).version === 1 && JSON.parse(localStorage.getItem("miPlatoFacil_trainingWeek")).days.sort().join() === "1,4" && escrituras === 0 && localStorage.getItem(MARCA) === '{"vista":true}', "escrituras de la marca: " + escrituras);
   const snap = ev("completeBackupSnapshot(localStorage)");
-  let rechaza = false; try { ev("validateCompleteBackup(" + JSON.stringify({ ...snap, data: { ...snap.data, [MARCA]: '{"vista":false}' } }) + ")") } catch (e) { rechaza = true }
-  let viejoOk = true; try { ev("restoreCompleteBackup(" + JSON.stringify(R) + ", localStorage)") } catch (e) { viejoOk = false }
+  let rechaza = false; try { ev("Respaldo.validateCompleteBackup(" + JSON.stringify({ ...snap, data: { ...snap.data, [MARCA]: '{"vista":false}' } }) + ")") } catch (e) { rechaza = true }
+  let viejoOk = true; try { ev("Respaldo.restoreCompleteBackup(" + JSON.stringify(R) + ", localStorage)") } catch (e) { viejoOk = false }
   ok("C4-7c la marca va en el respaldo (validada) y un respaldo viejo sin ella se restaura", snap.data[MARCA] === '{"vista":true}' && rechaza && viejoOk && localStorage.getItem(MARCA) === '{"vista":true}' && localStorage.getItem("miPlatoFacil_plan") === R.data.miPlatoFacil_plan);
   delete w.Storage.prototype.setItem;
 

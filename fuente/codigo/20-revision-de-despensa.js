@@ -1,5 +1,29 @@
 // Mi Plato Fácil · Revisión de despensa por receta.
 // Parte 21: los archivos se unen en orden según su número, que define el orden de arranque.
+// Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como RevisionDespensa.nombre().
+var RevisionDespensa={
+pantryReviewPartition(title,selected,confirmed){
+  const rows=PANTRY_REVIEW_COMPONENTS[title]||[];
+  return rows.map((r,i)=>({
+    ...r,index:i,available:confirmed?confirmed.has(i):!!r.key&&selected.includes(r.key)
+  }))
+},
+renderPantryReview(reset){
+  const title=document.getElementById("pantryReviewRecipe").value;
+  if(reset){
+    pantryReviewConfirmed=new Set(RevisionDespensa.pantryReviewPartition(title,pantrySel,null).filter(x=>x.available).map(x=>x.index))
+  }
+  let completo=document.getElementById("pantryReviewFull");
+  if(!completo){completo=ce("p","screen__hint");completo.id="pantryReviewFull";document.getElementById("pantryReviewRecipe").after(completo)}
+  completo.textContent=title;
+  const rows=RevisionDespensa.pantryReviewPartition(title,pantrySel,pantryReviewConfirmed),box=document.getElementById("pantryReviewItems");
+  box.replaceChildren(...rows.map(r=>{
+    const label=ce("label","shop-item"),input=ce("input");input.type="checkbox";input.checked=r.available;input.dataset.pantryReviewIndex=String(r.index);label.append(input,ce("span",null,r.label));return label
+  }));
+  const available=rows.filter(x=>x.available).map(x=>x.label),missing=rows.filter(x=>!x.available).map(x=>x.label);
+  document.getElementById("pantryReviewStatus").textContent="Marcados disponibles: "+(available.join(", ")||"ninguno")+". Sin confirmar / por conseguir: "+(missing.join(", ")||"ninguno de los componentes listados")+". Esto no confirma una receta completa ni cantidades suficientes."
+}
+};
 const PANTRY_REVIEW_COMPONENTS={
   "Ensalada de fideos integrales + atún + tomates cherry + aderezo de oliva":[{
     "label":"Fideos integrales","key":null
@@ -202,35 +226,14 @@ const PANTRY_REVIEW_COMPONENTS={
   }]
 };
 let pantryReviewConfirmed=new Set();
-function pantryReviewPartition(title,selected,confirmed){
-  const rows=PANTRY_REVIEW_COMPONENTS[title]||[];
-  return rows.map((r,i)=>({
-    ...r,index:i,available:confirmed?confirmed.has(i):!!r.key&&selected.includes(r.key)
-  }))
-}
-function renderPantryReview(reset){
-  const title=document.getElementById("pantryReviewRecipe").value;
-  if(reset){
-    pantryReviewConfirmed=new Set(pantryReviewPartition(title,pantrySel,null).filter(x=>x.available).map(x=>x.index))
-  }
-  let completo=document.getElementById("pantryReviewFull");
-  if(!completo){completo=ce("p","screen__hint");completo.id="pantryReviewFull";document.getElementById("pantryReviewRecipe").after(completo)}
-  completo.textContent=title;
-  const rows=pantryReviewPartition(title,pantrySel,pantryReviewConfirmed),box=document.getElementById("pantryReviewItems");
-  box.replaceChildren(...rows.map(r=>{
-    const label=ce("label","shop-item"),input=ce("input");input.type="checkbox";input.checked=r.available;input.dataset.pantryReviewIndex=String(r.index);label.append(input,ce("span",null,r.label));return label
-  }));
-  const available=rows.filter(x=>x.available).map(x=>x.label),missing=rows.filter(x=>!x.available).map(x=>x.label);
-  document.getElementById("pantryReviewStatus").textContent="Marcados disponibles: "+(available.join(", ")||"ninguno")+". Sin confirmar / por conseguir: "+(missing.join(", ")||"ninguno de los componentes listados")+". Esto no confirma una receta completa ni cantidades suficientes."
-}
 document.getElementById("pantryReviewRecipe").replaceChildren(...data.menuCatalog.map(rec=>{
   const option=ce("option",null,(t=>{for(const re of [/ con /,/[,:]/])if(t.length>26)t=t.split(re)[0];return t.length>26?t.slice(0,24).replace(/ S*$/,""):t})(rec.text.split(" + ")[0]));option.title=rec.text;option.value=rec.text;return option
 }));
-document.getElementById("pantryReviewRecipe").addEventListener("change",()=>renderPantryReview(true));
+document.getElementById("pantryReviewRecipe").addEventListener("change",()=>RevisionDespensa.renderPantryReview(true));
 document.getElementById("pantryReviewPanel").addEventListener("toggle",e=>{
-  if(e.target.open)renderPantryReview(true)
+  if(e.target.open)RevisionDespensa.renderPantryReview(true)
 });
-document.getElementById("pantryReviewReset").addEventListener("click",()=>renderPantryReview(true));
+document.getElementById("pantryReviewReset").addEventListener("click",()=>RevisionDespensa.renderPantryReview(true));
 document.getElementById("pantryReviewItems").addEventListener("change",e=>{
-  if(e.target.dataset.pantryReviewIndex===undefined)return;const i=Number(e.target.dataset.pantryReviewIndex);if(e.target.checked)pantryReviewConfirmed.add(i);else pantryReviewConfirmed.delete(i);renderPantryReview(false)
+  if(e.target.dataset.pantryReviewIndex===undefined)return;const i=Number(e.target.dataset.pantryReviewIndex);if(e.target.checked)pantryReviewConfirmed.add(i);else pantryReviewConfirmed.delete(i);RevisionDespensa.renderPantryReview(false)
 });

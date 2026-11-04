@@ -20,10 +20,10 @@
   localStorage.clear();
   let w = await abrir();
   // K1 El respaldo de ejemplo es válido para la app
-  let error = null; try { w.validateCompleteBackup(JSON.parse(JSON.stringify(R))) } catch (e) { error = e.message }
+  let error = null; try { w.Respaldo.validateCompleteBackup(JSON.parse(JSON.stringify(R))) } catch (e) { error = e.message }
   ok("K1 el respaldo de ejemplo es válido para la app", error === null, error);
   // K2 Se restaura completo: las 24 claves quedan idénticas, byte a byte
-  w.restoreCompleteBackup(JSON.parse(JSON.stringify(R)), w.localStorage);
+  w.Respaldo.restoreCompleteBackup(JSON.parse(JSON.stringify(R)), w.localStorage);
   const distintas = claves.filter(k => R.data[k] !== localStorage.getItem(k));
   ok("K2 se restaura completo: las 24 claves quedan idénticas", claves.length === 24 && distintas.length === 0, distintas.join(", "));
   // K3 Con la app recién abierta sobre esos datos, cada pantalla y pestaña abre sin errores
@@ -40,7 +40,7 @@
   const n = k => { const v = R.data[k]; if (v === null || v === undefined) return 0; const j = JSON.parse(v); return Array.isArray(j) ? j.length : Object.keys(j).length };
   const asignadas = p => Object.values(p).reduce((t, d) => t + Object.values(d).filter(Boolean).length, 0);
   const cuentas = {
-    platos: [w.loadSaved().length, n("miPlatoFacil_saved")],
+    platos: [w.MisPlatos.loadSaved().length, n("miPlatoFacil_saved")],
     recetas: [Object.keys(w.loadRecipeDetails()).length, n("miPlatoFacil_recipeDetails_v1")],
     comidasDelPlan: [asignadas(w.loadPlan()), asignadas(JSON.parse(R.data.miPlatoFacil_plan))],
     loQueComi: [w.loadConsumption().length, n("miPlatoFacil_consumption_v1")],
@@ -50,14 +50,14 @@
     movimientos: [w.loadPantryMoves().length, n("miPlatoFacil_pantryMoves_v1")],
     precios: [Object.keys(w.loadReferencePrices()).length, n("miPlatoFacil_referencePrices_v1")],
     semanasConFecha: [Object.keys(w.loadDatedWeeks()).length, n("miPlatoFacil_datedWeeks_v1")],
-    variaciones: [Object.keys(w.loadVars()).length, n("miPlatoFacil_planVars")],
+    variaciones: [Object.keys(w.Semana.loadVars()).length, n("miPlatoFacil_planVars")],
     extras: [w.loadManualShopping().length, n("miPlatoFacil_manualShopping_v1")],
     despensa: [w.loadPantry().length, n("miPlatoFacil_pantry")],
-    equivalencias: [Object.keys(w.loadIngredientAliases()).length, n("miPlatoFacil_ingredientAliases_v1")],
-    historialDelPlan: [w.loadPlanHistory().length, n("miPlatoFacil_planHistory_v1")],
-    porciones: [Object.keys(w.loadPlanPortions()).length, n("miPlatoFacil_planPortions_v1")],
-    favoritos: [w.loadAdviceFavs().length, n("miPlatoFacil_adviceFavorites")],
-    excepciones: [Object.keys(w.loadTrainingExceptions()).length, n("miPlatoFacil_trainingExceptions")]
+    equivalencias: [Object.keys(w.Ingredientes.loadIngredientAliases()).length, n("miPlatoFacil_ingredientAliases_v1")],
+    historialDelPlan: [w.Semana.loadPlanHistory().length, n("miPlatoFacil_planHistory_v1")],
+    porciones: [Object.keys(w.Semana.loadPlanPortions()).length, n("miPlatoFacil_planPortions_v1")],
+    favoritos: [w.Ideas.loadAdviceFavs().length, n("miPlatoFacil_adviceFavorites")],
+    excepciones: [Object.keys(w.Rutina.loadTrainingExceptions()).length, n("miPlatoFacil_trainingExceptions")]
   };
   const mal = Object.entries(cuentas).filter(([, [a, b]]) => a !== b || !(b > 0));
   ok("K5 los conteos de cada módulo coinciden con el respaldo (y ninguno está vacío)", mal.length === 0, mal.map(([k, [a, b]]) => k + " " + a + "≠" + b).join(", "));

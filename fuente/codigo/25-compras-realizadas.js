@@ -1,7 +1,8 @@
 // Mi Plato Fácil · Compras realizadas, presupuesto real e historial de precios.
 // Parte 26: los archivos se unen en orden según su número, que define el orden de arranque.
-const PURCHASES_KEY="miPlatoFacil_purchases_v1";
-function parseMoneyText(text,optional,label){
+// Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como ComprasHechas.nombre().
+var ComprasHechas={
+parseMoneyText(text,optional,label){
   const t=String(text==null?"":text).trim();
   if(!t&&optional)return null;
   let s=t.replace(/\s/g,"");
@@ -11,122 +12,8 @@ function parseMoneyText(text,optional,label){
   const n=Number(s);
   if(!Number.isFinite(n)||n<=0||n>10000000000)throw Error(label+": el número está fuera de rango.");
   return n
-}
-function validPurchases(a){
-  return Array.isArray(a)&&a.length<=1000&&a.every(p=>!!p&&typeof p==="object"&&typeof p.id==="string"&&p.id.length>0&&p.id.length<=80&&validTrainingDate(p.date)&&typeof p.store==="string"&&p.store.length<=60&&typeof p.currency==="string"&&/^[A-Z]{3}$/.test(p.currency)&&typeof p.total==="number"&&Number.isFinite(p.total)&&p.total>0&&p.total<=10000000000&&Array.isArray(p.items)&&p.items.length<=100&&p.items.every(x=>!!x&&typeof x==="object"&&typeof x.name==="string"&&x.name.trim().length>0&&x.name.length<=100&&(x.quantity===null||typeof x.quantity==="number"&&Number.isFinite(x.quantity)&&x.quantity>0&&x.quantity<=1000000)&&(x.unit===null||RECIPE_AMOUNT_UNITS.includes(x.unit))&&(x.price===null||typeof x.price==="number"&&Number.isFinite(x.price)&&x.price>0&&x.price<=10000000000)))
-}
-function loadPurchases(){
-  try{
-    const a=JSON.parse(localStorage.getItem(PURCHASES_KEY)||"[]");
-    return validPurchases(a)?a:[]
-  }catch(e){
-    return []
-  }
-}
-function budgetPeriodRange(period){
-  const today=localTrainingDate(new Date());
-  return period==="mes"?[today.slice(0,8)+"01",today]:[mondayOf(today),today]
-}
-function planFullCost(currency){
-  let recipes,amounts;
-  try{
-    recipes=loadRecipeDetails();
-    amounts=loadRecipeAmounts()
-  }catch(e){
-    return {
-      total:0,missing:0,count:0
-    }
-  }
-  const prices=Object.values(loadReferencePrices());
-  let total=0,missing=0,count=0;
-  for(const {
-    item,portions
-  } of planEntriesFlat()){
-    if(!item||!item.recipeSourceId)continue;
-    const r=recipes[item.recipeSourceId],a=r&&r.amountsTitle&&amounts[r.amountsTitle];
-    if(!a)continue;
-    count++;
-    const f=portionFactor(portions,a);
-    for(const row of a.rows){
-      if(row.quantity===null){
-        missing++;
-        continue
-      }
-      const m=pricesFor(prices,row.name,row.unit).filter(p=>p.currency===currency);
-      if(m.length!==1){
-        missing++;
-        continue
-      }
-      total+=row.quantity*f*m[0].price/m[0].amount
-    }
-  }
-  return {
-    total,missing,count
-  }
-}
-function budgetRealLines(box,budget,estimated){
-  const fmt=n=>n.toLocaleString("es-AR",{
-    minimumFractionDigits:2,maximumFractionDigits:2
-  }),period=budget.period==="mes"?"mes":"semana",[from,to]=budgetPeriodRange(period),list=loadPurchases().filter(p=>p.date>=from&&p.date<=to),same=list.filter(p=>p.currency===budget.currency),other=list.length-same.length,real=same.reduce((t,p)=>t+p.total,0);
-  box.append(ce("p","shop-item","Gasto real "+(period==="mes"?"del mes":"de esta semana")+" (compras registradas): "+fmt(real)+" "+budget.currency),ce("p","screen__hint","Disponible según gasto real: "+fmt(budget.limit-real)+" "+budget.currency+(other?" · "+other+" compra"+(other===1?"":"s")+" en otra moneda sin sumar":"")));
-  if(period==="semana"){const dif=Math.round((real-estimated)*100)/100;box.append(ce("p","screen__hint",dif===0?"Gastado menos estimado: sin diferencia.":"Gastado menos estimado: diferencia "+(dif>0?"+":"")+fmt(dif)+" "+budget.currency+(dif>0?" (se gastó más)":" (se gastó menos)")+"."))}
-  if(budget.people)box.append(ce("p","screen__hint","Por persona: "+fmt(budget.limit/budget.people)+" "+budget.currency+" por "+period+"."));
-  const full=planFullCost(budget.currency);
-  if(full.count)box.append(ce("p","screen__hint","Costo de todas las recetas del plan (sin descontar despensa): "+fmt(full.total)+" "+budget.currency+(full.missing?" · "+full.missing+" ingrediente"+(full.missing===1?"":"s")+" sin precio o sin cantidad":"")))
-}
-function recipeFullCost(r){
-  const amounts=loadRecipeAmounts(),a=r&&r.amountsTitle&&amounts[r.amountsTitle];
-  if(!a)return null;
-  const prices=Object.values(loadReferencePrices()),totals={
-  };
-  let missing=0;
-  for(const row of a.rows){
-    if(row.quantity===null){
-      missing++;
-      continue
-    }
-    const m=pricesFor(prices,row.name,row.unit);
-    if(m.length!==1){
-      missing++;
-      continue
-    }
-    totals[m[0].currency]=(totals[m[0].currency]||0)+row.quantity*m[0].price/m[0].amount
-  }
-  return {
-    totals,missing,yield:a.yield
-  }
-}
-function recipeCostText(c){
-  if(!c)return "";
-  const fmt=n=>n.toLocaleString("es-AR",{
-    minimumFractionDigits:2,maximumFractionDigits:2
-  }),parts=Object.entries(c.totals).map(([cur,t])=>fmt(t)+" "+cur+" ("+fmt(t/c.yield)+" por porción)");
-  if(!parts.length)return "Costo: todavía no hay precios registrados para estos ingredientes.";
-  return "Costo estimado con tus precios: "+parts.join(" · ")+(c.missing?" · "+c.missing+" ingrediente"+(c.missing===1?"":"s")+" sin precio o sin cantidad":"")
-}
-function renderPriceHistory(){
-  const box=document.getElementById("priceHistory");
-  if(!box)return;
-  const groups=new Map();
-  for(const p of Object.values(loadReferencePrices())){
-    const k=ingredientKey(p.name)+"|"+p.currency+"|"+unitInfo(p.unit).dim;
-    if(!groups.has(k))groups.set(k,[]);
-    groups.get(k).push(p)
-  }
-  const lines=[];
-  for(const list of groups.values()){
-    if(list.length<2)continue;
-    list.sort((a,b)=>a.date.localeCompare(b.date));
-    const first=list[0],last=list[list.length-1],dim=unitInfo(last.unit).dim,ref=dim==="masa"?"kg":dim==="volumen"?"l":dim==="cuchara"?"cucharada":last.unit,per=p=>p.price/convertQuantity(p.amount,p.unit,ref),a=per(first),b=per(last);
-    if(!Number.isFinite(a)||!Number.isFinite(b)||a<=0)continue;
-    const pct=Math.round((b-a)/a*1000)/10,fmt=n=>n.toLocaleString("es-AR",{
-      maximumFractionDigits:2
-    });
-    lines.push(last.name+": "+fmt(a)+" → "+fmt(b)+" "+last.currency+" por "+ref+" ("+(pct>0?"+":"")+String(pct).replace(".",",")+" %) entre "+typedAppDateLabel(first.date)+" y "+typedAppDateLabel(last.date)+" · "+list.length+" registros")
-  }
-  box.replaceChildren(...(lines.length?[ce("p","home-section-label","📈 Evolución de precios"),...lines.map(t=>ce("p","screen__hint",t))]:[]))
-}
-function appendPurchaseItem(item){
+},
+appendPurchaseItem(item){
   const box=document.getElementById("purchaseItems"),row=ce("div","purchase-row"),name=ce("input"),qty=ce("input"),unit=ce("select"),price=ce("input"),rm=ce("button","button button--soft","×");
   name.type="text";
   name.maxLength=100;
@@ -160,14 +47,14 @@ function appendPurchaseItem(item){
   rm.addEventListener("click",()=>row.remove());
   row.append(name,qty,unit,price,rm);
   box.append(row)
-}
-function readPurchaseForm(){
-  const date=parseTypedAppDate(document.getElementById("purchaseDate").value);
+},
+readPurchaseForm(){
+  const date=SemanasFechadas.parseTypedAppDate(document.getElementById("purchaseDate").value);
   if(!date)throw Error("Ingresá la fecha de la compra.");
-  if(date>localTrainingDate(new Date()))throw Error("La fecha no puede ser futura.");
+  if(date>Rutina.localTrainingDate(new Date()))throw Error("La fecha no puede ser futura.");
   const currency=document.getElementById("purchaseCurrency").value.trim().toUpperCase();
   if(!/^[A-Z]{3}$/.test(currency))throw Error("Usá una moneda de 3 letras, por ejemplo ARS.");
-  const total=parseMoneyText(document.getElementById("purchaseTotal").value,false,"Total");
+  const total=ComprasHechas.parseMoneyText(document.getElementById("purchaseTotal").value,false,"Total");
   const items=[];
   for(const row of document.querySelectorAll("#purchaseItems .purchase-row")){
     const name=row.querySelector("[data-purchase-name]").value.trim(),qText=row.querySelector("[data-purchase-qty]").value.trim(),unit=row.querySelector("[data-purchase-unit]").value||null,pText=row.querySelector("[data-purchase-price]").value.trim();
@@ -176,15 +63,15 @@ function readPurchaseForm(){
     const quantity=qText?recipeAmountNumber(qText,true):null;
     if(quantity!==null&&!unit)throw Error("Elegí la unidad de "+name+".");
     items.push({
-      name:name.slice(0,100),quantity,unit:quantity===null?null:unit,price:parseMoneyText(pText,true,"Precio de "+name)
+      name:name.slice(0,100),quantity,unit:quantity===null?null:unit,price:ComprasHechas.parseMoneyText(pText,true,"Precio de "+name)
     })
   }
   return {
     date,store:document.getElementById("purchaseStore").value.trim().slice(0,60),currency,total,items
   }
-}
-function savePurchase(){
-  const p=readPurchaseForm(),a=loadPurchases();
+},
+savePurchase(){
+  const p=ComprasHechas.readPurchaseForm(),a=loadPurchases();
   if(a.length>=1000)throw Error("Máximo 1000 compras registradas. Quitá algunas antiguas.");
   a.push({
     id:Date.now().toString(36)+"_"+Math.random().toString(36).slice(2,8),...p
@@ -233,8 +120,8 @@ function savePurchase(){
   return {
     count,priceError,stockAdded,stockError
   }
-}
-function renderPurchases(){
+},
+renderPurchases(){
   const box=document.getElementById("purchaseList");
   if(!box)return;
   const all=loadPurchases().slice().sort((a,b)=>b.date.localeCompare(a.date)),[from,to]=budgetPeriodRange("mes"),month=all.filter(p=>p.date>=from&&p.date<=to),byCur={
@@ -258,26 +145,142 @@ function renderPurchases(){
   if(!all.length)nodes.push(ce("p","screen__hint","Todavía no registraste compras."));
   box.replaceChildren(...nodes)
 }
+};
+const PURCHASES_KEY="miPlatoFacil_purchases_v1";
+function validPurchases(a){
+  return Array.isArray(a)&&a.length<=1000&&a.every(p=>!!p&&typeof p==="object"&&typeof p.id==="string"&&p.id.length>0&&p.id.length<=80&&Rutina.validTrainingDate(p.date)&&typeof p.store==="string"&&p.store.length<=60&&typeof p.currency==="string"&&/^[A-Z]{3}$/.test(p.currency)&&typeof p.total==="number"&&Number.isFinite(p.total)&&p.total>0&&p.total<=10000000000&&Array.isArray(p.items)&&p.items.length<=100&&p.items.every(x=>!!x&&typeof x==="object"&&typeof x.name==="string"&&x.name.trim().length>0&&x.name.length<=100&&(x.quantity===null||typeof x.quantity==="number"&&Number.isFinite(x.quantity)&&x.quantity>0&&x.quantity<=1000000)&&(x.unit===null||RECIPE_AMOUNT_UNITS.includes(x.unit))&&(x.price===null||typeof x.price==="number"&&Number.isFinite(x.price)&&x.price>0&&x.price<=10000000000)))
+}
+function loadPurchases(){
+  try{
+    const a=JSON.parse(localStorage.getItem(PURCHASES_KEY)||"[]");
+    return validPurchases(a)?a:[]
+  }catch(e){
+    return []
+  }
+}
+function budgetPeriodRange(period){
+  const today=Rutina.localTrainingDate(new Date());
+  return period==="mes"?[today.slice(0,8)+"01",today]:[mondayOf(today),today]
+}
+function planFullCost(currency){
+  let recipes,amounts;
+  try{
+    recipes=loadRecipeDetails();
+    amounts=loadRecipeAmounts()
+  }catch(e){
+    return {
+      total:0,missing:0,count:0
+    }
+  }
+  const prices=Object.values(loadReferencePrices());
+  let total=0,missing=0,count=0;
+  for(const {
+    item,portions
+  } of Semana.planEntriesFlat()){
+    if(!item||!item.recipeSourceId)continue;
+    const r=recipes[item.recipeSourceId],a=r&&r.amountsTitle&&amounts[r.amountsTitle];
+    if(!a)continue;
+    count++;
+    const f=Semana.portionFactor(portions,a);
+    for(const row of a.rows){
+      if(row.quantity===null){
+        missing++;
+        continue
+      }
+      const m=Ingredientes.pricesFor(prices,row.name,row.unit).filter(p=>p.currency===currency);
+      if(m.length!==1){
+        missing++;
+        continue
+      }
+      total+=row.quantity*f*m[0].price/m[0].amount
+    }
+  }
+  return {
+    total,missing,count
+  }
+}
+function budgetRealLines(box,budget,estimated){
+  const fmt=n=>n.toLocaleString("es-AR",{
+    minimumFractionDigits:2,maximumFractionDigits:2
+  }),period=budget.period==="mes"?"mes":"semana",[from,to]=budgetPeriodRange(period),list=loadPurchases().filter(p=>p.date>=from&&p.date<=to),same=list.filter(p=>p.currency===budget.currency),other=list.length-same.length,real=same.reduce((t,p)=>t+p.total,0);
+  box.append(ce("p","shop-item","Gasto real "+(period==="mes"?"del mes":"de esta semana")+" (compras registradas): "+fmt(real)+" "+budget.currency),ce("p","screen__hint","Disponible según gasto real: "+fmt(budget.limit-real)+" "+budget.currency+(other?" · "+other+" compra"+(other===1?"":"s")+" en otra moneda sin sumar":"")));
+  if(period==="semana"){const dif=Math.round((real-estimated)*100)/100;box.append(ce("p","screen__hint",dif===0?"Gastado menos estimado: sin diferencia.":"Gastado menos estimado: diferencia "+(dif>0?"+":"")+fmt(dif)+" "+budget.currency+(dif>0?" (se gastó más)":" (se gastó menos)")+"."))}
+  if(budget.people)box.append(ce("p","screen__hint","Por persona: "+fmt(budget.limit/budget.people)+" "+budget.currency+" por "+period+"."));
+  const full=planFullCost(budget.currency);
+  if(full.count)box.append(ce("p","screen__hint","Costo de todas las recetas del plan (sin descontar despensa): "+fmt(full.total)+" "+budget.currency+(full.missing?" · "+full.missing+" ingrediente"+(full.missing===1?"":"s")+" sin precio o sin cantidad":"")))
+}
+function recipeFullCost(r){
+  const amounts=loadRecipeAmounts(),a=r&&r.amountsTitle&&amounts[r.amountsTitle];
+  if(!a)return null;
+  const prices=Object.values(loadReferencePrices()),totals={
+  };
+  let missing=0;
+  for(const row of a.rows){
+    if(row.quantity===null){
+      missing++;
+      continue
+    }
+    const m=Ingredientes.pricesFor(prices,row.name,row.unit);
+    if(m.length!==1){
+      missing++;
+      continue
+    }
+    totals[m[0].currency]=(totals[m[0].currency]||0)+row.quantity*m[0].price/m[0].amount
+  }
+  return {
+    totals,missing,yield:a.yield
+  }
+}
+function recipeCostText(c){
+  if(!c)return "";
+  const fmt=n=>n.toLocaleString("es-AR",{
+    minimumFractionDigits:2,maximumFractionDigits:2
+  }),parts=Object.entries(c.totals).map(([cur,t])=>fmt(t)+" "+cur+" ("+fmt(t/c.yield)+" por porción)");
+  if(!parts.length)return "Costo: todavía no hay precios registrados para estos ingredientes.";
+  return "Costo estimado con tus precios: "+parts.join(" · ")+(c.missing?" · "+c.missing+" ingrediente"+(c.missing===1?"":"s")+" sin precio o sin cantidad":"")
+}
+function renderPriceHistory(){
+  const box=document.getElementById("priceHistory");
+  if(!box)return;
+  const groups=new Map();
+  for(const p of Object.values(loadReferencePrices())){
+    const k=ingredientKey(p.name)+"|"+p.currency+"|"+Ingredientes.unitInfo(p.unit).dim;
+    if(!groups.has(k))groups.set(k,[]);
+    groups.get(k).push(p)
+  }
+  const lines=[];
+  for(const list of groups.values()){
+    if(list.length<2)continue;
+    list.sort((a,b)=>a.date.localeCompare(b.date));
+    const first=list[0],last=list[list.length-1],dim=Ingredientes.unitInfo(last.unit).dim,ref=dim==="masa"?"kg":dim==="volumen"?"l":dim==="cuchara"?"cucharada":last.unit,per=p=>p.price/convertQuantity(p.amount,p.unit,ref),a=per(first),b=per(last);
+    if(!Number.isFinite(a)||!Number.isFinite(b)||a<=0)continue;
+    const pct=Math.round((b-a)/a*1000)/10,fmt=n=>n.toLocaleString("es-AR",{
+      maximumFractionDigits:2
+    });
+    lines.push(last.name+": "+fmt(a)+" → "+fmt(b)+" "+last.currency+" por "+ref+" ("+(pct>0?"+":"")+String(pct).replace(".",",")+" %) entre "+typedAppDateLabel(first.date)+" y "+typedAppDateLabel(last.date)+" · "+list.length+" registros")
+  }
+  box.replaceChildren(...(lines.length?[ce("p","home-section-label","📈 Evolución de precios"),...lines.map(t=>ce("p","screen__hint",t))]:[]))
+}
 document.getElementById("purchasesPanel").addEventListener("toggle",e=>{
   if(e.target.open){
-    const d=document.getElementById("purchaseDate");if(!d.value)d.value=typedAppDateLabel(localTrainingDate(new Date()));renderPurchases()
+    const d=document.getElementById("purchaseDate");if(!d.value)d.value=typedAppDateLabel(Rutina.localTrainingDate(new Date()));ComprasHechas.renderPurchases()
   }
 });
 document.getElementById("purchaseDate").addEventListener("input",e=>{
   const d=e.target.value.replace(/\D/g,"").slice(0,8);e.target.value=d.slice(0,2)+(d.length>2?"/"+d.slice(2,4):"")+(d.length>4?"/"+d.slice(4):"")
 });
 document.getElementById("purchaseAddItem").addEventListener("click",()=>{
-  if(document.querySelectorAll("#purchaseItems .purchase-row").length>=100)return;appendPurchaseItem({
+  if(document.querySelectorAll("#purchaseItems .purchase-row").length>=100)return;ComprasHechas.appendPurchaseItem({
   });document.querySelector("#purchaseItems .purchase-row:last-child [data-purchase-name]").focus()
 });
 document.getElementById("purchaseFromList").addEventListener("click",()=>{
   const st=document.getElementById("purchaseStatus");try{
-    const box=document.getElementById("purchaseItems");if(box.children.length&&!window.confirm("¿Reemplazar los productos cargados por los pendientes de la lista?"))return;box.replaceChildren();let n=0;for(const e of shoppingPlanItems()){
-      if(comprasDone[e.key])continue;const m=mergeUnits(e.units),one=m.size===1?[...m.entries()][0]:null;appendPurchaseItem({
+    const box=document.getElementById("purchaseItems");if(box.children.length&&!window.confirm("¿Reemplazar los productos cargados por los pendientes de la lista?"))return;box.replaceChildren();let n=0;for(const e of Compras.shoppingPlanItems()){
+      if(comprasDone[e.key])continue;const m=Ingredientes.mergeUnits(e.units),one=m.size===1?[...m.entries()][0]:null;ComprasHechas.appendPurchaseItem({
         name:e.name,quantity:one&&!e.unknown?one[1]:null,unit:one&&!e.unknown?one[0]:null,price:null
       });n++
     }for(const x of loadManualShopping().filter(x=>!x.done)){
-      appendPurchaseItem({
+      ComprasHechas.appendPurchaseItem({
         name:x.name
       });n++
     }st.textContent=n?n+" productos cargados. Completá precios si querés guardarlos.":"No hay productos pendientes en la lista."
@@ -287,14 +290,14 @@ document.getElementById("purchaseFromList").addEventListener("click",()=>{
 });
 document.getElementById("purchaseSave").addEventListener("click",()=>{
   const st=document.getElementById("purchaseStatus");try{
-    const r=savePurchase();document.getElementById("purchaseItems").replaceChildren();document.getElementById("purchaseTotal").value="";document.getElementById("purchaseStore").value="";st.textContent="Compra registrada."+(r.count?" Se guardaron "+r.count+" precios de referencia.":"")+(r.priceError?" No se pudieron guardar los precios.":"")+(r.stockAdded?" Se sumaron "+r.stockAdded+" productos a la despensa.":"")+(r.stockError?" "+r.stockError:"");renderStockQuantities();renderPurchases();if(document.getElementById("shoppingBudgetPanel").open)shoppingBudgetRender();if(document.getElementById("pricePanel").open)renderReferencePrices()
+    const r=ComprasHechas.savePurchase();document.getElementById("purchaseItems").replaceChildren();document.getElementById("purchaseTotal").value="";document.getElementById("purchaseStore").value="";st.textContent="Compra registrada."+(r.count?" Se guardaron "+r.count+" precios de referencia.":"")+(r.priceError?" No se pudieron guardar los precios.":"")+(r.stockAdded?" Se sumaron "+r.stockAdded+" productos a la despensa.":"")+(r.stockError?" "+r.stockError:"");Existencias.renderStockQuantities();ComprasHechas.renderPurchases();if(document.getElementById("shoppingBudgetPanel").open)shoppingBudgetRender();if(document.getElementById("pricePanel").open)CantidadesCostos.renderReferencePrices()
   }catch(err){
     st.textContent=err.message
   }
 });
 document.getElementById("purchaseList").addEventListener("click",e=>{
   const b=e.target.closest("button");if(!b||!b.dataset.purchaseRemove)return;if(!window.confirm("¿Quitar esta compra registrada? Los precios de referencia que guardaste no se borran."))return;try{
-    const a=loadPurchases().filter(p=>p.id!==b.dataset.purchaseRemove);if(a.length)localStorage.setItem(PURCHASES_KEY,JSON.stringify(a));else localStorage.removeItem(PURCHASES_KEY);renderPurchases();document.getElementById("purchaseStatus").textContent="Compra quitada."
+    const a=loadPurchases().filter(p=>p.id!==b.dataset.purchaseRemove);if(a.length)localStorage.setItem(PURCHASES_KEY,JSON.stringify(a));else localStorage.removeItem(PURCHASES_KEY);ComprasHechas.renderPurchases();document.getElementById("purchaseStatus").textContent="Compra quitada."
   }catch(err){
     document.getElementById("purchaseStatus").textContent="No se pudo quitar la compra."
   }

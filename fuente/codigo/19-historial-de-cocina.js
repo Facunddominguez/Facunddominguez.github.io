@@ -1,7 +1,7 @@
 // Mi Plato Fácil · Historial de comidas preparadas.
 // Parte 20: los archivos se unen en orden según su número, que define el orden de arranque.
 function validCookingHistoryRecord(x){
-  return !!x&&typeof x.id==="string"&&typeof x.date==="string"&&validTrainingDate(x.date)&&typeof x.meal==="string"&&typeof x.title==="string"&&Array.isArray(x.lines)&&x.lines.every(t=>typeof t==="string")
+  return !!x&&typeof x.id==="string"&&typeof x.date==="string"&&Rutina.validTrainingDate(x.date)&&typeof x.meal==="string"&&typeof x.title==="string"&&Array.isArray(x.lines)&&x.lines.every(t=>typeof t==="string")
 }
 function loadCookingHistory(){
   try{
@@ -30,7 +30,7 @@ function agregarPreparacion(record){
   }
 }
 function cookingHistoryRecord(plate,date,meal){
-  if(!plate||!validTrainingDate(date)||date>localTrainingDate(new Date()))throw new Error("Elegí un plato y una fecha válida, no futura.");
+  if(!plate||!Rutina.validTrainingDate(date)||date>Rutina.localTrainingDate(new Date()))throw new Error("Elegí un plato y una fecha válida, no futura.");
   return {
     id:Date.now().toString(36)+"_"+Math.random().toString(36).slice(2),date,meal,title:String(plate.note||plate.title||"Plato"),lines:Array.isArray(plate.lines)?plate.lines.map(String):[],sourceId:plate.id,status:"prepared"
   }
@@ -41,7 +41,7 @@ function renderCookingHistory(){
   const placeholder=ce("option",null,"Elegí un plato guardado");
   placeholder.value="";
   select.append(placeholder);
-  const saved=loadSaved(),labels=mealLabels(saved);
+  const saved=MisPlatos.loadSaved(),labels=mealLabels(saved);
   saved.forEach(p=>{
     const option=ce("option",null,labels.get(p.id));option.value=p.id;select.append(option)
   });
@@ -52,7 +52,7 @@ function renderCookingHistory(){
   }));
   if(!items.length)list.append(ce("p","screen__hint","Todavía no registraste preparaciones."))
 }
-document.getElementById("cookingHistoryDate").value=typedAppDateLabel(localTrainingDate(new Date()));
+document.getElementById("cookingHistoryDate").value=typedAppDateLabel(Rutina.localTrainingDate(new Date()));
 document.getElementById("cookingHistoryDate").addEventListener("input",e=>{
   const d=e.target.value.replace(/\D/g,"").slice(0,8);e.target.value=d.slice(0,2)+(d.length>2?"/"+d.slice(2,4):"")+(d.length>4?"/"+d.slice(4):"")
 });
@@ -61,7 +61,7 @@ document.getElementById("cookingHistoryPanel").addEventListener("toggle",e=>{
 });
 document.getElementById("cookingHistoryForm").addEventListener("submit",e=>{
   e.preventDefault();const status=document.getElementById("cookingHistoryStatus");try{
-    const date=parseTypedAppDate(document.getElementById("cookingHistoryDate").value),plate=loadSaved().find(p=>p.id===document.getElementById("cookingHistoryPlate").value),meal=document.getElementById("cookingHistoryMeal").value,record=cookingHistoryRecord(plate,date,meal),repetida=loadCookingHistory().some(x=>x.date===date&&x.meal===meal&&x.sourceId===record.sourceId),antes=registroFoto();agregarPreparacion(record);registroRepintar();renderCookingHistory();registroAviso(status,"Preparación registrada."+(repetida?" Ya había una igual ese día.":""),antes)
+    const date=SemanasFechadas.parseTypedAppDate(document.getElementById("cookingHistoryDate").value),plate=MisPlatos.loadSaved().find(p=>p.id===document.getElementById("cookingHistoryPlate").value),meal=document.getElementById("cookingHistoryMeal").value,record=cookingHistoryRecord(plate,date,meal),repetida=loadCookingHistory().some(x=>x.date===date&&x.meal===meal&&x.sourceId===record.sourceId),antes=registroFoto();agregarPreparacion(record);registroRepintar();renderCookingHistory();registroAviso(status,"Preparación registrada."+(repetida?" Ya había una igual ese día.":""),antes)
   }catch(err){
     status.textContent=err.message||"No se pudo guardar."
   }

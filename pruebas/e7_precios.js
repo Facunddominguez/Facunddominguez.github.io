@@ -21,7 +21,7 @@
   const qa = s => [...doc().querySelectorAll(s)];
   const $ = id => q("#" + id);
   const tocar = async el => { el.click(); toques++; await espera(120) };
-  const irA = async pestana => { await tocar(q('#sectionNav [data-section-tab="' + pestana + '"]')); if (ev("stack.at(-1) !== activeTabRoot()")) await tocar(q('#sectionNav [data-section-tab="' + pestana + '"]')) };
+  const irA = async pestana => { await tocar(q('#sectionNav [data-section-tab="' + pestana + '"]')); if (ev("stack.at(-1) !== Armado.activeTabRoot()")) await tocar(q('#sectionNav [data-section-tab="' + pestana + '"]')) };
   const pantalla = () => ev("stack.at(-1)");
   const visible = e => !!e && e.getClientRects().length > 0;
   const seVe = (e, texto) => visible(e) && e.innerText.includes(texto);
@@ -59,14 +59,14 @@
   await irA("compras");
   const arroz = fila("Arroz"), pollo = fila("Pollo");
   ok("C7-1 la lista muestra ≈ precio por ítem y el total, con 'faltan N precios'; sin activar los precios no muestra nada y avisa cómo activarlos",
-    apagadoSin && alAviso && ev("preciosActivos()") === true && localStorage.getItem("miPlatoFacil_mostrarPrecios_v1") === '{"mostrar":true}' && ev("getUiMode()") === "simple" && !!arroz && arroz.textContent.includes("≈ $2.000") && !!pollo && pollo.textContent.includes("≈ $2.500") && !fila("Zapallito").textContent.includes("≈") && texto("comprasSummary").includes("≈ $4.500 (faltan 1 precio)") && seVe($("comprasPrecioFuente"), "Promedio INDEC · GBA · sept. 2026") && !visible($("comprasPreciosAviso")),
+    apagadoSin && alAviso && ev("preciosActivos()") === true && localStorage.getItem("miPlatoFacil_mostrarPrecios_v1") === '{"mostrar":true}' && ev("Interfaz.getUiMode()") === "simple" && !!arroz && arroz.textContent.includes("≈ $2.000") && !!pollo && pollo.textContent.includes("≈ $2.500") && !fila("Zapallito").textContent.includes("≈") && texto("comprasSummary").includes("≈ $4.500 (faltan 1 precio)") && seVe($("comprasPrecioFuente"), "Promedio INDEC · GBA · sept. 2026") && !visible($("comprasPreciosAviso")),
     listaTxt());
 
   // C7-2 Cada comida muestra ≈ costo por porción (detalle, tarjeta) y Semana el costo del día
   cargar(base({ [UI]: "completo" })); await abrirConEjemplo();
-  ev('abrirComida("receta","recipe_e7prue01")'); await espera(150);
+  ev('Comidas.abrirComida("receta","recipe_e7prue01")'); await espera(150);
   const detalleReceta = texto("comidaCosto");
-  ev('abrirComida("plato","rp_recipe_e7prue01")'); await espera(150);
+  ev('Comidas.abrirComida("plato","rp_recipe_e7prue01")'); await espera(150);
   const detallePlato = texto("comidaCosto");
   ev('go("misplatos");renderSaved()'); await espera(100);
   const tarj = tarjeta();
@@ -83,7 +83,7 @@
   const gba = texto("comprasSummary");
   const sel = $("preciosRegion"); sel.value = "Pampeana"; sel.dispatchEvent(new w.Event("change", { bubbles: true })); await espera(150);
   const pamp = texto("comprasSummary"), fuentePamp = texto("comprasPrecioFuente");
-  ev('abrirComida("receta","recipe_e7prue01")'); await espera(100);
+  ev('Comidas.abrirComida("receta","recipe_e7prue01")'); await espera(100);
   const porcionPamp = texto("comidaCosto");
   localStorage.setItem(REGION, '{"region":"Marte"}'); w.refrescarPrecios();
   const invalida = ev("regionPrecios()") === "GBA";
@@ -122,11 +122,11 @@
   const vacio = w.completeBackupSnapshot(w.localStorage);
   const omitida = !(REGION in vacio.data);
   cargar({ [REGION]: '{"region":"Noroeste"}' });
-  w.restoreCompleteBackup(JSON.parse(JSON.stringify(R)), w.localStorage);
+  w.Respaldo.restoreCompleteBackup(JSON.parse(JSON.stringify(R)), w.localStorage);
   const viejoLaDeja = !(REGION in R.data) && localStorage.getItem(REGION) === '{"region":"Noroeste"}';
   const malo = JSON.parse(JSON.stringify(conRegion)); malo.data[REGION] = '{"region":"Marte"}';
-  let rechazado = false; try { w.validateCompleteBackup(malo) } catch (e) { rechazado = true }
-  w.restoreCompleteBackup(JSON.parse(JSON.stringify(conRegion)), w.localStorage);
+  let rechazado = false; try { w.Respaldo.validateCompleteBackup(malo) } catch (e) { rechazado = true }
+  w.Respaldo.restoreCompleteBackup(JSON.parse(JSON.stringify(conRegion)), w.localStorage);
   ok("C7-6 la región de los precios va al respaldo como opcional, un respaldo viejo la deja como está y uno inválido se rechaza",
     incluida && omitida && viejoLaDeja && rechazado && localStorage.getItem(REGION) === '{"region":"Cuyo"}');
 
@@ -138,11 +138,11 @@
   const etiquetaOff = $("preciosToggle").querySelector(".tool-button__label").textContent;
   await irA("compras");
   const lista = listaTxt() + " " + texto("comprasPrecioFuente");
-  ev('abrirComida("receta","recipe_e7prue01")'); await espera(100);
+  ev('Comidas.abrirComida("receta","recipe_e7prue01")'); await espera(100);
   const det = texto("comidaCosto");
   ev('go("misplatos");renderSaved();planDiaElegido="lunes";renderPlan()'); await espera(80);
   ok("C7-7 con 'Mostrar precios y presupuesto' apagado no se ve ningún ≈ $ ni la fuente y los datos no cambian",
-    etiquetaOn === "Mostrar precios y presupuesto: activado" && etiquetaOff === "Mostrar precios y presupuesto: desactivado" && ev("getUiMode()") === "completo" && ev("preciosActivos()") === false && !lista.includes("≈") && det === "" && !tarjeta().includes("≈") && texto("planDiaCosto") === "" && todo() === datosAntes,
+    etiquetaOn === "Mostrar precios y presupuesto: activado" && etiquetaOff === "Mostrar precios y presupuesto: desactivado" && ev("Interfaz.getUiMode()") === "completo" && ev("preciosActivos()") === false && !lista.includes("≈") && det === "" && !tarjeta().includes("≈") && texto("planDiaCosto") === "" && todo() === datosAntes,
     lista);
 
   if (marco) marco.remove();

@@ -36,9 +36,9 @@
   document.getElementById("recipeCostCalculate").click(); await wait(20);
   T.ok("U6 'Estimar costo' acepta precio en kg para receta en g", /Total estimado: 1\.000,00 ARS/.test(document.getElementById("recipeCostResult").textContent), document.getElementById("recipeCostResult").textContent.slice(0, 120));
   setStock([["Papa", 1, "kg"]]);
-  const score = recipePantryScore({ kind: "propia", key: "recipe_test0001" }, loadRecipeDetails(), loadRecipeAmounts(), pantryMarkedMatcher(), loadStockQuantities());
+  const score = recipePantryScore({ kind: "propia", key: "recipe_test0001" }, loadRecipeDetails(), loadRecipeAmounts(), MarcasDespensa.pantryMarkedMatcher(), loadStockQuantities());
   T.ok("U7 recomendaciones: 1 kg cubre 500 g", score.complete, JSON.stringify(score));
-  const agg = aggregateQuantifiedRecipes([{ title: IDEA1, portions: 1 }], { [IDEA1]: { yield: 1, rows: [{ name: "Papa", quantity: 200, unit: "g" }, { name: "Papa", quantity: 1, unit: "kg" }] } });
+  const agg = CantidadesCostos.aggregateQuantifiedRecipes([{ title: IDEA1, portions: 1 }], { [IDEA1]: { yield: 1, rows: [{ name: "Papa", quantity: 200, unit: "g" }, { name: "Papa", quantity: 1, unit: "kg" }] } });
   T.ok("U8 'Calcular compras por recetas' suma g y kg", agg.length === 1 && agg[0].unit === "g" && agg[0].quantity === 1200, JSON.stringify(agg));
   setStock([["Papa", 300, "g"]]); go("compras"); await R.openPanel("shoppingQuantCostPanel");
   T.ok("U9 'Ajustar porciones' descuenta despensa compatible", /Papa: 500 g · Disponible: 300 g · Falta comprar: 200 g/.test(document.getElementById("shoppingQuantCostResult").textContent), document.getElementById("shoppingQuantCostResult").textContent.slice(0, 200));

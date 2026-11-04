@@ -11,12 +11,12 @@
   const runner = document.querySelector("#aiRecipePanel .ai-runner");
   T.ok("A1 sin clave: se usa con tu app de IA y no aparece Gemini", !runner.querySelector("[data-ai-gemini]") && !!runner.querySelector("[data-ai-copy]") && /configurá Gemini/.test(runner.textContent));
   $("aiRecipeText").value = "Tarta de zapallitos para 4 personas. 3 zapallitos, 1 cebolla, 3 huevos, 100 g de queso rallado. Rehogar, mezclar y hornear 30 minutos.";
-  const p = aiPrompt("recipe");
+  const p = AsistenteIA.aiPrompt("recipe");
   T.ok("A2 el pedido incluye el texto, el formato y las reglas", p.includes("Tarta de zapallitos para 4") && p.includes('"ingredientes":[{"nombre"') && /No inventes ingredientes ni cantidades/.test(p) && /g, kg, ml, l, unidad, cucharada, cucharadita, taza/.test(p));
   $("aiRecipeText").value = "corto";
-  T.ok("A3 avisa si falta el texto de la receta", (() => { try { aiPrompt("recipe"); return false } catch (e) { return /Pegá primero el texto/.test(e.message) } })());
+  T.ok("A3 avisa si falta el texto de la receta", (() => { try { AsistenteIA.aiPrompt("recipe"); return false } catch (e) { return /Pegá primero el texto/.test(e.message) } })());
   const j = '{"titulo":"Tarta","porciones":4,"ingredientes":[{"nombre":"Zapallito","cantidad":3,"unidad":"unidad"}],"pasos":["Hornear"]}';
-  T.ok("A4 entiende JSON solo, entre ``` y con texto alrededor", aiParseJson(j).titulo === "Tarta" && aiParseJson("Acá va:\n```json\n" + j + "\n```\nSaludos").titulo === "Tarta" && aiParseJson("Respuesta: " + j + " fin").titulo === "Tarta" && (() => { try { aiParseJson("no es json"); return false } catch (e) { return /formato pedido/.test(e.message) } })());
+  T.ok("A4 entiende JSON solo, entre ``` y con texto alrededor", AsistenteIA.aiParseJson(j).titulo === "Tarta" && AsistenteIA.aiParseJson("Acá va:\n```json\n" + j + "\n```\nSaludos").titulo === "Tarta" && AsistenteIA.aiParseJson("Respuesta: " + j + " fin").titulo === "Tarta" && (() => { try { AsistenteIA.aiParseJson("no es json"); return false } catch (e) { return /formato pedido/.test(e.message) } })());
   const r = aiRecipeFromJson({ titulo: " Guiso\u0007 de lentejas ", porciones: 99, minutos: 45.5, etiquetas: ["a", "b", "c", "d", "e", "f"], ingredientes: [{ nombre: "Lentejas", cantidad: 300, unidad: "g" }, { nombre: "Sal", cantidad: 1, unidad: "pizca" }, { nombre: "", cantidad: 1, unidad: "g" }, { nombre: "Agua", cantidad: "1/2", unidad: "l" }], pasos: ["Cocinar", 5, ""] });
   T.ok("A5 limpia la respuesta y no inventa cantidades, unidades ni porciones", r.titulo === "Guiso de lentejas" && r.porciones === null && r.minutos === null && r.etiquetas.length === 5 && r.ingredientes.length === 3 && r.ingredientes[1].cantidad === null && r.ingredientes[1].unidad === null && r.ingredientes[2].cantidad === null && r.pasos.length === 1 && aiRecipeFromJson({ titulo: "" }) === null && aiRecipeFromJson({ titulo: "X" }) === null, JSON.stringify(r));
   const before = stored(); resetRecipeDetailsForm();
@@ -39,7 +39,7 @@
   $("aiKeyInput").value = "AIzaSyOTRA_clave_invalida_00000000000"; $("aiKeySave").click(); await wait(30);
   T.ok("A10 una clave rechazada no se guarda", JSON.parse(localStorage.getItem("miPlatoFacil_aiSettings_v1")).key === KEY && /no es válida.*No se guardó/.test($("aiKeyStatus").textContent), $("aiKeyStatus").textContent);
   const snap = completeBackupSnapshot(localStorage);
-  restoreCompleteBackup(JSON.parse(JSON.stringify(snap)), localStorage);
+  Respaldo.restoreCompleteBackup(JSON.parse(JSON.stringify(snap)), localStorage);
   T.ok("A11 la clave no viaja en los respaldos y restaurar no la borra", !JSON.stringify(snap).includes("AIzaSyTEST") && !("miPlatoFacil_aiSettings_v1" in snap.data) && JSON.parse(localStorage.getItem("miPlatoFacil_aiSettings_v1")).key === KEY);
   go("ingredientes"); showRecipeView("editor"); resetRecipeDetailsForm();
   T.ok("A12 con clave aparece 'Pedir a Gemini'", !!runner.querySelector("[data-ai-gemini]"));
@@ -58,7 +58,7 @@
   setStock([["Papa", 2, "kg"], ["Arroz", 0, "g"]]);
   showRecipeView("browse"); await R.openPanel("aiIdeasPanel");
   const have = $("aiIdeasHave").textContent; $("aiIdeasExtra").value = "sin horno";
-  const ip = aiPrompt("ideas");
+  const ip = AsistenteIA.aiPrompt("ideas");
   T.ok("A16 '¿Qué cocino?' usa lo marcado y las existencias con cantidad", /Pollo/.test(have) && /Huevos/.test(have) && /Papa \(2 kg\)/.test(have) && !/Arroz/.test(have) && ip.includes("Papa (2 kg)") && ip.includes("sin horno") && /método del plato/.test(ip), have);
   mock(() => resp(200, { candidates: [{ content: { parts: [{ text: JSON.stringify({ ideas: [{ titulo: "Pollo al horno con papas <b>", porque: "Usa lo que tenés", porciones: 2, minutos: 40, ingredientes: [{ nombre: "Pollo", cantidad: 400, unidad: "g" }, { nombre: "Papa", cantidad: 2, unidad: "unidad" }], pasos: ["Hornear"] }, { titulo: "Tortilla", ingredientes: [{ nombre: "Huevo", cantidad: 4, unidad: "unidad" }], pasos: ["Cocinar"] }, { titulo: "", pasos: ["x"] }] }) }] } }] }));
   document.querySelector("#aiIdeasPanel [data-ai-gemini]").click(); await wait(40);
@@ -70,7 +70,7 @@
   Object.defineProperty(navigator, "clipboard", { configurable: true, value: { writeText: async t => { copied = t } } });
   $("aiRecipeText").value = "Receta de prueba con varios ingredientes: 2 papas, 1 cebolla y sal.";
   runner.querySelector("[data-ai-copy]").click(); await wait(20);
-  T.ok("A19 'Copiar pedido' copia el pedido completo", copied === aiPrompt("recipe") && /copiado/.test(runner.querySelector("[data-ai-status]").textContent));
+  T.ok("A19 'Copiar pedido' copia el pedido completo", copied === AsistenteIA.aiPrompt("recipe") && /copiado/.test(runner.querySelector("[data-ai-status]").textContent));
   delete navigator.clipboard; if (realClip && !("clipboard" in navigator)) Object.defineProperty(Navigator.prototype, "clipboard", realClip);
   go("backupScreen"); $("aiKeyDelete").click(); await wait(10);
   T.ok("A20 'Borrar clave' la quita y vuelve el modo sin clave", localStorage.getItem("miPlatoFacil_aiSettings_v1") === null && !document.querySelector("#aiRecipePanel [data-ai-gemini]") && $("aiKeyDelete").hidden);

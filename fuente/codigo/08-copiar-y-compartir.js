@@ -1,52 +1,44 @@
 // Mi Plato Fácil · Copiar, compartir y crear la imagen del plato.
 // Parte 9: los archivos se unen en orden según su número, que define el orden de arranque.
-function txtOne(o){
+// Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como Compartir.nombre().
+var Compartir={
+txtOne(o){
   return o?o.name+(o.quantity?" ("+o.quantity+")":""):"No elegido"
-}
-function txtNames(arr){
+},
+txtNames(arr){
   return arr&&arr.length?arr.map(x=>x.name).join(", "):"No elegido"
-}
-const NL=String.fromCharCode(10);
-function plateLines(){
+},
+plateLines(){
   const L=[];
   if(state.type==="desayuno"){
     L.push("Desayuno / Merienda");
-    L.push("Fruta: "+(state.fruta?txtOne({name:frutaTexto(state.fruta),quantity:state.fruta.quantity}):txtOne(null)));
-    L.push("Proteína: "+txtOne(state.bfprot));
-    L.push("Cereal: "+txtOne(state.bfcarb));
-    L.push("Grasa opcional: "+txtOne(state.grasa))
+    L.push("Fruta: "+(state.fruta?Compartir.txtOne({name:frutaTexto(state.fruta),quantity:state.fruta.quantity}):Compartir.txtOne(null)));
+    L.push("Proteína: "+Compartir.txtOne(state.bfprot));
+    L.push("Cereal: "+Compartir.txtOne(state.bfcarb));
+    L.push("Grasa opcional: "+Compartir.txtOne(state.grasa))
   }else if(state.type==="plato"){
-    const p=portions(),carbArr=merged(state.almidones,state.legCarb),protArr=merged(state.proteinas,state.legProt),carb=groupLabel("Almidones","Legumbres como almidón",state.almidones,state.legCarb),prot=groupLabel("Proteínas","Legumbres como proteína",state.proteinas,state.legProt);
+    const p=portions(),carbArr=merged(state.almidones,state.legCarb),protArr=merged(state.proteinas,state.legProt),carb=Armado.groupLabel("Almidones","Legumbres como almidón",state.almidones,state.legCarb),prot=Armado.groupLabel("Proteínas","Legumbres como proteína",state.proteinas,state.legProt);
     L.push("Almuerzo / Cena · "+state.day);
-    L.push("Verduras ("+p.vegetables+"): "+txtNames(state.verduras));
-    L.push(carb+" ("+p.carbs+"): "+txtNames(carbArr));
-    L.push(prot+" ("+p.protein+"): "+txtNames(protArr))
+    L.push("Verduras ("+p.vegetables+"): "+Compartir.txtNames(state.verduras));
+    L.push(carb+" ("+p.carbs+"): "+Compartir.txtNames(carbArr));
+    L.push(prot+" ("+p.protein+"): "+Compartir.txtNames(protArr))
   }else if(state.type==="snack"){
     L.push("Snack");
-    L.push(txtOne(state.snack))
+    L.push(Compartir.txtOne(state.snack))
   }else{
     L.push("Pre-entreno");
-    L.push(txtOne(state.pre))
+    L.push(Compartir.txtOne(state.pre))
   }
   return L
-}
-function typeEmoji(t){
+},
+typeEmoji(t){
   return t==="desayuno"?"🍳":t==="plato"?"🥗":t==="snack"?"🥜":"🏃"
-}
-function plateText(){
-  const L=plateLines();
+},
+plateText(){
+  const L=Compartir.plateLines();
   return "🍽️ Mi plato fácil"+NL+L[0]+NL+L.slice(1).map(x=>"• "+x).join(NL)
-}
-function doCopy(text){
-  return new Promise(res=>{
-    if(navigator.clipboard&&navigator.clipboard.writeText){
-      navigator.clipboard.writeText(text).then(()=>res(true)).catch(()=>res(fallbackCopy(text)))
-    }else{
-      res(fallbackCopy(text))
-    }
-  })
-}
-function fallbackCopy(text){
+},
+fallbackCopy(text){
   try{
     const ta=document.createElement("textarea");
     ta.value=text;
@@ -61,22 +53,12 @@ function fallbackCopy(text){
   }catch(e){
     return false
   }
-}
-let shareStatusTimer=null;
-function shareStatus(msg){
-  const s=document.getElementById("shareStatus");
-  if(!s)return;
-  s.textContent=msg;
-  clearTimeout(shareStatusTimer);
-  shareStatusTimer=setTimeout(()=>{
-    s.textContent=""
-  },3200)
-}
-function copyPlate(){
-  doCopy(plateText()).then(ok=>shareStatus(ok?"¡Copiado! Ya podés pegarlo donde quieras.":"No se pudo copiar; seleccioná el texto manualmente."))
-}
-function sharePlate(){
-  const t=plateText();
+},
+copyPlate(){
+  doCopy(Compartir.plateText()).then(ok=>shareStatus(ok?"¡Copiado! Ya podés pegarlo donde quieras.":"No se pudo copiar; seleccioná el texto manualmente."))
+},
+sharePlate(){
+  const t=Compartir.plateText();
   if(navigator.share){
     navigator.share({
       title:"Mi plato fácil",text:t
@@ -86,8 +68,8 @@ function sharePlate(){
   }else{
     doCopy(t).then(ok=>shareStatus(ok?"Compartir no está disponible; copiamos el plato al portapapeles.":"No se pudo compartir ni copiar."))
   }
-}
-function roundRect(ctx,x,y,w,h,r){
+},
+roundRect(ctx,x,y,w,h,r){
   ctx.beginPath();
   ctx.moveTo(x+r,y);
   ctx.arcTo(x+w,y,x+w,y+h,r);
@@ -95,8 +77,8 @@ function roundRect(ctx,x,y,w,h,r){
   ctx.arcTo(x,y+h,x,y,r);
   ctx.arcTo(x,y,x+w,y,r);
   ctx.closePath()
-}
-function wrapText(ctx,text,maxW){
+},
+wrapText(ctx,text,maxW){
   const words=String(text).split(" ");
   const out=[];
   let cur="";
@@ -109,16 +91,16 @@ function wrapText(ctx,text,maxW){
   }
   if(cur)out.push(cur);
   return out
-}
-function buildPlateCanvas(){
-  const L=plateLines(),title=L[0],items=L.slice(1);
+},
+buildPlateCanvas(){
+  const L=Compartir.plateLines(),title=L[0],items=L.slice(1);
   const W=1080,M=40,pad=64,dark=document.documentElement.getAttribute("data-theme")==="dark";
   const meas=document.createElement("canvas").getContext("2d");
   const maxW=W-M*2-pad*2;
   meas.font="800 44px system-ui,-apple-system,Segoe UI,Arial";
-  const titleLines=wrapText(meas,title,maxW);
+  const titleLines=Compartir.wrapText(meas,title,maxW);
   meas.font="600 34px system-ui,-apple-system,Segoe UI,Arial";
-  const itemBlocks=items.map(it=>wrapText(meas,it,maxW-40));
+  const itemBlocks=items.map(it=>Compartir.wrapText(meas,it,maxW-40));
   const brandTop=M+96;
   const titleTop=brandTop+64;
   const titleH=titleLines.length*54;
@@ -134,7 +116,7 @@ function buildPlateCanvas(){
   const ctx=c.getContext("2d");
   ctx.fillStyle=dark?"#0b1110":"#0b6b57";
   ctx.fillRect(0,0,W,H);
-  roundRect(ctx,M,M,W-M*2,H-M*2,44);
+  Compartir.roundRect(ctx,M,M,W-M*2,H-M*2,44);
   ctx.fillStyle=dark?"#141d1a":"#ffffff";
   ctx.fill();
   ctx.textBaseline="alphabetic";
@@ -160,8 +142,8 @@ function buildPlateCanvas(){
   ctx.font="500 26px system-ui,-apple-system,Segoe UI,Arial";
   ctx.fillText("Armado con Mi plato fácil",M+pad,H-M-38);
   return c
-}
-function downloadCanvas(canvas){
+},
+downloadCanvas(canvas){
   try{
     const url=canvas.toDataURL("image/png");
     const a=document.createElement("a");
@@ -174,26 +156,26 @@ function downloadCanvas(canvas){
   }catch(e){
     shareStatus("No se pudo descargar la imagen.")
   }
-}
-function shareImage(){
+},
+shareImage(){
   if(!state.type){
     shareStatus("Primero armá un plato.");
     return
   }
   let canvas;
   try{
-    canvas=buildPlateCanvas()
+    canvas=Compartir.buildPlateCanvas()
   }catch(e){
     shareStatus("No se pudo generar la imagen.");
     return
   }
   if(!canvas.toBlob){
-    downloadCanvas(canvas);
+    Compartir.downloadCanvas(canvas);
     return
   }
   canvas.toBlob(function(blob){
     if(!blob){
-      downloadCanvas(canvas);return
+      Compartir.downloadCanvas(canvas);return
     }try{
       const file=new File([blob],"mi-plato.png",{
         type:"image/png"
@@ -205,13 +187,34 @@ function shareImage(){
         }).then(function(){
           shareStatus("¡Imagen compartida!")
         }).catch(function(e){
-          if(e&&e.name==="AbortError")return;downloadCanvas(canvas)
+          if(e&&e.name==="AbortError")return;Compartir.downloadCanvas(canvas)
         })
       }else{
-        downloadCanvas(canvas)
+        Compartir.downloadCanvas(canvas)
       }
     }catch(e){
-      downloadCanvas(canvas)
+      Compartir.downloadCanvas(canvas)
     }
   },"image/png")
+}
+};
+const NL=String.fromCharCode(10);
+function doCopy(text){
+  return new Promise(res=>{
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(()=>res(true)).catch(()=>res(Compartir.fallbackCopy(text)))
+    }else{
+      res(Compartir.fallbackCopy(text))
+    }
+  })
+}
+let shareStatusTimer=null;
+function shareStatus(msg){
+  const s=document.getElementById("shareStatus");
+  if(!s)return;
+  s.textContent=msg;
+  clearTimeout(shareStatusTimer);
+  shareStatusTimer=setTimeout(()=>{
+    s.textContent=""
+  },3200)
 }

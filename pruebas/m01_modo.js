@@ -10,7 +10,7 @@
   reset();
   // M1 Arranca en modo simple, sin guardar nada (reset() elige simple a propósito desde la Etapa 13: acá se mira sin ninguna elección)
   localStorage.removeItem(UI_MODE_KEY); uiModeMemory = null; applyUiMode();
-  T.ok("M1 la app arranca en modo simple sin guardar ningún ajuste", getUiMode() === "simple" && document.documentElement.dataset.modo === "simple" && localStorage.getItem(UI_MODE_KEY) === null);
+  T.ok("M1 la app arranca en modo simple sin guardar ningún ajuste", Interfaz.getUiMode() === "simple" && document.documentElement.dataset.modo === "simple" && localStorage.getItem(UI_MODE_KEY) === null);
   // Datos inventados para que todas las pantallas tengan contenido
   criticalCase();
   setStock([["Papa", 1, "kg"]]);
@@ -115,7 +115,7 @@
   const label1 = card.querySelector(".tool-button__label").textContent;
   card.click(); await wait(20);
   const label2 = card.querySelector(".tool-button__label").textContent;
-  T.ok("M5 la tarjeta de Configuración activa el modo completo y lo recuerda", inSettings && label1 === "Mostrar herramientas avanzadas: desactivado" && label2 === "Mostrar herramientas avanzadas: activado" && getUiMode() === "completo" && localStorage.getItem(UI_MODE_KEY) === "completo" && document.documentElement.dataset.modo === "completo", label1 + " → " + label2);
+  T.ok("M5 la tarjeta de Configuración activa el modo completo y lo recuerda", inSettings && label1 === "Mostrar herramientas avanzadas: desactivado" && label2 === "Mostrar herramientas avanzadas: activado" && Interfaz.getUiMode() === "completo" && localStorage.getItem(UI_MODE_KEY) === "completo" && document.documentElement.dataset.modo === "completo", label1 + " → " + label2);
   // M6 En modo completo se ve todo otra vez
   go("compras"); await wait(20);
   // Desde la v15.7 la barra de presupuesto sigue a "Mostrar precios y presupuesto", no al modo: activar las herramientas
@@ -138,26 +138,26 @@
   $("preciosToggle").click(); await wait(20); go("compras"); await wait(20);
   const barraOculta = !shown($("comprasPresupuesto"));
   $("preciosToggle").click(); await wait(20);
-  T.ok("M7 el botón del aviso vuelve al modo simple", getUiMode() === "simple" && localStorage.getItem(UI_MODE_KEY) === "simple" && barraSigue && barraOculta && card.querySelector(".tool-button__label").textContent === "Mostrar herramientas avanzadas: desactivado");
+  T.ok("M7 el botón del aviso vuelve al modo simple", Interfaz.getUiMode() === "simple" && localStorage.getItem(UI_MODE_KEY) === "simple" && barraSigue && barraOculta && card.querySelector(".tool-button__label").textContent === "Mostrar herramientas avanzadas: desactivado");
   // M8 Cambiar de modo no toca ningún dato
   card.click(); await wait(10); card.click(); await wait(10);
   T.ok("M8 cambiar de modo no modifica ningún dato guardado (solo el ajuste de los precios, que quedó como lo dejó el usuario)", appData() === before && localStorage.getItem("miPlatoFacil_mostrarPrecios_v1") === '{"mostrar":true}' && Object.keys(localStorage).filter(k => k.startsWith("miPlatoFacil_")).includes(UI_MODE_KEY));
   // M9 Lo guardado en herramientas ocultas sigue en uso: las existencias generan la sugerencia en Compras
   go("compras"); await wait(30);
   const papa = shoppingDisplayItems().find(x => x.name === "Papa");
-  T.ok("M9 las existencias guardadas siguen sugiriendo en Compras aunque estén ocultas", getUiMode() === "simple" && !!papa && !!papa.suggestion && /1 kg/.test(papa.suggestion.text) && /💡/.test($("comprasList").textContent), papa && papa.suggestion && papa.suggestion.text);
+  T.ok("M9 las existencias guardadas siguen sugiriendo en Compras aunque estén ocultas", Interfaz.getUiMode() === "simple" && !!papa && !!papa.suggestion && /1 kg/.test(papa.suggestion.text) && /💡/.test($("comprasList").textContent), papa && papa.suggestion && papa.suggestion.text);
   // M10 Al volver al modo simple, los controles ocultos de la sesión vuelven a su valor inicial
-  setUiMode("completo");
+  ModoSimple.setUiMode("completo");
   $("recipeRecommendMode").value = "budget"; $("recipeRecommendPantry").checked = true; $("recipeRecommendCosts").checked = true; $("recipeCatalogSort").value = "reverse"; $("recipeCatalogPageSize").value = "60";
-  setUiMode("simple");
+  ModoSimple.setUiMode("simple");
   T.ok("M10 los controles ocultos no siguen cambiando el orden de las recetas", $("recipeRecommendMode").value === "normal" && !$("recipeRecommendPantry").checked && !$("recipeRecommendCosts").checked && $("recipeCatalogSort").value === "name" && $("recipeCatalogPageSize").value === "20");
   // M11 El modo no va en los respaldos y restaurar no lo cambia
-  setUiMode("completo");
+  ModoSimple.setUiMode("completo");
   const snap = completeBackupSnapshot(localStorage);
-  let valid = true; try { validateCompleteBackup(JSON.parse(JSON.stringify(snap))) } catch (e) { valid = false }
-  restoreCompleteBackup(JSON.parse(JSON.stringify(snap)), localStorage);
-  T.ok("M11 el modo es un ajuste del dispositivo: no va en el respaldo y restaurar no lo cambia", !(UI_MODE_KEY in snap.data) && valid && getUiMode() === "completo");
-  setUiMode("simple");
+  let valid = true; try { Respaldo.validateCompleteBackup(JSON.parse(JSON.stringify(snap))) } catch (e) { valid = false }
+  Respaldo.restoreCompleteBackup(JSON.parse(JSON.stringify(snap)), localStorage);
+  T.ok("M11 el modo es un ajuste del dispositivo: no va en el respaldo y restaurar no lo cambia", !(UI_MODE_KEY in snap.data) && valid && Interfaz.getUiMode() === "completo");
+  ModoSimple.setUiMode("simple");
   // M12 Los mensajes no mandan a herramientas ocultas
   setRecipes([{ id: "recipe_sinIng1", title: "Receta sin ingredientes", amountsTitle: null }]);
   go("plan"); await R.openPanel("planRecipeReference");
@@ -168,7 +168,7 @@
   T.ok("M12 los mensajes indican Editar receta, no paneles ocultos", /Editar receta/.test(assignMsg) && !/Mis cantidades/.test(assignMsg) && /Editar receta/.test(readMsg) && !/Mis cantidades/.test(readMsg), assignMsg + " | " + readMsg);
   // M13 Un valor desconocido guardado no rompe: se usa el modo simple
   localStorage.setItem(UI_MODE_KEY, "raro"); applyUiMode();
-  T.ok("M13 un valor desconocido del ajuste se toma como modo simple", getUiMode() === "simple" && document.documentElement.dataset.modo === "simple");
+  T.ok("M13 un valor desconocido del ajuste se toma como modo simple", Interfaz.getUiMode() === "simple" && document.documentElement.dataset.modo === "simple");
   closeRecipeRead(false); showRecipeView("browse");
   reset(); go("home");
   return T;
