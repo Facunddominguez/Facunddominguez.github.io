@@ -3523,6 +3523,9 @@ body.con-hoja{
 .precios-aviso{display:block;min-height:44px;margin:0 0 8px;padding:0;border:0;background:none;color:var(--primary,var(--accent));font:inherit;text-align:left;text-decoration:underline;cursor:pointer}
 .precios-aviso[hidden]{display:none}
 .shop-item__nombre{display:inline-block;min-height:44px;line-height:44px;text-decoration:underline dotted;text-underline-offset:3px;cursor:pointer}
+.hoja__cuerpo a{color:var(--primary,var(--accent))}
+.completar-precios{display:grid;gap:8px}
+.completar-precios__fila{width:100%}
 .ficha-precio{margin-top:12px;display:grid;gap:8px}
 .ficha-precio__titulo{margin:0;font-size:16px}
 .ficha-precio__linea{margin:0;font-weight:600}

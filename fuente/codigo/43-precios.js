@@ -538,7 +538,7 @@ function textoPrecioFicha(nombre){
   if(p&&d){
     const ub=p.it.b==="l"?"l":p.it.b==="unidad"?"unidad":"kg",sepa=datosSepaPrecios(d);
     const fuente=p.fuente==="sepa"?"SEPA "+p.region+(sepa?" · "+mesCortoPrecios(sepa.fecha.slice(0,7)):""):"INDEC "+p.region+" · "+mesCortoPrecios(d.meta.mes);
-    return "≈ "+pesosCortos(p.precio)+"/"+ub+" · "+fuente+(p.rango?" · entre "+pesosCortos(p.rango[0])+" y "+pesosCortos(p.rango[1]):"")+(p.aprox?" · aproximado":"")
+    return "≈ "+pesosCortos(p.precio)+"/"+ub+" · "+fuente+(p.rango&&Math.round(p.rango[0])!==Math.round(p.rango[1])?" · entre "+pesosCortos(p.rango[0])+" y "+pesosCortos(p.rango[1]):"")+(p.aprox?" · aproximado":"")
   }
   const cat=categoriaDePrecio(nombre),med=cat&&medianaDeCategoria(cat.k,cat.b);
   return med?"Sin precio publicado · estimado ≈ "+pesosCortos(med)+"/"+(cat.b==="l"?"l":cat.b==="unidad"?"unidad":"kg")+" (precio típico de "+cat.k+")":"Sin precio publicado."
@@ -647,6 +647,7 @@ function fichaPrecio(nombre){
         igual.dataset.fichaPrecioIgual="";
         igual.addEventListener("click",()=>confirmar(precio,cantidad,unidad));
         estado.append(igual);
+        estado.scrollIntoView({block:"nearest"});
         return
       }
       confirmar(precio,cantidad,unidad)
@@ -655,7 +656,7 @@ function fichaPrecio(nombre){
       form.hidden=true;
       abrir.hidden=false
     });
-    form.append(campo("Monto ($)",monto),fCant,campo("Unidad",uni),ce("div","hoja__acciones"),estado);
+    form.append(campo("Monto ($)",monto),fCant,campo("Unidad",uni),estado,ce("div","hoja__acciones"));
     form.querySelector(".hoja__acciones").append(guardar,cancelar);
     const abrir=ce("button","button button--soft",mio?"Cambiar mi precio":"Agregar mi precio");
     abrir.type="button";
