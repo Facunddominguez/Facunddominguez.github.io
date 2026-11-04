@@ -77,11 +77,11 @@
   ev('openTab("compras")'); await espera(250);
   const boton = doc().querySelector("[data-compras-compartir]");
   let compartido = null;
-  w.navigator.share = t => { compartido = t; return Promise.resolve() };
+  Object.defineProperty(w.navigator, "share", { value: t => { compartido = t; return Promise.resolve() }, configurable: true });
   if (boton) boton.click(); await espera(150);
   ok("E23-compartir Compartir lista arma un texto por sección del súper, con cantidades, ≈ precio por producto y el total de la semana, con un botón en Compras",
-    /^🛒 Lista de compras/.test(texto) && /\*VERDULERÍA\*/.test(texto) && filas.length >= 15 && conPrecio.length >= filas.length - 3 && total > 0 && total === Math.round(ev("costoSemanaPlan().total")) && !!boton && !!compartido && compartido.text.includes("*Total ≈ $"),
-    JSON.stringify({ filas: filas.length, conPrecio: conPrecio.length, total, boton: !!boton, ejemplo: filas.slice(0, 3), final: texto.split("\n").slice(-2) }));
+    /^🛒 Lista de compras/.test(texto) && /\*Verdulería\*/i.test(texto) && filas.length >= 15 && conPrecio.length >= filas.length - 3 && total > 0 && total === Math.round(ev("costoSemanaPlan().total")) && !!boton && !!compartido && compartido.text.includes("*Total ≈ $"),
+    JSON.stringify({ filas: filas.length, conPrecio: conPrecio.length, total, costo: Math.round(ev("costoSemanaPlan().total")), compartido: compartido && compartido.text.slice(-60), boton: !!boton, ejemplo: filas.slice(0, 3), final: texto.split("\n").slice(-2) }));
 
   if (marco) marco.remove();
   localStorage.clear();

@@ -113,10 +113,10 @@ shoppingItemLabel(e){
   return e.name+": "+qty
 },
 shoppingSuggestion(e,stock,marked){
-  // Etapa 23: lo de la Despensa en cucharadas o tazas se pasa a gramos o mililitros, como el plan.
+  // Etapa 23: lo de la Despensa en cucharadas o tazas de algo sólido se pasa a gramos, como el plan (los líquidos no: una taza no se convierte a ml).
   const own=Object.values(stock).filter(s=>ingredientKey(s.name)===e.key).map(s=>{
     const u=unidadParaCompra(s.name,s.quantity,s.unit);
-    return u.unit===s.unit?s:{...s,quantity:u.q,unit:u.unit}
+    return u.unit==="g"&&u.unit!==s.unit?{...s,quantity:u.q,unit:u.unit}:s
   });
   if(!own.length)return marked.has(e.name)?{
     kind:"info",text:"Lo marcaste en tu Despensa (sin cantidad registrada)."
