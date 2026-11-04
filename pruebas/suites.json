@@ -43,6 +43,7 @@
     "e9_sepa.js",
     "e10_pulido.js",
     "e11_desayuno.js",
-    "e12_cantidades.js"
+    "e12_cantidades.js",
+    "e13_precios_a_la_vista.js"
   ]
 }

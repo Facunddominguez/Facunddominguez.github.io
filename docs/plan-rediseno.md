@@ -2083,6 +2083,7 @@ Estados: ✅ hecha · ⏳ en curso · ⛔ parada.
 |---|---|---|---|
 | 11. Desayuno y comidas completas | ✅ | `etapa-11-ok` | 16.0.0 |
 | 12. Cantidades reales | ✅ | `etapa-12-ok` | 16.1.0 |
+| 13. Precios a la vista | ✅ | `etapa-13-ok` | 16.2.0 |
 
 - Arranque: rama `rediseno-2` creada desde `main` (v15.9.0) con este plan.
 - Herramientas: `validar-etapa.mjs` acepta las etapas 11 a 18 y, desde la 11, compara contra `rediseno-2` (versión y línea base) en vez de `rediseno`.
@@ -2139,3 +2140,29 @@ Rama `rediseno-2-etapa-12-cantidades`.
 - E1-6 usa un plato de texto: con un plato armado, "Lo compré" suma la cantidad a la despensa en vez de marcarla.
 
 **Revisores (Etapa 12)**: `revisor-codigo` NO BLOQUEANTE (el de capturas no corre en esta etapa, modo liviano). Sugerencias que quedan para después: cuando un mismo ingrediente tiene filas con y sin cantidad, la lista muestra solo la parte con cantidad (hoy sin aviso; el aviso vive en la sugerencia de Despensa); falta una prueba que fije ese comportamiento y otra explícita de "Lo compré" sobre un plato armado (suma a la despensa); conviene fijar con pruebas qué cuenta como básico ("Aceite de oliva" sí, "Aceitunas" no). Compuerta: VALIDACIÓN ETAPA 12: OK (77 controles).
+
+### Etapa 13 · Precios a la vista ✅
+
+Rama `rediseno-2-etapa-13-precios`.
+
+**Plan corto**
+- `43-precios.js`: precios encendidos por defecto; costo de los platos armados (con sus cantidades por persona y las personas del hogar); detalle de cada precio de la lista; "faltan N precios" una sola vez por bloque; peso curado por unidad para pasar unidades a kilos. `12-lista-de-compras.js`: el precio es tocable. `10-plan-semanal.js`: ≈ costo en cada hueco lleno. `datos/envases.json`: tabla `pesoUnidad`. Prueba nueva `e13_precios_a_la_vista.js` (C13-1 a C13-4).
+- Riesgos para los datos: ninguno (no se agregan claves; `mostrarPrecios_v1` sigue igual).
+
+**Hecho cuando**
+- ✅ Con una semana de platos armados en una instalación nueva, 28 de 34 ítems de la lista tienen precio (82 %) y cada precio muestra, al tocarlo, "≈ $ · entre $a y $b · fuente · mes" (C13-1).
+- ✅ ≈ costo por comida (en cada hueco y en la tarjeta de Comidas), por día y por semana, y "faltan N precios" una sola vez (C13-2).
+- ✅ Prueba de 15 ingredientes: el precio de una unidad queda entre 0,5 y 2 veces lo esperable por el precio por kg (C13-3).
+- ✅ Quien ya tenía la app conserva lo que había elegido (C13-4).
+
+**Precios por defecto** (Decisión): sin `mostrarPrecios_v1` y sin `uiMode_v1` (instalación nueva o sin elección) los precios están encendidos, región GBA. Quien ya eligió modo conserva lo de antes: simple apagado, completo encendido; la elección explícita de precios siempre manda. Se pueden apagar en Preferencias.
+
+**Pesos por unidad** (Decisión): el "zapallito: 5 unidades ≈ $6.350" no era un error de conversión (196 g por unidad × $6.480 el kilo del dato real = $1.270 cada uno), pero otras unidades salían raras (la zanahoria de la tabla de nutrición pesa 61 g, la palta 136 g). Se curaron 13 pesos por unidad en `datos/envases.json` (`pesoUnidad`: zanahoria 100 g, batata 250 g, palta 200 g, morrón 200 g, limón 100 g, naranja 200 g, pepino 250 g, tomate, cebolla, banana, manzana, papa y zapallito) que se usan para los precios. El costo por comida y por día usa lo que se come; el precio de la lista, el envase que se compra (Etapa 12). Cuando hay personas, los costos del día, de la semana y del hueco son del hogar; "por porción" sigue siendo por persona.
+
+**Tests adaptados** (Decisión, Regla 5: miran la interfaz que antes arrancaba sin precios):
+- `r2_fixtures.js`: `reset()` elige modo simple (los precios quedan apagados) para que las baterías de la lista sigan mirando solo cantidades; `m01_modo.js` (M1) borra esa elección para mirar el arranque sin elegir.
+- `e5_compras.js`, `e8_herramientas.js`, `e9_sepa.js`: su `cargar` parte con modo simple salvo que el caso traiga `uiMode_v1` o `mostrarPrecios_v1`; `e7_precios.js`: `base()` igual.
+- `e8_herramientas.js` C8-1: "sin nada" ahora es "precios encendidos y nada guardado" y la cadena de interruptores sigue desde "simple" elegido.
+- `e7_precios.js` C7-2 y `e8_herramientas.js` C8-4: el día ya no repite "(faltan N precios)"; queda una sola vez, con la semana.
+
+**Revisores (Etapa 13)**: `revisor-codigo` NO BLOQUEANTE. Sugerencias que quedan: C13-3 repite los pesos de `pesoUnidad` (comprobación en parte circular; conviene fijar rangos en pesos por unidad de una fuente aparte y exigir los 15); probar que "Tomate triturado" o "Cebolla de verdeo" no heredan el peso de la unidad común; avisar en las notas de la versión que quien nunca tocó el modo ve ahora los precios encendidos; rotular el costo del hueco como del hogar. Compuerta: VALIDACIÓN ETAPA 13: OK (82 controles).

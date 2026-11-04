@@ -199,5 +199,21 @@
       "envase": "pote",
       "corto": true
     }
-  ]
+  ],
+  "pesoUnidad": {
+    "Zanahoria": 100,
+    "Batata": 250,
+    "Palta": 200,
+    "Morrón": 200,
+    "Limón": 100,
+    "Naranja": 200,
+    "Pepino": 250,
+    "Tomate": 150,
+    "Cebolla": 150,
+    "Banana": 120,
+    "Manzana": 180,
+    "Papa": 200,
+    "Zapallito": 200
+  },
+  "_pesoUnidad": "Gramos de una unidad común de cada ingrediente (para pasar unidades a kilos al calcular precios). Reemplaza al peso de la tabla de nutrición cuando esa unidad es chica o rara (la zanahoria de USDA pesa 61 g)."
 }

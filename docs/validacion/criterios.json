@@ -75,6 +75,11 @@
     { "id": "E12-personas", "etapa": 12, "hecho": "Pasar de 1 a 3 personas triplica las cantidades.", "tipo": "prueba", "prueba": "C12-2" },
     { "id": "E12-envases", "etapa": 12, "hecho": "Fideos por 180 g se muestran como 1 paquete de 500 g.", "tipo": "prueba", "prueba": "C12-3" },
     { "id": "E12-basicos", "etapa": 12, "hecho": "Ningún básico de alacena aparece en la lista por defecto.", "tipo": "prueba", "prueba": "C12-4" },
-    { "id": "E12-registro", "etapa": 12, "hecho": "Los tests de la lista que se adaptaron y los valores por defecto elegidos quedan en el Registro.", "tipo": "registro", "seccion": "Etapa 12", "debeNombrar": ["Gramajes por defecto", "Tests adaptados", "Básicos de alacena"] }
+    { "id": "E12-registro", "etapa": 12, "hecho": "Los tests de la lista que se adaptaron y los valores por defecto elegidos quedan en el Registro.", "tipo": "registro", "seccion": "Etapa 12", "debeNombrar": ["Gramajes por defecto", "Tests adaptados", "Básicos de alacena"] },
+    { "id": "E13-cobertura-y-fuente", "etapa": 13, "hecho": "Con una semana de platos armados en una instalación nueva, el 80 % o más de los ítems de la lista tiene precio y cada precio permite ver su fuente y su mes.", "tipo": "prueba", "prueba": "C13-1" },
+    { "id": "E13-costos", "etapa": 13, "hecho": "Hay ≈ costo por comida, por día y por semana, con \"faltan N precios\" una sola vez.", "tipo": "prueba", "prueba": "C13-2" },
+    { "id": "E13-conversiones", "etapa": 13, "hecho": "El precio por unidad de 15 ingredientes comunes queda en un rango plausible respecto del precio por kg.", "tipo": "prueba", "prueba": "C13-3" },
+    { "id": "E13-respeta-eleccion", "etapa": 13, "hecho": "Quien ya tenía la app conserva lo que había elegido sobre los precios.", "tipo": "prueba", "prueba": "C13-4" },
+    { "id": "E13-registro", "etapa": 13, "hecho": "Las decisiones de precios y los tests adaptados quedan en el Registro.", "tipo": "registro", "seccion": "Etapa 13", "debeNombrar": ["Precios por defecto", "Pesos por unidad", "Tests adaptados"] }
   ]
 }
