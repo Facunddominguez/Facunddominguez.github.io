@@ -80,6 +80,9 @@
     { "id": "E13-costos", "etapa": 13, "hecho": "Hay ≈ costo por comida, por día y por semana, con \"faltan N precios\" una sola vez.", "tipo": "prueba", "prueba": "C13-2" },
     { "id": "E13-conversiones", "etapa": 13, "hecho": "El precio por unidad de 15 ingredientes comunes queda en un rango plausible respecto del precio por kg.", "tipo": "prueba", "prueba": "C13-3" },
     { "id": "E13-respeta-eleccion", "etapa": 13, "hecho": "Quien ya tenía la app conserva lo que había elegido sobre los precios.", "tipo": "prueba", "prueba": "C13-4" },
-    { "id": "E13-registro", "etapa": 13, "hecho": "Las decisiones de precios y los tests adaptados quedan en el Registro.", "tipo": "registro", "seccion": "Etapa 13", "debeNombrar": ["Precios por defecto", "Pesos por unidad", "Tests adaptados"] }
+    { "id": "E13-registro", "etapa": 13, "hecho": "Las decisiones de precios y los tests adaptados quedan en el Registro.", "tipo": "registro", "seccion": "Etapa 13", "debeNombrar": ["Precios por defecto", "Pesos por unidad", "Tests adaptados"] },
+    { "id": "E14-cargar-o-saltar", "etapa": 14, "hecho": "Completar o saltar la bienvenida funciona con 0, 1 o 3 datos cargados.", "tipo": "prueba", "prueba": "C14-1" },
+    { "id": "E14-se-ve", "etapa": 14, "hecho": "Lo cargado se ve en Semana y Compras.", "tipo": "prueba", "prueba": "C14-2" },
+    { "id": "E14-registro", "etapa": 14, "hecho": "Las decisiones del paso nuevo y los tests adaptados quedan en el Registro.", "tipo": "registro", "seccion": "Etapa 14", "debeNombrar": ["Paso nuevo", "Tests adaptados"] }
   ]
 }
