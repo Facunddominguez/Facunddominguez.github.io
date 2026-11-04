@@ -2077,4 +2077,34 @@ Hecho cuando: las funciones globales bajan al menos un 30 %; todas las pruebas e
 
 ### Registro de la Ronda 2
 
-- Arranque: rama `rediseno-2` creada desde `main` (v15.9.0) con este plan. Todavía sin etapas.
+Estados: ✅ hecha · ⏳ en curso · ⛔ parada.
+
+| Etapa | Estado | Tag | Versión de la app |
+|---|---|---|---|
+| 11. Desayuno y comidas completas | ✅ | `etapa-11-ok` | 16.0.0 |
+
+- Arranque: rama `rediseno-2` creada desde `main` (v15.9.0) con este plan.
+- Herramientas: `validar-etapa.mjs` acepta las etapas 11 a 18 y, desde la 11, compara contra `rediseno-2` (versión y línea base) en vez de `rediseno`.
+
+### Etapa 11 · Desayuno y comidas completas ✅
+
+Rama `rediseno-2-etapa-11-desayuno-completo`.
+
+**Plan corto**
+- Frutas en dos pasos: "¿Qué fruta?" (hasta 3, no avanza solo, botón Continuar de la barra de abajo) y "¿Cómo?" (Entera, En trozos, Licuado, En una preparación → Budín, Tarta, Waffle, Panqueque). `state.fruta` sigue siendo un solo objeto `{name, quantity, forma}`; con varias frutas `name` y `quantity` van unidos con " + " (la lista de compras ya separa por " + "). Con una sola fruta el formato es idéntico al de siempre.
+- Se sacan "Porción de galletas" (de las formas) y "Harina de trigo integral" (de los cereales del desayuno). Lo guardado se sigue mostrando ("Galletas con banana") y comprando (`data.opcionesRetiradas`).
+- Selector de comida: una idea que ya está en Mis comidas no se repite en Ideas.
+- Riesgos para los datos: ninguno; no cambia ninguna clave ni formato.
+- Pruebas que cambian: `e1_confianza.js` (C1-1c) y `regression.js` (R1) tocaban la fruta y esperaban que avanzara sola; ahora tocan Continuar (misma exigencia sobre lo guardado). Se suma `e11_desayuno.js` (C11-1 a C11-4). `datos/precios-mapa.json`: sale "Harina de trigo integral" del ámbito del armado (C9-1 compara ese ámbito con el de la app).
+
+**Hecho cuando**
+- ✅ Se pueden elegir 2 frutas en un desayuno (C11-1).
+- ✅ Ninguna opción del desayuno contiene "galletas" ni "harina" (C11-2).
+- ✅ El 100 % de las ideas de almuerzo o cena tiene los tres grupos (C11-3).
+- ✅ Ningún nombre se repite en el selector (C11-4).
+
+**Ideas completadas** (Decisión: se agregó el almidón más común en Argentina para ese plato)
+- ✅ Decisión: "Filet de pescado con verduras salteadas" ahora lleva Papa.
+- ✅ Decisión: "Salmón al horno con puré de calabaza y espinaca" ahora lleva Papa (el puré).
+
+**Revisores (Etapa 11)**: `revisor-codigo` NO BLOQUEANTE; `revisor-usuario` NO BLOQUEANTE. Sugerencias que quedan: "¿Cómo?" queda debajo de la lista de frutas (Continuar usa Entera por defecto); Continuar deja avanzar sin fruta (igual que los demás pasos); la redacción con varias frutas en una preparación ("Budín de banana y manzana") se revisa a mano. Compuerta: VALIDACIÓN ETAPA 11: OK (72 controles).
