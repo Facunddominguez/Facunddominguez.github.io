@@ -2083,7 +2083,7 @@ Estados: ✅ hecha · ⏳ en curso · ⛔ parada.
 |---|---|---|---|
 | 11. Desayuno y comidas completas | ✅ | `etapa-11-ok` | 16.0.0 |
 | 12. Cantidades reales | ✅ | `etapa-12-ok` | 16.1.0 |
-| 13. Precios a la vista | ⏳ | `etapa-13-ok` | 16.2.0 |
+| 13. Precios a la vista | ✅ | `etapa-13-ok` | 16.2.0 |
 
 - Arranque: rama `rediseno-2` creada desde `main` (v15.9.0) con este plan.
 - Herramientas: `validar-etapa.mjs` acepta las etapas 11 a 18 y, desde la 11, compara contra `rediseno-2` (versión y línea base) en vez de `rediseno`.
@@ -2141,7 +2141,7 @@ Rama `rediseno-2-etapa-12-cantidades`.
 
 **Revisores (Etapa 12)**: `revisor-codigo` NO BLOQUEANTE (el de capturas no corre en esta etapa, modo liviano). Sugerencias que quedan para después: cuando un mismo ingrediente tiene filas con y sin cantidad, la lista muestra solo la parte con cantidad (hoy sin aviso; el aviso vive en la sugerencia de Despensa); falta una prueba que fije ese comportamiento y otra explícita de "Lo compré" sobre un plato armado (suma a la despensa); conviene fijar con pruebas qué cuenta como básico ("Aceite de oliva" sí, "Aceitunas" no). Compuerta: VALIDACIÓN ETAPA 12: OK (77 controles).
 
-### Etapa 13 · Precios a la vista ⏳
+### Etapa 13 · Precios a la vista ✅
 
 Rama `rediseno-2-etapa-13-precios`.
 
@@ -2164,3 +2164,5 @@ Rama `rediseno-2-etapa-13-precios`.
 - `e5_compras.js`, `e8_herramientas.js`, `e9_sepa.js`: su `cargar` parte con modo simple salvo que el caso traiga `uiMode_v1` o `mostrarPrecios_v1`; `e7_precios.js`: `base()` igual.
 - `e8_herramientas.js` C8-1: "sin nada" ahora es "precios encendidos y nada guardado" y la cadena de interruptores sigue desde "simple" elegido.
 - `e7_precios.js` C7-2 y `e8_herramientas.js` C8-4: el día ya no repite "(faltan N precios)"; queda una sola vez, con la semana.
+
+**Revisores (Etapa 13)**: `revisor-codigo` NO BLOQUEANTE. Sugerencias que quedan: C13-3 repite los pesos de `pesoUnidad` (comprobación en parte circular; conviene fijar rangos en pesos por unidad de una fuente aparte y exigir los 15); probar que "Tomate triturado" o "Cebolla de verdeo" no heredan el peso de la unidad común; avisar en las notas de la versión que quien nunca tocó el modo ve ahora los precios encendidos; rotular el costo del hueco como del hogar. Compuerta: VALIDACIÓN ETAPA 13: OK (82 controles).
