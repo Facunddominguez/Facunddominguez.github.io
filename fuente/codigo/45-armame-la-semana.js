@@ -93,18 +93,23 @@ var ArmameSemana=(function(){
     }
     return out
   }
-  // ≈ costo para el hogar de una candidata (null si no hay precios), con una caché por corrida.
+  // Cantidades de una candidata ({yield, rows}) o null.
+  function filasDe(c,dia){
+    let a=null;
+    if(c.item)a=cantidadesDeComida("plato",c.item.id);
+    else{
+      const st=c.estado||IdeasHoja.ideaComoComida(c.idea,diaDeRutinaDe(dia)||"Día libre"),cant=cantidadesDePlatoArmado({state:st});
+      if(cant.length)a={yield:1,rows:cant.map(x=>({name:x.name,quantity:x.q,unit:x.unit}))}
+    }
+    return a
+  }
+  // ≈ costo para el hogar de una candidata (null si no hay precios), con una caché por corrida. Incluye estimados (Etapa 20).
   function costoDe(c,dia,memo){
     const id=c.k+"|"+(c.tipo==="idea"?diaDeRutinaDe(dia):"");
     if(memo.has(id))return memo.get(id);
     let v=null;
     try{
-      let a=null;
-      if(c.item)a=cantidadesDeComida("plato",c.item.id);
-      else{
-        const st=c.estado||IdeasHoja.ideaComoComida(c.idea,diaDeRutinaDe(dia)||"Día libre"),cant=cantidadesDePlatoArmado({state:st});
-        if(cant.length)a={yield:1,rows:cant.map(x=>({name:x.name,quantity:x.q,unit:x.unit}))}
-      }
+      const a=filasDe(c,dia);
       if(a){
         const r=costoDeFilas(a.rows,Semana.portionFactor(null,a)*personasHogar());
         v=r.costo>0?r.costo:null
@@ -206,14 +211,19 @@ var ArmameSemana=(function(){
       }
     }
     // Total de la semana (lo que ya había + lo nuevo) y, si pasa el presupuesto, reemplazar lo más caro por algo más barato.
+    // Mismo cálculo que Semana y Compras (costoSemanaDeFilas): lo que usa toda la semana, con envases.
     const costoSemana=()=>{
-      let t=0;
+      const grupos=[];
+      let extra=0;
       for(const [pos,x] of sem.comidas){
         const [dia,slot]=pos.split("|");
-        if(x.cand)t+=costo(x.cand,dia,slot);
-        else if(x.item){const a=cantidadesDeComida("plato",x.item.id);if(a){const v=costoDeFilas(a.rows,Semana.portionFactor(null,a)*personasHogar()).costo;t+=v>0?v:(medianaDe(slot)||0)}else t+=medianaDe(slot)||0}
+        let a=null;
+        try{a=x.cand?filasDe(x.cand,dia):x.item?cantidadesDeComida("plato",x.item.id):null}catch(e){a=null}
+        if(a)grupos.push({rows:a.rows,factor:Semana.portionFactor(null,a)*personasHogar()});
+        else extra+=medianaDe(slot)||0
       }
-      return t
+      const c=costoSemanaDeFilas(grupos);
+      return (c?c.total:0)+extra
     };
     let total=costoSemana(),cambios=0;
     if(presupuesto&&hayPrecios){
@@ -265,11 +275,23 @@ var ArmameSemana=(function(){
     Semana.logPlanChange("Armame la semana: "+res.llenos+" comidas"+(res.costo?" (≈ $"+res.costo.toLocaleString("es-AR")+")":""));
     deshacerPlan={texto,plan:antes.plan,porciones:antes.porciones};
     renderPlan();
+    // El total del aviso es el de Semana y Compras: se calcula con lo ya guardado (costoSemanaPlan).
+    try{
+      const c=costoSemanaPlan();
+      if(c){
+        res.costo=Math.round(c.total);
+        res.faltan=c.estimados;
+        res.sinEstimar=c.sinEstimar;
+        if(res.presupuesto)res.pasado=c.total>res.presupuesto
+      }
+    }catch(e){
+    }
     return res
   }
   function resumen(res){
     const pesos=n=>"$"+Math.round(n).toLocaleString("es-AR");
-    let t="Listo: "+res.llenos+(res.llenos===1?" comida armada":" comidas armadas")+(res.costo?" · ≈ "+pesos(res.costo)+" la semana":"")+".";
+    let t="Listo: "+res.llenos+(res.llenos===1?" comida armada":" comidas armadas")+(res.costo?" · "+(res.sinEstimar?"al menos ":"")+"≈ "+pesos(res.costo)+" la semana":"")+".";
+    if(res.costo&&res.faltan)t+=" Incluye "+res.faltan+(res.faltan===1?" precio estimado":" precios estimados")+".";
     if(res.presupuesto&&res.costo)t+=res.pasado?" No llego al presupuesto de "+pesos(res.presupuesto)+": es lo más barato que pude armar con lo que tenés para elegir.":" Entra en tu presupuesto de "+pesos(res.presupuesto)+".";
     if(res.sinPrecios)t+=" No tengo precios para controlar el presupuesto.";
     if(res.dobles.length)t+=" Cociná doble: "+res.dobles.map(d=>"la cena del "+Semana.planDayName(d.de).toLowerCase()+" es el almuerzo del "+Semana.planDayName(d.a).toLowerCase()).join("; ")+".";

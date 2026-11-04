@@ -26,7 +26,7 @@
   const armar = async (extra, modo) => { cargar({ ...MARCA, ...extra }); await abrir(); const res = ev(`(() => { const r = ArmameSemana.aplicar(ArmameSemana.armar({ modo: ${JSON.stringify(modo || "todo")} })); return JSON.parse(JSON.stringify({ huecos: r.huecos, llenos: r.llenos, costo: r.costo, presupuesto: r.presupuesto, pasado: r.pasado, reutilizados: r.reutilizados, dobles: r.dobles, txt: ArmameSemana.resumen(r) })) })()`); await espera(100); return res };
 
   // C15-1 Con presupuestos bajo, medio y alto completa los 28 huecos sin pasarse cuando es posible, y avisa cuando no.
-  const bajo = await armar(PRES(34000)), medio = await armar(PRES(40000)), alto = await armar(PRES(90000)), imposible = await armar(PRES(1000));
+  const bajo = await armar(PRES(60000)), medio = await armar(PRES(70000)), alto = await armar(PRES(90000)), imposible = await armar(PRES(1000));
   const sin = await armar({});
   ok("C15-1 con presupuesto bajo, medio y alto completa los 28 huecos sin pasarse cuando es posible y avisa cuando no",
     [bajo, medio, alto, imposible, sin].every(r => r.huecos === 28 && r.llenos === 28) && llenos() === 28 &&
@@ -65,17 +65,20 @@
   // C15-5 Cambiar un hueco (parecida o más barata) no toca los demás y se puede deshacer.
   await armar(PRES(60000)); await espera(100);
   const antes = planPlano(), costoDe = id => ev(`(() => { const a = cantidadesDeComida("plato", ${JSON.stringify(id)}); return a ? costoDeFilas(a.rows, Semana.portionFactor(null, a) * personasHogar()).costo : null })()`);
-  const rb = ev('ArmameSemana.cambiarHueco("miercoles", "cena", "barata")'); await espera(200);
+  // Con los precios completos no siempre hay una más barata en un hueco dado: se prueba cada almuerzo y cena hasta encontrar una.
+  let diaB = "miercoles", slotB = "cena", rb = null;
+  for (const d of ["lunes", "martes", "miercoles", "jueves", "viernes", "sabado", "domingo"]) { for (const sl of ["almuerzo", "cena"]) { rb = ev(`ArmameSemana.cambiarHueco("${d}", "${sl}", "barata")`); if (rb.ok) { diaB = d; slotB = sl; break } } if (rb && rb.ok) break }
+  await espera(200);
   const trasBarata = planPlano();
   const distintos = []; for (const d of Object.keys(antes)) for (const s of Object.keys(antes[d])) if (antes[d][s] !== trasBarata[d][s]) distintos.push(d + "|" + s);
-  const cb = costoDe(antes.miercoles.cena), cn = costoDe(trasBarata.miercoles.cena);
+  const cb = costoDe(antes[diaB][slotB]), cn = costoDe(trasBarata[diaB][slotB]);
   const hayAviso = /Deshacer/.test(doc().getElementById("planAviso").textContent);
   ev("Semana.deshacerCambioDelPlan()"); await espera(100);
   const trasDeshacer = JSON.stringify(planPlano()) === JSON.stringify(antes);
   const rp = ev('ArmameSemana.cambiarHueco("viernes", "desayuno", "parecida")'); await espera(200);
   const trasParecida = planPlano(), dist2 = []; for (const d of Object.keys(antes)) for (const s of Object.keys(antes[d])) if (antes[d][s] !== trasParecida[d][s]) dist2.push(d + "|" + s);
   ok("C15-5 cambiar un hueco por otra parecida o más barata no toca los demás y se puede deshacer",
-    rb.ok && distintos.join() === "miercoles|cena" && (cb === null || cn === null || cn < cb) && hayAviso && trasDeshacer && rp.ok && dist2.join() === "viernes|desayuno", JSON.stringify({ rb, distintos, cb, cn, hayAviso, trasDeshacer, rp, dist2 }));
+    rb.ok && distintos.join() === diaB + "|" + slotB && (cb === null || cn === null || cn < cb) && hayAviso && trasDeshacer && rp.ok && dist2.join() === "viernes|desayuno", JSON.stringify({ rb, distintos, cb, cn, hayAviso, trasDeshacer, rp, dist2 }));
 
   // C15-6 Interfaz: botón principal en Semana con a elección completar vacíos o rehacer todo, "Empezar de nuevo" en el menú ⋯, Deshacer.
   cargar({ ...MARCA, ...PRES(60000) }); await abrir();

@@ -73,7 +73,7 @@
   ev('planDiaElegido="lunes";renderPlan()'); await espera(50);
   const dia = texto("planDiaCosto");
   ok("C7-2 cada comida muestra ≈ costo por porción (detalle y tarjeta) y Semana, el costo del día",
-    detalleReceta.startsWith("≈ $1.550 por porción (faltan 1 precio)") && detallePlato.startsWith("≈ $1.550 por porción") && tarj.includes("≈ $1.550 por porción") && dia.startsWith("≈ $3.100 por día · ") && (dia.match(/faltan/g) || []).length === 1,
+    detalleReceta.startsWith("≈ $1.550 por porción (faltan 1 precio)") && detallePlato.startsWith("≈ $1.550 por porción") && tarj.includes("≈ $1.550 por porción") && dia.startsWith("Semana al menos ≈ $4.500 · hoy ≈ $3.100") && (dia.match(/faltan/g) || []).length === 0,
     [detalleReceta, detallePlato, dia].join(" | "));
 
   // C7-3 Cambiar la región cambia los valores; GBA por defecto; un valor guardado inválido se ignora

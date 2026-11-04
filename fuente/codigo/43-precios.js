@@ -283,16 +283,96 @@ function formatoPesos(n){
 function faltanTexto(n){
   return "faltan "+n+" precio"+(n===1?"":"s")
 }
+// ---- Etapa 20: un solo cálculo de costos ----
+// Todo costo (ingrediente, comida, día, semana, lista) sale de costoDeIngrediente(): precio real (Mi precio, SEPA o INDEC) y, si
+// no hay, un estimado con la mediana por kg o litro de la categoría del ingrediente. Un faltante nunca cuenta $0 en silencio.
+// Categoría y unidad base de un ingrediente con o sin precio ({k, b}) o null.
+function categoriaDePrecio(nombre){
+  const d=preciosDataset();
+  if(!d)return null;
+  if(!d.catByKey){
+    d.catByKey=new Map();
+    for(const it of d.meta.items){
+      const k=ingredientKey(it.n);
+      if(k&&it.k&&!d.catByKey.has(k))d.catByKey.set(k,{k:it.k,b:it.b})
+    }
+    for(const [n,v] of Object.entries(d.meta.categorias||{})){
+      const k=ingredientKey(n);
+      if(k&&!d.catByKey.has(k)&&Array.isArray(v))d.catByKey.set(k,{k:v[0],b:v[1]})
+    }
+  }
+  const nut=nutritionDataset().byKey,clave=String(nombre||"");
+  for(const n of [clave].concat(Ingredientes.variantesNombre(clave))){
+    let c=d.catByKey.get(ingredientKey(n));
+    if(c)return c;
+    const x=nut.get(ingredientKey(n));
+    if(x)for(const nm of [x.n].concat(x.s||[])){
+      c=d.catByKey.get(ingredientKey(nm));
+      if(c)return c
+    }
+  }
+  return null
+}
+// Mediana del precio por kg o litro de una categoría en la región (con la misma prioridad de fuentes que precioAuto).
+function medianaDeCategoria(k,b){
+  const d=preciosDataset();
+  if(!d)return null;
+  if(!d.medianas)d.medianas=new Map();
+  const r=regionPrecios(),id=k+"/"+b+"/"+r;
+  if(d.medianas.has(id))return d.medianas.get(id);
+  const vals=[];
+  for(const it of d.meta.items){
+    if(it.k!==k||it.b!==b)continue;
+    for(const [f,reg] of [["sepa",r],["indec",r],["sepa","GBA"],["indec","GBA"]]){
+      const v=valorRegionPrecio(f==="sepa"?it.s:it.p,reg);
+      if(v!==null){
+        vals.push(v);
+        break
+      }
+    }
+  }
+  vals.sort((x,y)=>x-y);
+  const m=vals.length?(vals.length%2?vals[vals.length>>1]:(vals[vals.length/2-1]+vals[vals.length/2])/2):null;
+  d.medianas.set(id,m);
+  return m
+}
+// Ingredientes genéricos de la lista que no son un producto del mapa: se estiman con la categoría y un peso por unidad.
+var ESTIMADO_GENERICO={"fruta de estacion":{k:"frutas",b:"kg",unidadKg:0.15}};
+function estimadoDePrecio(nombre,q,unit){
+  if(typeof q!=="number"||!(q>0)||!nombre||!preciosDataset())return null;
+  let cat=categoriaDePrecio(nombre);
+  const g=ESTIMADO_GENERICO[normalizeSearchText(String(nombre)).trim()];
+  if(!cat&&g)cat={k:g.k,b:g.b};
+  if(!cat)return null;
+  const med=medianaDeCategoria(cat.k,cat.b);
+  if(med===null)return null;
+  let base=cantidadBasePrecio({b:cat.b,d:1},nombre,q,unit);
+  if(base===null&&g&&unit==="unidad")base=q*g.unidadKg;
+  return base===null?null:{costo:base*med,categoria:cat.k}
+}
+// Costo de una cantidad de un ingrediente: {costo, estimado, ...} o null si ni siquiera se puede estimar.
+function costoDeIngrediente(nombre,q,unit){
+  const r=precioDe(nombre,q,unit);
+  if(r)return {costo:r.costo,estimado:false,propio:r.propio,fuente:r.fuente,aprox:r.aprox,rangoCosto:r.rangoCosto};
+  const e=estimadoDePrecio(nombre,q,unit);
+  return e?{costo:e.costo,estimado:true,categoria:e.categoria}:null
+}
 // Costo de las filas de una receta (rows: {name, quantity, unit}) multiplicado por factor.
+// faltan: productos distintos sin precio real (estimados + sin estimar); sinPrecio: los que ni se pudieron estimar (no suman).
 function costoDeFilas(rows,factor){
-  let costo=0,faltan=0;
+  let costo=0;
+  const estimados=new Set(),sin=new Set();
   for(const row of rows||[]){
     if(!row.name||!String(row.name).trim()||fueraDeLaLista(row.name))continue;
-    const r=row.quantity===null||row.quantity===undefined?null:precioDe(String(row.name).trim(),row.quantity*factor,row.unit);
-    if(r)costo+=r.costo;else faltan++
+    const nombre=String(row.name).trim(),key=ingredientKey(nombre);
+    const r=row.quantity===null||row.quantity===undefined?null:costoDeIngrediente(nombre,row.quantity*factor,row.unit);
+    if(r){
+      costo+=r.costo;
+      if(r.estimado)estimados.add(key)
+    }else sin.add(key)
   }
   return {
-    costo,faltan
+    costo,faltan:estimados.size+sin.size,estimados:estimados.size,sinPrecio:sin.size
   }
 }
 // Lo que se guarda de la sesión se lee una sola vez por turno: pintar 300 tarjetas no vuelve a leer el almacenamiento.
@@ -330,17 +410,17 @@ function costoPorPorcion(origen,id){
     const a=cantidadesDeComida(origen,id);
     if(!a)return null;
     const {
-      costo,faltan
+      costo,faltan,estimados,sinPrecio
     }=costoDeFilas(a.rows,1);
     return costo>0?{
-      porPorcion:costo/(a.yield>0?a.yield:1),faltan
+      porPorcion:costo/(a.yield>0?a.yield:1),faltan,estimados,sinPrecio
     }:null
   }catch(e){
     return null
   }
 }
 function textoCostoComida(c){
-  return c?formatoPesos(c.porPorcion)+" por porción"+(c.faltan?" ("+faltanTexto(c.faltan)+")":""):""
+  return c?formatoPesos(c.porPorcion)+" por porción"+(c.sinPrecio?" ("+faltanTexto(c.sinPrecio)+")":"")+(c.estimados?" · incluye estimados":""):""
 }
 function etiquetaCostoComida(c){
   return textoCostoComida(costoPorPorcion(c.origen,c.id))
@@ -353,86 +433,172 @@ function pintarCostoComida(){
   p.textContent=t?t+" · "+fuentePrecios():"";
   p.hidden=!t
 }
-// Línea del día en Semana: ≈ costo de las comidas con cantidades de ese día y de toda la semana (misma línea).
+// Costos de la semana y del día elegido (los dos juntos, para la línea de Semana).
 function costosDelPlan(){
-  const dia=Semana.diaPlanElegido(),r={
-    dia:0,diaFaltan:0,semana:0,semanaFaltan:0,comidas:0
-  };
-  for(const e of Semana.planEntriesFlat()){
-    const a=cantidadesDeComida("plato",e.item.id);
-    let costo=0,faltan=0;
-    if(!a)faltan=1;
-    else{
-      const c=costoDeFilas(a.rows,Semana.portionFactor(e.portions,a)*personasHogar());
-      costo=c.costo;
-      faltan=c.faltan
-    }
-    r.comidas++;
-    r.semana+=costo;
-    r.semanaFaltan+=faltan;
-    if(e.day===dia){
-      r.dia+=costo;
-      r.diaFaltan+=faltan
-    }
-  }
-  return r
+  const c=costoSemanaPlan();
+  return c?{semana:c.total,dia:costoDelDiaPlan(),faltan:c.faltan,pendientes:c.pendientes,conPrecio:c.conPrecio,sinEstimar:c.sinEstimar,productos:c.productos}:null
 }
-// ≈ costo de una comida del plan para todo el hogar, o "" si no hay precios o cantidades.
+// Costo de lo que cuesta hoy (el día elegido en Semana): suma de sus comidas, por lo que se usa (sin redondear a envases).
+function costoDelDiaPlan(){
+  const dia=Semana.diaPlanElegido();
+  let costo=0;
+  for(const e of Semana.planEntriesFlat()){
+    if(e.day!==dia)continue;
+    const a=cantidadesDeComida("plato",e.item.id);
+    if(a)costo+=costoDeFilas(a.rows,Semana.portionFactor(e.portions,a)*personasHogar()).costo
+  }
+  return costo
+}
+// ≈ costo de una comida del plan para todo el hogar, o "" si no hay precios o cantidades. Con estimados lo dice.
 function costoDeLaComida(item,porciones){
   if(!preciosActivos()||!preciosDataset()||!item)return "";
   const a=cantidadesDeComida("plato",item.id);
   if(!a)return "";
   const c=costoDeFilas(a.rows,Semana.portionFactor(porciones===undefined?null:porciones,a)*personasHogar());
-  return c.costo>0?formatoPesos(c.costo):""
+  return c.costo>0?formatoPesos(c.costo)+(c.estimados?" · estimado":""):""
 }
+// Semana: "Semana ≈ $34.100 · hoy ≈ $4.600" y, debajo, "Con precio: 27 de 29 productos · Completar 2 precios".
 function pintarCostoDia(){
-  const p=document.getElementById("planDiaCosto");
+  const p=document.getElementById("planDiaCosto"),q=document.getElementById("planPreciosEstado");
   if(!p)return;
-  let t="";
+  let t="",u=null;
   try{
     if(preciosActivos()&&preciosDataset()){
       const c=costosDelPlan();
-      if(c.semana>0){
-        t=(c.dia>0?formatoPesos(c.dia)+" por día · ":"")+(c.semanaFaltan*2>c.comidas?"al menos ":"")+formatoPesos(c.semana)+" la semana"+(c.semanaFaltan?" ("+faltanTexto(c.semanaFaltan)+")":"")
+      if(c&&c.pendientes>0){
+        const hoy=c.dia;
+        t=(c.sinEstimar?"Semana al menos ":"Semana ")+formatoPesos(c.semana)+(hoy>0?" · hoy "+formatoPesos(hoy):"");
+        u=c
       }
     }
   }catch(e){
-    t=""
+    t="";
+    u=null
   }
   p.textContent=t;
-  p.hidden=!t
-}
-// Lista de compras: precio por ítem (sobre lo que falta comprar) y total. Devuelve null si no hay precios que mostrar.
-function preciosDeLaLista(items){
-  if(!preciosActivos()||!preciosDataset())return null;
-  const porClave=new Map(),porDetalle=new Map();
-  let total=0,faltan=0,pendientes=0,aprox=0;
-  for(const x of items){
-    if(x.group!=="pendiente")continue;
-    pendientes++;
-    const faltaMapa=x.compraUnits||(x.suggestion&&x.suggestion.kind==="partial"&&x.suggestion.missing&&comprasDescontar()?x.suggestion.missing:x.units);
-    let costo=0,ok=!!faltaMapa&&faltaMapa.size>0,esAprox=false,bajo=0,alto=0,conRango=true,fuente="";
-    if(ok)for(const [u,q] of faltaMapa){
-      const r=precioDe(x.name,q,u);
-      if(!r){
-        ok=false;
-        break
+  p.hidden=!t;
+  if(q){
+    q.replaceChildren();
+    if(u){
+      q.append(document.createTextNode("Con precio: "+u.conPrecio+" de "+u.pendientes+" productos"));
+      if(u.faltan){
+        q.append(document.createTextNode(" · "));
+        const b=ce("button","precios-aviso precios-aviso--inline","Completar "+u.faltan+" precio"+(u.faltan===1?"":"s"));
+        b.type="button";
+        b.dataset.completarPrecios="";
+        q.append(b)
       }
-      costo+=r.costo;
-      if(r.rangoCosto){bajo+=r.rangoCosto[0];alto+=r.rangoCosto[1]}else conRango=false;
-      fuente=fuente||r.fuente;
-      if(r.aprox)esAprox=true
     }
-    if(ok){
-      total+=costo;
-      if(esAprox)aprox++;
-      porClave.set(x.key,formatoPesos(costo));
-      porDetalle.set(x.key,detallePrecio(costo,conRango?[bajo,alto]:null,fuente))
-    }else faltan++
+    q.hidden=!u
+  }
+}
+// Productos de la lista sin precio real (para "Completar precios"): [{key,name,estimado:número|null,costo}].
+function productosSinPrecioReal(){
+  const c=costoSemanaPlan();
+  return c?c.productos.filter(x=>x.tipo!=="real"):[]
+}
+function abrirCompletarPrecios(){
+  const lista=productosSinPrecioReal(),caja=ce("div","completar-precios");
+  caja.append(ce("p","screen__hint",lista.length?"Tocá un producto para ver su ficha y poner tu precio.":"Todos los productos tienen precio."));
+  for(const x of lista){
+    const b=ce("button","tool-button completar-precios__fila");
+    b.type="button";
+    b.dataset.nutrienteIngrediente=x.name;
+    b.dataset.completarPreciosFila=x.key;
+    b.append(ce("span","tool-button__label",x.name),ce("span","tool-button__desc",x.tipo==="estimado"?"estimado ≈ $"+Math.round(x.costo).toLocaleString("es-AR"):"sin precio"));
+    caja.append(b)
+  }
+  hoja.abrir({
+    titulo:"Completar precios",contenido:[caja],botones:[],foco:false
+  })
+}
+document.addEventListener("click",e=>{
+  if(e.target.closest&&e.target.closest("[data-completar-precios]"))abrirCompletarPrecios()
+});
+// Lista de compras: precio por ítem (sobre lo que falta comprar) y total. Devuelve null si no hay precios que mostrar.
+// Qué cantidades se costean de un producto de la lista: "lista" es lo que falta comprar (con envases y descontando la
+// despensa); "semana" es todo lo que usa la semana, también con envases.
+function unidadesACostear(x,modo){
+  if(modo==="semana"){
+    const e=x.units&&x.units.size?envasar(x.name,x.units):null;
+    return e?e.units:x.units
+  }
+  return x.compraUnits||(x.suggestion&&x.suggestion.kind==="partial"&&x.suggestion.missing&&comprasDescontar()?x.suggestion.missing:x.units)
+}
+// Costo de un producto de la lista: {tipo:"real"|"estimado"|"sin", costo, aprox, bajo, alto, conRango, fuente}.
+function costoDeProducto(x,modo){
+  const unidades=unidadesACostear(x,modo);
+  const r={tipo:"sin",costo:0,aprox:false,bajo:0,alto:0,conRango:true,fuente:""};
+  if(!unidades||!unidades.size)return r;
+  let estimado=false;
+  for(const [u,q] of unidades){
+    const c=costoDeIngrediente(x.name,q,u);
+    if(!c)return {tipo:"sin",costo:0,aprox:false,bajo:0,alto:0,conRango:false,fuente:""};
+    r.costo+=c.costo;
+    if(c.estimado)estimado=true;
+    else if(c.rangoCosto){r.bajo+=c.rangoCosto[0];r.alto+=c.rangoCosto[1]}
+    else r.conRango=false;
+    r.fuente=r.fuente||c.fuente||"";
+    if(c.aprox)r.aprox=true
+  }
+  r.tipo=estimado?"estimado":"real";
+  if(estimado)r.conRango=false;
+  return r
+}
+// Costo de una lista de productos. modo "lista": solo los pendientes (lo que falta comprar); "semana": todos, con todo lo que usa la semana.
+// total suma precios reales y estimados; faltan cuenta productos distintos sin precio real; sinEstimar, los que no suman nada.
+function preciosDeLaLista(items,modo){
+  if(!preciosActivos()||!preciosDataset())return null;
+  modo=modo||"lista";
+  const porClave=new Map(),porDetalle=new Map(),productos=[];
+  let total=0,faltan=0,pendientes=0,aprox=0,estimados=0,sinEstimar=0;
+  for(const x of items){
+    if(modo==="lista"&&x.group!=="pendiente")continue;
+    // Sin cantidad ("Romero", a gusto) no hay nada que costear: se ve en la lista pero no cuenta como faltante.
+    const uds=unidadesACostear(x,modo);
+    if(!uds||!uds.size)continue;
+    pendientes++;
+    const c=costoDeProducto(x,modo);
+    productos.push({key:x.key,name:x.name,tipo:c.tipo,costo:c.costo});
+    if(c.tipo==="real"){
+      total+=c.costo;
+      if(c.aprox)aprox++;
+      porClave.set(x.key,formatoPesos(c.costo));
+      porDetalle.set(x.key,detallePrecio(c.costo,c.conRango?[c.bajo,c.alto]:null,c.fuente))
+    }else{
+      faltan++;
+      if(c.tipo==="estimado"){
+        estimados++;
+        total+=c.costo;
+        porClave.set(x.key,"sin precio · estimado "+formatoPesos(c.costo));
+        porDetalle.set(x.key,"Estimado con el precio típico de su categoría. Tocá el nombre para poner tu precio.")
+      }else{
+        sinEstimar++;
+        porClave.set(x.key,"sin precio");
+        porDetalle.set(x.key,"No hay un precio para estimar. Tocá el nombre para poner el tuyo.")
+      }
+    }
   }
   return {
-    porClave,porDetalle,total,faltan,pendientes,aprox
+    porClave,porDetalle,total,faltan,pendientes,aprox,estimados,sinEstimar,conPrecio:pendientes-faltan,productos
   }
+}
+// Lo mismo para comidas todavía sin guardar: grupos = [{rows, factor}] (Armame la semana).
+function costoSemanaDeFilas(grupos){
+  const mapa=new Map();
+  for(const g of grupos)for(const row of g.rows||[]){
+    if(!row.name||!String(row.name).trim()||fueraDeLaLista(row.name))continue;
+    const key=ingredientKey(row.name);
+    let e=mapa.get(key);
+    if(!e)mapa.set(key,e={key,name:String(row.name).trim(),units:new Map(),group:"pendiente"});
+    if(row.quantity!==null&&row.quantity!==undefined)e.units.set(row.unit,(e.units.get(row.unit)||0)+row.quantity*g.factor)
+  }
+  return preciosDeLaLista([...mapa.values()],"semana")
+}
+// Costo de toda la semana (todos los productos de la lista del plan, con envases): el mismo número en el aviso de "Armame la
+// semana", en Semana, en Compras (sin nada comprado ni en la despensa) y en la barra de presupuesto.
+function costoSemanaPlan(){
+  return preciosDeLaLista(shoppingDisplayItems(),"semana")
 }
 // Lo que se ve al tocar un precio: "≈ $2.100 · entre $1.900 y $2.900 · SEPA · mediana · GBA · 3/11" (fuente, mes y rango).
 function detallePrecio(costo,rango,fuente){
@@ -441,7 +607,7 @@ function detallePrecio(costo,rango,fuente){
 }
 function totalAutomaticoLista(){
   const p=preciosDeLaLista(shoppingDisplayItems());
-  return p&&p.porClave.size?p:null
+  return p&&p.conPrecio+p.estimados>0?p:null
 }
 // Textos de la lista: resumen con el total, fuente y aviso para quien no activó los precios.
 function pintarPreciosCompras(p){
@@ -449,13 +615,13 @@ function pintarPreciosCompras(p){
   if(a)a.hidden=preciosActivos();
   aplicarPrecios();
   if(f){
-    f.textContent=p&&p.porClave.size?fuentePrecios()+(p.aprox?" · algunos aprox.":""):"";
+    f.textContent=p&&p.conPrecio>0?fuentePrecios(undefined,"sepa"):"";
     f.hidden=!f.textContent
   }
 }
 function resumenPrecios(p){
   // Si faltan más de la mitad, el total es solo una parte de la compra.
-  return p&&p.porClave.size?" · "+(p.faltan*2>p.pendientes?"al menos ":"")+formatoPesos(p.total)+(p.faltan?" ("+faltanTexto(p.faltan)+")":""):""
+  return p&&p.porClave.size?" · "+((p.sinEstimar!==undefined?p.sinEstimar>0:p.faltan*2>p.pendientes)?"al menos ":"")+formatoPesos(p.total)+(p.faltan?" ("+faltanTexto(p.faltan)+")":""):""
 }
 function refrescarPrecios(){
   for(const fn of [renderCompras,renderPlan,renderSaved,pintarCostoComida,renderRegionPrecios,renderPresupuestoCompras]){

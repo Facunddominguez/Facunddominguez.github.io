@@ -13,7 +13,7 @@ variantesNombre(name){
   const paren=/\(([^)]*)\)/.exec(base),sinParen=base.replace(/\([^)]*\)/g," ").replace(/\s+/g," ").trim();
   const primera=paren?paren[1].split(/[,\/]/)[0].replace(/…|\.\.\./g,"").trim():"";
   if(primera&&primera.split(" ").length===1)add(sinParen+" "+primera);
-  const MOD=/\s+(integral|blanco|blanca|descremad[oa]|natural|fluid[oa]|instantane[oa]|instantáne[oa]|arrollad[oa]|entero|entera|com[uú]n|light)$/i;
+  const MOD=/\s+(integral|blanco|blanca|descremad[oa]|natural|fluid[oa]|instantane[oa]|instantáne[oa]|arrollad[oa]|entero|entera|com[uú]n|light|comprad[oa]|cas[ae]r[oa])$/i;
   for(const seg of sinParen.split(/\s+o\s+/i)){
     let t=seg.trim();
     add(t);

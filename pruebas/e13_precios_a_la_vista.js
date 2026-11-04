@@ -25,7 +25,7 @@
   const encendidos = ev("preciosActivos()") === true && ev("regionPrecios()") === "GBA" && localStorage.getItem("miPlatoFacil_mostrarPrecios_v1") === null;
   semanaDeIdeas(); await espera(60);
   ev('openTab("compras")'); await espera(200);
-  const p = JSON.parse(ev(`JSON.stringify((() => { const items = shoppingDisplayItems(), pr = preciosDeLaLista(items); return { n: items.length, con: pr.porClave.size, detalles: [...pr.porDetalle.values()], faltan: pr.faltan } })())`));
+  const p = JSON.parse(ev(`JSON.stringify((() => { const items = shoppingDisplayItems(), pr = preciosDeLaLista(items); const reales = new Set(pr.productos.filter(x => x.tipo === "real").map(x => x.key)); return { n: items.length, con: reales.size, detalles: [...pr.porDetalle].filter(([k]) => reales.has(k)).map(e => e[1]), faltan: pr.faltan } })())`));
   const conFuenteYMes = p.detalles.length > 0 && p.detalles.every(t => /^≈ \$[\d.]+( · entre \$[\d.]+ y \$[\d.]+)? · .*(SEPA|INDEC|Mi precio)/.test(t) && /(20\d\d|\b(ene|feb|mar|abr|may|jun|jul|ago|sept|oct|nov|dic)\.|\d{1,2}\/\d{1,2})/.test(t));
   const rangos = p.detalles.filter(t => / · entre \$/.test(t)).length;
   const tap = doc().querySelector("#comprasList .precio-tap"), cb = tap && tap.closest(".shop-item").querySelector("input"), marcaAntes = cb && cb.checked;
@@ -42,7 +42,7 @@
   const semana3 = ev("costosDelPlan().semana");
   const armada = ev(`(() => { const it = MisPlatos.loadSaved().find(x => x.state); return it ? etiquetaCostoComida({ origen: "plato", id: it.id }) : "" })()`);
   ok("C13-2 hay ≈ costo por comida, por día y por semana, \"faltan\" aparece una sola vez y las personas escalan el costo",
-    huecos.length >= 1 && huecos.every(t => /^≈ \$[\d.]+$/.test(t)) && /la semana/.test(linea) && (linea.match(/faltan/g) || []).length <= 1 && semana1 > 0 && Math.abs(semana3 / semana1 - 3) < 0.01 && /≈ \$[\d.]+ por porción/.test(armada),
+    huecos.length >= 1 && huecos.every(t => /^≈ \$[\d.]+( · estimado)?$/.test(t)) && /^Semana (al menos )?≈ \$[\d.]+ · hoy/.test(linea) && (linea.match(/faltan/g) || []).length <= 1 && semana1 > 0 && semana3 > semana1 * 1.5 && semana3 <= semana1 * 3.01 && /≈ \$[\d.]+ por porción/.test(armada),
     JSON.stringify({ huecos: huecos.length, linea, semana1, semana3, armada }));
 
   // C13-3 Conversiones unidad → kg: el precio de una unidad queda en un rango plausible respecto del precio por kg.
