@@ -2087,7 +2087,7 @@ Estados: ✅ hecha · ⏳ en curso · ⛔ parada.
 | 14. Bienvenida con presupuesto | ✅ | `etapa-14-ok` | 16.3.0 |
 | 15. "Armame la semana" | ✅ | `etapa-15-ok` | 16.4.0 |
 | 16. Filtros de dieta reales | ✅ | `etapa-16-ok` | 16.5.0 |
-| 17. Pulido de pantalla | ⏳ | `etapa-17-ok` | 16.6.0 |
+| 17. Pulido de pantalla | ✅ | `etapa-17-ok` | 16.6.0 |
 
 - Arranque: rama `rediseno-2` creada desde `main` (v15.9.0) con este plan.
 - Herramientas: `validar-etapa.mjs` acepta las etapas 11 a 18 y, desde la 11, compara contra `rediseno-2` (versión y línea base) en vez de `rediseno`.
@@ -2242,7 +2242,7 @@ Rama `rediseno-2-etapa-16-dieta`.
 
 **Revisores (Etapa 16)**: `revisor-codigo` NO BLOQUEANTE. Se corrigió su hallazgo principal antes de la compuerta (los plurales: "Filetes de merluza", "Bifes", "Chorizos" se filtraban mal; ahora cada palabra admite "s" y "es" y la prueba C16-1 lo cubre) y se sumaron palabras (ternera, salchicha, morcilla, hígado, choripán, parmesano, ricotta, bechamel, cheddar, yema, mayonesa, merengue). Quedan como mejora: "Limpiar preferencias" no borra los filtros de dieta (se sacan tocando cada uno); el oráculo de la prueba repite casi las palabras de la implementación; "filete" también saca un filete de pollo en "Sin pescado" (conservador).
 
-### Etapa 17 · Pulido de pantalla ⏳
+### Etapa 17 · Pulido de pantalla ✅
 
 Rama `rediseno-2-etapa-17-pulido`.
 
@@ -2265,3 +2265,5 @@ Rama `rediseno-2-etapa-17-pulido`.
 **Tests adaptados** (Decisión, Regla 5): `m01_modo.js` (M4, M6 y M7 miraban los carteles por pantalla; ahora comprueban que no hay carteles y usan la tarjeta de Preferencias) y `l01_biblioteca.js` (L10, sin aviso); `f02_units.js` (U5b: el texto de la opción de comparar alternativas cambió a "2000/1000 g · 1.000,00" y la moneda y la fecha quedaron en el `title`).
 
 **Revisores (Etapa 17)**: `revisor-codigo` NO BLOQUEANTE. `revisor-usuario` respondió BLOQUEANTE con las capturas a 390, 360 y 320 px: a 320 px el nombre del desayuno en Hoy seguía cortado ("Fruta en trozos con huevo y p…") porque la fila de comida recortaba a 2 renglones. Se corrigió (hasta 4 renglones en `.today-row__plate`; ahora se lee "Fruta en trozos con huevo y pan de molde") y se volvió a la compuerta. Sugerencias que quedan (no bloqueantes): las dos tarjetas de interruptores de Preferencias podrían tener la ayuda en una línea; "Ocultar coincidencias" queda pegado a su campo; el hueco entre el subtítulo y la primera fila de Más; `.mode-note` y el recorrido de `[data-mode-note]` en `30-modo-simple.js` son código muerto (se limpian en la Etapa 18); dos recetas con el mismo comienzo se ven iguales en el select corto de la revisión de despensa (el nombre completo se ve debajo).
+
+Compuerta: VALIDACIÓN ETAPA 17: OK (103 controles, con las medidas a 360 y 320 px).
