@@ -177,8 +177,12 @@ seccionDelSuper(nombre){
   }
   return "Otros"
 },
+// Etapa 19: en la fila no se repite lo que va entre paréntesis del nombre ("Arroz (integral, yamaní): …" → "Arroz: …"); la lista copiada lo conserva.
+nombreCorto(texto){
+  return String(texto).replace(/^([^:(]*?)\s*\([^)]*\)/,"$1")
+},
 shoppingRow(x,i,checked,detail){
-  const row=ce("div","shop-item"+(checked?" is-done":"")),cb=ce("input"),lab=ce("label",null,Ingredientes.textoLegible(x.text)+(x.precioTxt?" · ":""));
+  const row=ce("div","shop-item"+(checked?" is-done":"")),cb=ce("input"),lab=ce("label",null,Ingredientes.textoLegible(Compras.nombreCorto(x.text))+(x.precioTxt?" · ":""));
   // El precio se toca para ver su fuente, mes y rango (no tacha el ítem).
   let detallePrecioEl=null;
   if(x.precioTxt){
@@ -489,7 +493,7 @@ function renderCompras(){
   }
   summary.textContent=pending.length+" pendientes · "+tachados+" tachados"+resumenPrecios(precios);
   pintarPreciosCompras(precios);
-  hint.textContent="Tachá lo que comprás.";
+  hint.textContent="Tachá lo que comprás. Lo que tenés en la Despensa pasa a Ya tenés.";
   const nodes=[],equiv=Compras.equivalenciaSugerida(items);
   if(equiv)nodes.push(equiv);
   let i=0;
