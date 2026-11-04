@@ -3,7 +3,7 @@
 function init(){
   renderTrainingWeek();
   renderTrainingExceptions();
-  renderChoice("fruit",data.frutas,"fruta","bf_prot");
+  renderFrutas();
   renderFrutaFormas();
   renderChoice("bfprot",data.bfprot,"bfprot","bf_carb");
   renderChoice("bfcarb",data.bfcarb,"bfcarb","bf_fat");
@@ -64,18 +64,62 @@ function limpiarBuscadores(){
 }
 // Pasos del armado: solo en ellos se ve la barra "Volver al paso anterior".
 const ARMADO_PASOS=["bf_fruit","bf_prot","bf_carb","bf_fat","day","plate_static","lunch_veg","lunch_carb","lunch_prot","snack","pre"];
-// Paso Frutas (desde la v15): qué fruta y, arriba, la forma de comerla (Entera por defecto).
-function renderFrutaFormas(){
-  const box=document.getElementById("fruitForms");
+// Paso Frutas (v16): "¿Qué fruta?" (hasta 3, sin avanzar solo) y "¿Cómo?" (entera, en trozos, licuado o en una preparación).
+// state.fruta sigue siendo un solo objeto {name,quantity,forma}: con varias frutas, name y quantity van unidos con " + ".
+function formaDeFrutaValida(f){
+  return data.frutaFormas.includes(f)||data.frutaPreparaciones.includes(f)
+}
+function frutasElegidas(){
+  const f=state.fruta;
+  if(!f||typeof f.name!=="string"||!f.name||esFormaDeFruta(f.name))return [];
+  const n=f.name.split(" + "),q=String(f.quantity||"").split(" + ");
+  return n.map((name,i)=>({name,quantity:q.length===n.length?q[i]:(data.frutas.find(x=>x[0]===name)||["",""])[1]}))
+}
+function renderFrutas(){
+  const box=document.getElementById("fruit");
   if(!box)return;
-  box.replaceChildren(...data.frutaFormas.map(f=>{
-    const b=ce("button","filter-chip"+(f===frutaForma?" is-selected":""),f);b.type="button";b.dataset.frutaForma=f;b.setAttribute("aria-pressed",String(f===frutaForma));return b
-  }))
+  box.replaceChildren(...data.frutas.map(([label,quantity])=>{
+    const b=choice({label,quantity,key:"fruta",multi:true});
+    delete b.dataset.multi;b.dataset.frutaSel=label;return b
+  }));
+  if(box.querySelectorAll(".choice").length>12)conBuscador(box,"Buscar fruta")
+}
+function marcarFrutas(){
+  const sel=frutasElegidas().map(x=>x.name),box=document.getElementById("fruit"),lleno=sel.length>=data.frutaMaxima;
+  box.querySelectorAll(".choice").forEach(c=>{
+    const on=sel.includes(c.dataset.frutaSel);
+    c.classList.toggle("is-selected",on);c.setAttribute("aria-pressed",String(on));
+    c.disabled=lleno&&!on
+  });
+  const cuenta=document.getElementById("fruitCount");
+  if(cuenta)cuenta.textContent=sel.length?`Elegiste ${sel.length} de ${data.frutaMaxima}. Tocá otra vez para sacar una.`:`Elegí hasta ${data.frutaMaxima}.`
+}
+function toggleFruta(b){
+  const nombre=b.dataset.frutaSel,lista=frutasElegidas(),i=lista.findIndex(x=>x.name===nombre);
+  if(i>=0)lista.splice(i,1);
+  else if(lista.length<data.frutaMaxima)lista.push({name:nombre,quantity:b.dataset.quantity||""});
+  else return;
+  state.nombreSugerido="";
+  state.fruta=lista.length?{name:lista.map(x=>x.name).join(" + "),quantity:lista.map(x=>x.quantity).join(" + "),forma:frutaForma}:null;
+  marcarFrutas()
+}
+function renderFrutaFormas(){
+  const box=document.getElementById("fruitForms"),preps=document.getElementById("fruitPreps");
+  if(!box)return;
+  const enPrep=data.frutaPreparaciones.includes(frutaForma);
+  const chip=(f,texto,on,attr)=>{const b=ce("button","filter-chip"+(on?" is-selected":""),texto);b.type="button";b.dataset[attr]=f;b.setAttribute("aria-pressed",String(on));return b};
+  box.replaceChildren(...data.frutaFormas.map(f=>chip(f,f,f===frutaForma,"frutaForma")),chip("En una preparación","En una preparación",enPrep,"frutaPrep"));
+  preps.hidden=!enPrep;
+  preps.replaceChildren(...(enPrep?data.frutaPreparaciones.map(f=>chip(f,f,f===frutaForma,"frutaForma")):[]))
 }
 function setFrutaForma(f){
-  if(!data.frutaFormas.includes(f))return;
+  if(!formaDeFrutaValida(f))return;
   frutaForma=f;
+  if(state.fruta)state.fruta.forma=f;
   renderFrutaFormas()
+}
+function abrirPreparacionesDeFruta(){
+  setFrutaForma(data.frutaPreparaciones.includes(frutaForma)?frutaForma:data.frutaPreparaciones[0])
 }
 // Almidones: harinas, féculas y pan rallado quedan en "Más opciones" (plegado).
 function renderAlmidones(){
@@ -132,8 +176,8 @@ function go(id){
   if(id==="registro"&&typeof renderRegistro==="function")renderRegistro();
   if(id==="preferencias"&&typeof renderObjetivosPreferencias==="function")renderObjetivosPreferencias();
   if(id==="bf_fruit"){
-    if(state.fruta&&state.fruta.forma&&data.frutaFormas.includes(state.fruta.forma))frutaForma=state.fruta.forma;
-    renderFrutaFormas()
+    frutaForma=state.fruta&&state.fruta.forma&&formaDeFrutaValida(state.fruta.forma)?state.fruta.forma:"Entera";
+    renderFrutaFormas();marcarFrutas()
   }
   window.scrollTo({
     top:0,behavior:"smooth"
@@ -141,7 +185,7 @@ function go(id){
 }
 function nextFor(id){
   return {
-    lunch_veg:"lunch_carb",lunch_carb:"lunch_prot",lunch_prot:"resumen"
+    bf_fruit:"bf_prot",lunch_veg:"lunch_carb",lunch_carb:"lunch_prot",lunch_prot:"resumen"
   }
   [id]||""
 }
@@ -200,7 +244,6 @@ function pick(k,n,q,next){
   state[k]={
     name:n,quantity:q
   };
-  if(k==="fruta")state.fruta.forma=frutaForma;
   state.nombreSugerido="";
   if(editReturn){
     editReturn=false;

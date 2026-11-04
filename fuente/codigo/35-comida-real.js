@@ -12,7 +12,7 @@ function esFormaDeFruta(nombre){
 // Texto de la fruta elegida: "Banana", "Banana en trozos", "Licuado de banana". Los platos viejos: "Fruta en trozos".
 function frutaTexto(o){
   if(!o||!o.name)return "No elegido";
-  const viejo=esFormaDeFruta(o.name),fruta=viejo?"Fruta":o.name,forma=viejo?o.name.replace(/\s*\(.*$/,""):(o.forma||"Entera"),f=normalizeSearchText(forma),min=fruta.toLowerCase();
+  const viejo=esFormaDeFruta(o.name),fruta=viejo?"Fruta":o.name.split(" + ").map((x,i)=>i?x.toLowerCase():x).join(" y "),forma=viejo?o.name.replace(/\s*\(.*$/,""):(o.forma||"Entera"),f=normalizeSearchText(forma),min=fruta.toLowerCase();
   if(f.startsWith("entera"))return fruta+(viejo?" entera":"");
   if(f.startsWith("en trozos"))return fruta+" en trozos";
   if(f.startsWith("licuado"))return "Licuado de "+min;
@@ -21,7 +21,7 @@ function frutaTexto(o){
 }
 // Opciones del armado que llevan cantidad: en los platos guardados solo como texto aparecen como "Opción (cantidad)".
 function opcionesConCantidad(){
-  return new Set([...data.fruit,...data.frutas,...data.bfprot,...data.bfcarb,...data.bffat,...data.snacks].map(x=>x[0]))
+  return new Set([...data.fruit,...data.frutas,...data.bfprot,...data.bfcarb,...data.opcionesRetiradas,...data.bffat,...data.snacks].map(x=>x[0]))
 }
 // Alimentos que se compran para una opción guardada. Nunca devuelve formas ("En trozos") ni opciones dobles ("A | B").
 function comprables(nombre){

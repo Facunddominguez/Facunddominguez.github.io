@@ -44,7 +44,7 @@
   // La fruta elegida va a la lista (no la forma).
   cargar({}); await abrir(); await irA("hoy");
   await tocar(q('#home [data-start="desayuno"]'));
-  await tocar(q('#fruitForms [data-fruta-forma="En trozos"]')); await tocar(q('#fruit [data-name="Banana"]')); await espera(100);
+  await tocar(q('#fruitForms [data-fruta-forma="En trozos"]')); await tocar(q('#fruit [data-name="Banana"]')); await tocar(q("#nextBottom")); await espera(100);
   await tocar(q('#bfprot [data-name="Huevo | Clara de huevo"]')); await espera(100);
   await tocar(q('#bfcarb [data-name="Avena arrollada o instantánea"]')); await espera(100);
   await tocar(q('#bffat [data-name="Palta"]')); await espera(100);

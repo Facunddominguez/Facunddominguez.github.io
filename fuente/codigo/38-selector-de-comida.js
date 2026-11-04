@@ -134,6 +134,9 @@ function seccionesSelector(h,q){
       ideas=sugerenciasPara(h.slot,diaDeRutina(fechaDelDiaDelPlan(h.dia))).filter(x=>x.tipo==="idea"&&coincide(x.idea.text+" "+(x.idea.tags||[]).join(" ")))
     }catch(e){
     }
+    // Una idea que ya está en Mis comidas (guardada con su nombre) aparece una sola vez, ahí.
+    const yaEstan=new Set(items.map(it=>normalizeSearchText(mealName(it)))),vistas=new Set();
+    ideas=ideas.filter(x=>{const k=normalizeSearchText(x.idea.text);if(yaEstan.has(k)||vistas.has(k))return false;vistas.add(k);return true});
     ideas.sort((a,b)=>b.peso-a.peso);
     out.push(seccion("Ideas","ideas",ideas.slice(0,n?20:6).map(x=>{
       const b=ce("button","selector-item");b.type="button";b.dataset.selectorIdea=x.idea.text;b.append(ce("span","selector-item__nombre","💡 "+x.idea.text));return b

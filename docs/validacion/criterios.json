@@ -65,6 +65,11 @@
     { "id": "E10-selects", "etapa": 10, "hecho": "Los selects largos tienen opciones que entran.", "tipo": "prueba", "prueba": "C10-4" },
     { "id": "E10-colores", "etapa": 10, "hecho": "Los colores del sistema de diseño pasan 4,5:1 en claro y oscuro.", "tipo": "prueba", "prueba": "C10-5" },
     { "id": "E10-al-menos", "etapa": 10, "hecho": "El presupuesto y el total semanal dicen al menos cuando faltan más de la mitad de los precios.", "tipo": "prueba", "prueba": "C10-6" },
-    { "id": "E10-revision-visual", "etapa": 10, "hecho": "Las capturas en tema claro y oscuro no muestran superposiciones ni textos cortados (revisión visual).", "tipo": "revisor", "revisor": "revisor-usuario" }
+    { "id": "E10-revision-visual", "etapa": 10, "hecho": "Las capturas en tema claro y oscuro no muestran superposiciones ni textos cortados (revisión visual).", "tipo": "revisor", "revisor": "revisor-usuario" },
+    { "id": "E11-dos-frutas", "etapa": 11, "hecho": "Se pueden elegir 2 frutas en un desayuno (el paso no avanza solo, tope de 3).", "tipo": "prueba", "prueba": "C11-1" },
+    { "id": "E11-sin-galletas-ni-harina", "etapa": 11, "hecho": "Ninguna opción del desayuno contiene \"galletas\" ni \"harina\".", "tipo": "prueba", "prueba": "C11-2" },
+    { "id": "E11-ideas-completas", "etapa": 11, "hecho": "El 100 % de las ideas de almuerzo o cena tiene verduras, almidón y proteína vinculados.", "tipo": "prueba", "prueba": "C11-3" },
+    { "id": "E11-selector-sin-repetidos", "etapa": 11, "hecho": "Ningún nombre se repite en el selector de comida.", "tipo": "prueba", "prueba": "C11-4" },
+    { "id": "E11-registro-ideas", "etapa": 11, "hecho": "Las ideas completadas con el ingrediente más común quedan anotadas en el Registro.", "tipo": "registro", "seccion": "Etapa 11", "debeNombrar": ["Filet de pescado", "Salmón al horno"] }
   ]
 }

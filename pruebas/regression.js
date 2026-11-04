@@ -11,7 +11,7 @@
   // Breakfast flow
   await click('[data-start="desayuno"]');
   // v15: el paso Frutas pide la forma (arriba) y la fruta.
-  await click('#fruitForms [data-fruta-forma="Licuado"]'); await click('#fruit [data-name="Banana"]'); await wait(100);
+  await click('#fruitForms [data-fruta-forma="Licuado"]'); await click('#fruit [data-name="Banana"]'); await click("#nextBottom"); await wait(100);
   await click('#bfprot [data-name="Yogur natural descremado"]'); await wait(100);
   await click('#bfcarb [data-name="Pan de molde integral o blanco"]'); await wait(100);
   await click('#bffat [data-name="Palta"]'); await wait(100);
