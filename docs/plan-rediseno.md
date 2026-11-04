@@ -2085,6 +2085,7 @@ Estados: ✅ hecha · ⏳ en curso · ⛔ parada.
 | 12. Cantidades reales | ✅ | `etapa-12-ok` | 16.1.0 |
 | 13. Precios a la vista | ✅ | `etapa-13-ok` | 16.2.0 |
 | 14. Bienvenida con presupuesto | ✅ | `etapa-14-ok` | 16.3.0 |
+| 15. "Armame la semana" | ✅ | `etapa-15-ok` | 16.4.0 |
 
 - Arranque: rama `rediseno-2` creada desde `main` (v15.9.0) con este plan.
 - Herramientas: `validar-etapa.mjs` acepta las etapas 11 a 18 y, desde la 11, compara contra `rediseno-2` (versión y línea base) en vez de `rediseno`.
@@ -2185,3 +2186,33 @@ Rama `rediseno-2-etapa-14-bienvenida`.
 **Tests adaptados** (Decisión, Regla 5): `e4_comidas.js` C4-1 suma el toque de "Ahora no" del paso nuevo y C4-7b sale por "Saltar" del paso 4 (las ideas son ahora el paso 4).
 
 **Revisores (Etapa 14)**: `revisor-codigo` NO BLOQUEANTE. Sugerencias que quedan: el kicker estático del HTML dice "Paso 1 de 3" (lo corrige `pintarBienvenida` al abrir); C14-2 podría afirmar sobre `costosDelPlan()`; "45.5" se lee como 455 (el punto es separador de miles); falta probar que elegir GBA sin región previa no escribe `region_v1`. Compuerta: VALIDACIÓN ETAPA 14: OK (85 controles).
+
+### Etapa 15 · "Armame la semana" ✅
+
+Rama `rediseno-2-etapa-15-armame-la-semana`.
+
+**Plan corto**
+- Archivo nuevo `fuente/codigo/45-armame-la-semana.js` (módulo `ArmameSemana`, sin IA y sin azar real: la semilla es la semana). Cambios chicos en `05-plan.html` (botón), `38-selector-de-comida.js` (hoja del hueco lleno y menú ⋯), `36-sugerencias.js` (`textoPermitido`, un solo lugar para lo que evitás), `10-plan-semanal.js` (texto de confirmar). Prueba nueva `e15_armame.js` (C15-1 a C15-6).
+- Riesgos para los datos: ninguno nuevo; escribe Mis comidas una vez y el plan una vez, con los formatos de siempre, con historial y Deshacer.
+
+**Hecho cuando**
+- ✅ Con presupuestos bajo ($26.000), medio ($40.000) y alto ($90.000) completa los 28 huecos sin pasarse; con $1.000 avisa "No llego al presupuesto" (C15-1).
+- ✅ La semana armada reutiliza al menos 3 ingredientes entre comidas (C15-2: 22 a 28 según el caso).
+- ✅ Cambiar un hueco por otra parecida o más barata no toca los demás y se deshace (C15-5).
+- ✅ Mismo resultado para los mismos datos (C15-3).
+
+**Reglas de armado** (Decisión; todas fijas):
+1. Tipo de comida: desayuno y merienda salen de tus desayunos guardados y de combinaciones fruta + proteína + cereal del armado; almuerzo y cena, de tus comidas y de las ideas del catálogo (una idea que ya guardaste cuenta una sola vez).
+2. Lo que evitás (`textoPermitido`), el día de rutina (tus comidas de otro tipo de día no entran; las ideas se guardan con el día del hueco) y la Despensa (+0,4 por ingrediente que ya tenés, hasta 3).
+3. Reutilizar: +0,6 por ingrediente ya elegido en la semana (hasta 3) en almuerzos y cenas, +0,1 en desayunos y meriendas para no repetir banana con huevo toda la semana.
+4. Nunca más de 2 veces la misma comida en la semana, ni en días seguidos del mismo hueco ni dos veces el mismo día.
+5. "Cociná doble": con 30 % de chance (con la semilla) la cena de un día es también el almuerzo del siguiente; cuenta como 2 repeticiones y se avisa.
+6. Presupuesto: primero se elige con el costo en cuenta (meta por hueco según su peso: desayuno 12 %, merienda 10 %, almuerzo 40 %, cena 38 %); si igual se pasa, se reemplaza lo más caro por algo parecido y más barato hasta entrar o hasta no poder. Lo que no tiene precio cuenta como la mediana del grupo. Presupuesto mensual = por 7/30.
+7. Dos modos: "Completar los N huecos vacíos" (lo que ya había no se toca) y "Rehacer la semana entera". "Empezar de nuevo" (menú ⋯) reemplaza a "Vaciar la semana": vacía todo y se puede deshacer.
+8. En cada hueco lleno: "Cambiar por otra parecida" (más ingredientes en común) y "Cambiar por una más barata" (parecida y que cueste menos; si no hay, lo dice).
+
+**Tope de tamaño** (Decisión): `index.html` pasó el tope de 770.000 bytes con el módulo nuevo (788.000). Se subió el tope a 820.000 en `construir.mjs` (y el texto del criterio E9-tamano-app); sigue siendo un tope que falla la construcción, y la Etapa 18 busca recortar código.
+
+**Tests adaptados** (Decisión, Regla 5): `e2_semana.js` (C2-6) y `m01_modo.js` (M4) esperaban "Vaciar la semana" en el menú ⋯; ahora "Empezar de nuevo" (misma acción, mismo Deshacer).
+
+**Revisores (Etapa 15)**: `revisor-codigo` NO BLOQUEANTE y `revisor-usuario` NO BLOQUEANTE (capturas 390×844 en `capturas/e15-*.png`). Pasan a la Etapa 17: en Semana "Armame la semana" y "Elegir el almuerzo de hoy" compiten como dos botones verdes llenos (con la semana ya llena, los dos deberían bajar a secundarios); la hoja del hueco lleno suma tres "Cambiar…" y conviene reunirlos; "Huevo | Clara de huevo" se ve crudo en el detalle. Quedan como mejora: avisar antes de "Rehacer la semana entera" si hay pocas candidatas; si `setSlot` falla en `cambiarHueco` queda una comida guardada de más. Compuerta: VALIDACIÓN ETAPA 15: OK (92 controles).

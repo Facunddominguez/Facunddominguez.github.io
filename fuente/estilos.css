@@ -3529,3 +3529,7 @@ body.con-hoja{
 .precio-tap{display:inline;cursor:pointer;text-decoration:underline dotted;text-underline-offset:3px;padding:12px 4px;margin:-12px 0}
 .precio-detalle{display:block;width:100%}
 .precio-detalle[hidden]{display:none}
+
+/* Etapa 15 (v16.4): Armame la semana. */
+.armame-boton{width:100%;margin:0 0 12px}
+.armame-hoja .hueco-hoja__acciones{display:flex;flex-direction:column;gap:8px}
