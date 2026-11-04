@@ -137,6 +137,13 @@
     {"id": "E23-registro", "etapa": 23, "hecho": "Qué se vinculó, cómo se pasan las cucharadas y qué se comparte queda en el Registro.", "tipo": "registro", "seccion": "Etapa 23", "debeNombrar": ["Ideas vinculadas", "Envases"]},
     {"id": "E23-nombre-corto", "etapa": 23, "hecho": "La fila de la lista saca lo que va entre paréntesis y después de o sin cambiar el producto.", "tipo": "prueba", "prueba": "E23-nombre-corto"},
     {"id": "E23-despensa", "etapa": 23, "hecho": "La Despensa en cucharadas o tazas sigue descontando del plan.", "tipo": "prueba", "prueba": "E23-despensa"},
-    {"id": "E23-suma-unidades", "etapa": 23, "hecho": "Sumar unidades compatibles no mezcla dimensiones.", "tipo": "prueba", "prueba": "E23-suma-unidades"}
+    {"id": "E23-suma-unidades", "etapa": 23, "hecho": "Sumar unidades compatibles no mezcla dimensiones.", "tipo": "prueba", "prueba": "E23-suma-unidades"},
+    {"id": "E24-sin-elegir", "etapa": 24, "hecho": "No hay botón 'Elegir el almuerzo de hoy' y Armame la semana es la única acción principal de arriba.", "tipo": "prueba", "prueba": "E24-sin-elegir"},
+    {"id": "E24-boton", "etapa": 24, "hecho": "Con la semana completa el botón pasa a ser secundario ('Rehacer semana').", "tipo": "prueba", "prueba": "E24-boton"},
+    {"id": "E24-aviso", "etapa": 24, "hecho": "El aviso de semana armada sigue visible después de 10 segundos, con Deshacer y el mismo total que Semana y Compras.", "tipo": "prueba", "prueba": "E24-aviso"},
+    {"id": "E24-separacion", "etapa": 24, "hecho": "Entre la cabecera, los chips de los días y el contenido hay al menos 16 px.", "tipo": "prueba", "prueba": "E24-separacion"},
+    {"id": "E24-recorrido", "etapa": 24, "hecho": "Armar la semana, completar 2 precios desde la ficha, cambiar una comida por una más barata y compartir la lista funciona de punta a punta.", "tipo": "prueba", "prueba": "E24-recorrido"},
+    {"id": "E24-revision-visual", "etapa": 24, "hecho": "El recorrido final a 390, 360 y 320 px pasa sin bloqueantes (revisión visual).", "tipo": "revisor", "revisor": "revisor-usuario"},
+    {"id": "E24-registro", "etapa": 24, "hecho": "Qué cambió en Semana y el recorrido final quedan en el Registro.", "tipo": "registro", "seccion": "Etapa 24", "debeNombrar": ["Aviso", "Recorrido final"]}
   ]
 }

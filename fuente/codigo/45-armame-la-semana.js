@@ -360,7 +360,11 @@ var ArmameSemana=(function(){
     try{
       const res=aplicar(armar({modo}));
       hoja.cerrar();
-      planStatus(resumen(res))
+      // El aviso queda en la Semana, con Deshacer y el mismo total que Semana y Compras, hasta la próxima acción.
+      if(deshacerPlan){
+        deshacerPlan.texto=resumen(res).replace(/\.$/,"");
+        renderPlan()
+      }
     }catch(e){
       hoja.estado.textContent=e.message
     }

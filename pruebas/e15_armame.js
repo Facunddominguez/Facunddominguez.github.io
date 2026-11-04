@@ -87,7 +87,7 @@
   await tocar(boton);
   const opcionesVacia = [...doc().querySelectorAll(".hoja [data-armame-modo]")].map(b => b.dataset.armameModo + ":" + b.textContent);
   await tocar(q('.hoja [data-armame-modo="vacios"]'));
-  const lleno = llenos() === 28, avisoDeshacer = /Deshacer/.test(doc().getElementById("planAviso").textContent), estado = doc().getElementById("planStatus").textContent;
+  const lleno = llenos() === 28, avisoDeshacer = /Deshacer/.test(doc().getElementById("planAviso").textContent), estado = doc().getElementById("planAviso").textContent;
   await tocar(boton);
   const opcionesLlena = [...doc().querySelectorAll(".hoja [data-armame-modo]")].map(b => b.dataset.armameModo);
   doc().querySelector(".hoja-fondo [data-hoja-cerrar], .hoja [data-hoja-cerrar]") && doc().querySelector(".hoja-fondo [data-hoja-cerrar], .hoja [data-hoja-cerrar]").click();

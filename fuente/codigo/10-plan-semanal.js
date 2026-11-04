@@ -725,9 +725,14 @@ function renderPlan(){
   }));
   const hint=document.getElementById("planHint");
   if(hint){hint.textContent=total?total+" de 28 comidas en la semana.":"Todavía no elegiste nada para esta semana.";hint.hidden=total>=28}
-  let vacio=document.getElementById("planVacioElegir");
-  if(!total&&hint&&!vacio){vacio=ce("button","button button--primary","Elegir el almuerzo de hoy");vacio.id="planVacioElegir";vacio.type="button";vacio.addEventListener("click",()=>abrirSelector(todayPlanDay(),"almuerzo"));hint.after(vacio)}
-  if(vacio)vacio.hidden=!!total;
+  // Etapa 24: "Armame la semana" es la única acción principal; con la semana completa pasa a ser secundaria ("Rehacer semana").
+  const armame=document.querySelector("#plan [data-armame]");
+  if(armame){
+    const llena=total>=28;
+    armame.textContent=llena?"Rehacer semana":"Armame la semana";
+    armame.classList.toggle("button--primary",!llena);
+    armame.classList.toggle("button--soft",llena)
+  }
   const obj=document.getElementById("planObjetivos");
   if(obj){
     let t="";
