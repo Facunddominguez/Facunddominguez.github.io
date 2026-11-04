@@ -26,7 +26,7 @@
   go("compras"); await R.openPanel("shoppingToolsPanel"); await R.openPanel("shoppingBudgetPanel");
   T.ok("U5a presupuesto: 500 g a 2000 ARS/kg = 1000 ARS", /Costo parcial estimado: 1\.000,00 ARS/.test(document.getElementById("shoppingBudgetResult").textContent), document.getElementById("shoppingBudgetResult").textContent.slice(0, 90));
   const opt = document.querySelector("#budgetCompareResult select option:nth-child(2)");
-  T.ok("U5b comparar alternativas muestra el precio convertido", !!opt && /1\.000,00 ARS · 2000 \/ 1000 g/.test(opt.textContent), opt && opt.textContent);
+  T.ok("U5b comparar alternativas muestra el precio convertido", !!opt && /2000\/1000 g · 1\.000,00/.test(opt.textContent) && /1\.000,00 ARS · 2000 por 1000 g/.test(opt.title), opt && opt.textContent);
   await R.openPanel("shoppingQuantCostPanel");
   T.ok("U5c 'Ajustar porciones' calcula el costo con precio en kg", /Subtotal estimado con referencias inequívocas: 1\.000,00 ARS/.test(document.getElementById("shoppingQuantCostResult").textContent));
   await R.openPanel("recipeCostPanel");

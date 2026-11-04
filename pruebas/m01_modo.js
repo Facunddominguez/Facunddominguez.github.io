@@ -103,10 +103,11 @@
   // M4 Cada pantalla avisa qué está oculto y que los datos siguen guardados
   // Semana (desde la v15.1) no oculta nada: no lleva aviso y su menú ⋯ lista todas sus herramientas.
   // v15.3: cada pantalla nueva que oculta herramientas tiene su aviso con el botón.
-  const notes = ["ingredientes", "ideas", "comida", "recetaEditar", "preferencias", "backupScreen"].map(id => document.querySelector("#" + id + " [data-mode-note]"));
+  // Desde la v16.6 no hay carteles por pantalla: el único interruptor está en Preferencias (C17-2).
+  const notes = document.querySelectorAll("[data-mode-note]");
   await menuSemana(); const itemsMenu = [...document.querySelectorAll(".hoja .menu-semana button")].filter(shown).map(b => b.textContent); hoja.cerrar();
   const menuCompleto = ["Repetir semana anterior", "Copiar un día", "Empezar de nuevo", "Planes guardados", "Semanas anteriores y mes", "Historial de cambios", "Descargar", "Buscar en mis recetas", "Registro y objetivos"].every(t => itemsMenu.includes(t));
-  T.ok("M4 aviso en Despensa y Recetas con lo que está oculto (Compras ya no tiene aviso: su barra sigue a los precios); Semana no oculta nada y su menú lo lista todo", notes.every(n => n && /Tus datos siguen guardados/.test(n.textContent) && n.querySelector("button").textContent === "Mostrar herramientas avanzadas") && /revisar una idea/.test(notes[0].textContent) && notes[0].parentElement === $("ingredientes") && !document.querySelector("#compras [data-mode-note]") && !document.querySelector("#plan [data-mode-note]") && menuCompleto, notes.map(n => n && n.textContent.slice(0, 60)).join(" | ") + " | " + itemsMenu.join(", "));
+  T.ok("M4 sin carteles de herramientas ocultas en las pantallas (el interruptor único está en Preferencias); Semana no oculta nada y su menú lo lista todo", notes.length === 0 && menuCompleto, itemsMenu.join(", "));
   // M5 Tarjeta en Configuración: cambia el modo y lo recuerda
   const card = $("uiModeToggle");
   const inSettings = !!card && $("preferencias").contains(card) && card.classList.contains("tool-button");
@@ -129,9 +130,9 @@
     go(pant); if (pant === "ideas") showRecipeView("browse"); openAll(pant); await wait(20);
     if (!shown($(id))) ingShown = false
   }
-  T.ok("M6 en modo completo vuelven a verse todas las herramientas", toolsShown && planShown && ingShown && notes.every(n => n.querySelector("button").textContent === "Ocultar herramientas avanzadas"));
-  // M7 El aviso de cada pantalla vuelve al modo simple
-  notes[0].querySelector("button").click(); await wait(20); go("compras"); await wait(20);
+  T.ok("M6 en modo completo vuelven a verse todas las herramientas", toolsShown && planShown && ingShown && document.querySelectorAll("[data-mode-note]").length === 0);
+  // M7 El interruptor vuelve al modo simple
+  $("uiModeToggle").click(); await wait(20); go("compras"); await wait(20);
     // La barra queda como estaban los precios (prendidos); apagándolos se esconde.
   const barraSigue = shown($("comprasPresupuesto"));
   $("preciosToggle").click(); await wait(20); go("compras"); await wait(20);
