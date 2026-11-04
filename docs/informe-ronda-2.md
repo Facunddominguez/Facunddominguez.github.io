@@ -62,12 +62,7 @@ No se renombró ni borró ninguna clave `miPlatoFacil_*` y ninguna prueba de dat
 ## Pendientes para vos
 
 1. **Revisar y mergear este PR a `main`** (yo no lo mergeé; no hice push ni merge a `main`). `main` no cambió mientras trabajé (la tarea de nutrición o precios no commiteó nada nuevo), así que no hizo falta traerlo a `rediseno-2`.
-2. **Tags `etapa-11-ok` a `etapa-18-ok`**: se crearon localmente en cada etapa y su push dio error 403 desde el entorno de esta sesión (los commits y las ramas sí subieron). Desde tu máquina, después de `git fetch origin rediseno-2`, y con `rediseno-2` actualizada, podés crearlos y subirlos con:
-   ```bash
-   git tag -a etapa-11-ok <commit del merge de la etapa 11> -m "Etapa 11 de la Ronda 2"
-   git push origin etapa-11-ok
-   ```
-   (los merges están en `git log --merges rediseno-2`, uno por etapa, con el mensaje "Merge etapa N: …").
+2. **Tags**: decidiste no usar tags en la Ronda 2. La marca de cada etapa es su commit "Merge etapa N: …" en `rediseno-2` (`git log --merges rediseno-2`). No queda nada pendiente ahí.
 3. Mirar la app en tu teléfono real (390, 360 y 320 px de ancho): las capturas las vieron solo los revisores automáticos.
 4. Pasar un ojo a los números por defecto (gramajes, envases, pesos por unidad, básicos) y a las palabras de los filtros: son curados a mano y se corrigen en `datos/envases.json` y `fuente/codigo/46-dieta.js`.
 5. `rediseno-2` tiene el PR abierto contra `main`; las pruebas de GitHub corren con cada push (`.github/workflows/pruebas.yml`).

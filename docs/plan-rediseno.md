@@ -2295,15 +2295,8 @@ Rama `rediseno-2-etapa-18-modulos`.
 - Las etapas 11 a 18 están ✅ en `rediseno-2` (v16.7.0) con la compuerta en verde (`VALIDACIÓN ETAPA 18: OK`, 576 de 576 pruebas) y la línea base al día. PR abierto contra `main`: https://github.com/Facunddominguez/Facunddominguez.github.io/pull/2 (el informe es `docs/informe-ronda-2.md`). No se hizo push ni merge a `main`; `main` no cambió durante la ronda.
 
 **Pendientes para vos**
-- Los tags `etapa-11-ok` a `etapa-18-ok` existen solo en el contenedor de la sesión: su push dio error 403 (las ramas y los commits sí subieron). Hay que crearlos y subirlos desde otra máquina sobre el commit de cada "Merge etapa N" (ver `git log --merges rediseno-2`). La tabla de arriba los nombra igual porque la compuerta de la ronda 2 compara contra `rediseno-2` y no contra esos tags.
+- Ninguno: los tags de la Ronda 2 no se usan (ver "Tags de la Ronda 2" más abajo); la marca de cada etapa es su commit "Merge etapa N" en `rediseno-2`.
 
-### ⛔ PARADA · publicar los tags `etapa-11-ok` a `etapa-18-ok`
+### Tags de la Ronda 2 (Decisión: no se usan)
 
-**Motivo:** las etapas 11 a 18 están hechas, validadas y mergeadas en `rediseno-2` (PR abierto), pero el push de cada tag `etapa-N-ok` fue rechazado con HTTP 403 ("The requested URL returned error: 403", después "unexpected disconnect while reading sideband packet") en los ocho intentos, con tags anotados y livianos, solos o con `--follow-tags`, y con reintentos con espera. Las ramas y los commits sí se pushean sin problema. El rechazo es de permisos del entorno (la sesión puede escribir ramas pero no crear referencias de tipo tag), y las reglas de `CLAUDE.md` dicen parar y no tocar permisos ni configuración de GitHub. Los tags existen en el contenedor de la sesión, apuntando al commit de cada merge, pero se pierden con ella.
-
-**Diagnóstico:** el último push de tags probado fue `git push origin refs/tags/etapa-18-ok` → 403. Con la compuerta de la Ronda 2 no hace falta publicarlos (compara contra la rama `rediseno-2`, no contra estos tags).
-
-**Opciones (elegí una):**
-1. Crearlos y subirlos desde tu máquina: para cada etapa, `git tag -a etapa-N-ok <commit del "Merge etapa N"> -m "…"` y `git push origin etapa-N-ok` (los commits están en `git log --merges rediseno-2`).
-2. Darle a la sesión permiso para crear tags (configuración del acceso de GitHub del entorno) y pedirme que los suba.
-3. No usar tags en la Ronda 2 y dejar que los merges `Merge etapa N: …` de `rediseno-2` sean la marca de cada etapa.
+Decisión tomada por el dueño del proyecto (opción 3): en la Ronda 2 no se usan tags. La marca de cada etapa son los commits `Merge etapa N: …` de `rediseno-2` (`git log --merges rediseno-2`). La PARADA que había por el push de los tags (error 403 del entorno) queda levantada: ya no hay nada pendiente ahí. Los tags `etapa-N-ok` de la tabla de arriba se leen como "el commit `Merge etapa N` de `rediseno-2`"; la compuerta de la Ronda 2 compara contra la rama `rediseno-2` y no los necesita. Los de la Ronda 1 (`etapa-0-ok` a `etapa-10-ok`) siguen publicados y se siguen usando como referencia.
