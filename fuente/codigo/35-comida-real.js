@@ -97,14 +97,14 @@ function nombreDesdeEstado(st,tipo){
 function mealName(it){
   if(!it||typeof it!=="object")return "Comida";
   if(typeof it.note==="string"&&it.note.trim())return it.note.trim();
-  const receta=savedRecipeTitle(it);
+  const receta=Semana.savedRecipeTitle(it);
   if(receta)return receta;
   if(it.recipeSourceId&&it.title)return String(it.title);
   let auto="";
   try{
     auto=nombreDesdeEstado(it.state,it.type);
     if(!auto&&!it.state){
-      const ings=[...new Set(extractIngredients(it).map(nombreCorto))].slice(0,3);
+      const ings=[...new Set(Semana.extractIngredients(it).map(nombreCorto))].slice(0,3);
       if(ings.length)auto=mayuscula(juntarY(ings.map((x,i)=>i?minuscula(x):x)))
     }
   }catch(e){
@@ -137,7 +137,7 @@ function fechaDelDiaDelPlan(dayKey){
 function diaDeRutina(fecha){
   let t=null;
   try{
-    t=trainingDayForDate(fecha||new Date())
+    t=Rutina.trainingDayForDate(fecha||new Date())
   }catch(e){
   }
   return t===null?"":t?"Día de entrenamiento":"Día libre"

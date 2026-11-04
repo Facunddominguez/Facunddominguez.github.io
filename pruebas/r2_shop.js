@@ -17,9 +17,9 @@
   setStock([["Papa", 50, "g"]]); renderCompras(); papa = item("Papa");
   T.ok("S2a con 50 g sugiere comprar 150 g y la lista no cambia", papa.label === "Papa: 200 g" && papa.suggestion.kind === "partial" && papa.suggestion.buy === "150 g" && /más lo que no tiene cantidad/.test(papa.suggestion.text) && papa.group === "pendiente");
   T.ok("S2b la fila pendiente dice cuánto falta", renderedRows().includes("Papa: 200 g · faltan 150 g") && !renderedRows().includes("Papa: 200 g"));
-  T.ok("S2c copiar usa el texto con lo que falta", comprasText().includes("• Papa: 200 g · faltan 150 g"));
+  T.ok("S2c copiar usa el texto con lo que falta", Compras.comprasText().includes("• Papa: 200 g · faltan 150 g"));
   setStock([["Papa", 200, "g"]]); renderCompras();
-  T.ok("S2d si la despensa alcanza, vuelve al texto del plan, pasa a Ya tenés y no se copia", item("Papa").group === "tenes" && renderedRows().includes("Papa: 200 g") && !renderedRows().some(t => t.includes("faltan")) && !comprasText().includes("Papa"));
+  T.ok("S2d si la despensa alcanza, vuelve al texto del plan, pasa a Ya tenés y no se copia", item("Papa").group === "tenes" && renderedRows().includes("Papa: 200 g") && !renderedRows().some(t => t.includes("faltan")) && !Compras.comprasText().includes("Papa"));
   // S3 invariance: los tres grupos juntos son la misma lista aunque cambien despensa, multiplicador, precios y
   // presupuesto; multiplicador, precios y presupuesto no mueven nada entre grupos.
   setStock([["Papa", 50, "g"]]); renderCompras();
@@ -94,7 +94,7 @@
   setSaved([tradPlateTexto("t1", ["Papa", "Arroz"], ["Tomate", "Lechuga"], ["Merluza"]), tradPlateTexto("t2", ["Papa"], ["Tomate"], ["Pollo (pechuga, muslo, pata-muslo)"])]);
   setPlan([["lunes", "almuerzo", "t1"], ["martes", "cena", "t2"], ["miercoles", "cena", "t1"]]);
   // Reference oracle: the v14.9.74 buildShopping() algorithm, copied here (the app no longer needs it).
-  const refMap = new Map(); planItemsFlat().forEach(it => extractIngredients(it).forEach(name => { const key = normalizeSearchText(name); if (!refMap.has(key)) refMap.set(key, { name, count: 0 }); refMap.get(key).count++ }));
+  const refMap = new Map(); Semana.planItemsFlat().forEach(it => Semana.extractIngredients(it).forEach(name => { const key = normalizeSearchText(name); if (!refMap.has(key)) refMap.set(key, { name, count: 0 }); refMap.get(key).count++ }));
   const oldLabels = [...refMap.values()].sort((a, b) => a.name.localeCompare(b.name)).map(x => x.name + (x.count > 1 ? " (×" + x.count + ")" : "")).sort((a, b) => a.localeCompare(b, "es"));
   T.ok("S9 lista solo de platos tradicionales idéntica a v14.9.74", JSON.stringify(R.items().map(x => x.label)) === JSON.stringify(oldLabels), oldLabels.join(" | "));
   // S10 unknown-only item with pantry, and chip mark without pantry

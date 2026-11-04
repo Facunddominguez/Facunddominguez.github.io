@@ -35,19 +35,19 @@
   T.ok("M5 'Estimar costo' ofrece y acepta precios equivalentes", selects.every(s => s.options.length === 2) && /Total estimado: 500,00 ARS/.test(cost), cost.slice(0, 160));
   // Old calculator (v14.9.45) merges plural forms
   setAmounts({ [IDEA1]: { yield: 1, rows: [{ name: "Tomates", quantity: 2, unit: "unidad" }, { name: "Tomate", quantity: 1, unit: "unidad" }] } });
-  const agg = aggregateQuantifiedRecipes([{ title: IDEA1, portions: 1 }], loadRecipeAmounts());
+  const agg = CantidadesCostos.aggregateQuantifiedRecipes([{ title: IDEA1, portions: 1 }], loadRecipeAmounts());
   T.ok("M6 'Calcular compras por recetas' suma formas equivalentes", agg.length === 1 && agg[0].quantity === 3, JSON.stringify(agg));
   // Recommendations: pantry registered in other form counts as available
   setAmounts({ [IDEA1]: { yield: 1, rows: [{ name: "Patata", quantity: 200, unit: "g" }] } });
   setStock([["Papas", 500, "g"]]);
-  const score = recipePantryScore({ kind: "propia", key: "recipe_test0001" }, loadRecipeDetails(), loadRecipeAmounts(), pantryMarkedMatcher(), loadStockQuantities());
+  const score = recipePantryScore({ kind: "propia", key: "recipe_test0001" }, loadRecipeDetails(), loadRecipeAmounts(), MarcasDespensa.pantryMarkedMatcher(), loadStockQuantities());
   T.ok("M7 recomendaciones reconocen la despensa equivalente", score.known && score.complete && score.have === 1, JSON.stringify(score));
   localStorage.setItem("miPlatoFacil_referencePrices_v1", JSON.stringify({ p2: price("p2", "Patatas", 1000, 1500, "g") }));
   setStock([["Papas", 50, "g"]]);
   const mc = recipeMissingCost({ kind: "propia", key: "recipe_test0001" }, loadRecipeDetails(), loadRecipeAmounts(), loadStockQuantities(), Object.values(loadReferencePrices()));
   T.ok("M8 costo de faltantes usa despensa y precio equivalentes", mc && Math.round(mc.totals.ARS) === 225, JSON.stringify(mc));
   localStorage.setItem("miPlatoFacil_pantry", JSON.stringify(["papa"]));
-  T.ok("M9 la marca 'papa' de Con lo que tengo reconoce 'Patata'", pantryMarkedMatcher().has("Patata") && !pantryMarkedMatcher().has("Batata"));
+  T.ok("M9 la marca 'papa' de Con lo que tengo reconoce 'Patata'", MarcasDespensa.pantryMarkedMatcher().has("Patata") && !MarcasDespensa.pantryMarkedMatcher().has("Batata"));
   // Variedades no se unen solas
   reset();
   setAmounts({ [IDEA2]: { yield: 1, rows: [{ name: "Arroz", quantity: 300, unit: "g" }] } });

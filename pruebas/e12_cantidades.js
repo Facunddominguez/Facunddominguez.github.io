@@ -17,33 +17,33 @@
   const cargar = datos => { localStorage.clear(); for (const [k, v] of Object.entries(datos)) if (v !== null) localStorage.setItem(k, v) };
   const R = await (await fetch("/tests/fixtures/respaldo-v14.9.94.json", { cache: "no-store" })).json();
   const MARCA = { miPlatoFacil_bienvenida_v1: '{"vista":true}' };
-  const unidadesDe = () => JSON.parse(ev("JSON.stringify(shoppingPlanItems().map(e => [e.key, [...e.units], e.unknown]))"));
+  const unidadesDe = () => JSON.parse(ev("JSON.stringify(Compras.shoppingPlanItems().map(e => [e.key, [...e.units], e.unknown]))"));
 
   // C12-1 El 100 % de los ítems que vienen de platos armados tiene cantidad: los de cada plato guardado del respaldo de ejemplo
   // y cada opción del armado (fruta, proteína, cereal, grasa, snack y pre).
   cargar({ ...R.data }); await abrir();
   const sinCantidad = JSON.parse(ev(`JSON.stringify((() => {
     const malos = [];
-    for (const it of loadSaved().filter(x => x.state && !x.recipeSourceId)) {
+    for (const it of MisPlatos.loadSaved().filter(x => x.state && !x.recipeSourceId)) {
       const con = new Set(cantidadesDePlatoArmado(it).filter(c => c.q > 0 && c.unit).map(c => ingredientKey(c.name)));
-      for (const n of extractIngredients(it)) if (!con.has(ingredientKey(n))) malos.push(it.id + ": " + n)
+      for (const n of Semana.extractIngredients(it)) if (!con.has(ingredientKey(n))) malos.push(it.id + ": " + n)
     }
     const estado = (k, nombre, cantidad) => ({ type: k === "snack" ? "snack" : k === "pre" ? "pre" : "desayuno", [k]: { name: nombre, quantity: cantidad } });
     const listas = [["fruta", data.frutas], ["bfprot", data.bfprot], ["bfcarb", data.bfcarb], ["grasa", data.bffat], ["snack", data.snacks]];
     for (const [k, lista] of listas) for (const [nombre, cant] of lista) {
       const it = { state: estado(k, nombre, cant) };
       const con = new Set(cantidadesDePlatoArmado(it).filter(c => c.q > 0).map(c => ingredientKey(c.name)));
-      for (const n of extractIngredients(it)) if (!con.has(ingredientKey(n))) malos.push(k + ": " + nombre + " → " + n)
+      for (const n of Semana.extractIngredients(it)) if (!con.has(ingredientKey(n))) malos.push(k + ": " + nombre + " → " + n)
     }
     for (const g of [["verduras", data.verduras], ["almidones", data.almidones], ["proteinas", data.proteinas], ["legProt", data.legumbres]]) for (const n of g[1].slice(0, 60)) {
       const it = { state: { type: "plato", day: "Día libre", [g[0]]: [{ name: n }] } };
       const con = new Set(cantidadesDePlatoArmado(it).filter(c => c.q > 0).map(c => ingredientKey(c.name)));
-      for (const x of extractIngredients(it)) if (!con.has(ingredientKey(x))) malos.push(g[0] + ": " + n + " → " + x)
+      for (const x of Semana.extractIngredients(it)) if (!con.has(ingredientKey(x))) malos.push(g[0] + ": " + n + " → " + x)
     }
     return malos
   })())`));
   const items = unidadesDe();
-  const lista = JSON.parse(ev("JSON.stringify(shoppingDisplayItems().map(x => textoLegible(x.text)))"));
+  const lista = JSON.parse(ev("JSON.stringify(shoppingDisplayItems().map(x => Ingredientes.textoLegible(x.text)))"));
   const feos = lista.filter(t => /sin cantidad en/.test(t) || /\d,\d{3,}/.test(t) || /\b1 unidades\b/.test(t));
   ok("C12-1 el 100 % de los ítems de platos armados tiene cantidad y la lista no muestra \"sin cantidad en\" ni decimales largos", items.length > 15 && !sinCantidad.length && !feos.length, JSON.stringify({ sinCantidad: sinCantidad.slice(0, 6), feos }));
   // Lo guardado no se reescribe.
@@ -56,7 +56,7 @@
   cargar({ ...R.data }); await abrir();
   const sinClave = localStorage.getItem("miPlatoFacil_hogar_v1") === null && ev("personasHogar()") === 1;
   const uno = unidadesDe();
-  ev("cambiarPersonasHogar(3)"); await espera(100);
+  ev("CantidadesPlatos.cambiarPersonasHogar(3)"); await espera(100);
   const tres = unidadesDe();
   const mapa = new Map(tres.map(x => [x[0], x]));
   const malosTriple = uno.filter(([k, us]) => us.length && !(mapa.get(k) && mapa.get(k)[1].length === us.length && us.every(([u, q], i) => mapa.get(k)[1][i][0] === u && Math.abs(mapa.get(k)[1][i][1] - 3 * q) < 1e-6)));
@@ -65,8 +65,8 @@
   const snap = JSON.parse(ev("JSON.stringify(completeBackupSnapshot(localStorage))"));
   const tieneHogar = snap.data.miPlatoFacil_hogar_v1 === '{"personas":3}';
   const malo = JSON.parse(JSON.stringify(snap)); malo.data.miPlatoFacil_hogar_v1 = '{"personas":99}';
-  let rechazado = false; try { ev("validateCompleteBackup(" + JSON.stringify(malo) + ")") } catch (e) { rechazado = true }
-  const viejo = JSON.parse(JSON.stringify(R)); let viejoOk = true; try { ev("validateCompleteBackup(" + JSON.stringify(viejo) + ")") } catch (e) { viejoOk = false }
+  let rechazado = false; try { ev("Respaldo.validateCompleteBackup(" + JSON.stringify(malo) + ")") } catch (e) { rechazado = true }
+  const viejo = JSON.parse(JSON.stringify(R)); let viejoOk = true; try { ev("Respaldo.validateCompleteBackup(" + JSON.stringify(viejo) + ")") } catch (e) { viejoOk = false }
   ok("C12-2b hogar_v1 y básicos faltantes entran al respaldo como opcionales; uno inválido se rechaza y el respaldo viejo se restaura", tieneHogar && rechazado && viejoOk && ev('COMPLETE_BACKUP_OPTIONAL_KEYS.includes("miPlatoFacil_hogar_v1") && COMPLETE_BACKUP_OPTIONAL_KEYS.includes("miPlatoFacil_basicosFaltantes_v1")'));
 
   // C12-3 Fideos por 180 g se muestran como 1 paquete de 500 g.

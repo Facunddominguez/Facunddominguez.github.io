@@ -23,7 +23,7 @@ var ArmameSemana=(function(){
     }
   }
   const clave=texto=>normalizeSearchText(String(texto||"")).replace(/[^a-z0-9ñ]+/g," ").trim();
-  const semilla=extra=>hash(semanaActual()+"|"+extra);
+  const semilla=extra=>hash(Semana.semanaActual()+"|"+extra);
   // Presupuesto de la semana en pesos, o null (sin presupuesto o en otra moneda).
   function presupuestoSemanal(){
     const b=shoppingBudgetRead();
@@ -40,7 +40,7 @@ var ArmameSemana=(function(){
     let snap;
     try{
       Object.assign(state,st);
-      snap=currentSnapshot()
+      snap=MisPlatos.currentSnapshot()
     }finally{
       Object.assign(state,antes)
     }
@@ -52,10 +52,10 @@ var ArmameSemana=(function(){
   // Candidatas de cada tipo de comida. cand: {k, nombre, tipo:"idea"|"mia"|"combo", ings:[claves], item?, idea?, estado?}
   function candidatosPlato(){
     const por=new Map(),ver=(txt,ings)=>textoPermitido(txt+" "+ings.join(" "));
-    for(const it of loadSaved()){
+    for(const it of MisPlatos.loadSaved()){
       if(!it||it.type!=="plato")continue;
       let ings=[];
-      try{ings=extractIngredients(it)}catch(e){}
+      try{ings=Semana.extractIngredients(it)}catch(e){}
       const nombre=mealName(it);
       if(!ings.length||!ver(nombre,ings))continue;
       const k=clave(nombre);
@@ -70,10 +70,10 @@ var ArmameSemana=(function(){
   }
   function candidatosDesayuno(sem){
     const out=[],vistas=new Set(),r=azar(semilla("combos|"+sem));
-    for(const it of loadSaved()){
+    for(const it of MisPlatos.loadSaved()){
       if(!it||it.type!=="desayuno")continue;
       let ings=[];
-      try{ings=extractIngredients(it)}catch(e){}
+      try{ings=Semana.extractIngredients(it)}catch(e){}
       const nombre=mealName(it);
       if(!ings.length||!textoPermitido(nombre+" "+ings.join(" "))||vistas.has(clave(nombre)))continue;
       vistas.add(clave(nombre));
@@ -102,11 +102,11 @@ var ArmameSemana=(function(){
       let a=null;
       if(c.item)a=cantidadesDeComida("plato",c.item.id);
       else{
-        const st=c.estado||ideaComoComida(c.idea,diaDeRutinaDe(dia)||"Día libre"),cant=cantidadesDePlatoArmado({state:st});
+        const st=c.estado||IdeasHoja.ideaComoComida(c.idea,diaDeRutinaDe(dia)||"Día libre"),cant=cantidadesDePlatoArmado({state:st});
         if(cant.length)a={yield:1,rows:cant.map(x=>({name:x.name,quantity:x.q,unit:x.unit}))}
       }
       if(a){
-        const r=costoDeFilas(a.rows,portionFactor(null,a)*personasHogar());
+        const r=costoDeFilas(a.rows,Semana.portionFactor(null,a)*personasHogar());
         v=r.costo>0?r.costo:null
       }
     }catch(e){
@@ -120,18 +120,18 @@ var ArmameSemana=(function(){
     return a.length?a[a.length>>1]:null
   }
   function despensaMatcher(){
-    const tengo=pantryMarkedMatcher(),stock=Object.values(loadStockQuantities()).filter(s=>s.quantity>0).map(s=>ingredientKey(s.name));
+    const tengo=MarcasDespensa.pantryMarkedMatcher(),stock=Object.values(loadStockQuantities()).filter(s=>s.quantity>0).map(s=>ingredientKey(s.name));
     return n=>tengo.has(n)||stock.includes(n)
   }
   // Estado de la semana: qué comidas hay en cada hueco, cuántas veces se usa cada una y qué ingredientes se repiten.
   function leerSemana(plan,salvo){
-    const items=new Map(loadSaved().map(x=>[x.id,x])),sem={comidas:new Map(),cuenta:new Map(),ings:new Map()};
+    const items=new Map(MisPlatos.loadSaved().map(x=>[x.id,x])),sem={comidas:new Map(),cuenta:new Map(),ings:new Map()};
     for(const [dia] of DAYS)for(const [slot] of SLOTS){
       if(salvo&&salvo.has(dia+"|"+slot))continue;
       const it=items.get((plan[dia]||{})[slot]);
       if(!it)continue;
       let ings=[];
-      try{ings=extractIngredients(it)}catch(e){}
+      try{ings=Semana.extractIngredients(it)}catch(e){}
       const k=clave(mealName(it));
       sem.comidas.set(dia+"|"+slot,{k,ings:ings.map(ingredientKey),item:it});
       sem.cuenta.set(k,(sem.cuenta.get(k)||0)+1);
@@ -146,7 +146,7 @@ var ArmameSemana=(function(){
   }
   // Arma la semana (sin escribir). opciones.modo: "vacios" (por defecto) o "todo". Devuelve el plan propuesto y sus números.
   function armar(opciones){
-    const modo=opciones&&opciones.modo==="todo"?"todo":"vacios",plan=JSON.parse(JSON.stringify(loadPlan())),items=new Map(loadSaved().map(x=>[x.id,x]));
+    const modo=opciones&&opciones.modo==="todo"?"todo":"vacios",plan=JSON.parse(JSON.stringify(loadPlan())),items=new Map(MisPlatos.loadSaved().map(x=>[x.id,x]));
     const aFillar=[];
     for(const [dia] of DAYS)for(const slot of ORDEN){
       const id=(plan[dia]||{})[slot];
@@ -211,7 +211,7 @@ var ArmameSemana=(function(){
       for(const [pos,x] of sem.comidas){
         const [dia,slot]=pos.split("|");
         if(x.cand)t+=costo(x.cand,dia,slot);
-        else if(x.item){const a=cantidadesDeComida("plato",x.item.id);if(a){const v=costoDeFilas(a.rows,portionFactor(null,a)*personasHogar()).costo;t+=v>0?v:(medianaDe(slot)||0)}else t+=medianaDe(slot)||0}
+        else if(x.item){const a=cantidadesDeComida("plato",x.item.id);if(a){const v=costoDeFilas(a.rows,Semana.portionFactor(null,a)*personasHogar()).costo;t+=v>0?v:(medianaDe(slot)||0)}else t+=medianaDe(slot)||0}
       }
       return t
     };
@@ -247,22 +247,22 @@ var ArmameSemana=(function(){
   }
   // Escribe lo armado: Mis comidas una vez, el plan una vez, con historial y Deshacer.
   function aplicar(res){
-    const antes={plan:loadPlan(),porciones:loadPlanPortions()},saved=loadSaved(),nuevos=[],porSig=new Map(saved.map(x=>[x.sig||x.text,x])),plan=JSON.parse(JSON.stringify(antes.plan));
+    const antes={plan:loadPlan(),porciones:Semana.loadPlanPortions()},saved=MisPlatos.loadSaved(),nuevos=[],porSig=new Map(saved.map(x=>[x.sig||x.text,x])),plan=JSON.parse(JSON.stringify(antes.plan));
     for(const [dia] of DAYS)if(!plan[dia])plan[dia]={desayuno:null,merienda:null,almuerzo:null,cena:null};
     if(res.modo==="todo")for(const [dia] of DAYS)for(const [slot] of SLOTS)plan[dia][slot]=null;
     const idDe=(c,dia)=>{
       if(c.item)return c.item.id;
-      const snap=c.estado?snapDeEstado(c.estado,null):ideaComoGuardada(c.idea,diaDeRutinaDe(dia)||"Día libre"),igual=porSig.get(snap.sig||snap.text);
+      const snap=c.estado?snapDeEstado(c.estado,null):IdeasHoja.ideaComoGuardada(c.idea,diaDeRutinaDe(dia)||"Día libre"),igual=porSig.get(snap.sig||snap.text);
       if(igual)return igual.id;
       porSig.set(snap.sig||snap.text,snap);nuevos.push(snap);
       return snap.id
     };
     for(const a of res.asignadas)plan[a.dia][a.slot]=idDe(a.cand,a.dia);
-    if(nuevos.length&&!persistSaved(nuevos.reverse().concat(saved)))throw Error("No se pudo guardar (falta de espacio u otro error).");
-    if(!persistPlan(plan))throw Error(errorDelPlan||"No se pudo guardar el plan.");
-    prunePlanPortions(antes.plan,plan);
+    if(nuevos.length&&!MisPlatos.persistSaved(nuevos.reverse().concat(saved)))throw Error("No se pudo guardar (falta de espacio u otro error).");
+    if(!Semana.persistPlan(plan))throw Error(errorDelPlan||"No se pudo guardar el plan.");
+    Semana.prunePlanPortions(antes.plan,plan);
     const texto=res.modo==="todo"?"Armaste la semana entera":"Completaste "+res.llenos+" huecos";
-    logPlanChange("Armame la semana: "+res.llenos+" comidas"+(res.costo?" (≈ $"+res.costo.toLocaleString("es-AR")+")":""));
+    Semana.logPlanChange("Armame la semana: "+res.llenos+" comidas"+(res.costo?" (≈ $"+res.costo.toLocaleString("es-AR")+")":""));
     deshacerPlan={texto,plan:antes.plan,porciones:antes.porciones};
     renderPlan();
     return res
@@ -272,14 +272,14 @@ var ArmameSemana=(function(){
     let t="Listo: "+res.llenos+(res.llenos===1?" comida armada":" comidas armadas")+(res.costo?" · ≈ "+pesos(res.costo)+" la semana":"")+".";
     if(res.presupuesto&&res.costo)t+=res.pasado?" No llego al presupuesto de "+pesos(res.presupuesto)+": es lo más barato que pude armar con lo que tenés para elegir.":" Entra en tu presupuesto de "+pesos(res.presupuesto)+".";
     if(res.sinPrecios)t+=" No tengo precios para controlar el presupuesto.";
-    if(res.dobles.length)t+=" Cociná doble: "+res.dobles.map(d=>"la cena del "+planDayName(d.de).toLowerCase()+" es el almuerzo del "+planDayName(d.a).toLowerCase()).join("; ")+".";
+    if(res.dobles.length)t+=" Cociná doble: "+res.dobles.map(d=>"la cena del "+Semana.planDayName(d.de).toLowerCase()+" es el almuerzo del "+Semana.planDayName(d.a).toLowerCase()).join("; ")+".";
     const pocas=dietaAvisoPocas();
     if(pocas)t+=" "+pocas;
     if(res.llenos<res.huecos)t+=" Quedaron "+(res.huecos-res.llenos)+" huecos sin llenar: faltan comidas que cumplan lo que evitás.";
     return t
   }
   function huecosVacios(){
-    const plan=loadPlan(),ids=new Set(loadSaved().map(x=>x.id));
+    const plan=loadPlan(),ids=new Set(MisPlatos.loadSaved().map(x=>x.id));
     let n=0;
     for(const [dia] of DAYS)for(const [slot] of SLOTS)if(!ids.has((plan[dia]||{})[slot]))n++;
     return n
@@ -305,11 +305,11 @@ var ArmameSemana=(function(){
   }
   // Cambiar un solo hueco: "parecida" (más ingredientes en común) o "barata" (cuesta menos). No toca los demás.
   function cambiarHueco(dia,slot,como){
-    const plan=loadPlan(),items=new Map(loadSaved().map(x=>[x.id,x])),actual=items.get((plan[dia]||{})[slot]);
+    const plan=loadPlan(),items=new Map(MisPlatos.loadSaved().map(x=>[x.id,x])),actual=items.get((plan[dia]||{})[slot]);
     if(!actual)return {ok:false,texto:"Ese hueco está vacío."};
     const memo=new Map(),sem=leerSemana(plan,new Set([dia+"|"+slot])),kActual=clave(mealName(actual));
     let ingsActual=[];
-    try{ingsActual=extractIngredients(actual).map(ingredientKey)}catch(e){}
+    try{ingsActual=Semana.extractIngredients(actual).map(ingredientKey)}catch(e){}
     const lista=slotPool(slot)==="plato"?candidatosPlato():candidatosDesayuno("cambio"),r=azar(semilla("hueco|"+dia+"|"+slot+"|"+actual.id+"|"+como));
     const candActual={k:kActual,nombre:mealName(actual),tipo:"mia",item:actual,ings:ingsActual},costoActual=costoDe(candActual,dia,memo);
     const med=mediana(lista.map(c=>costoDe(c,dia,memo)));
@@ -328,11 +328,11 @@ var ArmameSemana=(function(){
     let id;
     if(mejor.item)id=mejor.item.id;
     else{
-      const snap=mejor.estado?snapDeEstado(mejor.estado,null):ideaComoGuardada(mejor.idea,diaDeRutinaDe(dia)||"Día libre"),a=loadSaved(),igual=a.find(x=>(x.sig||x.text)===snap.sig);
+      const snap=mejor.estado?snapDeEstado(mejor.estado,null):IdeasHoja.ideaComoGuardada(mejor.idea,diaDeRutinaDe(dia)||"Día libre"),a=MisPlatos.loadSaved(),igual=a.find(x=>(x.sig||x.text)===snap.sig);
       if(igual)id=igual.id;
       else{
         a.unshift(snap);
-        if(!persistSaved(a))return {ok:false,texto:"No se pudo guardar (falta de espacio u otro error)."};
+        if(!MisPlatos.persistSaved(a))return {ok:false,texto:"No se pudo guardar (falta de espacio u otro error)."};
         id=snap.id
       }
     }

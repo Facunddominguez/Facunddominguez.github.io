@@ -3,6 +3,67 @@
 // Junta "Lo comí" (miPlatoFacil_consumption_v1) y "Lo cociné" (miPlatoFacil_cookingHistory_v1) sin cambiar su formato,
 // y muestra aparte el contador "cooked" de cada plato, que no tiene fecha. Nada se combina ni se borra solo.
 // init() corre antes de este archivo: todo lo que se llama al pintar es una declaración function y el estado va en var.
+// Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como Registro.nombre().
+const Registro={
+deshacerRegistro(n,el){
+  const u=registroUndos[n];
+  delete registroUndos[n];
+  const aviso=(el&&el.isConnected?el:u&&u.el)||document.getElementById("registroEstado");
+  if(!u||JSON.stringify(registroFoto())!==JSON.stringify(u.despues)){
+    if(aviso)aviso.textContent="No se puede deshacer: los datos cambiaron después.";
+    return
+  }
+  try{
+    for(const [k,v] of Object.entries(u.antes)){
+      if(v===null)localStorage.removeItem(k);else localStorage.setItem(k,v)
+    }
+  }catch(e){
+    u.el.textContent="No se pudo deshacer.";
+    return
+  }
+  registroRepintar();
+  u.el.textContent="Listo, se deshizo."
+},
+registroDiasConDatos(){
+  const n=new Map();
+  for(const x of loadConsumption())n.set(x.date,(n.get(x.date)||0)+1);
+  for(const x of loadCookingHistory())n.set(x.date,(n.get(x.date)||0)+1);
+  return [...n.entries()].sort((a,b)=>b[0].localeCompare(a[0])).slice(0,14)
+},
+anotarDesdeRegistro(tipo){
+  const fecha=typedAppDateLabel(registroFecha||registroHoy());
+  if(tipo==="comi"){
+    const p=document.getElementById("consumptionPanel");
+    document.getElementById("consumptionDate").value=fecha;
+    consumptionWeek=mondayOf(registroFecha||registroHoy());
+    if(!p.open)p.open=true;else renderConsumption();
+    p.scrollIntoView({
+      block:"start"
+    });
+    document.getElementById("consumptionPlate").focus()
+  }else{
+    const p=document.getElementById("cookingHistoryPanel");
+    document.getElementById("cookingHistoryDate").value=fecha;
+    if(!p.open)p.open=true;else renderCookingHistory();
+    p.scrollIntoView({
+      block:"start"
+    });
+    document.getElementById("cookingHistoryPlate").focus()
+  }
+},
+restarContador(id){
+  const a=MisPlatos.loadSaved(),it=a.find(x=>x.id===id),st=document.getElementById("registroEstado");
+  if(!it||!((it.cooked||0)>0))return;
+  const antes=registroFoto();
+  it.cooked=it.cooked-1;
+  if(!MisPlatos.persistSaved(a)){
+    st.textContent="No se pudo guardar el cambio.";
+    return
+  }
+  registroRepintar();
+  registroAviso(st,"Restaste una vez a "+mealName(it)+".",antes)
+}
+};
 var registroFecha=null;
 // Cada chip Deshacer tiene su propia foto (por número): un chip viejo nunca deshace una acción más nueva.
 var registroUndos={
@@ -10,7 +71,7 @@ var registroUndos={
 var registroUndoN=0;
 var REGISTRO_COMIDAS=["desayuno","almuerzo","merienda","cena","otra"];
 function registroHoy(){
-  return localTrainingDate(new Date())
+  return Rutina.localTrainingDate(new Date())
 }
 function registroClaves(){
   return [CONSUMPTION_KEY,COOKING_HISTORY_KEY,SKEY]
@@ -31,25 +92,6 @@ function registroAviso(el,texto,antes){
   el.replaceChildren(document.createTextNode(texto+" "),b)
 }
 // Solo deshace si los datos siguen exactamente como los dejó esa acción; si no, no toca nada y avisa.
-function deshacerRegistro(n,el){
-  const u=registroUndos[n];
-  delete registroUndos[n];
-  const aviso=(el&&el.isConnected?el:u&&u.el)||document.getElementById("registroEstado");
-  if(!u||JSON.stringify(registroFoto())!==JSON.stringify(u.despues)){
-    if(aviso)aviso.textContent="No se puede deshacer: los datos cambiaron después.";
-    return
-  }
-  try{
-    for(const [k,v] of Object.entries(u.antes)){
-      if(v===null)localStorage.removeItem(k);else localStorage.setItem(k,v)
-    }
-  }catch(e){
-    u.el.textContent="No se pudo deshacer.";
-    return
-  }
-  registroRepintar();
-  u.el.textContent="Listo, se deshizo."
-}
 // Después de cambiar un registro, se actualiza todo lo que lo muestra.
 function registroRepintar(){
   for(const f of [()=>renderToday(),()=>renderPlan(),()=>renderSaved(),()=>{
@@ -100,7 +142,7 @@ function registroOrden(m){
 // Los registros de un día, en orden de comida. Solo lee.
 function registrosDelDia(fecha){
   // Lo comí guarda el título viejo del plato (savedItemTitle): al mostrarlo se usa el nombre de hoy, si el plato sigue.
-  const filas=[],porId=new Map(loadSaved().map(p=>[p.id,p]));
+  const filas=[],porId=new Map(MisPlatos.loadSaved().map(p=>[p.id,p]));
   for(const x of loadConsumption())if(x.date===fecha)filas.push({
     tipo:"comi",id:x.id,meal:x.meal,title:x.sourceId&&porId.has(x.sourceId)?mealName(porId.get(x.sourceId)):x.title,planned:x.planned,sourceId:x.sourceId
   });
@@ -112,12 +154,6 @@ function registrosDelDia(fecha){
   })).sort((a,b)=>registroOrden(a.f.meal)-registroOrden(b.f.meal)||a.i-b.i).map(x=>x.f)
 }
 // Los últimos 14 días que tienen algo, del más nuevo al más viejo, con su cantidad.
-function registroDiasConDatos(){
-  const n=new Map();
-  for(const x of loadConsumption())n.set(x.date,(n.get(x.date)||0)+1);
-  for(const x of loadCookingHistory())n.set(x.date,(n.get(x.date)||0)+1);
-  return [...n.entries()].sort((a,b)=>b[0].localeCompare(a[0])).slice(0,14)
-}
 function registroEtiquetaDia(f){
   const d=new Date(f+"T12:00:00"),ayer=new Date();
   ayer.setDate(ayer.getDate()-1);
@@ -125,7 +161,7 @@ function registroEtiquetaDia(f){
     weekday:"long",day:"numeric",month:"long"
   });
   if(f===registroHoy())return "Hoy · "+t;
-  if(f===localTrainingDate(ayer))return "Ayer · "+t;
+  if(f===Rutina.localTrainingDate(ayer))return "Ayer · "+t;
   return t.charAt(0).toUpperCase()+t.slice(1)
 }
 function registroFila(r){
@@ -144,7 +180,7 @@ function registroFila(r){
 function renderRegistroContadores(){
   const box=document.getElementById("registroContadoresLista");
   if(!box)return;
-  const hist=loadCookingHistory(),platos=loadSaved().filter(p=>(p.cooked||0)>0);
+  const hist=loadCookingHistory(),platos=MisPlatos.loadSaved().filter(p=>(p.cooked||0)>0);
   box.replaceChildren(...platos.map(p=>{
     const conFecha=hist.filter(h=>h.sourceId===p.id).length,fila=ce("div","registro-fila");
     fila.dataset.registroContador=p.id;
@@ -189,7 +225,7 @@ function abrirRegistro(op){
   op=op||{
   };
   const hoy=registroHoy();
-  registroFecha=op.fecha&&validTrainingDate(op.fecha)&&op.fecha<=hoy?op.fecha:hoy;
+  registroFecha=op.fecha&&Rutina.validTrainingDate(op.fecha)&&op.fecha<=hoy?op.fecha:hoy;
   try{
     if(hoja.abierta())hoja.cerrar()
   }catch(e){
@@ -213,7 +249,7 @@ function pintarEnlaceRegistro(){
   if(!box)return;
   box.replaceChildren();
   if(typeof comidaActual==="undefined"||!comidaActual)return;
-  const saved=loadSaved(),ids=[comidaActual.id];
+  const saved=MisPlatos.loadSaved(),ids=[comidaActual.id];
   if(comidaActual.origen==="receta")saved.forEach(p=>{
     if(p.recipeSourceId===comidaActual.id)ids.push(p.id)
   });
@@ -227,39 +263,6 @@ function pintarEnlaceRegistro(){
   if(f)b.dataset.registroFecha=f;
   box.append(b)
 }
-function anotarDesdeRegistro(tipo){
-  const fecha=typedAppDateLabel(registroFecha||registroHoy());
-  if(tipo==="comi"){
-    const p=document.getElementById("consumptionPanel");
-    document.getElementById("consumptionDate").value=fecha;
-    consumptionWeek=mondayOf(registroFecha||registroHoy());
-    if(!p.open)p.open=true;else renderConsumption();
-    p.scrollIntoView({
-      block:"start"
-    });
-    document.getElementById("consumptionPlate").focus()
-  }else{
-    const p=document.getElementById("cookingHistoryPanel");
-    document.getElementById("cookingHistoryDate").value=fecha;
-    if(!p.open)p.open=true;else renderCookingHistory();
-    p.scrollIntoView({
-      block:"start"
-    });
-    document.getElementById("cookingHistoryPlate").focus()
-  }
-}
-function restarContador(id){
-  const a=loadSaved(),it=a.find(x=>x.id===id),st=document.getElementById("registroEstado");
-  if(!it||!((it.cooked||0)>0))return;
-  const antes=registroFoto();
-  it.cooked=it.cooked-1;
-  if(!persistSaved(a)){
-    st.textContent="No se pudo guardar el cambio.";
-    return
-  }
-  registroRepintar();
-  registroAviso(st,"Restaste una vez a "+mealName(it)+".",antes)
-}
 document.addEventListener("click",e=>{
   const b=e.target.closest&&e.target.closest("button");
   if(!b)return;
@@ -267,13 +270,13 @@ document.addEventListener("click",e=>{
   if(d.openRegistro!==undefined)return abrirRegistro({
     fecha:d.registroFecha
   });
-  if(d.registroDeshacer!==undefined)return deshacerRegistro(d.registroDeshacer,b.parentElement);
+  if(d.registroDeshacer!==undefined)return Registro.deshacerRegistro(d.registroDeshacer,b.parentElement);
   if(stack.at(-1)!=="registro")return;
   const st=document.getElementById("registroEstado");
   if(d.registroDia){
     const f=new Date((registroFecha||registroHoy())+"T12:00:00");
     f.setDate(f.getDate()+Number(d.registroDia));
-    const nueva=localTrainingDate(f);
+    const nueva=Rutina.localTrainingDate(f);
     if(nueva<=registroHoy())registroFecha=nueva;
     renderRegistro();
     return
@@ -283,8 +286,8 @@ document.addEventListener("click",e=>{
     renderRegistro();
     return
   }
-  if(d.registroAnotar)return anotarDesdeRegistro(d.registroAnotar);
-  if(d.registroRestar)return restarContador(d.registroRestar);
+  if(d.registroAnotar)return Registro.anotarDesdeRegistro(d.registroAnotar);
+  if(d.registroRestar)return Registro.restarContador(d.registroRestar);
   if(d.registroQuitar){
     const [tipo,id]=d.registroQuitar.split("|"),fila=b.closest(".registro-fila"),texto=fila?fila.querySelector(".registro-fila__texto").textContent:"";
     try{

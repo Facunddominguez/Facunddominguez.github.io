@@ -3,6 +3,60 @@
 // Las herramientas ocultas siguen funcionando con lo que ya guardaste (por ejemplo, las existencias
 // siguen generando sugerencias en Compras): solo dejan de verse hasta que se elige el modo completo.
 // Semana (desde la v15.1) no oculta nada: sus herramientas están en su menú ⋯ en los dos modos.
+// Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como ModoSimple.nombre().
+const ModoSimple={
+setUiMode(mode){
+  const next=mode==="completo"?"completo":"simple";
+  if(typeof fijarPreciosAntesDelModo==="function")fijarPreciosAntesDelModo();
+  try{
+    localStorage.setItem(UI_MODE_KEY,next);
+    uiModeMemory=null
+  }catch(e){
+    uiModeMemory=next
+  }
+  Interfaz.applyUiMode();
+  if(next==="simple")ModoSimple.resetHiddenSessionControls();
+  ModoSimple.renderUiModeControls();
+  if(typeof refrescarPrecios==="function")refrescarPrecios()
+},
+resetHiddenSessionControls(){
+  let changed=false;
+  const set=(id,prop,value)=>{
+    const e=document.getElementById(id);
+    if(e&&e[prop]!==value){
+      e[prop]=value;
+      changed=true
+    }
+  };
+  set("recipeRecommendMode","value","normal");
+  set("recipeRecommendPantry","checked",false);
+  set("recipeRecommendCosts","checked",false);
+  set("recipeCatalogSort","value","name");
+  set("recipeCatalogPageSize","value","20");
+  if(changed){
+    recipeCatalogPage=0;
+    try{
+      renderRecipeCatalog()
+    }catch(e){
+    }
+  }
+},
+renderUiModeControls(){
+  const simple=Interfaz.isSimpleMode();
+  document.querySelectorAll("[data-mode-note]").forEach(note=>{
+    const group=ADVANCED_TOOLS[note.dataset.modeNote];
+    note.querySelector("p").textContent=simple?"🧰 Herramientas ocultas: "+group.list+". Tus datos siguen guardados.":"🧰 Estás viendo todas las herramientas, también las avanzadas.";
+    note.querySelector("button").textContent=simple?"Mostrar herramientas avanzadas":"Ocultar herramientas avanzadas"
+  });
+  const card=document.getElementById("uiModeToggle");
+  if(card){
+    const estado=simple?"desactivado":"activado";
+    card.querySelector(".tool-button__label").textContent="Mostrar herramientas avanzadas: "+estado;
+    card.querySelector(".tool-button__desc").textContent=simple?"Activalo para ver calculadoras, recomendaciones y equivalencias":"Se ven las calculadoras, recomendaciones y equivalencias";
+    card.setAttribute("aria-label","Mostrar herramientas avanzadas: "+estado+". Tocar para cambiar")
+  }
+}
+};
 const ADVANCED_TOOLS={
   // Desde la v15.4 las herramientas de Compras están en su menú ⋯ en los dos modos. Desde la v15.7 la barra de
   // presupuesto y los precios no dependen del modo: los maneja "Mostrar precios y presupuesto" (43-precios.js).
@@ -46,59 +100,8 @@ const ADVANCED_TOOLS={
     items:()=>[]
   }
 };
-function setUiMode(mode){
-  const next=mode==="completo"?"completo":"simple";
-  if(typeof fijarPreciosAntesDelModo==="function")fijarPreciosAntesDelModo();
-  try{
-    localStorage.setItem(UI_MODE_KEY,next);
-    uiModeMemory=null
-  }catch(e){
-    uiModeMemory=next
-  }
-  applyUiMode();
-  if(next==="simple")resetHiddenSessionControls();
-  renderUiModeControls();
-  if(typeof refrescarPrecios==="function")refrescarPrecios()
-}
 // Controles de la sesión que quedan ocultos: vuelven a su valor inicial para que no cambien
 // en silencio lo que se ve (por ejemplo, el orden de las recetas). No guardan datos.
-function resetHiddenSessionControls(){
-  let changed=false;
-  const set=(id,prop,value)=>{
-    const e=document.getElementById(id);
-    if(e&&e[prop]!==value){
-      e[prop]=value;
-      changed=true
-    }
-  };
-  set("recipeRecommendMode","value","normal");
-  set("recipeRecommendPantry","checked",false);
-  set("recipeRecommendCosts","checked",false);
-  set("recipeCatalogSort","value","name");
-  set("recipeCatalogPageSize","value","20");
-  if(changed){
-    recipeCatalogPage=0;
-    try{
-      renderRecipeCatalog()
-    }catch(e){
-    }
-  }
-}
-function renderUiModeControls(){
-  const simple=isSimpleMode();
-  document.querySelectorAll("[data-mode-note]").forEach(note=>{
-    const group=ADVANCED_TOOLS[note.dataset.modeNote];
-    note.querySelector("p").textContent=simple?"🧰 Herramientas ocultas: "+group.list+". Tus datos siguen guardados.":"🧰 Estás viendo todas las herramientas, también las avanzadas.";
-    note.querySelector("button").textContent=simple?"Mostrar herramientas avanzadas":"Ocultar herramientas avanzadas"
-  });
-  const card=document.getElementById("uiModeToggle");
-  if(card){
-    const estado=simple?"desactivado":"activado";
-    card.querySelector(".tool-button__label").textContent="Mostrar herramientas avanzadas: "+estado;
-    card.querySelector(".tool-button__desc").textContent=simple?"Activalo para ver calculadoras, recomendaciones y equivalencias":"Se ven las calculadoras, recomendaciones y equivalencias";
-    card.setAttribute("aria-label","Mostrar herramientas avanzadas: "+estado+". Tocar para cambiar")
-  }
-}
 (()=>{
   for(const [key,group] of Object.entries(ADVANCED_TOOLS)){
     group.items().filter(Boolean).forEach(e=>e.setAttribute("data-avanzado",key));
@@ -125,7 +128,7 @@ function renderUiModeControls(){
       if(typeof refrescarPrecios==="function")refrescarPrecios();
       return
     }
-    if(e.target.closest("[data-ui-mode-toggle]"))setUiMode(isSimpleMode()?"completo":"simple")
+    if(e.target.closest("[data-ui-mode-toggle]"))ModoSimple.setUiMode(Interfaz.isSimpleMode()?"completo":"simple")
   });
-  renderUiModeControls()
+  ModoSimple.renderUiModeControls()
 })();

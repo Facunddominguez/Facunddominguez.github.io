@@ -2,20 +2,107 @@
 // Parte 34: los archivos se unen en orden según su número, que define el orden de arranque.
 // Sin cantidad, un ingrediente se guarda como marca (la misma lista de "Lo básico"); con cantidad, como
 // existencia (la misma que usan Compras, las recetas y los movimientos). No se migra ni se reescribe nada guardado.
-var pantryItemsReady=false;
-let pantryEditKey=null,pantryUndo=null;
-// Si el nombre corresponde a una marca de "Lo básico", devuelve su código (por ejemplo "arroz").
-function pantryChipFor(name){
+// Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como DespensaUnica.nombre().
+const DespensaUnica={
+pantryChipFor(name){
   const k=ingredientKey(name);
   if(!k)return null;
   const hit=PANTRY.find(([id,label])=>(PANTRY_ALIASES[id]||[]).some(a=>ingredientKey(a)===k)||ingredientKey(label.replace(/^[^\p{L}]+/u,""))===k);
   return hit?hit[0]:null
-}
-function pantryQtyText(q){
+},
+pantryQtyText(q){
   return Number(q.toFixed(6)).toLocaleString("es-AR",{
     maximumFractionDigits:6
   })
+},
+afterPantryChange(){
+  renderPantry();
+  try{
+    Existencias.renderStockQuantities()
+  }catch(e){
+  }
+  try{
+    shoppingQuantityAndCost()
+  }catch(e){
+  }
+  if(stack.at(-1)==="compras")renderCompras()
+},
+pantryStatus(text,undo){
+  const st=document.getElementById("pantryItemStatus");
+  st.replaceChildren(document.createTextNode(text));
+  if(undo){
+    const b=ce("button","filter-chip","Deshacer");
+    b.type="button";
+    b.dataset.pantryUndo="";
+    st.append(" ",b)
+  }
+},
+resetPantryForm(){
+  pantryEditKey=null;
+  document.getElementById("pantryItemName").value="";
+  document.getElementById("pantryItemQty").value="";
+  document.getElementById("pantryItemSubmit").textContent="Agregar a la despensa";
+  document.getElementById("pantryItemCancel").classList.add("is-hidden")
+},
+savePantryItem(){
+  const name=document.getElementById("pantryItemName").value.trim().replace(/\s+/g," "),unit=document.getElementById("pantryItemUnit").value,qty=recipeAmountNumber(document.getElementById("pantryItemQty").value,true),k=ingredientKey(name);
+  if(!name||!k)throw Error("Escribí el ingrediente.");
+  if(name.length>100)throw Error("El nombre es demasiado largo (máximo 100 caracteres).");
+  const stock=loadStockQuantities();
+  if(qty===null){
+    if(pantryEditKey)throw Error("Para guardar el cambio, indicá la cantidad. Si ya no tenés este ingrediente, tocá Quitar.");
+    const chip=DespensaUnica.pantryChipFor(name);
+    if(chip){
+      if(pantrySel.includes(chip))return "Ya estaba marcado en Lo básico.";
+      pantrySel.push(chip);
+      if(!MarcasDespensa.persistPantry()){
+        pantrySel.pop();throw Error("No se pudo guardar.")
+      }
+      return "Marcado en Lo básico: "+pantryById(chip)[1].replace(/^[^\p{L}]+/u,"")+"."
+    }
+    if(pantrySel.some(x=>!pantryById(x)&&ingredientKey(x)===k))return "Ya estaba en tu despensa.";
+    if(Object.values(stock).some(s=>ingredientKey(s.name)===k))return "Ya lo tenés con cantidad: tocá Editar para cambiarla.";
+    if(pantrySel.filter(x=>!pantryById(x)).length>=200)throw Error("Máximo 200 ingredientes sin cantidad.");
+    pantrySel.push(name);
+    if(!MarcasDespensa.persistPantry()){
+      pantrySel.pop();throw Error("No se pudo guardar.")
+    }
+    return "Agregado a tu despensa: "+name+" (sin cantidad)."
+  }
+  if(!RECIPE_AMOUNT_UNITS.includes(unit))throw Error("Elegí una unidad.");
+  const key=Existencias.stockKey(name,unit),moves=[];
+  if(pantryEditKey&&pantryEditKey!==key&&stock[pantryEditKey]){
+    const old=stock[pantryEditKey];
+    delete stock[pantryEditKey];
+    if(old.quantity)moves.push({
+      name:old.name,unit:old.unit,delta:-old.quantity,reason:"Ajuste manual"
+    })
+  }
+  if(!stock[key]&&Object.keys(stock).length>=500)throw Error("Máximo 500 existencias registradas.");
+  const before=stock[key]?stock[key].quantity:0;
+  stock[key]={
+    name,quantity:qty,unit
+  };
+  if(qty!==before)moves.push({
+    name,unit,delta:qty-before,reason:"Ajuste manual"
+  });
+  try{
+    localStorage.setItem(STOCK_QUANT_KEY,JSON.stringify(stock))
+  }catch(e){
+    throw Error("No se pudo guardar. Revisá el espacio disponible.")
+  }
+  logPantryMoves(moves);
+  // Si estaba como ingrediente sin cantidad, ahora lo representa la existencia.
+  const i=pantrySel.findIndex(x=>!pantryById(x)&&ingredientKey(x)===k);
+  if(i>=0){
+    pantrySel.splice(i,1);MarcasDespensa.persistPantry()
+  }
+  return "Guardado: "+name+" · "+DespensaUnica.pantryQtyText(qty)+" "+unit+"."
 }
+};
+var pantryItemsReady=false;
+let pantryEditKey=null,pantryUndo=null;
+// Si el nombre corresponde a una marca de "Lo básico", devuelve su código (por ejemplo "arroz").
 function renderPantryItems(){
   const box=document.getElementById("pantryItemList");
   if(!box)return;
@@ -54,90 +141,6 @@ function renderPantryItems(){
   }))
 }
 // Después de cualquier cambio: marcas, lista, ideas y lo que depende de la despensa.
-function afterPantryChange(){
-  renderPantry();
-  try{
-    renderStockQuantities()
-  }catch(e){
-  }
-  try{
-    shoppingQuantityAndCost()
-  }catch(e){
-  }
-  if(stack.at(-1)==="compras")renderCompras()
-}
-function pantryStatus(text,undo){
-  const st=document.getElementById("pantryItemStatus");
-  st.replaceChildren(document.createTextNode(text));
-  if(undo){
-    const b=ce("button","filter-chip","Deshacer");
-    b.type="button";
-    b.dataset.pantryUndo="";
-    st.append(" ",b)
-  }
-}
-function resetPantryForm(){
-  pantryEditKey=null;
-  document.getElementById("pantryItemName").value="";
-  document.getElementById("pantryItemQty").value="";
-  document.getElementById("pantryItemSubmit").textContent="Agregar a la despensa";
-  document.getElementById("pantryItemCancel").classList.add("is-hidden")
-}
-function savePantryItem(){
-  const name=document.getElementById("pantryItemName").value.trim().replace(/\s+/g," "),unit=document.getElementById("pantryItemUnit").value,qty=recipeAmountNumber(document.getElementById("pantryItemQty").value,true),k=ingredientKey(name);
-  if(!name||!k)throw Error("Escribí el ingrediente.");
-  if(name.length>100)throw Error("El nombre es demasiado largo (máximo 100 caracteres).");
-  const stock=loadStockQuantities();
-  if(qty===null){
-    if(pantryEditKey)throw Error("Para guardar el cambio, indicá la cantidad. Si ya no tenés este ingrediente, tocá Quitar.");
-    const chip=pantryChipFor(name);
-    if(chip){
-      if(pantrySel.includes(chip))return "Ya estaba marcado en Lo básico.";
-      pantrySel.push(chip);
-      if(!persistPantry()){
-        pantrySel.pop();throw Error("No se pudo guardar.")
-      }
-      return "Marcado en Lo básico: "+pantryById(chip)[1].replace(/^[^\p{L}]+/u,"")+"."
-    }
-    if(pantrySel.some(x=>!pantryById(x)&&ingredientKey(x)===k))return "Ya estaba en tu despensa.";
-    if(Object.values(stock).some(s=>ingredientKey(s.name)===k))return "Ya lo tenés con cantidad: tocá Editar para cambiarla.";
-    if(pantrySel.filter(x=>!pantryById(x)).length>=200)throw Error("Máximo 200 ingredientes sin cantidad.");
-    pantrySel.push(name);
-    if(!persistPantry()){
-      pantrySel.pop();throw Error("No se pudo guardar.")
-    }
-    return "Agregado a tu despensa: "+name+" (sin cantidad)."
-  }
-  if(!RECIPE_AMOUNT_UNITS.includes(unit))throw Error("Elegí una unidad.");
-  const key=stockKey(name,unit),moves=[];
-  if(pantryEditKey&&pantryEditKey!==key&&stock[pantryEditKey]){
-    const old=stock[pantryEditKey];
-    delete stock[pantryEditKey];
-    if(old.quantity)moves.push({
-      name:old.name,unit:old.unit,delta:-old.quantity,reason:"Ajuste manual"
-    })
-  }
-  if(!stock[key]&&Object.keys(stock).length>=500)throw Error("Máximo 500 existencias registradas.");
-  const before=stock[key]?stock[key].quantity:0;
-  stock[key]={
-    name,quantity:qty,unit
-  };
-  if(qty!==before)moves.push({
-    name,unit,delta:qty-before,reason:"Ajuste manual"
-  });
-  try{
-    localStorage.setItem(STOCK_QUANT_KEY,JSON.stringify(stock))
-  }catch(e){
-    throw Error("No se pudo guardar. Revisá el espacio disponible.")
-  }
-  logPantryMoves(moves);
-  // Si estaba como ingrediente sin cantidad, ahora lo representa la existencia.
-  const i=pantrySel.findIndex(x=>!pantryById(x)&&ingredientKey(x)===k);
-  if(i>=0){
-    pantrySel.splice(i,1);persistPantry()
-  }
-  return "Guardado: "+name+" · "+pantryQtyText(qty)+" "+unit+"."
-}
 document.getElementById("pantryItemForm").addEventListener("submit",e=>{
   e.preventDefault();
   try{
@@ -145,22 +148,22 @@ document.getElementById("pantryItemForm").addEventListener("submit",e=>{
     const editando=!!pantryEditKey,antes={
       stock:localStorage.getItem(STOCK_QUANT_KEY),pantry:localStorage.getItem(PANKEY)
     };
-    const msg=savePantryItem();
-    resetPantryForm();
+    const msg=DespensaUnica.savePantryItem();
+    DespensaUnica.resetPantryForm();
     pantryUndo=editando?{
       kind:"edit",antes,despues:{
         stock:localStorage.getItem(STOCK_QUANT_KEY),pantry:localStorage.getItem(PANKEY)
       }
     }:null;
-    afterPantryChange();
-    pantryStatus(msg,editando)
+    DespensaUnica.afterPantryChange();
+    DespensaUnica.pantryStatus(msg,editando)
   }catch(err){
-    pantryStatus(err.message)
+    DespensaUnica.pantryStatus(err.message)
   }
 });
 document.getElementById("pantryItemCancel").addEventListener("click",()=>{
-  resetPantryForm();
-  pantryStatus("")
+  DespensaUnica.resetPantryForm();
+  DespensaUnica.pantryStatus("")
 });
 document.getElementById("pantryItemName").addEventListener("focus",()=>{
   const list=document.getElementById("pantryItemNames");
@@ -179,7 +182,7 @@ document.addEventListener("click",e=>{
   if(!b)return;
   if(b.dataset.pantryResultsToggle!==undefined){
     pantryResultsAll=!pantryResultsAll;
-    renderPantryResults();
+    MarcasDespensa.renderPantryResults();
     return
   }
   try{
@@ -195,22 +198,22 @@ document.addEventListener("click",e=>{
       if(old.quantity)logPantryMoves([{
         name:old.name,unit:old.unit,delta:-old.quantity,reason:"Quitada de la despensa"
       }]);
-      if(pantryEditKey===key)resetPantryForm();
+      if(pantryEditKey===key)DespensaUnica.resetPantryForm();
       pantryUndo={
         kind:"stock",key,item:old
       };
-      afterPantryChange();
-      pantryStatus("Quitado: "+old.name+".",true)
+      DespensaUnica.afterPantryChange();
+      DespensaUnica.pantryStatus("Quitado: "+old.name+".",true)
     }else if(b.dataset.pantryItemRemoveFree){
       const name=b.dataset.pantryItemRemoveFree,i=pantrySel.indexOf(name);
       if(i<0)return;
       pantrySel.splice(i,1);
-      persistPantry();
+      MarcasDespensa.persistPantry();
       pantryUndo={
         kind:"free",name
       };
-      afterPantryChange();
-      pantryStatus("Quitado: "+name+".",true)
+      DespensaUnica.afterPantryChange();
+      DespensaUnica.pantryStatus("Quitado: "+name+".",true)
     }else if(b.dataset.pantryItemEdit){
       const s=loadStockQuantities()[b.dataset.pantryItemEdit];
       if(!s)return;
@@ -220,12 +223,12 @@ document.addEventListener("click",e=>{
       document.getElementById("pantryItemUnit").value=s.unit;
       document.getElementById("pantryItemSubmit").textContent="Guardar cambios";
       document.getElementById("pantryItemCancel").classList.remove("is-hidden");
-      pantryStatus("Editando "+s.name+".");
+      DespensaUnica.pantryStatus("Editando "+s.name+".");
       document.getElementById("pantryItemQty").focus()
     }else if(b.dataset.pantryItemQty){
-      resetPantryForm();
+      DespensaUnica.resetPantryForm();
       document.getElementById("pantryItemName").value=b.dataset.pantryItemQty;
-      pantryStatus("Escribí la cantidad y tocá Agregar a la despensa.");
+      DespensaUnica.pantryStatus("Escribí la cantidad y tocá Agregar a la despensa.");
       document.getElementById("pantryItemQty").focus()
     }else if(b.dataset.pantryUndo!==undefined&&pantryUndo){
       const u=pantryUndo;
@@ -253,13 +256,13 @@ document.addEventListener("click",e=>{
         }])
       }else if(!pantrySel.includes(u.name)){
         pantrySel.push(u.name);
-        persistPantry()
+        MarcasDespensa.persistPantry()
       }
-      afterPantryChange();
-      pantryStatus("Listo, se recuperó.")
+      DespensaUnica.afterPantryChange();
+      DespensaUnica.pantryStatus("Listo, se recuperó.")
     }
   }catch(err){
-    pantryStatus(err.message)
+    DespensaUnica.pantryStatus(err.message)
   }
 });
 {

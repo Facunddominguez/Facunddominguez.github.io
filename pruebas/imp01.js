@@ -8,34 +8,34 @@
     const input = document.getElementById("importFile"); input.files = dt.files; input.dispatchEvent(new Event("change", { bubbles: true }));
     await wait(250);
   };
-  const backupOk = () => { try { validateCompleteBackup(completeBackupSnapshot(localStorage)); return null } catch (e) { return e.message } };
+  const backupOk = () => { try { Respaldo.validateCompleteBackup(completeBackupSnapshot(localStorage)); return null } catch (e) { return e.message } };
   window.confirm = () => true;
   localStorage.clear(); restart();
   // Build real plates through the app
   state.type = "desayuno"; state.fruta = { name: "Licuado", quantity: "1 vaso" }; state.bfprot = { name: "Yogur natural descremado", quantity: "1 pote" }; state.bfcarb = { name: "Avena arrollada o instantánea", quantity: "2 cdas soperas" }; state.grasa = { name: "No sumo grasa" };
-  savePlate(); restart();
+  MisPlatos.savePlate(); restart();
   state.type = "plato"; state.day = "Día libre"; state.verduras = [{ name: "Tomate" }]; state.almidones = [{ name: "Papa" }]; state.proteinas = [{ name: "Merluza" }];
-  savePlate(); restart();
-  const arr = loadSaved(); arr[0].fav = true; arr[0].note = "Cena rápida"; arr[0].cooked = 3;
+  MisPlatos.savePlate(); restart();
+  const arr = MisPlatos.loadSaved(); arr[0].fav = true; arr[0].note = "Cena rápida"; arr[0].cooked = 3;
   arr.push({ id: "recipe_plan_1_abc", savedAt: "2026-10-26T10:00:00.000Z", type: "plato", title: "Papas al horno", lines: [], sig: "recipe-ref:recipe_x:plato", text: "Papas al horno", cooked: 0, state: null, recipeSourceId: "recipe_x", recipeIngredients: ["Papa"] });
-  persistSaved(arr);
-  const original = JSON.stringify(loadSaved());
+  MisPlatos.persistSaved(arr);
+  const original = JSON.stringify(MisPlatos.loadSaved());
   // Export through the real button (download intercepted)
   const blobs = []; const oc = URL.createObjectURL; URL.createObjectURL = b => { blobs.push(b); return oc.call(URL, b) };
   const ac = HTMLAnchorElement.prototype.click; HTMLAnchorElement.prototype.click = function () { };
-  exportPlates();
+  MisPlatos.exportPlates();
   HTMLAnchorElement.prototype.click = ac; URL.createObjectURL = oc;
   const exported = await blobs.at(-1).text();
   // I1: import own export into an empty store -> identical
-  persistSaved([]);
+  MisPlatos.persistSaved([]);
   await viaInput(exported);
-  ok("I1 exportación propia se importa idéntica (ids, favoritos, notas, Cociné, recetas)", JSON.stringify(loadSaved()) === original, status());
+  ok("I1 exportación propia se importa idéntica (ids, favoritos, notas, Cociné, recetas)", JSON.stringify(MisPlatos.loadSaved()) === original, status());
   // I2: re-import -> nothing duplicated
   await viaInput(exported);
-  ok("I2 reimportar no duplica", loadSaved().length === 3 && /Importados 0 platos nuevos\. 3 ya estaban guardados\./.test(status()), status());
+  ok("I2 reimportar no duplica", MisPlatos.loadSaved().length === 3 && /Importados 0 platos nuevos\. 3 ya estaban guardados\./.test(status()), status());
   // I3: mixed file
   const legacyText = "🍽️ Mi plato fácil\nDesayuno / Merienda\n• Fruta: Banana\n• Proteína: Yogur";
-  const firstId = loadSaved()[0].id;
+  const firstId = MisPlatos.loadSaved()[0].id;
   const mixed = '[' + [
     JSON.stringify({ text: "solo texto, sin id ni tipo" }),
     JSON.stringify({ text: "tipo inventado", id: "dup", type: "cualquiera", lines: "no-es-lista" }),
@@ -50,7 +50,7 @@
     "null", "5", '"texto suelto"'
   ].join(",") + ']';
   await viaInput(mixed);
-  const after = loadSaved();
+  const after = MisPlatos.loadSaved();
   const byText = t => after.filter(p => p.text === t);
   ok("I3a mensaje informa importados y omitidos", /Importados 5 platos nuevos\. 8 omitidos por formato inválido\./.test(status()), status());
   ok("I3b todos los ids quedan únicos", new Set(after.map(p => p.id)).size === after.length);

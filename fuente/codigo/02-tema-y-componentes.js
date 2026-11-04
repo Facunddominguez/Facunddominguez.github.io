@@ -1,31 +1,32 @@
 // Mi Plato Fácil · Tema claro/oscuro y piezas de interfaz reutilizables.
 // Parte 3: los archivos se unen en orden según su número, que define el orden de arranque.
-const TKEY="miPlatoFacil_theme";
-function prefersDark(){
+// Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como Interfaz.nombre().
+const Interfaz={
+prefersDark(){
   try{
     return window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches
   }catch(e){
     return false
   }
-}
-function autoIsDark(){
+},
+autoIsDark(){
   const h=new Date().getHours();
   return h>=19||h<7
-}
-function getThemeMode(){
+},
+getThemeMode(){
   try{
     return localStorage.getItem(TKEY)||"auto"
   }catch(e){
     return "auto"
   }
-}
-function resolveTheme(mode){
+},
+resolveTheme(mode){
   if(mode==="dark")return "dark";
   if(mode==="light")return "light";
-  return (autoIsDark()||prefersDark())?"dark":"light"
-}
-function applyTheme(){
-  const mode=getThemeMode(),eff=resolveTheme(mode);
+  return (Interfaz.autoIsDark()||Interfaz.prefersDark())?"dark":"light"
+},
+applyTheme(){
+  const mode=Interfaz.getThemeMode(),eff=Interfaz.resolveTheme(mode);
   document.documentElement.setAttribute("data-theme",eff);
   const btn=document.getElementById("themeToggle");
   if(btn){
@@ -34,44 +35,33 @@ function applyTheme(){
     if(ico&&lab){ico.textContent=icon;lab.textContent="Tema: "+label}else btn.textContent=icon+" "+label;
     btn.setAttribute("aria-label","Tema: "+label+". Tocar para cambiar")
   }
-}
-function setThemeMode(m){
+},
+setThemeMode(m){
   try{
     localStorage.setItem(TKEY,m)
   }catch(e){
   }
-  applyTheme()
-}
-function cycleTheme(){
-  const order=["auto","light","dark"],cur=getThemeMode();
-  setThemeMode(order[(order.indexOf(cur)+1)%order.length])
-}
-// Modo simple (predeterminado) o completo. Solo cambia qué herramientas se ven: no borra ni cambia datos.
-// Es un ajuste de cada dispositivo, como la clave de IA: no va en los respaldos (así siguen sirviendo en versiones anteriores).
-const UI_MODE_KEY="miPlatoFacil_uiMode_v1";
-let uiModeMemory=null;
-function getUiMode(){
+  Interfaz.applyTheme()
+},
+cycleTheme(){
+  const order=["auto","light","dark"],cur=Interfaz.getThemeMode();
+  Interfaz.setThemeMode(order[(order.indexOf(cur)+1)%order.length])
+},
+getUiMode(){
   if(uiModeMemory)return uiModeMemory;
   try{
     return localStorage.getItem(UI_MODE_KEY)==="completo"?"completo":"simple"
   }catch(e){
     return "simple"
   }
-}
-function isSimpleMode(){
-  return getUiMode()==="simple"
-}
-function applyUiMode(){
-  document.documentElement.setAttribute("data-modo",getUiMode())
-}
-applyUiMode();
-function ce(t,c,txt){
-  const e=document.createElement(t);
-  if(c)e.className=c;
-  if(txt!==undefined)e.textContent=txt;
-  return e
-}
-function emptyState(emoji,title,text,action){
+},
+isSimpleMode(){
+  return Interfaz.getUiMode()==="simple"
+},
+applyUiMode(){
+  document.documentElement.setAttribute("data-modo",Interfaz.getUiMode())
+},
+emptyState(emoji,title,text,action){
   const w=ce("div","empty-state");
   w.append(ce("span","empty-state__emoji",emoji),ce("p","empty-state__title",title),ce("p","empty-state__text",text));
   if(action){
@@ -82,6 +72,83 @@ function emptyState(emoji,title,text,action){
     w.append(b)
   }
   return w
+},
+renderChoice(id,items,key,next){
+  document.getElementById(id).replaceChildren(...items.map(([label,quantity])=>choice({
+    label,quantity,key,next
+  })))
+},
+renderMulti(id,items,key){
+  document.getElementById(id).replaceChildren(...items.map(label=>choice({
+    label,key,multi:true
+  })))
+},
+protBtn(fullName){
+  const b=ce("button","choice");
+  b.type="button";
+  b.dataset.name=fullName;
+  b.dataset.multi="proteinas";
+  b.setAttribute("aria-pressed","false");
+  let disp=fullName.indexOf(OCC)===0?fullName.slice(OCC.length):fullName;
+  if(fullName.indexOf(OCC)===0&&disp)disp=disp.charAt(0).toUpperCase()+disp.slice(1);
+  b.append(ce("span","choice__title",disp));
+  return b
+},
+renderProteins(){
+  const box=document.getElementById("boxp");
+  if(!box)return;
+  const main=data.proteinas.filter(x=>x.indexOf("Opción ocasional:")!==0);
+  const occ=data.proteinas.filter(x=>x.indexOf("Opción ocasional:")===0);
+  const nodes=[];
+  nodes.push(ce("p","home-section-label","Proteínas principales"));
+  main.forEach(n=>nodes.push(Interfaz.protBtn(n)));
+  if(occ.length){
+    nodes.push(ce("p","home-section-label","Opción ocasional"));
+    occ.forEach(n=>nodes.push(Interfaz.protBtn(n)))
+  }
+  box.replaceChildren(...nodes)
+},
+liList(target,items){
+  target.replaceChildren(...items.map(x=>ce("li",null,x)))
+},
+snackLabel(x){
+  return x[1]?`${x[0]} · ${x[1]}`:x[0]
+},
+snackList(target,items){
+  target.replaceChildren(...items.map(x=>{
+    const li=ce("li",null,Interfaz.snackLabel(x));if(target===el.adviceSnacks)li.append(adviceFavButton("snack",Interfaz.snackLabel(x)));return li
+  }))
+},
+methodCards(target,items){
+  target.replaceChildren(...items.map(x=>ce("li","advice-card-item",`${x}: ${data.cookingTips[x]||""}`)))
+},
+ideaBoton(obj,texto){
+  const t=obj?obj.text:String(texto);
+  if(!obj)return document.createTextNode(t);
+  const b=ce("button","idea-link",t);
+  b.type="button";
+  b.dataset.ideaOpen=t;
+  return b
+},
+renderMenuList(target,items,showTags=false){
+  target.replaceChildren(...items.map(item=>{
+    const obj=typeof item==="string"?data.menuCatalog.find(x=>x.text===item):item;const li=ce("li");li.append(Interfaz.ideaBoton(obj,item));if(target===el.menuIdeas||target.id==="menuSearchList")li.append(adviceFavButton("menu",obj?obj.text:item));if(showTags&&obj&&obj.tags){
+      const wrap=ce("div","menu-item-tags");obj.tags.slice(0,5).forEach(t=>wrap.append(ce("span","tag-chip",t)));li.append(wrap)
+    }return li
+  }))
+}
+};
+const TKEY="miPlatoFacil_theme";
+// Modo simple (predeterminado) o completo. Solo cambia qué herramientas se ven: no borra ni cambia datos.
+// Es un ajuste de cada dispositivo, como la clave de IA: no va en los respaldos (así siguen sirviendo en versiones anteriores).
+const UI_MODE_KEY="miPlatoFacil_uiMode_v1";
+let uiModeMemory=null;
+Interfaz.applyUiMode();
+function ce(t,c,txt){
+  const e=document.createElement(t);
+  if(c)e.className=c;
+  if(txt!==undefined)e.textContent=txt;
+  return e
 }
 function choice({
   label,quantity="",key,next,multi=false
@@ -101,69 +168,5 @@ function choice({
   if(quantity)b.append(ce("span","quantity",cantidadVisible(quantity)));
   return b
 }
-function renderChoice(id,items,key,next){
-  document.getElementById(id).replaceChildren(...items.map(([label,quantity])=>choice({
-    label,quantity,key,next
-  })))
-}
-function renderMulti(id,items,key){
-  document.getElementById(id).replaceChildren(...items.map(label=>choice({
-    label,key,multi:true
-  })))
-}
 const OCC="Opción ocasional: ";
-function protBtn(fullName){
-  const b=ce("button","choice");
-  b.type="button";
-  b.dataset.name=fullName;
-  b.dataset.multi="proteinas";
-  b.setAttribute("aria-pressed","false");
-  let disp=fullName.indexOf(OCC)===0?fullName.slice(OCC.length):fullName;
-  if(fullName.indexOf(OCC)===0&&disp)disp=disp.charAt(0).toUpperCase()+disp.slice(1);
-  b.append(ce("span","choice__title",disp));
-  return b
-}
-function renderProteins(){
-  const box=document.getElementById("boxp");
-  if(!box)return;
-  const main=data.proteinas.filter(x=>x.indexOf("Opción ocasional:")!==0);
-  const occ=data.proteinas.filter(x=>x.indexOf("Opción ocasional:")===0);
-  const nodes=[];
-  nodes.push(ce("p","home-section-label","Proteínas principales"));
-  main.forEach(n=>nodes.push(protBtn(n)));
-  if(occ.length){
-    nodes.push(ce("p","home-section-label","Opción ocasional"));
-    occ.forEach(n=>nodes.push(protBtn(n)))
-  }
-  box.replaceChildren(...nodes)
-}
-function liList(target,items){
-  target.replaceChildren(...items.map(x=>ce("li",null,x)))
-}
-function snackLabel(x){
-  return x[1]?`${x[0]} · ${x[1]}`:x[0]
-}
-function snackList(target,items){
-  target.replaceChildren(...items.map(x=>{
-    const li=ce("li",null,snackLabel(x));if(target===el.adviceSnacks)li.append(adviceFavButton("snack",snackLabel(x)));return li
-  }))
-}
-function methodCards(target,items){
-  target.replaceChildren(...items.map(x=>ce("li","advice-card-item",`${x}: ${data.cookingTips[x]||""}`)))
-}
 // Una idea del catálogo que se puede tocar: abre su detalle (Guardar y Agregar a la semana, 37-ideas-y-hoja.js).
-function ideaBoton(obj,texto){
-  const t=obj?obj.text:String(texto);
-  if(!obj)return document.createTextNode(t);
-  const b=ce("button","idea-link",t);
-  b.type="button";
-  b.dataset.ideaOpen=t;
-  return b
-}
-function renderMenuList(target,items,showTags=false){
-  target.replaceChildren(...items.map(item=>{
-    const obj=typeof item==="string"?data.menuCatalog.find(x=>x.text===item):item;const li=ce("li");li.append(ideaBoton(obj,item));if(target===el.menuIdeas||target.id==="menuSearchList")li.append(adviceFavButton("menu",obj?obj.text:item));if(showTags&&obj&&obj.tags){
-      const wrap=ce("div","menu-item-tags");obj.tags.slice(0,5).forEach(t=>wrap.append(ce("span","tag-chip",t)));li.append(wrap)
-    }return li
-  }))
-}

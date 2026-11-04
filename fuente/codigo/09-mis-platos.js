@@ -1,7 +1,8 @@
 // Mi Plato Fácil · Mis platos guardados, importar y exportar.
 // Parte 10: los archivos se unen en orden según su número, que define el orden de arranque.
-const SKEY="miPlatoFacil_saved";
-function loadSaved(){
+// Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como MisPlatos.nombre().
+const MisPlatos={
+loadSaved(){
   try{
     const raw=localStorage.getItem(SKEY);
     const a=raw?JSON.parse(raw):[];
@@ -9,46 +10,32 @@ function loadSaved(){
   }catch(e){
     return []
   }
-}
-function persistSaved(a){
+},
+persistSaved(a){
   try{
     localStorage.setItem(SKEY,JSON.stringify(a));
     return true
   }catch(e){
     return false
   }
-}
-function plateSignature(){
-  return state.type+"|"+plateLines().join("|")
-}
-function currentSnapshot(){
-  const L=plateLines(),st=JSON.parse(JSON.stringify(state));
+},
+plateSignature(){
+  return state.type+"|"+Compartir.plateLines().join("|")
+},
+currentSnapshot(){
+  const L=Compartir.plateLines(),st=JSON.parse(JSON.stringify(state));
   delete st.nombreSugerido;
   return {
-    id:Date.now()+"_"+Math.random().toString(36).slice(2,7),savedAt:new Date().toISOString(),type:state.type,title:L[0],lines:L.slice(1),sig:plateSignature(),text:plateText(),cooked:0,state:st
+    id:Date.now()+"_"+Math.random().toString(36).slice(2,7),savedAt:new Date().toISOString(),type:state.type,title:L[0],lines:L.slice(1),sig:MisPlatos.plateSignature(),text:Compartir.plateText(),cooked:0,state:st
   }
-}
-let savedStatusTimer=null;
-function savedStatus(msg){
-  const s=document.getElementById("savedStatus");
-  if(!s)return;
-  s.textContent=msg;
-  // v15.3: si se actuó desde el detalle de la comida, el aviso también se ve ahí.
-  const det=document.getElementById("comidaEstado");
-  if(det&&stack.at(-1)==="comida")det.textContent=msg;
-  clearTimeout(savedStatusTimer);
-  savedStatusTimer=setTimeout(()=>{
-    s.textContent=""
-  },3600)
-}
-// Guarda la comida armada. Desde la v15 el nombre (la hoja "Guardar comida") va en note, el campo de "Renombrar".
-function savePlate(nombre){
+},
+savePlate(nombre){
   if(!state.type){
     shareStatus("Primero armá un plato.");
     return
   }
-  const a=loadSaved();
-  const snap=currentSnapshot();
+  const a=MisPlatos.loadSaved();
+  const snap=MisPlatos.currentSnapshot();
   const igual=a.find(x=>(x.sig||x.text)===snap.sig);
   if(igual){
     shareStatus("Este plato ya está guardado.");
@@ -56,46 +43,32 @@ function savePlate(nombre){
   }
   if(typeof nombre==="string"&&nombre.trim())snap.note=nombre.trim().slice(0,80);
   a.unshift(snap);
-  const ok=persistSaved(a);
+  const ok=MisPlatos.persistSaved(a);
   shareStatus(ok?"¡Guardado en Comidas!":"No se pudo guardar (almacenamiento no disponible).");
   return ok?snap:null
-}
-function deleteSaved(id){
-  const a=loadSaved().filter(x=>x.id!==id);
-  persistSaved(a);
+},
+deleteSaved(id){
+  const a=MisPlatos.loadSaved().filter(x=>x.id!==id);
+  MisPlatos.persistSaved(a);
   renderSaved();
   savedStatus("Plato eliminado.")
-}
-function toggleFav(id){
-  const a=loadSaved();
+},
+toggleFav(id){
+  const a=MisPlatos.loadSaved();
   const it=a.find(x=>x.id===id);
   if(!it)return;
   it.fav=!it.fav;
-  persistSaved(a);
+  MisPlatos.persistSaved(a);
   renderSaved();
   savedStatus(it.fav?"Marcado como favorito.":"Quitado de favoritos.")
-}
-function renameSaved(id){
-  const a=loadSaved();
-  const it=a.find(x=>x.id===id);
-  if(!it)return;
-  const cur=it.note||mealName(it);
-  const val=window.prompt("Nombre de esta comida:",cur);
-  if(val===null)return;
-  it.note=val.trim();
-  persistSaved(a);
-  renderSaved();
-  savedStatus(it.note?"Nota guardada.":"Nota eliminada.")
-}
-// Lo cociné de un plato: suma el contador, como siempre, y desde la v15.5 también anota la preparación de hoy en el
-// historial (el mismo formato que una receta), así se ve en el Registro. Deshacer vuelve las dos cosas.
-function cookedPlate(id){
-  const a=loadSaved();
+},
+cookedPlate(id){
+  const a=MisPlatos.loadSaved();
   const it=a.find(x=>x.id===id);
   if(!it)return;
   const antes=registroFoto();
   try{
-    const rec=cookingHistoryRecord(it,localTrainingDate(new Date()),"Otra");
+    const rec=cookingHistoryRecord(it,Rutina.localTrainingDate(new Date()),"Otra");
     rec.title=String(mealName(it)||rec.title).slice(0,200);
     agregarPreparacion(rec)
   }catch(err){
@@ -103,7 +76,7 @@ function cookedPlate(id){
     return
   }
   it.cooked=(it.cooked||0)+1;
-  if(!persistSaved(a)){
+  if(!MisPlatos.persistSaved(a)){
     for(const [k,v] of Object.entries(antes)){
       if(v===null)localStorage.removeItem(k);else localStorage.setItem(k,v)
     }
@@ -119,35 +92,231 @@ function cookedPlate(id){
     if(stack.at(-1)==="registro")renderRegistro()
   }catch(e){
   }
-}
-function clearAllSaved(){
-  const a=loadSaved();
+},
+clearAllSaved(){
+  const a=MisPlatos.loadSaved();
   if(!a.length){
     savedStatus("No hay platos para borrar.");
     return
   }
   if(window.confirm("¿Seguro que querés borrar TODOS los platos guardados? Esta acción no se puede deshacer.")){
-    persistSaved([]);
+    MisPlatos.persistSaved([]);
     renderSaved();
     savedStatus("Se borraron todos los platos.")
   }
-}
-function matchSaved(it,q){
+},
+matchSaved(it,q){
   if(!q)return true;
   const hay=normalizeSearchText(mealName(it)+" "+savedItemTitle(it)+" "+(it.title||"")+" "+savedItemLines(it).join(" ")+" "+(it.note||""));
   return hay.includes(q)
-}
-function fmtWhen(iso){
+},
+fmtWhen(iso){
   const d=new Date(iso);
   if(isNaN(d.getTime()))return "";
   return d.toLocaleDateString("es-AR")+" "+d.toLocaleTimeString("es-AR",{
     hour:"2-digit",minute:"2-digit"
   })
+},
+toggleSavedActions(id){
+  if(expandedSaved.has(id))expandedSaved.delete(id);
+  else expandedSaved.add(id);
+  renderSaved()
+},
+sortSaved(arr){
+  const s=arr.slice();
+  if(savedSort==="az"){
+    s.sort((x,y)=>normalizeSearchText(mealName(x)).localeCompare(normalizeSearchText(mealName(y))))
+  }else if(savedSort==="tipo"){
+    const ord={
+      desayuno:0,plato:1,snack:2,pre:3
+    };
+    s.sort((x,y)=>(ord[x.type]??9)-(ord[y.type]??9))
+  }else if(savedSort==="cocinado"){
+    s.sort((x,y)=>(y.cooked||0)-(x.cooked||0))
+  }
+  return s
+},
+savedRecipeIngredients(r,amounts){
+  const a=r.amountsTitle&&Object.prototype.hasOwnProperty.call(amounts,r.amountsTitle)?amounts[r.amountsTitle]:null;
+  return a?a.rows.map(x=>String(x.name||"").trim()).filter(Boolean):[]
+},
+matchSavedRecipe(r,amounts,q){
+  if(!q)return true;
+  return normalizeSearchText([r.title,r.sourceTitle||"",r.notes||"",...(r.steps||[]),...(r.tags||[]),...savedRecipeIngredients(r,amounts)].join(" ")).includes(q)
+},
+savedRecipeCard(r,amounts,inPlan){
+  const card=ce("div","summary__line recipe-lib-card"),names=MisPlatos.savedRecipeIngredients(r,amounts),a=r.amountsTitle&&Object.prototype.hasOwnProperty.call(amounts,r.amountsTitle)?amounts[r.amountsTitle]:null;
+  card.dataset.recipeId=r.id;
+  card.append(ce("strong",null,"📖 "+r.title));
+  const ul=ce("ul","recipe-lib-card__lines");
+  ul.append(ce("li",null,names.length?"Ingredientes: "+names.join(", "):"Sin ingredientes cargados"));
+  card.append(ul);
+  const meta=[r.minutes?"⏱ "+r.minutes+" min":"",a&&a.yield?"Rinde "+String(a.yield).replace(".",",")+" porci"+(a.yield===1?"ón":"ones"):"",r.steps.length?r.steps.length+" paso"+(r.steps.length===1?"":"s"):"",inPlan?"📅 En el plan":""].filter(Boolean).join(" · ");
+  if(meta)card.append(ce("div","recipe-lib-card__meta",meta));
+  const acts=ce("div","recipe-lib-card__actions");
+  for(const [text,key] of [["Ver receta","savedRecipeView"],["🍳 Lo cociné","savedRecipeCook"],["Planificar","savedRecipePlan"],["Editar","savedRecipeEdit"]]){
+    const b=ce("button","button button--soft",text);
+    b.type="button";
+    b.dataset[key]=r.id;
+    b.setAttribute("aria-label",text+": "+r.title);
+    acts.append(b)
+  }
+  card.append(acts);
+  return card
+},
+exportPlates(){
+  const a=MisPlatos.loadSaved();
+  if(!a.length){
+    savedStatus("No hay platos para exportar.");
+    return
+  }
+  try{
+    const blob=new Blob([JSON.stringify(a,null,2)],{
+      type:"application/json"
+    });
+    const url=URL.createObjectURL(blob);
+    const link=document.createElement("a");
+    link.href=url;
+    link.download="mis-platos.json";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    setTimeout(()=>URL.revokeObjectURL(url),1000);
+    savedStatus("Exportado: mis-platos.json")
+  }catch(e){
+    savedStatus("No se pudo exportar en este navegador.")
+  }
+},
+importHasForbiddenKeys(v){
+  if(!v||typeof v!=="object")return false;
+  return Object.keys(v).some(k=>["__proto__","constructor","prototype"].includes(k)||MisPlatos.importHasForbiddenKeys(v[k]))
+},
+importedPlateType(it){
+  if(IMPORT_PLATE_TYPES.includes(it.type))return it.type;
+  if(it.type!==undefined)return null;
+  const head=String(typeof it.title==="string"?it.title:(it.text.split(NL)[1]||"")).trim();
+  if(head==="Desayuno / Merienda")return "desayuno";
+  if(head.indexOf("Almuerzo / Cena")===0)return "plato";
+  if(head==="Snack")return "snack";
+  if(head==="Pre-entreno")return "pre";
+  return null
+},
+validImportedState(st){
+  if(st===null)return true;
+  if(typeof st!=="object"||Array.isArray(st))return false;
+  const named=o=>!!o&&typeof o==="object"&&!Array.isArray(o)&&typeof o.name==="string"&&o.name.length<=300;
+  return ["verduras","almidones","proteinas","legCarb","legProt"].every(k=>st[k]===undefined||Array.isArray(st[k])&&st[k].length<=200&&st[k].every(named))&&["fruta","bfprot","bfcarb","grasa","snack","pre"].every(k=>st[k]===undefined||st[k]===null||named(st[k]))
+},
+normalizeImportedPlate(it,usedIds){
+  if(!it||typeof it!=="object"||Array.isArray(it)||MisPlatos.importHasForbiddenKeys(it))return null;
+  if(typeof it.text!=="string"||!it.text.trim()||it.text.length>20000)return null;
+  const type=MisPlatos.importedPlateType(it);
+  if(!type)return null;
+  const lines=it.lines===undefined?it.text.split(NL).slice(2).map(x=>x.replace(/^•\s*/,"")).filter(Boolean):it.lines;
+  if(!Array.isArray(lines)||lines.length>200||lines.some(x=>typeof x!=="string"||x.length>2000))return null;
+  const optional=(v,max)=>v===undefined||v===null||typeof v==="string"&&v.length<=max;
+  if(!optional(it.title,500)||!optional(it.note,1000)||!optional(it.sig,20000)||!optional(it.savedAt,100)||!optional(it.recipeSourceId,200))return null;
+  if(it.fav!==undefined&&typeof it.fav!=="boolean")return null;
+  if(it.cooked!==undefined&&!(Number.isInteger(it.cooked)&&it.cooked>=0&&it.cooked<=100000))return null;
+  if(it.recipeIngredients!==undefined&&!(Array.isArray(it.recipeIngredients)&&it.recipeIngredients.length<=200&&it.recipeIngredients.every(x=>typeof x==="string"&&x.length<=100)))return null;
+  if(it.state!==undefined&&!MisPlatos.validImportedState(it.state))return null;
+  let id=typeof it.id==="string"&&/^[A-Za-z0-9_.:-]{1,120}$/.test(it.id)?it.id:null;
+  if(!id||usedIds.has(id)){
+    do{
+      id=Date.now()+"_"+Math.random().toString(36).slice(2,9)
+    }while(usedIds.has(id))
+  }
+  usedIds.add(id);
+  const out=JSON.parse(JSON.stringify(it));
+  out.id=id;
+  out.type=type;
+  out.lines=lines.slice();
+  return out
+},
+importPlatesFile(file){
+  if(file.size>10000000){
+    savedStatus("El archivo supera el límite de 10 MB. No se importó nada.");
+    return
+  }
+  const r=new FileReader();
+  r.onload=()=>{
+    let arr;
+    try{
+      arr=JSON.parse(r.result)
+    }catch(e){
+      savedStatus("Archivo inválido. Debe ser un JSON exportado por la app.");
+      return
+    }
+    if(!Array.isArray(arr)||arr.length>5000){
+      savedStatus("Archivo inválido. Debe ser un JSON exportado por la app.");
+      return
+    }
+    const cur=MisPlatos.loadSaved();
+    const seen=new Set(cur.map(x=>x.sig||x.text));
+    const usedIds=new Set(cur.map(x=>x&&x.id).filter(x=>typeof x==="string"));
+    let added=0,existing=0,invalid=0;
+    for(const raw of arr){
+      const it=MisPlatos.normalizeImportedPlate(raw,usedIds);
+      if(!it){
+        invalid++;
+        continue
+      }
+      const key=it.sig||it.text;
+      if(seen.has(key)){
+        existing++;
+        continue
+      }
+      seen.add(key);
+      cur.push(it);
+      added++
+    }
+    if(added&&!MisPlatos.persistSaved(cur)){
+      savedStatus("No se pudo guardar la importación (espacio insuficiente). Tus platos no se modificaron.");
+      return
+    }
+    renderSaved();
+    const parts=["Importados "+added+" plato"+(added===1?"":"s")+" nuevo"+(added===1?"":"s")+"."];
+    if(existing)parts.push(existing+" ya estaba"+(existing===1?"":"n")+" guardado"+(existing===1?"":"s")+".");
+    if(invalid)parts.push(invalid+" omitido"+(invalid===1?"":"s")+" por formato inválido.");
+    savedStatus(parts.join(" "))
+  };
+  r.onerror=()=>savedStatus("No se pudo leer el archivo.");
+  r.readAsText(file)
 }
+};
+const SKEY="miPlatoFacil_saved";
+let savedStatusTimer=null;
+function savedStatus(msg){
+  const s=document.getElementById("savedStatus");
+  if(!s)return;
+  s.textContent=msg;
+  // v15.3: si se actuó desde el detalle de la comida, el aviso también se ve ahí.
+  const det=document.getElementById("comidaEstado");
+  if(det&&stack.at(-1)==="comida")det.textContent=msg;
+  clearTimeout(savedStatusTimer);
+  savedStatusTimer=setTimeout(()=>{
+    s.textContent=""
+  },3600)
+}
+// Guarda la comida armada. Desde la v15 el nombre (la hoja "Guardar comida") va en note, el campo de "Renombrar".
+function renameSaved(id){
+  const a=MisPlatos.loadSaved();
+  const it=a.find(x=>x.id===id);
+  if(!it)return;
+  const cur=it.note||mealName(it);
+  const val=window.prompt("Nombre de esta comida:",cur);
+  if(val===null)return;
+  it.note=val.trim();
+  MisPlatos.persistSaved(a);
+  renderSaved();
+  savedStatus(it.note?"Nota guardada.":"Nota eliminada.")
+}
+// Lo cociné de un plato: suma el contador, como siempre, y desde la v15.5 también anota la preparación de hoy en el
+// historial (el mismo formato que una receta), así se ve en el Registro. Deshacer vuelve las dos cosas.
 function savedCard(item){
   const card=ce("div","summary__line");
   const head=ce("div",null);
-  head.append(ce("strong",null,(item.fav?"⭐ ":"")+(item.recipeSourceId?"📖":typeEmoji(item.type))+" "+mealName(item)));
+  head.append(ce("strong",null,(item.fav?"⭐ ":"")+(item.recipeSourceId?"📖":Compartir.typeEmoji(item.type))+" "+mealName(item)));
   const lines=(Array.isArray(item.lines)?savedItemLines(item):(item.text?item.text.split(NL).slice(1).map(x=>x.replace(/^•\s*/,"")):[])).map(textoCorregido);
   const ul=ce("ul");
   ul.style.margin="6px 0 0";
@@ -156,7 +325,7 @@ function savedCard(item){
   ul.style.fontSize="13px";
   lines.forEach(t=>ul.append(ce("li",null,t)));
   const c=item.cooked||0;
-  const meta=ce("div",null,fmtWhen(item.savedAt)+(c>0?" · 👨‍🍳 Cocinado "+c+" ve"+(c===1?"z":"ces"):""));
+  const meta=ce("div",null,MisPlatos.fmtWhen(item.savedAt)+(c>0?" · 👨‍🍳 Cocinado "+c+" ve"+(c===1?"z":"ces"):""));
   meta.style.color="var(--muted)";
   meta.style.fontSize="12px";
   meta.style.marginTop="6px";
@@ -186,61 +355,14 @@ function savedCard(item){
   card.append(head,ul,meta,tog,acts);
   return card
 }
-function toggleSavedActions(id){
-  if(expandedSaved.has(id))expandedSaved.delete(id);
-  else expandedSaved.add(id);
-  renderSaved()
-}
-function sortSaved(arr){
-  const s=arr.slice();
-  if(savedSort==="az"){
-    s.sort((x,y)=>normalizeSearchText(mealName(x)).localeCompare(normalizeSearchText(mealName(y))))
-  }else if(savedSort==="tipo"){
-    const ord={
-      desayuno:0,plato:1,snack:2,pre:3
-    };
-    s.sort((x,y)=>(ord[x.type]??9)-(ord[y.type]??9))
-  }else if(savedSort==="cocinado"){
-    s.sort((x,y)=>(y.cooked||0)-(x.cooked||0))
-  }
-  return s
-}
 // Mis comidas (v14.9.92): una sola biblioteca con los platos guardados y las recetas propias.
 // Solo muestra: no cambia ni mezcla datos. Las copias que se crean al asignar una receta al plan
 // (guardan nombre e ingredientes por si la receta se borra) se ven en el modo completo.
 let savedKind="todo";
-function savedRecipeIngredients(r,amounts){
-  const a=r.amountsTitle&&Object.prototype.hasOwnProperty.call(amounts,r.amountsTitle)?amounts[r.amountsTitle]:null;
-  return a?a.rows.map(x=>String(x.name||"").trim()).filter(Boolean):[]
-}
-function matchSavedRecipe(r,amounts,q){
-  if(!q)return true;
-  return normalizeSearchText([r.title,r.sourceTitle||"",r.notes||"",...(r.steps||[]),...(r.tags||[]),...savedRecipeIngredients(r,amounts)].join(" ")).includes(q)
-}
-function savedRecipeCard(r,amounts,inPlan){
-  const card=ce("div","summary__line recipe-lib-card"),names=savedRecipeIngredients(r,amounts),a=r.amountsTitle&&Object.prototype.hasOwnProperty.call(amounts,r.amountsTitle)?amounts[r.amountsTitle]:null;
-  card.dataset.recipeId=r.id;
-  card.append(ce("strong",null,"📖 "+r.title));
-  const ul=ce("ul","recipe-lib-card__lines");
-  ul.append(ce("li",null,names.length?"Ingredientes: "+names.join(", "):"Sin ingredientes cargados"));
-  card.append(ul);
-  const meta=[r.minutes?"⏱ "+r.minutes+" min":"",a&&a.yield?"Rinde "+String(a.yield).replace(".",",")+" porci"+(a.yield===1?"ón":"ones"):"",r.steps.length?r.steps.length+" paso"+(r.steps.length===1?"":"s"):"",inPlan?"📅 En el plan":""].filter(Boolean).join(" · ");
-  if(meta)card.append(ce("div","recipe-lib-card__meta",meta));
-  const acts=ce("div","recipe-lib-card__actions");
-  for(const [text,key] of [["Ver receta","savedRecipeView"],["🍳 Lo cociné","savedRecipeCook"],["Planificar","savedRecipePlan"],["Editar","savedRecipeEdit"]]){
-    const b=ce("button","button button--soft",text);
-    b.type="button";
-    b.dataset[key]=r.id;
-    b.setAttribute("aria-label",text+": "+r.title);
-    acts.append(b)
-  }
-  card.append(acts);
-  return card
-}
 function renderSaved(){
   const list=document.getElementById("savedList"),hint=document.getElementById("savedHint");
   if(!list)return;
-  const a=loadSaved(),q=normalizeSearchText(savedQuery);
+  const a=MisPlatos.loadSaved(),q=normalizeSearchText(savedQuery);
   let store={},storeError="",amounts={};
   try{
     store=loadRecipeDetails()
@@ -258,7 +380,7 @@ function renderSaved(){
     const id=plan[d]&&plan[d][s];if(id)planned.add(id)
   }));
   const recipesInPlan=new Set(copies.filter(x=>planned.has(x.id)).map(x=>x.recipeSourceId));
-  const platesF=sortSaved(plates.filter(it=>matchSaved(it,q))).sort((x,y)=>(y.fav?1:0)-(x.fav?1:0)),recipesF=recipes.filter(r=>matchSavedRecipe(r,amounts,q)),orphansF=orphans.filter(it=>matchSaved(it,q)),copiesF=copies.filter(it=>!orphans.includes(it)&&matchSaved(it,q));
+  const platesF=MisPlatos.sortSaved(plates.filter(it=>MisPlatos.matchSaved(it,q))).sort((x,y)=>(y.fav?1:0)-(x.fav?1:0)),recipesF=recipes.filter(r=>MisPlatos.matchSavedRecipe(r,amounts,q)),orphansF=orphans.filter(it=>MisPlatos.matchSaved(it,q)),copiesF=copies.filter(it=>!orphans.includes(it)&&MisPlatos.matchSaved(it,q));
   document.querySelectorAll("[data-saved-kind]").forEach(b=>{
     const on=b.dataset.savedKind===savedKind;b.classList.toggle("is-selected",on);b.setAttribute("aria-pressed",String(on))
   });
@@ -269,7 +391,7 @@ function renderSaved(){
     else hint.textContent="Tenés "+plural(nP+nR,"comida guardada","comidas guardadas")+"."
   }
   if(!nP&&!nR&&!copies.length&&!storeError){
-    list.replaceChildren(emptyState("🍽️","Todavía no guardaste comidas","Tocá + Nueva para armar una comida o escribir una receta.",{
+    list.replaceChildren(Interfaz.emptyState("🍽️","Todavía no guardaste comidas","Tocá + Nueva para armar una comida o escribir una receta.",{
       label:"Armar mi primer plato",key:"start",value:"plato"
     }));
     return
@@ -279,7 +401,7 @@ function renderSaved(){
   const comidas=[];
   if(savedKind!=="recetas")comidas.push(...platesF.map(comidaDesdePlato));
   if(savedKind!=="platos"){
-    if(storeError)comidas.push(...copies.filter(it=>matchSaved(it,q)).map(it=>comidaDesdeCopia(it,"")));
+    if(storeError)comidas.push(...copies.filter(it=>MisPlatos.matchSaved(it,q)).map(it=>comidaDesdeCopia(it,"")));
     else{
       comidas.push(...recipesF.map(r=>comidaDesdeReceta(r,amounts,recipesInPlan.has(r.id))));
       comidas.push(...orphansF.map(it=>comidaDesdeCopia(it,"Copia del plan: la receta original se borró.")))
@@ -350,123 +472,4 @@ function planSavedRecipe(id){
     })
   },80)
 }
-function exportPlates(){
-  const a=loadSaved();
-  if(!a.length){
-    savedStatus("No hay platos para exportar.");
-    return
-  }
-  try{
-    const blob=new Blob([JSON.stringify(a,null,2)],{
-      type:"application/json"
-    });
-    const url=URL.createObjectURL(blob);
-    const link=document.createElement("a");
-    link.href=url;
-    link.download="mis-platos.json";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    setTimeout(()=>URL.revokeObjectURL(url),1000);
-    savedStatus("Exportado: mis-platos.json")
-  }catch(e){
-    savedStatus("No se pudo exportar en este navegador.")
-  }
-}
 const IMPORT_PLATE_TYPES=["desayuno","plato","snack","pre"];
-function importHasForbiddenKeys(v){
-  if(!v||typeof v!=="object")return false;
-  return Object.keys(v).some(k=>["__proto__","constructor","prototype"].includes(k)||importHasForbiddenKeys(v[k]))
-}
-function importedPlateType(it){
-  if(IMPORT_PLATE_TYPES.includes(it.type))return it.type;
-  if(it.type!==undefined)return null;
-  const head=String(typeof it.title==="string"?it.title:(it.text.split(NL)[1]||"")).trim();
-  if(head==="Desayuno / Merienda")return "desayuno";
-  if(head.indexOf("Almuerzo / Cena")===0)return "plato";
-  if(head==="Snack")return "snack";
-  if(head==="Pre-entreno")return "pre";
-  return null
-}
-function validImportedState(st){
-  if(st===null)return true;
-  if(typeof st!=="object"||Array.isArray(st))return false;
-  const named=o=>!!o&&typeof o==="object"&&!Array.isArray(o)&&typeof o.name==="string"&&o.name.length<=300;
-  return ["verduras","almidones","proteinas","legCarb","legProt"].every(k=>st[k]===undefined||Array.isArray(st[k])&&st[k].length<=200&&st[k].every(named))&&["fruta","bfprot","bfcarb","grasa","snack","pre"].every(k=>st[k]===undefined||st[k]===null||named(st[k]))
-}
-function normalizeImportedPlate(it,usedIds){
-  if(!it||typeof it!=="object"||Array.isArray(it)||importHasForbiddenKeys(it))return null;
-  if(typeof it.text!=="string"||!it.text.trim()||it.text.length>20000)return null;
-  const type=importedPlateType(it);
-  if(!type)return null;
-  const lines=it.lines===undefined?it.text.split(NL).slice(2).map(x=>x.replace(/^•\s*/,"")).filter(Boolean):it.lines;
-  if(!Array.isArray(lines)||lines.length>200||lines.some(x=>typeof x!=="string"||x.length>2000))return null;
-  const optional=(v,max)=>v===undefined||v===null||typeof v==="string"&&v.length<=max;
-  if(!optional(it.title,500)||!optional(it.note,1000)||!optional(it.sig,20000)||!optional(it.savedAt,100)||!optional(it.recipeSourceId,200))return null;
-  if(it.fav!==undefined&&typeof it.fav!=="boolean")return null;
-  if(it.cooked!==undefined&&!(Number.isInteger(it.cooked)&&it.cooked>=0&&it.cooked<=100000))return null;
-  if(it.recipeIngredients!==undefined&&!(Array.isArray(it.recipeIngredients)&&it.recipeIngredients.length<=200&&it.recipeIngredients.every(x=>typeof x==="string"&&x.length<=100)))return null;
-  if(it.state!==undefined&&!validImportedState(it.state))return null;
-  let id=typeof it.id==="string"&&/^[A-Za-z0-9_.:-]{1,120}$/.test(it.id)?it.id:null;
-  if(!id||usedIds.has(id)){
-    do{
-      id=Date.now()+"_"+Math.random().toString(36).slice(2,9)
-    }while(usedIds.has(id))
-  }
-  usedIds.add(id);
-  const out=JSON.parse(JSON.stringify(it));
-  out.id=id;
-  out.type=type;
-  out.lines=lines.slice();
-  return out
-}
-function importPlatesFile(file){
-  if(file.size>10000000){
-    savedStatus("El archivo supera el límite de 10 MB. No se importó nada.");
-    return
-  }
-  const r=new FileReader();
-  r.onload=()=>{
-    let arr;
-    try{
-      arr=JSON.parse(r.result)
-    }catch(e){
-      savedStatus("Archivo inválido. Debe ser un JSON exportado por la app.");
-      return
-    }
-    if(!Array.isArray(arr)||arr.length>5000){
-      savedStatus("Archivo inválido. Debe ser un JSON exportado por la app.");
-      return
-    }
-    const cur=loadSaved();
-    const seen=new Set(cur.map(x=>x.sig||x.text));
-    const usedIds=new Set(cur.map(x=>x&&x.id).filter(x=>typeof x==="string"));
-    let added=0,existing=0,invalid=0;
-    for(const raw of arr){
-      const it=normalizeImportedPlate(raw,usedIds);
-      if(!it){
-        invalid++;
-        continue
-      }
-      const key=it.sig||it.text;
-      if(seen.has(key)){
-        existing++;
-        continue
-      }
-      seen.add(key);
-      cur.push(it);
-      added++
-    }
-    if(added&&!persistSaved(cur)){
-      savedStatus("No se pudo guardar la importación (espacio insuficiente). Tus platos no se modificaron.");
-      return
-    }
-    renderSaved();
-    const parts=["Importados "+added+" plato"+(added===1?"":"s")+" nuevo"+(added===1?"":"s")+"."];
-    if(existing)parts.push(existing+" ya estaba"+(existing===1?"":"n")+" guardado"+(existing===1?"":"s")+".");
-    if(invalid)parts.push(invalid+" omitido"+(invalid===1?"":"s")+" por formato inválido.");
-    savedStatus(parts.join(" "))
-  };
-  r.onerror=()=>savedStatus("No se pudo leer el archivo.");
-  r.readAsText(file)
-}

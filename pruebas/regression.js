@@ -40,11 +40,11 @@
   await click('#homeTop');
   ok("R7 Inicio vuelve a la portada sin borrar la selección", scr() === "home" && state.type === "plato");
   await click('[data-restart]');
-  ok("R8 dos platos guardados", loadSaved().length === 2);
+  ok("R8 dos platos guardados", MisPlatos.loadSaved().length === 2);
   // Plan
   await click('[data-section-tab="semana"]');
   ok("R8b la pestaña Semana abre el plan", scr() === "plan");
-  const plate = loadSaved().find(p => p.type === "plato"), bf = loadSaved().find(p => p.type === "desayuno");
+  const plate = MisPlatos.loadSaved().find(p => p.type === "plato"), bf = MisPlatos.loadSaved().find(p => p.type === "desayuno");
   // v15.1: se asigna tocando el día, la comida y la comida guardada en el Selector (si está llena, Cambiar);
   // se quita desde la hoja de la comida y las herramientas se abren desde el menú ⋯.
   const asignar = async (dia, comida, id) => { await click('#planDias [data-plan-dia="' + dia + '"]'); await click('[data-hueco="' + dia + '|' + comida + '"]'); if (!hoja.elemento.querySelector("[data-selector-id]")) await click(".hoja [data-hueco-cambiar]"); await click('.hoja [data-selector-id="' + id + '"]') };
@@ -57,7 +57,7 @@
   ok("R10 Reemplazar sigue operativo", loadPlan().lunes.almuerzo === plate.id);
   await herramienta("variaciones"); await click('[data-save-var]'); await quitar("lunes", "almuerzo"); await herramienta("variaciones");
   const vs = document.getElementById("varSelect"); vs.value = "Var A"; vs.dispatchEvent(new Event("change", { bubbles: true })); await wait(100);
-  ok("R11 variaciones independientes del plan actual", !!loadVars()["Var A"].lunes.almuerzo && loadPlan().lunes.almuerzo === plate.id);
+  ok("R11 variaciones independientes del plan actual", !!Semana.loadVars()["Var A"].lunes.almuerzo && loadPlan().lunes.almuerzo === plate.id);
   await herramienta("semanas"); await wait(50); await click('[data-dated-save]');
   await quitar("lunes", "almuerzo");
   const weeks = loadDatedWeeks(), k = Object.keys(weeks)[0];
@@ -74,9 +74,9 @@
   // Training
   go("trainingCalendar"); await wait(80);
   document.querySelector('[data-training-day="1"]').checked = true; await click("[data-training-save]");
-  ok("R16 semana de entrenamiento se guarda", JSON.stringify(loadTrainingWeek().days) === "[1]");
+  ok("R16 semana de entrenamiento se guarda", JSON.stringify(Rutina.loadTrainingWeek().days) === "[1]");
   await click('[data-train-quick="1"]'); await click('[data-train-type="rest"]'); await click("[data-training-exception-save]");
-  ok("R17 excepción por fecha se guarda", Object.keys(loadTrainingExceptions()).length === 1);
+  ok("R17 excepción por fecha se guarda", Object.keys(Rutina.loadTrainingExceptions()).length === 1);
   // Recipes
   // v15.3: la receta se escribe desde Comidas → "+ Nueva" → Escribir receta, en su pantalla propia.
   go("misplatos"); await wait(80);

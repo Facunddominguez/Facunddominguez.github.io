@@ -23,7 +23,7 @@
   const qa = s => [...doc().querySelectorAll(s)];
   const $ = id => q("#" + id);
   const tocar = async el => { el.click(); toques++; await espera(120) };
-  const irA = async pestana => { await tocar(q('#sectionNav [data-section-tab="' + pestana + '"]')); if (ev("stack.at(-1) !== activeTabRoot()")) await tocar(q('#sectionNav [data-section-tab="' + pestana + '"]')) };
+  const irA = async pestana => { await tocar(q('#sectionNav [data-section-tab="' + pestana + '"]')); if (ev("stack.at(-1) !== Armado.activeTabRoot()")) await tocar(q('#sectionNav [data-section-tab="' + pestana + '"]')) };
   const pantalla = () => ev("stack.at(-1)");
   const visible = e => !!e && e.getClientRects().length > 0;
   const R = await (await fetch("/tests/fixtures/respaldo-v14.9.94.json", { cache: "no-store" })).json();
@@ -38,12 +38,12 @@
   const filas = () => qa("#registroLista .registro-fila").map(f => ({ tipo: f.dataset.registroTipo, id: f.dataset.registroId, texto: f.textContent, quitar: f.querySelector("[data-registro-quitar]") }));
   const fila = id => filas().find(f => f.id === id);
   const deshacer = async sel => { const b = doc().querySelector((sel || "#registroEstado") + " [data-registro-deshacer]"); if (b) await tocar(b); return !!b };
-  const hoyF = () => w.localTrainingDate(new w.Date());
+  const hoyF = () => w.Rutina.localTrainingDate(new w.Date());
   const SELS = "[data-consumption-remove], [data-cooking-history-delete], [data-registro-quitar], [data-registro-restar], #consumptionView, #cookingHistoryList, #registroLista";
 
   // C6-1 Un solo lugar para ver y corregir lo registrado (respaldo de ejemplo)
   localStorage.clear(); await abrir();
-  w.restoreCompleteBackup(JSON.parse(JSON.stringify(R)), w.localStorage);
+  w.Respaldo.restoreCompleteBackup(JSON.parse(JSON.stringify(R)), w.localStorage);
   localStorage.setItem("miPlatoFacil_uiMode_v1", "completo");
   await abrir();
   const antes1 = todo(), faltan = [];
@@ -132,8 +132,8 @@
   const deshecho4 = d4 && tres() === antes4 && localStorage.getItem(HIST) === null;
   await tocar(q('#comidaPlatoAcciones [data-cook-saved="t1"]'));
   const conHist = localStorage.getItem(HIST), snap4 = w.completeBackupSnapshot(w.localStorage);
-  let err4 = null; try { w.validateCompleteBackup(snap4) } catch (e) { err4 = e.message }
-  cargar({}); w.restoreCompleteBackup(JSON.parse(JSON.stringify(snap4)), w.localStorage);
+  let err4 = null; try { w.Respaldo.validateCompleteBackup(snap4) } catch (e) { err4 = e.message }
+  cargar({}); w.Respaldo.restoreCompleteBackup(JSON.parse(JSON.stringify(snap4)), w.localStorage);
   const restaurado = localStorage.getItem(HIST) === conHist;
   await abrir(); await irA("mas"); await tocar(q("#sectionSettings [data-open-registro]"));
   const r4 = filas().find(f => f.tipo === "cocine");
@@ -216,7 +216,7 @@
   ok("C6-7 datos raros: orden por comida, títulos como texto; un registro inválido no se descarta al quitar ni al agregar; lo que no se puede leer no se pisa", orden && comoTexto && raroQueda && raroSigue && noEscribe && nadaComi && noPisa, JSON.stringify({ orden, comoTexto, raroQueda, raroSigue, noEscribe, nadaComi, noPisa }));
 
   // C6-8 Sin confirmaciones: los Quitar del Registro y de sus plegables ofrecen Deshacer
-  localStorage.clear(); w.restoreCompleteBackup(JSON.parse(JSON.stringify(R)), w.localStorage);
+  localStorage.clear(); w.Respaldo.restoreCompleteBackup(JSON.parse(JSON.stringify(R)), w.localStorage);
   await abrir(); await irA("mas"); await tocar(q("#sectionSettings [data-open-registro]"));
   const antes8 = todo(), con = [];
   await tocar(q('#registroDias [data-registro-ir="2026-10-22"]'));

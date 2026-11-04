@@ -45,7 +45,7 @@ const VISTAS = [
   { id: 'comidas', ir: 'openTab("miscomidas")' },
   { id: 'mas', ir: 'openTab("mas")' },
   { id: 'despensa', ir: 'openTab("compras"); go("ingredientes")' },
-  { id: 'compras-herramientas', ir: 'openTab("compras"); abrirHerramientaCompras("todas")' },
+  { id: 'compras-herramientas', ir: 'openTab("compras"); ComprasDespensa.abrirHerramientaCompras("todas")' },
   { id: 'registro', ir: 'openTab("mas"); abrirRegistro()' },
   { id: 'entrenamiento', ir: 'openTab("mas"); go("trainingCalendar")' },
   { id: 'respaldo', ir: 'openTab("mas"); go("backupScreen")' },
@@ -54,20 +54,20 @@ const VISTAS = [
   { id: 'ideas', ir: 'openTab("miscomidas"); go("ideas")' },
   { id: 'armado-desayuno', ir: 'openTab("hoy"); start("desayuno")' },
   { id: 'armado-almuerzo', ir: 'openTab("hoy"); start("plato")' },
-  { id: 'armado-plato', ir: 'openTab("hoy"); start("plato"); setDay("Día libre"); go("plate_static")' },
-  { id: 'armado-verduras', ir: 'openTab("hoy"); start("plato"); setDay("Día libre"); go("lunch_veg")' },
-  { id: 'bienvenida', ir: 'abrirBienvenida()' },
+  { id: 'armado-plato', ir: 'openTab("hoy"); start("plato"); Armado.setDay("Día libre"); go("plate_static")' },
+  { id: 'armado-verduras', ir: 'openTab("hoy"); start("plato"); Armado.setDay("Día libre"); go("lunch_veg")' },
+  { id: 'bienvenida', ir: 'Bienvenida.abrirBienvenida()' },
   { id: 'receta-editar', ir: 'openTab("miscomidas"); showRecipeView("edit")' },
-  { id: 'fuentes', ir: 'openTab("mas"); abrirFuentes()' },
+  { id: 'fuentes', ir: 'openTab("mas"); Comidas.abrirFuentes()' },
   // Hojas: el contenedor real es .hoja (section con rol dialog, su propio scroll y sus campos).
   { id: 'selector', ir: 'openTab("semana"); abrirSelector(todayPlanDay(), "almuerzo")', medir: '.hoja' },
   { id: 'sugerime', ir: 'openTab("hoy"); abrirSugerime("almuerzo")', medir: '.hoja' },
-  { id: 'semana-menu', ir: 'openTab("semana"); abrirMenuSemana()', medir: '.hoja' },
-  { id: 'comidas-nueva', ir: 'openTab("miscomidas"); abrirNuevaComida()', medir: '.hoja' },
+  { id: 'semana-menu', ir: 'openTab("semana"); Selector.abrirMenuSemana()', medir: '.hoja' },
+  { id: 'comidas-nueva', ir: 'openTab("miscomidas"); Comidas.abrirNuevaComida()', medir: '.hoja' },
   { id: 'hueco', ir: 'openTab("semana"); abrirHueco(todayPlanDay(), "almuerzo")', medir: '.hoja' },
   { id: 'resumen', ir: 'openTab("hoy"); start("desayuno"); for (const id of ["fruit", "bfprot", "bfcarb", "bffat"]) { document.querySelector("#" + id + " .choice").click(); await new Promise(r => setTimeout(r, 150)) }' },
   // Última: en el estado vacío guarda una idea para tener un detalle que mostrar (no contamina las vistas anteriores).
-  { id: 'comida', ir: 'openTab("miscomidas"); const g = loadSaved()[0] || guardarIdea(data.menuCatalog[0]).item; abrirComida("plato", g.id)' }
+  { id: 'comida', ir: 'openTab("miscomidas"); const g = MisPlatos.loadSaved()[0] || IdeasHoja.guardarIdea(data.menuCatalog[0]).item; Comidas.abrirComida("plato", g.id)' }
 ].filter(v => !arg('--vistas') || arg('--vistas').split(',').includes(v.id));
 
 const navegador = [arg('--navegador'), process.env.CHROME_PATH, '/usr/bin/google-chrome', '/usr/bin/google-chrome-stable', '/usr/bin/chromium', '/usr/bin/chromium-browser',

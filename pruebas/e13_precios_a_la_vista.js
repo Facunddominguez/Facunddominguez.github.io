@@ -18,7 +18,7 @@
   const cargar = datos => { localStorage.clear(); for (const [k, v] of Object.entries(datos)) if (v !== null) localStorage.setItem(k, v) };
   const MARCA = { miPlatoFacil_bienvenida_v1: '{"vista":true}' };
   const semanaDeIdeas = () => ev(`(() => { const dias = ["lunes","martes","miercoles","jueves","viernes","sabado","domingo"]; let i = 0;
-    for (const d of dias) for (const s of ["almuerzo","cena"]) { const it = guardarIdea(data.menuCatalog[i++ % data.menuCatalog.length], "Día libre").item; setSlot(d, s, it.id) } })()`);
+    for (const d of dias) for (const s of ["almuerzo","cena"]) { const it = IdeasHoja.guardarIdea(data.menuCatalog[i++ % data.menuCatalog.length], "Día libre").item; setSlot(d, s, it.id) } })()`);
 
   // C13-1 Instalación nueva: precios encendidos, 80 % o más de la lista con precio y cada precio muestra fuente, mes y rango al tocarlo.
   cargar(MARCA); await abrir();
@@ -38,9 +38,9 @@
   const huecos = [...doc().querySelectorAll("#planDiaLista .hueco__costo, .hueco__costo")].map(e => e.textContent);
   const linea = doc().getElementById("planDiaCosto") ? doc().getElementById("planDiaCosto").textContent : "";
   const semana1 = ev("costosDelPlan().semana");
-  ev("cambiarPersonasHogar(3)"); await espera(60);
+  ev("CantidadesPlatos.cambiarPersonasHogar(3)"); await espera(60);
   const semana3 = ev("costosDelPlan().semana");
-  const armada = ev(`(() => { const it = loadSaved().find(x => x.state); return it ? etiquetaCostoComida({ origen: "plato", id: it.id }) : "" })()`);
+  const armada = ev(`(() => { const it = MisPlatos.loadSaved().find(x => x.state); return it ? etiquetaCostoComida({ origen: "plato", id: it.id }) : "" })()`);
   ok("C13-2 hay ≈ costo por comida, por día y por semana, \"faltan\" aparece una sola vez y las personas escalan el costo",
     huecos.length >= 1 && huecos.every(t => /^≈ \$[\d.]+$/.test(t)) && /la semana/.test(linea) && (linea.match(/faltan/g) || []).length <= 1 && semana1 > 0 && Math.abs(semana3 / semana1 - 3) < 0.01 && /≈ \$[\d.]+ por porción/.test(armada),
     JSON.stringify({ huecos: huecos.length, linea, semana1, semana3, armada }));

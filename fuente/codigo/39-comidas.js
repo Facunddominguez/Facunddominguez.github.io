@@ -3,37 +3,9 @@
 // Parte 40: los archivos se unen en orden según su número, que define el orden de arranque.
 // init() corre antes de este archivo: todo lo que se llama al pintar es una declaración function y el estado va en var.
 // El adaptador solo lee: los platos (miPlatoFacil_saved) y las recetas (miPlatoFacil_recipeDetails_v1) siguen separados.
-var comidaActual=null;
-var ideasConLoQueTengo=false;
-var ideasMenuTodas=false;
-var IDEAS_MENU_VISIBLES=8;
-function comidaTipoDeComida(type){
-  return {
-    desayuno:"Desayuno o merienda",plato:"Almuerzo o cena",snack:"Snack",pre:"Pre-entreno"
-  }
-  [type]||"Comida"
-}
-function comidaDesdePlato(item){
-  const c=item.cooked||0,componentes=[...new Set(extractIngredients(item).map(x=>String(x).trim()).filter(Boolean))];
-  return {
-    tipo:"plato",origen:"plato",id:item.id,nombre:mealName(item),componentes,etiquetas:[comidaTipoDeComida(item.type),c>0?"Cocinado "+c+" ve"+(c===1?"z":"ces"):""].filter(Boolean),fav:!!item.fav,cocinado:c,enPlan:false,fecha:item.savedAt||"",aviso:""
-  }
-}
-// Una copia del plan (plato con recipeSourceId) cuya receta ya no está: se muestra como receta, con aviso.
-function comidaDesdeCopia(item,aviso){
-  const c=comidaDesdePlato(item);
-  c.tipo="receta";
-  c.etiquetas=["Receta"].concat(c.etiquetas);
-  c.aviso=aviso||"";
-  return c
-}
-function comidaDesdeReceta(r,amounts,enPlan){
-  const a=r.amountsTitle&&Object.prototype.hasOwnProperty.call(amounts,r.amountsTitle)?amounts[r.amountsTitle]:null;
-  return {
-    tipo:"receta",origen:"receta",id:r.id,nombre:r.title,componentes:savedRecipeIngredients(r,amounts),etiquetas:["Receta",r.minutes?"⏱ "+r.minutes+" min":"",a&&a.yield?"Rinde "+String(a.yield).replace(".",","):"",enPlan?"📅 En el plan":""].filter(Boolean),fav:false,cocinado:0,enPlan:!!enPlan,fecha:r.updatedAt||r.createdAt||"",aviso:""
-  }
-}
-function ordenarComidas(lista){
+// Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como Comidas.nombre().
+const Comidas={
+ordenarComidas(lista){
   const orden={
     desayuno:0,plato:1,snack:2,pre:3
   },nombre=c=>normalizeSearchText(c.nombre);
@@ -48,54 +20,17 @@ function ordenarComidas(lista){
     return x.i-y.i
   });
   return s.map(x=>x.c)
-}
-// La tarjeta: nombre, componentes en una línea y etiquetas. Desde la v15.6 suma el "≈ costo por porción" cuando los precios están activos.
-function tarjetaComida(c){
-  const b=ce("button","comida-card");
-  b.type="button";
-  b.dataset.comidaTipo=c.tipo;
-  b.dataset.comidaId=c.id;
-  b.dataset.comidaOrigen=c.origen;
-  if(c.origen==="receta")b.dataset.recipeId=c.id;
-  b.append(ce("strong","comida-card__nombre",(c.fav?"⭐ ":"")+c.nombre));
-  b.append(ce("span","comida-card__componentes",c.componentes.length?c.componentes.join(", "):"Sin ingredientes cargados"));
-  const costo=typeof etiquetaCostoComida==="function"?etiquetaCostoComida(c):"",etiq=costo?c.etiquetas.concat([costo]):c.etiquetas;
-  if(etiq.length)b.append(ce("span","comida-card__etiquetas",etiq.join(" · ")));
-  if(c.aviso)b.append(ce("span","comida-card__aviso",c.aviso));
-  b.setAttribute("aria-label",c.nombre+(c.tipo==="receta"?" (receta)":"")+". Ver detalle");
-  return b
-}
-function abrirComida(origen,id){
+},
+abrirComida(origen,id){
   if(origen==="receta"){
     recipeReadReturnTo="misplatos";
     showRecipeRead(id);
     return
   }
-  mostrarDetallePlato(id)
-}
-// Detalle (pantalla "comida"): las acciones comunes arriba y, abajo, el plato o la receta.
-function pintarCabeceraComida(nombre,etiquetas,conservarAviso){
-  document.getElementById("comidaTitulo").textContent=nombre;
-  document.getElementById("comidaEtiquetas").textContent=etiquetas.join(" · ");
-  if(!conservarAviso)document.getElementById("comidaEstado").textContent="";
-  if(typeof pintarEnlaceRegistro==="function")pintarEnlaceRegistro();
-  if(typeof pintarCostoComida==="function")pintarCostoComida()
-}
-function mostrarDetalleReceta(r){
-  let amounts={
-  };
-  try{
-    amounts=loadRecipeAmounts()
-  }catch(e){
-  }
-  comidaActual={
-    origen:"receta",id:r.id
-  };
-  pintarCabeceraComida(r.title,comidaDesdeReceta(r,amounts,false).etiquetas);
-  document.getElementById("comidaPlato").hidden=true
-}
-function mostrarDetallePlato(id){
-  const it=loadSaved().find(x=>x.id===id);
+  Comidas.mostrarDetallePlato(id)
+},
+mostrarDetallePlato(id){
+  const it=MisPlatos.loadSaved().find(x=>x.id===id);
   if(!it)throw Error("Esa comida ya no está guardada.");
   if(recipeReadId)closeRecipeRead(false);
   document.getElementById("recipeReadView").hidden=true;
@@ -104,43 +39,20 @@ function mostrarDetallePlato(id){
   };
   if(stack.at(-1)!=="comida")go("comida");
   pintarDetallePlato(it)
-}
-// conservarAviso: al repintar después de una acción (Lo cociné, Favorita…) queda a la vista su aviso.
-function pintarDetallePlato(it,conservarAviso){
-  const c=comidaDesdePlato(it);
-  pintarCabeceraComida((it.fav?"⭐ ":"")+c.nombre,c.etiquetas.concat(it.recipeSourceId?["Copia de una receta"]:[]),conservarAviso);
-  const box=document.getElementById("comidaPlato"),ul=document.getElementById("comidaComponentes"),acts=document.getElementById("comidaPlatoAcciones");
-  box.hidden=false;
-  ul.replaceChildren(...(c.componentes.length?c.componentes.map(n=>{
-    const li=ce("li"),b=ce("button","comida-ingrediente",n);b.type="button";b.dataset.nutrienteIngrediente=n;li.append(b);return li
-  }):[ce("li",null,"Sin ingredientes cargados")]));
-  const boton=(texto,clave,valor,clase)=>{
-    const b=ce("button","button "+(clase||"button--soft"),texto);b.type="button";b.dataset[clave]=valor;return b
-  };
-  acts.replaceChildren(boton("🍳 Lo cociné","cookSaved",it.id),boton("Editar nombre","renameSaved",it.id))
-}
-function refrescarDetalleComida(){
-  if(stack.at(-1)!=="comida"||!comidaActual)return;
-  if(comidaActual.origen==="plato"){
-    const it=loadSaved().find(x=>x.id===comidaActual.id);
-    if(it)pintarDetallePlato(it,true);else{
-      comidaActual=null;back()
-    }
-  }
-}
-function textoDeComida(){
+},
+textoDeComida(){
   if(!comidaActual)return "";
   if(comidaActual.origen==="plato"){
-    const it=loadSaved().find(x=>x.id===comidaActual.id);
-    return it?mealName(it)+"\n"+extractIngredients(it).map(x=>"• "+x).join("\n"):""
+    const it=MisPlatos.loadSaved().find(x=>x.id===comidaActual.id);
+    return it?mealName(it)+"\n"+Semana.extractIngredients(it).map(x=>"• "+x).join("\n"):""
   }
   const r=loadRecipeDetails()[comidaActual.id];
   if(!r)return "";
   const c=comidaDesdeReceta(r,loadRecipeAmounts(),false);
   return r.title+(c.componentes.length?"\nIngredientes: "+c.componentes.join(", "):"")+(r.steps.length?"\n"+r.steps.map((t,i)=>i+1+". "+t).join("\n"):"")
-}
-function compartirComida(){
-  const t=textoDeComida(),st=document.getElementById("comidaEstado");
+},
+compartirComida(){
+  const t=Comidas.textoDeComida(),st=document.getElementById("comidaEstado");
   if(!t)return;
   if(navigator.share){
     navigator.share({
@@ -152,10 +64,8 @@ function compartirComida(){
   doCopy(t).then(ok=>{
     st.textContent=ok?"Copiada para compartir.":"No se pudo copiar."
   })
-}
-// "Agregar a la semana": día y comida. Un plato va con setSlot; una receta, como en "Asignar receta al plan
-// actual" (asignarRecetaAlPlan, con su copia en los platos del plan). Si reemplaza algo, se puede deshacer.
-function agregarComidaALaSemana(dayKey,slot){
+},
+agregarComidaALaSemana(dayKey,slot){
   if(!comidaActual)throw Error("Abrí una comida primero.");
   const antes=(loadPlan()[dayKey]||{})[slot]||null;
   if(comidaActual.origen==="plato"){
@@ -163,7 +73,7 @@ function agregarComidaALaSemana(dayKey,slot){
     if(setSlot(dayKey,slot,comidaActual.id)===false)throw Error(errorDelPlan)
   }else asignarRecetaAlPlan(comidaActual.id,dayKey,slot,false);
   const ahora=(loadPlan()[dayKey]||{})[slot]||null;
-  hoja.estado.replaceChildren(document.createTextNode("Agregada al "+planSlotName(slot).toLowerCase()+" del "+planDayName(dayKey).toLowerCase()+"."));
+  hoja.estado.replaceChildren(document.createTextNode("Agregada al "+Semana.planSlotName(slot).toLowerCase()+" del "+Semana.planDayName(dayKey).toLowerCase()+"."));
   if(antes&&antes!==ahora){
     const b=ce("button","filter-chip","Deshacer");
     b.type="button";
@@ -174,8 +84,8 @@ function agregarComidaALaSemana(dayKey,slot){
     hoja.estado.append(" ",b)
   }
   if(typeof renderToday==="function")renderToday()
-}
-function campoDeHoja(id,texto,opciones,valor){
+},
+campoDeHoja(id,texto,opciones,valor){
   const c=ce("div","portion-field"),l=ce("label",null,texto),s=ce("select");
   s.id=id;
   l.htmlFor=id;
@@ -185,29 +95,28 @@ function campoDeHoja(id,texto,opciones,valor){
   s.value=valor;
   c.append(l,s);
   return c
-}
-function abrirAgregarComida(){
+},
+abrirAgregarComida(){
   if(!comidaActual)return;
   let slots=SLOTS;
   if(comidaActual.origen==="plato"){
-    const it=loadSaved().find(x=>x.id===comidaActual.id),pool=it&&it.type;
+    const it=MisPlatos.loadSaved().find(x=>x.id===comidaActual.id),pool=it&&it.type;
     if(pool==="desayuno"||pool==="plato")slots=SLOTS.filter(s=>slotPool(s[0])===pool)
   }
   const fila=ce("div","pantry-item-qty");
-  fila.append(campoDeHoja("hojaComidaDia","Día",DAYS,todayPlanDay()),campoDeHoja("hojaComidaSlot","Comida",slots.map(([v,t])=>[v,t.replace(/^\S+\s/,"")]),slots[0][0]));
+  fila.append(Comidas.campoDeHoja("hojaComidaDia","Día",DAYS,todayPlanDay()),Comidas.campoDeHoja("hojaComidaSlot","Comida",slots.map(([v,t])=>[v,t.replace(/^\S+\s/,"")]),slots[0][0]));
   hoja.abrir({
-    titulo:document.getElementById("comidaTitulo").textContent,contenido:[fila],botones:[["Agregar a la semana","button--primary",()=>agregarComidaALaSemana(document.getElementById("hojaComidaDia").value,document.getElementById("hojaComidaSlot").value)]]
+    titulo:document.getElementById("comidaTitulo").textContent,contenido:[fila],botones:[["Agregar a la semana","button--primary",()=>Comidas.agregarComidaALaSemana(document.getElementById("hojaComidaDia").value,document.getElementById("hojaComidaSlot").value)]]
   })
-}
-// Menú ⋯ del detalle: lo ocasional, con los mismos botones (data-*) de siempre.
-function abrirMenuComida(){
+},
+abrirMenuComida(){
   if(!comidaActual)return;
   const boton=(texto,clave,valor,clase,cerrar=true)=>{
     const b=ce("button","button "+(clase||"button--soft"),texto);b.type="button";b.dataset[clave]=valor;if(cerrar)b.addEventListener("click",()=>setTimeout(()=>hoja.cerrar(),0));return b
   };
   let items;
   if(comidaActual.origen==="plato"){
-    const it=loadSaved().find(x=>x.id===comidaActual.id);
+    const it=MisPlatos.loadSaved().find(x=>x.id===comidaActual.id);
     if(!it)return;
     items=[boton(it.fav?"⭐ Quitar de favoritas":"☆ Favorita","favSaved",it.id),boton("Copiar","copySaved",it.id),boton("Eliminar","delSaved",it.id,"button--danger")]
   }else{
@@ -223,9 +132,8 @@ function abrirMenuComida(){
   hoja.abrir({
     titulo:document.getElementById("comidaTitulo").textContent,contenido:[caja],botones:[],foco:false
   })
-}
-// Eliminar una receta desde el detalle: el mismo botón del formulario (con su confirmación de siempre).
-function eliminarRecetaDesdeDetalle(id){
+},
+eliminarRecetaDesdeDetalle(id){
   recipeDetailsEditing=id;
   renderRecipeDetails();
   const antes=Object.keys(loadRecipeDetails()).length;
@@ -235,16 +143,14 @@ function eliminarRecetaDesdeDetalle(id){
     closeRecipeRead(false);
     openTab("miscomidas")
   }
-}
-// Nutrientes de un ingrediente (cada 100 g), en una hoja. Usa los mismos datos que "Consultar nutrientes".
-function abrirNutrientesDeIngrediente(nombre){
+},
+abrirNutrientesDeIngrediente(nombre){
   const limpio=String(nombre||"").split(":")[0].trim();
   hoja.abrir({
-    titulo:limpio,contenido:[nutrientesDeIngrediente(limpio)],botones:[],foco:false
+    titulo:limpio,contenido:[Nutricion.nutrientesDeIngrediente(limpio)],botones:[],foco:false
   })
-}
-// "+ Nueva": armar con el método del plato, escribir una receta o pegarla con IA.
-function abrirNuevaComida(){
+},
+abrirNuevaComida(){
   const opcion=(emoji,texto,desc,accion,attrs)=>{
     const b=ce("button","tool-button");b.type="button";b.append(ce("span","tool-button__emoji",emoji),ce("span","tool-button__label",texto),ce("span","tool-button__desc",desc));Object.assign(b.dataset,attrs||{
     });b.addEventListener("click",()=>{
@@ -270,7 +176,109 @@ function abrirNuevaComida(){
   hoja.abrir({
     titulo:"Nueva comida",contenido:[grilla],botones:[],foco:false
   })
+},
+abrirFuentes(){
+  go("fuentes");
+  const info=document.getElementById("nutritionSourceInfo");
+  if(info)info.textContent=nutritionSourceText()
 }
+};
+var comidaActual=null;
+var ideasConLoQueTengo=false;
+var ideasMenuTodas=false;
+var IDEAS_MENU_VISIBLES=8;
+function comidaTipoDeComida(type){
+  return {
+    desayuno:"Desayuno o merienda",plato:"Almuerzo o cena",snack:"Snack",pre:"Pre-entreno"
+  }
+  [type]||"Comida"
+}
+function comidaDesdePlato(item){
+  const c=item.cooked||0,componentes=[...new Set(Semana.extractIngredients(item).map(x=>String(x).trim()).filter(Boolean))];
+  return {
+    tipo:"plato",origen:"plato",id:item.id,nombre:mealName(item),componentes,etiquetas:[comidaTipoDeComida(item.type),c>0?"Cocinado "+c+" ve"+(c===1?"z":"ces"):""].filter(Boolean),fav:!!item.fav,cocinado:c,enPlan:false,fecha:item.savedAt||"",aviso:""
+  }
+}
+// Una copia del plan (plato con recipeSourceId) cuya receta ya no está: se muestra como receta, con aviso.
+function comidaDesdeCopia(item,aviso){
+  const c=comidaDesdePlato(item);
+  c.tipo="receta";
+  c.etiquetas=["Receta"].concat(c.etiquetas);
+  c.aviso=aviso||"";
+  return c
+}
+function comidaDesdeReceta(r,amounts,enPlan){
+  const a=r.amountsTitle&&Object.prototype.hasOwnProperty.call(amounts,r.amountsTitle)?amounts[r.amountsTitle]:null;
+  return {
+    tipo:"receta",origen:"receta",id:r.id,nombre:r.title,componentes:MisPlatos.savedRecipeIngredients(r,amounts),etiquetas:["Receta",r.minutes?"⏱ "+r.minutes+" min":"",a&&a.yield?"Rinde "+String(a.yield).replace(".",","):"",enPlan?"📅 En el plan":""].filter(Boolean),fav:false,cocinado:0,enPlan:!!enPlan,fecha:r.updatedAt||r.createdAt||"",aviso:""
+  }
+}
+// La tarjeta: nombre, componentes en una línea y etiquetas. Desde la v15.6 suma el "≈ costo por porción" cuando los precios están activos.
+function tarjetaComida(c){
+  const b=ce("button","comida-card");
+  b.type="button";
+  b.dataset.comidaTipo=c.tipo;
+  b.dataset.comidaId=c.id;
+  b.dataset.comidaOrigen=c.origen;
+  if(c.origen==="receta")b.dataset.recipeId=c.id;
+  b.append(ce("strong","comida-card__nombre",(c.fav?"⭐ ":"")+c.nombre));
+  b.append(ce("span","comida-card__componentes",c.componentes.length?c.componentes.join(", "):"Sin ingredientes cargados"));
+  const costo=typeof etiquetaCostoComida==="function"?etiquetaCostoComida(c):"",etiq=costo?c.etiquetas.concat([costo]):c.etiquetas;
+  if(etiq.length)b.append(ce("span","comida-card__etiquetas",etiq.join(" · ")));
+  if(c.aviso)b.append(ce("span","comida-card__aviso",c.aviso));
+  b.setAttribute("aria-label",c.nombre+(c.tipo==="receta"?" (receta)":"")+". Ver detalle");
+  return b
+}
+// Detalle (pantalla "comida"): las acciones comunes arriba y, abajo, el plato o la receta.
+function pintarCabeceraComida(nombre,etiquetas,conservarAviso){
+  document.getElementById("comidaTitulo").textContent=nombre;
+  document.getElementById("comidaEtiquetas").textContent=etiquetas.join(" · ");
+  if(!conservarAviso)document.getElementById("comidaEstado").textContent="";
+  if(typeof pintarEnlaceRegistro==="function")pintarEnlaceRegistro();
+  if(typeof pintarCostoComida==="function")pintarCostoComida()
+}
+function mostrarDetalleReceta(r){
+  let amounts={
+  };
+  try{
+    amounts=loadRecipeAmounts()
+  }catch(e){
+  }
+  comidaActual={
+    origen:"receta",id:r.id
+  };
+  pintarCabeceraComida(r.title,comidaDesdeReceta(r,amounts,false).etiquetas);
+  document.getElementById("comidaPlato").hidden=true
+}
+// conservarAviso: al repintar después de una acción (Lo cociné, Favorita…) queda a la vista su aviso.
+function pintarDetallePlato(it,conservarAviso){
+  const c=comidaDesdePlato(it);
+  pintarCabeceraComida((it.fav?"⭐ ":"")+c.nombre,c.etiquetas.concat(it.recipeSourceId?["Copia de una receta"]:[]),conservarAviso);
+  const box=document.getElementById("comidaPlato"),ul=document.getElementById("comidaComponentes"),acts=document.getElementById("comidaPlatoAcciones");
+  box.hidden=false;
+  ul.replaceChildren(...(c.componentes.length?c.componentes.map(n=>{
+    const li=ce("li"),b=ce("button","comida-ingrediente",n);b.type="button";b.dataset.nutrienteIngrediente=n;li.append(b);return li
+  }):[ce("li",null,"Sin ingredientes cargados")]));
+  const boton=(texto,clave,valor,clase)=>{
+    const b=ce("button","button "+(clase||"button--soft"),texto);b.type="button";b.dataset[clave]=valor;return b
+  };
+  acts.replaceChildren(boton("🍳 Lo cociné","cookSaved",it.id),boton("Editar nombre","renameSaved",it.id))
+}
+function refrescarDetalleComida(){
+  if(stack.at(-1)!=="comida"||!comidaActual)return;
+  if(comidaActual.origen==="plato"){
+    const it=MisPlatos.loadSaved().find(x=>x.id===comidaActual.id);
+    if(it)pintarDetallePlato(it,true);else{
+      comidaActual=null;back()
+    }
+  }
+}
+// "Agregar a la semana": día y comida. Un plato va con setSlot; una receta, como en "Asignar receta al plan
+// actual" (asignarRecetaAlPlan, con su copia en los platos del plan). Si reemplaza algo, se puede deshacer.
+// Menú ⋯ del detalle: lo ocasional, con los mismos botones (data-*) de siempre.
+// Eliminar una receta desde el detalle: el mismo botón del formulario (con su confirmación de siempre).
+// Nutrientes de un ingrediente (cada 100 g), en una hoja. Usa los mismos datos que "Consultar nutrientes".
+// "+ Nueva": armar con el método del plato, escribir una receta o pegarla con IA.
 // Ideas: el filtro "Con lo que tengo" muestra las ideas que usan tu despensa (las de siempre, de 07-despensa.js).
 function pintarFiltroConLoQueTengo(){
   const chip=document.getElementById("ideasConLoQueTengoChip"),box=document.getElementById("ideasConLoQueTengo");
@@ -278,7 +286,7 @@ function pintarFiltroConLoQueTengo(){
   chip.classList.toggle("is-selected",ideasConLoQueTengo);
   chip.setAttribute("aria-pressed",String(ideasConLoQueTengo));
   box.hidden=!ideasConLoQueTengo;
-  if(ideasConLoQueTengo)renderPantryResults()
+  if(ideasConLoQueTengo)MarcasDespensa.renderPantryResults()
 }
 function abrirIdeas(conLoQueTengo){
   if(activeTab!=="miscomidas")openTab("miscomidas");
@@ -287,34 +295,29 @@ function abrirIdeas(conLoQueTengo){
   pintarFiltroConLoQueTengo()
 }
 // Más: Preferencias, Fuentes de datos y Cómo funciona son pantallas propias.
-function abrirFuentes(){
-  go("fuentes");
-  const info=document.getElementById("nutritionSourceInfo");
-  if(info)info.textContent=nutritionSourceText()
-}
 document.addEventListener("click",e=>{
   const b=e.target.closest&&e.target.closest("button");
   if(!b)return;
   try{
     const d=b.dataset;
-    if(d.comidaId&&b.classList.contains("comida-card"))return abrirComida(d.comidaOrigen,d.comidaId);
+    if(d.comidaId&&b.classList.contains("comida-card"))return Comidas.abrirComida(d.comidaOrigen,d.comidaId);
     if(d.comidasVista==="ideas")return abrirIdeas(false);
     if(d.comidasVista==="mias")return openTab("miscomidas");
-    if(d.comidaNueva!==undefined)return abrirNuevaComida();
+    if(d.comidaNueva!==undefined)return Comidas.abrirNuevaComida();
     if(d.conLoQueTengo!==undefined)return abrirIdeas(true);
     if(d.ideasConLoQueTengo!==undefined){
       ideasConLoQueTengo=!ideasConLoQueTengo;return pintarFiltroConLoQueTengo()
     }
     if(d.ideasVerTodas!==undefined){
-      ideasMenuTodas=!ideasMenuTodas;return renderMenuIdeas()
+      ideasMenuTodas=!ideasMenuTodas;return Ideas.renderMenuIdeas()
     }
-    if(d.comidaAgregar!==undefined)return abrirAgregarComida();
-    if(d.comidaCompartir!==undefined)return compartirComida();
-    if(d.comidaMenu!==undefined)return abrirMenuComida();
-    if(d.comidaEliminarReceta)return eliminarRecetaDesdeDetalle(d.comidaEliminarReceta);
-    if(d.nutrienteIngrediente)return abrirNutrientesDeIngrediente(d.nutrienteIngrediente);
+    if(d.comidaAgregar!==undefined)return Comidas.abrirAgregarComida();
+    if(d.comidaCompartir!==undefined)return Comidas.compartirComida();
+    if(d.comidaMenu!==undefined)return Comidas.abrirMenuComida();
+    if(d.comidaEliminarReceta)return Comidas.eliminarRecetaDesdeDetalle(d.comidaEliminarReceta);
+    if(d.nutrienteIngrediente)return Comidas.abrirNutrientesDeIngrediente(d.nutrienteIngrediente);
     if(d.openPreferencias!==undefined)return go("preferencias");
-    if(d.openFuentes!==undefined)return abrirFuentes();
+    if(d.openFuentes!==undefined)return Comidas.abrirFuentes();
     if(d.openComoFunciona!==undefined)return go("comoFunciona");
     // Después de Favorita, Editar nombre, Lo cociné o Eliminar (los maneja 14), el detalle se actualiza.
     if(d.favSaved||d.renameSaved||d.cookSaved||d.delSaved)setTimeout(refrescarDetalleComida,0)

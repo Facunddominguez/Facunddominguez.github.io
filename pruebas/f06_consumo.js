@@ -4,12 +4,12 @@
   window.confirm = () => true;
   const $ = id => document.getElementById(id);
   reset();
-  const today = localTrainingDate(new Date()), wd = todayPlanDay();
+  const today = Rutina.localTrainingDate(new Date()), wd = todayPlanDay();
   setAmounts({ [IDEA1]: { yield: 1, rows: [{ name: "Lentejas", quantity: 200, unit: "g" }, { name: "Zanahoria", quantity: 1, unit: "unidad" }] } });
   setRecipes([{ id: "recipe_test0001", title: "Guiso de lentejas", amountsTitle: IDEA1 }]);
   setSaved([tradPlate("tp1", ["Arroz"], ["Tomate"], ["Merluza"]), recipePlate("rp1", "recipe_test0001", "Guiso de lentejas", ["Lentejas", "Zanahoria"]), { id: "bf1", type: "desayuno", title: "Desayuno / Merienda", lines: ["Fruta: Licuado"], sig: "bf", text: "bf", cooked: 0, state: { type: "desayuno", fruta: { name: "Licuado" }, bfprot: { name: "Yogur" } } }]);
   setPlan([[wd, "almuerzo", "tp1"], [wd, "cena", "rp1"]]);
-  T.ok("C1 grupos detectados desde los ingredientes registrados", JSON.stringify(plateGroups(loadSaved()[0])) === '["verduras","pescado","almidones","proteinas"]' && JSON.stringify(plateGroups(loadSaved()[1])) === '["verduras","legumbres"]' && plateGroups(loadSaved()[2]).includes("fruta"), JSON.stringify(loadSaved().map(plateGroups)));
+  T.ok("C1 grupos detectados desde los ingredientes registrados", JSON.stringify(plateGroups(MisPlatos.loadSaved()[0])) === '["verduras","pescado","almidones","proteinas"]' && JSON.stringify(plateGroups(MisPlatos.loadSaved()[1])) === '["verduras","legumbres"]' && plateGroups(MisPlatos.loadSaved()[2]).includes("fruta"), JSON.stringify(MisPlatos.loadSaved().map(plateGroups)));
   // v15.1: "Lo comí hoy" está en la hoja de cada comida de hoy (Semana → hoy → comida), no en los otros días.
   const otro = DAYS.map(d => d[0]).find(d => d !== wd);
   setPlan([[wd, "almuerzo", "tp1"], [wd, "cena", "rp1"], [otro, "almuerzo", "tp1"]]);
@@ -50,10 +50,10 @@
   document.querySelector("[data-consumption-remove]").click(); await wait(10);
   window.confirm = () => true;
   T.ok("C6b quitar un registro, sin confirmación y con Deshacer", !pidioConfirmar && quitado && !!deshacerQuitar && vuelto && loadConsumption().length === 2 && /Registro quitado/.test($("consumptionStatus").textContent));
-  T.ok("C7 las preparaciones (Cociné) no cambian", loadSaved().every(p => (p.cooked || 0) === 0) && !localStorage.getItem("miPlatoFacil_cookingHistory_v1"));
-  let err = null; const snap = completeBackupSnapshot(localStorage); try { validateCompleteBackup(snap) } catch (e) { err = e.message }
+  T.ok("C7 las preparaciones (Cociné) no cambian", MisPlatos.loadSaved().every(p => (p.cooked || 0) === 0) && !localStorage.getItem("miPlatoFacil_cookingHistory_v1"));
+  let err = null; const snap = completeBackupSnapshot(localStorage); try { Respaldo.validateCompleteBackup(snap) } catch (e) { err = e.message }
   const bad = JSON.parse(JSON.stringify(snap)); bad.data["miPlatoFacil_consumption_v1"] = JSON.stringify([{ id: "x", date: "2026-13-40", meal: "cena", title: "x", groups: [], sourceId: null, planned: false }]);
-  let e2 = null; try { validateCompleteBackup(bad) } catch (e) { e2 = e.message }
+  let e2 = null; try { Respaldo.validateCompleteBackup(bad) } catch (e) { e2 = e.message }
   T.ok("C8 respaldo con consumo y objetivos válido; fechas inválidas se rechazan", err === null && "miPlatoFacil_consumption_v1" in snap.data && "miPlatoFacil_habitGoals_v1" in snap.data && /Registro de consumo inválido/.test(e2 || ""), err + " / " + e2);
   return T;
 })()

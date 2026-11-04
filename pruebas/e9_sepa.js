@@ -33,8 +33,8 @@
   const D = ev("data");
   const nombres = { nucleo: new Set(), armado: new Set() }, sinNombre = new Set();
   const sumar = (g, n) => { const nu = w.nutritionFor(n); if (nu) nombres[g].add(nu.n); else sinNombre.add(n) };
-  for (const idea of D.menuCatalog) for (const n of w.extractIngredients(w.ideaComoGuardada(idea, "Día libre"))) sumar("nucleo", n);
-  for (const it of JSON.parse(R.data.miPlatoFacil_saved)) for (const n of w.extractIngredients(it)) sumar("nucleo", n);
+  for (const idea of D.menuCatalog) for (const n of w.Semana.extractIngredients(w.IdeasHoja.ideaComoGuardada(idea, "Día libre"))) sumar("nucleo", n);
+  for (const it of JSON.parse(R.data.miPlatoFacil_saved)) for (const n of w.Semana.extractIngredients(it)) sumar("nucleo", n);
   for (const r of Object.values(JSON.parse(R.data.miPlatoFacil_recipeAmounts_v1))) for (const row of r.rows) sumar("nucleo", row.name);
   for (const g of ["verduras", "almidones", "legumbres", "proteinas"]) for (const n of D[g]) sumar("armado", n);
   for (const g of ["bfprot", "bfcarb", "bffat", "fruit"]) for (const p of D[g]) for (const n of String(p[0]).split(" | ")) sumar("armado", n);

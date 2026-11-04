@@ -3,6 +3,16 @@
 // Solo function y var (el arranque corre antes que este archivo). Nada de esto escribe lo guardado: las cantidades de los
 // platos armados se calculan al mostrarse, a partir de las porciones que la app ya muestra ("1 unidad", "2 cdas", "1/4 del plato").
 // Datos nuevos: miPlatoFacil_hogar_v1 {"personas":n} y miPlatoFacil_basicosFaltantes_v1 {"faltan":["Aceite"]} (ambos opcionales en el respaldo).
+// Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como CantidadesPlatos.nombre().
+const CantidadesPlatos={
+cambiarPersonasHogar(valor){
+  const ok=guardarPersonasHogar(valor),st=document.getElementById("hogarPersonasEstado");
+  if(!ok&&st)st.textContent="No se pudo guardar.";
+  renderHogar();
+  try{renderCompras()}catch(e){}
+  if(typeof refrescarPrecios==="function")try{refrescarPrecios()}catch(e){}
+}
+};
 var ENVASES_DATOS=__DATOS_ENVASES__;
 var HOGAR_KEY="miPlatoFacil_hogar_v1";
 var BASICOS_FALTANTES_KEY="miPlatoFacil_basicosFaltantes_v1";
@@ -168,7 +178,7 @@ function envasar(nombre,units){
   if(!e||!units||!units.size)return null;
   let base=0,hay=false;
   for(const [u,q] of units){
-    const i=unitInfo(u);
+    const i=Ingredientes.unitInfo(u);
     if(e.u==="g"&&i.dim==="masa"){base+=q*i.factor;hay=true}
     else if(e.u==="ml"&&i.dim==="volumen"){base+=q*i.factor;hay=true}
     else if(e.u==="unidad"&&i.dim==="unidad"){base+=q;hay=true}
@@ -192,13 +202,6 @@ function renderHogar(){
   const sel=document.getElementById("hogarPersonas");
   if(sel)sel.value=String(personasHogar())
 }
-function cambiarPersonasHogar(valor){
-  const ok=guardarPersonasHogar(valor),st=document.getElementById("hogarPersonasEstado");
-  if(!ok&&st)st.textContent="No se pudo guardar.";
-  renderHogar();
-  try{renderCompras()}catch(e){}
-  if(typeof refrescarPrecios==="function")try{refrescarPrecios()}catch(e){}
-}
 var BASICOS_VISIBLES=["Aceite","Sal","Pimienta","Vinagre","Orégano","Pimentón","Comino","Ají molido"];
 function renderBasicos(){
   const box=document.getElementById("basicosChips");
@@ -219,7 +222,7 @@ function alternarBasicoFaltante(nombre){
 }
 (function(){
   const sel=document.getElementById("hogarPersonas");
-  if(sel)sel.addEventListener("change",()=>cambiarPersonasHogar(sel.value));
+  if(sel)sel.addEventListener("change",()=>CantidadesPlatos.cambiarPersonasHogar(sel.value));
   renderHogar();
   renderBasicos()
 })();

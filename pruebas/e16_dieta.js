@@ -42,8 +42,8 @@
     restan[f.join("+")] = idea.length;
     for (const i of idea) { const v = viola(f, catalogoTexto(i)); if (v.length) malos.push(f.join("+") + ": " + i.text + " → " + v.join(",")) }
     // Sugerime y el Selector (sugerenciasPara) y la pantalla de Ideas.
-    for (const comida of ["almuerzo", "cena"]) for (const s of JSON.parse(ev(`JSON.stringify(sugerenciasPara("${comida}", "").map(x => x.tipo === "idea" ? x.idea.text + " " + (x.idea.tags || []).join(" ") + " " + ideaIngredientes(x.idea).join(" ") : mealName(x.item) + " " + extractIngredients(x.item).join(" ")))`))) { const v = viola(f, s); if (v.length) malos.push(f.join("+") + " sugerencia: " + s.slice(0, 50) + " → " + v.join(",")) }
-    for (const i of JSON.parse(ev("JSON.stringify(filteredMenuRecords())"))) { const v = viola(f, catalogoTexto(i)); if (v.length) malos.push(f.join("+") + " Ideas: " + i.text + " → " + v.join(",")) }
+    for (const comida of ["almuerzo", "cena"]) for (const s of JSON.parse(ev(`JSON.stringify(sugerenciasPara("${comida}", "").map(x => x.tipo === "idea" ? x.idea.text + " " + (x.idea.tags || []).join(" ") + " " + ideaIngredientes(x.idea).join(" ") : mealName(x.item) + " " + Semana.extractIngredients(x.item).join(" ")))`))) { const v = viola(f, s); if (v.length) malos.push(f.join("+") + " sugerencia: " + s.slice(0, 50) + " → " + v.join(",")) }
+    for (const i of JSON.parse(ev("JSON.stringify(Ideas.filteredMenuRecords())"))) { const v = viola(f, catalogoTexto(i)); if (v.length) malos.push(f.join("+") + " Ideas: " + i.text + " → " + v.join(",")) }
   }
   // Plurales y variantes de comidas guardadas por la persona (no son del catálogo).
   localStorage.setItem(DIETA, JSON.stringify({ filtros: ["sin_pescado", "sin_cerdo", "sin_carne_roja"] }));
@@ -61,7 +61,7 @@
     let n = 0;
     for (const d of Object.keys(p)) for (const sl of Object.keys(p[d])) {
       const it = s.find(x => x.id === p[d][sl]); if (!it) continue; n++;
-      const txt = ev("mealName(" + JSON.stringify(it) + ")") + " " + ev("extractIngredients(" + JSON.stringify(it) + ")").join(" ");
+      const txt = ev("mealName(" + JSON.stringify(it) + ")") + " " + ev("Semana.extractIngredients(" + JSON.stringify(it) + ")").join(" ");
       const v = viola(f, txt); if (v.length) maloArmame.push(f.join("+") + " " + d + "|" + sl + ": " + txt.slice(0, 60) + " → " + v.join(","))
     }
     armados[f.join("+")] = n;
@@ -79,8 +79,8 @@
   const snap = JSON.parse(ev("JSON.stringify(completeBackupSnapshot(localStorage))"));
   const enRespaldo = snap.data[DIETA] === guardado && ev('COMPLETE_BACKUP_OPTIONAL_KEYS.includes("miPlatoFacil_dieta_v1")');
   const malo = JSON.parse(JSON.stringify(snap)); malo.data[DIETA] = '{"filtros":["sin_gluten"]}';
-  let rechazado = false; try { ev("validateCompleteBackup(" + JSON.stringify(malo) + ")") } catch (e) { rechazado = true }
-  const R = await (await fetch("/tests/fixtures/respaldo-v14.9.94.json", { cache: "no-store" })).json(); let viejoOk = true; try { ev("validateCompleteBackup(" + JSON.stringify(R) + ")") } catch (e) { viejoOk = false }
+  let rechazado = false; try { ev("Respaldo.validateCompleteBackup(" + JSON.stringify(malo) + ")") } catch (e) { rechazado = true }
+  const R = await (await fetch("/tests/fixtures/respaldo-v14.9.94.json", { cache: "no-store" })).json(); let viejoOk = true; try { ev("Respaldo.validateCompleteBackup(" + JSON.stringify(R) + ")") } catch (e) { viejoOk = false }
   await tocar(q('#dietaChips [data-dieta-filtro="vegetariano"]'));
   const sacado = localStorage.getItem(DIETA);
   ok("C16-3 los filtros se eligen en Preferencias, \"Otros\" sigue, se avisa si quedan pocas ideas y van al respaldo como opcionales",

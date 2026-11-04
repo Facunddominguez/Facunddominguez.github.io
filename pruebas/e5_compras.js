@@ -22,7 +22,7 @@
   const qa = s => [...doc().querySelectorAll(s)];
   const $ = id => q("#" + id);
   const tocar = async el => { el.click(); toques++; await espera(120) };
-  const irA = async pestana => { await tocar(q('#sectionNav [data-section-tab="' + pestana + '"]')); if (ev("stack.at(-1) !== activeTabRoot()")) await tocar(q('#sectionNav [data-section-tab="' + pestana + '"]')) };
+  const irA = async pestana => { await tocar(q('#sectionNav [data-section-tab="' + pestana + '"]')); if (ev("stack.at(-1) !== Armado.activeTabRoot()")) await tocar(q('#sectionNav [data-section-tab="' + pestana + '"]')) };
   const pantalla = () => ev("stack.at(-1)");
   const visible = e => !!e && e.getClientRects().length > 0;
   const seVe = (e, texto) => visible(e) && e.innerText.includes(texto);
@@ -44,7 +44,7 @@
 
   // C5-1 El respaldo de ejemplo se restaura y se ve completo: cada módulo se alcanza con toques y muestra sus datos
   localStorage.clear(); await abrir();
-  w.restoreCompleteBackup(JSON.parse(JSON.stringify(R)), w.localStorage);
+  w.Respaldo.restoreCompleteBackup(JSON.parse(JSON.stringify(R)), w.localStorage);
   localStorage.setItem("miPlatoFacil_uiMode_v1", "completo");
   await abrir();
   const antes = todo(), faltan = [];
@@ -143,12 +143,12 @@
 
   // C5-2 Lista por secciones del súper: cada ítem en una sola sección; los grupos juntos son la lista del plan
   await irA("compras");
-  const items = ev("shoppingDisplayItems()"), plan = ev("shoppingPlanItems()").map(e => e.key).sort();
+  const items = ev("shoppingDisplayItems()"), plan = ev("Compras.shoppingPlanItems()").map(e => e.key).sort();
   const enSecciones = qa("#comprasList .compras-seccion [data-shop-key]").map(c => c.dataset.shopKey);
   const titulos = qa("#comprasList .compras-seccion").map(s => s.dataset.seccion), orden = ev("SECCIONES_SUPER");
   const pendientes = items.filter(x => x.group === "pendiente").map(x => x.key).sort();
   ok("C5-2 lista por secciones: cada pendiente en una sola sección, en orden fijo, y los grupos juntos son la lista del plan",
-    JSON.stringify([...enSecciones].sort()) === JSON.stringify(pendientes) && new Set(enSecciones).size === enSecciones.length && titulos.every((t, i) => i === 0 || orden.indexOf(t) > orden.indexOf(titulos[i - 1])) && JSON.stringify(items.map(x => x.key).sort()) === JSON.stringify(plan) && ev('seccionDelSuper("Tomate")') === "Verdulería" && ev('seccionDelSuper("Pollo (pechuga, muslo, pata-muslo)")') === "Carnicería y pescadería" && ev('seccionDelSuper("Leche")') === "Lácteos y huevos" && ev('seccionDelSuper("Pan rallado")') === "Almacén" && ev('seccionDelSuper("Detergente")') === "Limpieza",
+    JSON.stringify([...enSecciones].sort()) === JSON.stringify(pendientes) && new Set(enSecciones).size === enSecciones.length && titulos.every((t, i) => i === 0 || orden.indexOf(t) > orden.indexOf(titulos[i - 1])) && JSON.stringify(items.map(x => x.key).sort()) === JSON.stringify(plan) && ev('Compras.seccionDelSuper("Tomate")') === "Verdulería" && ev('Compras.seccionDelSuper("Pollo (pechuga, muslo, pata-muslo)")') === "Carnicería y pescadería" && ev('Compras.seccionDelSuper("Leche")') === "Lácteos y huevos" && ev('Compras.seccionDelSuper("Pan rallado")') === "Almacén" && ev('Compras.seccionDelSuper("Detergente")') === "Limpieza",
     titulos.join(", "));
 
   // C5-3 Interruptor "Descontar lo que tengo": apagado, nada va a "Ya tenés"; solo escribe su clave y solo al tocarlo
@@ -242,14 +242,14 @@
   await abrir(); await irA("compras");
   const filas7 = qa("#comprasList .shop-item label").map(l => l.textContent), internos = ev("shoppingDisplayItems()").map(x => x.label);
   ok("C5-7 cantidades legibles en la lista y al copiar; el texto interno (label) no cambia",
-    !malos.length && filas7.includes("Queso rallado: 167 g") && filas7.includes("Zapallito: 5 unidades") && internos.includes("Queso rallado: 166,666667 g") && internos.includes("Zapallito: 5 unidad") && ev("comprasText()").includes("• Zapallito: 5 unidades") && ev('textoLegible("Huevo: 200 g + 2 unidad")') === "Huevo: 200 g + 2 unidades",
+    !malos.length && filas7.includes("Queso rallado: 167 g") && filas7.includes("Zapallito: 5 unidades") && internos.includes("Queso rallado: 166,666667 g") && internos.includes("Zapallito: 5 unidad") && ev("Compras.comprasText()").includes("• Zapallito: 5 unidades") && ev('Ingredientes.textoLegible("Huevo: 200 g + 2 unidad")') === "Huevo: 200 g + 2 unidades",
     malos.map(m => m.join(" ")).join(", ") + " | " + filas7.join(" | "));
 
   // C5-8 Menú ⋯: cada herramienta se abre en 2 toques desde Compras, en los dos modos, y funciona
   const herramientas = [["realizadas", "#purchaseFromList"], ["presupuesto", "#shoppingBudgetSave"], ["precios", "#priceForm"], ["costoReceta", "#recipeCostPrepare"], ["otrasRecetas", "#quantShoppingCalculate"], ["otrasRecetas", "#stockPrepare"], ["existencias", "#stockSave"], ["existencias", "#shoppingPortionMultiplier"], ["compartir", "[data-copy-compras]"]];
   const fallas8 = [];
   for (const modo of ["simple", "completo"]) {
-    ev('setUiMode("' + modo + '")');
+    ev('ModoSimple.setUiMode("' + modo + '")');
     for (const [herr, sel] of herramientas) {
       await irA("compras"); toques = 0; await menuCompras(herr);
       if (!(toques <= 2 && pantalla() === "comprasHerramientas" && visible(q(sel)))) fallas8.push(modo + ":" + herr + ":" + sel)
@@ -264,7 +264,7 @@
   await irA("compras"); await menuCompras("existencias");
   $("stockIngredient").value = "Azúcar"; $("stockQuantity").value = "2"; $("stockUnit").value = "cucharada"; await tocar($("stockSave"));
   const azucar = JSON.parse(localStorage.getItem(STOCK) || "{}")['["azucar","cucharada"]'];
-  ev('setUiMode("simple")');
+  ev('ModoSimple.setUiMode("simple")');
   ok("C5-8 cada herramienta de Compras se abre en 2 toques desde el menú ⋯, en los dos modos, y funciona", !fallas8.length && !!azucar && azucar.quantity === 2 && seVe($("stockList"), "Azúcar: 2 cucharadas"), fallas8.join(", "));
 
   // C5-9 Una "info" de unidad distinta queda en Pendientes con "revisá"; el contador cuenta lo tachado en "Ya tenés"
@@ -283,10 +283,10 @@
   cargar({}); const vacio = w.completeBackupSnapshot(w.localStorage);
   const omitida = !(OPC in vacio.data);
   cargar({ [OPC]: '{"descontar":false}' });
-  w.restoreCompleteBackup(JSON.parse(JSON.stringify(R)), w.localStorage);
+  w.Respaldo.restoreCompleteBackup(JSON.parse(JSON.stringify(R)), w.localStorage);
   const viejoLaDeja = localStorage.getItem(OPC) === '{"descontar":false}';
   const malo = JSON.parse(JSON.stringify(R)); malo.data[OPC] = '{"descontar":"no"}';
-  let rechazado = false; try { w.validateCompleteBackup(malo) } catch (e) { rechazado = true }
+  let rechazado = false; try { w.Respaldo.validateCompleteBackup(malo) } catch (e) { rechazado = true }
   ok("C5-10 'Descontar lo que tengo' va al respaldo como opcional, un respaldo viejo la deja como está y uno inválido se rechaza", enRespaldo && omitida && viejoLaDeja && rechazado);
 
   if (marco) marco.remove();

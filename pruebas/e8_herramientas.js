@@ -22,7 +22,7 @@
   const qa = s => [...doc().querySelectorAll(s)];
   const $ = id => q("#" + id);
   const tocar = async el => { el.click(); toques++; await espera(120) };
-  const irA = async pestana => { await tocar(q('#sectionNav [data-section-tab="' + pestana + '"]')); if (ev("stack.at(-1) !== activeTabRoot()")) await tocar(q('#sectionNav [data-section-tab="' + pestana + '"]')) };
+  const irA = async pestana => { await tocar(q('#sectionNav [data-section-tab="' + pestana + '"]')); if (ev("stack.at(-1) !== Armado.activeTabRoot()")) await tocar(q('#sectionNav [data-section-tab="' + pestana + '"]')) };
   const pantalla = () => ev("stack.at(-1)");
   const visible = e => !!e && e.getClientRects().length > 0;
   const seVe = (e, texto) => visible(e) && e.innerText.includes(texto);
@@ -87,10 +87,10 @@
   // La barra de presupuesto sigue a los precios, no al modo
   cargar(base({ [UI]: "simple", [MP]: '{"mostrar":true}', [BUDGET]: '{"currency":"ARS","limit":30000,"period":"semana"}' })); await abrirConEjemplo();
   await irA("compras");
-  const barraConPrecios = seVe($("comprasPresupuesto"), "30.000") && ev("getUiMode()") === "simple";
+  const barraConPrecios = seVe($("comprasPresupuesto"), "30.000") && ev("Interfaz.getUiMode()") === "simple";
   cargar(base({ [UI]: "completo", [MP]: '{"mostrar":false}', [BUDGET]: '{"currency":"ARS","limit":30000,"period":"semana"}' })); await abrirConEjemplo();
   await irA("compras");
-  casos.push(["la barra de presupuesto sigue a los precios y no al modo", barraConPrecios && !visible($("comprasPresupuesto")) && ev("getUiMode()") === "completo"]);
+  casos.push(["la barra de presupuesto sigue a los precios y no al modo", barraConPrecios && !visible($("comprasPresupuesto")) && ev("Interfaz.getUiMode()") === "completo"]);
   const malosC1 = casos.filter(c => !c[1]).map(c => c[0]);
   ok("C8-1 'Mostrar precios y presupuesto' y 'Mostrar herramientas avanzadas' son independientes: valor inicial desde uiMode_v1, uiMode_v1 intacto y activar las herramientas no enciende los precios", !malosC1.length, malosC1.join(" | "));
 
@@ -162,7 +162,7 @@
   const mio6 = (id, price, date) => ({ id, name: "Arroz", pack: "", amount: 1, unit: "kg", price, currency: "ARS", date });
   cargar(base({ [UI]: "completo", [BUDGET]: '{"currency":"ARS","limit":50000,"period":"semana"}', [PRECIOS]: JSON.stringify({ a1: mio6("a1", 2800, "2026-10-20"), a2: mio6("a2", 2400, "2026-09-01") }) })); await abrirConEjemplo();
   const antes6 = todo();
-  ev('abrirHerramientaCompras("presupuesto");budgetCompareRender()'); await espera(80);
+  ev('ComprasDespensa.abrirHerramientaCompras("presupuesto");budgetCompareRender()'); await espera(80);
   const cmp = texto("budgetCompareResult");
   const despues6 = todo();
   localStorage.setItem(MP, '{"mostrar":false}'); ev("budgetCompareRender()");
@@ -192,11 +192,11 @@
   cargar({}); await abrir();
   const omit = !(MP in w.completeBackupSnapshot(w.localStorage).data);
   cargar({ [MP]: '{"mostrar":false}' });
-  w.restoreCompleteBackup(JSON.parse(JSON.stringify(R)), w.localStorage);
+  w.Respaldo.restoreCompleteBackup(JSON.parse(JSON.stringify(R)), w.localStorage);
   const viejo = !(MP in R.data) && localStorage.getItem(MP) === '{"mostrar":false}';
   const malo8 = JSON.parse(JSON.stringify(conMp)); malo8.data[MP] = '{"mostrar":"si"}';
-  let rech = false; try { w.validateCompleteBackup(malo8) } catch (e) { rech = true }
-  w.restoreCompleteBackup(JSON.parse(JSON.stringify(conMp)), w.localStorage);
+  let rech = false; try { w.Respaldo.validateCompleteBackup(malo8) } catch (e) { rech = true }
+  w.Respaldo.restoreCompleteBackup(JSON.parse(JSON.stringify(conMp)), w.localStorage);
   ok("C8-8 'Mostrar precios y presupuesto' va al respaldo como opcional, un respaldo viejo la deja como está y uno inválido se rechaza", incl && omit && viejo && rech && localStorage.getItem(MP) === '{"mostrar":true}');
 
   // C8-9 Fila de presupuesto en Preferencias: muestra lo guardado y abre el panel (solo con los precios prendidos)
@@ -209,7 +209,7 @@
   ok("C8-9 la fila de presupuesto de Preferencias muestra lo guardado, abre el panel y se esconde con los precios apagados (igual que la región de los precios)", fila9 && abre && !visible($("prefPresupuesto")) && !visible($("preferenciasRegion")));
 
   // C8-10 La diferencia entre lo gastado y lo estimado vuelve con signo y sentido
-  const hoy10 = ev("localTrainingDate(new Date())");
+  const hoy10 = ev("Rutina.localTrainingDate(new Date())");
   const compra10 = t => JSON.stringify([{ id: "c8compra01", date: hoy10, store: "", currency: "ARS", total: t, items: [] }]);
   const ref10 = JSON.stringify({ a1: mio6("a1", 2800, "2026-10-20") });
   cargar(base({ [UI]: "completo", [BUDGET]: '{"currency":"ARS","limit":50000,"period":"semana"}', [PRECIOS]: ref10, [COMPRAS]: compra10(100) })); await abrirConEjemplo();

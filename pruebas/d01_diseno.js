@@ -15,11 +15,11 @@
   T.ok('D1 todas las entradas del inicio son tarjetas iguales', homeButtons.length >= 10 && notCards.length === 0, notCards.join(' | '));
   // D2 Tema: la tarjeta muestra el tema elegido
   const before = localStorage.getItem('miPlatoFacil_theme');
-  localStorage.setItem('miPlatoFacil_theme', 'dark'); applyTheme();
+  localStorage.setItem('miPlatoFacil_theme', 'dark'); Interfaz.applyTheme();
   const darkLabel = $('themeToggle').querySelector('.tool-button__label').textContent;
-  localStorage.setItem('miPlatoFacil_theme', 'light'); applyTheme();
+  localStorage.setItem('miPlatoFacil_theme', 'light'); Interfaz.applyTheme();
   const lightLabel = $('themeToggle').querySelector('.tool-button__label').textContent;
-  if (before === null) localStorage.removeItem('miPlatoFacil_theme'); else localStorage.setItem('miPlatoFacil_theme', before); applyTheme();
+  if (before === null) localStorage.removeItem('miPlatoFacil_theme'); else localStorage.setItem('miPlatoFacil_theme', before); Interfaz.applyTheme();
   T.ok('D2 la tarjeta de tema muestra el tema elegido', darkLabel === 'Tema: Oscuro' && lightLabel === 'Tema: Claro', darkLabel + ' / ' + lightLabel);
   // D3 Todo lo que borra datos guardados se ve como destructivo (rojo)
   setSaved([tradPlate('t1', ['Papa'], ['Tomate'], ['Merluza'])]);
@@ -58,7 +58,7 @@
   // v15.3: también Ideas (con Buscar con filtros y Con lo que tengo abiertos), el detalle, Preferencias, la bienvenida y la hoja "+ Nueva".
   const medir = sel => document.querySelectorAll(sel).forEach(c => { if (c.getClientRects().length) heights.add(Math.round(c.getBoundingClientRect().height)) });
   for (const id of ['misplatos', 'ingredientes', 'trainingCalendar', 'ideas', 'comida', 'preferencias', 'bienvenida']) {
-    go(id); if (id === 'ideas') { showRecipeView('browse'); abrirIdeas(true) } if (id === 'bienvenida') abrirBienvenida();
+    go(id); if (id === 'ideas') { showRecipeView('browse'); abrirIdeas(true) } if (id === 'bienvenida') Bienvenida.abrirBienvenida();
     await wait(30); medir('#' + id + ' .filter-chip')
   }
   // v15.5: el Registro, con sus plegables abiertos.

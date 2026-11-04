@@ -20,7 +20,7 @@
   const $ = id => { const e = doc().getElementById(id); if (!e) throw Error("no está en la pantalla: #" + id); return e };
   const q = s => { const e = doc().querySelector(s); if (!e) throw Error("no está en la pantalla: " + s + " (pantalla: " + ev("stack.at(-1)") + ")"); return e };
   const tocar = async el => { el.click(); toques++; await espera(120) };
-  const irA = async pestana => { await tocar(q('#sectionNav [data-section-tab="' + pestana + '"]')); if (ev("stack.at(-1) !== activeTabRoot()")) await tocar(q('#sectionNav [data-section-tab="' + pestana + '"]')) };
+  const irA = async pestana => { await tocar(q('#sectionNav [data-section-tab="' + pestana + '"]')); if (ev("stack.at(-1) !== Armado.activeTabRoot()")) await tocar(q('#sectionNav [data-section-tab="' + pestana + '"]')) };
   const pantalla = () => ev("stack.at(-1)");
   const visible = e => !!e && e.getClientRects().length > 0;
   const hojaAbierta = () => ev("hoja.abierta()");
@@ -32,7 +32,7 @@
   const todo = () => JSON.stringify(Object.keys(localStorage).filter(k => k.startsWith("miPlatoFacil_")).sort().map(k => [k, localStorage.getItem(k)]));
   const DIAS = ["lunes", "martes", "miercoles", "jueves", "viernes", "sabado", "domingo"];
   const hoy = () => DIAS[(new Date().getDay() + 6) % 7], manana = () => DIAS[(new Date().getDay() + 7) % 7];
-  const fechaHoy = () => ev("localTrainingDate(new Date())");
+  const fechaHoy = () => ev("Rutina.localTrainingDate(new Date())");
   const conPlan = (cambios, extra) => { const p = JSON.parse(R.data.miPlatoFacil_plan); for (const [d, c, id] of cambios) p[d][c] = id; return { ...R.data, miPlatoFacil_plan: JSON.stringify(p), ...(extra || {}) } };
   const fila = comida => q('#todayRows [data-today-slot="' + comida + '"]');
   const estado = () => $("todayStatus");
@@ -100,7 +100,7 @@
   cargar(R.data); await abrir(); await irA("hoy");
   const pm = plan()[manana()], porId = new Map(guardados().map(x => [x.id, x]));
   const nombresManana = [...doc().querySelectorAll("#todayMananaRows .today-row__plate")].map(x => x.textContent);
-  ok("C3-4 Mañana arranca plegado y muestra las comidas del día siguiente del plan", visible($("todayManana")) && $("todayManana").open === false && $("todayMananaTitulo").textContent === "Mañana · " + ev("planDayName(" + JSON.stringify(manana()) + ")").toLowerCase() && JSON.stringify(nombresManana) === JSON.stringify(["desayuno", "almuerzo", "merienda", "cena"].map(c => w.mealName(porId.get(pm[c])))) && !doc().querySelector("#todayMananaRows [data-plan-eaten]") && ev('diaSiguienteDelPlan("domingo")') === "lunes", nombresManana.join(" | "));
+  ok("C3-4 Mañana arranca plegado y muestra las comidas del día siguiente del plan", visible($("todayManana")) && $("todayManana").open === false && $("todayMananaTitulo").textContent === "Mañana · " + ev("Semana.planDayName(" + JSON.stringify(manana()) + ")").toLowerCase() && JSON.stringify(nombresManana) === JSON.stringify(["desayuno", "almuerzo", "merienda", "cena"].map(c => w.mealName(porId.get(pm[c])))) && !doc().querySelector("#todayMananaRows [data-plan-eaten]") && ev('diaSiguienteDelPlan("domingo")') === "lunes", nombresManana.join(" | "));
   cargar(conPlan([[manana(), "cena", null]])); await abrir(); await irA("hoy");
   const planHoy4 = JSON.stringify(plan()[hoy()]);
   $("todayManana").open = true;
@@ -115,16 +115,16 @@
   // C3-5 Sugerime algo: integra Plato del día (primera propuesta, con semilla) y Sugerir al azar ("Otra")
   cargar(conPlan([[hoy(), "almuerzo", null]])); await abrir(); await irA("hoy");
   await tocar(q('#home [data-sugerime]'));
-  const delDia = nombreDe(ev('sugerenciaDelDia("almuerzo")')), p1 = propuesta();
+  const delDia = nombreDe(ev('AlAzar.sugerenciaDelDia("almuerzo")')), p1 = propuesta();
   const enAlmuerzo = $("hojaTitulo").textContent === "Sugerime algo" && q('.hoja [data-sugerime-comida="almuerzo"]').getAttribute("aria-pressed") === "true";
   ev("hoja.cerrar()"); await tocar(q('#home [data-sugerime]'));
   const p2 = propuesta();
-  ev("hoja.cerrar()"); ev("platoDelDia()"); await espera(100);
+  ev("hoja.cerrar()"); ev("AlAzar.platoDelDia()"); await espera(100);
   const nombrePlatoDia = ev("state.nombreSugerido");
   ok("C3-5 Sugerime algo abre el primer hueco vacío de hoy y propone el Plato del día, igual todo el día", enAlmuerzo && !!delDia && p1.includes(delDia) && p1 === p2 && nombrePlatoDia === delDia, p1);
   await irA("hoy"); await tocar(q('#home [data-sugerime]')); await tocar(q('.hoja [data-sugerime-comida="cena"]'));
-  const cenaDelDia = nombreDe(ev('elegirSugerencia("cena", mulberry32(hashStr("plato_" + localTrainingDate(new Date()) + "_cena")), diaDeRutina(new Date()))'));
-  ok("C3-5b en la cena, la semilla suma la comida", propuesta().includes(cenaDelDia) && nombreDe(ev('sugerenciaDelDia("cena")')) === cenaDelDia, propuesta());
+  const cenaDelDia = nombreDe(ev('elegirSugerencia("cena", AlAzar.mulberry32(AlAzar.hashStr("plato_" + Rutina.localTrainingDate(new Date()) + "_cena")), diaDeRutina(new Date()))'));
+  ok("C3-5b en la cena, la semilla suma la comida", propuesta().includes(cenaDelDia) && nombreDe(ev('AlAzar.sugerenciaDelDia("cena")')) === cenaDelDia, propuesta());
   await tocar(q('.hoja [data-sugerime-comida="almuerzo"]'));
   let cambio = false;
   for (let i = 0; i < 12 && !cambio; i++) { await tocar(q(".hoja [data-sugerime-otra]")); cambio = propuesta() !== p1 }
@@ -140,7 +140,7 @@
   const p5 = propuesta();
   await tocar(q(".hoja [data-sugerime-ver]"));
   const nombre5 = ev("state.nombreSugerido"), destino5 = ev("JSON.stringify(armadoDestino)");
-  ok("C3-5f \"Ver y cambiar\" muestra una idea del catálogo o una comida tuya, con su nombre y sus ingredientes", pantalla() === "resumen" && p5.includes(nombre5) && (catalogo.has(nombre5) || w.loadSaved().some(x => w.mealName(x) === nombre5)) && ev("state.verduras.length + state.almidones.length + state.proteinas.length + state.legCarb.length + state.legProt.length") > 0 && destino5 === JSON.stringify({ dia: hoy(), slot: "almuerzo", tab: "hoy" }), nombre5);
+  ok("C3-5f \"Ver y cambiar\" muestra una idea del catálogo o una comida tuya, con su nombre y sus ingredientes", pantalla() === "resumen" && p5.includes(nombre5) && (catalogo.has(nombre5) || w.MisPlatos.loadSaved().some(x => w.mealName(x) === nombre5)) && ev("state.verduras.length + state.almidones.length + state.proteinas.length + state.legCarb.length + state.legProt.length") > 0 && destino5 === JSON.stringify({ dia: hoy(), slot: "almuerzo", tab: "hoy" }), nombre5);
   await tocar(q("#resumen [data-save-plate]")); await tocar(q(".hoja .button--primary"));
   const id5 = plan()[hoy()].almuerzo, it5 = guardados().find(x => x.id === id5);
   ok("C3-5g al guardarla, queda asignada al hueco y se vuelve a Hoy", pantalla() === "home" && !!it5 && w.mealName(it5) === nombre5 && ev("armadoDestino") === null, pantalla());
@@ -176,7 +176,7 @@
   const ideasOk = pantalla() === "ideas";
   await irA("mas"); await tocar(q("#sectionSettings [data-open-training]"));
   const rutinaOk = pantalla() === "trainingCalendar";
-  await irA("hoy"); ev("platoDelDia()"); await espera(100);
+  await irA("hoy"); ev("AlAzar.platoDelDia()"); await espera(100);
   const platoDiaOk = pantalla() === "resumen" && !!ev("state.nombreSugerido");
   await irA("hoy"); await tocar(q('#home [data-sugerime]')); await tocar(q('.hoja [data-open-azar]'));
   const azarOk = pantalla() === "azar" && !hojaAbierta();

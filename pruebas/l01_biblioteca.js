@@ -5,7 +5,7 @@
   const scr = () => document.querySelector(".screen.is-active").id;
   const shown = e => !!e && e.getClientRects().length > 0;
   // Desde la v15 los platos sin nombre se muestran con uno automático (mealName), no con "Almuerzo / Cena · Día libre".
-  const platosVistos = t => ["p1", "p2"].filter(id => t.includes(mealName(loadSaved().find(x => x.id === id)))).length;
+  const platosVistos = t => ["p1", "p2"].filter(id => t.includes(mealName(MisPlatos.loadSaved().find(x => x.id === id)))).length;
   const appData = () => JSON.stringify(Object.keys(localStorage).filter(k => k.startsWith("miPlatoFacil_") && k !== UI_MODE_KEY).sort().map(k => [k, localStorage.getItem(k)]));
   const tab = name => document.querySelector('#sectionNav [data-section-tab="' + name + '"]');
   const openLibrary = async () => { tab("miscomidas").click(); await wait(60) };
@@ -70,18 +70,18 @@
   document.querySelector("#comida [data-comida-agregar]").click(); await wait(30);
   $("hojaComidaDia").value = dia; $("hojaComidaSlot").value = "cena";
   [...hoja.elemento.querySelectorAll("button")].find(b => b.textContent === "Agregar a la semana").click(); await wait(40);
-  const asignada = loadSaved().find(x => x.id === loadPlan()[dia].cena);
+  const asignada = MisPlatos.loadSaved().find(x => x.id === loadPlan()[dia].cena);
   const agregadaOk = !!asignada && asignada.recipeSourceId === "recipe_lib0002" && asignada.recipeIngredients.join() === "Zapallito,Huevo" && loadPlan()[dia].almuerzo === "c1";
   hoja.cerrar(); $("recipeReadBack").click(); await wait(60);
   planSavedRecipe("recipe_lib0002"); await wait(300);
   T.ok("L8 Agregar a la semana asigna la receta y Planificar abre la Semana con la receta elegida", agregadaOk && scr() === "planHerramientas" && !$("planRecipeReference").closest("[data-herr]").hidden && tab("semana").getAttribute("aria-current") === "page" && $("planRecipeReference").open && $("planRecipeSelect").value === "recipe_lib0002" && $("planRecipeDay").value === todayPlanDay() && $("planRecipeSlot").value === "almuerzo", $("planRecipeSelect").value);
   // L9 En modo completo se ven las copias del plan (Mis comidas) y las herramientas de platos (Mis datos)
-  setUiMode("completo"); await openLibrary();
+  ModoSimple.setUiMode("completo"); await openLibrary();
   const copies2 = $("savedList").querySelector("details.saved-recipes");
   const copiasVistas = !!copies2 && shown(copies2);
   go("backupScreen"); await wait(30);
   T.ok("L9 en modo completo se ven las copias de recetas del plan y las herramientas de platos", copiasVistas && shown($("savedTools")));
-  setUiMode("simple"); await wait(20);
+  ModoSimple.setUiMode("simple"); await wait(20);
   T.ok("L10 en modo simple, exportar, importar y vaciar platos quedan ocultos (sin cartel desde la v16.6: el interruptor está en Preferencias)", !shown($("savedTools")) && !$("backupScreen").querySelector("[data-mode-note]"));
   T.ok("L11 mirar, filtrar, buscar y abrir recetas no cambia ningún dato", sinCambios);
   // L12 Con recetas dañadas, los platos se siguen viendo y se avisa (sin decir que la receta se borró)

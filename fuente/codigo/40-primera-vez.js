@@ -4,19 +4,17 @@
 // Se abre sola al cargar solo si no hay comidas, recetas ni plan y no existe la marca miPlatoFacil_bienvenida_v1.
 // La marca ({"vista":true}) se escribe solo al tocar Saltar o "Armar mi semana"; mirar la bienvenida no escribe nada.
 // Va en el respaldo como módulo opcional (18-respaldo-completo.js): al restaurar en otro teléfono no vuelve a aparecer.
-var BIENVENIDA_KEY="miPlatoFacil_bienvenida_v1";
-var bienvenidaPaso=1;
-var bienvenidaDias=new Set();
-var bienvenidaIdeas=[];
-function bienvenidaVista(){
+// Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como Bienvenida.nombre().
+const Bienvenida={
+bienvenidaVista(){
   try{
-    return validBienvenida(JSON.parse(localStorage.getItem(BIENVENIDA_KEY)||"null"))
+    return Respaldo.validBienvenida(JSON.parse(localStorage.getItem(BIENVENIDA_KEY)||"null"))
   }catch(e){
     return false
   }
-}
-function marcarBienvenidaVista(){
-  if(bienvenidaVista())return true;
+},
+marcarBienvenidaVista(){
+  if(Bienvenida.bienvenidaVista())return true;
   try{
     localStorage.setItem(BIENVENIDA_KEY,JSON.stringify({
       vista:true
@@ -25,25 +23,23 @@ function marcarBienvenidaVista(){
   }catch(e){
     return false
   }
-}
-// Usuario nuevo: sin comidas ni recetas guardadas, con el plan vacío y sin la marca.
-function esUsuarioNuevo(){
-  if(bienvenidaVista())return false;
+},
+esUsuarioNuevo(){
+  if(Bienvenida.bienvenidaVista())return false;
   try{
-    if(loadSaved().length)return false;
+    if(MisPlatos.loadSaved().length)return false;
     if(Object.keys(loadRecipeDetails()).length)return false
   }catch(e){
     return false
   }
   const plan=loadPlan();
   return !DAYS.some(([d])=>SLOTS.some(([s])=>plan[d]&&plan[d][s]))
-}
-// Las ideas para arrancar: almuerzos y cenas del catálogo, las 8 primeras que respetan lo que evitás.
-function ideasParaArrancar(){
+},
+ideasParaArrancar(){
   const evitar=typeof recipeAvoidTerms==="function"?recipeAvoidTerms():[];
   return data.menuCatalog.filter(x=>!evitar.length||!evitar.some(t=>normalizeSearchText(x.text).includes(t))).slice(0,8)
-}
-function pintarBienvenida(){
+},
+pintarBienvenida(){
   document.querySelectorAll("#bienvenida [data-bienvenida-paso]").forEach(p=>{
     p.hidden=Number(p.dataset.bienvenidaPaso)!==bienvenidaPaso
   });
@@ -63,30 +59,28 @@ function pintarBienvenida(){
   const n=bienvenidaIdeas.length;
   document.querySelector("#bienvenida [data-bienvenida-armar]").disabled=n<3;
   document.getElementById("bienvenidaIdeasEstado").textContent=n?"Elegiste "+n+" de 5.":"Se guardan en Comidas para armar tu semana."
-}
-function abrirBienvenida(){
+},
+abrirBienvenida(){
   bienvenidaPaso=1;
   bienvenidaIdeas=[];
-  const rutina=loadTrainingWeek();
+  const rutina=Rutina.loadTrainingWeek();
   bienvenidaDias=new Set(rutina?rutina.days:[]);
   if(stack.at(-1)!=="bienvenida")go("bienvenida");
-  pintarBienvenida()
-}
-function terminarBienvenida(destino){
-  marcarBienvenidaVista();
+  Bienvenida.pintarBienvenida()
+},
+terminarBienvenida(destino){
+  Bienvenida.marcarBienvenidaVista();
   if(destino==="semana")openTab("semana");else restart()
-}
-// "Armar mi semana": guarda las ideas elegidas como comidas (sin duplicar) y abre la Semana para asignarlas.
-function armarSemanaDesdeBienvenida(){
+},
+armarSemanaDesdeBienvenida(){
   if(bienvenidaIdeas.length<3)return;
   for(const texto of bienvenidaIdeas){
-    const idea=ideaPorTexto(texto);
-    if(idea)guardarIdea(idea)
+    const idea=IdeasHoja.ideaPorTexto(texto);
+    if(idea)IdeasHoja.guardarIdea(idea)
   }
-  terminarBienvenida("semana")
-}
-// Paso opcional (Etapa 14): personas, presupuesto semanal y región de precios. Solo se guarda lo que se cargó; no cargar nada deja todo como estaba.
-function guardarHogarDeBienvenida(){
+  Bienvenida.terminarBienvenida("semana")
+},
+guardarHogarDeBienvenida(){
   const st=document.getElementById("bienvenidaHogarEstado"),personas=Number(document.getElementById("bienvenidaPersonas").value),
     raw=document.getElementById("bienvenidaPresupuesto").value.trim(),region=document.getElementById("bienvenidaRegion").value;
   let limite=null;
@@ -104,48 +98,57 @@ function guardarHogarDeBienvenida(){
     if(typeof renderHogar==="function")renderHogar();
     if(typeof renderRegionPrecios==="function")renderRegionPrecios();
     bienvenidaPaso=4;
-    pintarBienvenida()
+    Bienvenida.pintarBienvenida()
   }catch(e){
     st.textContent="No se pudo guardar. Podés cargarlo después en Preferencias."
   }
-}
-function guardarRutinaDeBienvenida(){
+},
+guardarRutinaDeBienvenida(){
   const st=document.getElementById("bienvenidaRutinaEstado");
   try{
     localStorage.setItem(TRAINING_KEY,JSON.stringify({
       version:1,days:[...bienvenidaDias]
     }));
-    renderTrainingWeek();
+    Rutina.renderTrainingWeek();
     bienvenidaPaso=3;
-    pintarBienvenida()
+    Bienvenida.pintarBienvenida()
   }catch(e){
     st.textContent="No se pudo guardar la rutina. Podés cargarla después en Más → Mi rutina."
   }
 }
+};
+var BIENVENIDA_KEY="miPlatoFacil_bienvenida_v1";
+var bienvenidaPaso=1;
+var bienvenidaDias=new Set();
+var bienvenidaIdeas=[];
+// Usuario nuevo: sin comidas ni recetas guardadas, con el plan vacío y sin la marca.
+// Las ideas para arrancar: almuerzos y cenas del catálogo, las 8 primeras que respetan lo que evitás.
+// "Armar mi semana": guarda las ideas elegidas como comidas (sin duplicar) y abre la Semana para asignarlas.
+// Paso opcional (Etapa 14): personas, presupuesto semanal y región de precios. Solo se guarda lo que se cargó; no cargar nada deja todo como estaba.
 document.getElementById("bienvenida").addEventListener("click",e=>{
   const b=e.target.closest("button");
   if(!b)return;
   const d=b.dataset;
   try{
     if(d.bienvenidaSiguiente!==undefined){
-      bienvenidaPaso=Math.min(4,bienvenidaPaso+1);pintarBienvenida()
-    }else if(d.bienvenidaSaltar!==undefined)terminarBienvenida("hoy");
+      bienvenidaPaso=Math.min(4,bienvenidaPaso+1);Bienvenida.pintarBienvenida()
+    }else if(d.bienvenidaSaltar!==undefined)Bienvenida.terminarBienvenida("hoy");
     else if(d.bienvenidaDia!==undefined){
-      const n=Number(d.bienvenidaDia);if(bienvenidaDias.has(n))bienvenidaDias.delete(n);else bienvenidaDias.add(n);pintarBienvenida()
-    }else if(d.bienvenidaRutina!==undefined)guardarRutinaDeBienvenida();
-    else if(d.bienvenidaHogar!==undefined)guardarHogarDeBienvenida();
+      const n=Number(d.bienvenidaDia);if(bienvenidaDias.has(n))bienvenidaDias.delete(n);else bienvenidaDias.add(n);Bienvenida.pintarBienvenida()
+    }else if(d.bienvenidaRutina!==undefined)Bienvenida.guardarRutinaDeBienvenida();
+    else if(d.bienvenidaHogar!==undefined)Bienvenida.guardarHogarDeBienvenida();
     else if(d.bienvenidaIdea!==undefined){
-      const i=bienvenidaIdeas.indexOf(d.bienvenidaIdea);if(i>=0)bienvenidaIdeas.splice(i,1);else if(bienvenidaIdeas.length<5)bienvenidaIdeas.push(d.bienvenidaIdea);pintarBienvenida()
-    }else if(d.bienvenidaArmar!==undefined)armarSemanaDesdeBienvenida()
+      const i=bienvenidaIdeas.indexOf(d.bienvenidaIdea);if(i>=0)bienvenidaIdeas.splice(i,1);else if(bienvenidaIdeas.length<5)bienvenidaIdeas.push(d.bienvenidaIdea);Bienvenida.pintarBienvenida()
+    }else if(d.bienvenidaArmar!==undefined)Bienvenida.armarSemanaDesdeBienvenida()
   }catch(err){
     document.getElementById("bienvenidaIdeasEstado").textContent=err.message
   }
 });
 document.addEventListener("click",e=>{
-  if(e.target.closest&&e.target.closest("[data-ver-bienvenida]"))abrirBienvenida()
+  if(e.target.closest&&e.target.closest("[data-ver-bienvenida]"))Bienvenida.abrirBienvenida()
 });
 // Al cargar: solo para un usuario nuevo (corre después de init(), así Hoy ya está pintado debajo).
 try{
-  if(esUsuarioNuevo())abrirBienvenida()
+  if(Bienvenida.esUsuarioNuevo())Bienvenida.abrirBienvenida()
 }catch(e){
 }
