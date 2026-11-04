@@ -757,7 +757,7 @@ function renderPlan(){
       const b=ce("button","filter-chip","Deshacer");
       b.type="button";
       b.dataset.planDeshacer="";
-      aviso.append(document.createTextNode(deshacerPlan.texto+". "),b)
+      aviso.append(document.createTextNode((deshacerPlan.res&&typeof ArmameSemana!=="undefined"?ArmameSemana.avisoDe(deshacerPlan.res):deshacerPlan.texto)+". "),b)
     }
   }
   if(typeof refrescarHojaHueco==="function")refrescarHojaHueco();

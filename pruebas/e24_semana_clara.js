@@ -69,6 +69,8 @@
     ev("hoja.cerrar()"); await espera(150)
   }
   const despuesPrecios = conPrecio();
+  // El aviso de semana armada muestra el total de ahora, no el de antes de completar los precios.
+  const totalAvisoAhora = pesos(/≈ \$[\d.]+ la semana/.exec(texto("planAviso")) && /≈ \$[\d.]+ la semana/.exec(texto("planAviso"))[0]), totalSemanaAhora = pesos(/Semana (?:al menos )?≈ \$[\d.]+/.exec(texto("planDiaCosto")) && /Semana (?:al menos )?≈ \$[\d.]+/.exec(texto("planDiaCosto"))[0]);
   // Más barata desde un hueco (hoja del hueco).
   const antesPlan = ev("JSON.stringify(loadPlan())"); let cambiada = false, msg = "";
   for (const hueco of [...doc().querySelectorAll("#planList .hueco")].slice(2, 4)) {
@@ -84,8 +86,8 @@
   Object.defineProperty(w.navigator, "share", { value: t => { compartido = t; return Promise.resolve() }, configurable: true });
   await tocar(doc().querySelector("[data-compras-compartir]"));
   ok("E24-recorrido armar la semana, completar 2 precios desde la ficha, cambiar una comida por una más barata y compartir la lista funciona de punta a punta",
-    antes !== null && despuesPrecios >= antes + 2 && !!compartido && /\*Total ≈ \$/.test(compartido.text) && (cambiada || /barata/i.test(msg)),
-    JSON.stringify({ antes, despuesPrecios, cambiada, msg: msg.slice(0, 120), compartido: !!compartido }));
+    antes !== null && despuesPrecios >= antes + 2 && totalAvisoAhora > 0 && totalAvisoAhora === totalSemanaAhora && !!compartido && /\*Total ≈ \$/.test(compartido.text) && cambiada,
+    JSON.stringify({ antes, despuesPrecios, totalAvisoAhora, totalSemanaAhora, cambiada, msg: msg.slice(0, 120), compartido: !!compartido }));
 
   if (marco) marco.remove();
   localStorage.clear();
