@@ -3160,7 +3160,7 @@ body.con-hoja{
   color:var(--bg)
 }
 .semana-dia__titulo{
-  margin:0 0 8px;
+  margin:0 0 2px;
   font-size:16px
 }
 .semana-huecos{
@@ -3522,7 +3522,10 @@ body.con-hoja{
 /* Precios automáticos (v15.6): aviso para quien no los activó y línea de fuente. */
 .precios-aviso{display:block;min-height:44px;margin:0 0 8px;padding:0;border:0;background:none;color:var(--primary,var(--accent));font:inherit;text-align:left;text-decoration:underline;cursor:pointer}
 .precios-aviso[hidden]{display:none}
-.precios-aviso--inline{display:inline-flex;align-items:center;margin:0}
+#planHint{margin-bottom:6px}
+#planDiaCosto{margin-bottom:2px}
+#planPreciosEstado{margin-top:0;margin-bottom:6px}
+.precios-aviso--inline{display:inline-block;min-height:0;margin:-15px 4px;padding:15px 4px;line-height:1;vertical-align:middle}
 #fuentes a{color:var(--green);text-decoration:underline}
 
 /* Etapa 13 (v16.2): precios a la vista. */

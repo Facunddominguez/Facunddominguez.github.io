@@ -132,10 +132,10 @@
   // C8-4 Costo semanal en Semana: suma los días y dice cuántos precios faltan
   cargar(base({ [UI]: "completo", miPlatoFacil_plan: planDe([["lunes", "almuerzo", "rp_recipe_e7prue01"], ["martes", "almuerzo", "rp_recipe_e7prue01"]]) })); await abrirConEjemplo();
   ev('planDiaElegido="lunes";renderPlan()'); await espera(50);
-  const sem = texto("planDiaCosto");
+  const sem = texto("planDiaCosto"), est = texto("planPreciosEstado");
   localStorage.setItem(MP, '{"mostrar":false}'); w.refrescarPrecios();
-  ok("C8-4 Semana muestra el costo del día y de la semana, con 'faltan N precios', y nada con los precios apagados",
-    sem === "≈ $3.100 por día · al menos ≈ $6.200 la semana (faltan 2 precios)" && texto("planDiaCosto") === "" && doc().getElementById("planDiaCosto").hidden, sem);
+  ok("C8-4 Semana muestra el costo de la semana y del día, con 'Completar N precios', y nada con los precios apagados",
+    sem === "Semana al menos ≈ $7.000 · hoy ≈ $3.100" && /Con precio: 2 de 3 productos · Completar 1 precio/.test(est) && texto("planDiaCosto") === "" && doc().getElementById("planDiaCosto").hidden, sem);
 
   // C8-5 Anotar gasto con lo realmente sumado a la despensa
   const filasReceta = [{ name: "Arroz", quantity: 500, unit: "g" }, { name: "Papa", quantity: 2, unit: "kg" }, { name: "Aceite", quantity: 100, unit: "ml" }, { name: "Sal", quantity: null, unit: "g" }];

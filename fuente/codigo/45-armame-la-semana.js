@@ -280,7 +280,7 @@ var ArmameSemana=(function(){
       const c=costoSemanaPlan();
       if(c){
         res.costo=Math.round(c.total);
-        res.faltan=c.faltan;
+        res.faltan=c.estimados;
         res.sinEstimar=c.sinEstimar;
         if(res.presupuesto)res.pasado=c.total>res.presupuesto
       }

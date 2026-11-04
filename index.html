@@ -3161,7 +3161,7 @@ body.con-hoja{
   color:var(--bg)
 }
 .semana-dia__titulo{
-  margin:0 0 8px;
+  margin:0 0 2px;
   font-size:16px
 }
 .semana-huecos{
@@ -3523,7 +3523,10 @@ body.con-hoja{
 /* Precios automáticos (v15.6): aviso para quien no los activó y línea de fuente. */
 .precios-aviso{display:block;min-height:44px;margin:0 0 8px;padding:0;border:0;background:none;color:var(--primary,var(--accent));font:inherit;text-align:left;text-decoration:underline;cursor:pointer}
 .precios-aviso[hidden]{display:none}
-.precios-aviso--inline{display:inline-flex;align-items:center;margin:0}
+#planHint{margin-bottom:6px}
+#planDiaCosto{margin-bottom:2px}
+#planPreciosEstado{margin-top:0;margin-bottom:6px}
+.precios-aviso--inline{display:inline-block;min-height:0;margin:-15px 4px;padding:15px 4px;line-height:1;vertical-align:middle}
 #fuentes a{color:var(--green);text-decoration:underline}
 
 /* Etapa 13 (v16.2): precios a la vista. */
@@ -6758,7 +6761,7 @@ function renderPresupuestoCompras(){
   try{
     const auto=budget.currency==="ARS"?totalAutomaticoLista():null;
     e=auto?{
-      estimated:auto.total,unpriced:auto.faltan,otherCurrency:0,alMenos:auto.faltan*2>auto.pendientes
+      estimated:auto.total,unpriced:auto.faltan,otherCurrency:0,alMenos:auto.sinEstimar!==undefined?auto.sinEstimar>0:auto.faltan*2>auto.pendientes
     }:Existencias.estimadoDeLaLista(shoppingMissingRows(),budget.currency)
   }catch(err){
     bar.textContent="💰 Presupuesto "+fmt(budget.limit);
@@ -14572,6 +14575,9 @@ function preciosDeLaLista(items,modo){
   let total=0,faltan=0,pendientes=0,aprox=0,estimados=0,sinEstimar=0;
   for(const x of items){
     if(modo==="lista"&&x.group!=="pendiente")continue;
+    // Sin cantidad ("Romero", a gusto) no hay nada que costear: se ve en la lista pero no cuenta como faltante.
+    const uds=unidadesACostear(x,modo);
+    if(!uds||!uds.size)continue;
     pendientes++;
     const c=costoDeProducto(x,modo);
     productos.push({key:x.key,name:x.name,tipo:c.tipo,costo:c.costo});
@@ -14622,7 +14628,7 @@ function detallePrecio(costo,rango,fuente){
 }
 function totalAutomaticoLista(){
   const p=preciosDeLaLista(shoppingDisplayItems());
-  return p&&p.porClave.size?p:null
+  return p&&p.conPrecio+p.estimados>0?p:null
 }
 // Textos de la lista: resumen con el total, fuente y aviso para quien no activó los precios.
 function pintarPreciosCompras(p){
@@ -14630,7 +14636,7 @@ function pintarPreciosCompras(p){
   if(a)a.hidden=preciosActivos();
   aplicarPrecios();
   if(f){
-    f.textContent=p&&p.porClave.size?fuentePrecios(undefined,"sepa"):"";
+    f.textContent=p&&p.conPrecio>0?fuentePrecios(undefined,"sepa"):"";
     f.hidden=!f.textContent
   }
 }
@@ -14716,7 +14722,7 @@ cambiarPersonasHogar(valor){
   if(typeof refrescarPrecios==="function")try{refrescarPrecios()}catch(e){}
 }
 };
-var ENVASES_DATOS={"version":1,"revisado":"2026-11-04","fuente":"Tabla curada a mano (tamaños típicos de supermercado en Argentina). No son precios: solo cuánto trae un envase común.","gramosPorCuarto":{"verduras":100,"almidones":80,"proteinas":120},"basicos":["Aceite","Sal","Pimienta","Vinagre","Orégano","Pimentón","Comino","Ají molido","Especias","Condimentos","Hierbas secas","Laurel","Tomillo","Romero","Nuez moscada","Canela"],"pesoPorcion":{"Ananá":{"rodaja":80},"Melón":{"tajada":200},"Sandía":{"tajada":300},"Huevo":{"unidad":55}},"envases":[{"n":"Fideos","tam":500,"u":"g","envase":"paquete"},{"n":"Pastas","tam":500,"u":"g","envase":"paquete"},{"n":"Arroz","tam":1000,"u":"g","envase":"paquete"},{"n":"Harina","tam":1000,"u":"g","envase":"paquete"},{"n":"Avena","tam":500,"u":"g","envase":"paquete"},{"n":"Polenta","tam":500,"u":"g","envase":"paquete"},{"n":"Quinoa","tam":500,"u":"g","envase":"paquete"},{"n":"Cuscús","tam":500,"u":"g","envase":"paquete"},{"n":"Lentejas","tam":500,"u":"g","envase":"paquete"},{"n":"Garbanzos","tam":500,"u":"g","envase":"paquete"},{"n":"Porotos","tam":500,"u":"g","envase":"paquete"},{"n":"Arvejas","tam":500,"u":"g","envase":"paquete"},{"n":"Azúcar","tam":1000,"u":"g","envase":"paquete"},{"n":"Pan rallado","tam":500,"u":"g","envase":"paquete"},{"n":"Granola","tam":350,"u":"g","envase":"paquete"},{"n":"Frutos secos","tam":200,"u":"g","envase":"bolsa"},{"n":"Semillas","tam":200,"u":"g","envase":"bolsa"},{"n":"Manteca","tam":200,"u":"g","envase":"pan"},{"n":"Leche","tam":1000,"u":"ml","envase":"sachet"},{"n":"Atún","tam":170,"u":"g","envase":"lata"},{"n":"Caballa","tam":300,"u":"g","envase":"lata"},{"n":"Sardina","tam":125,"u":"g","envase":"lata"},{"n":"Pan de molde","tam":20,"u":"unidad","envase":"paquete","ut":"rebanadas"},{"n":"Tortillas","tam":8,"u":"unidad","envase":"paquete","ut":"unidades"},{"n":"Huevo","tam":12,"u":"unidad","envase":"docena","corto":true},{"n":"Yogur","tam":1,"u":"unidad","envase":"pote","corto":true}],"pesoUnidad":{"Zanahoria":100,"Batata":250,"Palta":200,"Morrón":200,"Limón":100,"Naranja":200,"Pepino":250,"Tomate":150,"Cebolla":150,"Banana":120,"Manzana":180,"Papa":200,"Zapallito":200,"Yogur":190,"Mandarina":100,"Pera":180,"Durazno":150,"Kiwi":80,"Ciruela":60,"Pomelo":250,"Mango":300},"_pesoUnidad":"Gramos de una unidad común de cada ingrediente (para pasar unidades a kilos al calcular precios). Reemplaza al peso de la tabla de nutrición cuando esa unidad es chica o rara (la zanahoria de USDA pesa 61 g)."};
+var ENVASES_DATOS={"version":1,"revisado":"2026-11-04","fuente":"Tabla curada a mano (tamaños típicos de supermercado en Argentina). No son precios: solo cuánto trae un envase común.","gramosPorCuarto":{"verduras":100,"almidones":80,"proteinas":120},"basicos":["Aceite","Sal","Pimienta","Vinagre","Orégano","Pimentón","Comino","Ají molido","Especias","Condimentos","Hierbas secas","Laurel","Tomillo","Nuez moscada","Canela"],"pesoPorcion":{"Ananá":{"rodaja":80},"Melón":{"tajada":200},"Sandía":{"tajada":300},"Huevo":{"unidad":55}},"envases":[{"n":"Fideos","tam":500,"u":"g","envase":"paquete"},{"n":"Pastas","tam":500,"u":"g","envase":"paquete"},{"n":"Arroz","tam":1000,"u":"g","envase":"paquete"},{"n":"Harina","tam":1000,"u":"g","envase":"paquete"},{"n":"Avena","tam":500,"u":"g","envase":"paquete"},{"n":"Polenta","tam":500,"u":"g","envase":"paquete"},{"n":"Quinoa","tam":500,"u":"g","envase":"paquete"},{"n":"Cuscús","tam":500,"u":"g","envase":"paquete"},{"n":"Lentejas","tam":500,"u":"g","envase":"paquete"},{"n":"Garbanzos","tam":500,"u":"g","envase":"paquete"},{"n":"Porotos","tam":500,"u":"g","envase":"paquete"},{"n":"Arvejas","tam":500,"u":"g","envase":"paquete"},{"n":"Azúcar","tam":1000,"u":"g","envase":"paquete"},{"n":"Pan rallado","tam":500,"u":"g","envase":"paquete"},{"n":"Granola","tam":350,"u":"g","envase":"paquete"},{"n":"Frutos secos","tam":200,"u":"g","envase":"bolsa"},{"n":"Semillas","tam":200,"u":"g","envase":"bolsa"},{"n":"Manteca","tam":200,"u":"g","envase":"pan"},{"n":"Leche","tam":1000,"u":"ml","envase":"sachet"},{"n":"Atún","tam":170,"u":"g","envase":"lata"},{"n":"Caballa","tam":300,"u":"g","envase":"lata"},{"n":"Sardina","tam":125,"u":"g","envase":"lata"},{"n":"Pan de molde","tam":20,"u":"unidad","envase":"paquete","ut":"rebanadas"},{"n":"Tortillas","tam":8,"u":"unidad","envase":"paquete","ut":"unidades"},{"n":"Huevo","tam":12,"u":"unidad","envase":"docena","corto":true},{"n":"Yogur","tam":1,"u":"unidad","envase":"pote","corto":true}],"pesoUnidad":{"Zanahoria":100,"Batata":250,"Palta":200,"Morrón":200,"Limón":100,"Naranja":200,"Pepino":250,"Tomate":150,"Cebolla":150,"Banana":120,"Manzana":180,"Papa":200,"Zapallito":200,"Yogur":190,"Mandarina":100,"Pera":180,"Durazno":150,"Kiwi":80,"Ciruela":60,"Pomelo":250,"Mango":300},"_pesoUnidad":"Gramos de una unidad común de cada ingrediente (para pasar unidades a kilos al calcular precios). Reemplaza al peso de la tabla de nutrición cuando esa unidad es chica o rara (la zanahoria de USDA pesa 61 g)."};
 var HOGAR_KEY="miPlatoFacil_hogar_v1";
 var BASICOS_FALTANTES_KEY="miPlatoFacil_basicosFaltantes_v1";
 function validHogar(o){
@@ -15211,7 +15217,7 @@ var ArmameSemana=(function(){
       const c=costoSemanaPlan();
       if(c){
         res.costo=Math.round(c.total);
-        res.faltan=c.faltan;
+        res.faltan=c.estimados;
         res.sinEstimar=c.sinEstimar;
         if(res.presupuesto)res.pasado=c.total>res.presupuesto
       }

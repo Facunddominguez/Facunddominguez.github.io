@@ -554,6 +554,9 @@ function preciosDeLaLista(items,modo){
   let total=0,faltan=0,pendientes=0,aprox=0,estimados=0,sinEstimar=0;
   for(const x of items){
     if(modo==="lista"&&x.group!=="pendiente")continue;
+    // Sin cantidad ("Romero", a gusto) no hay nada que costear: se ve en la lista pero no cuenta como faltante.
+    const uds=unidadesACostear(x,modo);
+    if(!uds||!uds.size)continue;
     pendientes++;
     const c=costoDeProducto(x,modo);
     productos.push({key:x.key,name:x.name,tipo:c.tipo,costo:c.costo});
@@ -604,7 +607,7 @@ function detallePrecio(costo,rango,fuente){
 }
 function totalAutomaticoLista(){
   const p=preciosDeLaLista(shoppingDisplayItems());
-  return p&&p.porClave.size?p:null
+  return p&&p.conPrecio+p.estimados>0?p:null
 }
 // Textos de la lista: resumen con el total, fuente y aviso para quien no activó los precios.
 function pintarPreciosCompras(p){
@@ -612,7 +615,7 @@ function pintarPreciosCompras(p){
   if(a)a.hidden=preciosActivos();
   aplicarPrecios();
   if(f){
-    f.textContent=p&&p.porClave.size?fuentePrecios(undefined,"sepa"):"";
+    f.textContent=p&&p.conPrecio>0?fuentePrecios(undefined,"sepa"):"";
     f.hidden=!f.textContent
   }
 }
