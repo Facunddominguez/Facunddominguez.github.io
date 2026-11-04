@@ -340,6 +340,21 @@ var ArmameSemana=(function(){
     if(res.llenos<res.huecos)t+=" Quedaron "+(res.huecos-res.llenos)+" huecos sin llenar: faltan comidas que cumplan lo que evitás.";
     return t
   }
+  // Texto del aviso de semana armada con el total de ahora (si se completan precios después de armar, no queda el total viejo).
+  function avisoDe(res){
+    const r={...res};
+    try{
+      const c=costoSemanaPlan();
+      if(c){
+        r.costo=Math.round(c.total);
+        r.faltan=c.estimados;
+        r.sinEstimar=c.sinEstimar;
+        if(r.presupuesto)r.pasado=c.total>r.presupuesto
+      }
+    }catch(e){
+    }
+    return resumen(r).replace(/\.$/,"")
+  }
   function huecosVacios(){
     const plan=loadPlan(),ids=new Set(MisPlatos.loadSaved().map(x=>x.id));
     let n=0;
@@ -360,7 +375,11 @@ var ArmameSemana=(function(){
     try{
       const res=aplicar(armar({modo}));
       hoja.cerrar();
-      planStatus(resumen(res))
+      // El aviso queda en la Semana, con Deshacer y el mismo total que Semana y Compras, hasta la próxima acción.
+      if(deshacerPlan){
+        deshacerPlan.res=res;
+        renderPlan()
+      }
     }catch(e){
       hoja.estado.textContent=e.message
     }
@@ -448,5 +467,5 @@ var ArmameSemana=(function(){
     return MisPlatos.persistSaved(a)
   }
   try{marcarDeLaSemana()}catch(e){}
-  return {armar,aplicar,resumen,abrir,correr,cambiarHueco,presupuestoSemanal,huecosVacios,marcarDeLaSemana,guardarEnMisComidas}
+  return {armar,aplicar,resumen,avisoDe,abrir,correr,cambiarHueco,presupuestoSemanal,huecosVacios,marcarDeLaSemana,guardarEnMisComidas}
 })();

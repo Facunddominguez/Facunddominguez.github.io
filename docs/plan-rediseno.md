@@ -2509,3 +2509,27 @@ Rama `rediseno-3-etapa-23-catalogo-lista`. Versión 17.4.0.
 Ajuste de equivalencias: la primera versión del filtro dejó fuera "Tomate perita" = "Tomate" (prueba C8-7). Ahora se sugiere unir si es una variante de nombre o el mismo ítem de nutrición y, en las familias donde una palabra cambia de producto (queso, yogur, harina, porotos, pan, aceite, carne, fideos, leche, semillas), solo en ese caso; en el resto (tomate, zapallo, repollo…) se sigue sugiriendo como antes. Además: en la Despensa solo se pasan a gramos las cucharadas y tazas de sólidos (la prueba U4d protege que una taza de leche no se convierta a ml).
 
 Compuerta final (Etapa 23): VALIDACIÓN ETAPA 23: OK (137 controles).
+
+### Etapa 24 ✅ Semana más clara
+Rama `rediseno-3-etapa-24-semana-clara`. Versión 17.5.0.
+
+**Plan corto**
+- `10-plan-semanal.js`: se saca "Elegir el almuerzo de hoy"; el botón de arriba dice "Armame la semana" (principal) y, con las 28 comidas, "Rehacer semana" (secundario). `45-armame-la-semana.js`: el aviso de semana armada es el texto de siempre ("Listo: 28 comidas armadas · ≈ $X la semana. Incluye N precios estimados. Entra en tu presupuesto…") pero queda en `#planAviso` con Deshacer hasta la próxima acción en lugar de desaparecer a los 3,6 segundos. `05-plan.html`: el aviso y el estado pasan de abajo de la lista a debajo del botón. `estilos.css`: separación de 16 px entre cabecera, botón, chips y contenido. Prueba nueva `e24_semana_clara.js`.
+- Riesgos para los datos: ninguno.
+
+**Hecho cuando**
+- ✅ E24-sin-elegir: no hay botón "Elegir el almuerzo de hoy" y "Armame la semana" es el único botón principal de arriba.
+- ✅ E24-boton: con las 28 comidas el botón pasa a "Rehacer semana" y es secundario.
+- ✅ E24-aviso: el aviso sigue visible 10,5 segundos después de armar, con Deshacer, y su total ≈ $68.035 coincide con el de Semana y el de Compras.
+- ✅ E24-separacion: 16 px entre cabecera y botón, entre lo de arriba y los chips y entre los chips y el contenido (antes 10 a 12 px).
+- ✅ E24-recorrido: armar la semana, completar 2 precios desde la ficha (de 27 a 29 productos con precio), cambiar una comida por una más barata ("Cambié por Fideos integrales con salsa de tomate + albóndigas de garbanzo (≈ $1.554, antes ≈ $3.719)") y compartir la lista con el total, de punta a punta con la interfaz.
+
+**Aviso** (Decisión): se reutiliza el Deshacer del plan (`deshacerPlan`) para que el aviso dure hasta la próxima acción en Semana; no aparece en las demás pestañas. El mensaje de 3,6 segundos (`planStatus`) ya no se usa para el armado.
+
+**Recorrido final** (Decisión): capturas a 390, 360 y 320 px de cada paso (semana vacía, hoja de Armame, semana armada con aviso, Completar precios, ficha, Mi precio, guardado, hoja del hueco, "más barata", Compras y compartir) en `/tmp`, revisadas por `revisor-usuario` (ver abajo). Para que la Semana siga midiendo 1,5 pantallas o menos (E2-semana-alto: 1259 px), el resumen de objetivos pasó a 13 px y los chips de días a 58 px; la línea "Con precio…" ocupa una línea en 390 px y el punto antes del botón se oculta en pantallas angostas.
+
+**Tests adaptados**: `e10_pulido.js` C10-1 (la Semana vacía ya no ofrece "Elegir el almuerzo de hoy": ahora se comprueba que no está y que "Armame la semana" es el botón principal que lleva al paso siguiente) y `e15_armame.js` C15-6 (el aviso "Listo: 28 comidas" se lee en `#planAviso`, no en el estado temporal).
+
+**Revisores (Etapa 24)**: `revisor-usuario` (recorrido a 390, 360 y 320 px) NO BLOQUEANTE y `revisor-codigo` NO BLOQUEANTE. Se aplicó lo importante: el aviso de semana armada ya no queda con el total viejo si después se completan precios (se recalcula con `ArmameSemana.avisoDe`, y el texto corto "Armaste la semana entera" sigue siendo el que va al historial); E24-recorrido exige ahora que el cambio a "más barata" ocurra y que el aviso coincida con Semana. Quedan como sugerencias: el botón "Guardar" de la ficha queda abajo de la hoja en 320 px, la nutrición va antes del precio, el motivo de "no hay más barata" aparece abajo de la hoja, la hoja de un hueco tiene tres variantes de "Cambiar" y la merienda lleva el ícono del desayuno.
+
+Compuerta final (Etapa 24): VALIDACIÓN ETAPA 24: OK (143 controles, 598 pruebas).

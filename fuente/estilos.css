@@ -3046,7 +3046,8 @@ body.con-hoja{
   display:flex;
   align-items:flex-start;
   justify-content:space-between;
-  gap:10px
+  gap:10px;
+  margin-bottom:16px
 }
 .semana-cabeza .screen__title{
   margin:0;
@@ -3091,15 +3092,15 @@ body.con-hoja{
   display:grid;
   grid-template-columns:repeat(7,minmax(0,1fr));
   gap:4px;
-  margin:0 0 12px
+  margin:16px 0
 }
 .semana-dia-chip{
   position:relative;
   display:grid;
   justify-items:center;
   gap:1px;
-  min-height:62px;
-  padding:6px 0 9px;
+  min-height:58px;
+  padding:4px 0 6px;
   border:1px solid var(--line);
   border-radius:14px;
   background:var(--surface);
@@ -3531,8 +3532,13 @@ body.con-hoja{
 .ficha-precio__linea{margin:0;font-weight:600}
 .ficha-precio__form{display:grid;gap:8px}
 .ficha-precio__form input,.ficha-precio__form select{min-height:44px}
+#planObjetivos{font-size:13px;line-height:1.35}
+.semana-aviso:empty,#planStatus:empty{display:none}
+#planAviso{margin:0 0 16px}
+@media (max-width:420px){.precios-sep{display:none}}
 #planDiaCosto{margin-bottom:2px}
-#planPreciosEstado{margin-top:0;margin-bottom:6px}
+#planPreciosEstado{margin-top:0;margin-bottom:6px;font-size:13px;display:flex;flex-wrap:wrap;align-items:center;gap:0 6px}
+#planPreciosEstado .precios-aviso--inline{font-size:13px;margin:0;padding:0 8px}
 .precios-aviso--inline{display:inline-flex;align-items:center;min-height:44px;margin:0 0 0 4px;padding:0 4px;vertical-align:middle}
 #fuentes a{color:var(--green);text-decoration:underline}
 
@@ -3543,7 +3549,7 @@ body.con-hoja{
 .precio-detalle[hidden]{display:none}
 
 /* Etapa 15 (v16.4): Armame la semana. */
-.armame-boton{width:100%;margin:0 0 12px}
+.armame-boton{width:100%;min-height:44px;margin:0 0 16px}
 .armame-hoja .hueco-hoja__acciones{display:flex;flex-direction:column;gap:8px}
 
 /* Etapa 17 (v16.6): una sola barra fija abajo. Los pasos del armado reemplazan a las pestañas (no se apilan) y el contenido

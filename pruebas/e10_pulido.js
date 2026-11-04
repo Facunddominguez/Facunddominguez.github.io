@@ -31,9 +31,10 @@
   if (botonCompras) { botonCompras.click(); await espera(150) }
   const fueASemana = ev("stack.at(-1)") === "plan";
   ev('openTab("semana")'); await espera(100);
-  const elegir = doc().getElementById("planVacioElegir");
-  const visibleElegir = visible(elegir) && elegir.classList.contains("button--primary");
-  if (elegir) { elegir.click(); await espera(150) }
+  // Etapa 24: la Semana vacía ya no ofrece "Elegir el almuerzo de hoy"; su próximo paso es "Armame la semana" (botón principal).
+  const elegir = doc().getElementById("planVacioElegir"), armame = doc().querySelector("#plan [data-armame]");
+  const visibleElegir = !elegir && !doc().body.textContent.includes("Elegir el almuerzo de hoy") && visible(armame) && armame.classList.contains("button--primary");
+  if (armame) { armame.click(); await espera(150) }
   const abrioSelector = hojaAbierta();
   ev("hoja.cerrar()");
   ev('openTab("miscomidas"); go("ideas")'); await espera(100);

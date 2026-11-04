@@ -514,7 +514,12 @@ function pintarCostoDia(){
   if(q){
     q.replaceChildren();
     if(u){
-      q.append(document.createTextNode("Con precio: "+u.conPrecio+" de "+u.pendientes+" productos"+(u.faltan?" · ":"")));
+      q.append(document.createTextNode("Con precio: "+u.conPrecio+" de "+u.pendientes+" productos"));
+      if(u.faltan){
+        // El punto separa el texto del botón; en pantallas angostas el botón baja de línea y el punto se oculta.
+        const sep=ce("span","precios-sep"," · ");
+        q.append(sep)
+      }
       if(u.faltan){
         const b=ce("button","button button--soft precios-aviso--inline","Completar "+u.faltan+" precio"+(u.faltan===1?"":"s"));
         b.type="button";
