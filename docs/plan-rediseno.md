@@ -2082,7 +2082,7 @@ Estados: ✅ hecha · ⏳ en curso · ⛔ parada.
 | Etapa | Estado | Tag | Versión de la app |
 |---|---|---|---|
 | 11. Desayuno y comidas completas | ✅ | `etapa-11-ok` | 16.0.0 |
-| 12. Cantidades reales | ⏳ | `etapa-12-ok` | 16.1.0 |
+| 12. Cantidades reales | ✅ | `etapa-12-ok` | 16.1.0 |
 
 - Arranque: rama `rediseno-2` creada desde `main` (v15.9.0) con este plan.
 - Herramientas: `validar-etapa.mjs` acepta las etapas 11 a 18 y, desde la 11, compara contra `rediseno-2` (versión y línea base) en vez de `rediseno`.
@@ -2110,7 +2110,7 @@ Rama `rediseno-2-etapa-11-desayuno-completo`.
 
 **Revisores (Etapa 11)**: `revisor-codigo` NO BLOQUEANTE; `revisor-usuario` NO BLOQUEANTE. Sugerencias que quedan: "¿Cómo?" queda debajo de la lista de frutas (Continuar usa Entera por defecto); Continuar deja avanzar sin fruta (igual que los demás pasos); la redacción con varias frutas en una preparación ("Budín de banana y manzana") se revisa a mano. Compuerta: VALIDACIÓN ETAPA 11: OK (72 controles).
 
-### Etapa 12 · Cantidades reales ⏳
+### Etapa 12 · Cantidades reales ✅
 
 Rama `rediseno-2-etapa-12-cantidades`.
 
@@ -2132,7 +2132,7 @@ Rama `rediseno-2-etapa-12-cantidades`.
 
 **Básicos de alacena** (Decisión): aceite, sal, pimienta, vinagre, orégano, pimentón, comino, ají molido, laurel, tomillo, nuez moscada, canela y "especias" quedan fuera de la lista y del costo, incluso los de recetas. En la Despensa, "Básicos de alacena" deja marcar cuál falta (8 visibles); marcado, vuelve a la lista. Un plato de texto (sin estado) no tiene cantidades: se muestra solo por su nombre, sin "+ sin cantidad en 1 plato".
 
-**Tests adaptados** (Regla 5: miran la interfaz vieja; la exigencia sobre lo guardado y la lógica es la misma):
+**Tests adaptados** (Decisión, Regla 5: miran la interfaz vieja; la exigencia sobre lo guardado y la lógica es la misma):
 - `r2_fixtures.js`: `tradPlate` sigue armando un plato con estado (ahora con cantidades); nuevo `tradPlateTexto` es el plato de texto viejo, sin estado. Los casos de "parte sin cantidad" (S1 a S10, M1, M2, U2, E10, f04, DP10, U1 y E1-6) usan `tradPlateTexto`, y se sacó "+ sin cantidad en 1 plato" de lo esperado.
 - Se cambiaron los nombres "Sal", "Comino" y "Aceite" por "Perejil", "Cebolla" y "Miel" donde la prueba solo necesitaba un ingrediente cualquiera (ahora los básicos no están en la lista).
 - Con envases: "Arroz: 300 g" → "Arroz: 1 paquete de 1.000 g" (M10, L2b, L9, S4b), "Leche: 1,3 l" → "2 sachets de 1.000 ml" (U2), "Leche: 250 ml · revisá" → "1 sachet de 1.000 ml · revisá" (C5-9); C5-3 mira que no haya "faltan" ni "revisá" en vez de comparar `text` con `label`; precios de C7-1, C7-3 y C7-4 son los del envase (arroz $2.000 en vez de $600).
