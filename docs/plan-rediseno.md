@@ -2081,12 +2081,12 @@ Estados: ✅ hecha · ⏳ en curso · ⛔ parada.
 
 | Etapa | Estado | Tag | Versión de la app |
 |---|---|---|---|
-| 11. Desayuno y comidas completas | ⏳ | `etapa-11-ok` | 16.0.0 |
+| 11. Desayuno y comidas completas | ✅ | `etapa-11-ok` | 16.0.0 |
 
 - Arranque: rama `rediseno-2` creada desde `main` (v15.9.0) con este plan.
 - Herramientas: `validar-etapa.mjs` acepta las etapas 11 a 18 y, desde la 11, compara contra `rediseno-2` (versión y línea base) en vez de `rediseno`.
 
-### Etapa 11 · Desayuno y comidas completas ⏳
+### Etapa 11 · Desayuno y comidas completas ✅
 
 Rama `rediseno-2-etapa-11-desayuno-completo`.
 
@@ -2107,3 +2107,4 @@ Rama `rediseno-2-etapa-11-desayuno-completo`.
 - ✅ Decisión: "Filet de pescado con verduras salteadas" ahora lleva Papa.
 - ✅ Decisión: "Salmón al horno con puré de calabaza y espinaca" ahora lleva Papa (el puré).
 
+**Revisores (Etapa 11)**: `revisor-codigo` NO BLOQUEANTE; `revisor-usuario` NO BLOQUEANTE. Sugerencias que quedan: "¿Cómo?" queda debajo de la lista de frutas (Continuar usa Entera por defecto); Continuar deja avanzar sin fruta (igual que los demás pasos); la redacción con varias frutas en una preparación ("Budín de banana y manzana") se revisa a mano. Compuerta: VALIDACIÓN ETAPA 11: OK (72 controles).
