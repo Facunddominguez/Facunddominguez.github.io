@@ -724,7 +724,7 @@ function renderPlan(){
     return b
   }));
   const hint=document.getElementById("planHint");
-  if(hint)hint.textContent=total?total+" de 28 comidas en la semana.":"Todavía no elegiste nada para esta semana.";
+  if(hint){hint.textContent=total?total+" de 28 comidas en la semana.":"Todavía no elegiste nada para esta semana.";hint.hidden=total>=28}
   let vacio=document.getElementById("planVacioElegir");
   if(!total&&hint&&!vacio){vacio=ce("button","button button--primary","Elegir el almuerzo de hoy");vacio.id="planVacioElegir";vacio.type="button";vacio.addEventListener("click",()=>abrirSelector(todayPlanDay(),"almuerzo"));hint.after(vacio)}
   if(vacio)vacio.hidden=!!total;
