@@ -8,7 +8,7 @@
     "navegador": "Chrome/156.0.8078.73"
   },
   "pruebas": {
-    "total": 595,
+    "total": 602,
     "suites": {
       "d01_diseno.js": 8,
       "m01_modo.js": 13,
@@ -61,7 +61,8 @@
       "e19_precios_resuelven.js": 6,
       "e20_un_costo.js": 4,
       "e21_ficha_precio.js": 4,
-      "e22_armado_con_sentido.js": 5
+      "e22_armado_con_sentido.js": 5,
+      "e23_catalogo_lista.js": 7
     }
   },
   "claves": [
@@ -1050,8 +1051,8 @@
     }
   },
   "actualizada": {
-    "etapa": 22,
-    "version": "17.3.0",
+    "etapa": 23,
+    "version": "17.4.0",
     "fecha": "2026-11-04"
   }
 }
