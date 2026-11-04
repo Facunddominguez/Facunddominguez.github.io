@@ -2473,7 +2473,7 @@ Rama `rediseno-3-etapa-22-armado-con-sentido`. Versión 17.3.0.
 
 **Hecho cuando**
 - ✅ E22-variedad: en 20 semanas armadas con semillas distintas (a $70.000) siempre se llenan las 28 comidas, ninguna comida principal se repite más de 2 veces, ninguna proteína base (lentejas, pollo, carne, pescado, huevo) más de 3 ni el arroz más de 3 en almuerzos y cenas, y no aparece huevo ni queso con granola (70 desayunos distintos en esas semanas, por ejemplo "Licuado de kiwi con leche", "Kiwi con huevo y pan de molde", "Ciruela en trozos con avena").
-- ✅ E22-barata: en 42 intentos en 3 semanas (14 cambios en una, etc.) "Cambiar por una más barata" nunca eligió una comida con faltantes ni una más cara; si la comida actual no tiene todos los precios dice "A esta comida le faltan precios y no puedo compararla" y si no hay más barata lo dice. Elige la de menor costo, ya no la "más parecida".
+- ✅ E22-barata: en 42 intentos en 3 semanas (28 cambios hechos y 14 sin opción más barata) "Cambiar por una más barata" nunca eligió una comida con faltantes ni una más cara; si la comida actual no tiene todos los precios dice "A esta comida le faltan precios y no puedo compararla" y si no hay más barata lo dice. Elige la de menor costo, ya no la "más parecida".
 - ✅ E22-no-crece: después de armar la semana Mis comidas muestra 0 comidas nuevas (se guardaron 18, todas "de la semana", visibles en el filtro "De la semana"); "Guardar en mis comidas" hace aparecer esa comida y sigue en el plan.
 - ✅ E22-bienvenida: las 3 ideas guardadas antes de armar entran en 5 semanas con semillas distintas.
 
@@ -2482,3 +2482,5 @@ Rama `rediseno-3-etapa-22-armado-con-sentido`. Versión 17.3.0.
 **De la semana** (Decisión): Armame ya no escribe en Mis comidas visibles: guarda cada comida nueva con `deLaSemana:true` (el plan necesita que existan en `miPlatoFacil_saved`), Mis comidas las oculta y el chip "De la semana" las muestra; "Guardar en mis comidas" quita la marca. La migración marca como "de la semana" las comidas guardadas hasta 30 segundos antes de una entrada "Armame la semana" del historial del plan (si no son favoritas ni cocinadas); si no hay historial no marca nada. Se puede correr dos veces y no borra nada.
 
 **Tests**: ninguna prueba vieja cambió en esta etapa.
+
+**Revisor y compuerta (Etapa 22)**: `revisor-codigo` NO BLOQUEANTE. Sugerencias que se anotan: el regex de pollo (`/pollo|pechuga|muslo/`) también coincide con "repollo" (se corrige en la Etapa 23 junto con la prueba), si ningún candidato cumple los topes el hueco queda vacío sin aflojar el tope (la prueba con el catálogo por defecto siempre llenó las 28), la migración podría marcar una idea de la bienvenida guardada menos de 30 s antes de tocar "Armame la semana" (queda en el filtro "De la semana" y se recupera con "Guardar en mis comidas"), y una comida "de la semana" que luego se marca favorita no sale sola de la marca. Compuerta: VALIDACIÓN ETAPA 22: OK (129 controles).
