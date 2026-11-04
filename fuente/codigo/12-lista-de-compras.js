@@ -192,6 +192,7 @@ function shoppingPlanItems(){
     e.forms.add(normalizeSearchText(raw));
     return e
   };
+  const personas=personasHogar();
   for(const {
     item,portions
   } of planEntriesFlat()){
@@ -206,14 +207,24 @@ function shoppingPlanItems(){
     }
     if(amount){
       for(const row of amount.rows){
-        if(!row.name||!row.name.trim())continue;
+        if(!row.name||!row.name.trim()||fueraDeLaLista(row.name))continue;
         const e=entry(row.name);
         if(row.quantity===null)e.unknown++;
-        else e.units.set(row.unit,(e.units.get(row.unit)||0)+row.quantity*portionFactor(portions,amount))
+        else e.units.set(row.unit,(e.units.get(row.unit)||0)+row.quantity*portionFactor(portions,amount)*personas)
       }
-    }else extractIngredients(item).forEach(name=>{
-      if(String(name).trim())entry(name).unknown++
-    })
+    }else{
+      // Plato armado: las cantidades salen de sus porciones (cantidadesDePlatoArmado, 44-cantidades-de-platos.js).
+      const conCantidad=new Set();
+      for(const c of cantidadesDePlatoArmado(item)){
+        if(fueraDeLaLista(c.name))continue;
+        const e=entry(c.name);
+        e.units.set(c.unit,(e.units.get(c.unit)||0)+c.q*personas);
+        conCantidad.add(ingredientKey(c.name))
+      }
+      extractIngredients(item).forEach(name=>{
+        if(String(name).trim()&&!fueraDeLaLista(name)&&!conCantidad.has(ingredientKey(name)))entry(name).unknown++
+      })
+    }
   }
   const order=u=>{
     const i=RECIPE_AMOUNT_UNITS.indexOf(u);
@@ -224,9 +235,10 @@ function shoppingPlanItems(){
   })
 }
 function shoppingItemLabel(e){
+  // Una sola forma por ítem: con cantidad, la cantidad; sin ella, el nombre (nunca "+ sin cantidad en 1 plato"). El envase real va en el texto que se muestra (shoppingDisplayItems), no en este texto interno.
   const qty=shoppingQtyText(mergeUnits(e.units));
   if(!qty)return e.name+(e.unknown>1?" (×"+e.unknown+")":"");
-  return e.name+": "+qty+(e.unknown?" + sin cantidad en "+e.unknown+" plato"+(e.unknown===1?"":"s"):"")
+  return e.name+": "+qty
 }
 function shoppingSuggestion(e,stock,marked){
   const own=Object.values(stock).filter(s=>ingredientKey(s.name)===e.key);
@@ -319,8 +331,8 @@ function seccionDelSuper(nombre){
 function shoppingDisplayItems(){
   const stock=loadStockQuantities(),marked=pantryMarkedMatcher(),bought=shoppingBoughtSet(),descontar=comprasDescontar();
   return shoppingPlanItems().map(e=>{
-    const label=shoppingItemLabel(e),suggestion=shoppingSuggestion(e,stock,marked),partial=!!suggestion&&suggestion.kind==="partial",revisar=!!suggestion&&suggestion.kind==="info"&&/la unidad no coincide/.test(suggestion.text),group=bought.has(e.key)?"comprado":descontar&&suggestion&&!partial&&!revisar?"tenes":"pendiente";return {
-      key:e.key,name:e.name,units:e.units,unknown:e.unknown,label,suggestion,group,seccion:seccionDelSuper(e.name),text:descontar&&group==="pendiente"&&partial?label+" · faltan "+suggestion.buy:descontar&&group==="pendiente"&&revisar?label+" · revisá":label
+    const label=shoppingItemLabel(e),suggestion=shoppingSuggestion(e,stock,marked),partial=!!suggestion&&suggestion.kind==="partial",revisar=!!suggestion&&suggestion.kind==="info"&&/la unidad no coincide/.test(suggestion.text),group=bought.has(e.key)?"comprado":descontar&&suggestion&&!partial&&!revisar?"tenes":"pendiente";const faltaEnvase=descontar&&partial&&suggestion.missing?envasar(e.name,suggestion.missing):null,compra=faltaEnvase||envasar(e.name,e.units),visible=compra&&!faltaEnvase?e.name+": "+compra.texto:label;return {
+      key:e.key,name:e.name,units:e.units,unknown:e.unknown,label,suggestion,group,seccion:seccionDelSuper(e.name),compraUnits:compra?compra.units:null,text:descontar&&group==="pendiente"&&partial?(faltaEnvase?e.name+": "+faltaEnvase.texto:label+" · faltan "+suggestion.buy):descontar&&group==="pendiente"&&revisar?visible+" · revisá":visible
     }
   }).sort((a,b)=>a.label.localeCompare(b.label,"es"))
 }

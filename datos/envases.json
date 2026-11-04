@@ -1,0 +1,203 @@
+{
+  "version": 1,
+  "revisado": "2026-11-04",
+  "fuente": "Tabla curada a mano (tamaños típicos de supermercado en Argentina). No son precios: solo cuánto trae un envase común.",
+  "gramosPorCuarto": {
+    "verduras": 100,
+    "almidones": 80,
+    "proteinas": 120
+  },
+  "basicos": [
+    "Aceite",
+    "Sal",
+    "Pimienta",
+    "Vinagre",
+    "Orégano",
+    "Pimentón",
+    "Comino",
+    "Ají molido",
+    "Especias",
+    "Condimentos",
+    "Hierbas secas",
+    "Laurel",
+    "Tomillo",
+    "Nuez moscada",
+    "Canela"
+  ],
+  "pesoPorcion": {
+    "Ananá": {
+      "rodaja": 80
+    },
+    "Melón": {
+      "tajada": 200
+    },
+    "Sandía": {
+      "tajada": 300
+    },
+    "Huevo": {
+      "unidad": 55
+    }
+  },
+  "envases": [
+    {
+      "n": "Fideos",
+      "tam": 500,
+      "u": "g",
+      "envase": "paquete"
+    },
+    {
+      "n": "Pastas",
+      "tam": 500,
+      "u": "g",
+      "envase": "paquete"
+    },
+    {
+      "n": "Arroz",
+      "tam": 1000,
+      "u": "g",
+      "envase": "paquete"
+    },
+    {
+      "n": "Harina",
+      "tam": 1000,
+      "u": "g",
+      "envase": "paquete"
+    },
+    {
+      "n": "Avena",
+      "tam": 500,
+      "u": "g",
+      "envase": "paquete"
+    },
+    {
+      "n": "Polenta",
+      "tam": 500,
+      "u": "g",
+      "envase": "paquete"
+    },
+    {
+      "n": "Quinoa",
+      "tam": 500,
+      "u": "g",
+      "envase": "paquete"
+    },
+    {
+      "n": "Cuscús",
+      "tam": 500,
+      "u": "g",
+      "envase": "paquete"
+    },
+    {
+      "n": "Lentejas",
+      "tam": 500,
+      "u": "g",
+      "envase": "paquete"
+    },
+    {
+      "n": "Garbanzos",
+      "tam": 500,
+      "u": "g",
+      "envase": "paquete"
+    },
+    {
+      "n": "Porotos",
+      "tam": 500,
+      "u": "g",
+      "envase": "paquete"
+    },
+    {
+      "n": "Arvejas",
+      "tam": 500,
+      "u": "g",
+      "envase": "paquete"
+    },
+    {
+      "n": "Azúcar",
+      "tam": 1000,
+      "u": "g",
+      "envase": "paquete"
+    },
+    {
+      "n": "Pan rallado",
+      "tam": 500,
+      "u": "g",
+      "envase": "paquete"
+    },
+    {
+      "n": "Granola",
+      "tam": 350,
+      "u": "g",
+      "envase": "paquete"
+    },
+    {
+      "n": "Frutos secos",
+      "tam": 200,
+      "u": "g",
+      "envase": "bolsa"
+    },
+    {
+      "n": "Semillas",
+      "tam": 200,
+      "u": "g",
+      "envase": "bolsa"
+    },
+    {
+      "n": "Manteca",
+      "tam": 200,
+      "u": "g",
+      "envase": "pan"
+    },
+    {
+      "n": "Leche",
+      "tam": 1000,
+      "u": "ml",
+      "envase": "sachet"
+    },
+    {
+      "n": "Atún",
+      "tam": 170,
+      "u": "g",
+      "envase": "lata"
+    },
+    {
+      "n": "Caballa",
+      "tam": 300,
+      "u": "g",
+      "envase": "lata"
+    },
+    {
+      "n": "Sardina",
+      "tam": 125,
+      "u": "g",
+      "envase": "lata"
+    },
+    {
+      "n": "Pan de molde",
+      "tam": 20,
+      "u": "unidad",
+      "envase": "paquete",
+      "ut": "rebanadas"
+    },
+    {
+      "n": "Tortillas",
+      "tam": 8,
+      "u": "unidad",
+      "envase": "paquete",
+      "ut": "unidades"
+    },
+    {
+      "n": "Huevo",
+      "tam": 12,
+      "u": "unidad",
+      "envase": "docena",
+      "corto": true
+    },
+    {
+      "n": "Yogur",
+      "tam": 1,
+      "u": "unidad",
+      "envase": "pote",
+      "corto": true
+    }
+  ]
+}

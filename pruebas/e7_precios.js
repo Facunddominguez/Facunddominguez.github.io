@@ -1,7 +1,7 @@
 // E7: Etapa 7 del rediseño (precios automáticos de INDEC). Se usa SIEMPRE el archivo de ejemplo datos/precios-ejemplo.json
 // (valores redondos, no son precios reales) y nunca una descarga. Los precios se ven con "Mostrar precios y presupuesto"
 // (desde la v15.7 es independiente del modo simple: miPlatoFacil_mostrarPrecios_v1; si no existe, se deriva de uiMode_v1). La app se abre en un marco aparte para poder recargarla.
-// C7-1 a C7-4 son los controles E7-precio-item-total, E7-costo-porcion, E7-region y E7-mi-precio de criterios.json.
+// C7-1 (desde la Etapa 12 el precio de la lista es el del envase que se compra: 300 g de arroz = 1 paquete de 1 kg) a C7-4 son los controles E7-precio-item-total, E7-costo-porcion, E7-region y E7-mi-precio de criterios.json.
 (async () => {
   const T = []; const ok = (n, c, d) => T.push((c ? "PASA " : "FALLA ") + n + (d !== undefined && d !== "" ? " · " + d : ""));
   const espera = ms => new Promise(r => setTimeout(r, ms));
@@ -58,7 +58,7 @@
   await irA("compras");
   const arroz = fila("Arroz"), pollo = fila("Pollo");
   ok("C7-1 la lista muestra ≈ precio por ítem y el total, con 'faltan N precios'; sin activar los precios no muestra nada y avisa cómo activarlos",
-    apagadoSin && alAviso && ev("preciosActivos()") === true && localStorage.getItem("miPlatoFacil_mostrarPrecios_v1") === '{"mostrar":true}' && ev("getUiMode()") === "simple" && !!arroz && arroz.textContent.includes("≈ $600") && !!pollo && pollo.textContent.includes("≈ $2.500") && !fila("Zapallito").textContent.includes("≈") && texto("comprasSummary").includes("≈ $3.100 (faltan 1 precio)") && seVe($("comprasPrecioFuente"), "Promedio INDEC · GBA · sept. 2026") && !visible($("comprasPreciosAviso")),
+    apagadoSin && alAviso && ev("preciosActivos()") === true && localStorage.getItem("miPlatoFacil_mostrarPrecios_v1") === '{"mostrar":true}' && ev("getUiMode()") === "simple" && !!arroz && arroz.textContent.includes("≈ $2.000") && !!pollo && pollo.textContent.includes("≈ $2.500") && !fila("Zapallito").textContent.includes("≈") && texto("comprasSummary").includes("≈ $4.500 (faltan 1 precio)") && seVe($("comprasPrecioFuente"), "Promedio INDEC · GBA · sept. 2026") && !visible($("comprasPreciosAviso")),
     listaTxt());
 
   // C7-2 Cada comida muestra ≈ costo por porción (detalle, tarjeta) y Semana el costo del día
@@ -87,7 +87,7 @@
   localStorage.setItem(REGION, '{"region":"Marte"}'); w.refrescarPrecios();
   const invalida = ev("regionPrecios()") === "GBA";
   ok("C7-3 cambiar la región cambia los valores (GBA por defecto; una región inválida guardada se ignora)",
-    porDefecto && gba.includes("≈ $3.100") && pamp.includes("≈ $3.750") && fuentePamp.includes("Pampeana") && porcionPamp.startsWith("≈ $1.875 por porción") && localStorage.getItem(REGION) !== null && invalida && doc().getElementById("preciosRegion").value === "GBA",
+    porDefecto && gba.includes("≈ $4.500") && pamp.includes("≈ $5.500") && fuentePamp.includes("Pampeana") && porcionPamp.startsWith("≈ $1.875 por porción") && localStorage.getItem(REGION) !== null && invalida && doc().getElementById("preciosRegion").value === "GBA",
     [gba, pamp, porcionPamp].join(" | "));
 
   // C7-4 Mi precio gana sobre el promedio de INDEC (solo en pesos); quitarlo vuelve al automático
@@ -98,7 +98,7 @@
   localStorage.setItem(PRECIOS, "{}"); w.refrescarPrecios();
   const sinMio = texto("comprasSummary");
   ok("C7-4 Mi precio gana sobre el precio automático (en pesos) y al quitarlo vuelve al promedio de INDEC",
-    arrozMio.includes("≈ $840") && conMio.includes("≈ $3.340") && sinMio.includes("≈ $3.100") && ev('precioDe("Arroz",1000,"g").propio') === false, [arrozMio, conMio, sinMio].join(" | "));
+    arrozMio.includes("≈ $2.800") && conMio.includes("≈ $5.300") && sinMio.includes("≈ $4.500") && ev('precioDe("Arroz",1000,"g").propio') === false, [arrozMio, conMio, sinMio].join(" | "));
 
   // C7-5 Los datos: el de ejemplo y el incrustado en la app cumplen las mismas comprobaciones y convierten bien las unidades
   const valido = ev("validPreciosData(PRECIOS_SNAPSHOT)") && w.validPreciosData(EJEMPLO);

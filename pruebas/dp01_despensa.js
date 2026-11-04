@@ -1,7 +1,7 @@
 // Despensa única (v14.9.93): "Lo básico" + otros ingredientes con cantidad opcional, en la misma pantalla.
 // Sin cantidad se guarda como marca; con cantidad, como existencia (la misma de Compras). Solo datos inventados.
 (async () => {
-  const R = window.R2, { wait, results, reset, setSaved, setPlan, tradPlate } = R; const T = results();
+  const R = window.R2, { wait, results, reset, setSaved, setPlan, tradPlate, tradPlateTexto } = R; const T = results();
   const $ = id => document.getElementById(id);
   const shown = e => !!e && e.getClientRects().length > 0;
   const pantry = () => JSON.parse(localStorage.getItem("miPlatoFacil_pantry") || "[]");
@@ -42,18 +42,18 @@
   $("pantryItemStatus").querySelector("[data-pantry-undo]").click(); await wait(30);
   T.ok("DP7 quitar una existencia se puede deshacer", removed && stock()[stockKey("Arroz yamaní", "kg")].quantity === 1 && rowText().includes("Arroz yamaní · 1 kg"));
   // DP8 Quitar un ingrediente sin cantidad y deshacer
-  await add("Comino");
-  btn("data-pantry-item-remove-free", "Comino").click(); await wait(30);
-  const removedFree = !pantry().includes("Comino");
+  await add("Cebolla");
+  btn("data-pantry-item-remove-free", "Cebolla").click(); await wait(30);
+  const removedFree = !pantry().includes("Cebolla");
   $("pantryItemStatus").querySelector("[data-pantry-undo]").click(); await wait(30);
-  T.ok("DP8 quitar un ingrediente sin cantidad se puede deshacer", removedFree && pantry().includes("Comino") && rowText().includes("Comino · sin cantidad"));
+  T.ok("DP8 quitar un ingrediente sin cantidad se puede deshacer", removedFree && pantry().includes("Cebolla") && rowText().includes("Cebolla · sin cantidad"));
   // DP9 Limpiar selección limpia Lo básico y deja lo demás
   document.querySelector("[data-pantry-clear]").click(); await wait(30);
-  T.ok("DP9 'Limpiar selección' desmarca Lo básico y conserva lo demás", !pantry().includes("arroz") && pantry().includes("Comino") && !!stock()[stockKey("Quinoa roja", "g")]);
+  T.ok("DP9 'Limpiar selección' desmarca Lo básico y conserva lo demás", !pantry().includes("arroz") && pantry().includes("Cebolla") && !!stock()[stockKey("Quinoa roja", "g")]);
   // DP10 Compras usa la despensa: marca sin cantidad y existencia con cantidad
-  setSaved([tradPlate("t1", ["Quinoa roja"], ["Comino"], ["Merluza"])]); setPlan([["lunes", "almuerzo", "t1"]]);
-  const items = shoppingDisplayItems(), quinoa = items.find(x => x.name === "Quinoa roja"), comino = items.find(x => x.name === "Comino");
-  T.ok("DP10 Compras sugiere con lo de la despensa (con y sin cantidad), sin cambiar la lista", !!quinoa && /Despensa: tenés 300 g/.test(quinoa.suggestion.text) && !!comino && /Lo marcaste en tu Despensa/.test(comino.suggestion.text) && items.length === 3, (quinoa && quinoa.suggestion && quinoa.suggestion.text) + " | " + (comino && comino.suggestion && comino.suggestion.text));
+  setSaved([tradPlateTexto("t1", ["Quinoa roja"], ["Cebolla"], ["Merluza"])]); setPlan([["lunes", "almuerzo", "t1"]]);
+  const items = shoppingDisplayItems(), quinoa = items.find(x => x.name === "Quinoa roja"), cebolla = items.find(x => x.name === "Cebolla");
+  T.ok("DP10 Compras sugiere con lo de la despensa (con y sin cantidad), sin cambiar la lista", !!quinoa && /Despensa: tenés 300 g/.test(quinoa.suggestion.text) && !!cebolla && /Lo marcaste en tu Despensa/.test(cebolla.suggestion.text) && items.length === 3, (quinoa && quinoa.suggestion && quinoa.suggestion.text) + " | " + (cebolla && cebolla.suggestion && cebolla.suggestion.text));
   // DP11 Las ideas y el asistente de IA usan también lo agregado a mano y las existencias
   localStorage.setItem("miPlatoFacil_pantry", JSON.stringify(["Merluza fresca"])); pantrySel = loadPantry();
   localStorage.setItem("miPlatoFacil_pantryQuantities_v1", JSON.stringify({ [stockKey("Lentejas", "g")]: { name: "Lentejas", quantity: 300, unit: "g" } }));
@@ -70,10 +70,10 @@
   T.ok("DP12 cuenta cada ingrediente una vez y muestra 8 ideas con 'Ver todas'", /^Tenés 6 ingredientes en la despensa/.test($("pantryHint").textContent) && total > 8 && firstCount === 8 && !!more && listed() === total, $("pantryHint").textContent.slice(0, 40) + " · " + total + " ideas");
   pantryResultsAll = false;
   // DP13 El respaldo incluye lo agregado a mano y se puede restaurar (mismo formato de siempre)
-  localStorage.setItem("miPlatoFacil_pantry", JSON.stringify(["arroz", "Comino"]));
+  localStorage.setItem("miPlatoFacil_pantry", JSON.stringify(["arroz", "Cebolla"]));
   const snap = completeBackupSnapshot(localStorage);
   let ok13 = true; try { validateCompleteBackup(JSON.parse(JSON.stringify(snap))); restoreCompleteBackup(JSON.parse(JSON.stringify(snap)), localStorage) } catch (e) { ok13 = false }
-  T.ok("DP13 el respaldo guarda y restaura lo agregado a mano", ok13 && JSON.parse(snap.data.miPlatoFacil_pantry).join(",") === "arroz,Comino" && pantry().join(",") === "arroz,Comino");
+  T.ok("DP13 el respaldo guarda y restaura lo agregado a mano", ok13 && JSON.parse(snap.data.miPlatoFacil_pantry).join(",") === "arroz,Cebolla" && pantry().join(",") === "arroz,Cebolla");
   // DP14 Validaciones: nombre vacío y cantidad inválida no guardan nada
   const before = JSON.stringify([pantry(), stock()]);
   const e1 = await add("   "), e2 = await add("Harina", "abc", "g");

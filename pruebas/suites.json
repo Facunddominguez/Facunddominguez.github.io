@@ -42,6 +42,7 @@
     "e8_herramientas.js",
     "e9_sepa.js",
     "e10_pulido.js",
-    "e11_desayuno.js"
+    "e11_desayuno.js",
+    "e12_cantidades.js"
   ]
 }

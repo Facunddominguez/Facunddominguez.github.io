@@ -11,7 +11,7 @@
   T.ok("E0 el formulario nuevo trae ingredientes, etiquetas, tiempo y reemplazos vacíos", rowsBox().children.length === 0 && $("recipeTags").value === "" && $("recipeMinutes").value === "" && $("recipeSubstitutions").value === "" && $("recipeYield").value === "1");
   $("recipeDetailsTitle").value = "Papas rústicas"; $("recipeDetailsSteps").value = "Cortar\nHornear";
   $("recipeIngredientAdd").click(); $("recipeIngredientAdd").click(); await wait(10);
-  fill(rowsBox().children[0], "Papa", "300", "g"); fill(rowsBox().children[1], "Sal", "", "g");
+  fill(rowsBox().children[0], "Papa", "300", "g"); fill(rowsBox().children[1], "Perejil", "", "g");
   $("recipeYield").value = "2"; $("recipeTags").value = "rápido, horno, rápido"; $("recipeMinutes").value = "30"; $("recipeSubstitutions").value = "Papa = Batata";
   $("recipeDetailsSave").click(); await wait(20);
   const all = loadRecipeDetails(), r = Object.values(all).find(x => x.title === "Papas rústicas"), amounts = loadRecipeAmounts();
@@ -65,7 +65,7 @@
   $("planRecipeSelect").value = r.id; $("planRecipeDay").value = "lunes"; $("planRecipeSlot").value = "almuerzo"; assignSavedRecipeToPlan();
   $("planRecipeSelect").value = bowl.id; $("planRecipeDay").value = "martes"; $("planRecipeSlot").value = "almuerzo"; assignSavedRecipeToPlan();
   go("compras"); await wait(30);
-  T.ok("E10 el plan usa los ingredientes cargados en la receta", R.renderedRows().includes("Papa: 400 g") && R.renderedRows().includes("Sal") && R.renderedRows().includes("Quinoa"), R.renderedRows().join(" | "));
+  T.ok("E10 el plan usa los ingredientes cargados en la receta", R.renderedRows().includes("Papa: 400 g") && R.renderedRows().includes("Perejil") && R.renderedRows().includes("Quinoa"), R.renderedRows().join(" | "));
   // Backup validity and rejection of invalid new fields
   let berr = null; try { validateCompleteBackup(completeBackupSnapshot(localStorage)) } catch (e) { berr = e.message }
   const badStore = JSON.parse(localStorage.getItem("miPlatoFacil_recipeDetails_v1")); badStore[r.id].minutes = 0;

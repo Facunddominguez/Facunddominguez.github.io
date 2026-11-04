@@ -360,7 +360,7 @@ function preciosDeLaLista(items){
   for(const x of items){
     if(x.group!=="pendiente")continue;
     pendientes++;
-    const faltaMapa=x.suggestion&&x.suggestion.kind==="partial"&&x.suggestion.missing&&comprasDescontar()?x.suggestion.missing:x.units;
+    const faltaMapa=x.compraUnits||(x.suggestion&&x.suggestion.kind==="partial"&&x.suggestion.missing&&comprasDescontar()?x.suggestion.missing:x.units);
     let costo=0,ok=!!faltaMapa&&faltaMapa.size>0,esAprox=false;
     if(ok)for(const [u,q] of faltaMapa){
       const r=precioDe(x.name,q,u);

@@ -156,7 +156,7 @@
   const sw = $("comprasDescontar"); const encendidoPorDefecto = sw.checked && localStorage.getItem(OPC) === null;
   await tocar(sw);
   const apagado = ev("shoppingDisplayItems()");
-  const sinTenes = apagado.every(x => x.group !== "tenes") && apagado.every(x => x.text === x.label || x.group !== "pendiente") && !qa("#comprasList details.shop-group").some(d => d.querySelector("summary").textContent.startsWith("Ya tenés"));
+  const sinTenes = apagado.every(x => x.group !== "tenes") && apagado.every(x => !/ · (faltan|revisá)/.test(x.text) || x.group !== "pendiente") && !qa("#comprasList details.shop-group").some(d => d.querySelector("summary").textContent.startsWith("Ya tenés"));
   const soloSuClave = JSON.stringify(JSON.parse(todo()).filter(([k]) => k !== OPC)) === datosSinOpc && localStorage.getItem(OPC) === '{"descontar":false}';
   await tocar(sw);
   ok("C5-3 'Descontar lo que tengo': encendido por defecto; apagado no hay 'Ya tenés' ni 'faltan'; escribe solo su clave al tocarlo",
@@ -270,7 +270,7 @@
   cargar({ ...conReceta("recipe_e5prue03", "Licuado", [{ name: "Leche", quantity: 250, unit: "ml" }, { name: "Banana", quantity: 1, unit: "unidad" }, { name: "Avena", quantity: 30, unit: "g" }]), [STOCK]: JSON.stringify({ '["leche","taza"]': { name: "Leche", quantity: 1, unit: "taza" }, '["banana","unidad"]': { name: "Banana", quantity: 3, unit: "unidad" } }) });
   await abrir(); await irA("compras");
   const leche = ev("shoppingDisplayItems()").find(x => x.name === "Leche"), banana = ev("shoppingDisplayItems()").find(x => x.name === "Banana");
-  const revisa = leche.group === "pendiente" && /unidad no coincide/.test(leche.suggestion.text) && seVe($("comprasList"), "Leche: 250 ml · revisá") && banana.group === "tenes";
+  const revisa = leche.group === "pendiente" && /unidad no coincide/.test(leche.suggestion.text) && seVe($("comprasList"), "Leche: 1 sachet de 1.000 ml · revisá") && banana.group === "tenes";
   await tocar(q('#comprasList details.shop-group summary'));
   await tocar(q('#comprasList details.shop-group [data-shop-key="banana"]'));
   ok("C5-9 una 'info' de unidad distinta no se esconde en 'Ya tenés' y el contador cuenta lo tachado en 'Ya tenés'", revisa && /2 pendientes · 1 tachados/.test($("comprasSummary").textContent), $("comprasSummary").textContent);

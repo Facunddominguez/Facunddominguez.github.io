@@ -138,7 +138,9 @@
 
   // E1-6 "Lo compré" pasa a "Ya en tu despensa" y ahí queda toda la semana; destachar lo devuelve sin tocar la despensa
   cargar({}); await abrir();
-  const tp = { id: "t1", savedAt: "2026-10-26T10:00:00.000Z", type: "plato", title: "Almuerzo / Cena · Día libre", lines: [], sig: "t1", text: "t1", cooked: 0, state: { type: "plato", day: "Día libre", verduras: [{ name: "Tomate" }], almidones: [{ name: "Papa" }], proteinas: [{ name: "Merluza" }], legCarb: [], legProt: [] } };
+  const tp = { id: "t1", savedAt: "2026-10-26T10:00:00.000Z", type: "plato", title: "Almuerzo / Cena · Día libre", lines: [], sig: "t1", text: "t1", cooked: 0, state: null };
+  // Desde la Etapa 12 un plato armado (con estado) tiene cantidades y "Lo compré" las suma a la despensa; esta prueba cubre el plato de texto, sin cantidades, que se marca en la despensa.
+  tp.lines = ["Verduras: Tomate", "Almidones: Papa", "Proteínas: Merluza"];
   localStorage.setItem("miPlatoFacil_saved", JSON.stringify([tp])); localStorage.setItem("miPlatoFacil_plan", plan([["lunes", "almuerzo", "t1"]]));
   await irA("compras");
   await tocar(q('#comprasList [data-shop-key="tomate"]')); await tocar($("comprasBought"));
