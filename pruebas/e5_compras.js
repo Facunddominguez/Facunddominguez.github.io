@@ -28,7 +28,8 @@
   const seVe = (e, texto) => visible(e) && e.innerText.includes(texto);
   const menuCompras = async herr => { await tocar(q("#compras [data-compras-menu]")); await tocar(q('.hoja [data-compras-herr="' + herr + '"]')) };
   const R = await (await fetch("/tests/fixtures/respaldo-v14.9.94.json", { cache: "no-store" })).json();
-  const cargar = datos => { localStorage.clear(); for (const [k, v] of Object.entries(datos)) if (v !== null) localStorage.setItem(k, v) };
+  // Desde la Etapa 13 los precios vienen encendidos en una instalación nueva; estas pruebas parten con modo simple elegido (precios apagados) salvo que el caso diga otra cosa.
+  const cargar = datos => { localStorage.clear(); if (!("miPlatoFacil_uiMode_v1" in datos) && !("miPlatoFacil_mostrarPrecios_v1" in datos)) localStorage.setItem("miPlatoFacil_uiMode_v1", "simple"); for (const [k, v] of Object.entries(datos)) if (v !== null) localStorage.setItem(k, v) };
   const todo = () => JSON.stringify(Object.keys(localStorage).filter(k => k.startsWith("miPlatoFacil_") && k !== "miPlatoFacil_uiMode_v1").sort().map(k => [k, localStorage.getItem(k)]));
   const J = k => JSON.parse(R.data[k]);
   const DIAS = ["lunes", "martes", "miercoles", "jueves", "viernes", "sabado", "domingo"];

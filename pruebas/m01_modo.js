@@ -8,7 +8,8 @@
   const appData = () => JSON.stringify(Object.keys(localStorage).filter(k => k.startsWith("miPlatoFacil_") && k !== UI_MODE_KEY && k !== "miPlatoFacil_mostrarPrecios_v1").sort().map(k => [k, localStorage.getItem(k)]));
   const advancedIn = id => [...$(id).querySelectorAll("[data-avanzado]")];
   reset();
-  // M1 Arranca en modo simple, sin guardar nada
+  // M1 Arranca en modo simple, sin guardar nada (reset() elige simple a propósito desde la Etapa 13: acá se mira sin ninguna elección)
+  localStorage.removeItem(UI_MODE_KEY); uiModeMemory = null; applyUiMode();
   T.ok("M1 la app arranca en modo simple sin guardar ningún ajuste", getUiMode() === "simple" && document.documentElement.dataset.modo === "simple" && localStorage.getItem(UI_MODE_KEY) === null);
   // Datos inventados para que todas las pantallas tengan contenido
   criticalCase();

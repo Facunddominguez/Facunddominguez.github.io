@@ -28,7 +28,8 @@
   const seVe = (e, texto) => visible(e) && e.innerText.includes(texto);
   const menuCompras = async herr => { await tocar(q("#compras [data-compras-menu]")); await tocar(q('.hoja [data-compras-herr="' + herr + '"]')) };
   const R = await (await fetch("/tests/fixtures/respaldo-v14.9.94.json", { cache: "no-store" })).json();
-  const cargar = datos => { localStorage.clear(); for (const [k, v] of Object.entries(datos)) if (v !== null) localStorage.setItem(k, v) };
+  // Desde la Etapa 13 los precios vienen encendidos en una instalación nueva; estas pruebas parten con modo simple elegido (precios apagados) salvo que el caso diga otra cosa.
+  const cargar = datos => { localStorage.clear(); if (!("miPlatoFacil_uiMode_v1" in datos) && !("miPlatoFacil_mostrarPrecios_v1" in datos)) localStorage.setItem("miPlatoFacil_uiMode_v1", "simple"); for (const [k, v] of Object.entries(datos)) if (v !== null) localStorage.setItem(k, v) };
   const todo = () => JSON.stringify(Object.keys(localStorage).filter(k => k.startsWith("miPlatoFacil_") && k !== "miPlatoFacil_uiMode_v1" && k !== "miPlatoFacil_mostrarPrecios_v1").sort().map(k => [k, localStorage.getItem(k)]));
   const J = k => JSON.parse(R.data[k]);
   const DIAS = ["lunes", "martes", "miercoles", "jueves", "viernes", "sabado", "domingo"];
@@ -59,8 +60,10 @@
   casos.push(["completo: precios prendidos y sin escribir nada", conMP() === true && localStorage.getItem(MP) === null && lblPrecios() === "Mostrar precios y presupuesto: activado" && lblModo() === "Mostrar herramientas avanzadas: activado"]);
   cargar({ [UI]: "simple" }); await abrir();
   casos.push(["simple: precios apagados", conMP() === false && localStorage.getItem(MP) === null]);
-  cargar({}); await abrir();
-  casos.push(["sin nada: precios apagados y nada guardado", conMP() === false && localStorage.getItem(MP) === null && localStorage.getItem(UI) === null]);
+  localStorage.clear(); await abrir();
+  // Desde la Etapa 13 una instalación nueva (sin uiMode_v1) los tiene encendidos; quien eligió simple los conserva apagados (caso de arriba).
+  casos.push(["sin nada: precios encendidos y nada guardado", conMP() === true && localStorage.getItem(MP) === null && localStorage.getItem(UI) === null]);
+  cargar({ [UI]: "simple" }); await abrir();
   // Quien está en simple (clave ausente) y activa las herramientas avanzadas: los precios siguen apagados (se escribe false)
   await tocar($("uiModeToggle"));
   casos.push(["simple + herramientas avanzadas: precios apagados, se escribe false", localStorage.getItem(UI) === "completo" && localStorage.getItem(MP) === '{"mostrar":false}' && conMP() === false && lblPrecios() === "Mostrar precios y presupuesto: desactivado" && lblModo() === "Mostrar herramientas avanzadas: activado"]);
@@ -132,7 +135,7 @@
   const sem = texto("planDiaCosto");
   localStorage.setItem(MP, '{"mostrar":false}'); w.refrescarPrecios();
   ok("C8-4 Semana muestra el costo del día y de la semana, con 'faltan N precios', y nada con los precios apagados",
-    sem === "≈ $3.100 por día (faltan 1 precio) · al menos ≈ $6.200 la semana (faltan 2 precios)" && texto("planDiaCosto") === "" && doc().getElementById("planDiaCosto").hidden, sem);
+    sem === "≈ $3.100 por día · al menos ≈ $6.200 la semana (faltan 2 precios)" && texto("planDiaCosto") === "" && doc().getElementById("planDiaCosto").hidden, sem);
 
   // C8-5 Anotar gasto con lo realmente sumado a la despensa
   const filasReceta = [{ name: "Arroz", quantity: 500, unit: "g" }, { name: "Papa", quantity: 2, unit: "kg" }, { name: "Aceite", quantity: 100, unit: "ml" }, { name: "Sal", quantity: null, unit: "g" }];

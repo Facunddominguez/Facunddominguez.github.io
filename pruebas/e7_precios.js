@@ -42,7 +42,8 @@
   const UI = "miPlatoFacil_uiMode_v1", REGION = "miPlatoFacil_region_v1", PRECIOS = "miPlatoFacil_referencePrices_v1";
   const abrirConEjemplo = async () => { await abrir(); w.preciosDataset.data = EJEMPLO; w.preciosDataset.cache = null; w.refrescarPrecios(); await espera(50) };
   const RECETA = [{ name: "Arroz", quantity: 300, unit: "g" }, { name: "Pollo", quantity: 500, unit: "g" }, { name: "Zapallito", quantity: 3, unidad: 1, unit: "unidad" }];
-  const base = (extra = {}) => ({ ...conReceta("recipe_e7prue01", "Arroz con pollo", RECETA, 2), ...extra });
+  // Desde la Etapa 13 los precios vienen encendidos; estas pruebas parten de "apagados por elección" salvo que el caso diga otra cosa.
+  const base = (extra = {}) => ({ ...(("miPlatoFacil_uiMode_v1" in extra) || ("miPlatoFacil_mostrarPrecios_v1" in extra) ? {} : { miPlatoFacil_uiMode_v1: "simple" }), ...conReceta("recipe_e7prue01", "Arroz con pollo", RECETA, 2), ...extra });
   const texto = id => doc().getElementById(id).textContent;
   const listaTxt = () => texto("comprasList") + " " + texto("comprasSummary");
   const fila = nombre => qa("#comprasList .shop-item label").find(l => l.textContent.startsWith(nombre));
@@ -72,7 +73,7 @@
   ev('planDiaElegido="lunes";renderPlan()'); await espera(50);
   const dia = texto("planDiaCosto");
   ok("C7-2 cada comida muestra ≈ costo por porción (detalle y tarjeta) y Semana, el costo del día",
-    detalleReceta.startsWith("≈ $1.550 por porción (faltan 1 precio)") && detallePlato.startsWith("≈ $1.550 por porción") && tarj.includes("≈ $1.550 por porción") && dia.startsWith("≈ $3.100 por día (faltan 1 precio)"),
+    detalleReceta.startsWith("≈ $1.550 por porción (faltan 1 precio)") && detallePlato.startsWith("≈ $1.550 por porción") && tarj.includes("≈ $1.550 por porción") && dia.startsWith("≈ $3.100 por día · ") && (dia.match(/faltan/g) || []).length === 1,
     [detalleReceta, detallePlato, dia].join(" | "));
 
   // C7-3 Cambiar la región cambia los valores; GBA por defecto; un valor guardado inválido se ignora
