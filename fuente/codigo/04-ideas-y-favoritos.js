@@ -29,7 +29,8 @@ function snackMatches(item,filter){
   return true
 }
 function filteredMenuRecords(){
-  return data.menuCatalog.filter(x=>menuMatches(x,currentMenuFilter))
+  // Desde la v16 las ideas respetan los filtros de dieta y lo que evitás (dietaPermiteIdea y textoPermitido, 36 y 46).
+  return data.menuCatalog.filter(x=>menuMatches(x,currentMenuFilter)&&textoPermitido(textoDeIdea(x)))
 }
 function filteredMenu(){
   return filteredMenuRecords().map(x=>x.text)
@@ -50,6 +51,9 @@ function renderMenuIdeas(){
     li.append(b);
     el.menuIdeas.append(li)
   }
+  // Si los filtros de dieta dejan pocas ideas, se avisa (dietaAvisoPocas, 46-dieta.js).
+  const pocas=dietaAvisoPocas();
+  if(pocas)el.menuIdeas.append(ce("li","screen__hint ideas-aviso",pocas));
   if(!items.length&&adviceFavOnly.menu){
     const li=ce("li");
     li.append(emptyState("☆","Sin favoritos para este filtro","Guardá ideas con la estrella o desactivá Solo favoritos para ver el menú."));

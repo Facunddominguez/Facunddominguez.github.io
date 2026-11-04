@@ -17,7 +17,7 @@ function preferenciasEvitar(){
 // ¿El texto (nombre, etiquetas e ingredientes) cumple lo que preferís evitar? Un solo lugar para el selector, las Ideas, Sugerime y Armame la semana.
 function textoPermitido(texto){
   const evitar=preferenciasEvitar(),t=normalizeSearchText(String(texto||""));
-  return !evitar.some(w=>t.includes(w))
+  return dietaPermite(texto)&&!evitar.some(w=>t.includes(w))
 }
 function ideaIngredientes(idea){
   const i=idea&&idea.ingredientes;
@@ -31,9 +31,7 @@ function estadoConGrupos(st){
 function sugerenciasPara(comida,dia){
   const evitar=preferenciasEvitar(),tengo=pantryMarkedMatcher(),stock=Object.values(loadStockQuantities()).filter(s=>s.quantity>0).map(s=>ingredientKey(s.name));
   const enDespensa=n=>tengo.has(n)||stock.includes(ingredientKey(n));
-  const evitada=texto=>{
-    const t=normalizeSearchText(texto);return evitar.some(w=>t.includes(w))
-  };
+  const evitada=texto=>!textoPermitido(texto);
   const out=[];
   if(comida!=="almuerzo"&&comida!=="cena"&&comida!=="plato")return out;
   for(const idea of data.menuCatalog){

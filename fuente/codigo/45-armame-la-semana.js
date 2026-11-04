@@ -273,6 +273,8 @@ var ArmameSemana=(function(){
     if(res.presupuesto&&res.costo)t+=res.pasado?" No llego al presupuesto de "+pesos(res.presupuesto)+": es lo más barato que pude armar con lo que tenés para elegir.":" Entra en tu presupuesto de "+pesos(res.presupuesto)+".";
     if(res.sinPrecios)t+=" No tengo precios para controlar el presupuesto.";
     if(res.dobles.length)t+=" Cociná doble: "+res.dobles.map(d=>"la cena del "+planDayName(d.de).toLowerCase()+" es el almuerzo del "+planDayName(d.a).toLowerCase()).join("; ")+".";
+    const pocas=dietaAvisoPocas();
+    if(pocas)t+=" "+pocas;
     if(res.llenos<res.huecos)t+=" Quedaron "+(res.huecos-res.llenos)+" huecos sin llenar: faltan comidas que cumplan lo que evitás.";
     return t
   }

@@ -46,6 +46,7 @@
     "e12_cantidades.js",
     "e13_precios_a_la_vista.js",
     "e14_presupuesto.js",
-    "e15_armame.js"
+    "e15_armame.js",
+    "e16_dieta.js"
   ]
 }
