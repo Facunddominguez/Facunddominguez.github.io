@@ -118,6 +118,11 @@
     {"id": "E20-sin-cero", "etapa": 20, "hecho": "Ningún costo trata un faltante como $0: se estima con la mediana de su categoría y se marca; lo que no se puede estimar dice 'al menos'.", "tipo": "prueba", "prueba": "E20-sin-cero"},
     {"id": "E20-frase", "etapa": 20, "hecho": "Semana muestra 'Semana ≈ $X · hoy ≈ $Y' y 'Con precio: N de M productos · Completar K precios' con el botón cuando falta algún precio; faltan cuenta productos distintos.", "tipo": "prueba", "prueba": "E20-frase"},
     {"id": "E20-frase-completa", "etapa": 20, "hecho": "Con todos los precios reales no aparece 'Completar precios'.", "tipo": "prueba", "prueba": "E20-frase-completa"},
-    {"id": "E20-registro", "etapa": 20, "hecho": "Cómo se calcula el costo (envases, estimados) queda en el Registro.", "tipo": "registro", "seccion": "Etapa 20", "debeNombrar": ["Costo único", "Estimados"]}
+    {"id": "E20-registro", "etapa": 20, "hecho": "Cómo se calcula el costo (envases, estimados) queda en el Registro.", "tipo": "registro", "seccion": "Etapa 20", "debeNombrar": ["Costo único", "Estimados"]},
+    {"id": "E21-un-toque", "etapa": 21, "hecho": "Desde una comida, desde la lista y desde Completar precios se llega a la ficha (nutrientes y precio con fuente, región, mes y rango) en un toque.", "tipo": "prueba", "prueba": "E21-un-toque"},
+    {"id": "E21-mi-precio", "etapa": 21, "hecho": "Un precio cargado en la ficha cambia al instante todos los costos, se guarda en referencePrices_v1 sin activar herramientas avanzadas, gana sobre el automático y se puede deshacer.", "tipo": "prueba", "prueba": "E21-mi-precio"},
+    {"id": "E21-aviso", "etapa": 21, "hecho": "El aviso de precio fuera de rango (más de 3 veces la mediana de su categoría) aparece con un precio fuera de rango y no con uno normal, y deja guardar igual.", "tipo": "prueba", "prueba": "E21-aviso"},
+    {"id": "E21-registro", "etapa": 21, "hecho": "Cómo se guarda y se aplica Mi precio queda en el Registro.", "tipo": "registro", "seccion": "Etapa 21", "debeNombrar": ["Mi precio", "Aviso de rango"]},
+    {"id": "E21-datos", "etapa": 21, "hecho": "Guardar, borrar y deshacer Mi precio conservan los precios que ya había en referencePrices_v1; si lo guardado no se entiende no se escribe nada.", "tipo": "prueba", "prueba": "E21-datos"}
   ]
 }

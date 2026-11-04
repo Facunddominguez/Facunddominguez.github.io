@@ -182,7 +182,22 @@ nombreCorto(texto){
   return String(texto).replace(/^([^:(]*?)\s*\([^)]*\)/,"$1").replace(/^([^:]*?)\s+o\s+[^:]*/,"$1")
 },
 shoppingRow(x,i,checked,detail){
-  const row=ce("div","shop-item"+(checked?" is-done":"")),cb=ce("input"),lab=ce("label",null,Ingredientes.textoLegible(x.cortar?Compras.nombreCorto(x.text):x.text)+(x.precioTxt?" · ":""));
+  const row=ce("div","shop-item"+(checked?" is-done":"")),cb=ce("input"),lab=ce("label");
+  // Etapa 21: tocar el nombre abre la ficha del ingrediente (nutrientes y precio) sin tachar la fila.
+  {
+    const txt=Ingredientes.textoLegible(x.cortar?Compras.nombreCorto(x.text):x.text)+(x.precioTxt?" · ":""),i=txt.indexOf(":");
+    if(i>0){
+      const nom=ce("span","shop-item__nombre",txt.slice(0,i)),abrirFicha=ev=>{
+        ev.preventDefault();ev.stopPropagation();
+        Comidas.abrirNutrientesDeIngrediente(x.name)
+      };
+      nom.setAttribute("role","button");nom.tabIndex=0;nom.dataset.fichaIngrediente=x.name;
+      nom.setAttribute("aria-label","Ficha de "+x.name+": nutrientes y precio");
+      nom.addEventListener("click",abrirFicha);
+      nom.addEventListener("keydown",ev=>{if(ev.key==="Enter"||ev.key===" ")abrirFicha(ev)});
+      lab.append(nom,document.createTextNode(txt.slice(i)))
+    }else lab.append(document.createTextNode(txt))
+  }
   // El precio se toca para ver su fuente, mes y rango (no tacha el ítem).
   let detallePrecioEl=null;
   if(x.precioTxt){
