@@ -7393,7 +7393,7 @@ function renderCompras(){
   }
   summary.textContent=pending.length+" pendientes · "+tachados+" tachados"+resumenPrecios(precios);
   pintarPreciosCompras(precios);
-  hint.textContent="Tachá lo que comprás. Lo que tenés en la Despensa pasa a Ya tenés.";
+  hint.textContent="Tachá lo que comprás.";
   const nodes=[],equiv=Compras.equivalenciaSugerida(items);
   if(equiv)nodes.push(equiv);
   let i=0;

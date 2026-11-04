@@ -2411,7 +2411,7 @@ Rama `rediseno-3-etapa-19-precios-encuentran`. Versión 17.0.0.
 
 **Tests nuevos**: `e19_precios_resuelven.js` (6: cobertura, cobertura real, los 12, resolvedor, no confunde ingredientes distintos —'Pan rallado', 'Queso rallado', 'Leche de almendras', 'Queso blanco—, plausibilidad). Se sumó "Yogur" y siete frutas a `pesoUnidad` de `datos/envases.json` (190 g el pote, etc.) para poder costear unidades.
 
-**Tests adaptados**: `e9_sepa.js` (C9-1) busca el dato por el nombre del ítem de precios que se encontró (no solo por el nombre de la nutrición) y se actualizó `ambito` del mapa porque el nuevo resolvedor reconoce más nombres (55 núcleo y 43 armado); misma exigencia (80 % del total).
+**Tests adaptados**: `r2_shop.js` S12 (la indicación de Compras ahora es solo "Tachá lo que comprás.": hubo que sacar 10 palabras porque con más productos con precio la vista Compras pasó de 262 a 271 palabras y E1-palabras-compras permite 262,8; el aviso de "Ya tenés" lo da el grupo mismo); `e15_armame.js` C15-1 (el presupuesto "bajo" pasó de $26.000 a $34.000: con precios que antes faltaban la semana más barata que se puede armar cuesta más de $27.000, y la prueba pide presupuestos alcanzables); `e9_sepa.js` (C9-1) busca el dato por el nombre del ítem de precios que se encontró (no solo por el nombre de la nutrición) y se actualizó `ambito` del mapa porque el nuevo resolvedor reconoce más nombres (55 núcleo y 43 armado); misma exigencia (80 % del total).
 
 **Pendientes para vos**
 - Correr "Actualizar precios" (GitHub Actions) para que entren los precios de SEPA de los 15 ítems nuevos del mapa; después se puede vaciar la lista `sinDato` de `datos/precios-notas.json` de lo que entre.
