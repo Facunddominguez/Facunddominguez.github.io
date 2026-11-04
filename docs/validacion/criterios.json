@@ -134,6 +134,9 @@
     {"id": "E23-envases", "etapa": 23, "hecho": "Ningún producto de la lista queda en cucharadas o tazas y las verduras tienen porciones comunes.", "tipo": "prueba", "prueba": "E23-envases"},
     {"id": "E23-equivalencias", "etapa": 23, "hecho": "No se sugiere unir quesos distintos: solo variantes de nombre del mismo ingrediente.", "tipo": "prueba", "prueba": "E23-equivalencias"},
     {"id": "E23-compartir", "etapa": 23, "hecho": "El texto compartido tiene secciones, cantidades, ≈ precio por producto y el total de la semana.", "tipo": "prueba", "prueba": "E23-compartir"},
-    {"id": "E23-registro", "etapa": 23, "hecho": "Qué se vinculó, cómo se pasan las cucharadas y qué se comparte queda en el Registro.", "tipo": "registro", "seccion": "Etapa 23", "debeNombrar": ["Ideas vinculadas", "Envases"]}
+    {"id": "E23-registro", "etapa": 23, "hecho": "Qué se vinculó, cómo se pasan las cucharadas y qué se comparte queda en el Registro.", "tipo": "registro", "seccion": "Etapa 23", "debeNombrar": ["Ideas vinculadas", "Envases"]},
+    {"id": "E23-nombre-corto", "etapa": 23, "hecho": "La fila de la lista saca lo que va entre paréntesis y después de o sin cambiar el producto.", "tipo": "prueba", "prueba": "E23-nombre-corto"},
+    {"id": "E23-despensa", "etapa": 23, "hecho": "La Despensa en cucharadas o tazas sigue descontando del plan.", "tipo": "prueba", "prueba": "E23-despensa"},
+    {"id": "E23-suma-unidades", "etapa": 23, "hecho": "Sumar unidades compatibles no mezcla dimensiones.", "tipo": "prueba", "prueba": "E23-suma-unidades"}
   ]
 }

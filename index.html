@@ -7029,7 +7029,11 @@ shoppingItemLabel(e){
   return e.name+": "+qty
 },
 shoppingSuggestion(e,stock,marked){
-  const own=Object.values(stock).filter(s=>ingredientKey(s.name)===e.key);
+  // Etapa 23: lo de la Despensa en cucharadas o tazas se pasa a gramos o mililitros, como el plan.
+  const own=Object.values(stock).filter(s=>ingredientKey(s.name)===e.key).map(s=>{
+    const u=unidadParaCompra(s.name,s.quantity,s.unit);
+    return u.unit===s.unit?s:{...s,quantity:u.q,unit:u.unit}
+  });
   if(!own.length)return marked.has(e.name)?{
     kind:"info",text:"Lo marcaste en tu Despensa (sin cantidad registrada)."
   }:null;
@@ -7099,8 +7103,10 @@ seccionDelSuper(nombre){
 },
 // Etapa 19: en la fila no se repite lo que va entre paréntesis ni después de "o" ("Arroz (integral, yamaní): …" → "Arroz: …", "Avena arrollada o instantánea" → "Avena arrollada"); la lista copiada lo conserva.
 nombreCorto(texto){
-  const t=String(texto),i=t.indexOf(":"),nom=i>0?t.slice(0,i):t,v=Ingredientes.variantesNombre(nom);
-  return (v.length?v[v.length-1]:nom)+(i>0?t.slice(i):"")
+  // Sin paréntesis, sin lo que sigue a " o " y sin un modificador de presentación final ("Avena arrollada o instantánea" → "Avena").
+  const t=String(texto),i=t.indexOf(":"),nom=i>0?t.slice(0,i):t;
+  const corto=nom.replace(/\s*\([^)]*\)/g,"").split(/\s+o\s+/i)[0].replace(/\s+(arrollad[oa]|fluid[oa]|comprad[oa]|instant[aá]ne[oa])$/i,"").trim()||nom;
+  return corto+(i>0?t.slice(i):"")
 },
 shoppingRow(x,i,checked,detail){
   const row=ce("div","shop-item"+(checked?" is-done":"")),cb=ce("input"),lab=ce("label");

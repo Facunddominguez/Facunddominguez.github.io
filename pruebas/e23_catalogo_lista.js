@@ -21,7 +21,7 @@
   // E23-titulo: todo lo que nombra el título de cada idea está vinculado en sus ingredientes.
   cargar({ ...MARCA }); await abrir();
   // Palabras del título que no son ingredientes (preparaciones, platos, formas de cocción y genéricos).
-  const NO_INGREDIENTE = ["tarta", "wrap", "tacos", "taco", "risotto", "guiso", "ensalada", "sopa", "milanesa", "milanesas", "hamburguesa", "bowl", "pastel", "cazuela", "omelette", "sandwich", "sándwich", "pizza", "fideos", "ñoquis", "noquis", "filet", "bife", "pesto", "salsa", "aderezo", "puré", "pure", "revuelto", "tortilla", "crema", "verduras", "vegetales", "hojas", "verdes", "mixta", "completa", "tibia", "casera", "integral", "integrales", "magra", "caliente", "especiados", "crudas", "salteadas", "grillado", "grillada", "horno", "plancha", "vapor", "curry", "pescado", "rellena", "cherry", "oliva", "gallina", "basmati", "morado", "hummus", "albóndigas", "albondigas"];
+  const NO_INGREDIENTE = ["tarta", "wrap", "tacos", "taco", "risotto", "guiso", "ensalada", "sopa", "milanesa", "milanesas", "hamburguesa", "bowl", "pastel", "cazuela", "omelette", "sandwich", "sándwich", "pizza", "ñoquis", "noquis", "filet", "bife", "pesto", "salsa", "aderezo", "puré", "pure", "revuelto", "tortilla", "crema", "verduras", "vegetales", "hojas", "verdes", "mixta", "completa", "tibia", "casera", "integral", "integrales", "magra", "caliente", "especiados", "crudas", "salteadas", "grillado", "grillada", "horno", "plancha", "vapor", "curry", "pescado", "rellena", "cherry", "oliva", "gallina", "basmati", "morado", "albóndigas", "albondigas"];
   const r = JSON.parse(ev(`(() => { const NO = ${JSON.stringify(NO_INGREDIENTE)}.map(normalizeSearchText), faltan = [];
     const STOP = new Set(["con","de","del","la","el","los","las","y","e","o","al","en","un","una","por","a"]);
     for (const idea of data.menuCatalog) {
@@ -30,7 +30,7 @@
       for (const p of palabras) {
         const nut = nutritionFor(p), k = ingredientKey(p);
         if (!nut && !clavesVinc.has(k)) continue;
-        const EQUIV = { calabaza: "zapallo" };
+        const EQUIV = { calabaza: "zapallo", hummus: "garbanzo" };
         const ok = clavesVinc.has(k) || (nut && items.has(nut.n)) || lista.some(n => ingredientKey(n) === k || normalizeSearchText(n).startsWith(p) || normalizeSearchText(n).startsWith(EQUIV[p] || "\u0000"));
         if (!ok) faltan.push(idea.text.slice(0, 50) + " → " + p);
       }
@@ -49,6 +49,20 @@
   ok("E23-envases ningún producto de la lista queda en cucharadas o tazas (pasan a gramos y al envase típico) y las verduras tienen porciones comunes (lechuga 80 g, tomate 100 g)",
     unidades.length >= 15 && !enCuchara.length && !textoCuchara.length && verd.includes("Lechuga 80 g") && verd.includes("Tomate 100 g") && conv[0].unit === "g" && conv[1].unit === "g" && conv[2].unit === "g" && conv[3].unit === "ml",
     JSON.stringify({ n: unidades.length, enCuchara: enCuchara.map(x => x.n), verd, conv }));
+
+  const cortos = JSON.parse(ev(`JSON.stringify(["Avena arrollada o instantánea: 200 g", "Harina de trigo o integral: 1 kg", "Leche fluida o en polvo descremada: 1 l", "Arroz (integral, yamaní): 1 kg", "Yogur natural descremado: 5 unidades", "Pan integral: 2 unidades"].map(t => Compras.nombreCorto(t)))`));
+  ok("E23-nombre-corto la fila de la lista saca lo que va entre paréntesis y después de 'o', y no cambia el producto (integral y descremado se conservan)",
+    cortos.join(" | ") === "Avena: 200 g | Harina de trigo: 1 kg | Leche: 1 l | Arroz: 1 kg | Yogur natural descremado: 5 unidades | Pan integral: 2 unidades", cortos.join(" | "));
+  // La Despensa en cucharadas o tazas sigue descontando.
+  const desp = ev(`(() => { const e = { key: ingredientKey("Miel"), name: "Miel", units: new Map([["g", 30]]), unknown: 0 };
+    const stock = { a: { name: "Miel", quantity: 3, unit: "cucharada" } };
+    const s = Compras.shoppingSuggestion(e, stock, new Set()); return JSON.stringify({ kind: s && s.kind, text: s && s.text }) })()`);
+  const d = JSON.parse(desp);
+  ok("E23-despensa una cantidad de la Despensa en cucharadas descuenta del plan en gramos", d.kind === "covered", desp);
+
+  const mz = ev(`JSON.stringify([...Ingredientes.mergeUnits(new Map([["cucharada", 1], ["cucharadita", 2], ["g", 5], ["kg", 1]]))])`);
+  ok("E23-suma-unidades mergeUnits suma g con kg y deja cucharadas aparte (no mezcla dimensiones)",
+    JSON.parse(mz).some(x => x[0] === "kg" && Math.abs(x[1] - 1.005) < 1e-9) && JSON.parse(mz).filter(x => /cuchara/.test(x[0])).length >= 1 && !JSON.parse(mz).some(x => x[0] === "g"), mz);
 
   // E23-equivalencias: solo variantes de nombre del mismo ingrediente.
   const sug = JSON.parse(ev(`JSON.stringify(ingredientAliasSuggestions(["Queso Port Salut descremado", "Queso cremoso", "Queso rallado", "Arroz", "Arroz (integral, yamaní)", "Yogur natural descremado", "Yogur griego", "Papa", "Papas"]))`));
