@@ -122,6 +122,7 @@
     {"id": "E21-un-toque", "etapa": 21, "hecho": "Desde una comida, desde la lista y desde Completar precios se llega a la ficha (nutrientes y precio con fuente, región, mes y rango) en un toque.", "tipo": "prueba", "prueba": "E21-un-toque"},
     {"id": "E21-mi-precio", "etapa": 21, "hecho": "Un precio cargado en la ficha cambia al instante todos los costos, se guarda en referencePrices_v1 sin activar herramientas avanzadas, gana sobre el automático y se puede deshacer.", "tipo": "prueba", "prueba": "E21-mi-precio"},
     {"id": "E21-aviso", "etapa": 21, "hecho": "El aviso de precio fuera de rango (más de 3 veces la mediana de su categoría) aparece con un precio fuera de rango y no con uno normal, y deja guardar igual.", "tipo": "prueba", "prueba": "E21-aviso"},
-    {"id": "E21-registro", "etapa": 21, "hecho": "Cómo se guarda y se aplica Mi precio queda en el Registro.", "tipo": "registro", "seccion": "Etapa 21", "debeNombrar": ["Mi precio", "Aviso de rango"]}
+    {"id": "E21-registro", "etapa": 21, "hecho": "Cómo se guarda y se aplica Mi precio queda en el Registro.", "tipo": "registro", "seccion": "Etapa 21", "debeNombrar": ["Mi precio", "Aviso de rango"]},
+    {"id": "E21-datos", "etapa": 21, "hecho": "Guardar, borrar y deshacer Mi precio conservan los precios que ya había en referencePrices_v1; si lo guardado no se entiende no se escribe nada.", "tipo": "prueba", "prueba": "E21-datos"}
   ]
 }

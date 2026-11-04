@@ -228,7 +228,7 @@ function nombresDePrecio(nombre){
 function misPreciosDe(nombre){
   const todos=Object.values(loadReferencePrices()).filter(p=>p.currency==="ARS"&&Number.isFinite(p.price)&&p.price>0&&Number.isFinite(p.amount)&&p.amount>0);
   const nombres=nombresDePrecio(nombre);
-  return todos.filter(p=>nombres.some(n=>Ingredientes.sameIngredient(p.name,n))).sort((a,b)=>String(b.date).localeCompare(String(a.date)))
+  return todos.filter(p=>nombres.some(n=>Ingredientes.sameIngredient(p.name,n))).sort((a,b)=>String(b.date).localeCompare(String(a.date))||(String(b.id).startsWith("ficha_")?1:0)-(String(a.id).startsWith("ficha_")?1:0))
 }
 // Costo con Mi precio (el más nuevo): en la misma unidad o, si no, pasando las dos cantidades a gramos.
 function miPrecioDe(nombre,q,unit){
@@ -552,7 +552,18 @@ function razonContraCategoria(nombre,price,amount,unit){
 }
 // Guarda (o borra, con precio null) Mi precio de un ingrediente en referencePrices_v1 y devuelve el texto anterior para Deshacer.
 function guardarMiPrecio(nombre,precio,cantidad,unidad){
-  const antes=localStorage.getItem(REFERENCE_PRICES_KEY),todos=loadReferencePrices(),canon=nombresDePrecio(nombre).at(-1),id="ficha_"+ingredientKey(canon).replace(/[^a-z0-9]+/g,"_");
+  const antes=localStorage.getItem(REFERENCE_PRICES_KEY);
+  // Si lo guardado no se entiende (JSON roto o alguna entrada inválida) no se escribe nada: se perderían los precios que ya había.
+  let todos={};
+  if(antes!==null){
+    try{
+      todos=JSON.parse(antes)
+    }catch(e){
+      todos=null
+    }
+    if(!validReferencePrices(todos))throw new Error("No pude guardar sin tocar tus precios anteriores: alguno no es válido. Revisalos en Precios de referencia.")
+  }
+  const canon=nombresDePrecio(nombre).at(-1),id="ficha_"+ingredientKey(canon).replace(/[^a-z0-9]+/g,"_");
   if(precio===null)delete todos[id];
   else{
     const esPaquete=unidad==="paquete",item={
@@ -610,7 +621,14 @@ function fichaPrecio(nombre){
       return Number.isFinite(n)&&n>0?n:null
     };
     const confirmar=(precio,cantidad,unidad)=>{
-      deshacer=guardarMiPrecio(nombre,precio,cantidad,unidad);
+      try{
+        deshacer=guardarMiPrecio(nombre,precio,cantidad,unidad)
+      }catch(err){
+        aviso=err.message;
+        deshacer=undefined;
+        pintar();
+        return
+      }
       aviso=precio===null?"Se borró tu precio.":"Guardado.";
       repintar()
     };

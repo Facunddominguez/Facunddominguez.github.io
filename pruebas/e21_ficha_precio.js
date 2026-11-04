@@ -56,7 +56,6 @@
   await tocar(doc().querySelector("[data-ficha-precio-abrir]"));
   const set = (id, v) => { const e = doc().getElementById(id); e.value = v; e.dispatchEvent(new w.Event("input", { bubbles: true })); e.dispatchEvent(new w.Event("change", { bubbles: true })) };
   set("fichaPrecioMonto", "20000"); set("fichaPrecioCantidad", "1"); set("fichaPrecioUnidad", "kg");
-  const normalAviso = (() => { const q = doc().querySelector(".hoja .ficha-precio"); return q })();
   await tocar([...doc().querySelectorAll(".hoja .ficha-precio__form button")].find(b => b.textContent === "Guardar"));
   // $20.000 por kg de arroz es más de 3 veces lo típico de cereales: avisa y no guarda hasta "Guardar igual".
   const avisoFuera = !!doc().querySelector("[data-ficha-precio-igual]") && /veces más caro/.test(doc().querySelector(".hoja .ficha-precio__form").textContent) && localStorage.getItem(PRECIOS) === null;
@@ -91,6 +90,29 @@
   ok("E21-aviso el aviso de precio fuera de rango aparece con $40.000/kg de frutillas y no con $4.000/kg, y deja guardar igual",
     !normal.aviso && normal.guardado === 1 && fuera.aviso && /frutillas te queda \d+ veces más caro que el precio típico de frutas/.test(fuera.msg) && trasIgual === 1,
     JSON.stringify({ normal, fuera: { aviso: fuera.aviso, msg: fuera.msg, guardado: fuera.guardado }, trasIgual }));
+
+  // E21-datos: lo que ya había en referencePrices_v1 no se pierde al guardar, borrar ni deshacer; si no se entiende, no se escribe.
+  const previo = { p1: { id: "p1", name: "Pollo", pack: "", amount: 1, unit: "kg", price: 9000, currency: "ARS", date: "2026-10-20" } };
+  cargar({ ...MARCA, [PRECIOS]: JSON.stringify(previo) }); await abrir();
+  const guardarArroz = async (monto) => {
+    ev('Comidas.abrirNutrientesDeIngrediente("Arroz")'); await espera(150);
+    await tocar(doc().querySelector("[data-ficha-precio-abrir]"));
+    set("fichaPrecioMonto", monto); set("fichaPrecioCantidad", "1"); set("fichaPrecioUnidad", "kg");
+    await tocar([...doc().querySelectorAll(".hoja .ficha-precio__form button")].find(b => b.textContent === "Guardar"));
+  };
+  await guardarArroz("2500");
+  const trasGuardar = JSON.parse(localStorage.getItem(PRECIOS)), conserva = JSON.stringify(trasGuardar.p1) === JSON.stringify(previo.p1) && Object.keys(trasGuardar).length === 2;
+  await tocar(doc().querySelector("[data-ficha-precio-borrar]"));
+  const trasBorrar = JSON.parse(localStorage.getItem(PRECIOS)), conservaBorrar = JSON.stringify(trasBorrar) === JSON.stringify(previo);
+  await tocar(doc().querySelector("[data-ficha-precio-deshacer]"));
+  const trasDeshacerBorrar = Object.keys(JSON.parse(localStorage.getItem(PRECIOS))).length === 2;
+  await cerrar();
+  const roto = JSON.stringify({ ...previo, p2: { id: "p2", name: "Mal", amount: 1, unit: "kg", price: 0, currency: "ARS", date: "2026-10-20", pack: "" } });
+  cargar({ ...MARCA, [PRECIOS]: roto }); await abrir();
+  await guardarArroz("2500");
+  const sinTocar = localStorage.getItem(PRECIOS) === roto && /No pude guardar sin tocar tus precios anteriores/.test(doc().querySelector(".hoja .ficha-precio").textContent);
+  ok("E21-datos guardar, borrar y deshacer conservan los precios que ya había en referencePrices_v1, y si lo guardado no se entiende no se escribe nada",
+    conserva && conservaBorrar && trasDeshacerBorrar && sinTocar, JSON.stringify({ conserva, conservaBorrar, trasDeshacerBorrar, sinTocar }));
 
   if (marco) marco.remove();
   localStorage.clear();
