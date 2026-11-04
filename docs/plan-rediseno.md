@@ -2086,6 +2086,7 @@ Estados: ✅ hecha · ⏳ en curso · ⛔ parada.
 | 13. Precios a la vista | ✅ | `etapa-13-ok` | 16.2.0 |
 | 14. Bienvenida con presupuesto | ✅ | `etapa-14-ok` | 16.3.0 |
 | 15. "Armame la semana" | ✅ | `etapa-15-ok` | 16.4.0 |
+| 16. Filtros de dieta reales | ✅ | `etapa-16-ok` | 16.5.0 |
 
 - Arranque: rama `rediseno-2` creada desde `main` (v15.9.0) con este plan.
 - Herramientas: `validar-etapa.mjs` acepta las etapas 11 a 18 y, desde la 11, compara contra `rediseno-2` (versión y línea base) en vez de `rediseno`.
@@ -2216,3 +2217,26 @@ Rama `rediseno-2-etapa-15-armame-la-semana`.
 **Tests adaptados** (Decisión, Regla 5): `e2_semana.js` (C2-6) y `m01_modo.js` (M4) esperaban "Vaciar la semana" en el menú ⋯; ahora "Empezar de nuevo" (misma acción, mismo Deshacer).
 
 **Revisores (Etapa 15)**: `revisor-codigo` NO BLOQUEANTE y `revisor-usuario` NO BLOQUEANTE (capturas 390×844 en `capturas/e15-*.png`). Pasan a la Etapa 17: en Semana "Armame la semana" y "Elegir el almuerzo de hoy" compiten como dos botones verdes llenos (con la semana ya llena, los dos deberían bajar a secundarios); la hoja del hueco lleno suma tres "Cambiar…" y conviene reunirlos; "Huevo | Clara de huevo" se ve crudo en el detalle. Quedan como mejora: avisar antes de "Rehacer la semana entera" si hay pocas candidatas; si `setSlot` falla en `cambiarHueco` queda una comida guardada de más. Compuerta: VALIDACIÓN ETAPA 15: OK (92 controles).
+
+### Etapa 16 · Filtros de dieta reales ✅
+
+Rama `rediseno-2-etapa-16-dieta`.
+
+**Plan corto**
+- Archivo nuevo `fuente/codigo/46-dieta.js` (seis filtros y su guardado), `textoPermitido` (36) pasa a ser el único lugar donde se decide si una comida entra (filtros + "Otros"), Preferencias (chips), Ideas (`04`), Selector (`38`) y Armame (`45`). Prueba nueva `e16_dieta.js` (C16-1 a C16-4).
+- Dato nuevo `miPlatoFacil_dieta_v1` = `{"filtros":["sin_cerdo",…]}`: opcional en el respaldo, validado (ids conocidos, sin repetidos), no se escribe si no hay filtros. Lo que ya había (`recipePreferences_v1`: palabras y "Ocultar coincidencias") no cambia.
+- Riesgos para los datos: ninguno; clave nueva y los respaldos viejos se restauran (C16-3).
+
+**Hecho cuando**
+- ✅ Ninguna sugerencia contiene un ingrediente excluido: se probó todo el catálogo de ideas con cada filtro y con combinaciones, en Ideas, en Sugerime y el Selector (`sugerenciasPara`) y en Armame (C16-1 y C16-2).
+- ✅ Opciones claras en Preferencias ("Sin carne roja", "Sin cerdo", "Sin pescado", "Vegetariano", "Sin lácteos", "Sin huevo"); el campo de texto sigue como "Otros" (C16-3).
+- ✅ Avisan si dejan pocas opciones: "Con lo que evitás quedan pocas ideas: N de 41." (menos de 10) en Preferencias, Ideas, el Selector y el resumen de Armame; con cero, "no queda ninguna idea".
+- ✅ Sin etiquetas de salud que no se puedan verificar (C16-4 busca "apto celíaco", "sin TACC", etc. en toda la app).
+
+**Filtro por palabras** (Decisión): se comparan palabras completas del nombre, las etiquetas y los ingredientes vinculados de cada comida (con plurales "s" y "es", sin tildes; no entran "milanesa" ni "hamburguesa" solas porque también las hay de verduras y legumbres). "Vegetariano" suma carnes, cerdo, pescado y aves (deja huevo y lácteos); "Sin carne roja" saca toda comida con "carne" (incluida "carne de cerdo"); "Sin lácteos" no confunde "crema de lentejas" ni leches vegetales. Los filtros se combinan (todos tienen que pasar). Es orientativo y la pantalla lo dice ("no comprueba alérgenos").
+
+**Dónde se aplica** (Decisión): Ideas, la sección Ideas del Selector, Sugerime, Armame la semana (incluidos los desayunos armados con combinaciones) y las comidas tuyas que Sugerime y Armame eligen. La sección "Mis comidas" del Selector no se filtra (son comidas que guardaste vos y se eligen a mano). Con filtros muy estrictos Armame deja huecos sin llenar y lo avisa (con vegetariano + sin lácteos + sin huevo llena 12 de 28 con el catálogo actual).
+
+**Tests adaptados**: ninguno.
+
+**Revisores (Etapa 16)**: `revisor-codigo` NO BLOQUEANTE. Se corrigió su hallazgo principal antes de la compuerta (los plurales: "Filetes de merluza", "Bifes", "Chorizos" se filtraban mal; ahora cada palabra admite "s" y "es" y la prueba C16-1 lo cubre) y se sumaron palabras (ternera, salchicha, morcilla, hígado, choripán, parmesano, ricotta, bechamel, cheddar, yema, mayonesa, merengue). Quedan como mejora: "Limpiar preferencias" no borra los filtros de dieta (se sacan tocando cada uno); el oráculo de la prueba repite casi las palabras de la implementación; "filete" también saca un filete de pollo en "Sin pescado" (conservador).

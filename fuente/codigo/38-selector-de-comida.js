@@ -144,7 +144,9 @@ function seccionesSelector(h,q){
     ideas.sort((a,b)=>b.peso-a.peso);
     out.push(seccion("Ideas","ideas",ideas.slice(0,n?20:6).map(x=>{
       const b=ce("button","selector-item");b.type="button";b.dataset.selectorIdea=x.idea.text;b.append(ce("span","selector-item__nombre","💡 "+x.idea.text));return b
-    }),n?"Ninguna idea coincide.":avisoSinSugerencias()))
+    }),n?"Ninguna idea coincide.":avisoSinSugerencias()));
+    const pocas=dietaAvisoPocas();
+    if(pocas)out.at(-1).append(ce("p","screen__hint",pocas))
   }
   return out
 }
