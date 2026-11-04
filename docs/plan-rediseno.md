@@ -2532,4 +2532,4 @@ Rama `rediseno-3-etapa-24-semana-clara`. Versión 17.5.0.
 
 **Revisores (Etapa 24)**: `revisor-usuario` (recorrido a 390, 360 y 320 px) NO BLOQUEANTE y `revisor-codigo` NO BLOQUEANTE. Se aplicó lo importante: el aviso de semana armada ya no queda con el total viejo si después se completan precios (se recalcula con `ArmameSemana.avisoDe`, y el texto corto "Armaste la semana entera" sigue siendo el que va al historial); E24-recorrido exige ahora que el cambio a "más barata" ocurra y que el aviso coincida con Semana. Quedan como sugerencias: el botón "Guardar" de la ficha queda abajo de la hoja en 320 px, la nutrición va antes del precio, el motivo de "no hay más barata" aparece abajo de la hoja, la hoja de un hueco tiene tres variantes de "Cambiar" y la merienda lleva el ícono del desayuno.
 
-Compuerta final (Etapa 24): VALIDACIÓN ETAPA 24: OK (143 controles, 598 pruebas).
+Compuerta final (Etapa 24): VALIDACIÓN ETAPA 24: OK (143 controles, 607 pruebas).
