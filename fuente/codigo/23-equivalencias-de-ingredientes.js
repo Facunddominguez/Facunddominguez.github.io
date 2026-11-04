@@ -82,7 +82,14 @@ function ingredientAliasSuggestions(names){
   for(const g of groups.values()){
     if(g.size<2)continue;
     const list=[...g.values()].sort((a,b)=>a.length-b.length||a.localeCompare(b,"es"));
-    for(const other of list.slice(1))out.push([other,list[0]])
+    // Etapa 23: solo variantes de nombre del mismo ingrediente (la nutrición los reconoce como el mismo, o el nombre más largo es
+    // el corto con una variante). "Queso Port Salut descremado" y "Queso cremoso" son quesos distintos: no se sugiere unirlos.
+    const mismo=(a,b)=>{
+      if(Ingredientes.variantesNombre(a).some(v=>ingredientKey(v)===ingredientKey(b))||Ingredientes.variantesNombre(b).some(v=>ingredientKey(v)===ingredientKey(a)))return true;
+      const x=nutritionFor(a),y=nutritionFor(b);
+      return !!x&&!!y&&x.n===y.n
+    };
+    for(const other of list.slice(1))if(mismo(other,list[0]))out.push([other,list[0]])
   }
   return out.slice(0,8)
 }
