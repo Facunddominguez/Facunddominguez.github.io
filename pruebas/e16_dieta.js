@@ -45,6 +45,10 @@
     for (const comida of ["almuerzo", "cena"]) for (const s of JSON.parse(ev(`JSON.stringify(sugerenciasPara("${comida}", "").map(x => x.tipo === "idea" ? x.idea.text + " " + (x.idea.tags || []).join(" ") + " " + ideaIngredientes(x.idea).join(" ") : mealName(x.item) + " " + extractIngredients(x.item).join(" ")))`))) { const v = viola(f, s); if (v.length) malos.push(f.join("+") + " sugerencia: " + s.slice(0, 50) + " → " + v.join(",")) }
     for (const i of JSON.parse(ev("JSON.stringify(filteredMenuRecords())"))) { const v = viola(f, catalogoTexto(i)); if (v.length) malos.push(f.join("+") + " Ideas: " + i.text + " → " + v.join(",")) }
   }
+  // Plurales y variantes de comidas guardadas por la persona (no son del catálogo).
+  localStorage.setItem(DIETA, JSON.stringify({ filtros: ["sin_pescado", "sin_cerdo", "sin_carne_roja"] }));
+  const plurales = ["Filetes de merluza con puré", "Bifes de lomo con ensalada", "Chorizos a la plancha", "Atunes en lata", "Jamones cocidos", "Salmones al horno"].filter(t => ev("dietaPermite(" + JSON.stringify(t) + ")"));
+  malos.push(...plurales.map(t => "plural permitido: " + t));
   // Y se ve que filtra: vegetariano deja menos ideas que sin filtros.
   ok("C16-1 ninguna sugerencia del catálogo contiene un ingrediente excluido, con cada filtro y con varios juntos", !malos.length && restan.vegetariano < 41 && restan.vegetariano > 5 && restan["vegetariano+sin_lacteos+sin_huevo"] > 0, JSON.stringify({ malos: malos.slice(0, 5), restan }));
 

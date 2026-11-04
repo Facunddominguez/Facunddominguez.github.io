@@ -7,8 +7,8 @@
 // Solo funciones (el arranque ya pinta las Ideas antes de cargar este archivo).
 var DIETA_KEY="miPlatoFacil_dieta_v1";
 function dietaTabla(){
-  const carneRoja=["carne vacuna","vacun[oa]s?","carne","bife","asado","vacio","nalga","cuadril","lomo","roast beef","cordero","peceto"],
-    cerdo=["cerdo","bondiola","pechito","jamon","panceta","chorizo","carre","lechon","bacon","tocino"],
+  const carneRoja=["carne vacuna","vacun[oa]s?","carne","bife","asado","vacio","nalga","cuadril","lomo","roast beef","cordero","peceto","ternera","salchicha","morcilla","higado"],
+    cerdo=["cerdo","bondiola","pechito","jamon","panceta","chorizo","choripan","carre","lechon","bacon","tocino","salchicha","morcilla"],
     pescado=["pescado","pescados","merluza","atun","caballa","salmon","sardinas?","trucha","lenguado","filet","filete","corvina","pejerrey","mariscos?","camarones?","langostinos?","calamar(?:es)?","pulpo","anchoas?","surubi","brotola"],
     aves=["pollo","pavo","pato","aves?"];
   return [
@@ -16,8 +16,8 @@ function dietaTabla(){
     {id:"sin_cerdo",nombre:"Sin cerdo",palabras:cerdo},
     {id:"sin_pescado",nombre:"Sin pescado",palabras:pescado},
     {id:"vegetariano",nombre:"Vegetariano",palabras:[...carneRoja,...cerdo,...pescado,...aves]},
-    {id:"sin_lacteos",nombre:"Sin lácteos",palabras:["leche(?! de (?:almendras?|coco|soja|avena))","quesos?","yogur(?:es)?","yogurt","yoghurt","crema de leche","manteca","ricota","mozzarella","muzzarella","provolone","reggianito","pategras","sardo","port salut","dulce de leche","flan","helado","cremoso","untable","lacteos?"]},
-    {id:"sin_huevo",nombre:"Sin huevo",palabras:["huev[oa]s?","clara","omelette"]}
+    {id:"sin_lacteos",nombre:"Sin lácteos",palabras:["leche(?! de (?:almendras?|coco|soja|avena))","quesos?","yogur(?:es)?","yogurt","yoghurt","crema de leche","manteca","ricota","mozzarella","muzzarella","provolone","reggianito","pategras","sardo","parmesano","ricotta","bechamel","cheddar","port salut","dulce de leche","flan","helado","cremoso","untable","lacteos?"]},
+    {id:"sin_huevo",nombre:"Sin huevo",palabras:["huev[oa]s?","clara","yema","mayonesa","merengue","omelette"]}
   ]
 }
 function validDieta(o){
@@ -49,7 +49,7 @@ function dietaPermite(texto){
   const activos=dietaFiltros();
   if(!activos.length)return true;
   const t=" "+normalizeSearchText(String(texto||"")).replace(/[^a-z0-9ñ]+/g," ").trim()+" ";
-  return !dietaTabla().some(f=>activos.includes(f.id)&&f.palabras.some(p=>new RegExp("(?: )(?:"+p+")(?: )").test(t)))
+  return !dietaTabla().some(f=>activos.includes(f.id)&&f.palabras.some(p=>new RegExp("(?: )(?:"+p+")(?:s|es)?(?: )").test(t)))
 }
 // Texto de una idea del catálogo para filtrar: nombre, etiquetas e ingredientes vinculados. No usa SUGERENCIA_GRUPOS (36) porque
 // las Ideas se pintan durante el arranque, antes de que corran esos archivos.
