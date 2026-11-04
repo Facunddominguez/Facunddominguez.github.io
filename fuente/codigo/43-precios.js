@@ -8,10 +8,34 @@
 // no aparece ningún "≈ $". "Mi precio" (referencePrices_v1) gana sobre el promedio de INDEC.
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como Precios.nombre().
 var Precios={
+// Etapa 19: el ítem de precios de un ingrediente. Para cada forma del nombre (el nombre, y después sus variantes) prueba el
+// nombre exacto o su sinónimo y los nombres con que la nutrición lo conoce ("Yogur natural descremado" es "Yogur descremado").
+itemDe(nombre,d){
+  d=d||preciosDataset();
+  if(!d)return null;
+  const clave=String(nombre||"");
+  if(!d.res)d.res=new Map();
+  if(d.res.has(clave))return d.res.get(clave);
+  const nut=nutritionDataset().byKey;
+  let hallado=null;
+  for(const n of [clave].concat(Ingredientes.variantesNombre(clave))){
+    hallado=d.byKey.get(ingredientKey(n))||null;
+    if(!hallado){
+      const x=nut.get(ingredientKey(n));
+      if(x)for(const nm of [x.n].concat(x.s||[])){
+        hallado=d.byKey.get(ingredientKey(nm))||null;
+        if(hallado)break
+      }
+    }
+    if(hallado)break
+  }
+  d.res.set(clave,hallado);
+  return hallado
+},
 precioIndec(nombre){
   const d=preciosDataset();
   if(!d)return null;
-  const it=d.byKey.get(ingredientKey(String(nombre||"")));
+  const it=Precios.itemDe(nombre,d);
   if(!it)return null;
   const r=regionPrecios(),usada=valorRegionPrecio(it.p,r)!==null?r:"GBA";
   return valorRegionPrecio(it.p,usada)===null?null:{
@@ -174,7 +198,7 @@ function rangoSepaPrecios(it,reg){
 function precioAuto(nombre){
   const d=preciosDataset();
   if(!d)return null;
-  const it=d.byKey.get(ingredientKey(String(nombre||"")));
+  const it=Precios.itemDe(nombre,d);
   if(!it)return null;
   const r=regionPrecios();
   for(const [f,reg] of [["sepa",r],["indec",r],["sepa","GBA"],["indec","GBA"]]){

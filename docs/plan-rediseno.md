@@ -2392,3 +2392,24 @@ Se trabaja solo, de la Etapa 19 a la 24, sin esperar entre etapas. La única int
 
 ### Registro de la Ronda 3
 - Arranque: rama `rediseno-3` creada desde `main` (c4cf4ba, v16.7.0) con este plan agregado. Sin etapas hechas todavía.
+
+### Etapa 19 ✅ Que cada ingrediente encuentre su precio
+Rama `rediseno-3-etapa-19-precios-encuentran`. Versión 17.0.0.
+
+**Plan corto**
+- `Ingredientes.variantesNombre()` (03) genera las otras formas de un nombre; `Precios.itemDe()` (43) y `nutritionFor()` (28) las usan: el precio y la nutrición resuelven igual. Datos: `datos/precios-mapa.json` suma `cat` (categoría) a todos los ítems y 15 ítems nuevos de frutas, hongos y granola; `actualizar-precios.mjs` copia `cat` como `k` a `datos/precios.json` y valida que sea una de las 10 categorías. Prueba nueva `e19_precios_resuelven.js`.
+- Riesgos para los datos: ninguno (no se toca ninguna clave de `miPlatoFacil_*`).
+
+**Hecho cuando**
+- ✅ Cobertura (E19-cobertura): con la semana armada de la prueba ($60.000, 25 productos) hoy hay 20 con precio real (80 %) y 5 anotados como sin dato (frutas sin precio publicado: Ananá, Mandarina, Mango, Sandía, y Granola); el control pide 90 % entre real y anotado sin dato y da 100 %. **No se llega al 90 % de precio real**: esta sesión no puede bajar SEPA ni INDEC (los dominios están bloqueados), así que los ítems nuevos del mapa no tienen datos hasta la próxima corrida de "Actualizar precios".
+- ✅ Los 12 productos (E19-doce): arroz, yogur, leche, pan de molde, avena, carne vacuna y queso Port Salut encuentran precio; frutillas, kiwi, arándanos, granola y tortillas ("Tortillas de trigo" ya tenía SEPA y ahora se encuentra) quedan según la tabla de Sin dato.
+- ✅ Plausibilidad (E19-plausibilidad): ningún precio por kg o litro se aparta más de 4 veces de la mediana de su categoría y unidad base, salvo las excepciones anotadas en `datos/precios-notas.json` (aceite de oliva, ajo, albahaca, rúcula, espárragos, radicheta, agua).
+
+**Variantes** (Decisión): el orden es nombre exacto, sinónimo/equivalencia, nombre con que la nutrición conoce el ingrediente ("Yogur natural descremado" → "Yogur descremado") y después el nombre sin paréntesis, sin lo que sigue a " o " y sin modificadores finales (integral, blanco, descremado, natural, fluida, instantánea, arrollada, entero, común, light). Si el paréntesis trae una variante con precio propio se prueba primero con la primera ("Arroz (integral, yamaní)" → "Arroz integral" y si no "Arroz"): es la más común del armado y la que tiene SEPA. Además, si la nutrición trae solo la taza, la cucharada (1/16) y la cucharadita (1/48) se calculan de ella: sin eso la avena y el yogur en cucharadas no se podían costear.
+
+**Sin dato** (Decisión): `datos/precios-notas.json` anota qué productos no tienen precio en `datos/precios.json` (32: frutas, granola, champiñones, puerro, cebolla de verdeo y varios cereales y legumbres poco comunes). Los 15 nuevos (Frutilla, Kiwi, Arándanos, Mandarina, Pera, Durazno, Uva, Ananá, Ciruela, Melón, Sandía, Mango, Pomelo, Champiñones, Granola) están en el mapa solo con consulta a SEPA (sin nombre de INDEC, que no pude verificar sin bajar el archivo y que haría fallar la corrida si estuviera mal). La Etapa 20 los estima con la mediana de su categoría.
+
+**Tests adaptados**: `e9_sepa.js` (C9-1) busca el dato por el nombre del ítem de precios que se encontró (no solo por el nombre de la nutrición) y se actualizó `ambito` del mapa porque el nuevo resolvedor reconoce más nombres (55 núcleo y 43 armado); misma exigencia (80 % del total).
+
+**Pendientes para vos**
+- Correr "Actualizar precios" (GitHub Actions) para que entren los precios de SEPA de los 15 ítems nuevos del mapa; después se puede vaciar la lista `sinDato` de `datos/precios-notas.json` de lo que entre.
