@@ -1,7 +1,7 @@
 // Mi Plato Fácil · Asistente de IA: con tu app de IA o con Gemini directo.
 // Parte 30: los archivos se unen en orden según su número, que define el orden de arranque.
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como AsistenteIA.nombre().
-const AsistenteIA={
+var AsistenteIA={
 saveAiSettings(s){
   localStorage.setItem("miPlatoFacil_aiSettings_v1",JSON.stringify({
     key:s.key,model:s.model

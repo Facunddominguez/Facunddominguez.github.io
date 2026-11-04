@@ -1,7 +1,7 @@
 // Mi Plato Fácil · Productos extra de la lista de compras.
 // Parte 18: los archivos se unen en orden según su número, que define el orden de arranque.
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como ProductosExtra.nombre().
-const ProductosExtra={
+var ProductosExtra={
 resetManualShoppingForm(){
   manualShopEditing=null;
   document.getElementById("manualShoppingForm").reset();

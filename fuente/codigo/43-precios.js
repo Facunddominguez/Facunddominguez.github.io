@@ -7,7 +7,7 @@
 // Los precios se ven con el interruptor "Mostrar precios y presupuesto" (el mismo del modo simple, uiMode_v1): apagado
 // no aparece ningún "≈ $". "Mi precio" (referencePrices_v1) gana sobre el promedio de INDEC.
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como Precios.nombre().
-const Precios={
+var Precios={
 precioIndec(nombre){
   const d=preciosDataset();
   if(!d)return null;

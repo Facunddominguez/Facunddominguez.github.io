@@ -1,7 +1,7 @@
 // Mi Plato Fácil · Semana de entrenamiento y excepciones.
 // Parte 6: los archivos se unen en orden según su número, que define el orden de arranque.
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como Rutina.nombre().
-const Rutina={
+var Rutina={
 loadTrainingWeek(){
   try{
     const o=JSON.parse(localStorage.getItem(TRAINING_KEY)||"null");

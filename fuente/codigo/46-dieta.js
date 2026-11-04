@@ -6,7 +6,7 @@
 // comprueba alérgenos ni garantiza aptitud alimentaria, y la app no pone etiquetas de salud que no se puedan verificar.
 // Solo funciones (el arranque ya pinta las Ideas antes de cargar este archivo).
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como Dieta.nombre().
-const Dieta={
+var Dieta={
 guardarDietaFiltros(lista){
   const ids=dietaTabla().map(f=>f.id),filtros=ids.filter(id=>lista.includes(id));
   try{

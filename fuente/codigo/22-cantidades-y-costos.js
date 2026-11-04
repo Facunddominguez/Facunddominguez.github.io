@@ -1,7 +1,7 @@
 // Mi Plato Fácil · Cantidades por receta, compras por cantidad, existencias y costos.
 // Parte 23: los archivos se unen en orden según su número, que define el orden de arranque.
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como CantidadesCostos.nombre().
-const CantidadesCostos={
+var CantidadesCostos={
 safeRecipeDetails(){
   try{
     return loadRecipeDetails()

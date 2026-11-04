@@ -1,7 +1,7 @@
 // Mi Plato Fácil · Tema claro/oscuro y piezas de interfaz reutilizables.
 // Parte 3: los archivos se unen en orden según su número, que define el orden de arranque.
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como Interfaz.nombre().
-const Interfaz={
+var Interfaz={
 prefersDark(){
   try{
     return window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches

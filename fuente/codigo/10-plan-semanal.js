@@ -1,7 +1,7 @@
 // Mi Plato Fácil · Plan semanal, variaciones, recetas en el plan, porciones e historial.
 // Parte 11: los archivos se unen en orden según su número, que define el orden de arranque.
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como Semana.nombre().
-const Semana={
+var Semana={
 migratePlan(o){
   const out={
   };

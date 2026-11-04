@@ -4,7 +4,7 @@
 // Armar nueva y Sugerime: tocar una comida la asigna en el momento (setSlot: historial, porciones y Deshacer).
 // renderPlan (10) llama a refrescarHojaHueco aunque corra antes de que cargue este archivo: por eso el estado es var.
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como Selector.nombre().
-const Selector={
+var Selector={
 elegirEnSelector(asignar){
   const h=huecoAbierto;
   if(!h||h.modo!=="selector")return;

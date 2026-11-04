@@ -1,7 +1,7 @@
 // Mi Plato Fácil · Exportar el plan, semanas con fecha, fechas escritas y plan mensual.
 // Parte 17: los archivos se unen en orden según su número, que define el orden de arranque.
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como SemanasFechadas.nombre().
-const SemanasFechadas={
+var SemanasFechadas={
 escapePlanExport(value){
   return String(value==null?"":value).replace(/[&<>"']/g,c=>({
     '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'

@@ -4,7 +4,7 @@
 // siguen generando sugerencias en Compras): solo dejan de verse hasta que se elige el modo completo.
 // Semana (desde la v15.1) no oculta nada: sus herramientas están en su menú ⋯ en los dos modos.
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como ModoSimple.nombre().
-const ModoSimple={
+var ModoSimple={
 setUiMode(mode){
   const next=mode==="completo"?"completo":"simple";
   if(typeof fijarPreciosAntesDelModo==="function")fijarPreciosAntesDelModo();

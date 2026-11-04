@@ -1,7 +1,7 @@
 // Mi Plato Fácil · Arranque, navegación entre pantallas y armado del plato.
 // Parte 7: los archivos se unen en orden según su número, que define el orden de arranque.
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como Armado.nombre().
-const Armado={
+var Armado={
 conBuscador(box,etiqueta){
   if(box.dataset.buscador)return;
   box.dataset.buscador="1";

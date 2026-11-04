@@ -1,7 +1,7 @@
 // Mi Plato Fácil · Calendario mensual de entrenamiento.
 // Parte 16: los archivos se unen en orden según su número, que define el orden de arranque.
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como CalendarioEntreno.nombre().
-const CalendarioEntreno={
+var CalendarioEntreno={
 selectTrainingDate(key){
   if(!Rutina.validTrainingDate(key))return;
   document.getElementById("trainingExceptionDate").value=key;

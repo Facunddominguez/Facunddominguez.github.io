@@ -1,7 +1,7 @@
 // Mi Plato Fácil · Revisión de despensa por receta.
 // Parte 21: los archivos se unen en orden según su número, que define el orden de arranque.
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como RevisionDespensa.nombre().
-const RevisionDespensa={
+var RevisionDespensa={
 pantryReviewPartition(title,selected,confirmed){
   const rows=PANTRY_REVIEW_COMPONENTS[title]||[];
   return rows.map((r,i)=>({

@@ -11,7 +11,7 @@ for (const f of readdirSync(dir).filter(x => x.endsWith('.js'))) {
   const t = readFileSync(join(dir, f), 'utf8');
   globales += (t.match(/^(?:async )?function\s+[A-Za-z_$][\w$]*\s*\(/gm) || []).length;
   // Métodos de un módulo: líneas "nombre(...){" o "async nombre(...){" en la columna 0 dentro de un "const Modulo={".
-  const m = /^const [A-Z][A-Za-z0-9]*=\{\n([\s\S]*?)\n\};$/m.exec(t);
+  const m = /^var [A-Z][A-Za-z0-9]*=\{\n([\s\S]*?)\n\};$/m.exec(t);
   if (m) enModulos += (m[1].match(/^(?:async )?[A-Za-z_$][\w$]*\([^)]*\)\{/gm) || []).length;
 }
 const i = process.argv.indexOf('--maximo'), maximo = i >= 0 ? Number(process.argv[i + 1]) : null;

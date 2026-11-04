@@ -1,7 +1,7 @@
 // Mi Plato Fácil · Registro de consumo y metas de hábitos.
 // Parte 25: los archivos se unen en orden según su número, que define el orden de arranque.
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como Consumo.nombre().
-const Consumo={
+var Consumo={
 recordConsumption({
   date,meal,item,title,planned
 }){

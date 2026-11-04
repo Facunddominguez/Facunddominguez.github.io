@@ -3727,7 +3727,7 @@ const el={
 // Mi Plato Fácil · Tema claro/oscuro y piezas de interfaz reutilizables.
 // Parte 3: los archivos se unen en orden según su número, que define el orden de arranque.
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como Interfaz.nombre().
-const Interfaz={
+var Interfaz={
 prefersDark(){
   try{
     return window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches
@@ -3899,7 +3899,7 @@ const OCC="Opción ocasional: ";
 // Mi Plato Fácil · Nombres de ingredientes, sinónimos, equivalencias y unidades.
 // Parte 4: los archivos se unen en orden según su número, que define el orden de arranque.
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como Ingredientes.nombre().
-const Ingredientes={
+var Ingredientes={
 ingredientNormal(name){
   return normalizeSearchText(name).replace(/\s+/g," ").replace(/[.,;:]+$/,"").trim().split(" ").map(singularWord).join(" ")
 },
@@ -4066,7 +4066,7 @@ function cantidadLegible(n,unidad){
 // Mi Plato Fácil · Ideas de menú, colaciones y consejos favoritos.
 // Parte 5: los archivos se unen en orden según su número, que define el orden de arranque.
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como Ideas.nombre().
-const Ideas={
+var Ideas={
 menuRecordMatches(record,query){
   const q=normalizeSearchText(query);
   if(!q)return false;
@@ -4200,7 +4200,7 @@ function adviceFavButton(kind,text){
 // Mi Plato Fácil · Semana de entrenamiento y excepciones.
 // Parte 6: los archivos se unen en orden según su número, que define el orden de arranque.
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como Rutina.nombre().
-const Rutina={
+var Rutina={
 loadTrainingWeek(){
   try{
     const o=JSON.parse(localStorage.getItem(TRAINING_KEY)||"null");
@@ -4308,7 +4308,7 @@ const TRAINING_EXCEPTIONS_KEY="miPlatoFacil_trainingExceptions";
 // Mi Plato Fácil · Arranque, navegación entre pantallas y armado del plato.
 // Parte 7: los archivos se unen en orden según su número, que define el orden de arranque.
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como Armado.nombre().
-const Armado={
+var Armado={
 conBuscador(box,etiqueta){
   if(box.dataset.buscador)return;
   box.dataset.buscador="1";
@@ -4923,7 +4923,7 @@ function renderMenuSearch(){
 // Mi Plato Fácil · Despensa: ingredientes marcados como disponibles.
 // Parte 8: los archivos se unen en orden según su número, que define el orden de arranque.
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como MarcasDespensa.nombre().
-const MarcasDespensa={
+var MarcasDespensa={
 persistPantry(){
   try{
     localStorage.setItem(PANKEY,JSON.stringify(pantrySel));
@@ -5072,7 +5072,7 @@ function renderPantry(){
 // Mi Plato Fácil · Copiar, compartir y crear la imagen del plato.
 // Parte 9: los archivos se unen en orden según su número, que define el orden de arranque.
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como Compartir.nombre().
-const Compartir={
+var Compartir={
 txtOne(o){
   return o?o.name+(o.quantity?" ("+o.quantity+")":""):"No elegido"
 },
@@ -5292,7 +5292,7 @@ function shareStatus(msg){
 // Mi Plato Fácil · Mis platos guardados, importar y exportar.
 // Parte 10: los archivos se unen en orden según su número, que define el orden de arranque.
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como MisPlatos.nombre().
-const MisPlatos={
+var MisPlatos={
 loadSaved(){
   try{
     const raw=localStorage.getItem(SKEY);
@@ -5767,7 +5767,7 @@ const IMPORT_PLATE_TYPES=["desayuno","plato","snack","pre"];
 // Mi Plato Fácil · Plan semanal, variaciones, recetas en el plan, porciones e historial.
 // Parte 11: los archivos se unen en orden según su número, que define el orden de arranque.
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como Semana.nombre().
-const Semana={
+var Semana={
 migratePlan(o){
   const out={
   };
@@ -6539,7 +6539,7 @@ const PLAN_PORTIONS_KEY="miPlatoFacil_planPortions_v1",PLAN_HISTORY_KEY="miPlato
 // Mi Plato Fácil · Existencias con cantidad y presupuesto de compras.
 // Parte 12: los archivos se unen en orden según su número, que define el orden de arranque.
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como Existencias.nombre().
-const Existencias={
+var Existencias={
 stockKey(name,unit){
   return JSON.stringify([normalizeSearchText(name),unit])
 },
@@ -6883,7 +6883,7 @@ Existencias.startupGuard("Presupuesto de compras",shoppingBudgetInit);
 // Mi Plato Fácil · Lista de compras derivada del plan y sugerencias.
 // Parte 13: los archivos se unen en orden según su número, que define el orden de arranque.
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como Compras.nombre().
-const Compras={
+var Compras={
 validShoppingChecksWeek(v){
   const lista=a=>Array.isArray(a)&&a.length<=1000&&a.every(x=>typeof x==="string"&&x.length>0&&x.length<=200);
   return !!v&&typeof v==="object"&&!Array.isArray(v)&&Object.keys(v).every(k=>k==="t"||k==="c")&&lista(v.t)&&lista(v.c)
@@ -7426,7 +7426,7 @@ function comprasStatus(msg){
 // Parte 14: los archivos se unen en orden según su número, que define el orden de arranque.
 // Almuerzo o cena al azar (desde la v15): una idea del catálogo o una comida tuya (36-sugerencias.js).
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como AlAzar.nombre().
-const AlAzar={
+var AlAzar={
 randPick(a){
   return a[Math.floor(Math.random()*a.length)]
 },
@@ -7633,7 +7633,7 @@ nav();
 // Mi Plato Fácil · Calendario mensual de entrenamiento.
 // Parte 16: los archivos se unen en orden según su número, que define el orden de arranque.
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como CalendarioEntreno.nombre().
-const CalendarioEntreno={
+var CalendarioEntreno={
 selectTrainingDate(key){
   if(!Rutina.validTrainingDate(key))return;
   document.getElementById("trainingExceptionDate").value=key;
@@ -7706,7 +7706,7 @@ Existencias.startupGuard("Calendario de entrenamiento",initTrainingUI);
 // Mi Plato Fácil · Exportar el plan, semanas con fecha, fechas escritas y plan mensual.
 // Parte 17: los archivos se unen en orden según su número, que define el orden de arranque.
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como SemanasFechadas.nombre().
-const SemanasFechadas={
+var SemanasFechadas={
 escapePlanExport(value){
   return String(value==null?"":value).replace(/[&<>"']/g,c=>({
     '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
@@ -8111,7 +8111,7 @@ document.getElementById("currentPlanPanel").addEventListener("toggle",()=>Semana
 // Mi Plato Fácil · Productos extra de la lista de compras.
 // Parte 18: los archivos se unen en orden según su número, que define el orden de arranque.
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como ProductosExtra.nombre().
-const ProductosExtra={
+var ProductosExtra={
 resetManualShoppingForm(){
   manualShopEditing=null;
   document.getElementById("manualShoppingForm").reset();
@@ -8192,7 +8192,7 @@ Existencias.startupGuard("Productos extra",renderManualShopping);
 // Mi Plato Fácil · Respaldo completo: descargar, validar y restaurar.
 // Parte 19: los archivos se unen en orden según su número, que define el orden de arranque.
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como Respaldo.nombre().
-const Respaldo={
+var Respaldo={
 validStockQuantitiesStore(o){
   return !!o&&typeof o==="object"&&!Array.isArray(o)&&Object.keys(o).length<=1000&&Object.entries(o).every(([key,v])=>!["__proto__","constructor","prototype"].includes(key)&&!!v&&typeof v==="object"&&typeof v.name==="string"&&v.name.trim().length>0&&v.name.length<=100&&typeof v.unit==="string"&&RECIPE_AMOUNT_UNITS.includes(v.unit)&&typeof v.quantity==="number"&&Number.isFinite(v.quantity)&&v.quantity>=0&&v.quantity<=100000000&&key===Existencias.stockKey(v.name,v.unit))
 },
@@ -8417,7 +8417,7 @@ document.addEventListener("click",e=>{
 // Mi Plato Fácil · Revisión de despensa por receta.
 // Parte 21: los archivos se unen en orden según su número, que define el orden de arranque.
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como RevisionDespensa.nombre().
-const RevisionDespensa={
+var RevisionDespensa={
 pantryReviewPartition(title,selected,confirmed){
   const rows=PANTRY_REVIEW_COMPONENTS[title]||[];
   return rows.map((r,i)=>({
@@ -8656,7 +8656,7 @@ document.getElementById("pantryReviewItems").addEventListener("change",e=>{
 // Mi Plato Fácil · Recetas: datos, explorador, lectura y edición.
 // Parte 22: los archivos se unen en orden según su número, que define el orden de arranque.
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como Recetas.nombre().
-const Recetas={
+var Recetas={
 saveRecipeDetailsStore(all){
   if(!validRecipeDetails(all))throw new Error("Datos de recetas inválidos.");
   localStorage.setItem(RECIPE_DETAILS_KEY,JSON.stringify(all))
@@ -9405,7 +9405,7 @@ function abrirSeccionesReceta(){
 // Mi Plato Fácil · Cantidades por receta, compras por cantidad, existencias y costos.
 // Parte 23: los archivos se unen en orden según su número, que define el orden de arranque.
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como CantidadesCostos.nombre().
-const CantidadesCostos={
+var CantidadesCostos={
 safeRecipeDetails(){
   try{
     return loadRecipeDetails()
@@ -9916,7 +9916,7 @@ document.getElementById("recipeCostCalculate").addEventListener("click",()=>{
 // Mi Plato Fácil · Equivalencias de ingredientes del usuario.
 // Parte 24: los archivos se unen en orden según su número, que define el orden de arranque.
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como Equivalencias.nombre().
-const Equivalencias={
+var Equivalencias={
 knownIngredientNames(){
   const names=new Map(),add=n=>{
     const t=String(n||"").trim();
@@ -10067,7 +10067,7 @@ document.getElementById("planHistoryPanel").addEventListener("toggle",e=>{
 // Mi Plato Fácil · Registro de consumo y metas de hábitos.
 // Parte 25: los archivos se unen en orden según su número, que define el orden de arranque.
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como Consumo.nombre().
-const Consumo={
+var Consumo={
 recordConsumption({
   date,meal,item,title,planned
 }){
@@ -10303,7 +10303,7 @@ document.addEventListener("click",e=>{
 // Mi Plato Fácil · Compras realizadas, presupuesto real e historial de precios.
 // Parte 26: los archivos se unen en orden según su número, que define el orden de arranque.
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como ComprasHechas.nombre().
-const ComprasHechas={
+var ComprasHechas={
 parseMoneyText(text,optional,label){
   const t=String(text==null?"":text).trim();
   if(!t&&optional)return null;
@@ -10607,7 +10607,7 @@ document.getElementById("purchaseList").addEventListener("click",e=>{
 // Mi Plato Fácil · Movimientos de despensa y descontar al cocinar.
 // Parte 27: los archivos se unen en orden según su número, que define el orden de arranque.
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como MovimientosDespensa.nombre().
-const MovimientosDespensa={
+var MovimientosDespensa={
 deductRecipeFromPantry(recipeId){
   const r=loadRecipeDetails()[recipeId],amounts=loadRecipeAmounts(),a=r&&r.amountsTitle&&amounts[r.amountsTitle];
   if(!a)throw Error("Esta receta no tiene ingredientes con cantidades.");
@@ -10887,7 +10887,7 @@ setTimeout(refreshNutritionData,1500);
 // Mi Plato Fácil · Asistente de IA: con tu app de IA o con Gemini directo.
 // Parte 30: los archivos se unen en orden según su número, que define el orden de arranque.
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como AsistenteIA.nombre().
-const AsistenteIA={
+var AsistenteIA={
 saveAiSettings(s){
   localStorage.setItem("miPlatoFacil_aiSettings_v1",JSON.stringify({
     key:s.key,model:s.model
@@ -11177,7 +11177,7 @@ document.getElementById("aiSettingsOpen").addEventListener("click",()=>go("asist
 // siguen generando sugerencias en Compras): solo dejan de verse hasta que se elige el modo completo.
 // Semana (desde la v15.1) no oculta nada: sus herramientas están en su menú ⋯ en los dos modos.
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como ModoSimple.nombre().
-const ModoSimple={
+var ModoSimple={
 setUiMode(mode){
   const next=mode==="completo"?"completo":"simple";
   if(typeof fijarPreciosAntesDelModo==="function")fijarPreciosAntesDelModo();
@@ -11313,7 +11313,7 @@ const ADVANCED_TOOLS={
 // El tipo de día lo dice el chip de entrenamiento: la línea de ayuda queda vacía.
 // Último "Lo comí" registrado desde Hoy, para poder deshacerlo.
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como Hoy.nombre().
-const Hoy={
+var Hoy={
 todayHint(){
   return ""
 },
@@ -11704,7 +11704,7 @@ var resetTabs=null;
 // Sin cantidad, un ingrediente se guarda como marca (la misma lista de "Lo básico"); con cantidad, como
 // existencia (la misma que usan Compras, las recetas y los movimientos). No se migra ni se reescribe nada guardado.
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como DespensaUnica.nombre().
-const DespensaUnica={
+var DespensaUnica={
 pantryChipFor(name){
   const k=ingredientKey(name);
   if(!k)return null;
@@ -11980,7 +11980,7 @@ renderPantryItems();
 // Cada acción usa los registros de siempre (historial de preparaciones, despensa y movimientos) y se puede
 // deshacer enseguida, volviendo exactamente a como estaba. Desde la v15, lo comprado pasa a "Ya en tu despensa".
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como RegistroRapido.nombre().
-const RegistroRapido={
+var RegistroRapido={
 oneTapSnapshot(keys){
   return Object.fromEntries((keys||ONE_TAP_KEYS).map(k=>[k,localStorage.getItem(k)]))
 },
@@ -12413,7 +12413,7 @@ function avisoSinSugerencias(){
 // La hoja es una sola en toda la app: se abre con un título, un contenido y acciones, y se cierra con "Cerrar",
 // tocando afuera o con Escape. Devuelve el foco a lo que la abrió.
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como IdeasHoja.nombre().
-const IdeasHoja={
+var IdeasHoja={
 ideaComoComida(idea,dia){
   const st={
     type:"plato",day:dia||diaDeRutina(new Date())||"Día libre",fruta:null,bfprot:null,bfcarb:null,grasa:null,pre:null,snack:null,verduras:[],almidones:[],proteinas:[],legCarb:[],legProt:[],replaceCarb:false,replaceProt:false,customPortions:null,nombreSugerido:""
@@ -12602,7 +12602,7 @@ document.addEventListener("click",e=>{
 // Armar nueva y Sugerime: tocar una comida la asigna en el momento (setSlot: historial, porciones y Deshacer).
 // renderPlan (10) llama a refrescarHojaHueco aunque corra antes de que cargue este archivo: por eso el estado es var.
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como Selector.nombre().
-const Selector={
+var Selector={
 elegirEnSelector(asignar){
   const h=huecoAbierto;
   if(!h||h.modo!=="selector")return;
@@ -13084,7 +13084,7 @@ document.addEventListener("click",e=>{
 // init() corre antes de este archivo: todo lo que se llama al pintar es una declaración function y el estado va en var.
 // El adaptador solo lee: los platos (miPlatoFacil_saved) y las recetas (miPlatoFacil_recipeDetails_v1) siguen separados.
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como Comidas.nombre().
-const Comidas={
+var Comidas={
 abrirComida(origen,id){
   if(origen==="receta"){
     recipeReadReturnTo="misplatos";
@@ -13424,7 +13424,7 @@ document.addEventListener("click",e=>{
 // La marca ({"vista":true}) se escribe solo al tocar Saltar o "Armar mi semana"; mirar la bienvenida no escribe nada.
 // Va en el respaldo como módulo opcional (18-respaldo-completo.js): al restaurar en otro teléfono no vuelve a aparecer.
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como Bienvenida.nombre().
-const Bienvenida={
+var Bienvenida={
 bienvenidaVista(){
   try{
     return Respaldo.validBienvenida(JSON.parse(localStorage.getItem(BIENVENIDA_KEY)||"null"))
@@ -13577,7 +13577,7 @@ try{
 // init() corre durante la carga de 14, antes que este archivo: acá solo hay funciones, var y manejadores, que se
 // usan recién al tocar. renderCompras (12) no depende de nada de este archivo.
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como ComprasDespensa.nombre().
-const ComprasDespensa={
+var ComprasDespensa={
 abrirHerramientaCompras(nombre){
   if(nombre!=="todas"&&!COMPRAS_HERRAMIENTAS[nombre])return;
   try{
@@ -13681,7 +13681,7 @@ document.getElementById("comprasDescontar").addEventListener("change",e=>{
 // y muestra aparte el contador "cooked" de cada plato, que no tiene fecha. Nada se combina ni se borra solo.
 // init() corre antes de este archivo: todo lo que se llama al pintar es una declaración function y el estado va en var.
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como Registro.nombre().
-const Registro={
+var Registro={
 deshacerRegistro(n,el){
   const u=registroUndos[n];
   delete registroUndos[n];
@@ -13985,7 +13985,7 @@ document.addEventListener("click",e=>{
 // Los precios se ven con el interruptor "Mostrar precios y presupuesto" (el mismo del modo simple, uiMode_v1): apagado
 // no aparece ningún "≈ $". "Mi precio" (referencePrices_v1) gana sobre el promedio de INDEC.
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como Precios.nombre().
-const Precios={
+var Precios={
 precioIndec(nombre){
   const d=preciosDataset();
   if(!d)return null;
@@ -14480,7 +14480,7 @@ function atribucionPrecios(){
 // platos armados se calculan al mostrarse, a partir de las porciones que la app ya muestra ("1 unidad", "2 cdas", "1/4 del plato").
 // Datos nuevos: miPlatoFacil_hogar_v1 {"personas":n} y miPlatoFacil_basicosFaltantes_v1 {"faltan":["Aceite"]} (ambos opcionales en el respaldo).
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como CantidadesPlatos.nombre().
-const CantidadesPlatos={
+var CantidadesPlatos={
 cambiarPersonasHogar(valor){
   const ok=guardarPersonasHogar(valor),st=document.getElementById("hogarPersonasEstado");
   if(!ok&&st)st.textContent="No se pudo guardar.";
@@ -15068,7 +15068,7 @@ var ArmameSemana=(function(){
 // comprueba alérgenos ni garantiza aptitud alimentaria, y la app no pone etiquetas de salud que no se puedan verificar.
 // Solo funciones (el arranque ya pinta las Ideas antes de cargar este archivo).
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como Dieta.nombre().
-const Dieta={
+var Dieta={
 guardarDietaFiltros(lista){
   const ids=dietaTabla().map(f=>f.id),filtros=ids.filter(id=>lista.includes(id));
   try{

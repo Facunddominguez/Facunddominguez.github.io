@@ -1,7 +1,7 @@
 // Mi Plato Fácil · Despensa: ingredientes marcados como disponibles.
 // Parte 8: los archivos se unen en orden según su número, que define el orden de arranque.
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como MarcasDespensa.nombre().
-const MarcasDespensa={
+var MarcasDespensa={
 persistPantry(){
   try{
     localStorage.setItem(PANKEY,JSON.stringify(pantrySel));

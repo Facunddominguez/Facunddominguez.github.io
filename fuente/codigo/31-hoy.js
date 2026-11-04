@@ -6,7 +6,7 @@
 // El tipo de día lo dice el chip de entrenamiento: la línea de ayuda queda vacía.
 // Último "Lo comí" registrado desde Hoy, para poder deshacerlo.
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como Hoy.nombre().
-const Hoy={
+var Hoy={
 todayHint(){
   return ""
 },

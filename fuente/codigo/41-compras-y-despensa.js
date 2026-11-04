@@ -4,7 +4,7 @@
 // init() corre durante la carga de 14, antes que este archivo: acá solo hay funciones, var y manejadores, que se
 // usan recién al tocar. renderCompras (12) no depende de nada de este archivo.
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como ComprasDespensa.nombre().
-const ComprasDespensa={
+var ComprasDespensa={
 abrirHerramientaCompras(nombre){
   if(nombre!=="todas"&&!COMPRAS_HERRAMIENTAS[nombre])return;
   try{

@@ -1,7 +1,7 @@
 // Mi Plato Fácil · Recetas: datos, explorador, lectura y edición.
 // Parte 22: los archivos se unen en orden según su número, que define el orden de arranque.
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como Recetas.nombre().
-const Recetas={
+var Recetas={
 saveRecipeDetailsStore(all){
   if(!validRecipeDetails(all))throw new Error("Datos de recetas inválidos.");
   localStorage.setItem(RECIPE_DETAILS_KEY,JSON.stringify(all))

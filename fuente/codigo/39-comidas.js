@@ -4,7 +4,7 @@
 // init() corre antes de este archivo: todo lo que se llama al pintar es una declaración function y el estado va en var.
 // El adaptador solo lee: los platos (miPlatoFacil_saved) y las recetas (miPlatoFacil_recipeDetails_v1) siguen separados.
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como Comidas.nombre().
-const Comidas={
+var Comidas={
 abrirComida(origen,id){
   if(origen==="receta"){
     recipeReadReturnTo="misplatos";

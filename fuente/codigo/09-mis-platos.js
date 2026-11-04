@@ -1,7 +1,7 @@
 // Mi Plato Fácil · Mis platos guardados, importar y exportar.
 // Parte 10: los archivos se unen en orden según su número, que define el orden de arranque.
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como MisPlatos.nombre().
-const MisPlatos={
+var MisPlatos={
 loadSaved(){
   try{
     const raw=localStorage.getItem(SKEY);

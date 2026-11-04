@@ -1,7 +1,7 @@
 // Mi Plato Fácil · Copiar, compartir y crear la imagen del plato.
 // Parte 9: los archivos se unen en orden según su número, que define el orden de arranque.
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como Compartir.nombre().
-const Compartir={
+var Compartir={
 txtOne(o){
   return o?o.name+(o.quantity?" ("+o.quantity+")":""):"No elegido"
 },

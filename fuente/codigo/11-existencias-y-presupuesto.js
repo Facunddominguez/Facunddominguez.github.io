@@ -1,7 +1,7 @@
 // Mi Plato Fácil · Existencias con cantidad y presupuesto de compras.
 // Parte 12: los archivos se unen en orden según su número, que define el orden de arranque.
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como Existencias.nombre().
-const Existencias={
+var Existencias={
 stockKey(name,unit){
   return JSON.stringify([normalizeSearchText(name),unit])
 },

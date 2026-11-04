@@ -1,7 +1,7 @@
 // Mi Plato Fácil · Compras realizadas, presupuesto real e historial de precios.
 // Parte 26: los archivos se unen en orden según su número, que define el orden de arranque.
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como ComprasHechas.nombre().
-const ComprasHechas={
+var ComprasHechas={
 parseMoneyText(text,optional,label){
   const t=String(text==null?"":text).trim();
   if(!t&&optional)return null;

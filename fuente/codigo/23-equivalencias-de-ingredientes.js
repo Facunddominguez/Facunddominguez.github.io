@@ -1,7 +1,7 @@
 // Mi Plato Fácil · Equivalencias de ingredientes del usuario.
 // Parte 24: los archivos se unen en orden según su número, que define el orden de arranque.
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como Equivalencias.nombre().
-const Equivalencias={
+var Equivalencias={
 knownIngredientNames(){
   const names=new Map(),add=n=>{
     const t=String(n||"").trim();

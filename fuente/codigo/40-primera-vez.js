@@ -5,7 +5,7 @@
 // La marca ({"vista":true}) se escribe solo al tocar Saltar o "Armar mi semana"; mirar la bienvenida no escribe nada.
 // Va en el respaldo como módulo opcional (18-respaldo-completo.js): al restaurar en otro teléfono no vuelve a aparecer.
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como Bienvenida.nombre().
-const Bienvenida={
+var Bienvenida={
 bienvenidaVista(){
   try{
     return Respaldo.validBienvenida(JSON.parse(localStorage.getItem(BIENVENIDA_KEY)||"null"))

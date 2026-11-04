@@ -1,7 +1,7 @@
 // Mi Plato Fácil · Movimientos de despensa y descontar al cocinar.
 // Parte 27: los archivos se unen en orden según su número, que define el orden de arranque.
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como MovimientosDespensa.nombre().
-const MovimientosDespensa={
+var MovimientosDespensa={
 deductRecipeFromPantry(recipeId){
   const r=loadRecipeDetails()[recipeId],amounts=loadRecipeAmounts(),a=r&&r.amountsTitle&&amounts[r.amountsTitle];
   if(!a)throw Error("Esta receta no tiene ingredientes con cantidades.");

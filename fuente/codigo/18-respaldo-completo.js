@@ -1,7 +1,7 @@
 // Mi Plato Fácil · Respaldo completo: descargar, validar y restaurar.
 // Parte 19: los archivos se unen en orden según su número, que define el orden de arranque.
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como Respaldo.nombre().
-const Respaldo={
+var Respaldo={
 validStockQuantitiesStore(o){
   return !!o&&typeof o==="object"&&!Array.isArray(o)&&Object.keys(o).length<=1000&&Object.entries(o).every(([key,v])=>!["__proto__","constructor","prototype"].includes(key)&&!!v&&typeof v==="object"&&typeof v.name==="string"&&v.name.trim().length>0&&v.name.length<=100&&typeof v.unit==="string"&&RECIPE_AMOUNT_UNITS.includes(v.unit)&&typeof v.quantity==="number"&&Number.isFinite(v.quantity)&&v.quantity>=0&&v.quantity<=100000000&&key===Existencias.stockKey(v.name,v.unit))
 },

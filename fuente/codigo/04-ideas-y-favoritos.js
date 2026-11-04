@@ -1,7 +1,7 @@
 // Mi Plato Fácil · Ideas de menú, colaciones y consejos favoritos.
 // Parte 5: los archivos se unen en orden según su número, que define el orden de arranque.
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como Ideas.nombre().
-const Ideas={
+var Ideas={
 menuRecordMatches(record,query){
   const q=normalizeSearchText(query);
   if(!q)return false;

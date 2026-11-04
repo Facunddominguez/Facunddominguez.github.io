@@ -4,7 +4,7 @@
 // y muestra aparte el contador "cooked" de cada plato, que no tiene fecha. Nada se combina ni se borra solo.
 // init() corre antes de este archivo: todo lo que se llama al pintar es una declaración function y el estado va en var.
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como Registro.nombre().
-const Registro={
+var Registro={
 deshacerRegistro(n,el){
   const u=registroUndos[n];
   delete registroUndos[n];

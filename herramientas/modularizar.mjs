@@ -122,7 +122,7 @@ for (const f of archivos) {
   const resto = lineas.filter((_, i) => !sacar.has(i));
   // Después del encabezado de comentarios del archivo.
   let k = 0; while (k < resto.length && /^\/\//.test(resto[k])) k++;
-  const objeto = `// Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como ${mod}.nombre().\nconst ${mod}={\n${metodos.join(',\n')}\n};`;
+  const objeto = `// Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como ${mod}.nombre().\nvar ${mod}={\n${metodos.join(',\n')}\n};`;
   texto[f] = [...resto.slice(0, k), objeto, ...resto.slice(k)].join('\n');
 }
 for (const f of archivos) writeFileSync(join(dirCodigo, f), texto[f]);

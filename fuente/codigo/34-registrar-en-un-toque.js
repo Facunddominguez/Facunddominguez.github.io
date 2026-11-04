@@ -3,7 +3,7 @@
 // Cada acción usa los registros de siempre (historial de preparaciones, despensa y movimientos) y se puede
 // deshacer enseguida, volviendo exactamente a como estaba. Desde la v15, lo comprado pasa a "Ya en tu despensa".
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como RegistroRapido.nombre().
-const RegistroRapido={
+var RegistroRapido={
 oneTapSnapshot(keys){
   return Object.fromEntries((keys||ONE_TAP_KEYS).map(k=>[k,localStorage.getItem(k)]))
 },

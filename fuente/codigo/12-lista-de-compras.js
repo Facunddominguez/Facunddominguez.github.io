@@ -1,7 +1,7 @@
 // Mi Plato Fácil · Lista de compras derivada del plan y sugerencias.
 // Parte 13: los archivos se unen en orden según su número, que define el orden de arranque.
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como Compras.nombre().
-const Compras={
+var Compras={
 validShoppingChecksWeek(v){
   const lista=a=>Array.isArray(a)&&a.length<=1000&&a.every(x=>typeof x==="string"&&x.length>0&&x.length<=200);
   return !!v&&typeof v==="object"&&!Array.isArray(v)&&Object.keys(v).every(k=>k==="t"||k==="c")&&lista(v.t)&&lista(v.c)

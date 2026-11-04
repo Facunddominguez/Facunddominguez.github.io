@@ -3,7 +3,7 @@
 // La hoja es una sola en toda la app: se abre con un título, un contenido y acciones, y se cierra con "Cerrar",
 // tocando afuera o con Escape. Devuelve el foco a lo que la abrió.
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como IdeasHoja.nombre().
-const IdeasHoja={
+var IdeasHoja={
 ideaComoComida(idea,dia){
   const st={
     type:"plato",day:dia||diaDeRutina(new Date())||"Día libre",fruta:null,bfprot:null,bfcarb:null,grasa:null,pre:null,snack:null,verduras:[],almidones:[],proteinas:[],legCarb:[],legProt:[],replaceCarb:false,replaceProt:false,customPortions:null,nombreSugerido:""

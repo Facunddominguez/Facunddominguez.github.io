@@ -4,7 +4,7 @@
 // platos armados se calculan al mostrarse, a partir de las porciones que la app ya muestra ("1 unidad", "2 cdas", "1/4 del plato").
 // Datos nuevos: miPlatoFacil_hogar_v1 {"personas":n} y miPlatoFacil_basicosFaltantes_v1 {"faltan":["Aceite"]} (ambos opcionales en el respaldo).
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como CantidadesPlatos.nombre().
-const CantidadesPlatos={
+var CantidadesPlatos={
 cambiarPersonasHogar(valor){
   const ok=guardarPersonasHogar(valor),st=document.getElementById("hogarPersonasEstado");
   if(!ok&&st)st.textContent="No se pudo guardar.";

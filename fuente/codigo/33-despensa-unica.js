@@ -3,7 +3,7 @@
 // Sin cantidad, un ingrediente se guarda como marca (la misma lista de "Lo básico"); con cantidad, como
 // existencia (la misma que usan Compras, las recetas y los movimientos). No se migra ni se reescribe nada guardado.
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como DespensaUnica.nombre().
-const DespensaUnica={
+var DespensaUnica={
 pantryChipFor(name){
   const k=ingredientKey(name);
   if(!k)return null;

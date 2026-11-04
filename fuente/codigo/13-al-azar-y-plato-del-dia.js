@@ -2,7 +2,7 @@
 // Parte 14: los archivos se unen en orden según su número, que define el orden de arranque.
 // Almuerzo o cena al azar (desde la v15): una idea del catálogo o una comida tuya (36-sugerencias.js).
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como AlAzar.nombre().
-const AlAzar={
+var AlAzar={
 randPick(a){
   return a[Math.floor(Math.random()*a.length)]
 },
