@@ -2082,6 +2082,7 @@ Estados: ✅ hecha · ⏳ en curso · ⛔ parada.
 | Etapa | Estado | Tag | Versión de la app |
 |---|---|---|---|
 | 11. Desayuno y comidas completas | ✅ | `etapa-11-ok` | 16.0.0 |
+| 12. Cantidades reales | ⏳ | `etapa-12-ok` | 16.1.0 |
 
 - Arranque: rama `rediseno-2` creada desde `main` (v15.9.0) con este plan.
 - Herramientas: `validar-etapa.mjs` acepta las etapas 11 a 18 y, desde la 11, compara contra `rediseno-2` (versión y línea base) en vez de `rediseno`.
@@ -2108,3 +2109,31 @@ Rama `rediseno-2-etapa-11-desayuno-completo`.
 - ✅ Decisión: "Salmón al horno con puré de calabaza y espinaca" ahora lleva Papa (el puré).
 
 **Revisores (Etapa 11)**: `revisor-codigo` NO BLOQUEANTE; `revisor-usuario` NO BLOQUEANTE. Sugerencias que quedan: "¿Cómo?" queda debajo de la lista de frutas (Continuar usa Entera por defecto); Continuar deja avanzar sin fruta (igual que los demás pasos); la redacción con varias frutas en una preparación ("Budín de banana y manzana") se revisa a mano. Compuerta: VALIDACIÓN ETAPA 11: OK (72 controles).
+
+### Etapa 12 · Cantidades reales ⏳
+
+Rama `rediseno-2-etapa-12-cantidades`.
+
+**Plan corto**
+- Archivos nuevos: `fuente/codigo/44-cantidades-de-platos.js`, `datos/envases.json` (se incrusta al construir con `__DATOS_ENVASES__`, igual que nutrición y precios) y `pruebas/e12_cantidades.js` (C12-1 a C12-4).
+- Archivos que cambian: `12-lista-de-compras.js` (cantidades de platos armados, personas, básicos, envases y una sola forma de texto por ítem), `43-precios.js` (el precio de la lista es el del envase que se compra), `18-respaldo-completo.js` (claves nuevas), Preferencias (personas) y Despensa (básicos), `construir.mjs`.
+- Datos nuevos, siempre opcionales en el respaldo: `miPlatoFacil_hogar_v1` = `{"personas":n}` (1 a 12; con 1 no se escribe nada) y `miPlatoFacil_basicosFaltantes_v1` = `{"faltan":["Aceite"]}`. Lo guardado no se reescribe: las cantidades de los platos armados se calculan al mostrar la lista.
+- Riesgos para los datos: ninguno (claves nuevas, validadas y opcionales; los respaldos viejos se siguen restaurando).
+
+**Hecho cuando**
+- ✅ El 100 % de los ítems que vienen de platos armados tiene cantidad (C12-1: cada plato guardado del respaldo de ejemplo y cada opción del armado).
+- ✅ Pasar de 1 a 3 personas triplica las cantidades (C12-2).
+- ✅ Fideos por 180 g se muestran como 1 paquete de 500 g (C12-3).
+- ✅ Ningún básico aparece en la lista por defecto (C12-4).
+
+**Gramajes por defecto** (Decisión; por persona, para 1/4 del plato, y el plato escala con su fracción: 1/2 = el doble, 1/3 = 4/3): verduras 100 g, almidones 80 g, proteínas 120 g; los huevos se cuentan en unidades de 55 g. Las porciones del desayuno salen del texto que ya muestra la app ("1 unidad", "2 cdas", "1 vaso" = 200 ml, "1 pote" = 1 unidad). Rodajas y tajadas de fruta pasan a gramos (Ananá 80 g, Melón 200 g, Sandía 300 g). Un vaso de licuado de fruta de los platos viejos cuenta como una fruta. Los gramos se redondean a 5.
+
+**Envases** (Decisión): tabla curada de 26 envases típicos en `datos/envases.json` (fideos 500 g, arroz 1 kg, leche sachet de 1 l, huevos por docena, atún 170 g…). La lista muestra el envase entero ("1 paquete de 500 g") y el precio de la lista es el del envase; el costo por comida (Etapa 13) seguirá usando lo que se come. Lo que no está en la tabla queda con su cantidad. El texto interno (`label`) no cambia; el envase va en el texto que se muestra (`text`).
+
+**Básicos de alacena** (Decisión): aceite, sal, pimienta, vinagre, orégano, pimentón, comino, ají molido, laurel, tomillo, nuez moscada, canela y "especias" quedan fuera de la lista y del costo, incluso los de recetas. En la Despensa, "Básicos de alacena" deja marcar cuál falta (8 visibles); marcado, vuelve a la lista. Un plato de texto (sin estado) no tiene cantidades: se muestra solo por su nombre, sin "+ sin cantidad en 1 plato".
+
+**Tests adaptados** (Regla 5: miran la interfaz vieja; la exigencia sobre lo guardado y la lógica es la misma):
+- `r2_fixtures.js`: `tradPlate` sigue armando un plato con estado (ahora con cantidades); nuevo `tradPlateTexto` es el plato de texto viejo, sin estado. Los casos de "parte sin cantidad" (S1 a S10, M1, M2, U2, E10, f04, DP10, U1 y E1-6) usan `tradPlateTexto`, y se sacó "+ sin cantidad en 1 plato" de lo esperado.
+- Se cambiaron los nombres "Sal", "Comino" y "Aceite" por "Perejil", "Cebolla" y "Miel" donde la prueba solo necesitaba un ingrediente cualquiera (ahora los básicos no están en la lista).
+- Con envases: "Arroz: 300 g" → "Arroz: 1 paquete de 1.000 g" (M10, L2b, L9, S4b), "Leche: 1,3 l" → "2 sachets de 1.000 ml" (U2), "Leche: 250 ml · revisá" → "1 sachet de 1.000 ml · revisá" (C5-9); C5-3 mira que no haya "faltan" ni "revisá" en vez de comparar `text` con `label`; precios de C7-1, C7-3 y C7-4 son los del envase (arroz $2.000 en vez de $600).
+- E1-6 usa un plato de texto: con un plato armado, "Lo compré" suma la cantidad a la despensa en vez de marcarla.

@@ -70,6 +70,11 @@
     { "id": "E11-sin-galletas-ni-harina", "etapa": 11, "hecho": "Ninguna opción del desayuno contiene \"galletas\" ni \"harina\".", "tipo": "prueba", "prueba": "C11-2" },
     { "id": "E11-ideas-completas", "etapa": 11, "hecho": "El 100 % de las ideas de almuerzo o cena tiene verduras, almidón y proteína vinculados.", "tipo": "prueba", "prueba": "C11-3" },
     { "id": "E11-selector-sin-repetidos", "etapa": 11, "hecho": "Ningún nombre se repite en el selector de comida.", "tipo": "prueba", "prueba": "C11-4" },
-    { "id": "E11-registro-ideas", "etapa": 11, "hecho": "Las ideas completadas con el ingrediente más común quedan anotadas en el Registro.", "tipo": "registro", "seccion": "Etapa 11", "debeNombrar": ["Filet de pescado", "Salmón al horno"] }
+    { "id": "E11-registro-ideas", "etapa": 11, "hecho": "Las ideas completadas con el ingrediente más común quedan anotadas en el Registro.", "tipo": "registro", "seccion": "Etapa 11", "debeNombrar": ["Filet de pescado", "Salmón al horno"] },
+    { "id": "E12-cantidad-en-todo", "etapa": 12, "hecho": "El 100 % de los ítems que vienen de platos armados tiene cantidad.", "tipo": "prueba", "prueba": "C12-1" },
+    { "id": "E12-personas", "etapa": 12, "hecho": "Pasar de 1 a 3 personas triplica las cantidades.", "tipo": "prueba", "prueba": "C12-2" },
+    { "id": "E12-envases", "etapa": 12, "hecho": "Fideos por 180 g se muestran como 1 paquete de 500 g.", "tipo": "prueba", "prueba": "C12-3" },
+    { "id": "E12-basicos", "etapa": 12, "hecho": "Ningún básico de alacena aparece en la lista por defecto.", "tipo": "prueba", "prueba": "C12-4" },
+    { "id": "E12-registro", "etapa": 12, "hecho": "Los tests de la lista que se adaptaron y los valores por defecto elegidos quedan en el Registro.", "tipo": "registro", "seccion": "Etapa 12", "debeNombrar": ["Gramajes por defecto", "Tests adaptados", "Básicos de alacena"] }
   ]
 }

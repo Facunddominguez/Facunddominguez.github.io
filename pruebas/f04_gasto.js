@@ -6,9 +6,9 @@
   reset();
   T.ok("G0 montos en formato argentino", parseMoneyText("25000") === 25000 && parseMoneyText("25.000") === 25000 && parseMoneyText("25.000,50") === 25000.5 && parseMoneyText("1500.5") === 1500.5 && parseMoneyText("1,5") === 1.5 && parseMoneyText("", true) === null);
   const today = localTrainingDate(new Date());
-  setAmounts({ [IDEA1]: { yield: 4, rows: [{ name: "Papa", quantity: 1, unit: "kg" }, { name: "Sal", quantity: null, unit: "g" }] } });
+  setAmounts({ [IDEA1]: { yield: 4, rows: [{ name: "Papa", quantity: 1, unit: "kg" }, { name: "Perejil", quantity: null, unit: "g" }] } });
   setRecipes([{ id: "recipe_test0001", title: "Papas al horno", amountsTitle: IDEA1 }]);
-  setSaved([recipePlate("rp1", "recipe_test0001", "Papas al horno", ["Papa", "Sal"])]); setPlan([[todayPlanDay(), "almuerzo", "rp1"]]);
+  setSaved([recipePlate("rp1", "recipe_test0001", "Papas al horno", ["Papa", "Perejil"])]); setPlan([[todayPlanDay(), "almuerzo", "rp1"]]);
   localStorage.setItem("miPlatoFacil_planPortions_v1", JSON.stringify({ [todayPlanDay() + "|almuerzo"]: 2 }));
   go("compras"); await R.openPanel("shoppingToolsPanel");
   // Purchases
@@ -16,7 +16,7 @@
   T.ok("G1 la fecha de compra se completa con hoy", $("purchaseDate").value === typedAppDateLabel(today));
   $("purchaseFromList").click(); await wait(20);
   const names = [...document.querySelectorAll("#purchaseItems [data-purchase-name]")].map(i => i.value), q0 = document.querySelector("#purchaseItems [data-purchase-qty]").value;
-  T.ok("G2 'Cargar pendientes de la lista' trae los productos con su cantidad", names.join(",") === "Papa,Sal" && q0 === "0,5", names.join(",") + " / " + q0);
+  T.ok("G2 'Cargar pendientes de la lista' trae los productos con su cantidad", names.join(",") === "Papa,Perejil" && q0 === "0,5", names.join(",") + " / " + q0);
   document.querySelectorAll("#purchaseItems [data-purchase-price]")[0].value = "750";
   $("purchaseTotal").value = "25.000,50"; $("purchaseStore").value = "Verdulería"; $("purchaseUpdatePrices").checked = true;
   $("purchaseSave").click(); await wait(20);

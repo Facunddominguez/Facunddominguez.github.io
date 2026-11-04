@@ -5,10 +5,10 @@
   T.ok("U1a conversiones exactas", convertQuantity(1, "kg", "g") === 1000 && convertQuantity(500, "ml", "l") === 0.5 && convertQuantity(1, "cucharada", "cucharadita") === 3);
   T.ok("U1b no convierte peso↔volumen, taza, ni unidad", convertQuantity(1, "g", "ml") === null && convertQuantity(1, "taza", "ml") === null && convertQuantity(1, "unidad", "g") === null && convertQuantity(1, "taza", "cucharada") === null);
   const plan = rows => { reset(); setAmounts({ [IDEA1]: { yield: 1, rows } }); setRecipes([{ id: "recipe_test0001", title: "Receta", amountsTitle: IDEA1 }]); setSaved([recipePlate("rp1", "recipe_test0001", "Receta", rows.map(r => r.name))]); setPlan([["lunes", "almuerzo", "rp1"]]) };
-  plan([{ name: "Papa", quantity: 200, unit: "g" }, { name: "Papas", quantity: 1, unit: "kg" }, { name: "Leche", quantity: 300, unit: "ml" }, { name: "Leche", quantity: 1, unit: "l" }, { name: "Aceite", quantity: 1, unit: "cucharada" }, { name: "Aceite", quantity: 2, unit: "cucharadita" }, { name: "Huevo", quantity: 200, unit: "g" }, { name: "Huevo", quantity: 2, unit: "unidad" }]);
+  plan([{ name: "Papa", quantity: 200, unit: "g" }, { name: "Papas", quantity: 1, unit: "kg" }, { name: "Leche", quantity: 300, unit: "ml" }, { name: "Leche", quantity: 1, unit: "l" }, { name: "Miel", quantity: 1, unit: "cucharada" }, { name: "Miel", quantity: 2, unit: "cucharadita" }, { name: "Huevo", quantity: 200, unit: "g" }, { name: "Huevo", quantity: 2, unit: "unidad" }]);
   go("compras"); await wait(50);
   const rows = R.renderedRows();
-  T.ok("U2 Compras suma unidades compatibles y separa las incompatibles", rows.includes("Papa: 1,2 kg") && rows.includes("Leche: 1,3 l") && rows.includes("Aceite: 1 cucharada + 2 cucharaditas") && rows.includes("Huevo: 200 g + 2 unidades") && R.item("Aceite").label === "Aceite: 1 cucharada + 2 cucharadita" && R.item("Huevo").label === "Huevo: 200 g + 2 unidad", rows.join(" | "));
+  T.ok("U2 Compras suma unidades compatibles y separa las incompatibles", rows.includes("Papa: 1,2 kg") && rows.includes("Leche: 2 sachets de 1.000 ml") && rows.includes("Miel: 1 cucharada + 2 cucharaditas") && rows.includes("Huevo: 200 g + 2 unidades") && R.item("Miel").label === "Miel: 1 cucharada + 2 cucharadita" && R.item("Huevo").label === "Huevo: 200 g + 2 unidad", rows.join(" | "));
   plan([{ name: "Papa", quantity: 200, unit: "g" }]); go("compras"); await wait(30);
   T.ok("U3 con una sola unidad, la lista no cambia el formato", R.renderedRows().includes("Papa: 200 g"));
   setStock([["Papa", 1, "kg"]]); renderCompras();

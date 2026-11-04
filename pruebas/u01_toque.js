@@ -1,7 +1,7 @@
 // Registrar en un toque (v14.9.94): Lo comí (Hoy, con deshacer), Lo cociné (recetas) y Lo compré (Compras).
 // Usan los registros de siempre y se pueden deshacer. La lista de compras no cambia. Solo datos inventados.
 (async () => {
-  const R = window.R2, { wait, results, reset, setAmounts, setRecipes, setSaved, setPlan, setStock, tradPlate, recipePlate, IDEA1 } = R; const T = results();
+  const R = window.R2, { wait, results, reset, setAmounts, setRecipes, setSaved, setPlan, setStock, tradPlate, tradPlateTexto, recipePlate, IDEA1 } = R; const T = results();
   const $ = id => document.getElementById(id);
   const tab = name => document.querySelector('#sectionNav [data-section-tab="' + name + '"]');
   const keys = () => JSON.stringify(Object.fromEntries(["miPlatoFacil_pantry", "miPlatoFacil_pantryQuantities_v1", "miPlatoFacil_pantryMoves_v1", "miPlatoFacil_cookingHistory_v1", "miPlatoFacil_consumption_v1", "miPlatoFacil_plan", "miPlatoFacil_saved"].map(k => [k, localStorage.getItem(k)])));
@@ -9,7 +9,7 @@
   window.confirm = () => true;
   reset(); comprasTransferred = new Set();
   // U1 "Lo comí" en Hoy se puede deshacer
-  setSaved([tradPlate("t1", ["Papa"], ["Tomate"], ["Merluza"])]); setPlan([[todayPlanDay(), "almuerzo", "t1"]]);
+  setSaved([tradPlateTexto("t1", ["Papa"], ["Tomate"], ["Merluza"])]); setPlan([[todayPlanDay(), "almuerzo", "t1"]]);
   tab("semana").click(); await wait(40); tab("hoy").click(); await wait(60);
   const s0 = keys();
   document.querySelector('#todayRows [data-today-slot="almuerzo"] button').click(); await wait(60);
@@ -42,7 +42,7 @@
   closeRecipeRead(false);
   // U5 "Lo compré" sin nada tachado avisa y no cambia nada
   reset(); comprasTransferred = new Set(); papasCase();
-  setSaved([recipePlate("rp1", "recipe_test0001", "Papas al horno", ["Papa"]), tradPlate("tp1", ["Arroz"], ["Tomate"], ["Merluza"])]);
+  setSaved([recipePlate("rp1", "recipe_test0001", "Papas al horno", ["Papa"]), tradPlateTexto("tp1", ["Arroz"], ["Tomate"], ["Merluza"])]);
   setPlan([["lunes", "almuerzo", "rp1"], ["lunes", "cena", "tp1"]]);
   tab("compras").click(); await wait(60);
   const s5 = keys(), labels = shoppingDisplayItems().map(x => x.label).join("|"), grupos = () => shoppingDisplayItems().map(x => x.name + ":" + x.group).join("|");

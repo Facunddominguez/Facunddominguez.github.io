@@ -1,17 +1,17 @@
 // F01 integration battery: the canonical identity is used by Compras, pantry, prices, budget and costs.
 (async () => {
-  const R = window.R2, { wait, results, reset, setAmounts, setRecipes, recipePlate, tradPlate, setSaved, setPlan, setStock, IDEA1, IDEA2 } = R; const T = results();
+  const R = window.R2, { wait, results, reset, setAmounts, setRecipes, recipePlate, tradPlate, tradPlateTexto, setSaved, setPlan, setStock, IDEA1, IDEA2 } = R; const T = results();
   window.confirm = () => true;
   const price = (id, name, amount, value, unit) => ({ id, name, pack: "", amount, price: value, unit, currency: "ARS", date: "2026-10-20" });
   // Recipe uses "Tomates" (2 unidad) and "Patata" (200 g); traditional plate uses "Tomate" and "Papa".
   reset();
   setAmounts({ [IDEA1]: { yield: 1, rows: [{ name: "Tomates", quantity: 2, unit: "unidad" }, { name: "Patata", quantity: 200, unit: "g" }] } });
   setRecipes([{ id: "recipe_test0001", title: "Ensalada", amountsTitle: IDEA1 }]);
-  setSaved([recipePlate("rp1", "recipe_test0001", "Ensalada", ["Tomates", "Patata"]), tradPlate("tp1", ["Papa"], ["Tomate"], ["Merluza"])]);
+  setSaved([recipePlate("rp1", "recipe_test0001", "Ensalada", ["Tomates", "Patata"]), tradPlateTexto("tp1", ["Papa"], ["Tomate"], ["Merluza"])]);
   setPlan([["lunes", "almuerzo", "rp1"], ["lunes", "cena", "tp1"]]);
   go("compras"); await wait(60);
   const rows = R.renderedRows();
-  T.ok("M1 Compras une plural y sinónimo en una sola línea", rows.includes("Tomate: 2 unidades + sin cantidad en 1 plato") && R.item("Tomate").label === "Tomate: 2 unidad + sin cantidad en 1 plato" && rows.includes("Papa: 200 g + sin cantidad en 1 plato") && rows.length === 3, rows.join(" | "));
+  T.ok("M1 Compras une plural y sinónimo en una sola línea", rows.includes("Tomate: 2 unidades") && R.item("Tomate").label === "Tomate: 2 unidad" && rows.includes("Papa: 200 g") && rows.length === 3, rows.join(" | "));
   setStock([["Tomate", 1, "unidad"], ["Papas", 500, "g"]]); renderCompras();
   const tom = R.item("Tomate"), papa = R.item("Papa");
   T.ok("M2 la despensa se reconoce aunque el nombre esté en otra forma", tom.suggestion.kind === "partial" && tom.suggestion.buy === "1 unidad" && papa.suggestion.kind === "info" && /tenés 500 g/.test(papa.suggestion.text), tom.suggestion.text + " / " + papa.suggestion.text);
@@ -55,6 +55,6 @@
   setSaved([recipePlate("rp2", "recipe_test0002", "Arroz", ["Arroz"]), tradPlate("tp2", ["Arroz (integral, yamaní)"], ["Tomate"], ["Merluza"])]);
   setPlan([["martes", "almuerzo", "rp2"], ["martes", "cena", "tp2"]]);
   go("compras"); await wait(40);
-  T.ok("M10 'Arroz' y 'Arroz (integral, yamaní)' siguen separados", R.renderedRows().includes("Arroz: 300 g") && R.renderedRows().includes("Arroz (integral, yamaní)"), R.renderedRows().join(" | "));
+  T.ok("M10 'Arroz' y 'Arroz (integral, yamaní)' siguen separados", R.renderedRows().includes("Arroz: 1 paquete de 1.000 g") && R.renderedRows().includes("Arroz (integral, yamaní): 1 paquete de 1.000 g"), R.renderedRows().join(" | "));
   return T;
 })()

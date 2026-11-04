@@ -3,7 +3,7 @@
 // comparar) y "Ya en tu despensa" (lo pasado con Lo compré). Juntos son siempre los mismos ítems con las cantidades
 // del plan; "Anotar" se integró como "faltan X" y "Tachar" como el grupo "Ya tenés".
 (async () => {
-  const R = window.R2, { wait, results, reset, setAmounts, setRecipes, recipePlate, tradPlate, setSaved, setPlan, setStock, criticalCase, item, renderedRows, IDEA1, IDEA2, IDEA3 } = R; const T = results();
+  const R = window.R2, { wait, results, reset, setAmounts, setRecipes, recipePlate, tradPlate, tradPlateTexto, setSaved, setPlan, setStock, criticalCase, item, renderedRows, IDEA1, IDEA2, IDEA3 } = R; const T = results();
   const grupo = name => (item(name) || {}).group;
   const keysEnPantalla = () => JSON.stringify([...document.querySelectorAll("#comprasList [data-shop-key]")].map(c => c.dataset.shopKey).sort());
   const grupos = () => JSON.stringify(R.items().map(x => x.key + ":" + x.group));
@@ -11,15 +11,15 @@
   // S1 critical case with exactly enough pantry for the recipe part
   criticalCase(); setStock([["Papa", 200, "g"]]); go("compras"); await wait(80);
   let papa = item("Papa");
-  T.ok("S1a caso crítico: la papa sigue en la lista con ambas partes", papa && papa.label === "Papa: 200 g + sin cantidad en 1 plato" && renderedRows().includes("Papa: 200 g + sin cantidad en 1 plato"), papa && papa.label);
+  T.ok("S1a caso crítico: la papa sigue en la lista con ambas partes", papa && papa.label === "Papa: 200 g" && renderedRows().includes("Papa: 200 g"), papa && papa.label);
   T.ok("S1b la sugerencia avisa que falta revisar la parte sin cantidad y no tacha", papa.suggestion.kind === "info" && /Cubre lo que tiene cantidad; revisá si alcanza/.test(papa.suggestion.text) && !comprasDone[papa.key] && papa.group === "tenes" && /Ya tenés \(1\)/.test(document.getElementById("comprasList").textContent));
   // S2 partial pantry -> "faltan X" en Pendientes (antes: Anotar / Deshacer)
   setStock([["Papa", 50, "g"]]); renderCompras(); papa = item("Papa");
-  T.ok("S2a con 50 g sugiere comprar 150 g y la lista no cambia", papa.label === "Papa: 200 g + sin cantidad en 1 plato" && papa.suggestion.kind === "partial" && papa.suggestion.buy === "150 g" && /más lo que no tiene cantidad/.test(papa.suggestion.text) && papa.group === "pendiente");
-  T.ok("S2b la fila pendiente dice cuánto falta", renderedRows().includes("Papa: 200 g + sin cantidad en 1 plato · faltan 150 g") && !renderedRows().includes("Papa: 200 g + sin cantidad en 1 plato"));
-  T.ok("S2c copiar usa el texto con lo que falta", comprasText().includes("• Papa: 200 g + sin cantidad en 1 plato · faltan 150 g"));
+  T.ok("S2a con 50 g sugiere comprar 150 g y la lista no cambia", papa.label === "Papa: 200 g" && papa.suggestion.kind === "partial" && papa.suggestion.buy === "150 g" && /más lo que no tiene cantidad/.test(papa.suggestion.text) && papa.group === "pendiente");
+  T.ok("S2b la fila pendiente dice cuánto falta", renderedRows().includes("Papa: 200 g · faltan 150 g") && !renderedRows().includes("Papa: 200 g"));
+  T.ok("S2c copiar usa el texto con lo que falta", comprasText().includes("• Papa: 200 g · faltan 150 g"));
   setStock([["Papa", 200, "g"]]); renderCompras();
-  T.ok("S2d si la despensa alcanza, vuelve al texto del plan, pasa a Ya tenés y no se copia", item("Papa").group === "tenes" && renderedRows().includes("Papa: 200 g + sin cantidad en 1 plato") && !renderedRows().some(t => t.includes("faltan")) && !comprasText().includes("Papa"));
+  T.ok("S2d si la despensa alcanza, vuelve al texto del plan, pasa a Ya tenés y no se copia", item("Papa").group === "tenes" && renderedRows().includes("Papa: 200 g") && !renderedRows().some(t => t.includes("faltan")) && !comprasText().includes("Papa"));
   // S3 invariance: los tres grupos juntos son la misma lista aunque cambien despensa, multiplicador, precios y
   // presupuesto; multiplicador, precios y presupuesto no mueven nada entre grupos.
   setStock([["Papa", 50, "g"]]); renderCompras();
@@ -49,7 +49,7 @@
   const pendientesVisibles = () => [...document.querySelectorAll("#comprasList .compras-seccion .shop-item label")].map(l => l.textContent);
   const grupoPorTitulo = t => [...document.querySelectorAll("#comprasList details.shop-group")].find(d => d.querySelector("summary").textContent.startsWith(t + " ("));
   T.ok("S4a despensa suficiente va a Ya tenés, sin tachar sola", arroz.label === "Arroz: 300 g" && arroz.suggestion.kind === "covered" && arroz.group === "tenes" && !comprasDone[arroz.key]);
-  T.ok("S4b lo que ya tenés no cuenta como pendiente y está en el grupo plegado", /1 pendientes · 0 tachados/.test(document.getElementById("comprasSummary").textContent) && pendientesVisibles().includes("Merluza: 2 unidades") && !pendientesVisibles().some(t => t.startsWith("Arroz")) && !!grupoPorTitulo("Ya tenés") && !grupoPorTitulo("Ya tenés").open && grupoPorTitulo("Ya tenés").textContent.includes("Arroz: 300 g"), document.getElementById("comprasSummary").textContent);
+  T.ok("S4b lo que ya tenés no cuenta como pendiente y está en el grupo plegado", /1 pendientes · 0 tachados/.test(document.getElementById("comprasSummary").textContent) && pendientesVisibles().includes("Merluza: 2 unidades") && !pendientesVisibles().some(t => t.startsWith("Arroz")) && !!grupoPorTitulo("Ya tenés") && !grupoPorTitulo("Ya tenés").open && grupoPorTitulo("Ya tenés").textContent.includes("Arroz: 1 paquete de 1.000 g"), document.getElementById("comprasSummary").textContent);
   const merluza = item("Merluza");
   [...document.querySelectorAll("#comprasList [data-shop-key]")].find(x => x.dataset.shopKey === merluza.key).click(); await wait(40);
   const ticked = /0 pendientes · 1 tachados/.test(document.getElementById("comprasSummary").textContent);
@@ -60,12 +60,12 @@
   T.ok("S4c destildar en Todos lo vuelve a pendiente", ticked && tachadoVisible && !comprasDone[merluza.key] && /1 pendientes · 0 tachados/.test(document.getElementById("comprasSummary").textContent));
   // S5 two units, no conversion
   reset();
-  setAmounts({ [IDEA1]: { yield: 1, rows: [{ name: "Papa", quantity: 200, unit: "g" }, { name: "papa", quantity: 2, unit: "unidad" }, { name: "Sal", quantity: null, unit: "g" }] } });
+  setAmounts({ [IDEA1]: { yield: 1, rows: [{ name: "Papa", quantity: 200, unit: "g" }, { name: "papa", quantity: 2, unit: "unidad" }, { name: "Perejil", quantity: null, unit: "g" }] } });
   setRecipes([{ id: "recipe_test0001", title: "Papas", amountsTitle: IDEA1 }]);
-  setSaved([recipePlate("rp1", "recipe_test0001", "Papas", ["Papa", "papa", "Sal"])]); setPlan([["lunes", "almuerzo", "rp1"]]);
+  setSaved([recipePlate("rp1", "recipe_test0001", "Papas", ["Papa", "papa", "Perejil"])]); setPlan([["lunes", "almuerzo", "rp1"]]);
   setStock([["Papa", 1, "kg"]]); renderCompras();
   T.ok("S5a dos unidades en una línea, sin convertir", item("Papa").label === "Papa: 200 g + 2 unidad", item("Papa").label);
-  T.ok("S5b ingrediente de receta sin cantidad se muestra como tal", item("Sal") && item("Sal").label === "Sal");
+  T.ok("S5b ingrediente de receta sin cantidad se muestra como tal", item("Perejil") && item("Perejil").label === "Perejil");
   if (typeof convertQuantity === "function") {
     // From v14.9.79 (F02-01) 1 kg covers 200 g; "unidad" is never converted.
     T.ok("S5c despensa en kg cubre g; 'unidad' no se convierte", item("Papa").suggestion.kind === "partial" && item("Papa").suggestion.buy === "2 unidad" && !/sin convertir/.test(item("Papa").suggestion.text), item("Papa").suggestion.text);
@@ -76,7 +76,7 @@
   setRecipes([{ id: "recipe_test0001", title: "Papas", amountsTitle: null }]);
   const plan = loadPlan(); plan.martes.cena = "plato_borrado"; localStorage.setItem("miPlatoFacil_plan", JSON.stringify(plan));
   let err = null; try { renderCompras() } catch (e) { err = e.message }
-  T.ok("S6 receta sin cantidades usa los nombres guardados; plato borrado no rompe", err === null && item("Papa").label === "Papa (×2)" && !!item("Sal"), item("Papa") && item("Papa").label);
+  T.ok("S6 receta sin cantidades usa los nombres guardados; plato borrado no rompe", err === null && item("Papa").label === "Papa (×2)" && !!item("Perejil"), item("Papa") && item("Papa").label);
   // S7 quotes in names: real click on the checkbox
   reset();
   setAmounts({ [IDEA3]: { yield: 1, rows: [{ name: 'Queso "cremoso"', quantity: 100, unit: "g" }] } });
@@ -86,12 +86,12 @@
   window.__r2_quoteKey = item('Queso "cremoso"').key;
   // S8 stale applied suggestion is dropped when pantry changes
   criticalCase(); setStock([["Papa", 50, "g"]]); renderCompras();
-  const antes8 = renderedRows().includes("Papa: 200 g + sin cantidad en 1 plato · faltan 150 g");
+  const antes8 = renderedRows().includes("Papa: 200 g · faltan 150 g");
   setStock([["Papa", 120, "g"]]); renderCompras(); papa = item("Papa");
-  T.ok("S8 si cambia la despensa, la sugerencia aplicada vieja se descarta", antes8 && papa.suggestion.buy === "80 g" && renderedRows().includes("Papa: 200 g + sin cantidad en 1 plato · faltan 80 g") && !renderedRows().some(t => t.includes("faltan 150 g")));
+  T.ok("S8 si cambia la despensa, la sugerencia aplicada vieja se descarta", antes8 && papa.suggestion.buy === "80 g" && renderedRows().includes("Papa: 200 g · faltan 80 g") && !renderedRows().some(t => t.includes("faltan 150 g")));
   // S9 traditional-only list identical to the previous algorithm
   reset();
-  setSaved([tradPlate("t1", ["Papa", "Arroz (integral, yamaní)"], ["Tomate", "Lechuga"], ["Merluza"]), tradPlate("t2", ["Papa"], ["Tomate"], ["Pollo (pechuga, muslo, pata-muslo)"])]);
+  setSaved([tradPlateTexto("t1", ["Papa", "Arroz"], ["Tomate", "Lechuga"], ["Merluza"]), tradPlateTexto("t2", ["Papa"], ["Tomate"], ["Pollo (pechuga, muslo, pata-muslo)"])]);
   setPlan([["lunes", "almuerzo", "t1"], ["martes", "cena", "t2"], ["miercoles", "cena", "t1"]]);
   // Reference oracle: the v14.9.74 buildShopping() algorithm, copied here (the app no longer needs it).
   const refMap = new Map(); planItemsFlat().forEach(it => extractIngredients(it).forEach(name => { const key = normalizeSearchText(name); if (!refMap.has(key)) refMap.set(key, { name, count: 0 }); refMap.get(key).count++ }));

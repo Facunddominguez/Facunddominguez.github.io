@@ -1,6 +1,6 @@
 // F01-02 battery: user-defined equivalences (UI), backup and compatibility.
 (async () => {
-  const R = window.R2, { wait, results, reset, setAmounts, setRecipes, recipePlate, tradPlate, setSaved, setPlan, IDEA2 } = R; const T = results();
+  const R = window.R2, { wait, results, reset, setAmounts, setRecipes, recipePlate, tradPlate, tradPlateTexto, setSaved, setPlan, IDEA2 } = R; const T = results();
   window.confirm = () => true;
   const KEY = "miPlatoFacil_ingredientAliases_v1";
   reset();
@@ -17,7 +17,7 @@
   const stored = JSON.parse(localStorage.getItem(KEY));
   T.ok("L2a Unir guarda la equivalencia y la muestra", Object.keys(stored).length === 1 && document.getElementById("ingredientAliasList").textContent.includes("Arroz (integral, yamaní) = Arroz") && /Unidos/.test(document.getElementById("ingredientAliasStatus").textContent));
   go("compras"); await wait(40);
-  T.ok("L2b Compras une ambas líneas con el nombre elegido", R.renderedRows().includes("Arroz: 300 g + sin cantidad en 1 plato"), R.renderedRows().join(" | "));
+  T.ok("L2b Compras une ambas líneas con el nombre elegido", R.renderedRows().includes("Arroz: 1 paquete de 1.000 g"), R.renderedRows().join(" | "));
   go("ingredientes"); await R.openPanel("ingredientAliasPanel");
   T.ok("L2c la sugerencia ya no aparece", ![...document.querySelectorAll("#ingredientAliasSuggestions button")].some(b => b.dataset.ingredientAliasFrom === "Arroz (integral, yamaní)"));
   document.getElementById("ingredientAliasFrom").value = "Arroz yamaní"; document.getElementById("ingredientAliasTo").value = "Arroz integral";
@@ -55,7 +55,7 @@
   go("ingredientes"); await R.openPanel("ingredientAliasPanel");
   document.querySelector("#ingredientAliasList [data-ingredient-alias-remove]").click(); await wait(20);
   go("compras"); await wait(30);
-  T.ok("L9 quitar la equivalencia vuelve a separar las líneas", R.renderedRows().includes("Arroz: 300 g") && R.renderedRows().includes("Arroz (integral, yamaní)") && /Equivalencia quitada/.test(document.getElementById("ingredientAliasStatus").textContent), R.renderedRows().join(" | "));
+  T.ok("L9 quitar la equivalencia vuelve a separar las líneas", R.renderedRows().includes("Arroz: 1 paquete de 1.000 g") && R.renderedRows().includes("Arroz (integral, yamaní): 1 paquete de 1.000 g") && /Equivalencia quitada/.test(document.getElementById("ingredientAliasStatus").textContent), R.renderedRows().join(" | "));
   const ids = [...document.querySelectorAll("[id]")].map(e => e.id), dups = [...new Set(ids.filter((x, i) => ids.indexOf(x) !== i))];
   T.ok("L10 sin IDs duplicados", dups.length === 0, dups.join(","));
   return T;
