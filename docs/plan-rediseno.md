@@ -2084,6 +2084,7 @@ Estados: ✅ hecha · ⏳ en curso · ⛔ parada.
 | 11. Desayuno y comidas completas | ✅ | `etapa-11-ok` | 16.0.0 |
 | 12. Cantidades reales | ✅ | `etapa-12-ok` | 16.1.0 |
 | 13. Precios a la vista | ✅ | `etapa-13-ok` | 16.2.0 |
+| 14. Bienvenida con presupuesto | ✅ | `etapa-14-ok` | 16.3.0 |
 
 - Arranque: rama `rediseno-2` creada desde `main` (v15.9.0) con este plan.
 - Herramientas: `validar-etapa.mjs` acepta las etapas 11 a 18 y, desde la 11, compara contra `rediseno-2` (versión y línea base) en vez de `rediseno`.
@@ -2166,3 +2167,21 @@ Rama `rediseno-2-etapa-13-precios`.
 - `e7_precios.js` C7-2 y `e8_herramientas.js` C8-4: el día ya no repite "(faltan N precios)"; queda una sola vez, con la semana.
 
 **Revisores (Etapa 13)**: `revisor-codigo` NO BLOQUEANTE. Sugerencias que quedan: C13-3 repite los pesos de `pesoUnidad` (comprobación en parte circular; conviene fijar rangos en pesos por unidad de una fuente aparte y exigir los 15); probar que "Tomate triturado" o "Cebolla de verdeo" no heredan el peso de la unidad común; avisar en las notas de la versión que quien nunca tocó el modo ve ahora los precios encendidos; rotular el costo del hueco como del hogar. Compuerta: VALIDACIÓN ETAPA 13: OK (82 controles).
+
+### Etapa 14 · Bienvenida con presupuesto ✅
+
+Rama `rediseno-2-etapa-14-bienvenida`.
+
+**Plan corto**
+- `29-bienvenida.html` y `40-primera-vez.js`: un paso más (queda de 4: método, rutina, personas y presupuesto, ideas). Prueba nueva `e14_presupuesto.js` (C14-1 y C14-2). Sin claves nuevas: usa `hogar_v1`, `shoppingBudget_v1` y `region_v1`.
+- Riesgos para los datos: ninguno; solo escribe lo que la persona cargó y con los formatos ya validados.
+
+**Hecho cuando**
+- ✅ Completar o saltar la bienvenida funciona con 0, 1 o 3 datos: con "Ahora no" no se escribe nada; con datos, solo se guardan los cargados (C14-1).
+- ✅ Lo cargado se ve en Compras (la barra de presupuesto), Semana (el costo es para el hogar y con la región elegida) y Preferencias (C14-2).
+
+**Paso nuevo** (Decisión): es el paso 3 de 4 y no el último, para que "Armar mi semana" siga siendo el cierre; cuesta un toque más (el recorrido de C4-1 pasa de 13 a 14 toques, con tope de 15). "Ahora no" lo salta sin escribir; "Guardar y seguir" guarda solo lo que cambió: personas distintas de 1, presupuesto (en pesos, por semana; acepta "45.000") y región distinta de GBA. Un presupuesto que no es un número mayor que 0 muestra el motivo y no avanza ni escribe.
+
+**Tests adaptados** (Decisión, Regla 5): `e4_comidas.js` C4-1 suma el toque de "Ahora no" del paso nuevo y C4-7b sale por "Saltar" del paso 4 (las ideas son ahora el paso 4).
+
+**Revisores (Etapa 14)**: `revisor-codigo` NO BLOQUEANTE. Sugerencias que quedan: el kicker estático del HTML dice "Paso 1 de 3" (lo corrige `pintarBienvenida` al abrir); C14-2 podría afirmar sobre `costosDelPlan()`; "45.5" se lee como 455 (el punto es separador de miles); falta probar que elegir GBA sin región previa no escribe `region_v1`. Compuerta: VALIDACIÓN ETAPA 14: OK (85 controles).

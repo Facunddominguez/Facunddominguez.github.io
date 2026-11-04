@@ -45,6 +45,7 @@
   toques = 0;
   await tocar(q('#bienvenida [data-bienvenida-paso="1"] [data-bienvenida-siguiente]'));
   await tocar(q('#bienvenida [data-bienvenida-paso="2"] [data-bienvenida-siguiente]'));
+  await tocar(q('#bienvenida [data-bienvenida-paso="3"] [data-bienvenida-siguiente]')); // Etapa 14: personas y presupuesto, opcional ("Ahora no")
   for (let i = 1; i <= 3; i++) await tocar(q("#bienvenidaIdeas [data-bienvenida-idea]:nth-child(" + i + ")"));
   await tocar(q("#bienvenida [data-bienvenida-armar]"));
   const ids = guardados().map(x => x.id), enSemana = pantalla() === "plan";
@@ -162,7 +163,7 @@
   await tocar(q('#bienvenida [data-bienvenida-paso="1"] [data-bienvenida-siguiente]'));
   await tocar(q('#bienvenidaDias [data-bienvenida-dia="1"]')); await tocar(q('#bienvenidaDias [data-bienvenida-dia="4"]'));
   await tocar(q("#bienvenida [data-bienvenida-rutina]"));
-  await tocar(q('#bienvenida [data-bienvenida-paso="3"] [data-bienvenida-saltar]'));
+  await tocar(q('#bienvenida [data-bienvenida-paso="4"] [data-bienvenida-saltar]'));
   ok("C4-7b Más → Cómo funciona la vuelve a abrir; la rutina se guarda con su formato y la marca no se reescribe", reabierta && JSON.parse(localStorage.getItem("miPlatoFacil_trainingWeek")).version === 1 && JSON.parse(localStorage.getItem("miPlatoFacil_trainingWeek")).days.sort().join() === "1,4" && escrituras === 0 && localStorage.getItem(MARCA) === '{"vista":true}', "escrituras de la marca: " + escrituras);
   const snap = ev("completeBackupSnapshot(localStorage)");
   let rechaza = false; try { ev("validateCompleteBackup(" + JSON.stringify({ ...snap, data: { ...snap.data, [MARCA]: '{"vista":false}' } }) + ")") } catch (e) { rechaza = true }

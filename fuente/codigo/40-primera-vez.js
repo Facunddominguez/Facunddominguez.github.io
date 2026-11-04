@@ -1,4 +1,4 @@
-// Mi Plato Fácil · Primera vez (v15.3): tres pantallas (el método del plato, la rutina opcional y elegir de 3 a 5
+// Mi Plato Fácil · Primera vez (v15.3): cuatro pantallas (el método del plato, la rutina opcional, personas y presupuesto opcionales y elegir de 3 a 5
 // ideas para arrancar). Es una pantalla más del recorrido ("bienvenida"), no una capa.
 // Parte 41: los archivos se unen en orden según su número, que define el orden de arranque.
 // Se abre sola al cargar solo si no hay comidas, recetas ni plan y no existe la marca miPlatoFacil_bienvenida_v1.
@@ -47,7 +47,7 @@ function pintarBienvenida(){
   document.querySelectorAll("#bienvenida [data-bienvenida-paso]").forEach(p=>{
     p.hidden=Number(p.dataset.bienvenidaPaso)!==bienvenidaPaso
   });
-  document.getElementById("bienvenidaPaso").textContent="Paso "+bienvenidaPaso+" de 3";
+  document.getElementById("bienvenidaPaso").textContent="Paso "+bienvenidaPaso+" de 4";
   document.querySelectorAll("#bienvenidaDias [data-bienvenida-dia]").forEach(b=>{
     const on=bienvenidaDias.has(Number(b.dataset.bienvenidaDia));b.classList.toggle("is-selected",on);b.setAttribute("aria-pressed",String(on))
   });
@@ -85,6 +85,30 @@ function armarSemanaDesdeBienvenida(){
   }
   terminarBienvenida("semana")
 }
+// Paso opcional (Etapa 14): personas, presupuesto semanal y región de precios. Solo se guarda lo que se cargó; no cargar nada deja todo como estaba.
+function guardarHogarDeBienvenida(){
+  const st=document.getElementById("bienvenidaHogarEstado"),personas=Number(document.getElementById("bienvenidaPersonas").value),
+    raw=document.getElementById("bienvenidaPresupuesto").value.trim(),region=document.getElementById("bienvenidaRegion").value;
+  let limite=null;
+  if(raw){
+    limite=Number(raw.replace(/\./g,"").replace(",","."));
+    if(!Number.isFinite(limite)||limite<=0||limite>100000000000){
+      st.textContent="El presupuesto tiene que ser un número mayor que 0. Si no querés cargarlo, dejalo vacío.";
+      return
+    }
+  }
+  try{
+    if(personas>1)guardarPersonasHogar(personas);
+    if(limite!==null)localStorage.setItem(SHOP_BUDGET_KEY,JSON.stringify({currency:"ARS",limit:limite,period:"semana"}));
+    if(region!=="GBA"||localStorage.getItem(REGION_PRECIOS_KEY)!==null)guardarRegionPrecios(region);
+    if(typeof renderHogar==="function")renderHogar();
+    if(typeof renderRegionPrecios==="function")renderRegionPrecios();
+    bienvenidaPaso=4;
+    pintarBienvenida()
+  }catch(e){
+    st.textContent="No se pudo guardar. Podés cargarlo después en Preferencias."
+  }
+}
 function guardarRutinaDeBienvenida(){
   const st=document.getElementById("bienvenidaRutinaEstado");
   try{
@@ -104,11 +128,12 @@ document.getElementById("bienvenida").addEventListener("click",e=>{
   const d=b.dataset;
   try{
     if(d.bienvenidaSiguiente!==undefined){
-      bienvenidaPaso=Math.min(3,bienvenidaPaso+1);pintarBienvenida()
+      bienvenidaPaso=Math.min(4,bienvenidaPaso+1);pintarBienvenida()
     }else if(d.bienvenidaSaltar!==undefined)terminarBienvenida("hoy");
     else if(d.bienvenidaDia!==undefined){
       const n=Number(d.bienvenidaDia);if(bienvenidaDias.has(n))bienvenidaDias.delete(n);else bienvenidaDias.add(n);pintarBienvenida()
     }else if(d.bienvenidaRutina!==undefined)guardarRutinaDeBienvenida();
+    else if(d.bienvenidaHogar!==undefined)guardarHogarDeBienvenida();
     else if(d.bienvenidaIdea!==undefined){
       const i=bienvenidaIdeas.indexOf(d.bienvenidaIdea);if(i>=0)bienvenidaIdeas.splice(i,1);else if(bienvenidaIdeas.length<5)bienvenidaIdeas.push(d.bienvenidaIdea);pintarBienvenida()
     }else if(d.bienvenidaArmar!==undefined)armarSemanaDesdeBienvenida()
