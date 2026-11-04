@@ -96,6 +96,13 @@
     { "id": "E16-armame-cumple", "etapa": 16, "hecho": "Armame la semana no arma comidas con ingredientes excluidos.", "tipo": "prueba", "prueba": "C16-2" },
     { "id": "E16-opciones-y-aviso", "etapa": 16, "hecho": "Los filtros se eligen en Preferencias, Otros sigue, avisan si dejan pocas opciones y van al respaldo.", "tipo": "prueba", "prueba": "C16-3" },
     { "id": "E16-sin-etiquetas-de-salud", "etapa": 16, "hecho": "No hay etiquetas de salud que no se puedan verificar.", "tipo": "prueba", "prueba": "C16-4" },
-    { "id": "E16-registro", "etapa": 16, "hecho": "Cómo se filtra y dónde se aplica queda en el Registro.", "tipo": "registro", "seccion": "Etapa 16", "debeNombrar": ["Filtro por palabras", "Dónde se aplica"] }
+    { "id": "E16-registro", "etapa": 16, "hecho": "Cómo se filtra y dónde se aplica queda en el Registro.", "tipo": "registro", "seccion": "Etapa 16", "debeNombrar": ["Filtro por palabras", "Dónde se aplica"] },
+    { "id": "E17-barra-de-pasos", "etapa": 17, "hecho": "Sin \"Volver al paso anterior\" en el paso 1; la barra de pasos no se apila sobre las pestañas ni tapa el último botón.", "tipo": "prueba", "prueba": "C17-1" },
+    { "id": "E17-un-solo-interruptor", "etapa": 17, "hecho": "El cartel de herramientas avanzadas aparece en un solo lugar.", "tipo": "prueba", "prueba": "C17-2" },
+    { "id": "E17-atajos-de-hoy", "etapa": 17, "hecho": "Los botones de los atajos de Hoy no quedan apretados.", "tipo": "prueba", "prueba": "C17-3" },
+    { "id": "E17-sin-desbordes", "etapa": 17, "hecho": "Ningún elemento sobresale de su contenedor (390 px, claro y oscuro).", "tipo": "medida-todas", "metrica": "desbordes", "operador": "<=", "umbral": 0 },
+    { "id": "E17-anchos", "etapa": 17, "hecho": "En 360 y 320 px no hay textos cortados, controles superpuestos, elementos fuera de pantalla, desbordes ni scroll horizontal (incluidas las hojas inferiores).", "tipo": "anchos", "anchos": [360, 320], "metricas": ["cortados", "superpuestos", "fueraDePantalla", "desbordes", "scrollHorizontal"] },
+    { "id": "E17-revision-visual", "etapa": 17, "hecho": "A 390, 360 y 320 px no se ven textos cortados ni controles superpuestos (revisión visual).", "tipo": "revisor", "revisor": "revisor-usuario" },
+    { "id": "E17-registro", "etapa": 17, "hecho": "Lo que se corrigió y lo que no hubo que reproducir quedan en el Registro.", "tipo": "registro", "seccion": "Etapa 17", "debeNombrar": ["Barra de pasos", "Interruptor único", "Captura de botones superpuestos"] }
   ]
 }

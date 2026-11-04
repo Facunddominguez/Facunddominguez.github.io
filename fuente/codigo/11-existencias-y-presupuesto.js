@@ -256,7 +256,7 @@ function budgetCompareRender(){
     blank.value="";
     select.append(blank);
     entry.options.forEach((p,i)=>{
-      const option=ce("option",null,fmt(entry.row.missing*p.price/p.amount)+" "+budget.currency+" · "+p.price+" / "+p.amount+" "+p.unit);option.title="Precio de "+(p.date||"fecha desconocida");option.value=String(i);select.append(option)
+      const total=fmt(entry.row.missing*p.price/p.amount),option=ce("option",null,p.price+"/"+p.amount+" "+p.unit+" · "+total);option.title=total+" "+budget.currency+" · "+p.price+" por "+p.amount+" "+p.unit+" · precio de "+(p.date||"fecha desconocida");option.value=String(i);select.append(option)
     });
     select.value=entry.base?String(entry.options.indexOf(entry.base)):"";
     label.htmlFor=select.id="budgetAlternative_"+controls.length;

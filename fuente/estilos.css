@@ -3410,7 +3410,7 @@ body.con-hoja{
 .today-row__nombre .today-row__plate{
   display:-webkit-box;
   -webkit-box-orient:vertical;
-  -webkit-line-clamp:2;
+  -webkit-line-clamp:4;
   overflow:hidden
 }
 .today__manana{
@@ -3533,3 +3533,22 @@ body.con-hoja{
 /* Etapa 15 (v16.4): Armame la semana. */
 .armame-boton{width:100%;margin:0 0 12px}
 .armame-hoja .hueco-hoja__acciones{display:flex;flex-direction:column;gap:8px}
+
+/* Etapa 17 (v16.6): una sola barra fija abajo. Los pasos del armado reemplazan a las pestañas (no se apilan) y el contenido
+   deja lugar para que la barra no tape el último botón. Los atajos de Hoy se apilan si no entran en una fila. */
+body:has(#bottom.is-visible) #sectionNav{display:none}
+body:has(#bottom.is-visible) #bottom{bottom:0}
+body:has(#bottom.is-visible){padding-bottom:calc(var(--step-nav-h) + 24px)}
+.armar-comida__opciones{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr));gap:8px}
+.armar-comida__opciones .button{min-height:44px;overflow-wrap:anywhere}
+@media (max-width:340px){
+  select,.portion-field select{font-size:14px!important;padding-left:8px!important;padding-right:4px!important}
+}
+/* Etapa 17: nada sobresale de su tarjeta a 320 px. */
+.armar-comida__opciones{grid-column:1/-1}
+select{max-width:100%;min-width:0}
+.portion-field select,.portion-field input{max-width:100%;min-width:0}
+@media (max-width:380px){
+  #comprasHerramientas .shop-item,#pantryItemList .shop-item{flex-wrap:wrap}
+  #comprasHerramientas .shop-item>span{flex:1 1 100%}
+}

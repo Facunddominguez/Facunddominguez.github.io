@@ -82,7 +82,7 @@
   go("backupScreen"); await wait(30);
   T.ok("L9 en modo completo se ven las copias de recetas del plan y las herramientas de platos", copiasVistas && shown($("savedTools")));
   setUiMode("simple"); await wait(20);
-  T.ok("L10 en modo simple, exportar, importar y vaciar platos quedan ocultos, con aviso", !shown($("savedTools")) && !!$("backupScreen").querySelector("[data-mode-note]") && /exportar o importar platos/.test($("backupScreen").querySelector("[data-mode-note]").textContent));
+  T.ok("L10 en modo simple, exportar, importar y vaciar platos quedan ocultos (sin cartel desde la v16.6: el interruptor está en Preferencias)", !shown($("savedTools")) && !$("backupScreen").querySelector("[data-mode-note]"));
   T.ok("L11 mirar, filtrar, buscar y abrir recetas no cambia ningún dato", sinCambios);
   // L12 Con recetas dañadas, los platos se siguen viendo y se avisa (sin decir que la receta se borró)
   localStorage.setItem("miPlatoFacil_recipeDetails_v1", '{"recipe_x":{"id":"otro"}}');

@@ -102,13 +102,7 @@ function renderUiModeControls(){
 (()=>{
   for(const [key,group] of Object.entries(ADVANCED_TOOLS)){
     group.items().filter(Boolean).forEach(e=>e.setAttribute("data-avanzado",key));
-    const note=ce("div","home-group mode-note"),button=ce("button","button button--soft");
-    note.dataset.modeNote=key;
-    button.type="button";
-    button.dataset.uiModeToggle="";
-    note.append(ce("p","screen__hint"),button);
-    // Al final de cada pantalla.
-    document.getElementById(key).append(note)
+    // Desde la v16.6 no hay carteles "Mostrar herramientas avanzadas" en cada pantalla: el único interruptor está en Preferencias.
   }
   const card=ce("button","tool-button");
   card.type="button";

@@ -2087,6 +2087,7 @@ Estados: ✅ hecha · ⏳ en curso · ⛔ parada.
 | 14. Bienvenida con presupuesto | ✅ | `etapa-14-ok` | 16.3.0 |
 | 15. "Armame la semana" | ✅ | `etapa-15-ok` | 16.4.0 |
 | 16. Filtros de dieta reales | ✅ | `etapa-16-ok` | 16.5.0 |
+| 17. Pulido de pantalla | ✅ | `etapa-17-ok` | 16.6.0 |
 
 - Arranque: rama `rediseno-2` creada desde `main` (v15.9.0) con este plan.
 - Herramientas: `validar-etapa.mjs` acepta las etapas 11 a 18 y, desde la 11, compara contra `rediseno-2` (versión y línea base) en vez de `rediseno`.
@@ -2240,3 +2241,29 @@ Rama `rediseno-2-etapa-16-dieta`.
 **Tests adaptados**: ninguno.
 
 **Revisores (Etapa 16)**: `revisor-codigo` NO BLOQUEANTE. Se corrigió su hallazgo principal antes de la compuerta (los plurales: "Filetes de merluza", "Bifes", "Chorizos" se filtraban mal; ahora cada palabra admite "s" y "es" y la prueba C16-1 lo cubre) y se sumaron palabras (ternera, salchicha, morcilla, hígado, choripán, parmesano, ricotta, bechamel, cheddar, yema, mayonesa, merengue). Quedan como mejora: "Limpiar preferencias" no borra los filtros de dieta (se sacan tocando cada uno); el oráculo de la prueba repite casi las palabras de la implementación; "filete" también saca un filete de pollo en "Sin pescado" (conservador).
+
+### Etapa 17 · Pulido de pantalla ✅
+
+Rama `rediseno-2-etapa-17-pulido`.
+
+**Plan corto**
+- `06-navegacion-y-armado-del-plato.js` (barra de pasos), `estilos.css` (final), `30-modo-simple.js` (sin carteles por pantalla), `20-revision-de-despensa.js` y `11-existencias-y-presupuesto.js` (opciones de select más cortas). Herramientas: `capturas.mjs` acepta `--ancho` y mide `desbordes` (elementos que sobresalen de su contenedor); `validar-etapa.mjs` suma el tipo de control `anchos` (mide 360 y 320 px en tema claro). Prueba nueva `e17_pulido.js` (C17-1 a C17-3).
+- Riesgos para los datos: ninguno (solo interfaz).
+
+**Hecho cuando**
+- ✅ A 390 (claro y oscuro), 360 y 320 px (claro) no hay textos cortados, controles superpuestos, elementos fuera de pantalla, desbordes ni scroll horizontal, en todas las vistas e incluidas las hojas inferiores (control `E17-anchos` de la compuerta y `E17-sin-desbordes`).
+- ✅ El cartel de herramientas avanzadas aparece en un solo lugar: Preferencias (C17-2).
+
+**Barra de pasos** (Decisión): "Volver al paso anterior" solo aparece si hay un paso anterior del armado (o el resumen, al editar); en el paso 1 queda solo "Continuar" y, si tampoco hay "Continuar" (elegir el tipo de día, snack, pre-entreno), la barra no se muestra. Mientras la barra de pasos está, reemplaza a las pestañas en vez de apilarse arriba (eran unos 140 px fijos); el contenido deja lugar para que no tape el último botón (C17-1). Se sale del armado con "← Hoy" arriba, como antes.
+
+**Interruptor único** (Decisión): se sacaron los carteles "🧰 Herramientas ocultas… / Mostrar herramientas avanzadas" de las seis pantallas que los tenían (Despensa, Ideas, Comida, Editar receta, Preferencias, Mis datos); el único interruptor es la tarjeta de Preferencias ("Mostrar herramientas avanzadas: activado/desactivado"). Las herramientas siguen marcadas `data-avanzado` y se ocultan igual en modo simple.
+
+**Textos y botones** (Decisión): los atajos de Hoy ("Desayuno o merienda" y "Almuerzo o cena") se apilan si no entran en una fila (antes, a 320 px, el segundo sobresalía de la tarjeta, porque la grilla de la portada los metía en la columna del emoji). Los selects largos quedan chicos a 320 px: las opciones de la revisión de despensa son de 26 caracteres como máximo, las referencias de "Comparar alternativas" muestran "precio/cantidad · total" (el detalle con moneda y fecha va en el `title`), la fuente de los selects baja a 14 px en pantallas de 340 px o menos, y las filas "Aceite de oliva: 500 ml · Editar · Quitar" pasan a dos renglones. "Tema" en Más y "Sugerime algo" en Hoy ya no se cortaban en esta versión (medido a 360 y 320 px).
+
+**Captura de botones superpuestos** (Decisión): no hubo ninguna captura del usuario en esta ronda; se midió con `superpuestos` y `desbordes` en todas las vistas y hojas a 390, 360 y 320 px y no hay casos abiertos.
+
+**Tests adaptados** (Decisión, Regla 5): `m01_modo.js` (M4, M6 y M7 miraban los carteles por pantalla; ahora comprueban que no hay carteles y usan la tarjeta de Preferencias) y `l01_biblioteca.js` (L10, sin aviso); `f02_units.js` (U5b: el texto de la opción de comparar alternativas cambió a "2000/1000 g · 1.000,00" y la moneda y la fecha quedaron en el `title`).
+
+**Revisores (Etapa 17)**: `revisor-codigo` NO BLOQUEANTE. `revisor-usuario` respondió BLOQUEANTE con las capturas a 390, 360 y 320 px: a 320 px el nombre del desayuno en Hoy seguía cortado ("Fruta en trozos con huevo y p…") porque la fila de comida recortaba a 2 renglones. Se corrigió (hasta 4 renglones en `.today-row__plate`; ahora se lee "Fruta en trozos con huevo y pan de molde") y se volvió a la compuerta. Sugerencias que quedan (no bloqueantes): las dos tarjetas de interruptores de Preferencias podrían tener la ayuda en una línea; "Ocultar coincidencias" queda pegado a su campo; el hueco entre el subtítulo y la primera fila de Más; `.mode-note` y el recorrido de `[data-mode-note]` en `30-modo-simple.js` son código muerto (se limpian en la Etapa 18); dos recetas con el mismo comienzo se ven iguales en el select corto de la revisión de despensa (el nombre completo se ve debajo).
+
+Compuerta: VALIDACIÓN ETAPA 17: OK (103 controles, con las medidas a 360 y 320 px).
