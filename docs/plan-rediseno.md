@@ -2085,7 +2085,7 @@ Estados: ✅ hecha · ⏳ en curso · ⛔ parada.
 | 12. Cantidades reales | ✅ | `etapa-12-ok` | 16.1.0 |
 | 13. Precios a la vista | ✅ | `etapa-13-ok` | 16.2.0 |
 | 14. Bienvenida con presupuesto | ✅ | `etapa-14-ok` | 16.3.0 |
-| 15. "Armame la semana" | ⏳ | `etapa-15-ok` | 16.4.0 |
+| 15. "Armame la semana" | ✅ | `etapa-15-ok` | 16.4.0 |
 
 - Arranque: rama `rediseno-2` creada desde `main` (v15.9.0) con este plan.
 - Herramientas: `validar-etapa.mjs` acepta las etapas 11 a 18 y, desde la 11, compara contra `rediseno-2` (versión y línea base) en vez de `rediseno`.
@@ -2187,7 +2187,7 @@ Rama `rediseno-2-etapa-14-bienvenida`.
 
 **Revisores (Etapa 14)**: `revisor-codigo` NO BLOQUEANTE. Sugerencias que quedan: el kicker estático del HTML dice "Paso 1 de 3" (lo corrige `pintarBienvenida` al abrir); C14-2 podría afirmar sobre `costosDelPlan()`; "45.5" se lee como 455 (el punto es separador de miles); falta probar que elegir GBA sin región previa no escribe `region_v1`. Compuerta: VALIDACIÓN ETAPA 14: OK (85 controles).
 
-### Etapa 15 · "Armame la semana" ⏳
+### Etapa 15 · "Armame la semana" ✅
 
 Rama `rediseno-2-etapa-15-armame-la-semana`.
 
@@ -2214,3 +2214,5 @@ Rama `rediseno-2-etapa-15-armame-la-semana`.
 **Tope de tamaño** (Decisión): `index.html` pasó el tope de 770.000 bytes con el módulo nuevo (788.000). Se subió el tope a 820.000 en `construir.mjs` (y el texto del criterio E9-tamano-app); sigue siendo un tope que falla la construcción, y la Etapa 18 busca recortar código.
 
 **Tests adaptados** (Decisión, Regla 5): `e2_semana.js` (C2-6) y `m01_modo.js` (M4) esperaban "Vaciar la semana" en el menú ⋯; ahora "Empezar de nuevo" (misma acción, mismo Deshacer).
+
+**Revisores (Etapa 15)**: `revisor-codigo` NO BLOQUEANTE y `revisor-usuario` NO BLOQUEANTE (capturas 390×844 en `capturas/e15-*.png`). Pasan a la Etapa 17: en Semana "Armame la semana" y "Elegir el almuerzo de hoy" compiten como dos botones verdes llenos (con la semana ya llena, los dos deberían bajar a secundarios); la hoja del hueco lleno suma tres "Cambiar…" y conviene reunirlos; "Huevo | Clara de huevo" se ve crudo en el detalle. Quedan como mejora: avisar antes de "Rehacer la semana entera" si hay pocas candidatas; si `setSlot` falla en `cambiarHueco` queda una comida guardada de más. Compuerta: VALIDACIÓN ETAPA 15: OK (92 controles).
