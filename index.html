@@ -3534,6 +3534,17 @@ body.con-hoja{
 /* Etapa 15 (v16.4): Armame la semana. */
 .armame-boton{width:100%;margin:0 0 12px}
 .armame-hoja .hueco-hoja__acciones{display:flex;flex-direction:column;gap:8px}
+
+/* Etapa 17 (v16.6): una sola barra fija abajo. Los pasos del armado reemplazan a las pestañas (no se apilan) y el contenido
+   deja lugar para que la barra no tape el último botón. Los atajos de Hoy se apilan si no entran en una fila. */
+body:has(#bottom.is-visible) #sectionNav{display:none}
+body:has(#bottom.is-visible) #bottom{bottom:0}
+body:has(#bottom.is-visible){padding-bottom:calc(var(--step-nav-h) + 24px)}
+.armar-comida__opciones{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr));gap:8px}
+.armar-comida__opciones .button{min-height:44px;overflow-wrap:anywhere}
+@media (max-width:340px){
+  select,.portion-field select{font-size:14px!important;padding-left:8px!important;padding-right:4px!important}
+}
 </style></head><body>
 <div class="app-shell"><header class="app-header"><div class="app-header__row"><div class="brand"><div><h1 class="brand__title" aria-label="Mi Plato Fácil"><span class="wordmark-mi">mi</span> plato <span class="wordmark-facil">fácil</span></h1></div></div><button class="home-button" id="homeTop" type="button">Inicio</button></div></header><main id="appMain">
 <section class="screen card is-active" id="home"><p class="screen__kicker">Hoy</p><h2 class="screen__title">Hoy</h2><p class="screen__hint"></p><div class="today" id="todayPanel"><div class="today__entreno" id="todayEntreno"></div><p class="today__primera" id="todayPrimera" hidden></p><div class="today__rows" id="todayRows"></div><p class="screen__hint today__status" id="todayStatus" aria-live="polite"></p><p class="today__registro"><button class="button button--soft" type="button" data-open-registro id="todayRegistro">Ver tu registro de hoy →</button></p><details class="today__manana" id="todayManana"><summary id="todayMananaTitulo">Mañana</summary><div class="today__rows" id="todayMananaRows"></div></details></div><div class="home-group home-group--main"><p class="settings-label">Atajos</p><div class="grid home-grid"><div class="tool-button armar-comida" role="group" aria-labelledby="armarComidaTitulo"><span class="tool-button__emoji">🥗</span><span class="tool-button__label" id="armarComidaTitulo">Armar una comida</span><span class="tool-button__desc">Con el método del plato</span><div class="armar-comida__opciones"><button class="button button--soft" type="button" data-start="desayuno">Desayuno o merienda</button><button class="button button--soft" type="button" data-start="plato">Almuerzo o cena</button></div></div><button class="tool-button" type="button" data-sugerime><span class="tool-button__emoji">🎲</span><span class="tool-button__label">Sugerime algo</span><span class="tool-button__desc">Una idea para tu próxima comida</span></button><button class="tool-button" type="button" data-con-lo-que-tengo><span class="tool-button__emoji">🧊</span><span class="tool-button__label">Con lo que tengo</span><span class="tool-button__desc">Ideas con tu despensa</span></button></div></div><div class="home-group" id="sectionSettings"><div class="tools-grid"><button class="tool-button" type="button" data-open-training><span class="tool-button__emoji">🏋️</span><span class="tool-button__label">Mi rutina</span><span class="tool-button__desc">Qué días entrenás</span></button><button class="tool-button" type="button" data-open-registro><span class="tool-button__emoji">📒</span><span class="tool-button__label">Registro</span><span class="tool-button__desc">Lo que comiste y cocinaste</span></button><button class="tool-button" type="button" data-open-preferencias><span class="tool-button__emoji">⚙️</span><span class="tool-button__label">Preferencias</span><span class="tool-button__desc">Evitar, objetivos y precios</span></button><button class="tool-button" type="button" id="backupOpen" data-open-mis-datos><span class="tool-button__emoji">💾</span><span class="tool-button__label">Mis datos</span><span class="tool-button__desc">Respaldo, exportar e importar</span></button><button class="tool-button" type="button" id="aiSettingsOpen"><span class="tool-button__emoji">✨</span><span class="tool-button__label">Asistente de IA</span><span class="tool-button__desc">Con tu app de IA o con Gemini</span></button><button class="tool-button theme-fab" id="themeToggle" type="button" data-theme-toggle><span class="tool-button__emoji">🌙</span><span class="tool-button__label">Tema: Auto</span><span class="tool-button__desc">Apariencia: claro, oscuro o automático</span></button><button class="tool-button" type="button" data-open-fuentes><span class="tool-button__emoji">📚</span><span class="tool-button__label">Fuentes de datos</span><span class="tool-button__desc">De dónde salen los datos</span></button><button class="tool-button" type="button" data-open-como-funciona><span class="tool-button__emoji">❓</span><span class="tool-button__label">Cómo funciona</span><span class="tool-button__desc">El método y la bienvenida</span></button></div></div></section>
@@ -4480,15 +4491,20 @@ function esRaizDePestana(cur){
 }
 function nav(){
   const cur=stack.at(-1),home=cur==="home",sum=cur==="resumen",next=nextFor(cur);
-  const bottomVisible=ARMADO_PASOS.includes(cur);
+  // La barra de abajo: "Volver al paso anterior" solo si hay un paso anterior (no en el paso 1) y "Continuar" si hay siguiente;
+  // sin ninguno de los dos no se muestra. Mientras está, reemplaza a las pestañas (ver estilos.css): nunca se apilan.
+  const prev=stack.at(-2),hayAtras=stack.length>1&&(ARMADO_PASOS.includes(prev)||prev==="resumen");
+  const bottomVisible=ARMADO_PASOS.includes(cur)&&(hayAtras||!!next);
   el.bottom.classList.toggle("is-visible",bottomVisible);
+  const atras=el.bottomInner.querySelector("[data-back]");
+  if(atras)atras.classList.toggle("is-hidden",!hayAtras);
   // Arriba: vuelve al inicio de la pestaña actual; no se muestra si ya estás ahí.
   el.homeTop.classList.toggle("is-visible",!esRaizDePestana(cur));
   el.homeTop.textContent="← "+TABS[activeTab].label;
   el.homeTop.setAttribute("aria-label","Volver al inicio de "+TABS[activeTab].label);
   document.getElementById("themeToggle").classList.toggle("is-hidden",!home);
   el.nextBottom.classList.toggle("is-hidden",!next);
-  el.bottomInner.classList.toggle("has-next",!!next);
+  el.bottomInner.classList.toggle("has-next",!!next&&hayAtras);
   if(next)el.nextBottom.dataset.go=next;
   else delete el.nextBottom.dataset.go;
 }
@@ -6743,7 +6759,7 @@ function budgetCompareRender(){
     blank.value="";
     select.append(blank);
     entry.options.forEach((p,i)=>{
-      const option=ce("option",null,fmt(entry.row.missing*p.price/p.amount)+" "+budget.currency+" · "+p.price+" / "+p.amount+" "+p.unit);option.title="Precio de "+(p.date||"fecha desconocida");option.value=String(i);select.append(option)
+      const total=fmt(entry.row.missing*p.price/p.amount),option=ce("option",null,p.price+"/"+p.amount+" "+p.unit+" · "+total);option.title=total+" "+budget.currency+" · "+p.price+" por "+p.amount+" "+p.unit+" · precio de "+(p.date||"fecha desconocida");option.value=String(i);select.append(option)
     });
     select.value=entry.base?String(entry.options.indexOf(entry.base)):"";
     label.htmlFor=select.id="budgetAlternative_"+controls.length;
@@ -8568,7 +8584,7 @@ function renderPantryReview(reset){
   document.getElementById("pantryReviewStatus").textContent="Marcados disponibles: "+(available.join(", ")||"ninguno")+". Sin confirmar / por conseguir: "+(missing.join(", ")||"ninguno de los componentes listados")+". Esto no confirma una receta completa ni cantidades suficientes."
 }
 document.getElementById("pantryReviewRecipe").replaceChildren(...data.menuCatalog.map(rec=>{
-  const option=ce("option",null,(t=>{for(const re of [/ con /,/[,:]/])if(t.length>40)t=t.split(re)[0];return t.length>40?t.slice(0,38).replace(/ S*$/,""):t})(rec.text.split(" + ")[0]));option.title=rec.text;option.value=rec.text;return option
+  const option=ce("option",null,(t=>{for(const re of [/ con /,/[,:]/])if(t.length>26)t=t.split(re)[0];return t.length>26?t.slice(0,24).replace(/ S*$/,""):t})(rec.text.split(" + ")[0]));option.title=rec.text;option.value=rec.text;return option
 }));
 document.getElementById("pantryReviewRecipe").addEventListener("change",()=>renderPantryReview(true));
 document.getElementById("pantryReviewPanel").addEventListener("toggle",e=>{
@@ -11179,13 +11195,7 @@ function renderUiModeControls(){
 (()=>{
   for(const [key,group] of Object.entries(ADVANCED_TOOLS)){
     group.items().filter(Boolean).forEach(e=>e.setAttribute("data-avanzado",key));
-    const note=ce("div","home-group mode-note"),button=ce("button","button button--soft");
-    note.dataset.modeNote=key;
-    button.type="button";
-    button.dataset.uiModeToggle="";
-    note.append(ce("p","screen__hint"),button);
-    // Al final de cada pantalla.
-    document.getElementById(key).append(note)
+    // Desde la v16.6 no hay carteles "Mostrar herramientas avanzadas" en cada pantalla: el único interruptor está en Preferencias.
   }
   const card=ce("button","tool-button");
   card.type="button";

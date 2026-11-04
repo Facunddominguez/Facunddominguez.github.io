@@ -1,7 +1,7 @@
-// Capturas y medidas de cada vista de Mi Plato Fácil a 390×844, en tema claro y oscuro.
+// Capturas y medidas de cada vista de Mi Plato Fácil a 390×844 (o al ancho de --ancho), en tema claro y oscuro.
 // Uso: node herramientas/capturas.mjs [--salida <carpeta>] [--vistas a,b] [--estados vacio,normal,todo]
 //                                     [--temas claro,oscuro] [--navegador <ruta>] [--raiz <copia del repositorio>]
-//                                     [--sin-imagenes]
+//                                     [--sin-imagenes] [--ancho 360]
 // Sirve el repositorio en una dirección local con un reloj fijo (lunes 26/10/2026 12:00, Argentina) y, por cada
 // vista, estado y tema, guarda una captura (<vista>-<estado>-<tema>.png) y sus medidas en medidas.json.
 // Estados:
@@ -9,7 +9,7 @@
 //   normal → el respaldo de ejemplo (pruebas/fixtures/respaldo-v14.9.94.json, semana completa), modo simple;
 //   todo   → el respaldo de ejemplo en modo completo, con todos los paneles de la vista abiertos.
 // Medidas por vista: alto de la página (px), palabras visibles, errores de JavaScript, scroll horizontal,
-// campos sin etiqueta, elementos que se salen de la pantalla, textos cortados, controles superpuestos y textos con poco
+// campos sin etiqueta, elementos que se salen de la pantalla, desbordes de su contenedor, textos cortados, controles superpuestos y textos con poco
 // contraste (contraste; contrasteExcluidos cuenta lo que no se puede medir: deshabilitados, sobre imagen y sin color).
 // --raiz mide otra copia del repositorio (por ejemplo, el tag de la etapa anterior), siempre en el mismo equipo.
 // La salida por omisión es capturas/actual (capturas/ está en .gitignore). Sin dependencias: Node 18+.
@@ -25,7 +25,8 @@ import { StringDecoder } from 'node:string_decoder';
 const args = process.argv.slice(2), arg = n => { const i = args.indexOf(n); return i >= 0 ? args[i + 1] : null };
 const RAIZ = resolve(arg('--raiz') || fileURLToPath(new URL('../', import.meta.url)));
 const espera = ms => new Promise(r => setTimeout(r, ms));
-const ANCHO = 390, ALTO = 844;
+// --ancho cambia el ancho de la pantalla (390 por omisión; la Etapa 17 también mide 360 y 320).
+const ANCHO = Number(arg('--ancho') || 390) || 390, ALTO = 844;
 const RELOJ = '2026-10-26T12:00:00-03:00';
 // El respaldo de ejemplo es siempre el de esta copia de las herramientas (no el de --raiz), para medir igual antes y después.
 const RESPALDO = fileURLToPath(new URL('../pruebas/fixtures/respaldo-v14.9.94.json', import.meta.url));
@@ -126,6 +127,15 @@ const MEDIR = sel => `(() => {
     while (p && p !== document.body) { const ox = getComputedStyle(p).overflowX; if (ox === "auto" || ox === "scroll") { desplazable = true; break } p = p.parentElement }
     if (!desplazable) fueraDePantalla.push(nombre(e));
   }
+  // Desbordes: elementos que se salen del costado de su contenedor directo (por ejemplo, un botón que sobresale de su tarjeta),
+  // aunque sigan dentro de la pantalla. Se ignoran los fijos y los contenedores con scroll horizontal.
+  const desbordes = [];
+  for (const e of objetivo.querySelectorAll("*")) {
+    if (!visible(e) || !e.parentElement || e.parentElement === document.body) continue;
+    const r = e.getBoundingClientRect(), p = e.parentElement, pr = p.getBoundingClientRect(), cs = getComputedStyle(e), ps = getComputedStyle(p);
+    if (r.width < 1 || cs.position === "fixed" || cs.position === "absolute" || ps.display === "contents" || /auto|scroll/.test(ps.overflowX) || /^(svg|path|circle|text|title)$/i.test(e.tagName) || e.closest("svg")) continue;
+    if (r.right > pr.right + 1.5 || r.left < pr.left - 1.5) desbordes.push(nombre(e));
+  }
   // Textos cortados: elementos con texto que recortan su contenido (overflow oculto o puntos suspensivos).
   const cortados = [...objetivo.querySelectorAll("button,a,label,summary,h1,h2,h3,h4,p,li,span,strong,small,td,th")].filter(e => {
     if (!visible(e) || !e.textContent.trim()) return false;
@@ -215,7 +225,7 @@ const MEDIR = sel => `(() => {
   ir(document.documentElement.scrollHeight);
   for (const f of fijos) for (const n of propios) if (choca(f, n)) superpuestos.push(nombre(f) + " tapa al final " + nombre(n));
   ir(0);
-  return { pantalla, alto, palabras, scrollHorizontal, sinEtiqueta, fueraDePantalla, cortados, superpuestos, contraste, contrasteExcluidos: excluidos };
+  return { pantalla, alto, palabras, scrollHorizontal, sinEtiqueta, fueraDePantalla, desbordes, cortados, superpuestos, contraste, contrasteExcluidos: excluidos };
 })()`;
 
 let codigo = 1;

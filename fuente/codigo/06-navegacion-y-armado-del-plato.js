@@ -204,15 +204,20 @@ function esRaizDePestana(cur){
 }
 function nav(){
   const cur=stack.at(-1),home=cur==="home",sum=cur==="resumen",next=nextFor(cur);
-  const bottomVisible=ARMADO_PASOS.includes(cur);
+  // La barra de abajo: "Volver al paso anterior" solo si hay un paso anterior (no en el paso 1) y "Continuar" si hay siguiente;
+  // sin ninguno de los dos no se muestra. Mientras está, reemplaza a las pestañas (ver estilos.css): nunca se apilan.
+  const prev=stack.at(-2),hayAtras=stack.length>1&&(ARMADO_PASOS.includes(prev)||prev==="resumen");
+  const bottomVisible=ARMADO_PASOS.includes(cur)&&(hayAtras||!!next);
   el.bottom.classList.toggle("is-visible",bottomVisible);
+  const atras=el.bottomInner.querySelector("[data-back]");
+  if(atras)atras.classList.toggle("is-hidden",!hayAtras);
   // Arriba: vuelve al inicio de la pestaña actual; no se muestra si ya estás ahí.
   el.homeTop.classList.toggle("is-visible",!esRaizDePestana(cur));
   el.homeTop.textContent="← "+TABS[activeTab].label;
   el.homeTop.setAttribute("aria-label","Volver al inicio de "+TABS[activeTab].label);
   document.getElementById("themeToggle").classList.toggle("is-hidden",!home);
   el.nextBottom.classList.toggle("is-hidden",!next);
-  el.bottomInner.classList.toggle("has-next",!!next);
+  el.bottomInner.classList.toggle("has-next",!!next&&hayAtras);
   if(next)el.nextBottom.dataset.go=next;
   else delete el.nextBottom.dataset.go;
 }
