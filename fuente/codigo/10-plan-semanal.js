@@ -125,7 +125,7 @@ function clearSlot(dayKey,slot){
   setSlot(dayKey,slot,null)
 }
 function clearPlan(){
-  if(window.confirm("¿Vaciar todo el plan semanal?")){
+  if(window.confirm("¿Empezar de nuevo? Se vacía todo el plan semanal y lo podés deshacer.")){
     const old=loadPlan(),porciones=loadPlanPortions();
     if(!persistPlan(migratePlan({
     }))){

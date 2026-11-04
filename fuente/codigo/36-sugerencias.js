@@ -14,6 +14,11 @@ function preferenciasEvitar(){
     return []
   }
 }
+// ¿El texto (nombre, etiquetas e ingredientes) cumple lo que preferís evitar? Un solo lugar para el selector, las Ideas, Sugerime y Armame la semana.
+function textoPermitido(texto){
+  const evitar=preferenciasEvitar(),t=normalizeSearchText(String(texto||""));
+  return !evitar.some(w=>t.includes(w))
+}
 function ideaIngredientes(idea){
   const i=idea&&idea.ingredientes;
   return i?SUGERENCIA_GRUPOS.flatMap(k=>Array.isArray(i[k])?i[k]:[]):[]

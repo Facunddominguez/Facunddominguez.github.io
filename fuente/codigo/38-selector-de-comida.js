@@ -51,6 +51,10 @@ function abrirHueco(dia,slot){
   }
   acciones.append(botonHoja("Cambiar","button--soft",{
     huecoCambiar:pk
+  }),botonHoja("Cambiar por otra parecida","button--soft",{
+    huecoParecida:pk
+  }),botonHoja("Cambiar por una más barata","button--soft",{
+    huecoBarata:pk
   }),botonHoja("Quitar","button--danger",{
     planClear:pk
   }));
@@ -332,7 +336,7 @@ function abrirMenuSemana(){
     planRepetirAnterior:""
   }),botonHoja("Copiar un día","button--soft",{
     planCopiarDia:""
-  }),botonHoja("Vaciar la semana","button--danger",{
+  }),botonHoja("Empezar de nuevo","button--danger",{
     clearPlan:""
   }));
   for(const [nombre,texto] of [["variaciones","Planes guardados"],["semanas","Semanas anteriores y mes"],["historial","Historial de cambios"],["descargar","Descargar"],["recetas","Buscar en mis recetas"],["consumo","Registro y objetivos"]])lista.append(botonHoja(texto,"button--soft",{
