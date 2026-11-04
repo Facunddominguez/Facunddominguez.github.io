@@ -2088,7 +2088,7 @@ Estados: ✅ hecha · ⏳ en curso · ⛔ parada.
 | 15. "Armame la semana" | ✅ | `etapa-15-ok` | 16.4.0 |
 | 16. Filtros de dieta reales | ✅ | `etapa-16-ok` | 16.5.0 |
 | 17. Pulido de pantalla | ✅ | `etapa-17-ok` | 16.6.0 |
-| 18. Deuda técnica, sin riesgo | ⏳ | `etapa-18-ok` | 16.7.0 |
+| 18. Deuda técnica, sin riesgo | ✅ | `etapa-18-ok` | 16.7.0 |
 
 - Arranque: rama `rediseno-2` creada desde `main` (v15.9.0) con este plan.
 - Herramientas: `validar-etapa.mjs` acepta las etapas 11 a 18 y, desde la 11, compara contra `rediseno-2` (versión y línea base) en vez de `rediseno`.
@@ -2269,7 +2269,7 @@ Rama `rediseno-2-etapa-17-pulido`.
 
 Compuerta: VALIDACIÓN ETAPA 17: OK (103 controles, con las medidas a 360 y 320 px).
 
-### Etapa 18 · Deuda técnica, sin riesgo ⏳
+### Etapa 18 · Deuda técnica, sin riesgo ✅
 
 Rama `rediseno-2-etapa-18-modulos`.
 
@@ -2287,3 +2287,5 @@ Rama `rediseno-2-etapa-18-modulos`.
 **Funciones que quedan globales** (Decisión): 311 de 678, por reglas que evitan cambiar el comportamiento: (1) las que usa un archivo con número menor (el arranque corre antes de que los archivos de número mayor declaren su módulo: 130), (2) las que llaman esas, si están en un archivo posterior al arranque (104), (3) las que aparecen de otra forma que una llamada (callback, `typeof`, asignación en una prueba, clave de objeto: 64) y (4) las de menos de 6 letras (`go`, `start`, `nav`: 12). Mover más habría exigido reordenar el arranque, que es el riesgo que la etapa pide evitar.
 
 **Tests adaptados**: ninguna prueba cambió de exigencia; solo se reescribieron los nombres de las funciones que llaman (`shoppingDisplayItems()` → `Compras.shoppingDisplayItems()`, `w.restoreCompleteBackup(` → `w.Respaldo.restoreCompleteBackup(`, etc.) con la misma herramienta.
+
+**Revisores (Etapa 18)**: `revisor-codigo` NO BLOQUEANTE. Sugerencias que quedan: la condición de `--archivo` en `capturas.mjs` es redundante; `.mode-note` y el recorrido de `[data-mode-note]` en `30-modo-simple.js` siguen como código muerto (quedan para una limpieza futura); quedan 311 funciones globales por el orden de arranque. Compuerta: VALIDACIÓN ETAPA 18: OK (106 controles, 9,5 min).
