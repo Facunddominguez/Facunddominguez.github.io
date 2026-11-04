@@ -102,7 +102,8 @@ abrirMenuComida(){
   if(comidaActual.origen==="plato"){
     const it=MisPlatos.loadSaved().find(x=>x.id===comidaActual.id);
     if(!it)return;
-    items=[boton(it.fav?"⭐ Quitar de favoritas":"☆ Favorita","favSaved",it.id),boton("Copiar","copySaved",it.id),boton("Eliminar","delSaved",it.id,"button--danger")]
+    items=[boton(it.fav?"⭐ Quitar de favoritas":"☆ Favorita","favSaved",it.id),boton("Copiar","copySaved",it.id),boton("Eliminar","delSaved",it.id,"button--danger")];
+    if(it.deLaSemana)items.unshift(boton("Guardar en mis comidas","guardarEnMisComidas",it.id,"button--primary"))
   }else{
     const r=(id,texto,clase)=>{
       const b=ce("button","button "+(clase||"button--soft"),texto);b.type="button";b.addEventListener("click",()=>{
@@ -319,6 +320,11 @@ document.addEventListener("click",e=>{
     if(d.comidaAgregar!==undefined)return Comidas.abrirAgregarComida();
     if(d.comidaCompartir!==undefined)return Comidas.compartirComida();
     if(d.comidaMenu!==undefined)return Comidas.abrirMenuComida();
+    if(d.guardarEnMisComidas){
+      ArmameSemana.guardarEnMisComidas(d.guardarEnMisComidas);
+      renderSaved();
+      return planStatus("Guardada en Mis comidas.")
+    }
     if(d.comidaEliminarReceta)return Comidas.eliminarRecetaDesdeDetalle(d.comidaEliminarReceta);
     if(d.nutrienteIngrediente)return Comidas.abrirNutrientesDeIngrediente(d.nutrienteIngrediente);
     if(d.openPreferencias!==undefined)return go("preferencias");

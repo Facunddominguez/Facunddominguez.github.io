@@ -51,6 +51,7 @@
     "e17_pulido.js",
     "e19_precios_resuelven.js",
     "e20_un_costo.js",
-    "e21_ficha_precio.js"
+    "e21_ficha_precio.js",
+    "e22_armado_con_sentido.js"
   ]
 }

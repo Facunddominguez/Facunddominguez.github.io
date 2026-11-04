@@ -22,6 +22,21 @@ var ArmameSemana=(function(){
       return((t^(t>>>14))>>>0)/4294967296
     }
   }
+  // Variedad (Etapa 22): una proteína base como mucho 3 veces por semana en almuerzos y cenas, y el arroz como mucho 3.
+  const MAX_PROTEINA=3,MAX_ARROZ=3;
+  const BASES=[["lentejas",/lentej/],["pollo",/pollo|pechuga|muslo/],["carne",/carne|vacio|asado|nalga|cuadril|bife|lomo|picada/],["pescado",/merluza|atun|salmon|pescado|caballa|sardina|lenguado|abadejo/],["huevo",/huevo/],["arroz",/^arroz/]];
+  const basesDe=ings=>{
+    const out=new Set();
+    for(const g of ings)for(const [n,re] of BASES)if(re.test(g))out.add(n);
+    return out
+  };
+  const topeDe=n=>n==="arroz"?MAX_ARROZ:MAX_PROTEINA;
+  // Combinaciones que no se arman nunca: huevo con granola, queso con granola.
+  const prohibido=ings=>{
+    const t=ings.join(" ");
+    return /granola/.test(t)&&/huevo|queso/.test(t)
+  };
+  const esPlatoPos=pos=>/\|(almuerzo|cena)$/.test(pos);
   const clave=texto=>normalizeSearchText(String(texto||"")).replace(/[^a-z0-9ñ]+/g," ").trim();
   const semilla=extra=>hash(Semana.semanaActual()+"|"+extra);
   // Presupuesto de la semana en pesos, o null (sin presupuesto o en otra moneda).
@@ -79,17 +94,29 @@ var ArmameSemana=(function(){
       vistas.add(clave(nombre));
       out.push({k:clave(nombre),nombre,tipo:"mia",item:it,ings:ings.map(ingredientKey)})
     }
-    // Combinaciones de fruta + proteína + cereal del armado, elegidas con la semilla (las que no son lo que evitás).
+    // Plantillas lógicas (Etapa 22): yogur + fruta + avena o granola; tostadas + queso + fruta; licuado de leche + fruta;
+    // huevo + pan + fruta. Nunca huevo ni queso con granola.
     const frutas=data.frutas.filter(f=>textoPermitido(f[0])),prot=data.bfprot.filter(p=>textoPermitido(p[0])),cer=data.bfcarb.filter(c=>textoPermitido(c[0]));
+    const buscar=(lista,re)=>lista.filter(o=>re.test(normalizeSearchText(o[0])));
+    const yogur=buscar(prot,/yogur/),queso=buscar(prot,/queso/),leche=buscar(prot,/^leche/),huevo=buscar(prot,/huevo/),avena=buscar(cer,/avena|granola/),pan=buscar(cer,/^pan/);
+    const plantillas=[
+      {prot:yogur,cer:avena,forma:()=>r()<0.5?"Entera":"En trozos"},
+      {prot:queso,cer:pan,forma:()=>"En trozos"},
+      {prot:leche,cer:[null],forma:()=>"Licuado"},
+      {prot:huevo,cer:pan,forma:()=>"Entera"},
+      {prot:[null],cer:avena.concat(pan),forma:()=>"En trozos"}
+    ].filter(t=>t.prot.length&&t.cer.length&&frutas.length);
     let intentos=0;
-    while(out.length<18&&frutas.length&&prot.length&&cer.length&&intentos++<200){
-      const f=frutas[Math.floor(r()*frutas.length)],p=prot[Math.floor(r()*prot.length)],c=cer[Math.floor(r()*cer.length)],forma=r()<0.5?"Entera":"En trozos";
+    while(out.length<18&&plantillas.length&&intentos++<300){
+      const t=plantillas[intentos%plantillas.length],f=frutas[Math.floor(r()*frutas.length)],p=t.prot[Math.floor(r()*t.prot.length)],c=t.cer[Math.floor(r()*t.cer.length)];
       const st=estadoBase("desayuno");
-      st.fruta={name:f[0],quantity:f[1],forma};st.bfprot={name:p[0],quantity:p[1]};st.bfcarb={name:c[0],quantity:c[1]};
+      st.fruta={name:f[0],quantity:f[1],forma:t.forma()};
+      if(p)st.bfprot={name:p[0],quantity:p[1]};
+      if(c)st.bfcarb={name:c[0],quantity:c[1]};
       const nombre=nombreDesdeEstado(st,"desayuno"),k=clave(nombre);
       if(vistas.has(k))continue;
       vistas.add(k);
-      out.push({k,nombre,tipo:"combo",estado:st,ings:[...comprables(f[0]),...comprables(p[0]),...comprables(c[0])].map(ingredientKey)})
+      out.push({k,nombre,tipo:"combo",estado:st,ings:[...comprables(f[0]),...(p?comprables(p[0]):[]),...(c?comprables(c[0]):[])].map(ingredientKey)})
     }
     return out
   }
@@ -112,13 +139,19 @@ var ArmameSemana=(function(){
       const a=filasDe(c,dia);
       if(a){
         const r=costoDeFilas(a.rows,Semana.portionFactor(null,a)*personasHogar());
-        v=r.costo>0?r.costo:null
+        v=r.costo>0?r.costo:null;
+        // "Completo": todos sus ingredientes tienen precio, real o estimado (nada cuenta $0 en silencio).
+        memo.set(id+"|completo",r.sinPrecio===0&&r.costo>0)
       }
     }catch(e){
       v=null
     }
     memo.set(id,v);
     return v
+  }
+  function completoDe(c,dia,memo){
+    costoDe(c,dia,memo);
+    return !!memo.get(c.k+"|"+(c.tipo==="idea"?diaDeRutinaDe(dia):"")+"|completo")
   }
   function mediana(xs){
     const a=xs.filter(x=>x!==null).sort((p,q)=>p-q);
@@ -130,7 +163,7 @@ var ArmameSemana=(function(){
   }
   // Estado de la semana: qué comidas hay en cada hueco, cuántas veces se usa cada una y qué ingredientes se repiten.
   function leerSemana(plan,salvo){
-    const items=new Map(MisPlatos.loadSaved().map(x=>[x.id,x])),sem={comidas:new Map(),cuenta:new Map(),ings:new Map()};
+    const items=new Map(MisPlatos.loadSaved().map(x=>[x.id,x])),sem={comidas:new Map(),cuenta:new Map(),ings:new Map(),bases:new Map()};
     for(const [dia] of DAYS)for(const [slot] of SLOTS){
       if(salvo&&salvo.has(dia+"|"+slot))continue;
       const it=items.get((plan[dia]||{})[slot]);
@@ -140,14 +173,16 @@ var ArmameSemana=(function(){
       const k=clave(mealName(it));
       sem.comidas.set(dia+"|"+slot,{k,ings:ings.map(ingredientKey),item:it});
       sem.cuenta.set(k,(sem.cuenta.get(k)||0)+1);
-      for(const g of new Set(ings.map(ingredientKey)))sem.ings.set(g,(sem.ings.get(g)||0)+1)
+      for(const g of new Set(ings.map(ingredientKey)))sem.ings.set(g,(sem.ings.get(g)||0)+1);
+      if(esPlatoPos(dia+"|"+slot))for(const b of basesDe(ings.map(ingredientKey)))sem.bases.set(b,(sem.bases.get(b)||0)+1)
     }
     return sem
   }
   function sumar(sem,pos,c,delta){
     if(delta>0)sem.comidas.set(pos,{k:c.k,ings:c.ings,cand:c});else sem.comidas.delete(pos);
     sem.cuenta.set(c.k,(sem.cuenta.get(c.k)||0)+delta);
-    for(const g of new Set(c.ings))sem.ings.set(g,Math.max(0,(sem.ings.get(g)||0)+delta))
+    for(const g of new Set(c.ings))sem.ings.set(g,Math.max(0,(sem.ings.get(g)||0)+delta));
+    if(esPlatoPos(pos))for(const b of basesDe(c.ings))sem.bases.set(b,Math.max(0,(sem.bases.get(b)||0)+delta))
   }
   // Arma la semana (sin escribir). opciones.modo: "vacios" (por defecto) o "todo". Devuelve el plan propuesto y sus números.
   function armar(opciones){
@@ -171,6 +206,8 @@ var ArmameSemana=(function(){
     const asignadas=new Map(),dobles=[],vecina=(dia,slot,delta)=>{const i=DAYS.findIndex(d=>d[0]===dia)+delta;return i>=0&&i<DAYS.length?(sem.comidas.get(DAYS[i][0]+"|"+slot)||{}).k:undefined};
     const valido=(c,dia,slot,pos)=>{
       if((sem.cuenta.get(c.k)||0)>=MAX_REPETIDA)return false;
+      if(prohibido(c.ings))return false;
+      if(esPlatoPos(pos))for(const b of basesDe(c.ings))if((sem.bases.get(b)||0)>=topeDe(b))return false;
       if(c.tipo==="mia"&&c.item&&c.item.state&&typeof c.item.state.day==="string"&&c.item.state.day){
         const d=diaDeRutinaDe(dia);
         if(d&&c.item.state.day!==d&&slotPool(slot)==="plato")return false
@@ -191,6 +228,8 @@ var ArmameSemana=(function(){
         const reuso=Math.min(3,c.ings.filter(g=>(sem.ings.get(g)||0)>0).length),desp=Math.min(3,c.ings.filter(enDespensa).length);
         // En el desayuno y la merienda reutilizar pesa poco: si no, toda la semana sería banana con huevo y avena.
         let puntos=1+(slotPool(slot)==="plato"?0.6:0.1)*reuso+0.4*desp+r()*0.8;
+        // Lo que guardaste (por ejemplo las ideas que elegiste en la bienvenida) entra primero; lo armado antes "de la semana" no.
+        if(c.tipo==="mia"&&c.item&&!c.item.deLaSemana)puntos+=2;
         if(meta){const v=costo(c,dia,slot);if(v>meta)puntos-=1.5*(v/meta-1)}
         if(puntos>mejorPuntos){mejor=c;mejorPuntos=puntos}
       }
@@ -201,7 +240,7 @@ var ArmameSemana=(function(){
       // Cociná doble: la cena de hoy es el almuerzo de mañana.
       if(slot==="cena"&&r()<0.3){
         const i=DAYS.findIndex(d=>d[0]===dia),sig=DAYS[i+1]&&DAYS[i+1][0],p2=sig&&sig+"|almuerzo";
-        if(p2&&salvo.has(p2)&&!asignadas.has(p2)&&(sem.cuenta.get(mejor.k)||0)<MAX_REPETIDA){
+        if(p2&&salvo.has(p2)&&!asignadas.has(p2)&&valido(mejor,sig,"almuerzo",p2)){
           const d2=diaDeRutinaDe(sig),ok=!(mejor.tipo==="mia"&&mejor.item&&mejor.item.state&&mejor.item.state.day&&d2&&mejor.item.state.day!==d2);
           if(ok){
             sumar(sem,p2,mejor,1);asignadas.set(p2,mejor);gastado+=costo(mejor,sig,"almuerzo");
@@ -264,6 +303,7 @@ var ArmameSemana=(function(){
       if(c.item)return c.item.id;
       const snap=c.estado?snapDeEstado(c.estado,null):IdeasHoja.ideaComoGuardada(c.idea,diaDeRutinaDe(dia)||"Día libre"),igual=porSig.get(snap.sig||snap.text);
       if(igual)return igual.id;
+      snap.deLaSemana=true;
       porSig.set(snap.sig||snap.text,snap);nuevos.push(snap);
       return snap.id
     };
@@ -335,15 +375,19 @@ var ArmameSemana=(function(){
     const lista=slotPool(slot)==="plato"?candidatosPlato():candidatosDesayuno("cambio"),r=azar(semilla("hueco|"+dia+"|"+slot+"|"+actual.id+"|"+como));
     const candActual={k:kActual,nombre:mealName(actual),tipo:"mia",item:actual,ings:ingsActual},costoActual=costoDe(candActual,dia,memo);
     const med=mediana(lista.map(c=>costoDe(c,dia,memo)));
+    // "Más barata" solo compara comidas con todos sus precios (reales o estimados) y elige la de menor costo.
+    if(como==="barata"&&(costoActual===null||!completoDe(candActual,dia,memo)))return {ok:false,texto:"A esta comida le faltan precios y no puedo compararla. Completá los precios y probá de nuevo."};
     const vecina=delta=>{const i=DAYS.findIndex(d=>d[0]===dia)+delta;return i>=0&&i<DAYS.length?(sem.comidas.get(DAYS[i][0]+"|"+slot)||{}).k:undefined};
     let mejor=null,mejorPuntos=-1e9;
     for(const c of lista){
       if(c.k===kActual||(sem.cuenta.get(c.k)||0)>=MAX_REPETIDA||vecina(-1)===c.k||vecina(1)===c.k)continue;
       if(c.tipo==="mia"&&c.item&&c.item.state&&c.item.state.day&&slotPool(slot)==="plato"){const d=diaDeRutinaDe(dia);if(d&&c.item.state.day!==d)continue}
+      if(prohibido(c.ings))continue;
+      if(slotPool(slot)==="plato"&&[...basesDe(c.ings)].some(b=>(sem.bases.get(b)||0)>=topeDe(b)))continue;
       const v=costoDe(c,dia,memo),vc=v===null?med:v,base=costoActual===null?med:costoActual;
-      if(como==="barata"&&!(vc!==null&&base!==null&&vc<base-1))continue;
-      const parecido=ingsActual.length?c.ings.filter(g=>ingsActual.includes(g)).length/ingsActual.length:0,ahorro=como==="barata"&&base?(base-vc)/base:0;
-      const puntos=parecido+(como==="barata"?ahorro:0)+r()*0.05;
+      if(como==="barata"&&!(v!==null&&completoDe(c,dia,memo)&&v<costoActual-1))continue;
+      const parecido=ingsActual.length?c.ings.filter(g=>ingsActual.includes(g)).length/ingsActual.length:0;
+      const puntos=como==="barata"?-v+r()*0.01:parecido+r()*0.05;
       if(puntos>mejorPuntos){mejor=c;mejorPuntos=puntos;mejor._costo=vc}
     }
     if(!mejor)return {ok:false,texto:como==="barata"?"No encontré una opción más barata para este hueco.":"No encontré otra opción parecida para este hueco."};
@@ -353,6 +397,7 @@ var ArmameSemana=(function(){
       const snap=mejor.estado?snapDeEstado(mejor.estado,null):IdeasHoja.ideaComoGuardada(mejor.idea,diaDeRutinaDe(dia)||"Día libre"),a=MisPlatos.loadSaved(),igual=a.find(x=>(x.sig||x.text)===snap.sig);
       if(igual)id=igual.id;
       else{
+        snap.deLaSemana=true;
         a.unshift(snap);
         if(!MisPlatos.persistSaved(a))return {ok:false,texto:"No se pudo guardar (falta de espacio u otro error)."};
         id=snap.id
@@ -376,5 +421,32 @@ var ArmameSemana=(function(){
       else if(hoja.estado)hoja.estado.textContent=r.texto
     }
   });
-  return {armar,aplicar,resumen,abrir,correr,cambiarHueco,presupuestoSemanal,huecosVacios}
+  // Las comidas que "Armame la semana" creó en versiones anteriores (las que se guardaron justo antes de cada entrada
+  // "Armame la semana" del historial del plan) se marcan "de la semana". Se puede correr dos veces; no borra nada.
+  function marcarDeLaSemana(){
+    try{
+      const historial=Semana.loadPlanHistory().filter(h=>/^Armame la semana:/.test(h.text)).map(h=>Date.parse(h.at)).filter(Number.isFinite);
+      if(!historial.length)return 0;
+      const a=MisPlatos.loadSaved();
+      let n=0;
+      for(const it of a){
+        if(!it||it.deLaSemana||it.fav||it.cooked>0||it.recipeSourceId)continue;
+        const t=Date.parse(it.savedAt);
+        if(Number.isFinite(t)&&historial.some(h=>t<=h&&h-t<=30000)){it.deLaSemana=true;n++}
+      }
+      if(n)MisPlatos.persistSaved(a);
+      return n
+    }catch(e){
+      return 0
+    }
+  }
+  // "Guardar en mis comidas": la comida deja de ser "de la semana" y aparece en Mis comidas.
+  function guardarEnMisComidas(id){
+    const a=MisPlatos.loadSaved(),it=a.find(x=>x.id===id);
+    if(!it)return false;
+    delete it.deLaSemana;
+    return MisPlatos.persistSaved(a)
+  }
+  try{marcarDeLaSemana()}catch(e){}
+  return {armar,aplicar,resumen,abrir,correr,cambiarHueco,presupuestoSemanal,huecosVacios,marcarDeLaSemana,guardarEnMisComidas}
 })();
