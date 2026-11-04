@@ -14757,7 +14757,8 @@ var ArmameSemana=(function(){
       for(const c of pool(slot)){
         if(!valido(c,dia,slot,pos))continue;
         const reuso=Math.min(3,c.ings.filter(g=>(sem.ings.get(g)||0)>0).length),desp=Math.min(3,c.ings.filter(enDespensa).length);
-        let puntos=1+0.6*reuso+0.4*desp+r()*0.8;
+        // En el desayuno y la merienda reutilizar pesa poco: si no, toda la semana sería banana con huevo y avena.
+        let puntos=1+(slotPool(slot)==="plato"?0.6:0.1)*reuso+0.4*desp+r()*0.8;
         if(meta){const v=costo(c,dia,slot);if(v>meta)puntos-=1.5*(v/meta-1)}
         if(puntos>mejorPuntos){mejor=c;mejorPuntos=puntos}
       }
