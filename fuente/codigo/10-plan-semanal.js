@@ -448,6 +448,12 @@ function renderPlan(){
       texto.append(ce("span","hueco__plato",planPlateLabel(it)));
       const pk=dia+"|"+slot,detalle=savedItemLines(it).join(" · ")+(porciones[pk]!==undefined?" · "+String(porciones[pk]).replace(".",",")+" porciones":"");
       if(detalle)texto.append(ce("span","hueco__detalle",detalle));
+      // ≈ costo de esta comida para el hogar (con los precios encendidos y cantidades conocidas).
+      try{
+        const ct=typeof costoDeLaComida==="function"?costoDeLaComida(it,porciones[dia+"|"+slot]):null;
+        if(ct)texto.append(ce("span","hueco__costo",ct))
+      }catch(e){
+      }
       b.setAttribute("aria-label",nombreDelHueco(dia,slot)+": "+mealName(it)+". Cambiar, quitar y más")
     }else{
       texto.append(ce("span","hueco__plato is-empty","Sin elegir"));

@@ -147,6 +147,13 @@ function cantidadesDePlatoArmado(item){
   }
   return out
 }
+// Peso (g) de una unidad común del ingrediente, de la tabla curada; null si no está.
+function pesoUnidadCurado(nombre){
+  const t=datosEnvases().pesoUnidad;
+  if(!t)return null;
+  for(const [n,g] of Object.entries(t))if(nombreEmpiezaCon(nombre,n))return g;
+  return null
+}
 // Envase real de un ingrediente, si la tabla curada lo tiene.
 function envaseDe(nombre){
   return datosEnvases().envases.find(e=>nombreEmpiezaCon(nombre,e.n))||null

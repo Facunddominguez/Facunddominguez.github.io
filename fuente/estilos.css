@@ -3523,3 +3523,9 @@ body.con-hoja{
 .precios-aviso{display:block;min-height:44px;margin:0 0 8px;padding:0;border:0;background:none;color:var(--primary,var(--accent));font:inherit;text-align:left;text-decoration:underline;cursor:pointer}
 .precios-aviso[hidden]{display:none}
 #fuentes a{color:var(--green);text-decoration:underline}
+
+/* Etapa 13 (v16.2): precios a la vista. */
+.hueco__costo{display:block;font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.precio-tap{display:inline;cursor:pointer;text-decoration:underline dotted;text-underline-offset:3px;padding:12px 4px;margin:-12px 0}
+.precio-detalle{display:block;width:100%}
+.precio-detalle[hidden]{display:none}

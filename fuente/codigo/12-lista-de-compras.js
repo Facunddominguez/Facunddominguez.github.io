@@ -337,7 +337,23 @@ function shoppingDisplayItems(){
   }).sort((a,b)=>a.label.localeCompare(b.label,"es"))
 }
 function shoppingRow(x,i,checked,detail){
-  const row=ce("div","shop-item"+(checked?" is-done":"")),cb=ce("input"),lab=ce("label",null,textoLegible(x.text)+(x.precioTxt?" · "+x.precioTxt:""));
+  const row=ce("div","shop-item"+(checked?" is-done":"")),cb=ce("input"),lab=ce("label",null,textoLegible(x.text)+(x.precioTxt?" · ":""));
+  // El precio se toca para ver su fuente, mes y rango (no tacha el ítem).
+  let detallePrecioEl=null;
+  if(x.precioTxt){
+    const p=ce("span","precio-tap",x.precioTxt);
+    p.setAttribute("role","button");p.tabIndex=0;p.setAttribute("aria-expanded","false");
+    p.setAttribute("aria-label","Precio "+x.precioTxt+" de "+x.name+": ver fuente y rango");
+    detallePrecioEl=ce("span","shop-item__detail precio-detalle",x.precioDetalle||"");
+    detallePrecioEl.hidden=true;
+    const alternar=ev=>{
+      ev.preventDefault();ev.stopPropagation();
+      detallePrecioEl.hidden=!detallePrecioEl.hidden;p.setAttribute("aria-expanded",String(!detallePrecioEl.hidden))
+    };
+    p.addEventListener("click",alternar);
+    p.addEventListener("keydown",ev=>{if(ev.key==="Enter"||ev.key===" ")alternar(ev)});
+    lab.append(p)
+  }
   cb.type="checkbox";
   cb.checked=checked;
   cb.dataset.shopKey=x.key;
@@ -345,6 +361,7 @@ function shoppingRow(x,i,checked,detail){
   lab.htmlFor=cb.id;
   row.append(cb,lab);
   if(detail)row.append(ce("span","shop-item__detail",textoLegible(detail)));
+  if(detallePrecioEl)row.append(detallePrecioEl);
   return row
 }
 function shoppingGroup(title,list,open,onToggle){
@@ -412,7 +429,8 @@ function renderCompras(){
     box.append(ce("h3","compras-seccion__titulo",sec));
     // Lo tachado queda a la vista, al final de su sección.
     if(precios)lista.forEach(x=>{
-      x.precioTxt=precios.porClave.get(x.key)||""
+      x.precioTxt=precios.porClave.get(x.key)||"";
+      x.precioDetalle=precios.porDetalle.get(x.key)||""
     });
     for(const x of [...lista.filter(x=>!comprasDone[x.key]),...lista.filter(x=>comprasDone[x.key])])box.append(shoppingRow(x,i++,!!comprasDone[x.key],x.text.endsWith(" · revisá")&&x.suggestion?"💡 "+x.suggestion.text:""));
     nodes.push(box)
