@@ -2,6 +2,28 @@
 // Parte 4: los archivos se unen en orden según su número, que define el orden de arranque.
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como Ingredientes.nombre().
 var Ingredientes={
+// Etapa 19: otras formas de escribir un nombre, de la más parecida a la más general, sin repetir el nombre original.
+// "Arroz (integral, yamaní)" → "Arroz integral", "Arroz"; "Avena arrollada o instantánea" → "Avena arrollada", "Avena".
+variantesNombre(name){
+  const base=String(name||"").replace(/\s+/g," ").trim(),out=[];
+  const add=t=>{
+    t=t.replace(/\s+/g," ").replace(/[,;:\s]+$/,"").trim();
+    if(t&&t!==base&&!out.includes(t))out.push(t)
+  };
+  const paren=/\(([^)]*)\)/.exec(base),sinParen=base.replace(/\([^)]*\)/g," ").replace(/\s+/g," ").trim();
+  const primera=paren?paren[1].split(/[,\/]/)[0].replace(/…|\.\.\./g,"").trim():"";
+  if(primera&&primera.split(" ").length===1)add(sinParen+" "+primera);
+  const MOD=/\s+(integral|blanco|blanca|descremad[oa]|natural|fluid[oa]|instantane[oa]|instantáne[oa]|arrollad[oa]|entero|entera|com[uú]n|light)$/i;
+  for(const seg of sinParen.split(/\s+o\s+/i)){
+    let t=seg.trim();
+    add(t);
+    for(let i=0;i<4&&MOD.test(t);i++){
+      t=t.replace(MOD,"");
+      add(t)
+    }
+  }
+  return out
+},
 ingredientNormal(name){
   return normalizeSearchText(name).replace(/\s+/g," ").replace(/[.,;:]+$/,"").trim().split(" ").map(singularWord).join(" ")
 },

@@ -213,7 +213,15 @@
     "Banana": 120,
     "Manzana": 180,
     "Papa": 200,
-    "Zapallito": 200
+    "Zapallito": 200,
+    "Yogur": 190,
+    "Mandarina": 100,
+    "Pera": 180,
+    "Durazno": 150,
+    "Kiwi": 80,
+    "Ciruela": 60,
+    "Pomelo": 250,
+    "Mango": 300
   },
   "_pesoUnidad": "Gramos de una unidad común de cada ingrediente (para pasar unidades a kilos al calcular precios). Reemplaza al peso de la tabla de nutrición cuando esa unidad es chica o rara (la zanahoria de USDA pesa 61 g)."
 }

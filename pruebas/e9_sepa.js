@@ -44,7 +44,7 @@
   const finito = v => Number.isFinite(v) && v > 0;
   // Un ingrediente cuenta si hoy la app le da un precio automático en GBA y el dato es sólido: SEPA con 10 observaciones y 3 comercios, o INDEC finito.
   const estado = n => {
-    const a = ev("precioAuto(" + JSON.stringify(n) + ")"), it = porN.get(n);
+    const a = ev("precioAuto(" + JSON.stringify(n) + ")"), it = porN.get(n) || (a && porN.get(a.it.n));
     if (!a || !it) return { tiene: false, aprox: false };
     const c = it.c && it.c.GBA;
     const solido = a.fuente === "sepa" ? finito(it.s && it.s.GBA) && Array.isArray(c) && c[0] >= 10 && c[1] >= 3 && a.precio === it.s.GBA : finito(it.p && it.p.GBA) && a.precio === it.p.GBA;

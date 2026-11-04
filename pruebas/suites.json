@@ -48,6 +48,7 @@
     "e14_presupuesto.js",
     "e15_armame.js",
     "e16_dieta.js",
-    "e17_pulido.js"
+    "e17_pulido.js",
+    "e19_precios_resuelven.js"
   ]
 }

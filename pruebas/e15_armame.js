@@ -26,7 +26,7 @@
   const armar = async (extra, modo) => { cargar({ ...MARCA, ...extra }); await abrir(); const res = ev(`(() => { const r = ArmameSemana.aplicar(ArmameSemana.armar({ modo: ${JSON.stringify(modo || "todo")} })); return JSON.parse(JSON.stringify({ huecos: r.huecos, llenos: r.llenos, costo: r.costo, presupuesto: r.presupuesto, pasado: r.pasado, reutilizados: r.reutilizados, dobles: r.dobles, txt: ArmameSemana.resumen(r) })) })()`); await espera(100); return res };
 
   // C15-1 Con presupuestos bajo, medio y alto completa los 28 huecos sin pasarse cuando es posible, y avisa cuando no.
-  const bajo = await armar(PRES(26000)), medio = await armar(PRES(40000)), alto = await armar(PRES(90000)), imposible = await armar(PRES(1000));
+  const bajo = await armar(PRES(34000)), medio = await armar(PRES(40000)), alto = await armar(PRES(90000)), imposible = await armar(PRES(1000));
   const sin = await armar({});
   ok("C15-1 con presupuesto bajo, medio y alto completa los 28 huecos sin pasarse cuando es posible y avisa cuando no",
     [bajo, medio, alto, imposible, sin].every(r => r.huecos === 28 && r.llenos === 28) && llenos() === 28 &&

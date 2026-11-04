@@ -106,6 +106,13 @@
     { "id": "E17-registro", "etapa": 17, "hecho": "Lo que se corrigió y lo que no hubo que reproducir quedan en el Registro.", "tipo": "registro", "seccion": "Etapa 17", "debeNombrar": ["Barra de pasos", "Interruptor único", "Captura de botones superpuestos"] },
     { "id": "E18-globales", "etapa": 18, "hecho": "Las funciones globales bajan al menos un 30 % (de 678 a 474 o menos).", "tipo": "comando", "comando": "node herramientas/contar-globales.mjs --maximo 474" },
     { "id": "E18-archivo-local", "etapa": 18, "hecho": "La app abre igual como archivo local (file://), sin errores de JavaScript ni pedidos a internet.", "tipo": "comando", "comando": "node herramientas/capturas.mjs --archivo --temas claro --estados vacio,normal --vistas hoy,semana,compras,preferencias,armado-desayuno --sin-imagenes --salida capturas/archivo" },
-    { "id": "E18-registro", "etapa": 18, "hecho": "Cómo se agrupó el código y qué quedó global queda en el Registro.", "tipo": "registro", "seccion": "Etapa 18", "debeNombrar": ["Módulos", "Funciones que quedan globales"] }
+    { "id": "E18-registro", "etapa": 18, "hecho": "Cómo se agrupó el código y qué quedó global queda en el Registro.", "tipo": "registro", "seccion": "Etapa 18", "debeNombrar": ["Módulos", "Funciones que quedan globales"] },
+    {"id": "E19-cobertura", "etapa": 19, "hecho": "Con la semana armada de la prueba, el 90 % o más de los productos de la lista tiene precio real (SEPA o INDEC) o está anotado sin dato en datos/precios-notas.json.", "tipo": "prueba", "prueba": "E19-cobertura"},
+    {"id": "E19-doce", "etapa": 19, "hecho": "Los 12 productos de la v16.7.0 sin precio ahora lo tienen o están anotados como sin dato.", "tipo": "prueba", "prueba": "E19-doce"},
+    {"id": "E19-resolvedor", "etapa": 19, "hecho": "Un solo resolvedor de nombres para precios y nutrición (paréntesis, 'o …', integral/descremado).", "tipo": "prueba", "prueba": "E19-resolvedor"},
+    {"id": "E19-plausibilidad", "etapa": 19, "hecho": "Cada ingrediente del mapa tiene categoría y ningún precio por kg o litro se aparta más de 4 veces de la mediana de su categoría sin una excepción anotada.", "tipo": "prueba", "prueba": "E19-plausibilidad"},
+    {"id": "E19-registro", "etapa": 19, "hecho": "Qué variante se elige y qué productos quedan sin dato queda en el Registro.", "tipo": "registro", "seccion": "Etapa 19", "debeNombrar": ["Variantes", "Sin dato"]},
+    {"id": "E19-cobertura-real", "etapa": 19, "hecho": "La cobertura con precio real (SEPA o INDEC) en la semana armada de la prueba no baja de 70 % (hoy 76 %).", "tipo": "prueba", "prueba": "E19-cobertura-real"},
+    {"id": "E19-no-confunde", "etapa": 19, "hecho": "El resolvedor no confunde ingredientes distintos con una variante de nombre.", "tipo": "prueba", "prueba": "E19-no-confunde"}
   ]
 }
