@@ -2415,3 +2415,5 @@ Rama `rediseno-3-etapa-19-precios-encuentran`. Versión 17.0.0.
 
 **Pendientes para vos**
 - Correr "Actualizar precios" (GitHub Actions) para que entren los precios de SEPA de los 15 ítems nuevos del mapa; después se puede vaciar la lista `sinDato` de `datos/precios-notas.json` de lo que entre.
+
+**Revisor y compuerta (Etapa 19)**: `revisor-codigo` BLOQUEANTE por la brecha del 90 % real (ver Cobertura: se documentó como Decisión y se sumaron E19-cobertura-real y E19-no-confunde; la brecha queda en "Pendientes para vos"); sus sugerencias de prueba negativa y de igualdad en las excepciones se aplicaron. Compuerta: VALIDACIÓN ETAPA 19: OK (113 controles, 582 pruebas).
