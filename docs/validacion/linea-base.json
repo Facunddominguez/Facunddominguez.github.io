@@ -8,7 +8,7 @@
     "navegador": "Chrome/156.0.8078.73"
   },
   "pruebas": {
-    "total": 545,
+    "total": 576,
     "suites": {
       "d01_diseno.js": 8,
       "m01_modo.js": 13,
@@ -50,18 +50,28 @@
       "e7_precios.js": 7,
       "e8_herramientas.js": 10,
       "e9_sepa.js": 8,
-      "e10_pulido.js": 6
+      "e10_pulido.js": 6,
+      "e11_desayuno.js": 6,
+      "e12_cantidades.js": 6,
+      "e13_precios_a_la_vista.js": 4,
+      "e14_presupuesto.js": 2,
+      "e15_armame.js": 6,
+      "e16_dieta.js": 4,
+      "e17_pulido.js": 3
     }
   },
   "claves": [
     "miPlatoFacil_adviceFavorites",
     "miPlatoFacil_aiSettings_v1",
+    "miPlatoFacil_basicosFaltantes_v1",
     "miPlatoFacil_bienvenida_v1",
     "miPlatoFacil_comprasOpciones_v1",
     "miPlatoFacil_consumption_v1",
     "miPlatoFacil_cookingHistory_v1",
     "miPlatoFacil_datedWeeks_v1",
+    "miPlatoFacil_dieta_v1",
     "miPlatoFacil_habitGoals_v1",
+    "miPlatoFacil_hogar_v1",
     "miPlatoFacil_ingredientAliases_v1",
     "miPlatoFacil_manualShopping_v1",
     "miPlatoFacil_mostrarPrecios_v1",
@@ -88,12 +98,15 @@
   ],
   "clavesRespaldo": [
     "miPlatoFacil_adviceFavorites",
+    "miPlatoFacil_basicosFaltantes_v1",
     "miPlatoFacil_bienvenida_v1",
     "miPlatoFacil_comprasOpciones_v1",
     "miPlatoFacil_consumption_v1",
     "miPlatoFacil_cookingHistory_v1",
     "miPlatoFacil_datedWeeks_v1",
+    "miPlatoFacil_dieta_v1",
     "miPlatoFacil_habitGoals_v1",
+    "miPlatoFacil_hogar_v1",
     "miPlatoFacil_ingredientAliases_v1",
     "miPlatoFacil_manualShopping_v1",
     "miPlatoFacil_mostrarPrecios_v1",
@@ -118,11 +131,14 @@
     "miPlatoFacil_trainingWeek"
   ],
   "clavesRespaldoOpcionales": [
+    "miPlatoFacil_basicosFaltantes_v1",
     "miPlatoFacil_bienvenida_v1",
     "miPlatoFacil_comprasOpciones_v1",
     "miPlatoFacil_consumption_v1",
     "miPlatoFacil_cookingHistory_v1",
+    "miPlatoFacil_dieta_v1",
     "miPlatoFacil_habitGoals_v1",
+    "miPlatoFacil_hogar_v1",
     "miPlatoFacil_ingredientAliases_v1",
     "miPlatoFacil_mostrarPrecios_v1",
     "miPlatoFacil_pantryMoves_v1",
@@ -1030,8 +1046,8 @@
     }
   },
   "actualizada": {
-    "etapa": 10,
-    "version": "15.9.0",
-    "fecha": "2026-11-03"
+    "etapa": 18,
+    "version": "16.7.0",
+    "fecha": "2026-11-04"
   }
 }
