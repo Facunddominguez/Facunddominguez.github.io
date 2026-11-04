@@ -20,7 +20,7 @@
 
   // E22-variedad: 20 semanas con semillas distintas.
   cargar({ ...MARCA, ...PRES(70000) }); await abrir();
-  const BASES = [["lentejas", /lentej/], ["pollo", /pollo|pechuga|muslo/], ["carne", /carne|vacio|asado|nalga|cuadril|bife|lomo|picada/], ["pescado", /merluza|atun|salmon|pescado|caballa|sardina|lenguado/], ["huevo", /huevo/]];
+  const BASES = [["lentejas", /lentej/], ["pollo", /(^|[^a-z])pollo|pechuga|muslo/], ["carne", /carne|vacio|asado|nalga|cuadril|bife|lomo|picada/], ["pescado", /merluza|atun|salmon|pescado|caballa|sardina|lenguado|abadejo/], ["huevo", /huevo/]];
   const malas = [], resumen = { semanas: 0, maxRep: 0, maxProt: 0, maxArroz: 0, desayunos: new Set() };
   for (let i = 0; i < 20; i++) {
     const r = JSON.parse(ev(`(() => { Semana.semanaActual = () => "2026-S${i}"; const r = ArmameSemana.armar({ modo: "todo" }); return JSON.stringify({ n: r.asignadas.length, a: r.asignadas.map(x => ({ dia: x.dia, slot: x.slot, k: x.cand.k, n: x.cand.nombre, ings: x.cand.ings })) }) })()`));

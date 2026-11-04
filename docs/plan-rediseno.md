@@ -2484,3 +2484,28 @@ Rama `rediseno-3-etapa-22-armado-con-sentido`. Versión 17.3.0.
 **Tests**: ninguna prueba vieja cambió en esta etapa.
 
 **Revisor y compuerta (Etapa 22)**: `revisor-codigo` NO BLOQUEANTE. Sugerencias que se anotan: el regex de pollo (`/pollo|pechuga|muslo/`) también coincide con "repollo" (se corrige en la Etapa 23 junto con la prueba), si ningún candidato cumple los topes el hueco queda vacío sin aflojar el tope (la prueba con el catálogo por defecto siempre llenó las 28), la migración podría marcar una idea de la bienvenida guardada menos de 30 s antes de tocar "Armame la semana" (queda en el filtro "De la semana" y se recupera con "Guardar en mis comidas"), y una comida "de la semana" que luego se marca favorita no sale sola de la marca. Compuerta: VALIDACIÓN ETAPA 22: OK (129 controles).
+
+### Etapa 23 ✅ Catálogo y lista prolijos
+Rama `rediseno-3-etapa-23-catalogo-lista`. Versión 17.4.0.
+
+**Plan corto**
+- `01-datos-y-estado.js` (ideas y opciones), `44-cantidades-de-platos.js` (`unidadParaCompra`, `pesoVerdura`), `12-lista-de-compras.js` (cucharadas a gramos, nombre corto, texto para compartir), `23-equivalencias-de-ingredientes.js` (sugerencias), `06-compras.html` y `41-compras-y-despensa.js` (botón "Compartir lista"), `datos/envases.json` (`porcionVerdura`, planta de lechuga, pesos por unidad). Prueba nueva `e23_catalogo_lista.js`; el resolvedor de pollo de la Etapa 22 ya no confunde "repollo".
+- Riesgos para los datos: ninguno (solo se cambia lo que se muestra y las opciones de armado).
+
+**Hecho cuando**
+- ✅ E23-titulo: las 41 ideas tienen vinculado todo lo que nombra su título, con una lista de palabras que no son ingredientes (tarta, wrap, tacos, risotto, guiso, ensalada, salsa…) dentro de la prueba.
+- ✅ E23-envases: con la semana armada, ninguna de las 32 filas de la lista queda en cucharadas, cucharaditas ni tazas.
+- ✅ E23-equivalencias: la sugerencia de unir "Queso Port Salut descremado" con "Queso cremoso" ya no aparece; sigue "Arroz (integral, yamaní)" = "Arroz".
+- ✅ E23-compartir: el texto trae secciones en negrita de WhatsApp, cantidades, "≈ $X" por producto (o "estimado ≈ $X") y "*Total ≈ $69.110* · incluye 10 precios estimados", igual al total de Semana; hay un botón "Compartir lista" en Compras (un toque: abre el menú de compartir del teléfono; sin él, copia).
+
+**Ideas vinculadas** (Decisión): se sumaron "Jamón cocido" (tarta de jamón), "Champiñones" (risotto de hongos) y "Palta" (los dos wraps) a las opciones del armado y a las ideas. Equivalencia aceptada por la prueba: calabaza = zapallo; "hummus" cuenta por los garbanzos.
+
+**Envases** (Decisión): cucharadas, cucharaditas y tazas se pasan a gramos (o mililitros en líquidos) al armar la lista, con la tabla de nutrición y, si no la tiene, con 1 cucharada ≈ 10 g, 1 cucharadita ≈ 3 g y 1 taza ≈ 120 g. Después sale el envase típico de `envases.json` cuando lo hay ("Granola: 1 paquete de 350 g", "Avena: 1 paquete de 500 g"; el ejemplo del plan era 400 g pero la tabla curada de la Ronda 2 dice 500). Verduras: lechuga 80 g, tomate 100 g, zanahoria 80 g, etc. por persona y por comida (antes 65 g por repartir el medio plato en partes iguales); la lechuga se compra por planta (300 g). En la fila de la lista el nombre sale sin paréntesis ni variantes ("Avena arrollada" → "Avena") cuando no se confunde con otra fila. "Semillas de chía" se sumó al mapa de precios (SEPA, aún sin dato: sale estimado).
+
+**Tests adaptados**: `f02_units.js` U2 (1 cucharada + 2 cucharaditas de miel ahora se ven "Miel: 35 g": la suma de unidades compatibles se mantiene, solo cambia la forma de mostrarla; sigue separando gramos de unidades en el huevo); `e9_sepa.js` usa el ámbito de ingredientes del mapa actualizado (58 núcleo y 43 armado) por las opciones nuevas. Compras: 254 palabras (máximo 262,8).
+
+**Revisor y compuerta (Etapa 23)**: `revisor-codigo` BLOQUEANTE por (1) `nombreCorto` devolvía la segunda mitad de un "o" ("Avena arrollada o instantánea" → "instantánea") y mezclaba productos ("Yogur natural descremado" → "Yogur"), y (2) lo guardado en la Despensa en cucharadas o tazas dejaba de descontar del plan. Corregido: `nombreCorto` solo saca el paréntesis, lo que sigue a " o " y un modificador de presentación final (arrollada, fluida, comprada, instantánea); integral y descremado se conservan (prueba E23-nombre-corto); la Despensa se pasa a gramos o mililitros con la misma `unidadParaCompra` (prueba E23-despensa); se sumó una prueba de `mergeUnits` (E23-suma-unidades) y la de títulos ahora revisa también "fideos" y "hummus". Compras 260 palabras (máximo 262,8). Compuerta: ver la entrada siguiente.
+
+Ajuste de equivalencias: la primera versión del filtro dejó fuera "Tomate perita" = "Tomate" (prueba C8-7). Ahora se sugiere unir si es una variante de nombre o el mismo ítem de nutrición y, en las familias donde una palabra cambia de producto (queso, yogur, harina, porotos, pan, aceite, carne, fideos, leche, semillas), solo en ese caso; en el resto (tomate, zapallo, repollo…) se sigue sugiriendo como antes. Además: en la Despensa solo se pasan a gramos las cucharadas y tazas de sólidos (la prueba U4d protege que una taza de leche no se convierta a ml).
+
+Compuerta final (Etapa 23): VALIDACIÓN ETAPA 23: OK (137 controles).

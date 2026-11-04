@@ -129,6 +129,14 @@
     {"id": "E22-no-crece", "etapa": 22, "hecho": "Después de armar la semana, Mis comidas no crece; lo armado queda 'de la semana' y se puede guardar en mis comidas.", "tipo": "prueba", "prueba": "E22-no-crece"},
     {"id": "E22-migracion", "etapa": 22, "hecho": "Las comidas que Armame creó en versiones anteriores se marcan 'de la semana' sin borrar nada.", "tipo": "prueba", "prueba": "E22-migracion"},
     {"id": "E22-bienvenida", "etapa": 22, "hecho": "Las ideas elegidas en la bienvenida entran primero al armar la semana.", "tipo": "prueba", "prueba": "E22-bienvenida"},
-    {"id": "E22-registro", "etapa": 22, "hecho": "Cómo se arma la semana (plantillas, topes, 'de la semana') queda en el Registro.", "tipo": "registro", "seccion": "Etapa 22", "debeNombrar": ["Plantillas", "De la semana"]}
+    {"id": "E22-registro", "etapa": 22, "hecho": "Cómo se arma la semana (plantillas, topes, 'de la semana') queda en el Registro.", "tipo": "registro", "seccion": "Etapa 22", "debeNombrar": ["Plantillas", "De la semana"]},
+    {"id": "E23-titulo", "etapa": 23, "hecho": "Cada idea tiene vinculado todo lo que nombra su título (las 41 ideas).", "tipo": "prueba", "prueba": "E23-titulo"},
+    {"id": "E23-envases", "etapa": 23, "hecho": "Ningún producto de la lista queda en cucharadas o tazas y las verduras tienen porciones comunes.", "tipo": "prueba", "prueba": "E23-envases"},
+    {"id": "E23-equivalencias", "etapa": 23, "hecho": "No se sugiere unir quesos distintos: solo variantes de nombre del mismo ingrediente.", "tipo": "prueba", "prueba": "E23-equivalencias"},
+    {"id": "E23-compartir", "etapa": 23, "hecho": "El texto compartido tiene secciones, cantidades, ≈ precio por producto y el total de la semana.", "tipo": "prueba", "prueba": "E23-compartir"},
+    {"id": "E23-registro", "etapa": 23, "hecho": "Qué se vinculó, cómo se pasan las cucharadas y qué se comparte queda en el Registro.", "tipo": "registro", "seccion": "Etapa 23", "debeNombrar": ["Ideas vinculadas", "Envases"]},
+    {"id": "E23-nombre-corto", "etapa": 23, "hecho": "La fila de la lista saca lo que va entre paréntesis y después de o sin cambiar el producto.", "tipo": "prueba", "prueba": "E23-nombre-corto"},
+    {"id": "E23-despensa", "etapa": 23, "hecho": "La Despensa en cucharadas o tazas sigue descontando del plan.", "tipo": "prueba", "prueba": "E23-despensa"},
+    {"id": "E23-suma-unidades", "etapa": 23, "hecho": "Sumar unidades compatibles no mezcla dimensiones.", "tipo": "prueba", "prueba": "E23-suma-unidades"}
   ]
 }

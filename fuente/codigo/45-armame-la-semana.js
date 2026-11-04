@@ -24,7 +24,7 @@ var ArmameSemana=(function(){
   }
   // Variedad (Etapa 22): una proteína base como mucho 3 veces por semana en almuerzos y cenas, y el arroz como mucho 3.
   const MAX_PROTEINA=3,MAX_ARROZ=3;
-  const BASES=[["lentejas",/lentej/],["pollo",/pollo|pechuga|muslo/],["carne",/carne|vacio|asado|nalga|cuadril|bife|lomo|picada/],["pescado",/merluza|atun|salmon|pescado|caballa|sardina|lenguado|abadejo/],["huevo",/huevo/],["arroz",/^arroz/]];
+  const BASES=[["lentejas",/lentej/],["pollo",/(^|[^a-z])pollo|pechuga|muslo/],["carne",/carne|vacio|asado|nalga|cuadril|bife|lomo|picada/],["pescado",/merluza|atun|salmon|pescado|caballa|sardina|lenguado|abadejo/],["huevo",/huevo/],["arroz",/^arroz/]];
   const basesDe=ings=>{
     const out=new Set();
     for(const g of ings)for(const [n,re] of BASES)if(re.test(g))out.add(n);

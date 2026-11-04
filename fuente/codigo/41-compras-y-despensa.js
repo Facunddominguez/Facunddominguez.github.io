@@ -72,6 +72,7 @@ document.addEventListener("click",e=>{
   if(!b)return;
   const d=b.dataset;
   if(d.comprasMenu!==undefined)return ComprasDespensa.abrirMenuCompras();
+  if(d.comprasCompartir!==undefined)return Compras.shareCompras();
   if(d.comprasHerr)return ComprasDespensa.abrirHerramientaCompras(d.comprasHerr);
   if(d.comprasVista==="lista")return openTab("compras");
   if(d.comprasVista==="despensa"&&stack.at(-1)!=="ingredientes"){

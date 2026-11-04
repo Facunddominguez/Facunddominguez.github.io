@@ -96,8 +96,10 @@
    "Yogur natural",
    "Morrón rojo",
    "Porotos colorados",
+   "Jamón cocido",
    "Queso cremoso",
    "Arvejas",
+   "Palta",
    "Lentejas",
    "Brócoli",
    "Quinoa",
@@ -111,12 +113,12 @@
    "Porotos negros",
    "Albahaca",
    "Apio",
+   "Champiñones",
    "Repollo blanco",
    "Acelga",
    "Polenta",
    "Ajo",
    "Pan integral",
-   "Palta",
    "Yogur descremado",
    "Avena",
    "Semillas de chía",
@@ -3181,6 +3183,31 @@
     ]
    },
    "cat": "frutas"
+  },
+  {
+   "n": "Semillas de chía",
+   "b": "kg",
+   "cat": "almacén",
+   "sepa": {
+    "q": [
+     "semillas de chia",
+     "chia"
+    ],
+    "ini": true,
+    "x": [
+     "barra",
+     "barrita",
+     "bebida",
+     "jugo",
+     "aceite",
+     "galletita",
+     "snack"
+    ],
+    "t": [
+     0.1,
+     1
+    ]
+   }
   }
  ]
 }

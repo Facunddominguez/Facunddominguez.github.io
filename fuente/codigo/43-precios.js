@@ -819,7 +819,7 @@ function pintarPreciosCompras(p){
   if(a)a.hidden=preciosActivos();
   aplicarPrecios();
   if(f){
-    f.textContent=p&&p.conPrecio>0?fuentePrecios(undefined,"sepa"):"";
+    f.textContent=p&&p.conPrecio>0?fuentePrecios(undefined,"sepa").replace(" · mediana",""):"";
     f.hidden=!f.textContent
   }
 }
