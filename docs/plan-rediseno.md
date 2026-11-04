@@ -2183,3 +2183,5 @@ Rama `rediseno-2-etapa-14-bienvenida`.
 **Paso nuevo** (Decisión): es el paso 3 de 4 y no el último, para que "Armar mi semana" siga siendo el cierre; cuesta un toque más (el recorrido de C4-1 pasa de 13 a 14 toques, con tope de 15). "Ahora no" lo salta sin escribir; "Guardar y seguir" guarda solo lo que cambió: personas distintas de 1, presupuesto (en pesos, por semana; acepta "45.000") y región distinta de GBA. Un presupuesto que no es un número mayor que 0 muestra el motivo y no avanza ni escribe.
 
 **Tests adaptados** (Decisión, Regla 5): `e4_comidas.js` C4-1 suma el toque de "Ahora no" del paso nuevo y C4-7b sale por "Saltar" del paso 4 (las ideas son ahora el paso 4).
+
+**Revisores (Etapa 14)**: `revisor-codigo` NO BLOQUEANTE. Sugerencias que quedan: el kicker estático del HTML dice "Paso 1 de 3" (lo corrige `pintarBienvenida` al abrir); C14-2 podría afirmar sobre `costosDelPlan()`; "45.5" se lee como 455 (el punto es separador de miles); falta probar que elegir GBA sin región previa no escribe `region_v1`. Compuerta: VALIDACIÓN ETAPA 14: OK (85 controles).
