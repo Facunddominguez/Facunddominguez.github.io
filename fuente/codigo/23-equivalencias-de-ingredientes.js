@@ -29,7 +29,7 @@ saveIngredientAlias(from,to){
   if(ingredientKey(from)===target)throw Error("Esos nombres ya se consideran el mismo ingrediente.");
   if(target===key)throw Error("No se puede unir un nombre consigo mismo.");
   const all={
-    ...loadIngredientAliases()
+    ...Ingredientes.loadIngredientAliases()
   };
   all[key]={
     from,to:target,toName:Ingredientes.ingredientDisplayName(target,to)
@@ -102,7 +102,7 @@ document.getElementById("ingredientAliasPanel").addEventListener("click",e=>{
   const b=e.target.closest("button");if(!b)return;const status=document.getElementById("ingredientAliasStatus");try{
     if(b.dataset.ingredientAliasRemove!==undefined){
       const all={
-        ...loadIngredientAliases()
+        ...Ingredientes.loadIngredientAliases()
       };delete all[b.dataset.ingredientAliasRemove];try{
         localStorage.setItem(INGREDIENT_ALIASES_KEY,JSON.stringify(all))
       }catch(err){

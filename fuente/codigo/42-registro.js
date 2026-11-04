@@ -24,12 +24,6 @@ deshacerRegistro(n,el){
   registroRepintar();
   u.el.textContent="Listo, se deshizo."
 },
-registroDiasConDatos(){
-  const n=new Map();
-  for(const x of loadConsumption())n.set(x.date,(n.get(x.date)||0)+1);
-  for(const x of loadCookingHistory())n.set(x.date,(n.get(x.date)||0)+1);
-  return [...n.entries()].sort((a,b)=>b[0].localeCompare(a[0])).slice(0,14)
-},
 anotarDesdeRegistro(tipo){
   const fecha=typedAppDateLabel(registroFecha||registroHoy());
   if(tipo==="comi"){
@@ -154,6 +148,12 @@ function registrosDelDia(fecha){
   })).sort((a,b)=>registroOrden(a.f.meal)-registroOrden(b.f.meal)||a.i-b.i).map(x=>x.f)
 }
 // Los últimos 14 días que tienen algo, del más nuevo al más viejo, con su cantidad.
+function registroDiasConDatos(){
+  const n=new Map();
+  for(const x of loadConsumption())n.set(x.date,(n.get(x.date)||0)+1);
+  for(const x of loadCookingHistory())n.set(x.date,(n.get(x.date)||0)+1);
+  return [...n.entries()].sort((a,b)=>b[0].localeCompare(a[0])).slice(0,14)
+}
 function registroEtiquetaDia(f){
   const d=new Date(f+"T12:00:00"),ayer=new Date();
   ayer.setDate(ayer.getDate()-1);

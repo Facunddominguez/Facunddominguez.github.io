@@ -7,7 +7,7 @@ window.R2 = (() => {
   const results = () => { const T = []; T.ok = (name, cond, detail) => T.push((cond ? "PASA " : "FALLA ") + name + (detail !== undefined && detail !== "" ? " · " + detail : "")); return T };
   // Each battery starts like a new device: empty storage and the default mode (simple).
   // Desde la Etapa 13 los precios vienen encendidos; las baterías de la lista (cantidades, despensa, equivalencias) las apagan a propósito (modo simple elegido, que no va al respaldo) para mirar solo cantidades.
-  const reset = () => { localStorage.clear(); localStorage.setItem("miPlatoFacil_uiMode_v1", "simple"); restart(); comprasDone = {}; if (typeof comprasApplied !== "undefined") comprasApplied = {}; if (typeof comprasTenesOpen !== "undefined") { comprasTenesOpen = false; comprasCompradosOpen = false; comprasShowAll = false } if (typeof applyUiMode === "function") { uiModeMemory = null; applyUiMode(); renderUiModeControls() } };
+  const reset = () => { localStorage.clear(); localStorage.setItem("miPlatoFacil_uiMode_v1", "simple"); restart(); comprasDone = {}; if (typeof comprasApplied !== "undefined") comprasApplied = {}; if (typeof comprasTenesOpen !== "undefined") { comprasTenesOpen = false; comprasCompradosOpen = false; comprasShowAll = false } if (typeof applyUiMode === "function") { uiModeMemory = null; applyUiMode(); ModoSimple.renderUiModeControls() } };
   const setAmounts = obj => localStorage.setItem("miPlatoFacil_recipeAmounts_v1", JSON.stringify(obj));
   const setRecipes = list => localStorage.setItem("miPlatoFacil_recipeDetails_v1", JSON.stringify(Object.fromEntries(list.map(r => [r.id, { id: r.id, title: r.title, sourceTitle: null, amountsTitle: r.amountsTitle, steps: ["Cocinar"], notes: "" }]))));
   const recipePlate = (id, recipeId, title, names) => ({ id, savedAt: "2026-10-26T10:00:00.000Z", type: "plato", title, lines: [], sig: "recipe-ref:" + recipeId + ":plato", text: title, cooked: 0, state: null, recipeSourceId: recipeId, recipeIngredients: names });
@@ -16,7 +16,7 @@ window.R2 = (() => {
   const tradPlateTexto = (id, almidones, verduras, proteinas) => ({ ...tradPlate(id, almidones, verduras, proteinas), state: null });
   const setSaved = list => localStorage.setItem("miPlatoFacil_saved", JSON.stringify(list));
   const setPlan = slots => { const plan = {}; for (const [day] of DAYS) plan[day] = { desayuno: null, merienda: null, almuerzo: null, cena: null }; for (const [day, slot, id] of slots) plan[day][slot] = id; localStorage.setItem("miPlatoFacil_plan", JSON.stringify(plan)) };
-  const setStock = rows => localStorage.setItem("miPlatoFacil_pantryQuantities_v1", JSON.stringify(Object.fromEntries(rows.map(([name, quantity, unit]) => [stockKey(name, unit), { name, quantity, unit }]))));
+  const setStock = rows => localStorage.setItem("miPlatoFacil_pantryQuantities_v1", JSON.stringify(Object.fromEntries(rows.map(([name, quantity, unit]) => [Existencias.stockKey(name, unit), { name, quantity, unit }]))));
   // Critical case: recipe "Papas al horno" (Papa 200 g) + traditional plate with Papa
   const criticalCase = () => {
     reset();

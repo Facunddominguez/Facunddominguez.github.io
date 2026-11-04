@@ -48,7 +48,7 @@ pintarBienvenida(){
     const on=bienvenidaDias.has(Number(b.dataset.bienvenidaDia));b.classList.toggle("is-selected",on);b.setAttribute("aria-pressed",String(on))
   });
   const box=document.getElementById("bienvenidaIdeas");
-  box.replaceChildren(...ideasParaArrancar().map(idea=>{
+  box.replaceChildren(...Bienvenida.ideasParaArrancar().map(idea=>{
     const b=ce("button","filter-chip",idea.text),on=bienvenidaIdeas.includes(idea.text);
     b.type="button";
     b.dataset.bienvenidaIdea=idea.text;

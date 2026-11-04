@@ -1,27 +1,5 @@
 // Mi Plato Fácil · Nutrición con USDA FoodData Central.
 // Parte 29: los archivos se unen en orden según su número, que define el orden de arranque.
-// Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como Nutricion.nombre().
-const Nutricion={
-nutrientesDeIngrediente(q){
-  const out=ce("div","nutrientes-ingrediente"),it=nutritionFor(q);
-  if(!it){
-    const nq=normalizeSearchText(q),sug=nutritionDataset().names.filter(n=>normalizeSearchText(n).includes(nq)).slice(0,6);
-    out.append(ce("p","screen__hint","No hay datos para “"+q+"”."+(sug.length?" Probá con: "+sug.join(", ")+".":"")));
-    return out
-  }
-  const v=it.v,dl=ce("dl","nutrition-facts");
-  for(const [k,val,u] of [["Energía",v[0],"kcal"],["Proteínas",v[1],"g"],["Carbohidratos",v[3],"g"],["Grasas",v[2],"g"],["Fibra",v[4],"g"],["Azúcares",v[5],"g"],["Sodio",v[6],"mg"]])dl.append(ce("dt",null,k),ce("dd",null,val===null?"sin dato":nutritionNumber(val,u)));
-  out.append(ce("p",null,it.n+" · cada 100 g"),dl);
-  const units=Object.entries(it.u||{
-  }).map(([k,p])=>"1 "+k+" ≈ "+nutritionNumber(p[0],"g"));
-  if(units.length)out.append(ce("p","screen__hint","Equivalencias de USDA: "+units.join(" · ")+"."));
-  if(it.nota)out.append(ce("p","screen__hint",it.nota));
-  const srcP=ce("p","screen__hint","Dato de USDA: "+it.d+" ("+(it.b==="F"?"Foundation Foods":"SR Legacy")+")"+(it.c?"; "+it.c.k.map(nutrientLabel).join(", ")+" de SR Legacy":"")+" · ");
-  srcP.append(nutritionLink(it));
-  out.append(srcP);
-  return out
-}
-};
 var NUTRITION_SNAPSHOT=__DATOS_NUTRICION__;
 function validNutritionData(d){
   return!!d&&typeof d==="object"&&d.version===1&&typeof d.revisado==="string"&&d.revisado.length<=20&&!!d.fuente&&typeof d.fuente==="object"&&Array.isArray(d.items)&&d.items.length>0&&d.items.length<=5000&&d.items.every(i=>!!i&&typeof i.n==="string"&&i.n.trim().length>0&&i.n.length<=100&&Array.isArray(i.s)&&i.s.length<=50&&i.s.every(x=>typeof x==="string"&&x.length<=100)&&Number.isInteger(i.id)&&i.id>0&&(i.b==="F"||i.b==="S")&&typeof i.d==="string"&&i.d.length<=300&&Array.isArray(i.v)&&i.v.length===7&&i.v.every(x=>x===null||(typeof x==="number"&&Number.isFinite(x)&&x>=0&&x<=100000))&&(i.u===undefined||(!!i.u&&typeof i.u==="object"&&Object.entries(i.u).every(([k,p])=>["unidad","taza","cucharada","cucharadita"].includes(k)&&Array.isArray(p)&&typeof p[0]==="number"&&p[0]>0&&p[0]<100000&&typeof p[1]==="string"&&p[1].length<=200))))
@@ -147,6 +125,25 @@ function renderNutritionLookup(){
   out.append(...nutrientesDeIngrediente(q).childNodes)
 }
 // Nutrientes de un ingrediente cada 100 g (v15.3): la usan "Consultar nutrientes" y el detalle de cada comida.
+function nutrientesDeIngrediente(q){
+  const out=ce("div","nutrientes-ingrediente"),it=nutritionFor(q);
+  if(!it){
+    const nq=normalizeSearchText(q),sug=nutritionDataset().names.filter(n=>normalizeSearchText(n).includes(nq)).slice(0,6);
+    out.append(ce("p","screen__hint","No hay datos para “"+q+"”."+(sug.length?" Probá con: "+sug.join(", ")+".":"")));
+    return out
+  }
+  const v=it.v,dl=ce("dl","nutrition-facts");
+  for(const [k,val,u] of [["Energía",v[0],"kcal"],["Proteínas",v[1],"g"],["Carbohidratos",v[3],"g"],["Grasas",v[2],"g"],["Fibra",v[4],"g"],["Azúcares",v[5],"g"],["Sodio",v[6],"mg"]])dl.append(ce("dt",null,k),ce("dd",null,val===null?"sin dato":nutritionNumber(val,u)));
+  out.append(ce("p",null,it.n+" · cada 100 g"),dl);
+  const units=Object.entries(it.u||{
+  }).map(([k,p])=>"1 "+k+" ≈ "+nutritionNumber(p[0],"g"));
+  if(units.length)out.append(ce("p","screen__hint","Equivalencias de USDA: "+units.join(" · ")+"."));
+  if(it.nota)out.append(ce("p","screen__hint",it.nota));
+  const srcP=ce("p","screen__hint","Dato de USDA: "+it.d+" ("+(it.b==="F"?"Foundation Foods":"SR Legacy")+")"+(it.c?"; "+it.c.k.map(nutrientLabel).join(", ")+" de SR Legacy":"")+" · ");
+  srcP.append(nutritionLink(it));
+  out.append(srcP);
+  return out
+}
 function refreshNutritionData(){
   if(refreshNutritionData.started||!/^https?:$/.test(location.protocol))return;
   refreshNutritionData.started=true;

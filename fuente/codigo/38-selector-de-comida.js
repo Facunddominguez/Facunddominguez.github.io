@@ -5,62 +5,6 @@
 // renderPlan (10) llama a refrescarHojaHueco aunque corra antes de que cargue este archivo: por eso el estado es var.
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como Selector.nombre().
 const Selector={
-recientesDelTipo(items){
-  const byId=new Map(items.map(x=>[x.id,x])),orden=[];
-  let cons=[];
-  try{
-    cons=loadConsumption()
-  }catch(e){
-  }
-  cons.filter(r=>r&&byId.has(r.sourceId)).sort((a,b)=>String(b.date).localeCompare(String(a.date))).forEach(r=>{
-    if(!orden.includes(r.sourceId))orden.push(r.sourceId)
-  });
-  [...items].sort((a,b)=>String(b.savedAt||"").localeCompare(String(a.savedAt||""))).forEach(x=>{
-    if(!orden.includes(x.id))orden.push(x.id)
-  });
-  return orden.slice(0,4).map(id=>byId.get(id))
-},
-recetasSinCopia(items){
-  try{
-    const am=loadRecipeAmounts(),usadas=new Set(items.map(x=>x.recipeSourceId).filter(Boolean));
-    return Object.values(loadRecipeDetails()).filter(r=>!usadas.has(r.id)&&r.amountsTitle&&am[r.amountsTitle]&&am[r.amountsTitle].rows.length).sort((a,b)=>a.title.localeCompare(b.title,"es"))
-  }catch(e){
-    return []
-  }
-},
-seccionesSelector(h,q){
-  const pool=slotPool(h.slot),items=MisPlatos.loadSaved().filter(p=>p&&p.type===pool),labels=mealLabels(items),n=normalizeSearchText(String(q||"").trim());
-  const nombre=it=>labels.get(it.id)||mealName(it),coincide=t=>!n||normalizeSearchText(t).includes(n);
-  const fila=it=>{
-    const b=ce("button","selector-item"+(it.id===h.id?" is-actual":""));b.type="button";b.dataset.selectorId=it.id;b.append(ce("span","selector-item__nombre",Semana.planPlateLabel(it,nombre(it))));const d=savedItemLines(it).join(" · ");if(d)b.append(ce("span","selector-item__detalle",d));if(it.id===h.id)b.setAttribute("aria-current","true");return b
-  };
-  const seccion=(titulo,clave,filas,vacio)=>{
-    const s=ce("section","selector-seccion");s.dataset.selectorSeccion=clave;s.append(ce("h3","selector-seccion__titulo",titulo));if(filas.length)s.append(...filas);else s.append(ce("p","screen__hint",vacio));return s
-  };
-  const out=[];
-  if(!n&&items.length>4)out.push(seccion("Recientes","recientes",Selector.recientesDelTipo(items).map(fila),""));
-  const mias=items.filter(it=>coincide(nombre(it)+" "+savedItemLines(it).join(" "))).sort((a,b)=>(b.fav?1:0)-(a.fav?1:0)),recetas=Selector.recetasSinCopia(items).filter(r=>coincide(r.title)).map(r=>{
-    const b=ce("button","selector-item");b.type="button";b.dataset.selectorReceta=r.id;b.append(ce("span","selector-item__nombre","📖 "+r.title));return b
-  });
-  out.push(seccion("Mis comidas","mias",[...mias.map(fila),...recetas],n?"Ninguna de tus comidas coincide.":"Todavía no guardaste comidas de este tipo: armá una nueva."));
-  if(h.slot==="almuerzo"||h.slot==="cena"){
-    let ideas=[];
-    try{
-      ideas=sugerenciasPara(h.slot,diaDeRutina(fechaDelDiaDelPlan(h.dia))).filter(x=>x.tipo==="idea"&&coincide(x.idea.text+" "+(x.idea.tags||[]).join(" ")))
-    }catch(e){
-    }
-    // Una idea que ya está en Mis comidas (guardada con su nombre) aparece una sola vez, ahí.
-    const yaEstan=new Set(items.map(it=>normalizeSearchText(mealName(it)))),vistas=new Set();
-    ideas=ideas.filter(x=>{const k=normalizeSearchText(x.idea.text);if(yaEstan.has(k)||vistas.has(k))return false;vistas.add(k);return true});
-    ideas.sort((a,b)=>b.peso-a.peso);
-    out.push(seccion("Ideas","ideas",ideas.slice(0,n?20:6).map(x=>{
-      const b=ce("button","selector-item");b.type="button";b.dataset.selectorIdea=x.idea.text;b.append(ce("span","selector-item__nombre","💡 "+x.idea.text));return b
-    }),n?"Ninguna idea coincide.":avisoSinSugerencias()));
-    const pocas=dietaAvisoPocas();
-    if(pocas)out.at(-1).append(ce("p","screen__hint",pocas))
-  }
-  return out
-},
 elegirEnSelector(asignar){
   const h=huecoAbierto;
   if(!h||h.modo!=="selector")return;
@@ -274,7 +218,63 @@ function refrescarHojaHueco(){
   actualizarHuecoLleno(h)
 }
 // Recientes: lo último que comiste de ese tipo y, después, lo último que guardaste.
+function recientesDelTipo(items){
+  const byId=new Map(items.map(x=>[x.id,x])),orden=[];
+  let cons=[];
+  try{
+    cons=loadConsumption()
+  }catch(e){
+  }
+  cons.filter(r=>r&&byId.has(r.sourceId)).sort((a,b)=>String(b.date).localeCompare(String(a.date))).forEach(r=>{
+    if(!orden.includes(r.sourceId))orden.push(r.sourceId)
+  });
+  [...items].sort((a,b)=>String(b.savedAt||"").localeCompare(String(a.savedAt||""))).forEach(x=>{
+    if(!orden.includes(x.id))orden.push(x.id)
+  });
+  return orden.slice(0,4).map(id=>byId.get(id))
+}
 // Tus recetas con ingredientes que todavía no tienen copia para este tipo de comida (se crea al elegirlas).
+function recetasSinCopia(items){
+  try{
+    const am=loadRecipeAmounts(),usadas=new Set(items.map(x=>x.recipeSourceId).filter(Boolean));
+    return Object.values(loadRecipeDetails()).filter(r=>!usadas.has(r.id)&&r.amountsTitle&&am[r.amountsTitle]&&am[r.amountsTitle].rows.length).sort((a,b)=>a.title.localeCompare(b.title,"es"))
+  }catch(e){
+    return []
+  }
+}
+function seccionesSelector(h,q){
+  const pool=slotPool(h.slot),items=MisPlatos.loadSaved().filter(p=>p&&p.type===pool),labels=mealLabels(items),n=normalizeSearchText(String(q||"").trim());
+  const nombre=it=>labels.get(it.id)||mealName(it),coincide=t=>!n||normalizeSearchText(t).includes(n);
+  const fila=it=>{
+    const b=ce("button","selector-item"+(it.id===h.id?" is-actual":""));b.type="button";b.dataset.selectorId=it.id;b.append(ce("span","selector-item__nombre",Semana.planPlateLabel(it,nombre(it))));const d=savedItemLines(it).join(" · ");if(d)b.append(ce("span","selector-item__detalle",d));if(it.id===h.id)b.setAttribute("aria-current","true");return b
+  };
+  const seccion=(titulo,clave,filas,vacio)=>{
+    const s=ce("section","selector-seccion");s.dataset.selectorSeccion=clave;s.append(ce("h3","selector-seccion__titulo",titulo));if(filas.length)s.append(...filas);else s.append(ce("p","screen__hint",vacio));return s
+  };
+  const out=[];
+  if(!n&&items.length>4)out.push(seccion("Recientes","recientes",recientesDelTipo(items).map(fila),""));
+  const mias=items.filter(it=>coincide(nombre(it)+" "+savedItemLines(it).join(" "))).sort((a,b)=>(b.fav?1:0)-(a.fav?1:0)),recetas=recetasSinCopia(items).filter(r=>coincide(r.title)).map(r=>{
+    const b=ce("button","selector-item");b.type="button";b.dataset.selectorReceta=r.id;b.append(ce("span","selector-item__nombre","📖 "+r.title));return b
+  });
+  out.push(seccion("Mis comidas","mias",[...mias.map(fila),...recetas],n?"Ninguna de tus comidas coincide.":"Todavía no guardaste comidas de este tipo: armá una nueva."));
+  if(h.slot==="almuerzo"||h.slot==="cena"){
+    let ideas=[];
+    try{
+      ideas=sugerenciasPara(h.slot,diaDeRutina(fechaDelDiaDelPlan(h.dia))).filter(x=>x.tipo==="idea"&&coincide(x.idea.text+" "+(x.idea.tags||[]).join(" ")))
+    }catch(e){
+    }
+    // Una idea que ya está en Mis comidas (guardada con su nombre) aparece una sola vez, ahí.
+    const yaEstan=new Set(items.map(it=>normalizeSearchText(mealName(it)))),vistas=new Set();
+    ideas=ideas.filter(x=>{const k=normalizeSearchText(x.idea.text);if(yaEstan.has(k)||vistas.has(k))return false;vistas.add(k);return true});
+    ideas.sort((a,b)=>b.peso-a.peso);
+    out.push(seccion("Ideas","ideas",ideas.slice(0,n?20:6).map(x=>{
+      const b=ce("button","selector-item");b.type="button";b.dataset.selectorIdea=x.idea.text;b.append(ce("span","selector-item__nombre","💡 "+x.idea.text));return b
+    }),n?"Ninguna idea coincide.":avisoSinSugerencias()));
+    const pocas=dietaAvisoPocas();
+    if(pocas)out.at(-1).append(ce("p","screen__hint",pocas))
+  }
+  return out
+}
 function abrirSelector(dia,slot){
   if(!DAYS.some(d=>d[0]===dia)||!SLOTS.some(s=>s[0]===slot))return;
   const pool=slotPool(slot),caja=ce("div","selector"),buscar=ce("input"),lista=ce("div","selector__lista"),acciones=ce("div","selector__acciones"),sug=ce("div","selector__sugerencia");

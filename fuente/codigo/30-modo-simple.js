@@ -14,7 +14,7 @@ setUiMode(mode){
   }catch(e){
     uiModeMemory=next
   }
-  Interfaz.applyUiMode();
+  applyUiMode();
   if(next==="simple")ModoSimple.resetHiddenSessionControls();
   ModoSimple.renderUiModeControls();
   if(typeof refrescarPrecios==="function")refrescarPrecios()

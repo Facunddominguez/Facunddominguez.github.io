@@ -142,7 +142,7 @@ savedRecipeIngredients(r,amounts){
 },
 matchSavedRecipe(r,amounts,q){
   if(!q)return true;
-  return normalizeSearchText([r.title,r.sourceTitle||"",r.notes||"",...(r.steps||[]),...(r.tags||[]),...savedRecipeIngredients(r,amounts)].join(" ")).includes(q)
+  return normalizeSearchText([r.title,r.sourceTitle||"",r.notes||"",...(r.steps||[]),...(r.tags||[]),...MisPlatos.savedRecipeIngredients(r,amounts)].join(" ")).includes(q)
 },
 savedRecipeCard(r,amounts,inPlan){
   const card=ce("div","summary__line recipe-lib-card"),names=MisPlatos.savedRecipeIngredients(r,amounts),a=r.amountsTitle&&Object.prototype.hasOwnProperty.call(amounts,r.amountsTitle)?amounts[r.amountsTitle]:null;

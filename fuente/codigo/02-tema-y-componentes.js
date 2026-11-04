@@ -58,9 +58,6 @@ getUiMode(){
 isSimpleMode(){
   return Interfaz.getUiMode()==="simple"
 },
-applyUiMode(){
-  document.documentElement.setAttribute("data-modo",Interfaz.getUiMode())
-},
 emptyState(emoji,title,text,action){
   const w=ce("div","empty-state");
   w.append(ce("span","empty-state__emoji",emoji),ce("p","empty-state__title",title),ce("p","empty-state__text",text));
@@ -143,7 +140,10 @@ const TKEY="miPlatoFacil_theme";
 // Es un ajuste de cada dispositivo, como la clave de IA: no va en los respaldos (así siguen sirviendo en versiones anteriores).
 const UI_MODE_KEY="miPlatoFacil_uiMode_v1";
 let uiModeMemory=null;
-Interfaz.applyUiMode();
+function applyUiMode(){
+  document.documentElement.setAttribute("data-modo",Interfaz.getUiMode())
+}
+applyUiMode();
 function ce(t,c,txt){
   const e=document.createElement(t);
   if(c)e.className=c;

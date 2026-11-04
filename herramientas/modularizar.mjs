@@ -24,7 +24,7 @@ const texto = Object.fromEntries(archivos.map(f => [f, readFileSync(join(dirCodi
 // Otros textos donde se llaman las funciones: pruebas, herramientas y el HTML.
 const otros = {};
 const recorrer = (dir, ok) => { for (const f of readdirSync(join(RAIZ, dir), { recursive: true })) { const p = join(dir, f); if (statSync(join(RAIZ, p)).isFile() && ok(p)) otros[p] = readFileSync(join(RAIZ, p), 'utf8') } };
-recorrer('pruebas', p => /\.(js|mjs)$/.test(p) && !p.includes('fixtures'));
+recorrer('pruebas', p => /\.(js|mjs)$/.test(p) && !p.includes('fixtures/'));
 recorrer('herramientas', p => /\.mjs$/.test(p) && !p.endsWith('modularizar.mjs'));
 recorrer('fuente/cuerpo', p => /\.html$/.test(p));
 otros['fuente/plantilla.html'] = readFileSync(join(RAIZ, 'fuente/plantilla.html'), 'utf8');
@@ -54,7 +54,7 @@ for (const d of defs) {
   const mod = MODULOS[d.f.slice(0, 2)];
   if (!mod) continue;
   if (d.nombre.length < 6) { motivos.corto++; continue }
-  const re = new RegExp('(?<![\\w$.])' + esc(d.nombre) + '(?![\\w$])', 'g');
+  const re = new RegExp('(?<![\\w$])(?<![^.]\\.)' + esc(d.nombre) + '(?![\\w$])', 'g');
   const reW = new RegExp('(?<=\\b(?:w|window|contentWindow)\\.)' + esc(d.nombre) + '(?![\\w$])', 'g');
   let temprana = false, rara = false;
   const mirar = (t, f, esCodigo) => {
@@ -86,7 +86,7 @@ while (cambio) {
   for (const g of defs.filter(d => globales.has(d.nombre))) {
     const c = cuerpo(g);
     for (const m of mover) {
-      if (!globales.has(m.nombre) && idx(m.f) > idx('14-eventos-y-arranque.js') && new RegExp('(?<![\\w$.])' + esc(m.nombre) + '(?![\\w$])').test(c)) { globales.add(m.nombre); cambio = true; transitivas++ }
+      if (!globales.has(m.nombre) && idx(m.f) > idx('14-eventos-y-arranque.js') && new RegExp('(?<![\\w$])(?<![^.]\\.)' + esc(m.nombre) + '(?![\\w$])').test(c)) { globales.add(m.nombre); cambio = true; transitivas++ }
     }
   }
 }
@@ -97,7 +97,7 @@ if (simular) process.exit(0);
 // 3. Reescribir las llamadas en todos los textos.
 const porNombre = new Map(mover.map(d => [d.nombre, d.mod]));
 const nombres = [...porNombre.keys()].sort((a, b) => b.length - a.length);
-const reTodas = new RegExp('(?<![\\w$.])(' + nombres.map(esc).join('|') + ')(?=\\s*\\()(?<!function\\s+\\1)', 'g');
+const reTodas = new RegExp('(?<![\\w$])(?<![^.]\\.)(' + nombres.map(esc).join('|') + ')(?=\\s*\\()(?<!function\\s+\\1)', 'g');
 const reW = new RegExp('\\b(w|window|contentWindow)\\.(' + nombres.map(esc).join('|') + ')(?=\\s*\\()', 'g');
 const reescribir = t => t.replace(reW, (_, w, n) => `${w}.${porNombre.get(n)}.${n}`).replace(reTodas, (m, n, off, s) => /function\s+$/.test(s.slice(Math.max(0, off - 12), off)) ? m : `${porNombre.get(n)}.${n}`);
 for (const f of archivos) texto[f] = reescribir(texto[f]);

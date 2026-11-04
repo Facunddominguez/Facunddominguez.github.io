@@ -5,22 +5,6 @@
 // El adaptador solo lee: los platos (miPlatoFacil_saved) y las recetas (miPlatoFacil_recipeDetails_v1) siguen separados.
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como Comidas.nombre().
 const Comidas={
-ordenarComidas(lista){
-  const orden={
-    desayuno:0,plato:1,snack:2,pre:3
-  },nombre=c=>normalizeSearchText(c.nombre);
-  const s=lista.map((c,i)=>({
-    c,i
-  }));
-  s.sort((x,y)=>{
-    if(x.c.fav!==y.c.fav)return x.c.fav?-1:1;
-    if(savedSort==="az")return nombre(x.c).localeCompare(nombre(y.c),"es");
-    if(savedSort==="cocinado"&&x.c.cocinado!==y.c.cocinado)return y.c.cocinado-x.c.cocinado;
-    if(savedSort==="tipo"&&x.c.tipo!==y.c.tipo)return x.c.tipo==="plato"?-1:1;
-    return x.i-y.i
-  });
-  return s.map(x=>x.c)
-},
 abrirComida(origen,id){
   if(origen==="receta"){
     recipeReadReturnTo="misplatos";
@@ -147,7 +131,7 @@ eliminarRecetaDesdeDetalle(id){
 abrirNutrientesDeIngrediente(nombre){
   const limpio=String(nombre||"").split(":")[0].trim();
   hoja.abrir({
-    titulo:limpio,contenido:[Nutricion.nutrientesDeIngrediente(limpio)],botones:[],foco:false
+    titulo:limpio,contenido:[nutrientesDeIngrediente(limpio)],botones:[],foco:false
   })
 },
 abrirNuevaComida(){
@@ -212,6 +196,22 @@ function comidaDesdeReceta(r,amounts,enPlan){
   return {
     tipo:"receta",origen:"receta",id:r.id,nombre:r.title,componentes:MisPlatos.savedRecipeIngredients(r,amounts),etiquetas:["Receta",r.minutes?"⏱ "+r.minutes+" min":"",a&&a.yield?"Rinde "+String(a.yield).replace(".",","):"",enPlan?"📅 En el plan":""].filter(Boolean),fav:false,cocinado:0,enPlan:!!enPlan,fecha:r.updatedAt||r.createdAt||"",aviso:""
   }
+}
+function ordenarComidas(lista){
+  const orden={
+    desayuno:0,plato:1,snack:2,pre:3
+  },nombre=c=>normalizeSearchText(c.nombre);
+  const s=lista.map((c,i)=>({
+    c,i
+  }));
+  s.sort((x,y)=>{
+    if(x.c.fav!==y.c.fav)return x.c.fav?-1:1;
+    if(savedSort==="az")return nombre(x.c).localeCompare(nombre(y.c),"es");
+    if(savedSort==="cocinado"&&x.c.cocinado!==y.c.cocinado)return y.c.cocinado-x.c.cocinado;
+    if(savedSort==="tipo"&&x.c.tipo!==y.c.tipo)return x.c.tipo==="plato"?-1:1;
+    return x.i-y.i
+  });
+  return s.map(x=>x.c)
 }
 // La tarjeta: nombre, componentes en una línea y etiquetas. Desde la v15.6 suma el "≈ costo por porción" cuando los precios están activos.
 function tarjetaComida(c){

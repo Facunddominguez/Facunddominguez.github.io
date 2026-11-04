@@ -9,7 +9,7 @@
   const advancedIn = id => [...$(id).querySelectorAll("[data-avanzado]")];
   reset();
   // M1 Arranca en modo simple, sin guardar nada (reset() elige simple a propósito desde la Etapa 13: acá se mira sin ninguna elección)
-  localStorage.removeItem(UI_MODE_KEY); uiModeMemory = null; Interfaz.applyUiMode();
+  localStorage.removeItem(UI_MODE_KEY); uiModeMemory = null; applyUiMode();
   T.ok("M1 la app arranca en modo simple sin guardar ningún ajuste", Interfaz.getUiMode() === "simple" && document.documentElement.dataset.modo === "simple" && localStorage.getItem(UI_MODE_KEY) === null);
   // Datos inventados para que todas las pantallas tengan contenido
   criticalCase();
@@ -167,7 +167,7 @@
   const readMsg = $("recipeReadIngredients").textContent;
   T.ok("M12 los mensajes indican Editar receta, no paneles ocultos", /Editar receta/.test(assignMsg) && !/Mis cantidades/.test(assignMsg) && /Editar receta/.test(readMsg) && !/Mis cantidades/.test(readMsg), assignMsg + " | " + readMsg);
   // M13 Un valor desconocido guardado no rompe: se usa el modo simple
-  localStorage.setItem(UI_MODE_KEY, "raro"); Interfaz.applyUiMode();
+  localStorage.setItem(UI_MODE_KEY, "raro"); applyUiMode();
   T.ok("M13 un valor desconocido del ajuste se toma como modo simple", Interfaz.getUiMode() === "simple" && document.documentElement.dataset.modo === "simple");
   closeRecipeRead(false); showRecipeView("browse");
   reset(); go("home");
