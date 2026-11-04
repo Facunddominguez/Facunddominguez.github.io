@@ -2289,3 +2289,10 @@ Rama `rediseno-2-etapa-18-modulos`.
 **Tests adaptados**: ninguna prueba cambió de exigencia; solo se reescribieron los nombres de las funciones que llaman (`shoppingDisplayItems()` → `Compras.shoppingDisplayItems()`, `w.restoreCompleteBackup(` → `w.Respaldo.restoreCompleteBackup(`, etc.) con la misma herramienta.
 
 **Revisores (Etapa 18)**: `revisor-codigo` NO BLOQUEANTE. Sugerencias que quedan: la condición de `--archivo` en `capturas.mjs` es redundante; `.mode-note` y el recorrido de `[data-mode-note]` en `30-modo-simple.js` siguen como código muerto (quedan para una limpieza futura); quedan 311 funciones globales por el orden de arranque. Compuerta: VALIDACIÓN ETAPA 18: OK (106 controles, 9,5 min).
+
+### Cierre de la Ronda 2
+
+- Las etapas 11 a 18 están ✅ en `rediseno-2` (v16.7.0) con la compuerta en verde (`VALIDACIÓN ETAPA 18: OK`, 576 de 576 pruebas) y la línea base al día. PR abierto contra `main`: https://github.com/Facunddominguez/Facunddominguez.github.io/pull/2 (el informe es `docs/informe-ronda-2.md`). No se hizo push ni merge a `main`; `main` no cambió durante la ronda.
+
+**Pendientes para vos**
+- Los tags `etapa-11-ok` a `etapa-18-ok` existen solo en el contenedor de la sesión: su push dio error 403 (las ramas y los commits sí subieron). Hay que crearlos y subirlos desde otra máquina sobre el commit de cada "Merge etapa N" (ver `git log --merges rediseno-2`). La tabla de arriba los nombra igual porque la compuerta de la ronda 2 compara contra `rediseno-2` y no contra esos tags.
