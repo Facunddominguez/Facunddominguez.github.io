@@ -2463,3 +2463,22 @@ Rama `rediseno-3-etapa-21-ficha-precio`. Versión 17.2.0.
 **Revisor de usuario (Etapa 21)**: BLOQUEANTE por (1) el aviso de rango quedaba debajo de los botones y fuera de la vista, (2) el enlace "ficha USDA" con el azul por defecto sobre fondo oscuro. Corregido: el aviso va arriba de los botones y se desplaza a la vista; los enlaces de las hojas usan el color del tema; además se omite "entre $X y $X" cuando el rango no tiene ancho y "Completar precios" lista filas de ancho completo. Capturas rehechas (solo tema oscuro: el rango claro lo cubre el control de contraste de la compuerta).
 
 Compuerta final (Etapa 21): VALIDACIÓN ETAPA 21: OK (123 controles, 590 pruebas).
+
+### Etapa 22 ✅ Lo que arma la app tiene sentido
+Rama `rediseno-3-etapa-22-armado-con-sentido`. Versión 17.3.0.
+
+**Plan corto**
+- `45-armame-la-semana.js`: plantillas de desayuno y merienda, topes de variedad, prioridad a lo guardado, "más barata" con precios completos, marca `deLaSemana` en lo que arma y migración `marcarDeLaSemana()` de lo que armó antes. `09-mis-platos.js` y `18-misplatos.html`: Mis comidas oculta lo "de la semana" y suma el filtro "De la semana". `39-comidas.js`: "Guardar en mis comidas" en el menú de una comida "de la semana". Prueba nueva `e22_armado_con_sentido.js`.
+- Riesgos para los datos: las comidas guardadas (`miPlatoFacil_saved`) pueden llevar un campo nuevo `deLaSemana:true`; no se borra ni se renombra nada y las claves no cambian.
+
+**Hecho cuando**
+- ✅ E22-variedad: en 20 semanas armadas con semillas distintas (a $70.000) siempre se llenan las 28 comidas, ninguna comida principal se repite más de 2 veces, ninguna proteína base (lentejas, pollo, carne, pescado, huevo) más de 3 ni el arroz más de 3 en almuerzos y cenas, y no aparece huevo ni queso con granola (70 desayunos distintos en esas semanas, por ejemplo "Licuado de kiwi con leche", "Kiwi con huevo y pan de molde", "Ciruela en trozos con avena").
+- ✅ E22-barata: en 42 intentos en 3 semanas (14 cambios en una, etc.) "Cambiar por una más barata" nunca eligió una comida con faltantes ni una más cara; si la comida actual no tiene todos los precios dice "A esta comida le faltan precios y no puedo compararla" y si no hay más barata lo dice. Elige la de menor costo, ya no la "más parecida".
+- ✅ E22-no-crece: después de armar la semana Mis comidas muestra 0 comidas nuevas (se guardaron 18, todas "de la semana", visibles en el filtro "De la semana"); "Guardar en mis comidas" hace aparecer esa comida y sigue en el plan.
+- ✅ E22-bienvenida: las 3 ideas guardadas antes de armar entran en 5 semanas con semillas distintas.
+
+**Plantillas** (Decisión): yogur + fruta + avena o granola; pan + queso + fruta; licuado de leche + fruta; huevo + pan + fruta; y fruta + avena/granola/pan sin proteína (para quien evita lácteos y huevo). Las combinaciones al azar de la v16 ya no se arman. Lo guardado por el usuario (comidas que no son "de la semana") suma 2 puntos al elegir: así entran primero las ideas que se eligieron en la bienvenida (que se guardan como comidas) y lo que se cocina seguido.
+
+**De la semana** (Decisión): Armame ya no escribe en Mis comidas visibles: guarda cada comida nueva con `deLaSemana:true` (el plan necesita que existan en `miPlatoFacil_saved`), Mis comidas las oculta y el chip "De la semana" las muestra; "Guardar en mis comidas" quita la marca. La migración marca como "de la semana" las comidas guardadas hasta 30 segundos antes de una entrada "Armame la semana" del historial del plan (si no son favoritas ni cocinadas); si no hay historial no marca nada. Se puede correr dos veces y no borra nada.
+
+**Tests**: ninguna prueba vieja cambió en esta etapa.

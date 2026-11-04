@@ -123,6 +123,12 @@
     {"id": "E21-mi-precio", "etapa": 21, "hecho": "Un precio cargado en la ficha cambia al instante todos los costos, se guarda en referencePrices_v1 sin activar herramientas avanzadas, gana sobre el automático y se puede deshacer.", "tipo": "prueba", "prueba": "E21-mi-precio"},
     {"id": "E21-aviso", "etapa": 21, "hecho": "El aviso de precio fuera de rango (más de 3 veces la mediana de su categoría) aparece con un precio fuera de rango y no con uno normal, y deja guardar igual.", "tipo": "prueba", "prueba": "E21-aviso"},
     {"id": "E21-registro", "etapa": 21, "hecho": "Cómo se guarda y se aplica Mi precio queda en el Registro.", "tipo": "registro", "seccion": "Etapa 21", "debeNombrar": ["Mi precio", "Aviso de rango"]},
-    {"id": "E21-datos", "etapa": 21, "hecho": "Guardar, borrar y deshacer Mi precio conservan los precios que ya había en referencePrices_v1; si lo guardado no se entiende no se escribe nada.", "tipo": "prueba", "prueba": "E21-datos"}
+    {"id": "E21-datos", "etapa": 21, "hecho": "Guardar, borrar y deshacer Mi precio conservan los precios que ya había en referencePrices_v1; si lo guardado no se entiende no se escribe nada.", "tipo": "prueba", "prueba": "E21-datos"},
+    {"id": "E22-variedad", "etapa": 22, "hecho": "En 20 semanas armadas con semillas distintas no hay combinaciones prohibidas ni se superan los topes (misma comida 2, misma proteína base 3, arroz 3).", "tipo": "prueba", "prueba": "E22-variedad"},
+    {"id": "E22-barata", "etapa": 22, "hecho": "Cambiar por una más barata nunca elige una comida con faltantes que cuenten $0 ni una más cara, y dice cuando no hay una más barata.", "tipo": "prueba", "prueba": "E22-barata"},
+    {"id": "E22-no-crece", "etapa": 22, "hecho": "Después de armar la semana, Mis comidas no crece; lo armado queda 'de la semana' y se puede guardar en mis comidas.", "tipo": "prueba", "prueba": "E22-no-crece"},
+    {"id": "E22-migracion", "etapa": 22, "hecho": "Las comidas que Armame creó en versiones anteriores se marcan 'de la semana' sin borrar nada.", "tipo": "prueba", "prueba": "E22-migracion"},
+    {"id": "E22-bienvenida", "etapa": 22, "hecho": "Las ideas elegidas en la bienvenida entran primero al armar la semana.", "tipo": "prueba", "prueba": "E22-bienvenida"},
+    {"id": "E22-registro", "etapa": 22, "hecho": "Cómo se arma la semana (plantillas, topes, 'de la semana') queda en el Registro.", "tipo": "registro", "seccion": "Etapa 22", "debeNombrar": ["Plantillas", "De la semana"]}
   ]
 }
