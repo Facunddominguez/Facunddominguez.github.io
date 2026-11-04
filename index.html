@@ -7086,7 +7086,7 @@ nombreCorto(texto){
   return String(texto).replace(/^([^:(]*?)\s*\([^)]*\)/,"$1")
 },
 shoppingRow(x,i,checked,detail){
-  const row=ce("div","shop-item"+(checked?" is-done":"")),cb=ce("input"),lab=ce("label",null,Ingredientes.textoLegible(Compras.nombreCorto(x.text))+(x.precioTxt?" · ":""));
+  const row=ce("div","shop-item"+(checked?" is-done":"")),cb=ce("input"),lab=ce("label",null,Ingredientes.textoLegible(x.cortar?Compras.nombreCorto(x.text):x.text)+(x.precioTxt?" · ":""));
   // El precio se toca para ver su fuente, mes y rango (no tacha el ítem).
   let detallePrecioEl=null;
   if(x.precioTxt){
@@ -7389,6 +7389,10 @@ function renderCompras(){
     cont.replaceChildren(ce("p","screen__hint","No se pudo calcular la lista: "+e.message));
     return
   }
+  // El nombre corto solo se usa si no se confunde con otra fila ("Arroz" y "Arroz (integral, yamaní)" siguen separados).
+  const cuentaCorto=new Map();
+  for(const x of items){const k=ingredientKey(Compras.nombreCorto(x.name));cuentaCorto.set(k,(cuentaCorto.get(k)||0)+1)}
+  for(const x of items)x.cortar=cuentaCorto.get(ingredientKey(Compras.nombreCorto(x.name)))===1;
   const pend=items.filter(x=>x.group==="pendiente"),tenes=items.filter(x=>x.group==="tenes"),comprados=items.filter(x=>x.group==="comprado"),pending=pend.filter(x=>!comprasDone[x.key]),tachados=pend.length-pending.length+tenes.filter(x=>comprasDone[x.key]).length;
   let precios=null;
   try{
