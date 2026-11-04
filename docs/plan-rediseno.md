@@ -2417,3 +2417,21 @@ Rama `rediseno-3-etapa-19-precios-encuentran`. Versión 17.0.0.
 - Correr "Actualizar precios" (GitHub Actions) para que entren los precios de SEPA de los 15 ítems nuevos del mapa; después se puede vaciar la lista `sinDato` de `datos/precios-notas.json` de lo que entre.
 
 **Revisor y compuerta (Etapa 19)**: `revisor-codigo` BLOQUEANTE por la brecha del 90 % real (ver Cobertura: se documentó como Decisión y se sumaron E19-cobertura-real y E19-no-confunde; la brecha queda en "Pendientes para vos"); sus sugerencias de prueba negativa y de igualdad en las excepciones se aplicaron. Compuerta: VALIDACIÓN ETAPA 19: OK (113 controles, 582 pruebas).
+
+### Etapa 20 ✅ Un solo costo, completo y claro
+Rama `rediseno-3-etapa-20-un-costo`. Versión 17.1.0.
+
+**Plan corto**
+- `43-precios.js`: `costoDeIngrediente()` (precio real o estimado), `costoDeFilas()` (una comida), `costoDeProducto()`/`preciosDeLaLista()` (lista y semana), `costoSemanaPlan()` y `costoSemanaDeFilas()` (semana, también para comidas aún sin guardar). Semana (`pintarCostoDia`), Compras (`preciosDeLaLista`), la barra de presupuesto (`totalAutomaticoLista`) y el aviso de `45-armame-la-semana.js` salen de ahí. Datos: `datos/precios.json` suma `categorias` (categoría y unidad base de los ítems del mapa sin precio; los demás la traen en `k`); la herramienta la genera. Pantalla Semana: nuevo `#planPreciosEstado` y la hoja "Completar precios". Prueba nueva `e20_un_costo.js`.
+- Riesgos para los datos: ninguno.
+
+**Hecho cuando**
+- ✅ E20-mismo-total: con la semana armada a $70.000, el aviso, Semana, Compras y la barra dicen lo mismo (≈ $67.764 en la prueba).
+- ✅ E20-sin-cero: lo sin precio real se estima con la mediana por kg o litro de su categoría y se marca ("sin precio · estimado ≈ $X"); lo que no se puede estimar queda "sin precio", no suma y el total dice "al menos". "Fruta de estación" se estima como fruta (150 g la unidad).
+- ✅ E20-frase: "Semana ≈ $X · hoy ≈ $Y" y "Con precio: 25 de 32 productos · Completar 7 precios"; el botón abre la hoja con los 7 productos sin precio real. "Faltan" cuenta productos distintos (32 productos distintos para 28 comidas).
+
+**Costo único** (Decisión): el total de la semana y de la lista cuenta lo que se compra, con envases enteros (1 paquete de pan de molde aunque se usen 2 rebanadas) y mismo cálculo para el aviso, Semana, Compras y la barra. El costo de una comida o de un día cuenta lo que usa (sin redondear a envases). Consecuencia que conviene saber: la misma semana de la v16.7.0 pasó de ≈ $30.550 a ≈ $55.000-$68.000 porque ahora suma los 12 productos que antes valían $0 en silencio y los envases enteros. Si se prefiere "lo que se consume", es una sola función (`unidadesACostear`).
+
+**Estimados** (Decisión): mediana del precio por kg o litro de la categoría en la región elegida (con la misma prioridad de fuentes que el precio automático). Un producto de la lista con cantidad que no se puede pasar a kg o litro (por ejemplo cucharadas de semillas) queda "sin precio" hasta la Etapa 23. Se agregó "Romero" a los básicos de alacena (no entra a la lista).
+
+**Tests adaptados** (misma exigencia, texto nuevo): `e7_precios.js` C7-2 (la línea de Semana ahora es "Semana al menos ≈ $4.500 · hoy ≈ $3.100"), `e10_pulido.js` C10-6 (el stub de `costosDelPlan` y las frases nuevas), `e13_precios_a_la_vista.js` C13-1 (el 80 % se mide sobre precios reales, no sobre los estimados; antes contaba cualquier entrada) y C13-2 (con envases enteros el costo de 3 personas no es exactamente el triple: se pide más de 1,5 y no más de 3 veces), `e15_armame.js` C15-1 (los presupuestos "bajo" y "medio" pasan de $26.000/$40.000 a $60.000/$70.000: con todos los precios, la semana más barata que arma la app cuesta ≈ $55.000) y C15-5 (prueba cada almuerzo y cena hasta encontrar uno que se pueda abaratar; con precios completos no siempre hay uno en el hueco del miércoles). Tope de `index.html` subido de 820.000 a 860.000 bytes (`construir.mjs` y texto de E9-tamano-app): sigue fallando la construcción si se pasa. Compras: la fila sin "o …" y sin la fuente larga para mantener E1-palabras-compras (254 palabras; el máximo es 262,8).

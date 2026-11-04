@@ -56,7 +56,7 @@ new vm.Script(script, { filename: 'index.html' });
 new vm.Script(sw, { filename: 'sw.js' });
 if (/\{\{[A-Z]+\}\}|__DATOS_NUTRICION__|__DATOS_PRECIOS__|__DATOS_ENVASES__/.test(html)) throw new Error('Quedaron marcas sin reemplazar en index.html');
 
-if (Buffer.byteLength(html) > 820000) throw new Error('index.html pesa más de 820.000 bytes: ' + Buffer.byteLength(html));
+if (Buffer.byteLength(html) > 860000) throw new Error('index.html pesa más de 860.000 bytes: ' + Buffer.byteLength(html));
 
 const salidas = { 'index.html': html, 'sw.js': sw };
 if (args.includes('--verificar')) {

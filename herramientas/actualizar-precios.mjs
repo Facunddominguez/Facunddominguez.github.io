@@ -519,6 +519,8 @@ export function componer({ previo, indec, sepa, mapa, hoy }) {
     fecha: sp.fecha, recurso: sp.recurso, productos: sp.productos, sucursales: sp.sucursales, comercios: sp.comercios,
   };
   datos.items = items;
+  // Categoría y unidad base de los ingredientes del mapa SIN precio (los que tienen precio la traen en 'k'): la app estima los que no tienen precio con la mediana de su categoría (Etapa 20).
+  datos.categorias = Object.fromEntries(mapa.items.filter(m => m.cat && !items.some(i => i.n === m.n)).map(m => [m.n, [m.cat, m.b]]));
   return { datos, avisos };
 }
 export function coberturaAmbito(d, mapa) {

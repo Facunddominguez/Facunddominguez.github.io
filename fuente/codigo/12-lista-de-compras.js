@@ -177,9 +177,9 @@ seccionDelSuper(nombre){
   }
   return "Otros"
 },
-// Etapa 19: en la fila no se repite lo que va entre paréntesis del nombre ("Arroz (integral, yamaní): …" → "Arroz: …"); la lista copiada lo conserva.
+// Etapa 19: en la fila no se repite lo que va entre paréntesis ni después de "o" ("Arroz (integral, yamaní): …" → "Arroz: …", "Avena arrollada o instantánea" → "Avena arrollada"); la lista copiada lo conserva.
 nombreCorto(texto){
-  return String(texto).replace(/^([^:(]*?)\s*\([^)]*\)/,"$1")
+  return String(texto).replace(/^([^:(]*?)\s*\([^)]*\)/,"$1").replace(/^([^:]*?)\s+o\s+[^:]*/,"$1")
 },
 shoppingRow(x,i,checked,detail){
   const row=ce("div","shop-item"+(checked?" is-done":"")),cb=ce("input"),lab=ce("label",null,Ingredientes.textoLegible(x.cortar?Compras.nombreCorto(x.text):x.text)+(x.precioTxt?" · ":""));
@@ -497,7 +497,7 @@ function renderCompras(){
   }
   summary.textContent=pending.length+" pendientes · "+tachados+" tachados"+resumenPrecios(precios);
   pintarPreciosCompras(precios);
-  hint.textContent="Tachá lo que comprás. Lo que tenés en la Despensa pasa a Ya tenés.";
+  hint.textContent="Tachá lo que comprás. Lo de la Despensa pasa a Ya tenés.";
   const nodes=[],equiv=Compras.equivalenciaSugerida(items);
   if(equiv)nodes.push(equiv);
   let i=0;
