@@ -22,12 +22,12 @@
   tools.open = false;
   // v14.9.90: en modo simple las herramientas están ocultas, así que la indicación apunta a "Con lo que tengo".
   const simpleHint = document.getElementById("comprasHint").textContent;
-  setUiMode("completo"); await wait(20);
+  ModoSimple.setUiMode("completo"); await wait(20);
   const fullHint = document.getElementById("comprasHint").textContent;
-  setUiMode("simple"); await wait(20);
+  ModoSimple.setUiMode("simple"); await wait(20);
   // v15.4: la despensa se registra en la Despensa (segmento de Compras), en los dos modos.
   T.ok("X7 la indicación explica dónde registrar la despensa (simple: Con lo que tengo; completo: Más herramientas)", /Despensa/.test(simpleHint) && /Despensa/.test(fullHint) && !/Con lo que tengo|Más herramientas/.test(simpleHint + fullHint), simpleHint + " | " + fullHint);
   T.ok("X8 código sin uso eliminado", typeof buildShopping === "undefined" && typeof shoppingMissingLabel === "undefined" && !document.querySelector("[data-manual-copy]"));
-  T.ok("X9 copiar la lista sigue funcionando", /🛒 Lista de compras/.test(comprasText()) && comprasText().includes("Papa: 200 g"));
+  T.ok("X9 copiar la lista sigue funcionando", /🛒 Lista de compras/.test(Compras.comprasText()) && Compras.comprasText().includes("Papa: 200 g"));
   return T;
 })()

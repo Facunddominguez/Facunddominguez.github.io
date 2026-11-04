@@ -14,6 +14,11 @@ function preferenciasEvitar(){
     return []
   }
 }
+// ¿El texto (nombre, etiquetas e ingredientes) cumple lo que preferís evitar? Un solo lugar para el selector, las Ideas, Sugerime y Armame la semana.
+function textoPermitido(texto){
+  const evitar=preferenciasEvitar(),t=normalizeSearchText(String(texto||""));
+  return dietaPermite(texto)&&!evitar.some(w=>t.includes(w))
+}
 function ideaIngredientes(idea){
   const i=idea&&idea.ingredientes;
   return i?SUGERENCIA_GRUPOS.flatMap(k=>Array.isArray(i[k])?i[k]:[]):[]
@@ -24,11 +29,9 @@ function estadoConGrupos(st){
 // Candidatas de almuerzo o cena: {tipo:"idea", idea} o {tipo:"mia", item}, cada una con su peso.
 // dia: "Día de entrenamiento" o "Día libre" si la rutina lo sabe (tus comidas del otro tipo de día no salen).
 function sugerenciasPara(comida,dia){
-  const evitar=preferenciasEvitar(),tengo=pantryMarkedMatcher(),stock=Object.values(loadStockQuantities()).filter(s=>s.quantity>0).map(s=>ingredientKey(s.name));
+  const evitar=preferenciasEvitar(),tengo=MarcasDespensa.pantryMarkedMatcher(),stock=Object.values(loadStockQuantities()).filter(s=>s.quantity>0).map(s=>ingredientKey(s.name));
   const enDespensa=n=>tengo.has(n)||stock.includes(ingredientKey(n));
-  const evitada=texto=>{
-    const t=normalizeSearchText(texto);return evitar.some(w=>t.includes(w))
-  };
+  const evitada=texto=>!textoPermitido(texto);
   const out=[];
   if(comida!=="almuerzo"&&comida!=="cena"&&comida!=="plato")return out;
   for(const idea of data.menuCatalog){
@@ -38,12 +41,12 @@ function sugerenciasPara(comida,dia){
       tipo:"idea",idea,peso:1+ings.filter(enDespensa).length
     })
   }
-  for(const item of loadSaved()){
+  for(const item of MisPlatos.loadSaved()){
     if(!item||item.type!=="plato"||item.recipeSourceId||!estadoConGrupos(item.state))continue;
     if(dia&&typeof item.state.day==="string"&&item.state.day&&item.state.day!==dia)continue;
     let ings=[];
     try{
-      ings=extractIngredients(item)
+      ings=Semana.extractIngredients(item)
     }catch(e){
     }
     if(evitada(mealName(item)+" "+ings.join(" ")))continue;
@@ -66,7 +69,7 @@ function elegirSugerencia(comida,azar,dia){
 }
 // Carga la sugerencia en el armado para verla en el resumen (se puede cambiar o guardar con su nombre).
 function cargarSugerencia(s,dia){
-  resetForRandom("plato");
+  AlAzar.resetForRandom("plato");
   const st=s.tipo==="idea"?{
     ...s.idea.ingredientes
   }:s.item.state;
@@ -75,10 +78,10 @@ function cargarSugerencia(s,dia){
   }));
   state.day=dia||(s.tipo==="mia"&&(s.item.state.day==="Día de entrenamiento"||s.item.state.day==="Día libre")?s.item.state.day:"Día libre");
   state.nombreSugerido=s.tipo==="idea"?s.idea.text:mealName(s.item);
-  setReplace("carb",!state.almidones.length&&state.legCarb.length>0);
-  setReplace("prot",!state.proteinas.length&&state.legProt.length>0);
-  syncMultiSelection();
-  updatePlate()
+  Armado.setReplace("carb",!state.almidones.length&&state.legCarb.length>0);
+  Armado.setReplace("prot",!state.proteinas.length&&state.legProt.length>0);
+  AlAzar.syncMultiSelection();
+  Armado.updatePlate()
 }
 function avisoSinSugerencias(){
   return preferenciasEvitar().length?"No hay ideas que no tengan lo que evitás. Revisá tus preferencias de recetas.":"No hay ideas para sugerir."

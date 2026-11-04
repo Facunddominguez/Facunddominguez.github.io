@@ -21,7 +21,7 @@
   const $ = id => { const e = doc().getElementById(id); if (!e) throw Error("no está en la pantalla: #" + id); return e };
   const q = s => { const e = doc().querySelector(s); if (!e) throw Error("no está en la pantalla: " + s + " (pantalla: " + ev("stack.at(-1)") + ")"); return e };
   const tocar = async el => { el.click(); toques++; await espera(120) };
-  const irA = async pestana => { await tocar(q('#sectionNav [data-section-tab="' + pestana + '"]')); if (ev("stack.at(-1) !== activeTabRoot()")) await tocar(q('#sectionNav [data-section-tab="' + pestana + '"]')) };
+  const irA = async pestana => { await tocar(q('#sectionNav [data-section-tab="' + pestana + '"]')); if (ev("stack.at(-1) !== Armado.activeTabRoot()")) await tocar(q('#sectionNav [data-section-tab="' + pestana + '"]')) };
   const pantalla = () => ev("stack.at(-1)");
   const visible = e => !!e && e.getClientRects().length > 0;
   const hojaAbierta = () => ev("hoja.abierta()");
@@ -83,8 +83,8 @@
   };
   cargar({}); await abrir();
   // Último cambio: el domingo anterior a las 22 (hora local; en UTC puede ser lunes) → la semana del plan es la anterior.
-  const domingo22 = ev('(()=>{const d=new Date(semanaActual()+"T12:00:00");d.setDate(d.getDate()-1);d.setHours(22,0,0,0);return d.toISOString()})()');
-  const lunesAnt = ev("lunesAnterior()"), ddmm = lunesAnt.slice(8, 10) + "/" + lunesAnt.slice(5, 7), hist = JSON.stringify([{ at: domingo22, text: "Domingo · Cena: asignado algo" }]);
+  const domingo22 = ev('(()=>{const d=new Date(Semana.semanaActual()+"T12:00:00");d.setDate(d.getDate()-1);d.setHours(22,0,0,0);return d.toISOString()})()');
+  const lunesAnt = ev("Selector.lunesAnterior()"), ddmm = lunesAnt.slice(8, 10) + "/" + lunesAnt.slice(5, 7), hist = JSON.stringify([{ at: domingo22, text: "Domingo · Cena: asignado algo" }]);
   prep({ miPlatoFacil_planHistory_v1: hist }); await abrir(); await irA("semana");
   const sinEscribir = todo(); await irA("hoy"); await irA("semana");
   const avisoA = $("planSemanaNueva");
@@ -169,7 +169,7 @@
   // C2-6 El menú ⋯ tiene lo del plan y cada ítem abre su herramienta funcionando
   await irA("semana"); await tocar(q("[data-plan-menu]"));
   const items = [...doc().querySelectorAll(".hoja .menu-semana button")].map(b => b.textContent);
-  const esperados = ["Repetir semana anterior", "Copiar un día", "Vaciar la semana", "Planes guardados", "Semanas anteriores y mes", "Historial de cambios", "Descargar", "Buscar en mis recetas", "Registro y objetivos"];
+  const esperados = ["Repetir semana anterior", "Copiar un día", "Empezar de nuevo", "Planes guardados", "Semanas anteriores y mes", "Historial de cambios", "Descargar", "Buscar en mis recetas", "Registro y objetivos"];
   const herr = {};
   const abrirHerr = async nombre => { if (pantalla() !== "plan") await irA("semana"); await tocar(q("[data-plan-menu]")); await tocar(q('.hoja [data-plan-herr="' + nombre + '"]')); return pantalla() === "planHerramientas" && !q('#planHerramientas [data-herr="' + nombre + '"]').hidden };
   herr.variaciones = await abrirHerr("variaciones") && [...$("varSelect").options].some(x => x.value === "Semana liviana") && visible(q("#planHerramientas [data-del-var]"));

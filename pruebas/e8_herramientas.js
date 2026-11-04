@@ -22,13 +22,14 @@
   const qa = s => [...doc().querySelectorAll(s)];
   const $ = id => q("#" + id);
   const tocar = async el => { el.click(); toques++; await espera(120) };
-  const irA = async pestana => { await tocar(q('#sectionNav [data-section-tab="' + pestana + '"]')); if (ev("stack.at(-1) !== activeTabRoot()")) await tocar(q('#sectionNav [data-section-tab="' + pestana + '"]')) };
+  const irA = async pestana => { await tocar(q('#sectionNav [data-section-tab="' + pestana + '"]')); if (ev("stack.at(-1) !== Armado.activeTabRoot()")) await tocar(q('#sectionNav [data-section-tab="' + pestana + '"]')) };
   const pantalla = () => ev("stack.at(-1)");
   const visible = e => !!e && e.getClientRects().length > 0;
   const seVe = (e, texto) => visible(e) && e.innerText.includes(texto);
   const menuCompras = async herr => { await tocar(q("#compras [data-compras-menu]")); await tocar(q('.hoja [data-compras-herr="' + herr + '"]')) };
   const R = await (await fetch("/tests/fixtures/respaldo-v14.9.94.json", { cache: "no-store" })).json();
-  const cargar = datos => { localStorage.clear(); for (const [k, v] of Object.entries(datos)) if (v !== null) localStorage.setItem(k, v) };
+  // Desde la Etapa 13 los precios vienen encendidos en una instalación nueva; estas pruebas parten con modo simple elegido (precios apagados) salvo que el caso diga otra cosa.
+  const cargar = datos => { localStorage.clear(); if (!("miPlatoFacil_uiMode_v1" in datos) && !("miPlatoFacil_mostrarPrecios_v1" in datos)) localStorage.setItem("miPlatoFacil_uiMode_v1", "simple"); for (const [k, v] of Object.entries(datos)) if (v !== null) localStorage.setItem(k, v) };
   const todo = () => JSON.stringify(Object.keys(localStorage).filter(k => k.startsWith("miPlatoFacil_") && k !== "miPlatoFacil_uiMode_v1" && k !== "miPlatoFacil_mostrarPrecios_v1").sort().map(k => [k, localStorage.getItem(k)]));
   const J = k => JSON.parse(R.data[k]);
   const DIAS = ["lunes", "martes", "miercoles", "jueves", "viernes", "sabado", "domingo"];
@@ -59,8 +60,10 @@
   casos.push(["completo: precios prendidos y sin escribir nada", conMP() === true && localStorage.getItem(MP) === null && lblPrecios() === "Mostrar precios y presupuesto: activado" && lblModo() === "Mostrar herramientas avanzadas: activado"]);
   cargar({ [UI]: "simple" }); await abrir();
   casos.push(["simple: precios apagados", conMP() === false && localStorage.getItem(MP) === null]);
-  cargar({}); await abrir();
-  casos.push(["sin nada: precios apagados y nada guardado", conMP() === false && localStorage.getItem(MP) === null && localStorage.getItem(UI) === null]);
+  localStorage.clear(); await abrir();
+  // Desde la Etapa 13 una instalación nueva (sin uiMode_v1) los tiene encendidos; quien eligió simple los conserva apagados (caso de arriba).
+  casos.push(["sin nada: precios encendidos y nada guardado", conMP() === true && localStorage.getItem(MP) === null && localStorage.getItem(UI) === null]);
+  cargar({ [UI]: "simple" }); await abrir();
   // Quien está en simple (clave ausente) y activa las herramientas avanzadas: los precios siguen apagados (se escribe false)
   await tocar($("uiModeToggle"));
   casos.push(["simple + herramientas avanzadas: precios apagados, se escribe false", localStorage.getItem(UI) === "completo" && localStorage.getItem(MP) === '{"mostrar":false}' && conMP() === false && lblPrecios() === "Mostrar precios y presupuesto: desactivado" && lblModo() === "Mostrar herramientas avanzadas: activado"]);
@@ -84,10 +87,10 @@
   // La barra de presupuesto sigue a los precios, no al modo
   cargar(base({ [UI]: "simple", [MP]: '{"mostrar":true}', [BUDGET]: '{"currency":"ARS","limit":30000,"period":"semana"}' })); await abrirConEjemplo();
   await irA("compras");
-  const barraConPrecios = seVe($("comprasPresupuesto"), "30.000") && ev("getUiMode()") === "simple";
+  const barraConPrecios = seVe($("comprasPresupuesto"), "30.000") && ev("Interfaz.getUiMode()") === "simple";
   cargar(base({ [UI]: "completo", [MP]: '{"mostrar":false}', [BUDGET]: '{"currency":"ARS","limit":30000,"period":"semana"}' })); await abrirConEjemplo();
   await irA("compras");
-  casos.push(["la barra de presupuesto sigue a los precios y no al modo", barraConPrecios && !visible($("comprasPresupuesto")) && ev("getUiMode()") === "completo"]);
+  casos.push(["la barra de presupuesto sigue a los precios y no al modo", barraConPrecios && !visible($("comprasPresupuesto")) && ev("Interfaz.getUiMode()") === "completo"]);
   const malosC1 = casos.filter(c => !c[1]).map(c => c[0]);
   ok("C8-1 'Mostrar precios y presupuesto' y 'Mostrar herramientas avanzadas' son independientes: valor inicial desde uiMode_v1, uiMode_v1 intacto y activar las herramientas no enciende los precios", !malosC1.length, malosC1.join(" | "));
 
@@ -132,7 +135,7 @@
   const sem = texto("planDiaCosto");
   localStorage.setItem(MP, '{"mostrar":false}'); w.refrescarPrecios();
   ok("C8-4 Semana muestra el costo del día y de la semana, con 'faltan N precios', y nada con los precios apagados",
-    sem === "≈ $3.100 por día (faltan 1 precio) · al menos ≈ $6.200 la semana (faltan 2 precios)" && texto("planDiaCosto") === "" && doc().getElementById("planDiaCosto").hidden, sem);
+    sem === "≈ $3.100 por día · al menos ≈ $6.200 la semana (faltan 2 precios)" && texto("planDiaCosto") === "" && doc().getElementById("planDiaCosto").hidden, sem);
 
   // C8-5 Anotar gasto con lo realmente sumado a la despensa
   const filasReceta = [{ name: "Arroz", quantity: 500, unit: "g" }, { name: "Papa", quantity: 2, unit: "kg" }, { name: "Aceite", quantity: 100, unit: "ml" }, { name: "Sal", quantity: null, unit: "g" }];
@@ -159,7 +162,7 @@
   const mio6 = (id, price, date) => ({ id, name: "Arroz", pack: "", amount: 1, unit: "kg", price, currency: "ARS", date });
   cargar(base({ [UI]: "completo", [BUDGET]: '{"currency":"ARS","limit":50000,"period":"semana"}', [PRECIOS]: JSON.stringify({ a1: mio6("a1", 2800, "2026-10-20"), a2: mio6("a2", 2400, "2026-09-01") }) })); await abrirConEjemplo();
   const antes6 = todo();
-  ev('abrirHerramientaCompras("presupuesto");budgetCompareRender()'); await espera(80);
+  ev('ComprasDespensa.abrirHerramientaCompras("presupuesto");budgetCompareRender()'); await espera(80);
   const cmp = texto("budgetCompareResult");
   const despues6 = todo();
   localStorage.setItem(MP, '{"mostrar":false}'); ev("budgetCompareRender()");
@@ -189,11 +192,11 @@
   cargar({}); await abrir();
   const omit = !(MP in w.completeBackupSnapshot(w.localStorage).data);
   cargar({ [MP]: '{"mostrar":false}' });
-  w.restoreCompleteBackup(JSON.parse(JSON.stringify(R)), w.localStorage);
+  w.Respaldo.restoreCompleteBackup(JSON.parse(JSON.stringify(R)), w.localStorage);
   const viejo = !(MP in R.data) && localStorage.getItem(MP) === '{"mostrar":false}';
   const malo8 = JSON.parse(JSON.stringify(conMp)); malo8.data[MP] = '{"mostrar":"si"}';
-  let rech = false; try { w.validateCompleteBackup(malo8) } catch (e) { rech = true }
-  w.restoreCompleteBackup(JSON.parse(JSON.stringify(conMp)), w.localStorage);
+  let rech = false; try { w.Respaldo.validateCompleteBackup(malo8) } catch (e) { rech = true }
+  w.Respaldo.restoreCompleteBackup(JSON.parse(JSON.stringify(conMp)), w.localStorage);
   ok("C8-8 'Mostrar precios y presupuesto' va al respaldo como opcional, un respaldo viejo la deja como está y uno inválido se rechaza", incl && omit && viejo && rech && localStorage.getItem(MP) === '{"mostrar":true}');
 
   // C8-9 Fila de presupuesto en Preferencias: muestra lo guardado y abre el panel (solo con los precios prendidos)
@@ -206,7 +209,7 @@
   ok("C8-9 la fila de presupuesto de Preferencias muestra lo guardado, abre el panel y se esconde con los precios apagados (igual que la región de los precios)", fila9 && abre && !visible($("prefPresupuesto")) && !visible($("preferenciasRegion")));
 
   // C8-10 La diferencia entre lo gastado y lo estimado vuelve con signo y sentido
-  const hoy10 = ev("localTrainingDate(new Date())");
+  const hoy10 = ev("Rutina.localTrainingDate(new Date())");
   const compra10 = t => JSON.stringify([{ id: "c8compra01", date: hoy10, store: "", currency: "ARS", total: t, items: [] }]);
   const ref10 = JSON.stringify({ a1: mio6("a1", 2800, "2026-10-20") });
   cargar(base({ [UI]: "completo", [BUDGET]: '{"currency":"ARS","limit":50000,"period":"semana"}', [PRECIOS]: ref10, [COMPRAS]: compra10(100) })); await abrirConEjemplo();

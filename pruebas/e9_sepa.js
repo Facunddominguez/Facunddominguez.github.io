@@ -17,7 +17,8 @@
     w = marco.contentWindow; w.confirm = () => true; w.prompt = () => "";
   };
   const ev = x => w.eval(x);
-  const cargar = datos => { localStorage.clear(); for (const [k, v] of Object.entries(datos)) if (v !== null) localStorage.setItem(k, v) };
+  // Desde la Etapa 13 los precios vienen encendidos en una instalación nueva; estas pruebas parten con modo simple elegido (precios apagados) salvo que el caso diga otra cosa.
+  const cargar = datos => { localStorage.clear(); if (!("miPlatoFacil_uiMode_v1" in datos) && !("miPlatoFacil_mostrarPrecios_v1" in datos)) localStorage.setItem("miPlatoFacil_uiMode_v1", "simple"); for (const [k, v] of Object.entries(datos)) if (v !== null) localStorage.setItem(k, v) };
   const EJ = await (await fetch("/datos/precios-ejemplo-sepa.json", { cache: "no-store" })).json();
   const REALTXT = await (await fetch("/datos/precios.json", { cache: "no-store" })).text();
   const MAPA = await (await fetch("/datos/precios-mapa.json", { cache: "no-store" })).json();
@@ -32,8 +33,8 @@
   const D = ev("data");
   const nombres = { nucleo: new Set(), armado: new Set() }, sinNombre = new Set();
   const sumar = (g, n) => { const nu = w.nutritionFor(n); if (nu) nombres[g].add(nu.n); else sinNombre.add(n) };
-  for (const idea of D.menuCatalog) for (const n of w.extractIngredients(w.ideaComoGuardada(idea, "Día libre"))) sumar("nucleo", n);
-  for (const it of JSON.parse(R.data.miPlatoFacil_saved)) for (const n of w.extractIngredients(it)) sumar("nucleo", n);
+  for (const idea of D.menuCatalog) for (const n of w.Semana.extractIngredients(w.IdeasHoja.ideaComoGuardada(idea, "Día libre"))) sumar("nucleo", n);
+  for (const it of JSON.parse(R.data.miPlatoFacil_saved)) for (const n of w.Semana.extractIngredients(it)) sumar("nucleo", n);
   for (const r of Object.values(JSON.parse(R.data.miPlatoFacil_recipeAmounts_v1))) for (const row of r.rows) sumar("nucleo", row.name);
   for (const g of ["verduras", "almidones", "legumbres", "proteinas"]) for (const n of D[g]) sumar("armado", n);
   for (const g of ["bfprot", "bfcarb", "bffat", "fruit"]) for (const p of D[g]) for (const n of String(p[0]).split(" | ")) sumar("armado", n);

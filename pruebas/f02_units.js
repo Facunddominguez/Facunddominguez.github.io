@@ -5,10 +5,10 @@
   T.ok("U1a conversiones exactas", convertQuantity(1, "kg", "g") === 1000 && convertQuantity(500, "ml", "l") === 0.5 && convertQuantity(1, "cucharada", "cucharadita") === 3);
   T.ok("U1b no convierte peso↔volumen, taza, ni unidad", convertQuantity(1, "g", "ml") === null && convertQuantity(1, "taza", "ml") === null && convertQuantity(1, "unidad", "g") === null && convertQuantity(1, "taza", "cucharada") === null);
   const plan = rows => { reset(); setAmounts({ [IDEA1]: { yield: 1, rows } }); setRecipes([{ id: "recipe_test0001", title: "Receta", amountsTitle: IDEA1 }]); setSaved([recipePlate("rp1", "recipe_test0001", "Receta", rows.map(r => r.name))]); setPlan([["lunes", "almuerzo", "rp1"]]) };
-  plan([{ name: "Papa", quantity: 200, unit: "g" }, { name: "Papas", quantity: 1, unit: "kg" }, { name: "Leche", quantity: 300, unit: "ml" }, { name: "Leche", quantity: 1, unit: "l" }, { name: "Aceite", quantity: 1, unit: "cucharada" }, { name: "Aceite", quantity: 2, unit: "cucharadita" }, { name: "Huevo", quantity: 200, unit: "g" }, { name: "Huevo", quantity: 2, unit: "unidad" }]);
+  plan([{ name: "Papa", quantity: 200, unit: "g" }, { name: "Papas", quantity: 1, unit: "kg" }, { name: "Leche", quantity: 300, unit: "ml" }, { name: "Leche", quantity: 1, unit: "l" }, { name: "Miel", quantity: 1, unit: "cucharada" }, { name: "Miel", quantity: 2, unit: "cucharadita" }, { name: "Huevo", quantity: 200, unit: "g" }, { name: "Huevo", quantity: 2, unit: "unidad" }]);
   go("compras"); await wait(50);
   const rows = R.renderedRows();
-  T.ok("U2 Compras suma unidades compatibles y separa las incompatibles", rows.includes("Papa: 1,2 kg") && rows.includes("Leche: 1,3 l") && rows.includes("Aceite: 1 cucharada + 2 cucharaditas") && rows.includes("Huevo: 200 g + 2 unidades") && R.item("Aceite").label === "Aceite: 1 cucharada + 2 cucharadita" && R.item("Huevo").label === "Huevo: 200 g + 2 unidad", rows.join(" | "));
+  T.ok("U2 Compras suma unidades compatibles y separa las incompatibles", rows.includes("Papa: 1,2 kg") && rows.includes("Leche: 2 sachets de 1.000 ml") && rows.includes("Miel: 1 cucharada + 2 cucharaditas") && rows.includes("Huevo: 200 g + 2 unidades") && R.item("Miel").label === "Miel: 1 cucharada + 2 cucharadita" && R.item("Huevo").label === "Huevo: 200 g + 2 unidad", rows.join(" | "));
   plan([{ name: "Papa", quantity: 200, unit: "g" }]); go("compras"); await wait(30);
   T.ok("U3 con una sola unidad, la lista no cambia el formato", R.renderedRows().includes("Papa: 200 g"));
   setStock([["Papa", 1, "kg"]]); renderCompras();
@@ -26,7 +26,7 @@
   go("compras"); await R.openPanel("shoppingToolsPanel"); await R.openPanel("shoppingBudgetPanel");
   T.ok("U5a presupuesto: 500 g a 2000 ARS/kg = 1000 ARS", /Costo parcial estimado: 1\.000,00 ARS/.test(document.getElementById("shoppingBudgetResult").textContent), document.getElementById("shoppingBudgetResult").textContent.slice(0, 90));
   const opt = document.querySelector("#budgetCompareResult select option:nth-child(2)");
-  T.ok("U5b comparar alternativas muestra el precio convertido", !!opt && /1\.000,00 ARS · 2000 \/ 1000 g/.test(opt.textContent), opt && opt.textContent);
+  T.ok("U5b comparar alternativas muestra el precio convertido", !!opt && /2000\/1000 g · 1\.000,00/.test(opt.textContent) && /1\.000,00 ARS · 2000 por 1000 g/.test(opt.title), opt && opt.textContent);
   await R.openPanel("shoppingQuantCostPanel");
   T.ok("U5c 'Ajustar porciones' calcula el costo con precio en kg", /Subtotal estimado con referencias inequívocas: 1\.000,00 ARS/.test(document.getElementById("shoppingQuantCostResult").textContent));
   await R.openPanel("recipeCostPanel");
@@ -36,9 +36,9 @@
   document.getElementById("recipeCostCalculate").click(); await wait(20);
   T.ok("U6 'Estimar costo' acepta precio en kg para receta en g", /Total estimado: 1\.000,00 ARS/.test(document.getElementById("recipeCostResult").textContent), document.getElementById("recipeCostResult").textContent.slice(0, 120));
   setStock([["Papa", 1, "kg"]]);
-  const score = recipePantryScore({ kind: "propia", key: "recipe_test0001" }, loadRecipeDetails(), loadRecipeAmounts(), pantryMarkedMatcher(), loadStockQuantities());
+  const score = recipePantryScore({ kind: "propia", key: "recipe_test0001" }, loadRecipeDetails(), loadRecipeAmounts(), MarcasDespensa.pantryMarkedMatcher(), loadStockQuantities());
   T.ok("U7 recomendaciones: 1 kg cubre 500 g", score.complete, JSON.stringify(score));
-  const agg = aggregateQuantifiedRecipes([{ title: IDEA1, portions: 1 }], { [IDEA1]: { yield: 1, rows: [{ name: "Papa", quantity: 200, unit: "g" }, { name: "Papa", quantity: 1, unit: "kg" }] } });
+  const agg = CantidadesCostos.aggregateQuantifiedRecipes([{ title: IDEA1, portions: 1 }], { [IDEA1]: { yield: 1, rows: [{ name: "Papa", quantity: 200, unit: "g" }, { name: "Papa", quantity: 1, unit: "kg" }] } });
   T.ok("U8 'Calcular compras por recetas' suma g y kg", agg.length === 1 && agg[0].unit === "g" && agg[0].quantity === 1200, JSON.stringify(agg));
   setStock([["Papa", 300, "g"]]); go("compras"); await R.openPanel("shoppingQuantCostPanel");
   T.ok("U9 'Ajustar porciones' descuenta despensa compatible", /Papa: 500 g · Disponible: 300 g · Falta comprar: 200 g/.test(document.getElementById("shoppingQuantCostResult").textContent), document.getElementById("shoppingQuantCostResult").textContent.slice(0, 200));

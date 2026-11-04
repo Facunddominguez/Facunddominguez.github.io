@@ -1,26 +1,11 @@
 // Mi Plato Fácil · Existencias con cantidad y presupuesto de compras.
 // Parte 12: los archivos se unen en orden según su número, que define el orden de arranque.
-const STOCK_QUANT_KEY="miPlatoFacil_pantryQuantities_v1";
-function stockKey(name,unit){
+// Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como Existencias.nombre().
+var Existencias={
+stockKey(name,unit){
   return JSON.stringify([normalizeSearchText(name),unit])
-}
-function loadStockQuantities(){
-  try{
-    const o=JSON.parse(localStorage.getItem(STOCK_QUANT_KEY)||"{}");
-    if(!o||Array.isArray(o)||typeof o!=="object")return {
-    };
-    const valid={
-    };
-    for(const [key,v] of Object.entries(o)){
-      if(v&&typeof v.name==="string"&&typeof v.unit==="string"&&typeof v.quantity==="number"&&Number.isFinite(v.quantity)&&v.quantity>=0&&v.quantity<=100000000&&key===stockKey(v.name,v.unit))valid[key]=v
-    }
-    return valid
-  }catch(e){
-    return {
-    }
-  }
-}
-function renderStockQuantities(){
+},
+renderStockQuantities(){
   const box=document.getElementById("stockList");
   box.replaceChildren();
   const values=Object.entries(loadStockQuantities()).sort((a,b)=>a[1].name.localeCompare(b[1].name,"es"));
@@ -39,7 +24,7 @@ function renderStockQuantities(){
       const stock=loadStockQuantities(),old=stock[key];delete stock[key];try{
         localStorage.setItem(STOCK_QUANT_KEY,JSON.stringify(stock));if(old&&old.quantity)logPantryMoves([{
           name:old.name,unit:old.unit,delta:-old.quantity,reason:"Quitada de la despensa"
-        }]);renderStockQuantities();shoppingQuantityAndCost();renderCompras()
+        }]);Existencias.renderStockQuantities();shoppingQuantityAndCost();renderCompras()
       }catch(e){
         document.getElementById("stockStatus").textContent="No se pudo actualizar la despensa."
       }
@@ -48,50 +33,8 @@ function renderStockQuantities(){
     box.append(row)
   }
   renderPantryMoves()
-}
-function saveStockQuantity(){
-  const status=document.getElementById("stockStatus"),name=document.getElementById("stockIngredient").value.trim(),raw=document.getElementById("stockQuantity").value,quantity=Number(raw),unit=document.getElementById("stockUnit").value;
-  if(!name||!raw.trim()||!Number.isFinite(quantity)||quantity<0||quantity>100000000||!unit){
-    status.textContent="Completá ingrediente, cantidad no negativa y unidad.";
-    return
-  }
-  const stock=loadStockQuantities(),key=stockKey(name,unit);
-  if(!stock[key]&&Object.keys(stock).length>=500){
-    status.textContent="Máximo 500 existencias registradas.";
-    return
-  }
-  const oldQty=stock[key]?stock[key].quantity:0;
-  stock[key]={
-    name,quantity,unit
-  };
-  try{
-    localStorage.setItem(STOCK_QUANT_KEY,JSON.stringify(stock));
-    if(quantity!==oldQty)logPantryMoves([{
-      name,unit,delta:quantity-oldQty,reason:"Ajuste manual"
-    }]);
-    status.textContent="Existencia guardada. Las cantidades de recetas no se modificaron.";
-    renderStockQuantities();
-    shoppingQuantityAndCost();
-    renderCompras()
-  }catch(e){
-    status.textContent="No se pudo guardar. Revisá el espacio disponible."
-  }
-}
-function initStockQuantities(){
-  const select=document.getElementById("stockUnit");
-  const fill=units=>{
-    const current=select.value;
-    select.replaceChildren(...units.map(unit=>{
-      const opt=ce("option",null,unit);opt.value=unit;return opt
-    }));
-    if(units.includes(current))select.value=current
-  };
-  fill(["g","kg","ml","l","unidad"]);
-  setTimeout(()=>fill(RECIPE_AMOUNT_UNITS),0);
-  document.getElementById("stockSave").addEventListener("click",saveStockQuantity);
-  renderStockQuantities()
-}
-function startupGuard(label,fn){
+},
+startupGuard(label,fn){
   try{
     fn()
   }catch(err){
@@ -110,19 +53,8 @@ function startupGuard(label,fn){
     box.dataset.modules=names.join("|");
     box.textContent="No se pudieron cargar algunos datos guardados ("+names.join(", ")+"). El resto de la app funciona y no se modificó ningún dato. Antes de seguir, descargá un respaldo desde Más → Respaldo y restauración."
   }
-}
-startupGuard("Existencias de despensa",initStockQuantities);
-const SHOP_BUDGET_KEY="miPlatoFacil_shoppingBudget_v1";
-function shoppingBudgetRead(){
-  try{
-    const o=JSON.parse(localStorage.getItem(SHOP_BUDGET_KEY)||"{}");
-    return o&&["ARS","USD"].includes(o.currency)&&Number.isFinite(o.limit)&&o.limit>=0&&o.limit<=100000000000?o:null
-  }catch(e){
-    return null
-  }
-}
-// El costo estimado de lo que falta comprar (desde la v15.4 también lo usa la barra de presupuesto de la lista).
-function estimadoDeLaLista(rows,currency){
+},
+estimadoDeLaLista(rows,currency){
   const prices=Object.values(loadReferencePrices());
   let estimated=0,covered=0,unpriced=0,otherCurrency=0;
   for(const row of rows){
@@ -131,7 +63,7 @@ function estimadoDeLaLista(rows,currency){
       unpriced++;
       continue
     }
-    const matches=pricesFor(prices,row.name,row.unit).filter(p=>true);
+    const matches=Ingredientes.pricesFor(prices,row.name,row.unit).filter(p=>true);
     if(matches.length!==1){
       unpriced++;
       continue
@@ -152,7 +84,100 @@ function estimadoDeLaLista(rows,currency){
   return {
     estimated,covered,unpriced,otherCurrency
   }
+},
+budgetCompareData(rows,prices,currency){
+  const entries=[],pending=[];
+  for(const row of rows){
+    if(row.missing<=0&&!row.unknown)continue;
+    if(row.unknown){
+      pending.push(row.name+": cantidad incompleta");
+      continue
+    }
+    const compatible=Ingredientes.pricesFor(prices,row.name,row.unit).filter(p=>true&&p.currency===currency&&Number.isFinite(p.price)&&p.price>=0&&Number.isFinite(p.amount)&&p.amount>0&&Number.isFinite(row.missing*p.price/p.amount));
+    if(!compatible.length){
+      pending.push(row.name+": sin referencia compatible en "+currency);
+      continue
+    }
+    const all=Ingredientes.pricesFor(prices,row.name,row.unit).filter(p=>true);
+    entries.push({
+      row,options:compatible,base:all.length===1?compatible[0]:null
+    })
+  }
+  return {
+    entries:entries.sort((a,b)=>b.row.missing*Math.max(...b.options.map(p=>p.price/p.amount))-a.row.missing*Math.max(...a.options.map(p=>p.price/p.amount))),pending
+  }
 }
+};
+const STOCK_QUANT_KEY="miPlatoFacil_pantryQuantities_v1";
+function loadStockQuantities(){
+  try{
+    const o=JSON.parse(localStorage.getItem(STOCK_QUANT_KEY)||"{}");
+    if(!o||Array.isArray(o)||typeof o!=="object")return {
+    };
+    const valid={
+    };
+    for(const [key,v] of Object.entries(o)){
+      if(v&&typeof v.name==="string"&&typeof v.unit==="string"&&typeof v.quantity==="number"&&Number.isFinite(v.quantity)&&v.quantity>=0&&v.quantity<=100000000&&key===Existencias.stockKey(v.name,v.unit))valid[key]=v
+    }
+    return valid
+  }catch(e){
+    return {
+    }
+  }
+}
+function saveStockQuantity(){
+  const status=document.getElementById("stockStatus"),name=document.getElementById("stockIngredient").value.trim(),raw=document.getElementById("stockQuantity").value,quantity=Number(raw),unit=document.getElementById("stockUnit").value;
+  if(!name||!raw.trim()||!Number.isFinite(quantity)||quantity<0||quantity>100000000||!unit){
+    status.textContent="Completá ingrediente, cantidad no negativa y unidad.";
+    return
+  }
+  const stock=loadStockQuantities(),key=Existencias.stockKey(name,unit);
+  if(!stock[key]&&Object.keys(stock).length>=500){
+    status.textContent="Máximo 500 existencias registradas.";
+    return
+  }
+  const oldQty=stock[key]?stock[key].quantity:0;
+  stock[key]={
+    name,quantity,unit
+  };
+  try{
+    localStorage.setItem(STOCK_QUANT_KEY,JSON.stringify(stock));
+    if(quantity!==oldQty)logPantryMoves([{
+      name,unit,delta:quantity-oldQty,reason:"Ajuste manual"
+    }]);
+    status.textContent="Existencia guardada. Las cantidades de recetas no se modificaron.";
+    Existencias.renderStockQuantities();
+    shoppingQuantityAndCost();
+    renderCompras()
+  }catch(e){
+    status.textContent="No se pudo guardar. Revisá el espacio disponible."
+  }
+}
+function initStockQuantities(){
+  const select=document.getElementById("stockUnit");
+  const fill=units=>{
+    const current=select.value;
+    select.replaceChildren(...units.map(unit=>{
+      const opt=ce("option",null,unit);opt.value=unit;return opt
+    }));
+    if(units.includes(current))select.value=current
+  };
+  fill(["g","kg","ml","l","unidad"]);
+  setTimeout(()=>fill(RECIPE_AMOUNT_UNITS),0);
+  document.getElementById("stockSave").addEventListener("click",saveStockQuantity);
+  Existencias.renderStockQuantities()
+}
+Existencias.startupGuard("Existencias de despensa",initStockQuantities);
+const SHOP_BUDGET_KEY="miPlatoFacil_shoppingBudget_v1";
+function shoppingBudgetRead(){
+  try{
+    const o=JSON.parse(localStorage.getItem(SHOP_BUDGET_KEY)||"{}");
+    return o&&["ARS","USD"].includes(o.currency)&&Number.isFinite(o.limit)&&o.limit>=0&&o.limit<=100000000000?o:null
+  }catch(e){
+    return null
+  }
+}
+// El costo estimado de lo que falta comprar (desde la v15.4 también lo usa la barra de presupuesto de la lista).
 // Barra de presupuesto arriba de la lista (v15.4). Solo lee; tocarla abre el panel de presupuesto.
 function renderPresupuestoCompras(){
   const bar=document.getElementById("comprasPresupuesto"),pref=document.getElementById("prefPresupuesto");
@@ -173,7 +198,7 @@ function renderPresupuestoCompras(){
     const auto=budget.currency==="ARS"?totalAutomaticoLista():null;
     e=auto?{
       estimated:auto.total,unpriced:auto.faltan,otherCurrency:0,alMenos:auto.faltan*2>auto.pendientes
-    }:estimadoDeLaLista(shoppingMissingRows(),budget.currency)
+    }:Existencias.estimadoDeLaLista(shoppingMissingRows(),budget.currency)
   }catch(err){
     bar.textContent="💰 Presupuesto "+fmt(budget.limit);
     return
@@ -197,7 +222,7 @@ function shoppingBudgetRender(){
     box.append(ce("p","screen__hint",err.message));
     return
   }
-  const currency=budget.currency,{estimated,covered,unpriced,otherCurrency}=estimadoDeLaLista(rows,currency);
+  const currency=budget.currency,{estimated,covered,unpriced,otherCurrency}=Existencias.estimadoDeLaLista(rows,currency);
   const fmt=n=>n.toLocaleString("es-AR",{
     minimumFractionDigits:2,maximumFractionDigits:2
   });
@@ -208,28 +233,6 @@ function shoppingBudgetRender(){
   if(unpriced||otherCurrency)box.append(ce("p","screen__hint","Comparación parcial: faltan precios."));
   else box.append(ce("p","screen__hint","Con tus precios guardados."));
   budgetRealLines(box,budget,estimated)
-}
-function budgetCompareData(rows,prices,currency){
-  const entries=[],pending=[];
-  for(const row of rows){
-    if(row.missing<=0&&!row.unknown)continue;
-    if(row.unknown){
-      pending.push(row.name+": cantidad incompleta");
-      continue
-    }
-    const compatible=pricesFor(prices,row.name,row.unit).filter(p=>true&&p.currency===currency&&Number.isFinite(p.price)&&p.price>=0&&Number.isFinite(p.amount)&&p.amount>0&&Number.isFinite(row.missing*p.price/p.amount));
-    if(!compatible.length){
-      pending.push(row.name+": sin referencia compatible en "+currency);
-      continue
-    }
-    const all=pricesFor(prices,row.name,row.unit).filter(p=>true);
-    entries.push({
-      row,options:compatible,base:all.length===1?compatible[0]:null
-    })
-  }
-  return {
-    entries:entries.sort((a,b)=>b.row.missing*Math.max(...b.options.map(p=>p.price/p.amount))-a.row.missing*Math.max(...a.options.map(p=>p.price/p.amount))),pending
-  }
 }
 let budgetScenarioText="";
 function budgetCompareRender(){
@@ -248,7 +251,7 @@ function budgetCompareRender(){
     box.append(ce("p","screen__hint",err.message));
     return
   }
-  const model=budgetCompareData(missingRows,Object.values(loadReferencePrices()),budget.currency),fmt=n=>n.toLocaleString("es-AR",{
+  const model=Existencias.budgetCompareData(missingRows,Object.values(loadReferencePrices()),budget.currency),fmt=n=>n.toLocaleString("es-AR",{
     minimumFractionDigits:2,maximumFractionDigits:2
   }),controls=[];
   for(const entry of model.entries){
@@ -256,7 +259,7 @@ function budgetCompareRender(){
     blank.value="";
     select.append(blank);
     entry.options.forEach((p,i)=>{
-      const option=ce("option",null,fmt(entry.row.missing*p.price/p.amount)+" "+budget.currency+" · "+p.price+" / "+p.amount+" "+p.unit);option.title="Precio de "+(p.date||"fecha desconocida");option.value=String(i);select.append(option)
+      const total=fmt(entry.row.missing*p.price/p.amount),option=ce("option",null,p.price+"/"+p.amount+" "+p.unit+" · "+total);option.title=total+" "+budget.currency+" · "+p.price+" por "+p.amount+" "+p.unit+" · precio de "+(p.date||"fecha desconocida");option.value=String(i);select.append(option)
     });
     select.value=entry.base?String(entry.options.indexOf(entry.base)):"";
     label.htmlFor=select.id="budgetAlternative_"+controls.length;
@@ -338,4 +341,4 @@ function shoppingBudgetInit(){
   });
   setTimeout(shoppingBudgetRender,0)
 }
-startupGuard("Presupuesto de compras",shoppingBudgetInit);
+Existencias.startupGuard("Presupuesto de compras",shoppingBudgetInit);

@@ -8,8 +8,9 @@
   const appData = () => JSON.stringify(Object.keys(localStorage).filter(k => k.startsWith("miPlatoFacil_") && k !== UI_MODE_KEY && k !== "miPlatoFacil_mostrarPrecios_v1").sort().map(k => [k, localStorage.getItem(k)]));
   const advancedIn = id => [...$(id).querySelectorAll("[data-avanzado]")];
   reset();
-  // M1 Arranca en modo simple, sin guardar nada
-  T.ok("M1 la app arranca en modo simple sin guardar ningún ajuste", getUiMode() === "simple" && document.documentElement.dataset.modo === "simple" && localStorage.getItem(UI_MODE_KEY) === null);
+  // M1 Arranca en modo simple, sin guardar nada (reset() elige simple a propósito desde la Etapa 13: acá se mira sin ninguna elección)
+  localStorage.removeItem(UI_MODE_KEY); uiModeMemory = null; applyUiMode();
+  T.ok("M1 la app arranca en modo simple sin guardar ningún ajuste", Interfaz.getUiMode() === "simple" && document.documentElement.dataset.modo === "simple" && localStorage.getItem(UI_MODE_KEY) === null);
   // Datos inventados para que todas las pantallas tengan contenido
   criticalCase();
   setStock([["Papa", 1, "kg"]]);
@@ -102,10 +103,11 @@
   // M4 Cada pantalla avisa qué está oculto y que los datos siguen guardados
   // Semana (desde la v15.1) no oculta nada: no lleva aviso y su menú ⋯ lista todas sus herramientas.
   // v15.3: cada pantalla nueva que oculta herramientas tiene su aviso con el botón.
-  const notes = ["ingredientes", "ideas", "comida", "recetaEditar", "preferencias", "backupScreen"].map(id => document.querySelector("#" + id + " [data-mode-note]"));
+  // Desde la v16.6 no hay carteles por pantalla: el único interruptor está en Preferencias (C17-2).
+  const notes = document.querySelectorAll("[data-mode-note]");
   await menuSemana(); const itemsMenu = [...document.querySelectorAll(".hoja .menu-semana button")].filter(shown).map(b => b.textContent); hoja.cerrar();
-  const menuCompleto = ["Repetir semana anterior", "Copiar un día", "Vaciar la semana", "Planes guardados", "Semanas anteriores y mes", "Historial de cambios", "Descargar", "Buscar en mis recetas", "Registro y objetivos"].every(t => itemsMenu.includes(t));
-  T.ok("M4 aviso en Despensa y Recetas con lo que está oculto (Compras ya no tiene aviso: su barra sigue a los precios); Semana no oculta nada y su menú lo lista todo", notes.every(n => n && /Tus datos siguen guardados/.test(n.textContent) && n.querySelector("button").textContent === "Mostrar herramientas avanzadas") && /revisar una idea/.test(notes[0].textContent) && notes[0].parentElement === $("ingredientes") && !document.querySelector("#compras [data-mode-note]") && !document.querySelector("#plan [data-mode-note]") && menuCompleto, notes.map(n => n && n.textContent.slice(0, 60)).join(" | ") + " | " + itemsMenu.join(", "));
+  const menuCompleto = ["Repetir semana anterior", "Copiar un día", "Empezar de nuevo", "Planes guardados", "Semanas anteriores y mes", "Historial de cambios", "Descargar", "Buscar en mis recetas", "Registro y objetivos"].every(t => itemsMenu.includes(t));
+  T.ok("M4 sin carteles de herramientas ocultas en las pantallas (el interruptor único está en Preferencias); Semana no oculta nada y su menú lo lista todo", notes.length === 0 && menuCompleto, itemsMenu.join(", "));
   // M5 Tarjeta en Configuración: cambia el modo y lo recuerda
   const card = $("uiModeToggle");
   const inSettings = !!card && $("preferencias").contains(card) && card.classList.contains("tool-button");
@@ -113,7 +115,7 @@
   const label1 = card.querySelector(".tool-button__label").textContent;
   card.click(); await wait(20);
   const label2 = card.querySelector(".tool-button__label").textContent;
-  T.ok("M5 la tarjeta de Configuración activa el modo completo y lo recuerda", inSettings && label1 === "Mostrar herramientas avanzadas: desactivado" && label2 === "Mostrar herramientas avanzadas: activado" && getUiMode() === "completo" && localStorage.getItem(UI_MODE_KEY) === "completo" && document.documentElement.dataset.modo === "completo", label1 + " → " + label2);
+  T.ok("M5 la tarjeta de Configuración activa el modo completo y lo recuerda", inSettings && label1 === "Mostrar herramientas avanzadas: desactivado" && label2 === "Mostrar herramientas avanzadas: activado" && Interfaz.getUiMode() === "completo" && localStorage.getItem(UI_MODE_KEY) === "completo" && document.documentElement.dataset.modo === "completo", label1 + " → " + label2);
   // M6 En modo completo se ve todo otra vez
   go("compras"); await wait(20);
   // Desde la v15.7 la barra de presupuesto sigue a "Mostrar precios y presupuesto", no al modo: activar las herramientas
@@ -128,34 +130,34 @@
     go(pant); if (pant === "ideas") showRecipeView("browse"); openAll(pant); await wait(20);
     if (!shown($(id))) ingShown = false
   }
-  T.ok("M6 en modo completo vuelven a verse todas las herramientas", toolsShown && planShown && ingShown && notes.every(n => n.querySelector("button").textContent === "Ocultar herramientas avanzadas"));
-  // M7 El aviso de cada pantalla vuelve al modo simple
-  notes[0].querySelector("button").click(); await wait(20); go("compras"); await wait(20);
+  T.ok("M6 en modo completo vuelven a verse todas las herramientas", toolsShown && planShown && ingShown && document.querySelectorAll("[data-mode-note]").length === 0);
+  // M7 El interruptor vuelve al modo simple
+  $("uiModeToggle").click(); await wait(20); go("compras"); await wait(20);
     // La barra queda como estaban los precios (prendidos); apagándolos se esconde.
   const barraSigue = shown($("comprasPresupuesto"));
   $("preciosToggle").click(); await wait(20); go("compras"); await wait(20);
   const barraOculta = !shown($("comprasPresupuesto"));
   $("preciosToggle").click(); await wait(20);
-  T.ok("M7 el botón del aviso vuelve al modo simple", getUiMode() === "simple" && localStorage.getItem(UI_MODE_KEY) === "simple" && barraSigue && barraOculta && card.querySelector(".tool-button__label").textContent === "Mostrar herramientas avanzadas: desactivado");
+  T.ok("M7 el botón del aviso vuelve al modo simple", Interfaz.getUiMode() === "simple" && localStorage.getItem(UI_MODE_KEY) === "simple" && barraSigue && barraOculta && card.querySelector(".tool-button__label").textContent === "Mostrar herramientas avanzadas: desactivado");
   // M8 Cambiar de modo no toca ningún dato
   card.click(); await wait(10); card.click(); await wait(10);
   T.ok("M8 cambiar de modo no modifica ningún dato guardado (solo el ajuste de los precios, que quedó como lo dejó el usuario)", appData() === before && localStorage.getItem("miPlatoFacil_mostrarPrecios_v1") === '{"mostrar":true}' && Object.keys(localStorage).filter(k => k.startsWith("miPlatoFacil_")).includes(UI_MODE_KEY));
   // M9 Lo guardado en herramientas ocultas sigue en uso: las existencias generan la sugerencia en Compras
   go("compras"); await wait(30);
   const papa = shoppingDisplayItems().find(x => x.name === "Papa");
-  T.ok("M9 las existencias guardadas siguen sugiriendo en Compras aunque estén ocultas", getUiMode() === "simple" && !!papa && !!papa.suggestion && /1 kg/.test(papa.suggestion.text) && /💡/.test($("comprasList").textContent), papa && papa.suggestion && papa.suggestion.text);
+  T.ok("M9 las existencias guardadas siguen sugiriendo en Compras aunque estén ocultas", Interfaz.getUiMode() === "simple" && !!papa && !!papa.suggestion && /1 kg/.test(papa.suggestion.text) && /💡/.test($("comprasList").textContent), papa && papa.suggestion && papa.suggestion.text);
   // M10 Al volver al modo simple, los controles ocultos de la sesión vuelven a su valor inicial
-  setUiMode("completo");
+  ModoSimple.setUiMode("completo");
   $("recipeRecommendMode").value = "budget"; $("recipeRecommendPantry").checked = true; $("recipeRecommendCosts").checked = true; $("recipeCatalogSort").value = "reverse"; $("recipeCatalogPageSize").value = "60";
-  setUiMode("simple");
+  ModoSimple.setUiMode("simple");
   T.ok("M10 los controles ocultos no siguen cambiando el orden de las recetas", $("recipeRecommendMode").value === "normal" && !$("recipeRecommendPantry").checked && !$("recipeRecommendCosts").checked && $("recipeCatalogSort").value === "name" && $("recipeCatalogPageSize").value === "20");
   // M11 El modo no va en los respaldos y restaurar no lo cambia
-  setUiMode("completo");
+  ModoSimple.setUiMode("completo");
   const snap = completeBackupSnapshot(localStorage);
-  let valid = true; try { validateCompleteBackup(JSON.parse(JSON.stringify(snap))) } catch (e) { valid = false }
-  restoreCompleteBackup(JSON.parse(JSON.stringify(snap)), localStorage);
-  T.ok("M11 el modo es un ajuste del dispositivo: no va en el respaldo y restaurar no lo cambia", !(UI_MODE_KEY in snap.data) && valid && getUiMode() === "completo");
-  setUiMode("simple");
+  let valid = true; try { Respaldo.validateCompleteBackup(JSON.parse(JSON.stringify(snap))) } catch (e) { valid = false }
+  Respaldo.restoreCompleteBackup(JSON.parse(JSON.stringify(snap)), localStorage);
+  T.ok("M11 el modo es un ajuste del dispositivo: no va en el respaldo y restaurar no lo cambia", !(UI_MODE_KEY in snap.data) && valid && Interfaz.getUiMode() === "completo");
+  ModoSimple.setUiMode("simple");
   // M12 Los mensajes no mandan a herramientas ocultas
   setRecipes([{ id: "recipe_sinIng1", title: "Receta sin ingredientes", amountsTitle: null }]);
   go("plan"); await R.openPanel("planRecipeReference");
@@ -166,7 +168,7 @@
   T.ok("M12 los mensajes indican Editar receta, no paneles ocultos", /Editar receta/.test(assignMsg) && !/Mis cantidades/.test(assignMsg) && /Editar receta/.test(readMsg) && !/Mis cantidades/.test(readMsg), assignMsg + " | " + readMsg);
   // M13 Un valor desconocido guardado no rompe: se usa el modo simple
   localStorage.setItem(UI_MODE_KEY, "raro"); applyUiMode();
-  T.ok("M13 un valor desconocido del ajuste se toma como modo simple", getUiMode() === "simple" && document.documentElement.dataset.modo === "simple");
+  T.ok("M13 un valor desconocido del ajuste se toma como modo simple", Interfaz.getUiMode() === "simple" && document.documentElement.dataset.modo === "simple");
   closeRecipeRead(false); showRecipeView("browse");
   reset(); go("home");
   return T;

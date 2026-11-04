@@ -1,5 +1,128 @@
 // Mi Plato Fácil · Recetas: datos, explorador, lectura y edición.
 // Parte 22: los archivos se unen en orden según su número, que define el orden de arranque.
+// Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como Recetas.nombre().
+var Recetas={
+saveRecipeDetailsStore(all){
+  if(!validRecipeDetails(all))throw new Error("Datos de recetas inválidos.");
+  localStorage.setItem(RECIPE_DETAILS_KEY,JSON.stringify(all))
+},
+recipeDetailsId(all){
+  let id;
+  do{
+    id="recipe_"+(typeof crypto!=="undefined"&&crypto.randomUUID?crypto.randomUUID().replace(/-/g,""):Date.now().toString(36)+Math.random().toString(36).slice(2,12))
+  }while(Object.prototype.hasOwnProperty.call(all,id));
+  return id
+},
+persistRecipeDetailsForm(){
+  const all=loadRecipeDetails(),id=recipeDetailsEditing||Recetas.recipeDetailsId(all),prev=all[id]||{
+  },title=document.getElementById("recipeDetailsTitle").value.trim(),sourceTitle=document.getElementById("recipeDetailsSource").value||null,selected=document.getElementById("recipeDetailsAmounts").value||null,steps=document.getElementById("recipeDetailsSteps").value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean),notes=document.getElementById("recipeDetailsNotes").value.trim();
+  if(!title||title.length>100)throw Error("Ingresá un nombre de hasta 100 caracteres.");
+  const tags=[...new Set(document.getElementById("recipeTags").value.split(",").map(x=>x.trim()).filter(Boolean))];
+  if(tags.length>12||tags.some(t=>t.length>30))throw Error("Usá hasta 12 etiquetas de hasta 30 caracteres cada una.");
+  const minutesText=document.getElementById("recipeMinutes").value.trim();
+  let minutes=null;
+  if(minutesText){
+    if(!/^\d{1,4}$/.test(minutesText)||Number(minutesText)<1||Number(minutesText)>1440)throw Error("El tiempo debe ser un número de minutos entre 1 y 1440.");
+    minutes=Number(minutesText)
+  }
+  const substitutions=document.getElementById("recipeSubstitutions").value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean).map(line=>{
+    const parts=line.split("=");if(parts.length!==2||!parts[0].trim()||!parts[1].trim())throw Error("Escribí cada reemplazo como: Ingrediente = Reemplazo.");return {
+      from:parts[0].trim().slice(0,100),to:parts[1].trim().slice(0,100)
+    }
+  });
+  if(substitutions.length>30)throw Error("Usá hasta 30 reemplazos.");
+  const box=document.getElementById("recipeIngredientRows"),hasRows=!!box.querySelector(".amount-row"),amountsRecipe=hasRows?readAmountRows(box,"recipeYield"):null,amountsKey=hasRows?(selected||ownAmountsKey(id)):selected,amountsAll=loadRecipeAmounts();
+  if(amountsKey&&!hasRows&&!Object.prototype.hasOwnProperty.call(amountsAll,amountsKey))throw Error("Las cantidades seleccionadas ya no existen.");
+  if(amountsKey&&Object.values(all).some(r=>r.id!==id&&r.amountsTitle===amountsKey))throw Error("Esas cantidades ya están vinculadas a otra receta.");
+  const entry={
+    id,title,sourceTitle,amountsTitle:amountsKey,steps,notes,tags,minutes,substitutions,variantOf:typeof prev.variantOf==="string"&&prev.variantOf!==id?prev.variantOf:null
+  };
+  const previous=hasRows&&Object.prototype.hasOwnProperty.call(amountsAll,amountsKey)?amountsAll[amountsKey]:undefined;
+  if(hasRows){
+    amountsAll[amountsKey]=amountsRecipe;
+    try{
+      localStorage.setItem(RECIPE_AMOUNTS_KEY,JSON.stringify(amountsAll))
+    }catch(e){
+      throw Error("No se pudieron guardar los ingredientes (falta de espacio u otro error). No se modificó nada.")
+    }
+  }
+  all[id]=entry;
+  try{
+    Recetas.saveRecipeDetailsStore(all)
+  }catch(err){
+    if(hasRows){
+      if(previous===undefined)delete amountsAll[amountsKey];
+      else amountsAll[amountsKey]=previous;
+      try{
+        localStorage.setItem(RECIPE_AMOUNTS_KEY,JSON.stringify(amountsAll))
+      }catch(ignore){
+      }
+    }
+    throw Error("No se pudo guardar la receta (falta de espacio u otro error). No se modificó nada.")
+  }
+  recipeDetailsEditing=id;
+  renderRecipeDetails();
+  recipeDetailsStatus(hasRows?"Receta guardada con sus ingredientes. Si está en el plan, Compras usa estas cantidades.":"Receta guardada.");
+  renderRecipeCatalog()
+},
+startRecipeFromIdea(title){
+  if(!data.menuCatalog.some(x=>x.text===title))throw Error("La idea ya no está disponible.");
+  resetRecipeDetailsForm();
+  document.getElementById("recipeDetailsTitle").value=title;
+  document.getElementById("recipeDetailsSource").value=title;
+  (PANTRY_REVIEW_COMPONENTS[title]||[]).forEach(x=>appendRecipeAmountRow({
+    name:x.label,quantity:null,unit:"g"
+  },document.getElementById("recipeIngredientRows")));
+  recipeDetailsStatus("Idea seleccionada. Revisá los ingredientes propuestos y cargá cantidades solo si las conocés.");
+  showRecipeView("editor");
+  document.getElementById("recipeDetailsTitle").focus()
+},
+duplicateRecipeDetails(id){
+  const all=loadRecipeDetails(),original=all[id];
+  if(!original)throw Error("Elegí una receta guardada para duplicar.");
+  if(Object.keys(all).length>=1000)throw Error("Alcanzaste el límite de recetas guardadas.");
+  const newId=Recetas.recipeDetailsId(all);
+  const amounts=loadRecipeAmounts(),source=original.amountsTitle&&Object.prototype.hasOwnProperty.call(amounts,original.amountsTitle)?amounts[original.amountsTitle]:null,newKey=ownAmountsKey(newId);
+  const copy={
+    id:newId,title:("Copia de "+original.title).slice(0,100),sourceTitle:original.sourceTitle,amountsTitle:source?newKey:null,steps:original.steps.slice(),notes:original.notes,tags:(original.tags||[]).slice(),minutes:original.minutes||null,substitutions:(original.substitutions||[]).map(s=>({
+      from:s.from,to:s.to
+    })),variantOf:original.variantOf&&all[original.variantOf]?original.variantOf:original.id
+  };
+  try{
+    if(source){
+      amounts[newKey]=JSON.parse(JSON.stringify(source));
+      localStorage.setItem(RECIPE_AMOUNTS_KEY,JSON.stringify(amounts))
+    }
+    all[newId]=copy;
+    Recetas.saveRecipeDetailsStore(all)
+  }catch(err){
+    if(source&&Object.prototype.hasOwnProperty.call(amounts,newKey)){
+      delete amounts[newKey];
+      try{
+        localStorage.setItem(RECIPE_AMOUNTS_KEY,JSON.stringify(amounts))
+      }catch(ignore){
+      }
+    }
+    throw Error("No se pudo crear la copia (falta de espacio u otro error). No se modificó ninguna receta.")
+  }
+  recipeDetailsEditing=newId;
+  closeRecipeRead(false);
+  renderRecipeDetails();
+  showRecipeView("editor");
+  recipeDetailsStatus(source?"Copia creada con sus propias cantidades: podés cambiarlas sin afectar la receta original.":"Copia creada. Conserva los pasos y notas; la receta original no tenía cantidades vinculadas.");
+  document.getElementById("recipeDetailsTitle").focus({
+    preventScroll:true
+  });
+  renderRecipeCatalog()
+},
+duplicateRecipeFromButton(id){
+  try{
+    Recetas.duplicateRecipeDetails(id)
+  }catch(err){
+    recipeDetailsStatus(err.message)
+  }
+}
+};
 /* I04-A: detalles independientes; no migrar cantidades ni alterar cálculos existentes. */
 const RECIPE_DETAILS_KEY="miPlatoFacil_recipeDetails_v1";
 function validRecipeDetails(store){
@@ -25,10 +148,6 @@ function loadRecipeDetails(){
   }catch(e){
     throw new Error("No se pudieron leer los detalles guardados. No se sobrescribirán; revisá el respaldo.")
   }
-}
-function saveRecipeDetailsStore(all){
-  if(!validRecipeDetails(all))throw new Error("Datos de recetas inválidos.");
-  localStorage.setItem(RECIPE_DETAILS_KEY,JSON.stringify(all))
 }
 let recipeDetailsEditing=null;
 function recipeDetailsStatus(t){
@@ -89,65 +208,6 @@ function renderRecipeDetails(){
   document.getElementById("recipeSubstitutions").value=(r.substitutions||[]).map(s=>s.from+" = "+s.to).join("\n");
   renderRecipeIngredientRows(r.amountsTitle);
   recipeDetailsStatus("Editando receta. El nombre puede cambiar sin modificar su identidad.")
-}
-function recipeDetailsId(all){
-  let id;
-  do{
-    id="recipe_"+(typeof crypto!=="undefined"&&crypto.randomUUID?crypto.randomUUID().replace(/-/g,""):Date.now().toString(36)+Math.random().toString(36).slice(2,12))
-  }while(Object.prototype.hasOwnProperty.call(all,id));
-  return id
-}
-function persistRecipeDetailsForm(){
-  const all=loadRecipeDetails(),id=recipeDetailsEditing||recipeDetailsId(all),prev=all[id]||{
-  },title=document.getElementById("recipeDetailsTitle").value.trim(),sourceTitle=document.getElementById("recipeDetailsSource").value||null,selected=document.getElementById("recipeDetailsAmounts").value||null,steps=document.getElementById("recipeDetailsSteps").value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean),notes=document.getElementById("recipeDetailsNotes").value.trim();
-  if(!title||title.length>100)throw Error("Ingresá un nombre de hasta 100 caracteres.");
-  const tags=[...new Set(document.getElementById("recipeTags").value.split(",").map(x=>x.trim()).filter(Boolean))];
-  if(tags.length>12||tags.some(t=>t.length>30))throw Error("Usá hasta 12 etiquetas de hasta 30 caracteres cada una.");
-  const minutesText=document.getElementById("recipeMinutes").value.trim();
-  let minutes=null;
-  if(minutesText){
-    if(!/^\d{1,4}$/.test(minutesText)||Number(minutesText)<1||Number(minutesText)>1440)throw Error("El tiempo debe ser un número de minutos entre 1 y 1440.");
-    minutes=Number(minutesText)
-  }
-  const substitutions=document.getElementById("recipeSubstitutions").value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean).map(line=>{
-    const parts=line.split("=");if(parts.length!==2||!parts[0].trim()||!parts[1].trim())throw Error("Escribí cada reemplazo como: Ingrediente = Reemplazo.");return {
-      from:parts[0].trim().slice(0,100),to:parts[1].trim().slice(0,100)
-    }
-  });
-  if(substitutions.length>30)throw Error("Usá hasta 30 reemplazos.");
-  const box=document.getElementById("recipeIngredientRows"),hasRows=!!box.querySelector(".amount-row"),amountsRecipe=hasRows?readAmountRows(box,"recipeYield"):null,amountsKey=hasRows?(selected||ownAmountsKey(id)):selected,amountsAll=loadRecipeAmounts();
-  if(amountsKey&&!hasRows&&!Object.prototype.hasOwnProperty.call(amountsAll,amountsKey))throw Error("Las cantidades seleccionadas ya no existen.");
-  if(amountsKey&&Object.values(all).some(r=>r.id!==id&&r.amountsTitle===amountsKey))throw Error("Esas cantidades ya están vinculadas a otra receta.");
-  const entry={
-    id,title,sourceTitle,amountsTitle:amountsKey,steps,notes,tags,minutes,substitutions,variantOf:typeof prev.variantOf==="string"&&prev.variantOf!==id?prev.variantOf:null
-  };
-  const previous=hasRows&&Object.prototype.hasOwnProperty.call(amountsAll,amountsKey)?amountsAll[amountsKey]:undefined;
-  if(hasRows){
-    amountsAll[amountsKey]=amountsRecipe;
-    try{
-      localStorage.setItem(RECIPE_AMOUNTS_KEY,JSON.stringify(amountsAll))
-    }catch(e){
-      throw Error("No se pudieron guardar los ingredientes (falta de espacio u otro error). No se modificó nada.")
-    }
-  }
-  all[id]=entry;
-  try{
-    saveRecipeDetailsStore(all)
-  }catch(err){
-    if(hasRows){
-      if(previous===undefined)delete amountsAll[amountsKey];
-      else amountsAll[amountsKey]=previous;
-      try{
-        localStorage.setItem(RECIPE_AMOUNTS_KEY,JSON.stringify(amountsAll))
-      }catch(ignore){
-      }
-    }
-    throw Error("No se pudo guardar la receta (falta de espacio u otro error). No se modificó nada.")
-  }
-  recipeDetailsEditing=id;
-  renderRecipeDetails();
-  recipeDetailsStatus(hasRows?"Receta guardada con sus ingredientes. Si está en el plan, Compras usa estas cantidades.":"Receta guardada.");
-  renderRecipeCatalog()
 }
 /* I04-B: explorador de ideas existentes y recetas propias. */
 let recipeCatalogMineOnly=false;
@@ -216,7 +276,7 @@ function initRecipePreferences(){
     recipeCatalogPage=0;renderRecipeCatalog()
   })
 }
-startupGuard("Preferencias de recetas",initRecipePreferences);
+Existencias.startupGuard("Preferencias de recetas",initRecipePreferences);
 function recipePantryScore(entry,own,amounts,pantry,stock){
   if(entry.kind!=="propia")return {
     known:false,have:0,total:0,complete:false,missing:[],unknown:[]
@@ -229,7 +289,7 @@ function recipePantryScore(entry,own,amounts,pantry,stock){
   for(const row of amount.rows){
     const name=normalizeSearchText(row.name||"");
     if(!name)continue;
-    const key=JSON.stringify([ingredientKey(row.name),unitInfo(row.unit).dim]);
+    const key=JSON.stringify([ingredientKey(row.name),Ingredientes.unitInfo(row.unit).dim]);
     if(!grouped.has(key))grouped.set(key,{
       name:row.name,unit:row.unit,required:0,unknown:false
     });
@@ -242,7 +302,7 @@ function recipePantryScore(entry,own,amounts,pantry,stock){
   };
   let have=0,missing=[],unknown=[];
   for(const [key,g] of grouped){
-    const recordQty=stockQuantityFor(stock,g.name,g.unit),record=recordQty===null?null:{
+    const recordQty=Ingredientes.stockQuantityFor(stock,g.name,g.unit),record=recordQty===null?null:{
       quantity:recordQty
     },measured=record&&Number.isFinite(record.quantity),marked=pantry.has(normalizeSearchText(g.name));
     if(measured&&record.quantity>=g.required&&!g.unknown)have++;
@@ -252,9 +312,9 @@ function recipePantryScore(entry,own,amounts,pantry,stock){
   }
   const subs=[];
   for(const s of (r&&r.substitutions)||[]){
-    const g=[...grouped.values()].find(x=>sameIngredient(x.name,s.from));
+    const g=[...grouped.values()].find(x=>Ingredientes.sameIngredient(x.name,s.from));
     if(!g)continue;
-    const own=stockQuantityFor(stock,g.name,g.unit),alt=stockQuantityFor(stock,s.to,g.unit);
+    const own=Ingredientes.stockQuantityFor(stock,g.name,g.unit),alt=Ingredientes.stockQuantityFor(stock,s.to,g.unit);
     if(alt===null||(own!==null&&!g.unknown&&own>=g.required))continue;
     subs.push(g.name+" → "+s.to+" (tenés "+Number(alt.toFixed(6)).toLocaleString("es-AR")+" "+g.unit+(g.unknown||alt>=g.required?"":", no alcanza")+")")
   }
@@ -269,7 +329,7 @@ function recipeMissingCost(entry,own,amounts,stock,prices){
   const grouped=new Map();
   for(const row of amount.rows){
     if(!row.name||!row.name.trim())continue;
-    const key=JSON.stringify([ingredientKey(row.name),unitInfo(row.unit).dim]);
+    const key=JSON.stringify([ingredientKey(row.name),Ingredientes.unitInfo(row.unit).dim]);
     if(!grouped.has(key))grouped.set(key,{
       name:row.name,unit:row.unit,quantity:0,unknown:false
     });
@@ -284,9 +344,9 @@ function recipeMissingCost(entry,own,amounts,stock,prices){
       pending.push(g.name+": cantidad requerida desconocida");
       continue
     }
-    const available=stockQuantityFor(stock,g.name,g.unit)||0,missing=Math.max(0,g.quantity-available);
+    const available=Ingredientes.stockQuantityFor(stock,g.name,g.unit)||0,missing=Math.max(0,g.quantity-available);
     if(!missing)continue;
-    const compatible=pricesFor(prices,g.name,g.unit).filter(p=>true&&Number.isFinite(p.amount)&&p.amount>0&&Number.isFinite(p.price)&&p.price>=0);
+    const compatible=Ingredientes.pricesFor(prices,g.name,g.unit).filter(p=>true&&Number.isFinite(p.amount)&&p.amount>0&&Number.isFinite(p.price)&&p.price>=0);
     if(compatible.length!==1){
       pending.push(g.name+": "+(compatible.length?"múltiples precios":"sin precio"));
       continue
@@ -329,7 +389,7 @@ function renderRecipeCatalog(){
     costs=new Map(entries.map(e=>[e.kind+":"+e.key,recipeMissingCost(e,own,amounts,stock,prices)]))
   }
   if(recommend){
-    const pantry=pantryMarkedMatcher(),amounts=loadRecipeAmounts(),stock=loadStockQuantities();
+    const pantry=MarcasDespensa.pantryMarkedMatcher(),amounts=loadRecipeAmounts(),stock=loadStockQuantities();
     scores=new Map(entries.map(e=>[e.kind+":"+e.key,recipePantryScore(e,own,amounts,pantry,stock)]));
     entries.sort((a,b)=>{
       const x=scores.get(a.kind+":"+a.key),y=scores.get(b.kind+":"+b.key);if(x.known!==y.known)return x.known?-1:1;if(x.known&&y.known){
@@ -443,18 +503,6 @@ function renderRecipeCatalog(){
     box.append(card)
   }
 }
-function startRecipeFromIdea(title){
-  if(!data.menuCatalog.some(x=>x.text===title))throw Error("La idea ya no está disponible.");
-  resetRecipeDetailsForm();
-  document.getElementById("recipeDetailsTitle").value=title;
-  document.getElementById("recipeDetailsSource").value=title;
-  (PANTRY_REVIEW_COMPONENTS[title]||[]).forEach(x=>appendRecipeAmountRow({
-    name:x.label,quantity:null,unit:"g"
-  },document.getElementById("recipeIngredientRows")));
-  recipeDetailsStatus("Idea seleccionada. Revisá los ingredientes propuestos y cargá cantidades solo si las conocés.");
-  showRecipeView("editor");
-  document.getElementById("recipeDetailsTitle").focus()
-}
 let recipeReadId=null;
 let recipeReadReturnFocus=null;
 // "misplatos" cuando la receta se abrió desde Mis comidas: Volver regresa ahí.
@@ -521,57 +569,12 @@ function closeRecipeRead(restoreFocus=true){
   });
   recipeReadReturnFocus=null
 }
-function duplicateRecipeDetails(id){
-  const all=loadRecipeDetails(),original=all[id];
-  if(!original)throw Error("Elegí una receta guardada para duplicar.");
-  if(Object.keys(all).length>=1000)throw Error("Alcanzaste el límite de recetas guardadas.");
-  const newId=recipeDetailsId(all);
-  const amounts=loadRecipeAmounts(),source=original.amountsTitle&&Object.prototype.hasOwnProperty.call(amounts,original.amountsTitle)?amounts[original.amountsTitle]:null,newKey=ownAmountsKey(newId);
-  const copy={
-    id:newId,title:("Copia de "+original.title).slice(0,100),sourceTitle:original.sourceTitle,amountsTitle:source?newKey:null,steps:original.steps.slice(),notes:original.notes,tags:(original.tags||[]).slice(),minutes:original.minutes||null,substitutions:(original.substitutions||[]).map(s=>({
-      from:s.from,to:s.to
-    })),variantOf:original.variantOf&&all[original.variantOf]?original.variantOf:original.id
-  };
-  try{
-    if(source){
-      amounts[newKey]=JSON.parse(JSON.stringify(source));
-      localStorage.setItem(RECIPE_AMOUNTS_KEY,JSON.stringify(amounts))
-    }
-    all[newId]=copy;
-    saveRecipeDetailsStore(all)
-  }catch(err){
-    if(source&&Object.prototype.hasOwnProperty.call(amounts,newKey)){
-      delete amounts[newKey];
-      try{
-        localStorage.setItem(RECIPE_AMOUNTS_KEY,JSON.stringify(amounts))
-      }catch(ignore){
-      }
-    }
-    throw Error("No se pudo crear la copia (falta de espacio u otro error). No se modificó ninguna receta.")
-  }
-  recipeDetailsEditing=newId;
-  closeRecipeRead(false);
-  renderRecipeDetails();
-  showRecipeView("editor");
-  recipeDetailsStatus(source?"Copia creada con sus propias cantidades: podés cambiarlas sin afectar la receta original.":"Copia creada. Conserva los pasos y notas; la receta original no tenía cantidades vinculadas.");
-  document.getElementById("recipeDetailsTitle").focus({
-    preventScroll:true
-  });
-  renderRecipeCatalog()
-}
-function duplicateRecipeFromButton(id){
-  try{
-    duplicateRecipeDetails(id)
-  }catch(err){
-    recipeDetailsStatus(err.message)
-  }
-}
 function addRecipeMissingToShopping(){
   const status=document.getElementById("recipeCatalogCount");
   try{
     const id=recipeReadId;
     if(!id)throw Error("Abrí una receta guardada primero.");
-    const own=loadRecipeDetails(),amounts=loadRecipeAmounts(),pantry=pantryMarkedMatcher(),score=recipePantryScore({
+    const own=loadRecipeDetails(),amounts=loadRecipeAmounts(),pantry=MarcasDespensa.pantryMarkedMatcher(),score=recipePantryScore({
       kind:"propia",key:id,title:own[id]&&own[id].title
     },own,amounts,pantry,loadStockQuantities());
     if(!score.known)throw Error("Esta receta no tiene cantidades vinculadas.");
@@ -604,8 +607,8 @@ function addRecipeMissingToShopping(){
   }
 }
 document.getElementById("recipeReadToShopping").addEventListener("click",addRecipeMissingToShopping);
-document.getElementById("recipeReadDuplicate").addEventListener("click",()=>duplicateRecipeFromButton(recipeReadId));
-document.getElementById("recipeDetailsDuplicate").addEventListener("click",()=>duplicateRecipeFromButton(recipeDetailsEditing));
+document.getElementById("recipeReadDuplicate").addEventListener("click",()=>Recetas.duplicateRecipeFromButton(recipeReadId));
+document.getElementById("recipeDetailsDuplicate").addEventListener("click",()=>Recetas.duplicateRecipeFromButton(recipeDetailsEditing));
 document.getElementById("recipeReadBack").addEventListener("click",()=>{
   // La receta está en su propia pantalla: Volver regresa a donde se abrió (Mis comidas o Ideas).
   closeRecipeRead(false);
@@ -684,7 +687,7 @@ document.getElementById("recipeCatalogNext").addEventListener("click",()=>{
 });
 document.getElementById("recipeCatalogResults").addEventListener("click",e=>{
   const b=e.target.closest("button[data-recipe-catalog-kind]");if(!b)return;try{
-    if(b.dataset.recipeCatalogKind==="idea")startRecipeFromIdea(b.dataset.recipeCatalogKey);else{
+    if(b.dataset.recipeCatalogKind==="idea")Recetas.startRecipeFromIdea(b.dataset.recipeCatalogKey);else{
       showRecipeRead(b.dataset.recipeCatalogKey)
     }
   }catch(err){
@@ -714,14 +717,14 @@ document.getElementById("recipeDetailsCancel").addEventListener("click",()=>{
 });
 document.getElementById("recipeDetailsSave").addEventListener("click",()=>{
   try{
-    persistRecipeDetailsForm()
+    Recetas.persistRecipeDetailsForm()
   }catch(err){
     recipeDetailsStatus(err.message)
   }
 });
 document.getElementById("recipeDetailsDelete").addEventListener("click",()=>{
   try{
-    if(!recipeDetailsEditing)throw Error("Elegí una receta guardada.");const all=loadRecipeDetails(),target=all[recipeDetailsEditing],ownKey=ownAmountsKey(recipeDetailsEditing),ownAmounts=!!target&&target.amountsTitle===ownKey;if(!window.confirm(ownAmounts?"¿Eliminar la receta guardada? Se borrarán su nombre, pasos, notas y sus cantidades propias.":"¿Eliminar la receta guardada? Se borrarán su nombre, pasos y notas. Las cantidades vinculadas seguirán guardadas por separado."))return;delete all[recipeDetailsEditing];saveRecipeDetailsStore(all);let note="Detalles eliminados. Las cantidades siguen guardadas.";if(ownAmounts){
+    if(!recipeDetailsEditing)throw Error("Elegí una receta guardada.");const all=loadRecipeDetails(),target=all[recipeDetailsEditing],ownKey=ownAmountsKey(recipeDetailsEditing),ownAmounts=!!target&&target.amountsTitle===ownKey;if(!window.confirm(ownAmounts?"¿Eliminar la receta guardada? Se borrarán su nombre, pasos, notas y sus cantidades propias.":"¿Eliminar la receta guardada? Se borrarán su nombre, pasos y notas. Las cantidades vinculadas seguirán guardadas por separado."))return;delete all[recipeDetailsEditing];Recetas.saveRecipeDetailsStore(all);let note="Detalles eliminados. Las cantidades siguen guardadas.";if(ownAmounts){
       const amounts=loadRecipeAmounts();delete amounts[ownKey];try{
         localStorage.setItem(RECIPE_AMOUNTS_KEY,JSON.stringify(amounts));note="Receta y cantidades propias eliminadas."
       }catch(e){

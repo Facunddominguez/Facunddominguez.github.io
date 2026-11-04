@@ -1,5 +1,14 @@
 // Mi Plato Fácil · Productos extra de la lista de compras.
 // Parte 18: los archivos se unen en orden según su número, que define el orden de arranque.
+// Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como ProductosExtra.nombre().
+var ProductosExtra={
+resetManualShoppingForm(){
+  manualShopEditing=null;
+  document.getElementById("manualShoppingForm").reset();
+  document.getElementById("manualShopSubmit").textContent="Agregar producto";
+  document.querySelector("[data-manual-cancel]").classList.add("is-hidden")
+}
+};
 const MANUAL_SHOP_KEY="miPlatoFacil_manualShopping_v1";
 let manualShopEditing=null,manualShopUndo=null;
 function loadManualShopping(){
@@ -21,12 +30,6 @@ function persistManualShopping(a){
     return false
   }
 }
-function resetManualShoppingForm(){
-  manualShopEditing=null;
-  document.getElementById("manualShoppingForm").reset();
-  document.getElementById("manualShopSubmit").textContent="Agregar producto";
-  document.querySelector("[data-manual-cancel]").classList.add("is-hidden")
-}
 function renderManualShopping(){
   const box=document.getElementById("manualShopList"),a=loadManualShopping();
   box.replaceChildren(...a.map(item=>{
@@ -47,7 +50,7 @@ document.getElementById("manualShoppingForm").addEventListener("submit",e=>{
   }else a.push({
     id:Date.now().toString(36)+"_"+Math.random().toString(36).slice(2),name,amount,done:false
   });if(persistManualShopping(a)){
-    resetManualShoppingForm();renderManualShopping();status.textContent="Producto guardado."
+    ProductosExtra.resetManualShoppingForm();renderManualShopping();status.textContent="Producto guardado."
   }
 });
 document.addEventListener("change",e=>{
@@ -56,14 +59,14 @@ document.addEventListener("change",e=>{
   }
 });
 document.addEventListener("click",e=>{
-  const b=e.target.closest("button");if(!b)return;if(b.dataset.manualCancel!==undefined)return resetManualShoppingForm();if(b.dataset.manualEdit){
+  const b=e.target.closest("button");if(!b)return;if(b.dataset.manualCancel!==undefined)return ProductosExtra.resetManualShoppingForm();if(b.dataset.manualEdit){
     const item=loadManualShopping().find(x=>x.id===b.dataset.manualEdit);if(item){
       manualShopEditing=item.id;document.getElementById("manualShopName").value=item.name;document.getElementById("manualShopAmount").value=item.amount;document.getElementById("manualShopSubmit").textContent="Guardar cambios";document.querySelector("[data-manual-cancel]").classList.remove("is-hidden");document.getElementById("manualShoppingPanel").open=true;document.getElementById("manualShopName").focus()
     }
   }if(b.dataset.manualDelete){
     // Desde la v15.4, sin confirmación y con Deshacer (vuelve el arreglo tal como estaba).
     const antes=localStorage.getItem(MANUAL_SHOP_KEY),todos=loadManualShopping(),quitado=todos.find(x=>x.id===b.dataset.manualDelete);if(!quitado)return;if(persistManualShopping(todos.filter(x=>x.id!==quitado.id))){
-      if(manualShopEditing===quitado.id)resetManualShoppingForm();renderManualShopping();manualShopUndo={antes,despues:localStorage.getItem(MANUAL_SHOP_KEY)};const st=document.getElementById("manualShopStatus"),u=ce("button","filter-chip","Deshacer");u.type="button";u.dataset.manualUndo="";st.replaceChildren(document.createTextNode("Quitado: "+quitado.name+". "),u)
+      if(manualShopEditing===quitado.id)ProductosExtra.resetManualShoppingForm();renderManualShopping();manualShopUndo={antes,despues:localStorage.getItem(MANUAL_SHOP_KEY)};const st=document.getElementById("manualShopStatus"),u=ce("button","filter-chip","Deshacer");u.type="button";u.dataset.manualUndo="";st.replaceChildren(document.createTextNode("Quitado: "+quitado.name+". "),u)
     }
   }if(b.dataset.manualUndo!==undefined&&manualShopUndo){
     const u=manualShopUndo,st=document.getElementById("manualShopStatus");manualShopUndo=null;if(localStorage.getItem(MANUAL_SHOP_KEY)!==u.despues){
@@ -75,4 +78,4 @@ document.addEventListener("click",e=>{
     }
   }
 });
-startupGuard("Productos extra",renderManualShopping);
+Existencias.startupGuard("Productos extra",renderManualShopping);

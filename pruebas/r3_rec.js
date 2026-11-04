@@ -63,8 +63,8 @@
   T.ok("E8b el plan conserva la receta borrada por nombre en Compras", R.renderedRows().includes("Papa") && R.renderedRows().includes("Cebolla"), R.renderedRows().join(" | "));
   go("ingredientes"); await reopen(); await choose("receta:" + id2);
   fillRow(document.querySelector("#amountRows .amount-row"), "Huevo", "3", "unidad"); document.getElementById("amountSave").click(); await wait(20);
-  const snap = completeBackupSnapshot(localStorage); let berr = null; try { validateCompleteBackup(snap) } catch (e) { berr = e.message }
-  localStorage.clear(); restoreCompleteBackup(snap, localStorage);
+  const snap = completeBackupSnapshot(localStorage); let berr = null; try { Respaldo.validateCompleteBackup(snap) } catch (e) { berr = e.message }
+  localStorage.clear(); Respaldo.restoreCompleteBackup(snap, localStorage);
   T.ok("E9 respaldo con cantidades de recetas propias se valida y restaura", berr === null && loadRecipeDetails()[id2].amountsTitle === "receta:" + id2 && !!loadRecipeAmounts()["receta:" + id2], berr);
   window.__r3_storage = JSON.stringify(Object.fromEntries(Object.keys(localStorage).map(k => [k, localStorage.getItem(k)])));
   return T;

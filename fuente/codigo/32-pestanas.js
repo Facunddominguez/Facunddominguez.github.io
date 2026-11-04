@@ -21,11 +21,11 @@ var resetTabs=null;
     if(activeTab==="mas")return ["Más","Tu rutina, tus preferencias y tus datos."];
     return ["Hoy · "+new Date().toLocaleDateString("es-AR",{
       weekday:"long",day:"numeric",month:"long"
-    }),todayHint()]
+    }),Hoy.todayHint()]
   }
   function paint(){
     // Si se llegó a la portada desde otra pestaña (por ejemplo, con "Armar otro plato"), es Hoy.
-    if(stack.at(-1)==="home"&&activeTabRoot()!=="home")activeTab="hoy";
+    if(stack.at(-1)==="home"&&Armado.activeTabRoot()!=="home")activeTab="hoy";
     home.dataset.homeTab=activeTab==="mas"?"mas":"hoy";
     bar.querySelectorAll("button").forEach(b=>{
       if(b.dataset.sectionTab===activeTab)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current")
@@ -35,7 +35,7 @@ var resetTabs=null;
     home.querySelector(".screen__title").textContent=title;
     home.querySelector(".screen__hint").textContent=hint;
     theme.classList.toggle("is-hidden",!(stack.at(-1)==="home"&&activeTab==="mas"));
-    el.homeTop.classList.toggle("is-visible",!esRaizDePestana(stack.at(-1)));
+    el.homeTop.classList.toggle("is-visible",!Armado.esRaizDePestana(stack.at(-1)));
     el.homeTop.textContent="← "+TABS[activeTab].label;
     el.homeTop.setAttribute("aria-label","Volver al inicio de "+TABS[activeTab].label);
     if(stack.at(-1)==="home"&&activeTab==="hoy")renderToday();
@@ -56,7 +56,7 @@ var resetTabs=null;
     if(id==="plan")renderPlan();
     if(id==="compras")renderCompras();
     if(id==="ingredientes")renderPantry();
-    if(id==="ideas")renderContextAdvice();
+    if(id==="ideas")Armado.renderContextAdvice();
     if(id==="registro"&&typeof renderRegistro==="function")renderRegistro();
     if(id==="preferencias"&&typeof renderObjetivosPreferencias==="function")renderObjetivosPreferencias();
     nav()
@@ -72,10 +72,10 @@ var resetTabs=null;
       stack=saved?saved.stack.slice():[TABS[tab].root];
       if(saved){
         Object.assign(state,JSON.parse(JSON.stringify(saved.state)));
-        syncMultiSelection();
-        setReplace("carb",state.replaceCarb);
-        setReplace("prot",state.replaceProt);
-        if(state.type==="plato")updatePlate();
+        AlAzar.syncMultiSelection();
+        Armado.setReplace("carb",state.replaceCarb);
+        Armado.setReplace("prot",state.replaceProt);
+        if(state.type==="plato")Armado.updatePlate();
         editReturn=saved.editReturn;
         portionEditReturn=saved.portionEditReturn;
         lastRandomType=saved.lastRandomType

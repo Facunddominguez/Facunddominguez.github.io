@@ -1,6 +1,6 @@
 // F01-02 battery: user-defined equivalences (UI), backup and compatibility.
 (async () => {
-  const R = window.R2, { wait, results, reset, setAmounts, setRecipes, recipePlate, tradPlate, setSaved, setPlan, IDEA2 } = R; const T = results();
+  const R = window.R2, { wait, results, reset, setAmounts, setRecipes, recipePlate, tradPlate, tradPlateTexto, setSaved, setPlan, IDEA2 } = R; const T = results();
   window.confirm = () => true;
   const KEY = "miPlatoFacil_ingredientAliases_v1";
   reset();
@@ -17,12 +17,12 @@
   const stored = JSON.parse(localStorage.getItem(KEY));
   T.ok("L2a Unir guarda la equivalencia y la muestra", Object.keys(stored).length === 1 && document.getElementById("ingredientAliasList").textContent.includes("Arroz (integral, yamaní) = Arroz") && /Unidos/.test(document.getElementById("ingredientAliasStatus").textContent));
   go("compras"); await wait(40);
-  T.ok("L2b Compras une ambas líneas con el nombre elegido", R.renderedRows().includes("Arroz: 300 g + sin cantidad en 1 plato"), R.renderedRows().join(" | "));
+  T.ok("L2b Compras une ambas líneas con el nombre elegido", R.renderedRows().includes("Arroz: 1 paquete de 1.000 g"), R.renderedRows().join(" | "));
   go("ingredientes"); await R.openPanel("ingredientAliasPanel");
   T.ok("L2c la sugerencia ya no aparece", ![...document.querySelectorAll("#ingredientAliasSuggestions button")].some(b => b.dataset.ingredientAliasFrom === "Arroz (integral, yamaní)"));
   document.getElementById("ingredientAliasFrom").value = "Arroz yamaní"; document.getElementById("ingredientAliasTo").value = "Arroz integral";
   document.getElementById("ingredientAliasSave").click(); await wait(20);
-  T.ok("L3 equivalencia manual con nombres nuevos", sameIngredient("Arroz yamaní", "Arroz integral") && /Equivalencia guardada/.test(document.getElementById("ingredientAliasStatus").textContent));
+  T.ok("L3 equivalencia manual con nombres nuevos", Ingredientes.sameIngredient("Arroz yamaní", "Arroz integral") && /Equivalencia guardada/.test(document.getElementById("ingredientAliasStatus").textContent));
   document.getElementById("ingredientAliasFrom").value = "Tomates"; document.getElementById("ingredientAliasTo").value = "tomate";
   document.getElementById("ingredientAliasSave").click(); await wait(20);
   const e1 = document.getElementById("ingredientAliasStatus").textContent;
@@ -30,15 +30,15 @@
   document.getElementById("ingredientAliasSave").click(); await wait(20);
   const e2 = document.getElementById("ingredientAliasStatus").textContent;
   T.ok("L4 avisa si ya son iguales o si falta un nombre", /ya se consideran el mismo/.test(e1) && /Escribí los dos nombres/.test(e2), e1 + " / " + e2);
-  saveIngredientAlias("Arroz integral", "Arroz");
-  T.ok("L5 las equivalencias encadenadas llegan al mismo ingrediente", sameIngredient("Arroz yamaní", "Arroz") && sameIngredient("Arroz integral", "Arroz (integral, yamaní)"));
+  Equivalencias.saveIngredientAlias("Arroz integral", "Arroz");
+  T.ok("L5 las equivalencias encadenadas llegan al mismo ingrediente", Ingredientes.sameIngredient("Arroz yamaní", "Arroz") && Ingredientes.sameIngredient("Arroz integral", "Arroz (integral, yamaní)"));
   // Backup with equivalences
-  const snap = completeBackupSnapshot(localStorage); let err = null; try { validateCompleteBackup(snap) } catch (e) { err = e.message }
+  const snap = completeBackupSnapshot(localStorage); let err = null; try { Respaldo.validateCompleteBackup(snap) } catch (e) { err = e.message }
   T.ok("L6a el respaldo incluye las equivalencias y es válido", err === null && Object.keys(snap.data).length === 18 && snap.data[KEY] === localStorage.getItem(KEY), err);
-  localStorage.removeItem(KEY); restoreCompleteBackup(snap, localStorage);
-  T.ok("L6b restaurar recupera las equivalencias", localStorage.getItem(KEY) === snap.data[KEY] && sameIngredient("Arroz yamaní", "Arroz"));
+  localStorage.removeItem(KEY); Respaldo.restoreCompleteBackup(snap, localStorage);
+  T.ok("L6b restaurar recupera las equivalencias", localStorage.getItem(KEY) === snap.data[KEY] && Ingredientes.sameIngredient("Arroz yamaní", "Arroz"));
   const bad = JSON.parse(JSON.stringify(snap)); bad.data[KEY] = JSON.stringify({ arroz: { from: "Arroz", to: "arroz", toName: "Arroz" } });
-  let berr = null; try { validateCompleteBackup(bad) } catch (e) { berr = e.message }
+  let berr = null; try { Respaldo.validateCompleteBackup(bad) } catch (e) { berr = e.message }
   T.ok("L6c equivalencias inválidas se rechazan", /Equivalencias de ingredientes inválidas/.test(berr || ""), berr);
   // Without equivalences the key is not exported (keeps backups restorable in older versions)
   localStorage.removeItem(KEY);
@@ -48,14 +48,14 @@
   // Rollback with the omitted key must not write the text "undefined"
   const mem = new Map(Object.entries(plain.data).filter(([, v]) => v !== null)); let writes = 0;
   const fake = { getItem: k => mem.has(k) ? mem.get(k) : null, setItem: (k, v) => { writes++; if (writes === 3) throw new Error("cuota"); mem.set(k, String(v)) }, removeItem: k => mem.delete(k) };
-  let rmsg = null; try { restoreCompleteBackup(snap, fake) } catch (e) { rmsg = e.message }
+  let rmsg = null; try { Respaldo.restoreCompleteBackup(snap, fake) } catch (e) { rmsg = e.message }
   T.ok("L8 si falla una restauración, la reversión no deja 'undefined'", !!rmsg && fake.getItem(KEY) === null && ![...mem.values()].includes("undefined"), rmsg);
   // Remove an equivalence from the UI
-  saveIngredientAlias("Arroz (integral, yamaní)", "Arroz");
+  Equivalencias.saveIngredientAlias("Arroz (integral, yamaní)", "Arroz");
   go("ingredientes"); await R.openPanel("ingredientAliasPanel");
   document.querySelector("#ingredientAliasList [data-ingredient-alias-remove]").click(); await wait(20);
   go("compras"); await wait(30);
-  T.ok("L9 quitar la equivalencia vuelve a separar las líneas", R.renderedRows().includes("Arroz: 300 g") && R.renderedRows().includes("Arroz (integral, yamaní)") && /Equivalencia quitada/.test(document.getElementById("ingredientAliasStatus").textContent), R.renderedRows().join(" | "));
+  T.ok("L9 quitar la equivalencia vuelve a separar las líneas", R.renderedRows().includes("Arroz: 1 paquete de 1.000 g") && R.renderedRows().includes("Arroz (integral, yamaní): 1 paquete de 1.000 g") && /Equivalencia quitada/.test(document.getElementById("ingredientAliasStatus").textContent), R.renderedRows().join(" | "));
   const ids = [...document.querySelectorAll("[id]")].map(e => e.id), dups = [...new Set(ids.filter((x, i) => ids.indexOf(x) !== i))];
   T.ok("L10 sin IDs duplicados", dups.length === 0, dups.join(","));
   return T;

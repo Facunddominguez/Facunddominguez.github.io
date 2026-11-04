@@ -27,9 +27,9 @@
   const planText = document.getElementById("planList").textContent;
   T.ok("G3a el plan muestra el nombre actual de la receta", planText.includes("📖 Papas rústicas") && !planText.includes("Papas al horno"));
   go("misplatos"); await wait(30);
-  T.ok("G3b Mis comidas también (receta y copia del plan), sin reescribir lo guardado", document.querySelector("#savedList .comida-card[data-recipe-id] .comida-card__nombre").textContent === "Papas rústicas" && document.querySelector("#savedList details.saved-recipes strong").textContent === "📖 Papas rústicas" && loadSaved().find(p => p.recipeSourceId).title === "Papas al horno");
+  T.ok("G3b Mis comidas también (receta y copia del plan), sin reescribir lo guardado", document.querySelector("#savedList .comida-card[data-recipe-id] .comida-card__nombre").textContent === "Papas rústicas" && document.querySelector("#savedList details.saved-recipes strong").textContent === "📖 Papas rústicas" && MisPlatos.loadSaved().find(p => p.recipeSourceId).title === "Papas al horno");
   T.ok("G4a el plan muestra los ingredientes de la receta", planText.includes("Ingredientes: Papa, Romero"));
-  const html = buildWeeklyPlanExport(loadPlan(), loadSaved(), "").html;
+  const html = SemanasFechadas.buildWeeklyPlanExport(loadPlan(), MisPlatos.loadSaved(), "").html;
   T.ok("G4b la descarga del plan incluye los ingredientes", html.includes("<li>Ingredientes: Papa, Romero</li>"));
   abrirSelector("lunes", "cena"); await wait(20);
   const opts = [...hoja.elemento.querySelectorAll('[data-selector-seccion="mias"] .selector-item__nombre')].map(o => o.textContent); hoja.cerrar();

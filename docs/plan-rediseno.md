@@ -1970,3 +1970,333 @@ Rama `rediseno-etapa-10-pulido`. Versión 15.9.0.
 - Después de la Etapa 10 y de publicar el informe, la tarea mensual de nutrición commiteó en `main` (`a4c3fd4`, 3/11/2026 14:29 UTC): solo `datos/nutricion.json` e `index.html`. Como pide el plan, se trajo a `rediseno` con merge (sin rebase), sin conflictos, se reconstruyó (`construir.mjs --verificar` OK, v15.9.0) y se pasó la compuerta completa otra vez.
 - La compuerta falló en una prueba que ya existía: `f07_nutri.js` N16 ("publicada: toma datos más nuevos y descarta viejos o inválidos") tenía escrita a mano la fecha de los datos de nutrición incluidos (26/10/2026), así que se rompía con cada revisión mensual. La lógica que prueba no cambió (toma los datos más nuevos, descarta los viejos y los inválidos, y al terminar vuelve a los incluidos): ahora la última comprobación compara con la fecha real de los datos incluidos (`NUTRITION_SNAPSHOT.revisado`). Misma exigencia, y deja de romperse cada mes.
 - Decisión: no se movieron los tags (`etapa-10-ok` queda en el commit validado antes del merge); el merge y la corrección son commits posteriores en `rediseno`.
+
+---
+
+## Ronda 2: la semana con precio
+
+### Contexto
+La ronda 1 (etapas 0 a 10, v15.9.0) ya está en `main`. Las reglas de `CLAUDE.md`, la compuerta (`herramientas/validar-etapa.mjs`), los criterios (`docs/validacion/criterios.json`), las capturas (`herramientas/capturas.mjs`) y los revisores (`.claude/agents/`) siguen vigentes: se extienden, no se reescriben.
+Objetivo: que la app arme y cueste la semana sola, con cantidades reales y precios de INDEC y SEPA a la vista, sin perder lo simple. Cada decisión se piensa como alguien que quiere comer equilibrado y saber cuánto le va a salir la semana. Trabajo autónomo de la Etapa 11 a la 18; la única intervención humana es el merge final a `main`.
+
+### Qué se toma de NeatEat y qué no
+- Sí: armar la semana dentro de un presupuesto, personas por hogar, cantidades en envases reales, básicos de alacena fuera de la lista, reaprovechar ingredientes y sobras, cambiar una sola comida, filtros de dieta que se cumplen.
+- No: precios inventados (siempre fuente, mes y rango), recetas generadas en masa, cuentas, suscripción, publicidad, configuraciones que no cambian nada ni etiquetas como "apto celíaco" sin verificar.
+
+### Problemas encontrados en la v15.9.0 (recorrido real a 390×844)
+- Frutas del desayuno: al tocar una fruta pasa solo al paso 2, así que no se pueden elegir dos. Las "formas" mezclan maneras de comer fruta (entera, en trozos, licuado) con preparaciones (budín, tarta, waffle, panqueque) y "Porción de galletas", que no es fruta. En cereales sigue "Harina de trigo integral".
+- Ideas de la bienvenida que se guardan incompletas: "Filet de pescado con verduras salteadas" queda con "Almidones: No elegido".
+- El selector de comida muestra la misma comida en "Mis comidas" y en "Ideas".
+- Los platos armados no tienen cantidades: la lista dice "Banana", no "Banana ×1". Con precios activados no aparece ningún precio; con el respaldo de ejemplo faltan 20 de 29. Textos como "Cebolla: 1,5 unidades + sin cantidad en 1 plato".
+- Los precios vienen apagados y escondidos en Preferencias.
+- Posible error de conversión: "Zapallito: 5 unidades ≈ $6.350" ($1.270 cada uno).
+- El paso 1 del armado muestra "Volver al paso anterior" sin paso anterior, y esa barra se apila sobre las pestañas (unos 140 px fijos abajo).
+- Textos cortados: "Tema" en Más desde 360 px, "Sugerime algo" en Hoy a 320 px, y los botones "Desayuno o merienda" y "Almuerzo o cena" de Hoy apretados en 2 o 3 renglones.
+- El cartel "Mostrar herramientas avanzadas" se repite en casi todas las pantallas (dos veces en Preferencias).
+- Código: 10.600 líneas de JS en un ámbito global con 635 funciones globales.
+
+### Modo liviano
+El ciclo de cada etapa es el de `CLAUDE.md`, con estos cambios:
+- Ramas: integración `rediseno-2` desde `main`; cada etapa en `rediseno-2-etapa-N-tema`. Commit y push cada vez que se termina una parte, aunque esté a medias.
+- Durante el trabajo se corren solo las baterías tocadas (`--suites`). La batería completa, una sola vez, en la compuerta.
+- De las pruebas se lee solo la línea TOTAL y las que fallan.
+- Capturas: solo tema claro y solo las vistas que cambian. Las mira `revisor-usuario`, y solo en las etapas 11, 15 y 17.
+- Un solo revisor por etapa (`revisor-codigo`), sin crítica previa del plan. Hasta 3 intentos por etapa; las condiciones de parada son las mismas de la ronda 1.
+- `validar-etapa.mjs` acepta las etapas 11 a 18 y `criterios.json` suma un control medible por cada "Hecho cuando". Los criterios de la ronda 1 siguen valiendo.
+- Datos: claves nuevas `miPlatoFacil_<nombre>_v1`, en el respaldo como opcionales; los respaldos viejos se siguen restaurando. La app sigue andando sin conexión y abierta como archivo local.
+- Versión: 16.0.0 en la Etapa 11, después 16.1.0, 16.2.0…
+- Registro: sección "Ronda 2" al final del Registro.
+
+### Etapas
+
+#### Etapa 11. Desayuno y comidas completas
+- Frutas en dos pasos claros: "¿Qué fruta?" con selección múltiple (hasta 3) y "¿Cómo?" (entera, en trozos, licuado o en una preparación). Un botón Continuar; no avanza solo.
+- Sacar "Porción de galletas" y "Harina de trigo integral" del desayuno. Budín, tarta, waffle y panqueque quedan solo como "en una preparación". Los desayunos ya guardados se siguen mostrando bien.
+- Toda idea de almuerzo o cena del catálogo tiene verduras, almidón y proteína vinculados. Si falta uno, se completa el más común en Argentina para ese plato y se anota en el Registro.
+- Selector de comida: si una idea ya está en Mis comidas, aparece una sola vez.
+
+Hecho cuando: se pueden elegir 2 frutas en un desayuno; ninguna opción del desayuno contiene "galletas" ni "harina"; el 100 % de las ideas de almuerzo o cena tiene los tres grupos; ningún nombre se repite en el selector.
+
+#### Etapa 12. Cantidades reales
+- Todo plato armado guarda cantidades a partir de las porciones que la app ya muestra (1 unidad, 1 pote, 2 cdas, "1/4 del plato" con un gramaje por defecto por grupo). Los platos viejos las calculan al mostrarse, sin reescribir lo guardado.
+- Personas por hogar (1 por defecto) en Preferencias: escala cantidades y costos.
+- La lista redondea a envases reales cuando el ingrediente tiene envase típico ("Fideos: 1 paquete de 500 g"), con una tabla curada en `datos/`.
+- Básicos de alacena (aceite, sal, pimienta, especias secas, vinagre) quedan fuera de la lista y del costo, salvo que se marquen como faltantes en la Despensa.
+- Textos de cantidad legibles: una sola forma por ítem, nunca "+ sin cantidad en 1 plato".
+
+Hecho cuando: el 100 % de los ítems que vienen de platos armados tiene cantidad; pasar de 1 a 3 personas triplica las cantidades (prueba); fideos por 180 g se muestran como 1 paquete de 500 g; ningún básico aparece en la lista por defecto.
+
+#### Etapa 13. Precios a la vista
+- Precios activados por defecto, con la región GBA. Se pueden apagar en Preferencias. Para quien ya tenía la app, se respeta lo que había elegido.
+- ≈ costo por comida, por día y por semana en Semana y en Comidas; ≈ precio por ítem y total en la lista.
+- Cada precio muestra fuente, mes y rango al tocarlo ("≈ $2.100 · entre $1.900 y $2.900 · SEPA GBA · nov. 2026"). Faltantes: "faltan N precios", una sola vez por bloque.
+- Revisar las conversiones unidad → kg (por ejemplo, el zapallito). Prueba nueva con 15 ingredientes comunes: el precio por unidad tiene que quedar dentro de un rango plausible respecto del precio por kg de INDEC o SEPA.
+
+Hecho cuando: con una semana de platos armados en una instalación nueva, el 80 % o más de los ítems de la lista tiene precio; cada precio permite ver su fuente y su mes; la prueba de los 15 ingredientes pasa.
+
+#### Etapa 14. Bienvenida con presupuesto
+- Un paso opcional más en la bienvenida: personas, presupuesto semanal y región de precios. Saltarlo deja todo como hoy.
+- La barra de presupuesto de Compras y el costo de la semana usan esos datos.
+
+Hecho cuando: completar o saltar la bienvenida funciona con 0, 1 o 3 datos cargados, y lo cargado se ve en Semana y Compras.
+
+#### Etapa 15. "Armame la semana"
+- Botón principal en Semana: completa los huecos vacíos (o la semana entera, a elección) con ideas del catálogo y las comidas del usuario, sin pasarse del presupuesto si hay uno.
+- Reglas fijas, sin IA: respeta tipo de comida, días de entrenamiento, filtros de dieta, ingredientes a evitar y lo que hay en la Despensa; prefiere comidas que reutilicen ingredientes ya comprados en la semana; puede proponer "cociná doble" para que la cena de un día sea el almuerzo del siguiente; evita repetir la misma comida más de 2 veces.
+- En cada hueco lleno: "Cambiar por otra parecida" y "Cambiar por una más barata". En el menú ⋯: "Empezar de nuevo". Todo con Deshacer.
+- Mismo resultado para los mismos datos (semilla fija por semana), para que se pueda probar.
+
+Hecho cuando: con presupuestos de ejemplo bajo, medio y alto, completa los 28 huecos sin pasarse cuando es posible y avisa cuando no; cambiar un hueco no toca los demás; el costo de la semana armada reutiliza al menos 3 ingredientes entre comidas.
+
+#### Etapa 16. Filtros de dieta reales
+- "Ingredientes a evitar" pasa a opciones claras: sin carne roja, sin cerdo, sin pescado, vegetariano, sin lácteos, sin huevo. El campo de texto libre sigue, como "Otros".
+- Los filtros se aplican en el selector, en Ideas, en "Sugerime" y en "Armame la semana". Avisan si dejan pocas opciones.
+- Sin etiquetas de salud que no se puedan verificar (por ejemplo, "apto celíaco").
+
+Hecho cuando: ninguna sugerencia contiene un ingrediente excluido (prueba sobre todo el catálogo).
+
+#### Etapa 17. Pulido de pantalla
+- Sin "Volver al paso anterior" en el paso 1; las barras fijas de abajo nunca se apilan sobre las pestañas ni tapan el último botón.
+- Arreglar los textos cortados de Hoy y Más, y los botones apretados de los atajos de Hoy.
+- Un solo interruptor "Herramientas avanzadas" en Preferencias, sin carteles repetidos en las demás pantallas.
+- Si el usuario pasó una captura de botones superpuestos, reproducir ese caso exacto y arreglarlo.
+- Capturar también a 360 y 320 px de ancho.
+
+Hecho cuando: en 390, 360 y 320 px no hay textos cortados ni controles superpuestos (incluidas las hojas inferiores); el cartel de herramientas avanzadas aparece en un solo lugar.
+
+#### Etapa 18. Deuda técnica, sin riesgo
+- Agrupar las funciones globales por tema en objetos de módulo (por ejemplo, `Precios`, `Semana`, `Compras`), empezando por los archivos tocados en esta ronda. Sin cambiar comportamiento ni el resultado de `construir.mjs`.
+- La app sigue abriendo como archivo local, así que los datos siguen incrustados.
+
+Hecho cuando: las funciones globales bajan al menos un 30 %; todas las pruebas en verde; la app abre igual como archivo local y publicada.
+
+### Al terminar la Etapa 18
+1. Si `main` cambió durante el trabajo (por ejemplo, por las tareas de nutrición o precios), traerlo a `rediseno-2` con merge, sin rebase, reconstruir y pasar la compuerta otra vez.
+2. Escribir `docs/informe-ronda-2.md`: qué cambió para el usuario, medidas antes y después, decisiones tomadas sin el usuario, mejoras sugeridas y pendientes para el usuario.
+3. Abrir el PR `rediseno-2` → `main` (con `gh api`), listo para revisar, con el informe como descripción. No mergearlo: ese merge lo hace el usuario.
+
+### Registro de la Ronda 2
+
+Estados: ✅ hecha · ⏳ en curso · ⛔ parada.
+
+| Etapa | Estado | Tag | Versión de la app |
+|---|---|---|---|
+| 11. Desayuno y comidas completas | ✅ | `etapa-11-ok` | 16.0.0 |
+| 12. Cantidades reales | ✅ | `etapa-12-ok` | 16.1.0 |
+| 13. Precios a la vista | ✅ | `etapa-13-ok` | 16.2.0 |
+| 14. Bienvenida con presupuesto | ✅ | `etapa-14-ok` | 16.3.0 |
+| 15. "Armame la semana" | ✅ | `etapa-15-ok` | 16.4.0 |
+| 16. Filtros de dieta reales | ✅ | `etapa-16-ok` | 16.5.0 |
+| 17. Pulido de pantalla | ✅ | `etapa-17-ok` | 16.6.0 |
+| 18. Deuda técnica, sin riesgo | ✅ | `etapa-18-ok` | 16.7.0 |
+
+- Arranque: rama `rediseno-2` creada desde `main` (v15.9.0) con este plan.
+- Herramientas: `validar-etapa.mjs` acepta las etapas 11 a 18 y, desde la 11, compara contra `rediseno-2` (versión y línea base) en vez de `rediseno`.
+
+### Etapa 11 · Desayuno y comidas completas ✅
+
+Rama `rediseno-2-etapa-11-desayuno-completo`.
+
+**Plan corto**
+- Frutas en dos pasos: "¿Qué fruta?" (hasta 3, no avanza solo, botón Continuar de la barra de abajo) y "¿Cómo?" (Entera, En trozos, Licuado, En una preparación → Budín, Tarta, Waffle, Panqueque). `state.fruta` sigue siendo un solo objeto `{name, quantity, forma}`; con varias frutas `name` y `quantity` van unidos con " + " (la lista de compras ya separa por " + "). Con una sola fruta el formato es idéntico al de siempre.
+- Se sacan "Porción de galletas" (de las formas) y "Harina de trigo integral" (de los cereales del desayuno). Lo guardado se sigue mostrando ("Galletas con banana") y comprando (`data.opcionesRetiradas`).
+- Selector de comida: una idea que ya está en Mis comidas no se repite en Ideas.
+- Riesgos para los datos: ninguno; no cambia ninguna clave ni formato.
+- Pruebas que cambian: `e1_confianza.js` (C1-1c) y `regression.js` (R1) tocaban la fruta y esperaban que avanzara sola; ahora tocan Continuar (misma exigencia sobre lo guardado). Se suma `e11_desayuno.js` (C11-1 a C11-4). `datos/precios-mapa.json`: sale "Harina de trigo integral" del ámbito del armado (C9-1 compara ese ámbito con el de la app).
+
+**Hecho cuando**
+- ✅ Se pueden elegir 2 frutas en un desayuno (C11-1).
+- ✅ Ninguna opción del desayuno contiene "galletas" ni "harina" (C11-2).
+- ✅ El 100 % de las ideas de almuerzo o cena tiene los tres grupos (C11-3).
+- ✅ Ningún nombre se repite en el selector (C11-4).
+
+**Ideas completadas** (Decisión: se agregó el almidón más común en Argentina para ese plato)
+- ✅ Decisión: "Filet de pescado con verduras salteadas" ahora lleva Papa.
+- ✅ Decisión: "Salmón al horno con puré de calabaza y espinaca" ahora lleva Papa (el puré).
+
+**Revisores (Etapa 11)**: `revisor-codigo` NO BLOQUEANTE; `revisor-usuario` NO BLOQUEANTE. Sugerencias que quedan: "¿Cómo?" queda debajo de la lista de frutas (Continuar usa Entera por defecto); Continuar deja avanzar sin fruta (igual que los demás pasos); la redacción con varias frutas en una preparación ("Budín de banana y manzana") se revisa a mano. Compuerta: VALIDACIÓN ETAPA 11: OK (72 controles).
+
+### Etapa 12 · Cantidades reales ✅
+
+Rama `rediseno-2-etapa-12-cantidades`.
+
+**Plan corto**
+- Archivos nuevos: `fuente/codigo/44-cantidades-de-platos.js`, `datos/envases.json` (se incrusta al construir con `__DATOS_ENVASES__`, igual que nutrición y precios) y `pruebas/e12_cantidades.js` (C12-1 a C12-4).
+- Archivos que cambian: `12-lista-de-compras.js` (cantidades de platos armados, personas, básicos, envases y una sola forma de texto por ítem), `43-precios.js` (el precio de la lista es el del envase que se compra), `18-respaldo-completo.js` (claves nuevas), Preferencias (personas) y Despensa (básicos), `construir.mjs`.
+- Datos nuevos, siempre opcionales en el respaldo: `miPlatoFacil_hogar_v1` = `{"personas":n}` (1 a 12; con 1 no se escribe nada) y `miPlatoFacil_basicosFaltantes_v1` = `{"faltan":["Aceite"]}`. Lo guardado no se reescribe: las cantidades de los platos armados se calculan al mostrar la lista.
+- Riesgos para los datos: ninguno (claves nuevas, validadas y opcionales; los respaldos viejos se siguen restaurando).
+
+**Hecho cuando**
+- ✅ El 100 % de los ítems que vienen de platos armados tiene cantidad (C12-1: cada plato guardado del respaldo de ejemplo y cada opción del armado).
+- ✅ Pasar de 1 a 3 personas triplica las cantidades (C12-2).
+- ✅ Fideos por 180 g se muestran como 1 paquete de 500 g (C12-3).
+- ✅ Ningún básico aparece en la lista por defecto (C12-4).
+
+**Gramajes por defecto** (Decisión; por persona, para 1/4 del plato, y el plato escala con su fracción: 1/2 = el doble, 1/3 = 4/3): verduras 100 g, almidones 80 g, proteínas 120 g; los huevos se cuentan en unidades de 55 g. Las porciones del desayuno salen del texto que ya muestra la app ("1 unidad", "2 cdas", "1 vaso" = 200 ml, "1 pote" = 1 unidad). Rodajas y tajadas de fruta pasan a gramos (Ananá 80 g, Melón 200 g, Sandía 300 g). Un vaso de licuado de fruta de los platos viejos cuenta como una fruta. Los gramos se redondean a 5.
+
+**Envases** (Decisión): tabla curada de 26 envases típicos en `datos/envases.json` (fideos 500 g, arroz 1 kg, leche sachet de 1 l, huevos por docena, atún 170 g…). La lista muestra el envase entero ("1 paquete de 500 g") y el precio de la lista es el del envase; el costo por comida (Etapa 13) seguirá usando lo que se come. Lo que no está en la tabla queda con su cantidad. El texto interno (`label`) no cambia; el envase va en el texto que se muestra (`text`).
+
+**Básicos de alacena** (Decisión): aceite, sal, pimienta, vinagre, orégano, pimentón, comino, ají molido, laurel, tomillo, nuez moscada, canela y "especias" quedan fuera de la lista y del costo, incluso los de recetas. En la Despensa, "Básicos de alacena" deja marcar cuál falta (8 visibles); marcado, vuelve a la lista. Un plato de texto (sin estado) no tiene cantidades: se muestra solo por su nombre, sin "+ sin cantidad en 1 plato".
+
+**Tests adaptados** (Decisión, Regla 5: miran la interfaz vieja; la exigencia sobre lo guardado y la lógica es la misma):
+- `r2_fixtures.js`: `tradPlate` sigue armando un plato con estado (ahora con cantidades); nuevo `tradPlateTexto` es el plato de texto viejo, sin estado. Los casos de "parte sin cantidad" (S1 a S10, M1, M2, U2, E10, f04, DP10, U1 y E1-6) usan `tradPlateTexto`, y se sacó "+ sin cantidad en 1 plato" de lo esperado.
+- Se cambiaron los nombres "Sal", "Comino" y "Aceite" por "Perejil", "Cebolla" y "Miel" donde la prueba solo necesitaba un ingrediente cualquiera (ahora los básicos no están en la lista).
+- Con envases: "Arroz: 300 g" → "Arroz: 1 paquete de 1.000 g" (M10, L2b, L9, S4b), "Leche: 1,3 l" → "2 sachets de 1.000 ml" (U2), "Leche: 250 ml · revisá" → "1 sachet de 1.000 ml · revisá" (C5-9); C5-3 mira que no haya "faltan" ni "revisá" en vez de comparar `text` con `label`; precios de C7-1, C7-3 y C7-4 son los del envase (arroz $2.000 en vez de $600).
+- E1-6 usa un plato de texto: con un plato armado, "Lo compré" suma la cantidad a la despensa en vez de marcarla.
+
+**Revisores (Etapa 12)**: `revisor-codigo` NO BLOQUEANTE (el de capturas no corre en esta etapa, modo liviano). Sugerencias que quedan para después: cuando un mismo ingrediente tiene filas con y sin cantidad, la lista muestra solo la parte con cantidad (hoy sin aviso; el aviso vive en la sugerencia de Despensa); falta una prueba que fije ese comportamiento y otra explícita de "Lo compré" sobre un plato armado (suma a la despensa); conviene fijar con pruebas qué cuenta como básico ("Aceite de oliva" sí, "Aceitunas" no). Compuerta: VALIDACIÓN ETAPA 12: OK (77 controles).
+
+### Etapa 13 · Precios a la vista ✅
+
+Rama `rediseno-2-etapa-13-precios`.
+
+**Plan corto**
+- `43-precios.js`: precios encendidos por defecto; costo de los platos armados (con sus cantidades por persona y las personas del hogar); detalle de cada precio de la lista; "faltan N precios" una sola vez por bloque; peso curado por unidad para pasar unidades a kilos. `12-lista-de-compras.js`: el precio es tocable. `10-plan-semanal.js`: ≈ costo en cada hueco lleno. `datos/envases.json`: tabla `pesoUnidad`. Prueba nueva `e13_precios_a_la_vista.js` (C13-1 a C13-4).
+- Riesgos para los datos: ninguno (no se agregan claves; `mostrarPrecios_v1` sigue igual).
+
+**Hecho cuando**
+- ✅ Con una semana de platos armados en una instalación nueva, 28 de 34 ítems de la lista tienen precio (82 %) y cada precio muestra, al tocarlo, "≈ $ · entre $a y $b · fuente · mes" (C13-1).
+- ✅ ≈ costo por comida (en cada hueco y en la tarjeta de Comidas), por día y por semana, y "faltan N precios" una sola vez (C13-2).
+- ✅ Prueba de 15 ingredientes: el precio de una unidad queda entre 0,5 y 2 veces lo esperable por el precio por kg (C13-3).
+- ✅ Quien ya tenía la app conserva lo que había elegido (C13-4).
+
+**Precios por defecto** (Decisión): sin `mostrarPrecios_v1` y sin `uiMode_v1` (instalación nueva o sin elección) los precios están encendidos, región GBA. Quien ya eligió modo conserva lo de antes: simple apagado, completo encendido; la elección explícita de precios siempre manda. Se pueden apagar en Preferencias.
+
+**Pesos por unidad** (Decisión): el "zapallito: 5 unidades ≈ $6.350" no era un error de conversión (196 g por unidad × $6.480 el kilo del dato real = $1.270 cada uno), pero otras unidades salían raras (la zanahoria de la tabla de nutrición pesa 61 g, la palta 136 g). Se curaron 13 pesos por unidad en `datos/envases.json` (`pesoUnidad`: zanahoria 100 g, batata 250 g, palta 200 g, morrón 200 g, limón 100 g, naranja 200 g, pepino 250 g, tomate, cebolla, banana, manzana, papa y zapallito) que se usan para los precios. El costo por comida y por día usa lo que se come; el precio de la lista, el envase que se compra (Etapa 12). Cuando hay personas, los costos del día, de la semana y del hueco son del hogar; "por porción" sigue siendo por persona.
+
+**Tests adaptados** (Decisión, Regla 5: miran la interfaz que antes arrancaba sin precios):
+- `r2_fixtures.js`: `reset()` elige modo simple (los precios quedan apagados) para que las baterías de la lista sigan mirando solo cantidades; `m01_modo.js` (M1) borra esa elección para mirar el arranque sin elegir.
+- `e5_compras.js`, `e8_herramientas.js`, `e9_sepa.js`: su `cargar` parte con modo simple salvo que el caso traiga `uiMode_v1` o `mostrarPrecios_v1`; `e7_precios.js`: `base()` igual.
+- `e8_herramientas.js` C8-1: "sin nada" ahora es "precios encendidos y nada guardado" y la cadena de interruptores sigue desde "simple" elegido.
+- `e7_precios.js` C7-2 y `e8_herramientas.js` C8-4: el día ya no repite "(faltan N precios)"; queda una sola vez, con la semana.
+
+**Revisores (Etapa 13)**: `revisor-codigo` NO BLOQUEANTE. Sugerencias que quedan: C13-3 repite los pesos de `pesoUnidad` (comprobación en parte circular; conviene fijar rangos en pesos por unidad de una fuente aparte y exigir los 15); probar que "Tomate triturado" o "Cebolla de verdeo" no heredan el peso de la unidad común; avisar en las notas de la versión que quien nunca tocó el modo ve ahora los precios encendidos; rotular el costo del hueco como del hogar. Compuerta: VALIDACIÓN ETAPA 13: OK (82 controles).
+
+### Etapa 14 · Bienvenida con presupuesto ✅
+
+Rama `rediseno-2-etapa-14-bienvenida`.
+
+**Plan corto**
+- `29-bienvenida.html` y `40-primera-vez.js`: un paso más (queda de 4: método, rutina, personas y presupuesto, ideas). Prueba nueva `e14_presupuesto.js` (C14-1 y C14-2). Sin claves nuevas: usa `hogar_v1`, `shoppingBudget_v1` y `region_v1`.
+- Riesgos para los datos: ninguno; solo escribe lo que la persona cargó y con los formatos ya validados.
+
+**Hecho cuando**
+- ✅ Completar o saltar la bienvenida funciona con 0, 1 o 3 datos: con "Ahora no" no se escribe nada; con datos, solo se guardan los cargados (C14-1).
+- ✅ Lo cargado se ve en Compras (la barra de presupuesto), Semana (el costo es para el hogar y con la región elegida) y Preferencias (C14-2).
+
+**Paso nuevo** (Decisión): es el paso 3 de 4 y no el último, para que "Armar mi semana" siga siendo el cierre; cuesta un toque más (el recorrido de C4-1 pasa de 13 a 14 toques, con tope de 15). "Ahora no" lo salta sin escribir; "Guardar y seguir" guarda solo lo que cambió: personas distintas de 1, presupuesto (en pesos, por semana; acepta "45.000") y región distinta de GBA. Un presupuesto que no es un número mayor que 0 muestra el motivo y no avanza ni escribe.
+
+**Tests adaptados** (Decisión, Regla 5): `e4_comidas.js` C4-1 suma el toque de "Ahora no" del paso nuevo y C4-7b sale por "Saltar" del paso 4 (las ideas son ahora el paso 4).
+
+**Revisores (Etapa 14)**: `revisor-codigo` NO BLOQUEANTE. Sugerencias que quedan: el kicker estático del HTML dice "Paso 1 de 3" (lo corrige `pintarBienvenida` al abrir); C14-2 podría afirmar sobre `costosDelPlan()`; "45.5" se lee como 455 (el punto es separador de miles); falta probar que elegir GBA sin región previa no escribe `region_v1`. Compuerta: VALIDACIÓN ETAPA 14: OK (85 controles).
+
+### Etapa 15 · "Armame la semana" ✅
+
+Rama `rediseno-2-etapa-15-armame-la-semana`.
+
+**Plan corto**
+- Archivo nuevo `fuente/codigo/45-armame-la-semana.js` (módulo `ArmameSemana`, sin IA y sin azar real: la semilla es la semana). Cambios chicos en `05-plan.html` (botón), `38-selector-de-comida.js` (hoja del hueco lleno y menú ⋯), `36-sugerencias.js` (`textoPermitido`, un solo lugar para lo que evitás), `10-plan-semanal.js` (texto de confirmar). Prueba nueva `e15_armame.js` (C15-1 a C15-6).
+- Riesgos para los datos: ninguno nuevo; escribe Mis comidas una vez y el plan una vez, con los formatos de siempre, con historial y Deshacer.
+
+**Hecho cuando**
+- ✅ Con presupuestos bajo ($26.000), medio ($40.000) y alto ($90.000) completa los 28 huecos sin pasarse; con $1.000 avisa "No llego al presupuesto" (C15-1).
+- ✅ La semana armada reutiliza al menos 3 ingredientes entre comidas (C15-2: 22 a 28 según el caso).
+- ✅ Cambiar un hueco por otra parecida o más barata no toca los demás y se deshace (C15-5).
+- ✅ Mismo resultado para los mismos datos (C15-3).
+
+**Reglas de armado** (Decisión; todas fijas):
+1. Tipo de comida: desayuno y merienda salen de tus desayunos guardados y de combinaciones fruta + proteína + cereal del armado; almuerzo y cena, de tus comidas y de las ideas del catálogo (una idea que ya guardaste cuenta una sola vez).
+2. Lo que evitás (`textoPermitido`), el día de rutina (tus comidas de otro tipo de día no entran; las ideas se guardan con el día del hueco) y la Despensa (+0,4 por ingrediente que ya tenés, hasta 3).
+3. Reutilizar: +0,6 por ingrediente ya elegido en la semana (hasta 3) en almuerzos y cenas, +0,1 en desayunos y meriendas para no repetir banana con huevo toda la semana.
+4. Nunca más de 2 veces la misma comida en la semana, ni en días seguidos del mismo hueco ni dos veces el mismo día.
+5. "Cociná doble": con 30 % de chance (con la semilla) la cena de un día es también el almuerzo del siguiente; cuenta como 2 repeticiones y se avisa.
+6. Presupuesto: primero se elige con el costo en cuenta (meta por hueco según su peso: desayuno 12 %, merienda 10 %, almuerzo 40 %, cena 38 %); si igual se pasa, se reemplaza lo más caro por algo parecido y más barato hasta entrar o hasta no poder. Lo que no tiene precio cuenta como la mediana del grupo. Presupuesto mensual = por 7/30.
+7. Dos modos: "Completar los N huecos vacíos" (lo que ya había no se toca) y "Rehacer la semana entera". "Empezar de nuevo" (menú ⋯) reemplaza a "Vaciar la semana": vacía todo y se puede deshacer.
+8. En cada hueco lleno: "Cambiar por otra parecida" (más ingredientes en común) y "Cambiar por una más barata" (parecida y que cueste menos; si no hay, lo dice).
+
+**Tope de tamaño** (Decisión): `index.html` pasó el tope de 770.000 bytes con el módulo nuevo (788.000). Se subió el tope a 820.000 en `construir.mjs` (y el texto del criterio E9-tamano-app); sigue siendo un tope que falla la construcción, y la Etapa 18 busca recortar código.
+
+**Tests adaptados** (Decisión, Regla 5): `e2_semana.js` (C2-6) y `m01_modo.js` (M4) esperaban "Vaciar la semana" en el menú ⋯; ahora "Empezar de nuevo" (misma acción, mismo Deshacer).
+
+**Revisores (Etapa 15)**: `revisor-codigo` NO BLOQUEANTE y `revisor-usuario` NO BLOQUEANTE (capturas 390×844 en `capturas/e15-*.png`). Pasan a la Etapa 17: en Semana "Armame la semana" y "Elegir el almuerzo de hoy" compiten como dos botones verdes llenos (con la semana ya llena, los dos deberían bajar a secundarios); la hoja del hueco lleno suma tres "Cambiar…" y conviene reunirlos; "Huevo | Clara de huevo" se ve crudo en el detalle. Quedan como mejora: avisar antes de "Rehacer la semana entera" si hay pocas candidatas; si `setSlot` falla en `cambiarHueco` queda una comida guardada de más. Compuerta: VALIDACIÓN ETAPA 15: OK (92 controles).
+
+### Etapa 16 · Filtros de dieta reales ✅
+
+Rama `rediseno-2-etapa-16-dieta`.
+
+**Plan corto**
+- Archivo nuevo `fuente/codigo/46-dieta.js` (seis filtros y su guardado), `textoPermitido` (36) pasa a ser el único lugar donde se decide si una comida entra (filtros + "Otros"), Preferencias (chips), Ideas (`04`), Selector (`38`) y Armame (`45`). Prueba nueva `e16_dieta.js` (C16-1 a C16-4).
+- Dato nuevo `miPlatoFacil_dieta_v1` = `{"filtros":["sin_cerdo",…]}`: opcional en el respaldo, validado (ids conocidos, sin repetidos), no se escribe si no hay filtros. Lo que ya había (`recipePreferences_v1`: palabras y "Ocultar coincidencias") no cambia.
+- Riesgos para los datos: ninguno; clave nueva y los respaldos viejos se restauran (C16-3).
+
+**Hecho cuando**
+- ✅ Ninguna sugerencia contiene un ingrediente excluido: se probó todo el catálogo de ideas con cada filtro y con combinaciones, en Ideas, en Sugerime y el Selector (`sugerenciasPara`) y en Armame (C16-1 y C16-2).
+- ✅ Opciones claras en Preferencias ("Sin carne roja", "Sin cerdo", "Sin pescado", "Vegetariano", "Sin lácteos", "Sin huevo"); el campo de texto sigue como "Otros" (C16-3).
+- ✅ Avisan si dejan pocas opciones: "Con lo que evitás quedan pocas ideas: N de 41." (menos de 10) en Preferencias, Ideas, el Selector y el resumen de Armame; con cero, "no queda ninguna idea".
+- ✅ Sin etiquetas de salud que no se puedan verificar (C16-4 busca "apto celíaco", "sin TACC", etc. en toda la app).
+
+**Filtro por palabras** (Decisión): se comparan palabras completas del nombre, las etiquetas y los ingredientes vinculados de cada comida (con plurales "s" y "es", sin tildes; no entran "milanesa" ni "hamburguesa" solas porque también las hay de verduras y legumbres). "Vegetariano" suma carnes, cerdo, pescado y aves (deja huevo y lácteos); "Sin carne roja" saca toda comida con "carne" (incluida "carne de cerdo"); "Sin lácteos" no confunde "crema de lentejas" ni leches vegetales. Los filtros se combinan (todos tienen que pasar). Es orientativo y la pantalla lo dice ("no comprueba alérgenos").
+
+**Dónde se aplica** (Decisión): Ideas, la sección Ideas del Selector, Sugerime, Armame la semana (incluidos los desayunos armados con combinaciones) y las comidas tuyas que Sugerime y Armame eligen. La sección "Mis comidas" del Selector no se filtra (son comidas que guardaste vos y se eligen a mano). Con filtros muy estrictos Armame deja huecos sin llenar y lo avisa (con vegetariano + sin lácteos + sin huevo llena 12 de 28 con el catálogo actual).
+
+**Tests adaptados**: ninguno.
+
+**Revisores (Etapa 16)**: `revisor-codigo` NO BLOQUEANTE. Se corrigió su hallazgo principal antes de la compuerta (los plurales: "Filetes de merluza", "Bifes", "Chorizos" se filtraban mal; ahora cada palabra admite "s" y "es" y la prueba C16-1 lo cubre) y se sumaron palabras (ternera, salchicha, morcilla, hígado, choripán, parmesano, ricotta, bechamel, cheddar, yema, mayonesa, merengue). Quedan como mejora: "Limpiar preferencias" no borra los filtros de dieta (se sacan tocando cada uno); el oráculo de la prueba repite casi las palabras de la implementación; "filete" también saca un filete de pollo en "Sin pescado" (conservador).
+
+### Etapa 17 · Pulido de pantalla ✅
+
+Rama `rediseno-2-etapa-17-pulido`.
+
+**Plan corto**
+- `06-navegacion-y-armado-del-plato.js` (barra de pasos), `estilos.css` (final), `30-modo-simple.js` (sin carteles por pantalla), `20-revision-de-despensa.js` y `11-existencias-y-presupuesto.js` (opciones de select más cortas). Herramientas: `capturas.mjs` acepta `--ancho` y mide `desbordes` (elementos que sobresalen de su contenedor); `validar-etapa.mjs` suma el tipo de control `anchos` (mide 360 y 320 px en tema claro). Prueba nueva `e17_pulido.js` (C17-1 a C17-3).
+- Riesgos para los datos: ninguno (solo interfaz).
+
+**Hecho cuando**
+- ✅ A 390 (claro y oscuro), 360 y 320 px (claro) no hay textos cortados, controles superpuestos, elementos fuera de pantalla, desbordes ni scroll horizontal, en todas las vistas e incluidas las hojas inferiores (control `E17-anchos` de la compuerta y `E17-sin-desbordes`).
+- ✅ El cartel de herramientas avanzadas aparece en un solo lugar: Preferencias (C17-2).
+
+**Barra de pasos** (Decisión): "Volver al paso anterior" solo aparece si hay un paso anterior del armado (o el resumen, al editar); en el paso 1 queda solo "Continuar" y, si tampoco hay "Continuar" (elegir el tipo de día, snack, pre-entreno), la barra no se muestra. Mientras la barra de pasos está, reemplaza a las pestañas en vez de apilarse arriba (eran unos 140 px fijos); el contenido deja lugar para que no tape el último botón (C17-1). Se sale del armado con "← Hoy" arriba, como antes.
+
+**Interruptor único** (Decisión): se sacaron los carteles "🧰 Herramientas ocultas… / Mostrar herramientas avanzadas" de las seis pantallas que los tenían (Despensa, Ideas, Comida, Editar receta, Preferencias, Mis datos); el único interruptor es la tarjeta de Preferencias ("Mostrar herramientas avanzadas: activado/desactivado"). Las herramientas siguen marcadas `data-avanzado` y se ocultan igual en modo simple.
+
+**Textos y botones** (Decisión): los atajos de Hoy ("Desayuno o merienda" y "Almuerzo o cena") se apilan si no entran en una fila (antes, a 320 px, el segundo sobresalía de la tarjeta, porque la grilla de la portada los metía en la columna del emoji). Los selects largos quedan chicos a 320 px: las opciones de la revisión de despensa son de 26 caracteres como máximo, las referencias de "Comparar alternativas" muestran "precio/cantidad · total" (el detalle con moneda y fecha va en el `title`), la fuente de los selects baja a 14 px en pantallas de 340 px o menos, y las filas "Aceite de oliva: 500 ml · Editar · Quitar" pasan a dos renglones. "Tema" en Más y "Sugerime algo" en Hoy ya no se cortaban en esta versión (medido a 360 y 320 px).
+
+**Captura de botones superpuestos** (Decisión): no hubo ninguna captura del usuario en esta ronda; se midió con `superpuestos` y `desbordes` en todas las vistas y hojas a 390, 360 y 320 px y no hay casos abiertos.
+
+**Tests adaptados** (Decisión, Regla 5): `m01_modo.js` (M4, M6 y M7 miraban los carteles por pantalla; ahora comprueban que no hay carteles y usan la tarjeta de Preferencias) y `l01_biblioteca.js` (L10, sin aviso); `f02_units.js` (U5b: el texto de la opción de comparar alternativas cambió a "2000/1000 g · 1.000,00" y la moneda y la fecha quedaron en el `title`).
+
+**Revisores (Etapa 17)**: `revisor-codigo` NO BLOQUEANTE. `revisor-usuario` respondió BLOQUEANTE con las capturas a 390, 360 y 320 px: a 320 px el nombre del desayuno en Hoy seguía cortado ("Fruta en trozos con huevo y p…") porque la fila de comida recortaba a 2 renglones. Se corrigió (hasta 4 renglones en `.today-row__plate`; ahora se lee "Fruta en trozos con huevo y pan de molde") y se volvió a la compuerta. Sugerencias que quedan (no bloqueantes): las dos tarjetas de interruptores de Preferencias podrían tener la ayuda en una línea; "Ocultar coincidencias" queda pegado a su campo; el hueco entre el subtítulo y la primera fila de Más; `.mode-note` y el recorrido de `[data-mode-note]` en `30-modo-simple.js` son código muerto (se limpian en la Etapa 18); dos recetas con el mismo comienzo se ven iguales en el select corto de la revisión de despensa (el nombre completo se ve debajo).
+
+Compuerta: VALIDACIÓN ETAPA 17: OK (103 controles, con las medidas a 360 y 320 px).
+
+### Etapa 18 · Deuda técnica, sin riesgo ✅
+
+Rama `rediseno-2-etapa-18-modulos`.
+
+**Plan corto**
+- Herramienta de una sola vez `herramientas/modularizar.mjs` (con `--simular` cuenta sin escribir): agrupa en objetos de módulo las funciones globales de `fuente/codigo/` y reescribe las llamadas en el código, las pruebas y las herramientas. `herramientas/contar-globales.mjs` cuenta lo que queda global. `capturas.mjs` suma `--archivo` (abre `index.html` como archivo local y falla con código 4 si hay errores). Sin cambios de comportamiento: no se toca ninguna clave ni formato, la compuerta compara las mismas pruebas.
+- Riesgos para los datos: ninguno (solo se mueve código de lugar).
+
+**Hecho cuando**
+- ✅ Las funciones globales bajan de 678 a 311 (−54 %; el control pide 474 o menos, es decir, al menos −30 %).
+- ✅ Todas las pruebas en verde (576 de 576 en la corrida completa).
+- ✅ La app abre igual como archivo local (control `E18-archivo-local`, 5 vistas en 2 estados, sin errores ni pedidos a internet) y publicada (las pruebas la abren por una dirección local y el PR corre las pruebas en GitHub).
+
+**Módulos** (Decisión): 37 objetos `var Nombre={ funcion(){…}, … }`, uno por archivo, declarado al principio del archivo: `Precios` (43), `Compras` (12), `Semana` (10), `Armado` (06), `Selector` (38), `Comidas` (39), `Registro` (42), `Respaldo` (18), `Dieta` (46), `CantidadesPlatos` (44), `Hoy` (31), `Bienvenida` (40), `Recetas` (21), `CantidadesCostos` (22) y los demás (ver el principio de cada archivo). Son `var` y no `const` para que las pruebas los lean como `w.Compras…` desde el marco. Las llamadas son `Compras.shoppingDisplayItems()`; las pruebas y `capturas.mjs` se reescribieron igual. `index.html` sigue siendo un solo archivo con los datos incrustados (construir.mjs sin cambios; 808.000 bytes, bajo el tope de 820.000).
+
+**Funciones que quedan globales** (Decisión): 311 de 678, por reglas que evitan cambiar el comportamiento: (1) las que usa un archivo con número menor (el arranque corre antes de que los archivos de número mayor declaren su módulo: 130), (2) las que llaman esas, si están en un archivo posterior al arranque (104), (3) las que aparecen de otra forma que una llamada (callback, `typeof`, asignación en una prueba, clave de objeto: 64) y (4) las de menos de 6 letras (`go`, `start`, `nav`: 12). Mover más habría exigido reordenar el arranque, que es el riesgo que la etapa pide evitar.
+
+**Tests adaptados**: ninguna prueba cambió de exigencia; solo se reescribieron los nombres de las funciones que llaman (`shoppingDisplayItems()` → `Compras.shoppingDisplayItems()`, `w.restoreCompleteBackup(` → `w.Respaldo.restoreCompleteBackup(`, etc.) con la misma herramienta.
+
+**Revisores (Etapa 18)**: `revisor-codigo` NO BLOQUEANTE. Sugerencias que quedan: la condición de `--archivo` en `capturas.mjs` es redundante; `.mode-note` y el recorrido de `[data-mode-note]` en `30-modo-simple.js` siguen como código muerto (quedan para una limpieza futura); quedan 311 funciones globales por el orden de arranque. Compuerta: VALIDACIÓN ETAPA 18: OK (106 controles, 9,5 min).
+
+### Cierre de la Ronda 2
+
+- Las etapas 11 a 18 están ✅ en `rediseno-2` (v16.7.0) con la compuerta en verde (`VALIDACIÓN ETAPA 18: OK`, 576 de 576 pruebas) y la línea base al día. PR abierto contra `main`: https://github.com/Facunddominguez/Facunddominguez.github.io/pull/2 (el informe es `docs/informe-ronda-2.md`). No se hizo push ni merge a `main`; `main` no cambió durante la ronda.
+
+**Pendientes para vos**
+- Ninguno: los tags de la Ronda 2 no se usan (ver "Tags de la Ronda 2" más abajo); la marca de cada etapa es su commit "Merge etapa N" en `rediseno-2`.
+
+### Tags de la Ronda 2 (Decisión: no se usan)
+
+Decisión tomada por el dueño del proyecto (opción 3): en la Ronda 2 no se usan tags. La marca de cada etapa son los commits `Merge etapa N: …` de `rediseno-2` (`git log --merges rediseno-2`). La PARADA que había por el push de los tags (error 403 del entorno) queda levantada: ya no hay nada pendiente ahí. Los tags `etapa-N-ok` de la tabla de arriba se leen como "el commit `Merge etapa N` de `rediseno-2`"; la compuerta de la Ronda 2 compara contra la rama `rediseno-2` y no los necesita. Los de la Ronda 1 (`etapa-0-ok` a `etapa-10-ok`) siguen publicados y se siguen usando como referencia.

@@ -46,14 +46,14 @@
 
   // C10-2 El armado dibuja el plato: sectores según las proporciones, sin sectores degenerados y sin colores fijos.
   cargar(MARCA); await abrir();
-  ev('openTab("hoy"); start("plato"); setDay("Día libre")'); await espera(150);
+  ev('openTab("hoy"); start("plato"); Armado.setDay("Día libre")'); await espera(150);
   const libre = doc().querySelector("#plateViz svg.plato-dibujo");
   const sectoresLibre = libre ? libre.querySelectorAll("path").length : 0;
   const tituloLibre = libre ? libre.querySelector("title").textContent : "";
-  ev('setDay("Día de entrenamiento")'); await espera(100);
+  ev('Armado.setDay("Día de entrenamiento")'); await espera(100);
   const entreno = doc().querySelector("#plateViz svg.plato-dibujo");
   const tituloEntreno = entreno ? entreno.querySelector("title").textContent : "";
-  const forma = prop => ev("(() => { const s = dibujoDelPlato(" + prop + "); return [s.querySelectorAll('path').length, s.querySelectorAll('circle').length, s.innerHTML].join('|') })()").split("|");
+  const forma = prop => ev("(() => { const s = Armado.dibujoDelPlato(" + prop + "); return [s.querySelectorAll('path').length, s.querySelectorAll('circle').length, s.innerHTML].join('|') })()").split("|");
   const medio = forma('{ vegetables: "1/2", carbs: "1/2", protein: "x" }');
   const entero = forma('{ vegetables: "1/2", carbs: "0", protein: "0" }');
   const html = (libre ? libre.outerHTML : "") + medio[2] + entero[2];
@@ -64,7 +64,7 @@
   // C10-3 Nombres accesibles: campos y botones solo-ícono de las pantallas y hojas nuevas.
   cargar({ ...R.data, ...MARCA }); await abrir();
   const sinNombre = () => [...doc().querySelectorAll("button,a[href],summary,input,select,textarea,[role=button]")].filter(e => visible(e) && e.type !== "hidden" && !(e.getAttribute("aria-label") || e.title || e.getAttribute("aria-labelledby") || (e.labels && e.labels.length) || /[\p{L}\p{N}]/u.test(e.textContent || "") || (e.placeholder && e.tagName !== "SELECT"))).map(e => e.tagName.toLowerCase() + (e.id ? "#" + e.id : "." + e.className));
-  const recorrido = ["abrirBienvenida()", 'openTab("semana"); abrirSelector(todayPlanDay(), "almuerzo")', 'abrirSugerime("almuerzo")', 'openTab("semana"); abrirMenuSemana()', 'openTab("miscomidas"); abrirNuevaComida()', 'openTab("semana"); abrirHueco(todayPlanDay(), "almuerzo")', 'openTab("miscomidas"); abrirComida("plato", loadSaved()[0].id)', 'showRecipeView("edit")', 'openTab("mas"); abrirFuentes()'];
+  const recorrido = ["Bienvenida.abrirBienvenida()", 'openTab("semana"); abrirSelector(todayPlanDay(), "almuerzo")', 'abrirSugerime("almuerzo")', 'openTab("semana"); Selector.abrirMenuSemana()', 'openTab("miscomidas"); Comidas.abrirNuevaComida()', 'openTab("semana"); abrirHueco(todayPlanDay(), "almuerzo")', 'openTab("miscomidas"); Comidas.abrirComida("plato", MisPlatos.loadSaved()[0].id)', 'showRecipeView("edit")', 'openTab("mas"); Comidas.abrirFuentes()'];
   const malos = [];
   for (const paso of recorrido) { ev("hoja.cerrar()"); ev(paso); await espera(250); for (const m of sinNombre()) malos.push(paso.slice(0, 24) + " → " + m) }
   ev("hoja.cerrar()");

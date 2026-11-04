@@ -11,7 +11,7 @@
   for (const s of subsets) { pantrySel = s.slice(); cases++; if (ser(pantryMatches()) !== ser(ref(s))) diffs++ }
   T.ok("P1 'Con lo que tengo' da los mismos resultados que v14.9.74", diffs === 0 && JSON.stringify(PANTRY_ALIASES) === JSON.stringify(refAliases), cases + " combinaciones, " + diffs + " diferencias");
   pantrySel = []; localStorage.setItem("miPlatoFacil_pantry", JSON.stringify(["papa", "hojas", "pan"]));
-  const m = pantryMarkedMatcher();
+  const m = MarcasDespensa.pantryMarkedMatcher();
   T.ok("P2 reconoce Papa, Lechuga y Hojas verdes", m.has("Papa") && m.has("lechuga") && m.has("Hojas verdes"));
   T.ok("P3 no confunde Batata ni Pan rallado (coincidencia exacta)", !m.has("Batata") && !m.has("Pan rallado"));
   criticalCase(); localStorage.setItem("miPlatoFacil_pantry", JSON.stringify(["papa"]));

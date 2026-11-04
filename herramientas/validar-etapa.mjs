@@ -1,5 +1,5 @@
 // Compuerta del modo autónomo del rediseño (docs/plan-rediseno.md, "Modo autónomo").
-// Uso: node herramientas/validar-etapa.mjs <N de 0 a 10> [--navegador <ruta>] [--actualizar-linea-base]
+// Uso: node herramientas/validar-etapa.mjs <N de 0 a 18> [--navegador <ruta>] [--actualizar-linea-base]
 // Controla, para la etapa N:
 //   1. index.html y sw.js al día con fuente/ (construir.mjs --verificar).
 //   2. Todas las pruebas en verde (probar.mjs, siempre todas las baterías) y su cantidad, total y por batería, no menor
@@ -25,7 +25,7 @@ import { fileURLToPath } from 'node:url';
 
 const RAIZ = resolve(fileURLToPath(new URL('../', import.meta.url)));
 const args = process.argv.slice(2), arg = n => { const i = args.indexOf(n); return i >= 0 ? args[i + 1] : null };
-if (!/^(10|[0-9])$/.test(args[0] || '')) { console.error('Uso: node herramientas/validar-etapa.mjs <N de 0 a 10> [--navegador <ruta>] [--actualizar-linea-base]'); process.exit(2) }
+if (!/^(1[0-8]|[0-9])$/.test(args[0] || '')) { console.error('Uso: node herramientas/validar-etapa.mjs <N de 0 a 18> [--navegador <ruta>] [--actualizar-linea-base]'); process.exit(2) }
 const N = Number(args[0]);
 const navegador = arg('--navegador') ? ['--navegador', arg('--navegador')] : [];
 const actualizar = args.includes('--actualizar-linea-base');
@@ -60,8 +60,10 @@ if (hayTag) {
   else control(!publicado || publicado === local, `El tag ${TAG} local es el publicado`, `local ${local.slice(0, 10)}, publicado ${publicado.slice(0, 10)}`);
 }
 // Rama rediseno: la local o, si no está, la publicada. Sin ninguna de las dos no se puede comparar.
-const REDISENO = existe('refs/heads/rediseno') ? 'rediseno' : existe('refs/remotes/origin/rediseno') ? 'origin/rediseno' : null;
-control(REDISENO, `Existe la rama rediseno${REDISENO === 'origin/rediseno' ? ' (la publicada, origin/rediseno)' : ''}`, 'la compuerta compara contra rediseno: traela con git fetch');
+// Desde la Etapa 11 (Ronda 2) la rama de integración es rediseno-2.
+const candidatas = (N >= 11 ? ['rediseno-2', 'origin/rediseno-2'] : []).concat(['rediseno', 'origin/rediseno']);
+const REDISENO = candidatas.find(r => existe(r.startsWith('origin/') ? 'refs/remotes/' + r : 'refs/heads/' + r)) || null;
+control(REDISENO, `Existe la rama de integración (${REDISENO})`, 'la compuerta compara contra rediseno: traela con git fetch');
 const criterios = JSON.parse(leer('docs/validacion/criterios.json'));
 const baseRama = JSON.parse(leer('docs/validacion/linea-base.json'));
 const baseRediseno = REDISENO ? jsonDesdeGit(REDISENO, 'docs/validacion/linea-base.json') : null;
@@ -170,6 +172,22 @@ for (const c of aplican) {
   } else if (c.tipo === 'prueba') {
     const suyas = todas.filter(p => p.texto.startsWith(c.prueba + ' '));
     control(suyas.length > 0 && suyas.every(p => p.ok), `${titulo} · ${suyas.length} prueba(s) ${c.prueba}`, suyas.length ? suyas.filter(p => !p.ok).map(p => p.texto.slice(0, 200)).join(' | ') : `no existe ninguna prueba que empiece con "${c.prueba} "`);
+  } else if (c.tipo === 'anchos') {
+    // Capturas en otros anchos (por ejemplo 360 y 320 px, tema claro): ninguna métrica de la lista puede tener hallazgos.
+    const malos = [];
+    for (const ancho of c.anchos) {
+      const sal = join(carpeta, `etapa-${N}-${ancho}`);
+      rmSync(join(sal, 'medidas.json'), { force: true });
+      nota(`Tomando medidas a ${ancho} px (${minutos()})…`);
+      const r = nodo('capturas.mjs', ['--ancho', String(ancho), '--temas', 'claro', '--sin-imagenes', '--salida', sal, ...navegador]);
+      if (r.status !== 0 || !existsSync(join(sal, 'medidas.json'))) { malos.push(`${ancho}: no se pudieron tomar las medidas (${ultimas(r)})`); continue }
+      const med = JSON.parse(readFileSync(join(sal, 'medidas.json'), 'utf8'));
+      for (const [v, es] of Object.entries(med.vistas)) for (const [e, ts] of Object.entries(es)) for (const [t, m] of Object.entries(ts)) for (const k of c.metricas) {
+        const x = valor(m, k);
+        if (x === null || x > 0) malos.push(`${ancho}/${v}/${e}/${t} ${k}: ${Array.isArray(m[k]) ? m[k].slice(0, 2).join(' | ') : x}`)
+      }
+    }
+    control(!malos.length, `${titulo} · ${c.metricas.join(', ')} = 0 a ${c.anchos.join(' y ')} px`, malos.slice(0, 10).join('\n    '));
   } else if (c.tipo === 'comando') {
     const r = spawnSync(c.comando, { cwd: RAIZ, encoding: 'utf8', shell: true, maxBuffer: 64 << 20 });
     control(r.status === 0, `${titulo} · \`${c.comando}\``, `código ${r.status}: ${ultimas(r)}`);

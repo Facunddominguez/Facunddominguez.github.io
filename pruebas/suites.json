@@ -41,6 +41,13 @@
     "e7_precios.js",
     "e8_herramientas.js",
     "e9_sepa.js",
-    "e10_pulido.js"
+    "e10_pulido.js",
+    "e11_desayuno.js",
+    "e12_cantidades.js",
+    "e13_precios_a_la_vista.js",
+    "e14_presupuesto.js",
+    "e15_armame.js",
+    "e16_dieta.js",
+    "e17_pulido.js"
   ]
 }
