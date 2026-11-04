@@ -2300,3 +2300,95 @@ Rama `rediseno-2-etapa-18-modulos`.
 ### Tags de la Ronda 2 (Decisión: no se usan)
 
 Decisión tomada por el dueño del proyecto (opción 3): en la Ronda 2 no se usan tags. La marca de cada etapa son los commits `Merge etapa N: …` de `rediseno-2` (`git log --merges rediseno-2`). La PARADA que había por el push de los tags (error 403 del entorno) queda levantada: ya no hay nada pendiente ahí. Los tags `etapa-N-ok` de la tabla de arriba se leen como "el commit `Merge etapa N` de `rediseno-2`"; la compuerta de la Ronda 2 compara contra la rama `rediseno-2` y no los necesita. Los de la Ronda 1 (`etapa-0-ok` a `etapa-10-ok`) siguen publicados y se siguen usando como referencia.
+
+## Ronda 3: precios confiables
+
+### Contexto
+Las rondas 1 y 2 ya están en `main` (v16.7.0). Las reglas (`CLAUDE.md`), la compuerta (`herramientas/validar-etapa.mjs`), los criterios, las capturas y los revisores siguen vigentes: no se reescriben, se extienden.
+Objetivo: que el costo de la semana sea uno solo, completo y creíble, que se vea qué precio falta y se pueda completar, y que lo que arma la app tenga sentido. Cada decisión se piensa como alguien que quiere saber cuánto le va a salir la semana y confiar en ese número.
+Se trabaja solo, de la Etapa 19 a la 24, sin esperar entre etapas. La única intervención del dueño es el merge final a `main`.
+
+### Lo encontrado en la v16.7.0 (semana armada con "Armame la semana", presupuesto $60.000, 390×844)
+- 12 de 29 productos de la lista sin precio, casi todos básicos: arroz, leche, yogur, pan de molde, avena, carne, queso port salut, granola, tortillas, frutillas, kiwi y arándanos.
+- Causa principal: `Precios.precioAuto()` busca por `ingredientKey(nombre)` exacto, y los nombres del armado no coinciden con los de `datos/precios.json`. "Arroz (integral, yamaní)" no encuentra "Arroz" ni "Arroz integral"; lo mismo pasa con "Yogur natural descremado" ("Yogur descremado"), "Leche fluida o en polvo descremada" ("Leche"), "Pan de molde integral o blanco" ("Pan de molde"), "Avena arrollada o instantánea" ("Avena"), "Carne vacuna (nalga, cuadril, …)" ("Carne vacuna") y "Queso Port Salut descremado" ("Queso Port Salut"). La nutrición sí los resuelve: al tocar el yogur muestra "Yogur descremado". Frutillas, kiwi, arándanos, puerro y cebolla de verdeo directamente no están en los datos.
+- Cuatro totales distintos para la misma semana: el aviso al armar dice ≈ $30.550; Semana, apenas armada, "al menos ≈ $1.938 la semana (faltan 28 precios)"; después, "≈ $4.581 por día · al menos ≈ $28.610 la semana (faltan 42 precios)"; Compras, ≈ $34.127 (faltan 12). En Semana, "faltan" cuenta apariciones; en Compras, productos.
+- Lo que no tiene precio cuenta $0 sin avisarlo: "Manzana con yogur y granola ≈ $900" solo suma la manzana. En la lista, el producto sin precio no muestra nada.
+- "Cambiar por una más barata" cambió "Pollo al horno con papas, batatas y cebolla" (≈ $2.115) por "Pizza integral con pollo + puerro y cebolla de verdeo" (≈ $695), solo porque puerro, verdeo y harina no tienen precio.
+- La ficha que se abre al tocar un ingrediente muestra solo nutrientes. "Mi precio" (`miPlatoFacil_referencePrices_v1`) existe, pero escondido en herramientas avanzadas.
+- Cantidades sin pasar a envase ("Avena: 16 cucharadas", "Granola: 15 cucharadas", "Frutillas: 3 tazas") y otras que no cierran para una semana (lechuga 65 g, tomate 65 g).
+- "Elegir el almuerzo de hoy" queda pegado a los chips de los días, compite con "Armame la semana" y sigue visible con la semana completa (28 de 28).
+- El aviso "Listo: 28 comidas armadas · ≈ $30.550 la semana. Entra en tu presupuesto… Cociná doble…" desaparece a los 3 segundos.
+- "Armame la semana" guardó 20 comidas nuevas en Mis comidas (quedaron 23).
+- Combinaciones raras: "Frutillas con huevo y granola", "Banana con queso Port Salut y granola". En una semana: lentejas 4 veces y arroz 6. De las 3 ideas elegidas en la bienvenida entró 1.
+- Ideas cuyo título nombra algo que no tienen vinculado: risotto de hongos sin hongos, tarta de jamón sin jamón, "Wrap integral de crema de lentejas + palta…" y "Wrap de pollo, palta y vegetales" sin palta.
+- Compras sugirió unir "Queso Port Salut descremado" con "Queso cremoso".
+
+### Modo liviano (igual que la Ronda 2)
+- Ramas: integración `rediseno-3` desde `main`; cada etapa en `rediseno-3-etapa-N-tema`. Commit y push cada vez que se termina una parte.
+- Sin tags: la sesión no puede subirlos. Cada etapa queda marcada por su merge "Merge etapa N: …" en `rediseno-3`, y la compuerta compara contra esa rama.
+- Mientras se trabaja, correr solo las baterías que se tocan (`--suites`). La batería completa, una sola vez, en la compuerta. De las pruebas se lee solo la línea TOTAL y las que fallan.
+- Capturas: solo tema claro y solo las vistas que cambian. Las imágenes las mira `revisor-usuario`, solo en las etapas 20, 21 y 24.
+- Un revisor por etapa (`revisor-codigo`), sin crítica previa del plan. Hasta 3 intentos por etapa; mismas condiciones de parada.
+- Extender `validar-etapa.mjs` a las etapas 19 a 24 y sumar a `criterios.json` un control medible por cada "Hecho cuando". Lo de las rondas 1 y 2 sigue valiendo: nada vuelve atrás.
+- Datos: claves nuevas `miPlatoFacil_<nombre>_v1`, en el respaldo como opcionales; nada guardado se borra ni cambia de formato. La app sigue andando sin conexión y abierta como archivo local.
+- Versión: 17.0.0 en la Etapa 19, después 17.1.0, 17.2.0…
+- Registro: este mismo documento, sección "Ronda 3".
+
+### Etapas
+
+#### Etapa 19. Que cada ingrediente encuentre su precio
+- Un solo resolvedor de nombres para precios y nutrición: probar el nombre exacto, después los sinónimos y las equivalencias, y después el nombre sin lo que va entre paréntesis ni las variantes ("o instantánea", "integral o blanco"). Si hay variante con precio propio (por ejemplo, "Arroz integral"), elegir la más común del armado y anotarlo.
+- Sumar a `datos/precios-mapa.json` lo que falta en INDEC o SEPA: frutillas, kiwi, arándanos, puerro, cebolla de verdeo, hongos, jamón cocido, palta, granola, tortillas y lo que se encuentre sin precio en las ideas del catálogo. Si un producto no está en SEPA, dejarlo para el estimado por categoría (Etapa 20) y anotarlo.
+- Cada ingrediente del mapa tiene una categoría para comparar precios: frutas, verduras, carnes, pescados, lácteos, huevos, almacén, panadería, legumbres o cereales.
+- Prueba nueva de plausibilidad: para cada categoría, ningún precio por kg (o por litro) se aparta más de 4 veces de la mediana de su categoría sin una excepción anotada (por ejemplo, frutos secos o salmón).
+
+**Hecho cuando**: con la semana armada de la prueba, el 90 % o más de los productos de la lista tiene precio real (de SEPA o INDEC); la prueba de plausibilidad pasa; los 12 productos de arriba tienen precio o están anotados como sin dato.
+
+#### Etapa 20. Un solo costo, completo y claro
+- Una sola función calcula el costo de un ingrediente, una comida, un día, la semana y la lista, y la usan todas las pantallas: el aviso de "Armame la semana", Semana, Comidas, Compras, la barra de presupuesto, "Sugerime" y "Más barata".
+- Lo que no tiene precio se estima con la mediana por kg de su categoría y se marca como estimado. Nunca cuenta $0 en silencio.
+- Frase nueva en Semana: "Semana ≈ $34.100 · hoy ≈ $4.600" y, debajo, "Con precio: 27 de 29 productos · Completar 2 precios". "Faltan" siempre cuenta productos distintos, nunca apariciones.
+- En la lista, el producto sin precio dice "sin precio · estimado ≈ $X". En cada comida, el costo indica si incluye estimados.
+- "Completar precios" abre la lista de productos sin precio real. Al tocar uno, se abre su ficha (Etapa 21).
+
+**Hecho cuando**: el total de la semana es el mismo en el aviso, Semana, Compras y la barra de presupuesto (prueba); ningún costo trata un faltante como $0; Semana muestra la frase nueva con el botón cuando falta algún precio.
+
+#### Etapa 21. Ficha de ingrediente con precio
+- Al tocar un ingrediente (en una comida, en la lista o en Completar precios), la ficha muestra los nutrientes, como hoy, y el precio: ≈ $ por kg o unidad, fuente, región, mes y rango ("≈ $2.200/kg · SEPA GBA · nov. 2026 · entre $1.980 y $2.900").
+- "Agregar mi precio" o "Cambiar mi precio": monto, cantidad y unidad (kg, g, unidad o paquete). Se guarda en `miPlatoFacil_referencePrices_v1`, el mismo de siempre, sin necesidad de activar herramientas avanzadas. "Mi precio" gana sobre el automático y se puede borrar con Deshacer.
+- Control de lógica al guardar: si el precio por kg se aparta más de 3 veces de la mediana de su categoría, avisar ("Las frutillas te quedan 4 veces más caras que otras frutas. ¿Está bien?") y dejar guardar igual.
+
+**Hecho cuando**: desde una comida, desde la lista y desde Completar precios se llega a la ficha en un toque; un precio cargado ahí cambia al instante todos los costos; el aviso aparece con un precio fuera de rango y no aparece con uno normal (prueba).
+
+#### Etapa 22. Lo que arma la app tiene sentido
+- "Cambiar por una más barata" compara solo comidas con todos sus precios (reales o estimados) y elige la de menor costo real. Si no hay una más barata, lo dice.
+- "Armame la semana" no llena Mis comidas: lo que arma queda en el plan y aparece en Mis comidas solo si el usuario lo guarda ("Guardar en mis comidas"). Las 20 comidas ya creadas por versiones anteriores no se borran; se marcan como "de la semana" para poder filtrarlas u ocultarlas.
+- Desayunos y meriendas desde plantillas lógicas (por ejemplo, yogur + fruta + avena o granola; tostadas + queso + fruta; licuado con leche + fruta; huevo + pan + fruta). Nada de huevo con granola ni queso con granola.
+- Variedad: la misma comida principal, como mucho 2 veces por semana, y la misma proteína base (lentejas, pollo, carne, pescado, huevo), como mucho 3. El arroz, como mucho 3 veces.
+- Las ideas elegidas en la bienvenida entran primero al armar la semana.
+
+**Hecho cuando**: en 20 semanas armadas con semillas distintas no aparece ninguna combinación prohibida ni se superan los topes; "más barata" nunca elige una comida con faltantes que cuenten $0; después de armar, Mis comidas no crece.
+
+#### Etapa 23. Catálogo y lista prolijos
+- Cada idea tiene vinculado todo lo que nombra su título (hongos en el risotto, jamón en la tarta, palta en los wraps…). Prueba nueva que compara título e ingredientes, con una lista de palabras que no son ingredientes (tarta, wrap, tacos, risotto, guiso…).
+- Cantidades en envases: cucharadas y tazas pasan a gramos y al envase típico ("Avena: 1 paquete de 400 g"). Revisar los gramajes por porción que dan cantidades sin sentido para una semana (lechuga 65 g, tomate 65 g) y corregirlos con valores comunes.
+- Equivalencias: no sugerir unir ingredientes distintos (como dos quesos diferentes); solo variantes de nombre del mismo ingrediente.
+- "Compartir lista" arma un texto para WhatsApp: por sección del súper, con cantidades, ≈ precio por producto y total de la semana. Un toque en el teléfono.
+
+**Hecho cuando**: la prueba de título contra ingredientes pasa en las 41 ideas; ningún producto de la lista queda en cucharadas o tazas; la sugerencia de unir quesos no aparece; el texto compartido incluye el total.
+
+#### Etapa 24. Semana más clara
+- Sacar "Elegir el almuerzo de hoy". "Armame la semana" queda como única acción principal arriba; con la semana completa, pasa a ser secundaria ("Rehacer semana").
+- El aviso de semana armada queda hasta la próxima acción, con "Deshacer" y el mismo total de la Etapa 20.
+- Separación correcta entre la cabecera, los chips de los días y el contenido (al menos 16 px).
+- Recorrido final con `revisor-usuario`: armar la semana, completar 2 precios desde la ficha, cambiar una comida por una más barata y compartir la lista, a 390, 360 y 320 px.
+
+**Hecho cuando**: no hay botón "Elegir el almuerzo de hoy"; el aviso sigue visible después de 10 segundos; no hay textos cortados ni controles superpuestos en las vistas tocadas; el recorrido final pasa sin bloqueantes.
+
+### Al terminar la Etapa 24
+1. Si `main` cambió mientras se trabajaba (por las tareas de nutrición o precios), traerlo a `rediseno-3` con merge, sin rebase, reconstruir y pasar la compuerta otra vez.
+2. Escribir `docs/informe-ronda-3.md`: qué cambió para el usuario, medidas antes y después (productos con precio, totales, cantidades), decisiones tomadas sin el dueño, mejoras sugeridas y pendientes para el dueño.
+3. Abrir el PR `rediseno-3` → `main` (con `gh api`), listo para revisar, con el informe como descripción. No mergearlo: ese merge lo hace el dueño.
+
+### Registro de la Ronda 3
+- Arranque: rama `rediseno-3` creada desde `main` (c4cf4ba, v16.7.0) con este plan agregado. Sin etapas hechas todavía.
