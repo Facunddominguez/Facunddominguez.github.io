@@ -78,7 +78,10 @@ shoppingPlanItems(){
         if(!row.name||!row.name.trim()||fueraDeLaLista(row.name))continue;
         const e=entry(row.name);
         if(row.quantity===null)e.unknown++;
-        else e.units.set(row.unit,(e.units.get(row.unit)||0)+row.quantity*Semana.portionFactor(portions,amount)*personas)
+        else{
+          const u=unidadParaCompra(row.name,row.quantity*Semana.portionFactor(portions,amount)*personas,row.unit);
+          e.units.set(u.unit,(e.units.get(u.unit)||0)+u.q)
+        }
       }
     }else{
       // Plato armado: las cantidades salen de sus porciones (cantidadesDePlatoArmado, 44-cantidades-de-platos.js).
@@ -86,7 +89,8 @@ shoppingPlanItems(){
       for(const c of cantidadesDePlatoArmado(item)){
         if(fueraDeLaLista(c.name))continue;
         const e=entry(c.name);
-        e.units.set(c.unit,(e.units.get(c.unit)||0)+c.q*personas);
+        const u=unidadParaCompra(c.name,c.q*personas,c.unit);
+        e.units.set(u.unit,(e.units.get(u.unit)||0)+u.q);
         conCantidad.add(ingredientKey(c.name))
       }
       Semana.extractIngredients(item).forEach(name=>{
@@ -109,7 +113,11 @@ shoppingItemLabel(e){
   return e.name+": "+qty
 },
 shoppingSuggestion(e,stock,marked){
-  const own=Object.values(stock).filter(s=>ingredientKey(s.name)===e.key);
+  // Etapa 23: lo de la Despensa en cucharadas o tazas de algo sólido se pasa a gramos, como el plan (los líquidos no: una taza no se convierte a ml).
+  const own=Object.values(stock).filter(s=>ingredientKey(s.name)===e.key).map(s=>{
+    const u=unidadParaCompra(s.name,s.quantity,s.unit);
+    return u.unit==="g"&&u.unit!==s.unit?{...s,quantity:u.q,unit:u.unit}:s
+  });
   if(!own.length)return marked.has(e.name)?{
     kind:"info",text:"Lo marcaste en tu Despensa (sin cantidad registrada)."
   }:null;
@@ -177,8 +185,30 @@ seccionDelSuper(nombre){
   }
   return "Otros"
 },
+// Etapa 19: en la fila no se repite lo que va entre paréntesis ni después de "o" ("Arroz (integral, yamaní): …" → "Arroz: …", "Avena arrollada o instantánea" → "Avena arrollada"); la lista copiada lo conserva.
+nombreCorto(texto){
+  // Sin paréntesis, sin lo que sigue a " o " y sin un modificador de presentación final ("Avena arrollada o instantánea" → "Avena").
+  const t=String(texto),i=t.indexOf(":"),nom=i>0?t.slice(0,i):t;
+  const corto=nom.replace(/\s*\([^)]*\)/g,"").split(/\s+o\s+/i)[0].replace(/\s+(arrollad[oa]|fluid[oa]|comprad[oa]|instant[aá]ne[oa])$/i,"").trim()||nom;
+  return corto+(i>0?t.slice(i):"")
+},
 shoppingRow(x,i,checked,detail){
-  const row=ce("div","shop-item"+(checked?" is-done":"")),cb=ce("input"),lab=ce("label",null,Ingredientes.textoLegible(x.text)+(x.precioTxt?" · ":""));
+  const row=ce("div","shop-item"+(checked?" is-done":"")),cb=ce("input"),lab=ce("label");
+  // Etapa 21: tocar el nombre abre la ficha del ingrediente (nutrientes y precio) sin tachar la fila.
+  {
+    const txt=Ingredientes.textoLegible(x.cortar?Compras.nombreCorto(x.text):x.text)+(x.precioTxt?" · ":""),i=txt.indexOf(":");
+    if(i>0){
+      const nom=ce("span","shop-item__nombre",txt.slice(0,i)),abrirFicha=ev=>{
+        ev.preventDefault();ev.stopPropagation();
+        Comidas.abrirNutrientesDeIngrediente(x.name)
+      };
+      nom.setAttribute("role","button");nom.tabIndex=0;nom.dataset.fichaIngrediente=x.name;
+      nom.setAttribute("aria-label","Ficha de "+x.name+": nutrientes y precio");
+      nom.addEventListener("click",abrirFicha);
+      nom.addEventListener("keydown",ev=>{if(ev.key==="Enter"||ev.key===" ")abrirFicha(ev)});
+      lab.append(nom,document.createTextNode(txt.slice(i)))
+    }else lab.append(document.createTextNode(txt))
+  }
   // El precio se toca para ver su fuente, mes y rango (no tacha el ítem).
   let detallePrecioEl=null;
   if(x.precioTxt){
@@ -246,14 +276,23 @@ toggleShop(key,checked){
   renderCompras()
 },
 comprasText(){
-  const pend=shoppingDisplayItems().filter(x=>x.group==="pendiente"&&!comprasDone[x.key]),lines=[],extras=manualShoppingText();
-  // Por secciones del súper y con cantidades legibles (desde la v15.4).
+  const todos=shoppingDisplayItems(),pend=todos.filter(x=>x.group==="pendiente"&&!comprasDone[x.key]),lines=[],extras=manualShoppingText();
+  // Etapa 23: para WhatsApp. Por secciones del súper (título en negrita), con cantidades legibles, ≈ precio por producto y el total.
+  let precios=null;
+  try{
+    precios=preciosDeLaLista(todos.map(x=>comprasDone[x.key]&&x.group==="pendiente"?{...x,group:"tachado"}:x))
+  }catch(e){
+  }
   for(const sec of SECCIONES_SUPER){
     const l=pend.filter(x=>x.seccion===sec);
-    if(l.length)lines.push(...(lines.length?[""]:[]),sec,...l.map(x=>"• "+Ingredientes.textoLegible(x.text)))
+    if(l.length)lines.push(...(lines.length?[""]:[]),"*"+sec+"*",...l.map(x=>{
+      const p=precios&&precios.porClave.get(x.key),est=p&&/^sin precio · estimado/.test(p),real=p&&!est&&p!=="sin precio";
+      return "• "+Ingredientes.textoLegible(x.text)+(real?" · "+p:est?" · "+p.replace("sin precio · estimado","estimado"):"")
+    }))
   }
   if(!lines.length&&!extras)return "";
-  return "🛒 Lista de compras — Mi plato fácil"+NL+lines.join(NL)+(extras?(lines.length?NL+NL:"")+"Productos extra"+NL+extras:"")
+  const total=precios&&precios.total>0?NL+NL+"*Total "+formatoPesos(precios.total)+"*"+(precios.sinEstimar?" (al menos)":"")+(precios.estimados?" · incluye "+precios.estimados+(precios.estimados===1?" precio estimado":" precios estimados"):""):"";
+  return "🛒 Lista de compras — Mi plato fácil"+NL+lines.join(NL)+(extras?(lines.length?NL+NL:"")+"Productos extra"+NL+extras:"")+total
 },
 copyCompras(){
   let t;
@@ -481,6 +520,10 @@ function renderCompras(){
     cont.replaceChildren(ce("p","screen__hint","No se pudo calcular la lista: "+e.message));
     return
   }
+  // El nombre corto solo se usa si no se confunde con otra fila ("Arroz" y "Arroz (integral, yamaní)" siguen separados).
+  const cuentaCorto=new Map();
+  for(const x of items){const k=ingredientKey(Compras.nombreCorto(x.name));cuentaCorto.set(k,(cuentaCorto.get(k)||0)+1)}
+  for(const x of items)x.cortar=cuentaCorto.get(ingredientKey(Compras.nombreCorto(x.name)))===1;
   const pend=items.filter(x=>x.group==="pendiente"),tenes=items.filter(x=>x.group==="tenes"),comprados=items.filter(x=>x.group==="comprado"),pending=pend.filter(x=>!comprasDone[x.key]),tachados=pend.length-pending.length+tenes.filter(x=>comprasDone[x.key]).length;
   let precios=null;
   try{
@@ -489,7 +532,7 @@ function renderCompras(){
   }
   summary.textContent=pending.length+" pendientes · "+tachados+" tachados"+resumenPrecios(precios);
   pintarPreciosCompras(precios);
-  hint.textContent="Tachá lo que comprás. Lo que tenés en la Despensa pasa a Ya tenés.";
+  hint.textContent="Tachá lo que comprás. Lo de la Despensa pasa a Ya tenés.";
   const nodes=[],equiv=Compras.equivalenciaSugerida(items);
   if(equiv)nodes.push(equiv);
   let i=0;

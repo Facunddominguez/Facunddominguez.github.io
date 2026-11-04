@@ -177,6 +177,7 @@ export function armar(libro, mapa, hoy) {
 export async function catalogoNutricion() {
   return new Set(JSON.parse(await readFile(ruta('datos/nutricion.json'), 'utf8')).items.map(i => i.n));
 }
+export const CATEGORIAS_PRECIO = ['frutas', 'verduras', 'carnes', 'pescados', 'lácteos', 'huevos', 'almacén', 'panadería', 'legumbres', 'cereales'];
 export function validar(d, { catalogo, mapa = null, hoy = new Date().toISOString().slice(0, 10) }) {
   const e = [], url = u => typeof u === 'string' && /^https:\/\/[^\s]+$/.test(u) && u.length < 300, txt = (s, max) => typeof s === 'string' && s.trim() && s.length <= max;
   if (!d || typeof d !== 'object') return ['No es un objeto'];
@@ -194,6 +195,7 @@ export function validar(d, { catalogo, mapa = null, hoy = new Date().toISOString
     if (vistos.has(n)) e.push('repetido: ' + n); vistos.add(n);
     if (!catalogo.has(n)) e.push(`"${n}" no está en el catálogo de nutrición`);
     if (!['kg', 'l', 'unidad'].includes(it.b)) e.push(`"${n}": unidad base inválida`);
+    if (it.k !== undefined && !CATEGORIAS_PRECIO.includes(it.k)) e.push(`"${n}": categoría inválida`);
     const pg = it.p && typeof it.p === 'object' && it.p.GBA > 0, sg = it.s && typeof it.s === 'object' && it.s.GBA > 0;
     if (!pg && !sg) e.push(`"${n}": falta el precio de GBA (INDEC o SEPA)`);
     if (it.p !== undefined && (!it.p || typeof it.p !== 'object')) e.push(`"${n}": p inválido`);
@@ -230,6 +232,7 @@ export function validarMapa(mapa, catalogo) {
     if (!catalogo.has(m.n)) e.push(`mapa: "${m.n}" no está en el catálogo de nutrición`);
     if (vistos.has(m.n)) e.push(`mapa: repetido ${m.n}`); vistos.add(m.n);
     if (!['kg', 'l', 'unidad'].includes(m.b)) e.push(`mapa: "${m.n}" unidad base inválida`);
+    if (!CATEGORIAS_PRECIO.includes(m.cat)) e.push(`mapa: "${m.n}" sin categoría de precios (${CATEGORIAS_PRECIO.join(', ')})`);
     if (!m.gba && !m.sepa) e.push(`mapa: "${m.n}" sin INDEC ni SEPA`);
     if (m.gba && (!(m.envase > 0) || !Array.isArray(m.gba) || m.gba.length !== 2 || (m.nac && m.nac.length !== 2))) e.push(`mapa: "${m.n}" mal armado (INDEC)`);
     if (m.sepa) {
@@ -484,6 +487,7 @@ export function componer({ previo, indec, sepa, mapa, hoy }) {
   let conSepaAntes = 0, saltos = 0;
   for (const m of mapa.items) {
     const o = { n: m.n, b: m.b };
+    if (m.cat) o.k = m.cat;
     const ind = deIndec.get(m.n);
     if (ind && ind.p) { o.i = ind.i; o.p = ind.p; if (ind.a) o.a = true }
     if (m.densidad) o.d = m.densidad;
@@ -515,6 +519,8 @@ export function componer({ previo, indec, sepa, mapa, hoy }) {
     fecha: sp.fecha, recurso: sp.recurso, productos: sp.productos, sucursales: sp.sucursales, comercios: sp.comercios,
   };
   datos.items = items;
+  // Categoría y unidad base de los ingredientes del mapa SIN precio (los que tienen precio la traen en 'k'): la app estima los que no tienen precio con la mediana de su categoría (Etapa 20).
+  datos.categorias = Object.fromEntries(mapa.items.filter(m => m.cat && !items.some(i => i.n === m.n)).map(m => [m.n, [m.cat, m.b]]));
   return { datos, avisos };
 }
 export function coberturaAmbito(d, mapa) {

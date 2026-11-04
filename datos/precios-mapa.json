@@ -78,6 +78,7 @@
    "Zanahoria",
    "Zapallito",
    "Cebolla",
+   "Papa",
    "Merluza",
    "Lechuga",
    "Pan rallado",
@@ -95,8 +96,10 @@
    "Yogur natural",
    "Morrón rojo",
    "Porotos colorados",
+   "Jamón cocido",
    "Queso cremoso",
    "Arvejas",
+   "Palta",
    "Lentejas",
    "Brócoli",
    "Quinoa",
@@ -110,14 +113,17 @@
    "Porotos negros",
    "Albahaca",
    "Apio",
-   "Papa",
+   "Champiñones",
    "Repollo blanco",
    "Acelga",
    "Polenta",
    "Ajo",
-   "Palta",
+   "Pan integral",
    "Yogur descremado",
    "Avena",
+   "Semillas de chía",
+   "Leche",
+   "Granola",
    "Pepino",
    "Aceite de oliva",
    "Sal",
@@ -163,7 +169,6 @@
    "Soja",
    "Caballa",
    "Carré de cerdo",
-   "Leche",
    "Lenguado",
    "Queso Port Salut",
    "Queso untable descremado",
@@ -207,7 +212,8 @@
      0.45,
      5
     ]
-   }
+   },
+   "cat": "cereales"
   },
   {
    "n": "Fideos",
@@ -244,7 +250,8 @@
      0.2,
      5
     ]
-   }
+   },
+   "cat": "cereales"
   },
   {
    "n": "Harina de trigo",
@@ -284,7 +291,8 @@
      0.45,
      5
     ]
-   }
+   },
+   "cat": "almacén"
   },
   {
    "n": "Pan",
@@ -297,7 +305,8 @@
    "nac": [
     "Pan francés",
     "kg"
-   ]
+   ],
+   "cat": "panadería"
   },
   {
    "n": "Pan de molde",
@@ -324,7 +333,8 @@
      0.2,
      2
     ]
-   }
+   },
+   "cat": "panadería"
   },
   {
    "n": "Galletitas de agua",
@@ -333,7 +343,8 @@
    "gba": [
     "Galletitas de agua envasadas",
     "250 g"
-   ]
+   ],
+   "cat": "almacén"
   },
   {
    "n": "Carne picada",
@@ -362,7 +373,8 @@
      0.4,
      8
     ]
-   }
+   },
+   "cat": "carnes"
   },
   {
    "n": "Carne picada especial",
@@ -376,7 +388,8 @@
     "Carne picada común",
     "kg"
    ],
-   "aprox": true
+   "aprox": true,
+   "cat": "carnes"
   },
   {
    "n": "Asado",
@@ -402,7 +415,8 @@
      0.4,
      8
     ]
-   }
+   },
+   "cat": "carnes"
   },
   {
    "n": "Vacío",
@@ -412,7 +426,8 @@
     "Asado",
     "kg"
    ],
-   "aprox": true
+   "aprox": true,
+   "cat": "carnes"
   },
   {
    "n": "Jamón cocido",
@@ -421,7 +436,8 @@
    "gba": [
     "Jamón cocido",
     "kg"
-   ]
+   ],
+   "cat": "carnes"
   },
   {
    "n": "Pollo",
@@ -453,7 +469,8 @@
      0.8,
      6
     ]
-   }
+   },
+   "cat": "carnes"
   },
   {
    "n": "Muslo de pollo",
@@ -488,7 +505,8 @@
      8
     ],
     "a": false
-   }
+   },
+   "cat": "carnes"
   },
   {
    "n": "Merluza",
@@ -516,7 +534,8 @@
      0.2,
      3
     ]
-   }
+   },
+   "cat": "pescados"
   },
   {
    "n": "Queso cremoso",
@@ -540,7 +559,8 @@
      0.2,
      5
     ]
-   }
+   },
+   "cat": "lácteos"
   },
   {
    "n": "Mozzarella",
@@ -566,7 +586,8 @@
      0.2,
      5
     ]
-   }
+   },
+   "cat": "lácteos"
   },
   {
    "n": "Manteca",
@@ -589,7 +610,8 @@
      0.1,
      2
     ]
-   }
+   },
+   "cat": "lácteos"
   },
   {
    "n": "Dulce de leche",
@@ -598,7 +620,8 @@
    "gba": [
     "Dulce de leche",
     "400 g"
-   ]
+   ],
+   "cat": "lácteos"
   },
   {
    "n": "Azúcar",
@@ -633,7 +656,8 @@
      0.45,
      5
     ]
-   }
+   },
+   "cat": "almacén"
   },
   {
    "n": "Sal",
@@ -661,7 +685,8 @@
      0.2,
      5
     ]
-   }
+   },
+   "cat": "almacén"
   },
   {
    "n": "Manzana",
@@ -690,7 +715,8 @@
      0.9,
      6
     ]
-   }
+   },
+   "cat": "frutas"
   },
   {
    "n": "Limón",
@@ -717,7 +743,8 @@
      0.9,
      6
     ]
-   }
+   },
+   "cat": "frutas"
   },
   {
    "n": "Naranja",
@@ -744,7 +771,8 @@
      0.9,
      10
     ]
-   }
+   },
+   "cat": "frutas"
   },
   {
    "n": "Banana",
@@ -768,7 +796,8 @@
      0.9,
      6
     ]
-   }
+   },
+   "cat": "frutas"
   },
   {
    "n": "Papa",
@@ -804,7 +833,8 @@
      0.9,
      15
     ]
-   }
+   },
+   "cat": "verduras"
   },
   {
    "n": "Batata",
@@ -832,7 +862,8 @@
      0.9,
      6
     ]
-   }
+   },
+   "cat": "verduras"
   },
   {
    "n": "Cebolla",
@@ -863,7 +894,8 @@
      0.9,
      6
     ]
-   }
+   },
+   "cat": "verduras"
   },
   {
    "n": "Lechuga",
@@ -887,7 +919,8 @@
      0.9,
      6
     ]
-   }
+   },
+   "cat": "verduras"
   },
   {
    "n": "Tomate",
@@ -922,7 +955,8 @@
      0.9,
      6
     ]
-   }
+   },
+   "cat": "verduras"
   },
   {
    "n": "Tomate perita",
@@ -949,7 +983,8 @@
      0.9,
      6
     ]
-   }
+   },
+   "cat": "verduras"
   },
   {
    "n": "Zapallo",
@@ -977,7 +1012,8 @@
      0.9,
      10
     ]
-   }
+   },
+   "cat": "verduras"
   },
   {
    "n": "Tomate en lata",
@@ -986,7 +1022,8 @@
    "gba": [
     "Tomate entero en conserva",
     "Lata 230 g"
-   ]
+   ],
+   "cat": "verduras"
   },
   {
    "n": "Tomate triturado",
@@ -996,7 +1033,8 @@
     "Tomate entero en conserva",
     "Lata 230 g"
    ],
-   "aprox": true
+   "aprox": true,
+   "cat": "verduras"
   },
   {
    "n": "Puré de tomate",
@@ -1006,7 +1044,8 @@
     "Tomate entero en conserva",
     "Lata 230 g"
    ],
-   "aprox": true
+   "aprox": true,
+   "cat": "verduras"
   },
   {
    "n": "Leche en polvo descremada",
@@ -1016,7 +1055,8 @@
     "Leche en polvo entera",
     "800 g"
    ],
-   "aprox": true
+   "aprox": true,
+   "cat": "lácteos"
   },
   {
    "n": "Leche",
@@ -1063,7 +1103,8 @@
      0.9,
      2
     ]
-   }
+   },
+   "cat": "lácteos"
   },
   {
    "n": "Aceite de girasol",
@@ -1099,7 +1140,8 @@
      0.4,
      6
     ]
-   }
+   },
+   "cat": "almacén"
   },
   {
    "n": "Agua",
@@ -1109,7 +1151,8 @@
     "Agua sin gas",
     "1,5 litros"
    ],
-   "densidad": 1
+   "densidad": 1,
+   "cat": "almacén"
   },
   {
    "n": "Yogur natural",
@@ -1140,7 +1183,8 @@
      1.5
     ],
     "u": "kg"
-   }
+   },
+   "cat": "lácteos"
   },
   {
    "n": "Huevo",
@@ -1175,7 +1219,8 @@
      5,
      60
     ]
-   }
+   },
+   "cat": "huevos"
   },
   {
    "n": "Zanahoria",
@@ -1198,7 +1243,8 @@
      0.9,
      6
     ]
-   }
+   },
+   "cat": "verduras"
   },
   {
    "n": "Zapallito",
@@ -1217,7 +1263,8 @@
      0.9,
      6
     ]
-   }
+   },
+   "cat": "verduras"
   },
   {
    "n": "Cebolla de verdeo",
@@ -1236,7 +1283,8 @@
      6
     ],
     "a": true
-   }
+   },
+   "cat": "verduras"
   },
   {
    "n": "Puerro",
@@ -1257,7 +1305,8 @@
      6
     ],
     "a": true
-   }
+   },
+   "cat": "verduras"
   },
   {
    "n": "Remolacha",
@@ -1278,7 +1327,8 @@
      0.9,
      6
     ]
-   }
+   },
+   "cat": "verduras"
   },
   {
    "n": "Rúcula",
@@ -1298,7 +1348,8 @@
      2
     ],
     "a": true
-   }
+   },
+   "cat": "verduras"
   },
   {
    "n": "Repollo blanco",
@@ -1317,7 +1368,8 @@
      0.9,
      6
     ]
-   }
+   },
+   "cat": "verduras"
   },
   {
    "n": "Repollo colorado",
@@ -1332,7 +1384,8 @@
      0.9,
      6
     ]
-   }
+   },
+   "cat": "verduras"
   },
   {
    "n": "Morrón rojo",
@@ -1356,7 +1409,8 @@
      0.9,
      6
     ]
-   }
+   },
+   "cat": "verduras"
   },
   {
    "n": "Morrón amarillo",
@@ -1376,7 +1430,8 @@
      0.9,
      6
     ]
-   }
+   },
+   "cat": "verduras"
   },
   {
    "n": "Morrón verde",
@@ -1396,7 +1451,8 @@
      0.9,
      6
     ]
-   }
+   },
+   "cat": "verduras"
   },
   {
    "n": "Brócoli",
@@ -1417,7 +1473,8 @@
      0.9,
      6
     ]
-   }
+   },
+   "cat": "verduras"
   },
   {
    "n": "Espinaca",
@@ -1440,7 +1497,8 @@
      6
     ],
     "a": true
-   }
+   },
+   "cat": "verduras"
   },
   {
    "n": "Acelga",
@@ -1461,7 +1519,8 @@
      0.5,
      6
     ]
-   }
+   },
+   "cat": "verduras"
   },
   {
    "n": "Apio",
@@ -1479,7 +1538,8 @@
      0.3,
      6
     ]
-   }
+   },
+   "cat": "verduras"
   },
   {
    "n": "Ajo",
@@ -1510,7 +1570,8 @@
      1
     ],
     "a": true
-   }
+   },
+   "cat": "verduras"
   },
   {
    "n": "Pepino",
@@ -1530,7 +1591,8 @@
      0.9,
      6
     ]
-   }
+   },
+   "cat": "verduras"
   },
   {
    "n": "Choclo",
@@ -1550,7 +1612,8 @@
      0.2,
      6
     ]
-   }
+   },
+   "cat": "verduras"
   },
   {
    "n": "Albahaca",
@@ -1572,7 +1635,8 @@
      0.3
     ],
     "a": true
-   }
+   },
+   "cat": "verduras"
   },
   {
    "n": "Zucchini",
@@ -1591,7 +1655,8 @@
      0.5,
      6
     ]
-   }
+   },
+   "cat": "verduras"
   },
   {
    "n": "Berenjena",
@@ -1613,7 +1678,8 @@
      0.5,
      6
     ]
-   }
+   },
+   "cat": "verduras"
   },
   {
    "n": "Coliflor",
@@ -1631,7 +1697,8 @@
      0.3,
      6
     ]
-   }
+   },
+   "cat": "verduras"
   },
   {
    "n": "Chauchas",
@@ -1650,7 +1717,8 @@
      0.2,
      6
     ]
-   }
+   },
+   "cat": "verduras"
   },
   {
    "n": "Rabanito",
@@ -1666,7 +1734,8 @@
      0.1,
      3
     ]
-   }
+   },
+   "cat": "verduras"
   },
   {
    "n": "Escarola",
@@ -1680,7 +1749,8 @@
      0.1,
      3
     ]
-   }
+   },
+   "cat": "verduras"
   },
   {
    "n": "Hinojo",
@@ -1698,7 +1768,8 @@
      0.2,
      5
     ]
-   }
+   },
+   "cat": "verduras"
   },
   {
    "n": "Alcaucil",
@@ -1716,7 +1787,8 @@
      0.2,
      5
     ]
-   }
+   },
+   "cat": "verduras"
   },
   {
    "n": "Espárragos",
@@ -1732,7 +1804,8 @@
      3
     ],
     "a": true
-   }
+   },
+   "cat": "verduras"
   },
   {
    "n": "Kale",
@@ -1747,7 +1820,8 @@
      2
     ],
     "a": true
-   }
+   },
+   "cat": "verduras"
   },
   {
    "n": "Radicheta",
@@ -1763,7 +1837,8 @@
      3
     ],
     "a": true
-   }
+   },
+   "cat": "verduras"
   },
   {
    "n": "Nabo",
@@ -1778,7 +1853,8 @@
      0.5,
      6
     ]
-   }
+   },
+   "cat": "verduras"
   },
   {
    "n": "Mandioca",
@@ -1799,7 +1875,8 @@
      0.5,
      6
     ]
-   }
+   },
+   "cat": "verduras"
   },
   {
    "n": "Palta",
@@ -1817,7 +1894,8 @@
      1,
      8
     ]
-   }
+   },
+   "cat": "frutas"
   },
   {
    "n": "Arroz integral",
@@ -1836,7 +1914,8 @@
      0.2,
      5
     ]
-   }
+   },
+   "cat": "cereales"
   },
   {
    "n": "Harina de trigo integral",
@@ -1855,7 +1934,8 @@
      0.45,
      5
     ]
-   }
+   },
+   "cat": "almacén"
   },
   {
    "n": "Harina de arroz",
@@ -1869,7 +1949,8 @@
      0.2,
      5
     ]
-   }
+   },
+   "cat": "almacén"
   },
   {
    "n": "Harina de avena",
@@ -1883,7 +1964,8 @@
      0.2,
      5
     ]
-   }
+   },
+   "cat": "almacén"
   },
   {
    "n": "Harina de maíz",
@@ -1901,7 +1983,8 @@
      0.2,
      5
     ]
-   }
+   },
+   "cat": "almacén"
   },
   {
    "n": "Fécula de maíz",
@@ -1917,7 +2000,8 @@
      0.1,
      5
     ]
-   }
+   },
+   "cat": "almacén"
   },
   {
    "n": "Fécula de mandioca",
@@ -1932,7 +2016,8 @@
      0.1,
      5
     ]
-   }
+   },
+   "cat": "almacén"
   },
   {
    "n": "Pan rallado",
@@ -1951,7 +2036,8 @@
      0.2,
      5
     ]
-   }
+   },
+   "cat": "panadería"
   },
   {
    "n": "Polenta",
@@ -1971,7 +2057,8 @@
      0.2,
      5
     ]
-   }
+   },
+   "cat": "cereales"
   },
   {
    "n": "Avena",
@@ -1992,7 +2079,8 @@
      0.2,
      5
     ]
-   }
+   },
+   "cat": "cereales"
   },
   {
    "n": "Quinoa",
@@ -2013,7 +2101,8 @@
      0.1,
      5
     ]
-   }
+   },
+   "cat": "cereales"
   },
   {
    "n": "Amaranto",
@@ -2030,7 +2119,8 @@
      0.1,
      5
     ]
-   }
+   },
+   "cat": "cereales"
   },
   {
    "n": "Cebada",
@@ -2049,7 +2139,8 @@
      0.2,
      5
     ]
-   }
+   },
+   "cat": "cereales"
   },
   {
    "n": "Cuscús",
@@ -2065,7 +2156,8 @@
      0.1,
      5
     ]
-   }
+   },
+   "cat": "cereales"
   },
   {
    "n": "Mijo",
@@ -2079,7 +2171,8 @@
      0.1,
      5
     ]
-   }
+   },
+   "cat": "cereales"
   },
   {
    "n": "Tapioca",
@@ -2093,7 +2186,8 @@
      0.1,
      5
     ]
-   }
+   },
+   "cat": "almacén"
   },
   {
    "n": "Lentejas",
@@ -2114,7 +2208,8 @@
      0.2,
      5
     ]
-   }
+   },
+   "cat": "legumbres"
   },
   {
    "n": "Garbanzos",
@@ -2132,7 +2227,8 @@
      0.2,
      5
     ]
-   }
+   },
+   "cat": "legumbres"
   },
   {
    "n": "Arvejas",
@@ -2151,7 +2247,8 @@
      0.2,
      5
     ]
-   }
+   },
+   "cat": "legumbres"
   },
   {
    "n": "Porotos colorados",
@@ -2167,7 +2264,8 @@
      0.2,
      5
     ]
-   }
+   },
+   "cat": "legumbres"
   },
   {
    "n": "Porotos negros",
@@ -2182,7 +2280,8 @@
      0.2,
      5
     ]
-   }
+   },
+   "cat": "legumbres"
   },
   {
    "n": "Porotos alubia",
@@ -2199,7 +2298,8 @@
      0.2,
      5
     ]
-   }
+   },
+   "cat": "legumbres"
   },
   {
    "n": "Porotos manteca",
@@ -2214,7 +2314,8 @@
      0.2,
      5
     ]
-   }
+   },
+   "cat": "legumbres"
   },
   {
    "n": "Porotos mung",
@@ -2230,7 +2331,8 @@
      0.1,
      5
     ]
-   }
+   },
+   "cat": "legumbres"
   },
   {
    "n": "Porotos aduki",
@@ -2246,7 +2348,8 @@
      0.1,
      5
     ]
-   }
+   },
+   "cat": "legumbres"
   },
   {
    "n": "Porotos pallar",
@@ -2262,7 +2365,8 @@
      0.1,
      5
     ]
-   }
+   },
+   "cat": "legumbres"
   },
   {
    "n": "Habas",
@@ -2276,7 +2380,8 @@
      0.1,
      5
     ]
-   }
+   },
+   "cat": "legumbres"
   },
   {
    "n": "Lupino",
@@ -2293,7 +2398,8 @@
      5
     ],
     "a": true
-   }
+   },
+   "cat": "legumbres"
   },
   {
    "n": "Maní",
@@ -2318,7 +2424,8 @@
      0.1,
      5
     ]
-   }
+   },
+   "cat": "almacén"
   },
   {
    "n": "Soja",
@@ -2344,7 +2451,8 @@
      0.1,
      5
     ]
-   }
+   },
+   "cat": "almacén"
   },
   {
    "n": "Atún",
@@ -2365,7 +2473,8 @@
      0.1,
      2
     ]
-   }
+   },
+   "cat": "pescados"
   },
   {
    "n": "Caballa",
@@ -2380,7 +2489,8 @@
      0.1,
      3
     ]
-   }
+   },
+   "cat": "pescados"
   },
   {
    "n": "Sardina",
@@ -2395,7 +2505,8 @@
      0.05,
      3
     ]
-   }
+   },
+   "cat": "pescados"
   },
   {
    "n": "Salmón",
@@ -2418,7 +2529,8 @@
      3
     ],
     "a": true
-   }
+   },
+   "cat": "pescados"
   },
   {
    "n": "Lenguado",
@@ -2433,7 +2545,8 @@
      0.2,
      3
     ]
-   }
+   },
+   "cat": "pescados"
   },
   {
    "n": "Carne vacuna",
@@ -2461,7 +2574,8 @@
      0.4,
      8
     ]
-   }
+   },
+   "cat": "carnes"
   },
   {
    "n": "Carré de cerdo",
@@ -2480,7 +2594,8 @@
      0.4,
      8
     ]
-   }
+   },
+   "cat": "carnes"
   },
   {
    "n": "Clara de huevo",
@@ -2497,7 +2612,8 @@
      5
     ],
     "a": true
-   }
+   },
+   "cat": "huevos"
   },
   {
    "n": "Yogur descremado",
@@ -2518,7 +2634,8 @@
      0.1,
      1.5
     ]
-   }
+   },
+   "cat": "lácteos"
   },
   {
    "n": "Queso fresco",
@@ -2538,7 +2655,8 @@
      0.1,
      5
     ]
-   }
+   },
+   "cat": "lácteos"
   },
   {
    "n": "Queso Port Salut",
@@ -2557,7 +2675,8 @@
      0.1,
      5
     ]
-   }
+   },
+   "cat": "lácteos"
   },
   {
    "n": "Queso untable descremado",
@@ -2580,7 +2699,8 @@
      2
     ],
     "a": true
-   }
+   },
+   "cat": "lácteos"
   },
   {
    "n": "Queso rallado",
@@ -2600,7 +2720,8 @@
      0.02,
      2
     ]
-   }
+   },
+   "cat": "lácteos"
   },
   {
    "n": "Aceite de oliva",
@@ -2616,7 +2737,8 @@
      0.2,
      5
     ]
-   }
+   },
+   "cat": "almacén"
   },
   {
    "n": "Tortillas de trigo",
@@ -2640,6 +2762,451 @@
      3
     ],
     "a": true
+   },
+   "cat": "panadería"
+  },
+  {
+   "n": "Frutilla",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "frutilla",
+     "frutillas"
+    ],
+    "ini": true,
+    "x": [
+     "mermelada",
+     "yogur",
+     "helado",
+     "jugo",
+     "dulce",
+     "salsa",
+     "sabor",
+     "pulpa"
+    ],
+    "t": [
+     0.2,
+     2
+    ]
+   },
+   "cat": "frutas"
+  },
+  {
+   "n": "Kiwi",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "kiwi"
+    ],
+    "ini": true,
+    "x": [
+     "mermelada",
+     "yogur",
+     "helado",
+     "jugo",
+     "dulce",
+     "sabor",
+     "pulpa"
+    ],
+    "t": [
+     0.2,
+     2
+    ]
+   },
+   "cat": "frutas"
+  },
+  {
+   "n": "Arándanos",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "arandano",
+     "arandanos"
+    ],
+    "ini": true,
+    "x": [
+     "mermelada",
+     "yogur",
+     "helado",
+     "jugo",
+     "dulce",
+     "sabor",
+     "pulpa",
+     "cereal"
+    ],
+    "t": [
+     0.1,
+     2
+    ]
+   },
+   "cat": "frutas"
+  },
+  {
+   "n": "Champiñones",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "champinon",
+     "champinones",
+     "hongos"
+    ],
+    "ini": true,
+    "x": [
+     "salsa",
+     "sopa",
+     "relleno",
+     "pate"
+    ],
+    "t": [
+     0.15,
+     2
+    ]
+   },
+   "cat": "verduras"
+  },
+  {
+   "n": "Granola",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "granola"
+    ],
+    "ini": true,
+    "x": [
+     "barra",
+     "barrita",
+     "yogur",
+     "helado",
+     "alfajor"
+    ],
+    "t": [
+     0.15,
+     2
+    ]
+   },
+   "cat": "almacén"
+  },
+  {
+   "n": "Mandarina",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "mandarina",
+     "mandarinas"
+    ],
+    "ini": true,
+    "x": [
+     "mermelada",
+     "yogur",
+     "helado",
+     "jugo",
+     "dulce",
+     "sabor",
+     "pulpa",
+     "conserva",
+     "lata",
+     "almibar",
+     "gelatina",
+     "budin"
+    ],
+    "t": [
+     0.2,
+     12
+    ]
+   },
+   "cat": "frutas"
+  },
+  {
+   "n": "Pera",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "pera",
+     "peras"
+    ],
+    "ini": true,
+    "x": [
+     "mermelada",
+     "yogur",
+     "helado",
+     "jugo",
+     "dulce",
+     "sabor",
+     "pulpa",
+     "conserva",
+     "lata",
+     "almibar",
+     "gelatina",
+     "budin"
+    ],
+    "t": [
+     0.2,
+     12
+    ]
+   },
+   "cat": "frutas"
+  },
+  {
+   "n": "Durazno",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "durazno",
+     "duraznos"
+    ],
+    "ini": true,
+    "x": [
+     "mermelada",
+     "yogur",
+     "helado",
+     "jugo",
+     "dulce",
+     "sabor",
+     "pulpa",
+     "conserva",
+     "lata",
+     "almibar",
+     "gelatina",
+     "budin"
+    ],
+    "t": [
+     0.2,
+     12
+    ]
+   },
+   "cat": "frutas"
+  },
+  {
+   "n": "Uva",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "uva",
+     "uvas"
+    ],
+    "ini": true,
+    "x": [
+     "mermelada",
+     "yogur",
+     "helado",
+     "jugo",
+     "dulce",
+     "sabor",
+     "pulpa",
+     "conserva",
+     "lata",
+     "almibar",
+     "gelatina",
+     "budin"
+    ],
+    "t": [
+     0.2,
+     12
+    ]
+   },
+   "cat": "frutas"
+  },
+  {
+   "n": "Ananá",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "anana",
+     "ananas"
+    ],
+    "ini": true,
+    "x": [
+     "mermelada",
+     "yogur",
+     "helado",
+     "jugo",
+     "dulce",
+     "sabor",
+     "pulpa",
+     "conserva",
+     "lata",
+     "almibar",
+     "gelatina",
+     "budin"
+    ],
+    "t": [
+     0.2,
+     12
+    ]
+   },
+   "cat": "frutas"
+  },
+  {
+   "n": "Ciruela",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "ciruela",
+     "ciruelas"
+    ],
+    "ini": true,
+    "x": [
+     "mermelada",
+     "yogur",
+     "helado",
+     "jugo",
+     "dulce",
+     "sabor",
+     "pulpa",
+     "conserva",
+     "lata",
+     "almibar",
+     "gelatina",
+     "budin"
+    ],
+    "t": [
+     0.2,
+     12
+    ]
+   },
+   "cat": "frutas"
+  },
+  {
+   "n": "Melón",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "melon"
+    ],
+    "ini": true,
+    "x": [
+     "mermelada",
+     "yogur",
+     "helado",
+     "jugo",
+     "dulce",
+     "sabor",
+     "pulpa",
+     "conserva",
+     "lata",
+     "almibar",
+     "gelatina",
+     "budin"
+    ],
+    "t": [
+     0.2,
+     12
+    ]
+   },
+   "cat": "frutas"
+  },
+  {
+   "n": "Sandía",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "sandia"
+    ],
+    "ini": true,
+    "x": [
+     "mermelada",
+     "yogur",
+     "helado",
+     "jugo",
+     "dulce",
+     "sabor",
+     "pulpa",
+     "conserva",
+     "lata",
+     "almibar",
+     "gelatina",
+     "budin"
+    ],
+    "t": [
+     0.2,
+     12
+    ]
+   },
+   "cat": "frutas"
+  },
+  {
+   "n": "Mango",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "mango",
+     "mangos"
+    ],
+    "ini": true,
+    "x": [
+     "mermelada",
+     "yogur",
+     "helado",
+     "jugo",
+     "dulce",
+     "sabor",
+     "pulpa",
+     "conserva",
+     "lata",
+     "almibar",
+     "gelatina",
+     "budin"
+    ],
+    "t": [
+     0.2,
+     12
+    ]
+   },
+   "cat": "frutas"
+  },
+  {
+   "n": "Pomelo",
+   "b": "kg",
+   "sepa": {
+    "q": [
+     "pomelo",
+     "pomelos"
+    ],
+    "ini": true,
+    "x": [
+     "mermelada",
+     "yogur",
+     "helado",
+     "jugo",
+     "dulce",
+     "sabor",
+     "pulpa",
+     "conserva",
+     "lata",
+     "almibar",
+     "gelatina",
+     "budin"
+    ],
+    "t": [
+     0.2,
+     12
+    ]
+   },
+   "cat": "frutas"
+  },
+  {
+   "n": "Semillas de chía",
+   "b": "kg",
+   "cat": "almacén",
+   "sepa": {
+    "q": [
+     "semillas de chia",
+     "chia"
+    ],
+    "ini": true,
+    "x": [
+     "barra",
+     "barrita",
+     "bebida",
+     "jugo",
+     "aceite",
+     "galletita",
+     "snack"
+    ],
+    "t": [
+     0.1,
+     1
+    ]
    }
   }
  ]

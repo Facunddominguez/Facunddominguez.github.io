@@ -148,14 +148,41 @@ function cantidadesDePlatoArmado(item){
       const nombres=claves.flatMap(k=>(Array.isArray(st[k])?st[k]:[]).flatMap(nombresDe));
       if(!nombres.length)continue;
       const f=fraccionDelPlato(fr)||0.25,total=f/0.25*gramos;
+      // Verduras: porción común de cada una (lechuga 80 g, tomate 100 g…); el resto se reparte lo que queda del medio plato.
+      const curada=n=>claves[0]==="verduras"?pesoVerdura(n):null,fijas=nombres.reduce((t,n)=>t+(curada(n)||0),0),libres=nombres.filter(n=>!curada(n)).length;
       nombres.forEach(n=>{
-        const gr=total/nombres.length,pu=datosEnvases().pesoPorcion.Huevo;
+        const gr=curada(n)||Math.max(40,(total-fijas)/Math.max(1,libres)),pu=datosEnvases().pesoPorcion.Huevo;
         if(nombreEmpiezaCon(n,"Huevo")&&pu&&pu.unidad)sumar(n,Math.max(1,Math.round(gr/pu.unidad)),"unidad");
         else sumar(n,gr,"g")
       })
     }
   }
   return out
+}
+// Etapa 23: cucharadas, cucharaditas y tazas no se compran: se pasan a gramos (o mililitros si es un líquido) con la tabla de
+// nutrición y, si no la tiene, con un valor común (1 cucharada ≈ 10 g, 1 cucharadita ≈ 3 g, 1 taza ≈ 120 g; en líquidos, el volumen).
+function unidadParaCompra(nombre,q,unit){
+  if(!["cucharada","cucharadita","taza"].includes(unit)||!(q>0))return {q,unit};
+  const env=envaseDe(nombre);
+  let liquido=!!env&&env.u==="ml";
+  try{
+    const it=Precios.itemDe(nombre);
+    if(it&&it.b==="l")liquido=true
+  }catch(e){
+  }
+  if(liquido){
+    const ml={cucharada:14.787,cucharadita:4.929,taza:236.588}[unit]*q;
+    return {q:Math.round(ml),unit:"ml"}
+  }
+  const g=typeof nutritionFor==="function"?nutritionGrams(nutritionFor(nombre),q,unit):null;
+  return {q:Math.round(g!==null?g:q*{cucharada:10,cucharadita:3,taza:120}[unit]),unit:"g"}
+}
+// Porción común por persona de una verdura (g), de datos/envases.json ("porcionVerdura"), o null.
+function pesoVerdura(nombre){
+  const t=datosEnvases().porcionVerdura;
+  if(!t)return null;
+  for(const [n,g] of Object.entries(t))if(nombreEmpiezaCon(nombre,n))return g;
+  return null
 }
 // Peso (g) de una unidad común del ingrediente, de la tabla curada; null si no está.
 function pesoUnidadCurado(nombre){

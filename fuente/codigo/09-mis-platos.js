@@ -374,7 +374,7 @@ function renderSaved(){
   }catch(err){
   }
   // Si las recetas no se pueden leer, las copias del plan no se tratan como "receta borrada".
-  const plates=a.filter(x=>!x.recipeSourceId),copies=a.filter(x=>x.recipeSourceId),orphans=storeError?[]:copies.filter(x=>!Object.prototype.hasOwnProperty.call(store,x.recipeSourceId)),recipes=Object.values(store).sort((x,y)=>x.title.localeCompare(y.title,"es"));
+  const plates=a.filter(x=>!x.recipeSourceId&&(savedKind==="semana"?!!x.deLaSemana:!x.deLaSemana)),copies=a.filter(x=>x.recipeSourceId),orphans=storeError?[]:copies.filter(x=>!Object.prototype.hasOwnProperty.call(store,x.recipeSourceId)),recipes=Object.values(store).sort((x,y)=>x.title.localeCompare(y.title,"es"));
   const plan=loadPlan(),planned=new Set();
   DAYS.forEach(([d])=>SLOTS.forEach(([s])=>{
     const id=plan[d]&&plan[d][s];if(id)planned.add(id)
@@ -400,7 +400,7 @@ function renderSaved(){
   // el adaptador solo los lee. Las copias de recetas borradas se ven como recetas, con su aviso.
   const comidas=[];
   if(savedKind!=="recetas")comidas.push(...platesF.map(comidaDesdePlato));
-  if(savedKind!=="platos"){
+  if(savedKind!=="platos"&&savedKind!=="semana"){
     if(storeError)comidas.push(...copies.filter(it=>MisPlatos.matchSaved(it,q)).map(it=>comidaDesdeCopia(it,"")));
     else{
       comidas.push(...recipesF.map(r=>comidaDesdeReceta(r,amounts,recipesInPlan.has(r.id))));
@@ -411,7 +411,7 @@ function renderSaved(){
   if(storeError&&savedKind!=="platos")nodes.push(ce("p","screen__hint",storeError));
   if(comidas.length)nodes.push(...ordenarComidas(comidas).map(tarjetaComida));
   else nodes.push(ce("p","screen__hint",q?"Ninguna comida coincide con tu búsqueda.":savedKind==="recetas"?"Todavía no tenés recetas. Tocá + Nueva → Escribir receta.":savedKind==="platos"?"Todavía no guardaste platos. Armá una comida y tocá Guardar.":"Todavía no guardaste comidas."));
-  if(savedKind!=="platos"&&!storeError&&copiesF.length){
+  if(savedKind!=="platos"&&savedKind!=="semana"&&!storeError&&copiesF.length){
     const box=ce("details","home-group saved-recipes");
     box.setAttribute("data-avanzado","misplatos");
     box.open=savedRecipesOpen;

@@ -31,9 +31,10 @@
   if (botonCompras) { botonCompras.click(); await espera(150) }
   const fueASemana = ev("stack.at(-1)") === "plan";
   ev('openTab("semana")'); await espera(100);
-  const elegir = doc().getElementById("planVacioElegir");
-  const visibleElegir = visible(elegir) && elegir.classList.contains("button--primary");
-  if (elegir) { elegir.click(); await espera(150) }
+  // Etapa 24: la Semana vacía ya no ofrece "Elegir el almuerzo de hoy"; su próximo paso es "Armame la semana" (botón principal).
+  const elegir = doc().getElementById("planVacioElegir"), armame = doc().querySelector("#plan [data-armame]");
+  const visibleElegir = !elegir && !doc().body.textContent.includes("Elegir el almuerzo de hoy") && visible(armame) && armame.classList.contains("button--primary");
+  if (armame) { armame.click(); await espera(150) }
   const abrioSelector = hojaAbierta();
   ev("hoja.cerrar()");
   ev('openTab("miscomidas"); go("ideas")'); await espera(100);
@@ -100,10 +101,10 @@
   ev('preciosActivos = () => true; shoppingBudgetRead = () => ({ limit: 1000, currency: "ARS", period: "semana" })');
   const barra = (faltan, pendientes) => { ev("totalAutomaticoLista = () => ({ total: 500, faltan: " + faltan + ", pendientes: " + pendientes + ", porClave: new Map([['a','$1']]) }); renderPresupuestoCompras()"); return doc().getElementById("comprasPresupuesto").textContent };
   const muchos = barra(3, 4), pocos = barra(1, 4);
-  const semana = (faltan, comidas) => { ev("preciosDataset = () => ({}); costosDelPlan = () => ({ dia: 0, diaFaltan: 0, semana: 1000, semanaFaltan: " + faltan + ", comidas: " + comidas + " }); pintarCostoDia()"); return doc().getElementById("planDiaCosto").textContent };
+  const semana = (faltan, comidas) => { ev("preciosDataset = () => ({}); costosDelPlan = () => ({ dia: 0, semana: 1000, faltan: " + faltan + ", pendientes: " + comidas + ", conPrecio: " + (comidas - faltan) + ", sinEstimar: " + (faltan * 2 > comidas ? faltan : 0) + " }); pintarCostoDia()"); return doc().getElementById("planDiaCosto").textContent + " | " + doc().getElementById("planPreciosEstado").textContent };
   const sMuchos = semana(3, 4), sPocos = semana(1, 4);
   ok("C10-6 el cartel de presupuesto y el total semanal dicen al menos ≈ $X si faltan más de la mitad de los precios y siguen igual si faltan pocos",
-    /· al menos ≈ \$500 estimado \(faltan 3 precios\)/.test(muchos) && /· ≈ \$500 estimado \(faltan 1 precio\)/.test(pocos) && sMuchos.includes("al menos ≈ $1.000 la semana (faltan 3 precios)") && sPocos.includes("≈ $1.000 la semana (faltan 1 precio)") && !sPocos.includes("al menos"),
+    /· al menos ≈ \$500 estimado \(faltan 3 precios\)/.test(muchos) && /· ≈ \$500 estimado \(faltan 1 precio\)/.test(pocos) && sMuchos.includes("Semana al menos ≈ $1.000") && sMuchos.includes("Con precio: 1 de 4 productos · Completar 3 precios") && sPocos.includes("Semana ≈ $1.000") && sPocos.includes("Con precio: 3 de 4 productos · Completar 1 precio") && !sPocos.includes("al menos"),
     [muchos, pocos, sMuchos, sPocos].join(" | "));
 
   if (marco) marco.remove();

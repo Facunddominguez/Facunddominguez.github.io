@@ -198,6 +198,12 @@
       "u": "unidad",
       "envase": "pote",
       "corto": true
+    },
+    {
+      "n": "Lechuga",
+      "tam": 300,
+      "u": "g",
+      "envase": "planta"
     }
   ],
   "pesoUnidad": {
@@ -213,7 +219,32 @@
     "Banana": 120,
     "Manzana": 180,
     "Papa": 200,
-    "Zapallito": 200
+    "Zapallito": 200,
+    "Yogur": 190,
+    "Mandarina": 100,
+    "Pera": 180,
+    "Durazno": 150,
+    "Kiwi": 80,
+    "Ciruela": 60,
+    "Pomelo": 250,
+    "Mango": 300
   },
-  "_pesoUnidad": "Gramos de una unidad común de cada ingrediente (para pasar unidades a kilos al calcular precios). Reemplaza al peso de la tabla de nutrición cuando esa unidad es chica o rara (la zanahoria de USDA pesa 61 g)."
+  "_pesoUnidad": "Gramos de una unidad común de cada ingrediente (para pasar unidades a kilos al calcular precios). Reemplaza al peso de la tabla de nutrición cuando esa unidad es chica o rara (la zanahoria de USDA pesa 61 g).",
+  "porcionVerdura": {
+    "Lechuga": 80,
+    "Tomate": 100,
+    "Zanahoria": 80,
+    "Cebolla": 50,
+    "Morrón": 80,
+    "Zapallito": 150,
+    "Zapallo": 150,
+    "Espinaca": 80,
+    "Brócoli": 100,
+    "Pepino": 80,
+    "Repollo": 80,
+    "Rúcula": 40,
+    "Acelga": 100,
+    "Remolacha": 80
+  },
+  "_porcionVerdura": "Gramos de una porción común por persona de cada verdura (Etapa 23). Reemplaza el reparto en partes iguales del medio plato, que daba 65 g de lechuga y de tomate."
 }

@@ -22,16 +22,25 @@ function nutritionDataset(){
   };
   return nutritionDataset.cache
 }
+// Nombre exacto o sinónimo y, si no, el nombre sin lo que va entre paréntesis ni las variantes (Etapa 19).
 function nutritionFor(name){
-  const k=ingredientKey(String(name||""));
-  return k&&nutritionDataset().byKey.get(k)||null
+  const by=nutritionDataset().byKey;
+  for(const n of [String(name||"")].concat(Ingredientes.variantesNombre(name))){
+    const k=ingredientKey(n),it=k&&by.get(k);
+    if(it)return it
+  }
+  return null
 }
 function nutritionGrams(item,q,unit){
   if(!item||typeof q!=="number"||!(q>0))return null;
   if(unit==="g")return q;
   if(unit==="kg")return q*1000;
-  const u=item.u||{
-  };
+  const u=Object.assign({},item.u||{});
+  // Si la nutrición trae solo la taza, la cucharada (1/16) y la cucharadita (1/48) salen de ella, y al revés (Etapa 19).
+  if(u.taza){
+    if(!u.cucharada)u.cucharada=[u.taza[0]/16,"calculada de la taza"];
+    if(!u.cucharadita)u.cucharadita=[u.taza[0]/48,"calculada de la taza"]
+  }else if(u.cucharada)u.taza=[u.cucharada[0]*16,"calculada de la cucharada"];
   if(["unidad","taza","cucharada","cucharadita"].includes(unit))return u[unit]?q*u[unit][0]:null;
   if(unit==="ml"||unit==="l"){
     const ml=unit==="l"?q*1000:q;

@@ -197,7 +197,7 @@ function renderPresupuestoCompras(){
   try{
     const auto=budget.currency==="ARS"?totalAutomaticoLista():null;
     e=auto?{
-      estimated:auto.total,unpriced:auto.faltan,otherCurrency:0,alMenos:auto.faltan*2>auto.pendientes
+      estimated:auto.total,unpriced:auto.faltan,otherCurrency:0,alMenos:auto.sinEstimar!==undefined?auto.sinEstimar>0:auto.faltan*2>auto.pendientes
     }:Existencias.estimadoDeLaLista(shoppingMissingRows(),budget.currency)
   }catch(err){
     bar.textContent="💰 Presupuesto "+fmt(budget.limit);
