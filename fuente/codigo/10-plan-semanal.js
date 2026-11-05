@@ -34,6 +34,7 @@ migratePlan(o){
 persistPlan(o){
   errorDelPlan="";
   if(Semana.viendoProxima()){
+    Semana.alDiaProxima();
     try{
       localStorage.setItem(PROX_KEY,JSON.stringify({
         lunes:Semana.lunesSiguiente(),plan:o
@@ -231,14 +232,27 @@ adoptarProxima(){
     const prox=Semana.migratePlan(p.plan),raw=localStorage.getItem(PKEY),plan=Semana.migratePlan(raw?JSON.parse(raw)||{}:{}),s=Semana.semanaDelPlan(),saved=MisPlatos.loadSaved();
     if(p.lunes===actual){
       if(Semana.planTieneComidas(prox)){
-        if(s&&s<actual&&Semana.planTieneComidas(plan))Semana.guardarCopiaDeSemana(s,plan,saved,false);
+        // La semana que termina se guarda siempre antes de reemplazarla (sin fecha en el historial: el lunes anterior).
+        const antes=s&&s<actual?s:Semana.lunesAnterior();
+        if(Semana.planTieneComidas(plan))Semana.guardarCopiaDeSemana(antes,plan,saved,false);
         localStorage.setItem(PKEY,JSON.stringify(prox));
+        Semana.prunePlanPortions(plan,prox);
         Semana.logPlanChange("Empieza la semana que habías armado")
       }
     }else if(Semana.planTieneComidas(prox))Semana.guardarCopiaDeSemana(p.lunes,prox,saved,false);
     localStorage.removeItem(PROX_KEY)
   }catch(e){
   }
+},
+lunesAnterior(){
+  const d=new Date(Semana.semanaActual()+"T12:00:00");
+  d.setDate(d.getDate()-7);
+  return Rutina.localTrainingDate(d)
+},
+// Si la app quedó abierta mirando la semana que viene y cambió la semana, lo armado ya es de esta semana.
+alDiaProxima(){
+  const p=Semana.loadProxima();
+  if(p&&p.lunes!==Semana.lunesSiguiente())Semana.adoptarProxima()
 },
 rangoDeSemana(lunes){
   const a=new Date(lunes+"T12:00:00"),b=new Date(a);
@@ -311,6 +325,8 @@ guardarCopiaDeSemana(lunes,plan,saved,conVariacion){
   }
 },
 copiaAutomaticaDeSemana(){
+  // Mirando la semana que viene no se toca el plan de esta semana ni sus copias fechadas.
+  if(Semana.viendoProxima())return true;
   try{
     const s=Semana.semanaDelPlan();
     if(!s||s>=Semana.semanaActual())return true;
@@ -536,6 +552,7 @@ const PKEY="miPlatoFacil_plan",VKEY="miPlatoFacil_planVars",PROX_KEY="miPlatoFac
 var semanaVista=0;
 function loadPlan(){
   if(Semana.viendoProxima()){
+    Semana.alDiaProxima();
     const p=Semana.loadProxima();
     return Semana.migratePlan(p&&p.plan||{
     })

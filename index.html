@@ -5845,6 +5845,7 @@ migratePlan(o){
 persistPlan(o){
   errorDelPlan="";
   if(Semana.viendoProxima()){
+    Semana.alDiaProxima();
     try{
       localStorage.setItem(PROX_KEY,JSON.stringify({
         lunes:Semana.lunesSiguiente(),plan:o
@@ -6042,14 +6043,27 @@ adoptarProxima(){
     const prox=Semana.migratePlan(p.plan),raw=localStorage.getItem(PKEY),plan=Semana.migratePlan(raw?JSON.parse(raw)||{}:{}),s=Semana.semanaDelPlan(),saved=MisPlatos.loadSaved();
     if(p.lunes===actual){
       if(Semana.planTieneComidas(prox)){
-        if(s&&s<actual&&Semana.planTieneComidas(plan))Semana.guardarCopiaDeSemana(s,plan,saved,false);
+        // La semana que termina se guarda siempre antes de reemplazarla (sin fecha en el historial: el lunes anterior).
+        const antes=s&&s<actual?s:Semana.lunesAnterior();
+        if(Semana.planTieneComidas(plan))Semana.guardarCopiaDeSemana(antes,plan,saved,false);
         localStorage.setItem(PKEY,JSON.stringify(prox));
+        Semana.prunePlanPortions(plan,prox);
         Semana.logPlanChange("Empieza la semana que habías armado")
       }
     }else if(Semana.planTieneComidas(prox))Semana.guardarCopiaDeSemana(p.lunes,prox,saved,false);
     localStorage.removeItem(PROX_KEY)
   }catch(e){
   }
+},
+lunesAnterior(){
+  const d=new Date(Semana.semanaActual()+"T12:00:00");
+  d.setDate(d.getDate()-7);
+  return Rutina.localTrainingDate(d)
+},
+// Si la app quedó abierta mirando la semana que viene y cambió la semana, lo armado ya es de esta semana.
+alDiaProxima(){
+  const p=Semana.loadProxima();
+  if(p&&p.lunes!==Semana.lunesSiguiente())Semana.adoptarProxima()
 },
 rangoDeSemana(lunes){
   const a=new Date(lunes+"T12:00:00"),b=new Date(a);
@@ -6122,6 +6136,8 @@ guardarCopiaDeSemana(lunes,plan,saved,conVariacion){
   }
 },
 copiaAutomaticaDeSemana(){
+  // Mirando la semana que viene no se toca el plan de esta semana ni sus copias fechadas.
+  if(Semana.viendoProxima())return true;
   try{
     const s=Semana.semanaDelPlan();
     if(!s||s>=Semana.semanaActual())return true;
@@ -6347,6 +6363,7 @@ const PKEY="miPlatoFacil_plan",VKEY="miPlatoFacil_planVars",PROX_KEY="miPlatoFac
 var semanaVista=0;
 function loadPlan(){
   if(Semana.viendoProxima()){
+    Semana.alDiaProxima();
     const p=Semana.loadProxima();
     return Semana.migratePlan(p&&p.plan||{
     })
@@ -10241,7 +10258,7 @@ document.getElementById("recipeCatalogTime").addEventListener("change",()=>{
   recipeCatalogPage=0;renderRecipeCatalog()
 });
 document.addEventListener("change",e=>{
-  const t=e.target;if(!t||!t.dataset||t.dataset.planPortions===undefined)return;const key=t.dataset.planPortions,raw=t.value.trim();try{
+  const t=e.target;if(!t||!t.dataset||t.dataset.planPortions===undefined)return;const key=t.dataset.planPortions,raw=t.value.trim();if(Semana.viendoProxima()){planStatus("Las porciones se cargan cuando empieza esa semana.");return}try{
     const p=Semana.loadPlanPortions();if(!raw)delete p[key];else{
       const n=Number(raw.replace(",","."));if(!Number.isFinite(n)||n<0.25||n>100)throw Error("Indicá porciones entre 0,25 y 100.");p[key]=Math.round(n*100)/100
     }if(!Semana.copiaAutomaticaDeSemana())throw Error(errorDelPlan);Semana.savePlanPortions(p);const [d,s]=key.split("|");Semana.logPlanChange(Semana.planDayName(d)+" · "+Semana.planSlotName(s)+": porciones "+(raw?String(p[key]).replace(".",","):"según la receta"));renderPlan();planStatus("Porciones guardadas. Compras las usa.")
@@ -11849,7 +11866,7 @@ var resetTabs=null;
     if(tab===activeTab){
       stack=[TABS[tab].root];
       // v17.6: tocar Semana estando en la semana que viene vuelve a esta semana (el inicio de la pestaña).
-      if(tab==="semana"&&typeof semanaVista!=="undefined"&&semanaVista===1){semanaVista=0;planDiaElegido=todayPlanDay()}
+      if(tab==="semana"&&typeof semanaVista!=="undefined"&&semanaVista===1){semanaVista=0;planDiaElegido=todayPlanDay();deshacerPlan=null}
     }
     else{
       activeTab=tab;
@@ -12879,7 +12896,7 @@ verSugerencia(){
 },
 abrirMenuSemana(){
   const lista=ce("div","menu-semana");
-  lista.append(botonHoja("Repetir semana anterior","button--soft",{
+  lista.append(botonHoja(Semana.viendoProxima()?"Repetir esta semana":"Repetir semana anterior","button--soft",{
     planRepetirAnterior:""
   }),botonHoja("Copiar un día","button--soft",{
     planCopiarDia:""
@@ -12900,6 +12917,19 @@ lunesAnterior(){
   return Rutina.localTrainingDate(d)
 },
 repetirSemanaAnterior(){
+  // En la semana que viene, "Repetir esta semana": copia el plan de esta semana (con Deshacer).
+  if(Semana.viendoProxima()){
+    hoja.cerrar();
+    let actual={};
+    try{actual=Semana.migratePlan(JSON.parse(localStorage.getItem(PKEY)||"{}")||{})}catch(e){actual=Semana.migratePlan({})}
+    const antes={plan:loadPlan(),porciones:{}};
+    if(!Semana.planTieneComidas(actual)){planStatus("Esta semana todavía no tiene comidas para repetir.");return}
+    if(Semana.persistPlan(actual)===false){planStatus(errorDelPlan||"No se pudo copiar.");return}
+    deshacerPlan={texto:"Repetiste esta semana en la que viene",...antes};
+    renderPlan();
+    planStatus("Listo: la semana que viene tiene las mismas comidas que esta.");
+    return
+  }
   const key=Selector.lunesAnterior();
   if(!loadDatedWeeks()[key]){
     hoja.estado.textContent="No hay copia de la semana del "+typedAppDateLabel(key).slice(0,5)+". Las copias están en Semanas anteriores y mes.";
@@ -12959,7 +12989,8 @@ function abrirHueco(dia,slot){
   caja.append(ce("p","hueco-hoja__plato",Semana.planPlateLabel(it)));
   const lineas=savedItemLines(it).join(" · ");
   if(lineas)caja.append(ce("p","screen__hint",lineas));
-  if(it.recipeSourceId){
+  // Las porciones se cargan para esta semana (Compras las usa); en la semana que viene no se muestran.
+  if(it.recipeSourceId&&!Semana.viendoProxima()){
     const campo=ce("div","portion-field"),label=ce("label",null,"Porciones"),inp=ce("input"),map=Semana.loadPlanPortions(),rinde=rendimientoDeReceta(it.recipeSourceId);
     inp.type="text";
     inp.inputMode="decimal";
@@ -14843,7 +14874,7 @@ function fichaPrecio(nombre){
       lCant.textContent=uni.value==="paquete"?"Gramos del paquete":"Cantidad";
       if(uni.value==="paquete"&&cant.value==="1")cant.value=""
     });
-    const guardar=ce("button","button button--primary",mio?"Guardar mi precio":"Guardar");
+    const guardar=ce("button","button button--primary","Guardar mi precio");
     guardar.type="button";
     const numero=t=>{
       const n=Number(String(t).trim().replace(/\./g,"").replace(",","."));

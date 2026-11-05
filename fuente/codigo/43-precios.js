@@ -632,7 +632,7 @@ function fichaPrecio(nombre){
       lCant.textContent=uni.value==="paquete"?"Gramos del paquete":"Cantidad";
       if(uni.value==="paquete"&&cant.value==="1")cant.value=""
     });
-    const guardar=ce("button","button button--primary",mio?"Guardar mi precio":"Guardar");
+    const guardar=ce("button","button button--primary","Guardar mi precio");
     guardar.type="button";
     const numero=t=>{
       const n=Number(String(t).trim().replace(/\./g,"").replace(",","."));

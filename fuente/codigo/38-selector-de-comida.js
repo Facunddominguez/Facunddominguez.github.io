@@ -73,7 +73,7 @@ verSugerencia(){
 },
 abrirMenuSemana(){
   const lista=ce("div","menu-semana");
-  lista.append(botonHoja("Repetir semana anterior","button--soft",{
+  lista.append(botonHoja(Semana.viendoProxima()?"Repetir esta semana":"Repetir semana anterior","button--soft",{
     planRepetirAnterior:""
   }),botonHoja("Copiar un día","button--soft",{
     planCopiarDia:""
@@ -94,6 +94,19 @@ lunesAnterior(){
   return Rutina.localTrainingDate(d)
 },
 repetirSemanaAnterior(){
+  // En la semana que viene, "Repetir esta semana": copia el plan de esta semana (con Deshacer).
+  if(Semana.viendoProxima()){
+    hoja.cerrar();
+    let actual={};
+    try{actual=Semana.migratePlan(JSON.parse(localStorage.getItem(PKEY)||"{}")||{})}catch(e){actual=Semana.migratePlan({})}
+    const antes={plan:loadPlan(),porciones:{}};
+    if(!Semana.planTieneComidas(actual)){planStatus("Esta semana todavía no tiene comidas para repetir.");return}
+    if(Semana.persistPlan(actual)===false){planStatus(errorDelPlan||"No se pudo copiar.");return}
+    deshacerPlan={texto:"Repetiste esta semana en la que viene",...antes};
+    renderPlan();
+    planStatus("Listo: la semana que viene tiene las mismas comidas que esta.");
+    return
+  }
   const key=Selector.lunesAnterior();
   if(!loadDatedWeeks()[key]){
     hoja.estado.textContent="No hay copia de la semana del "+typedAppDateLabel(key).slice(0,5)+". Las copias están en Semanas anteriores y mes.";
@@ -153,7 +166,8 @@ function abrirHueco(dia,slot){
   caja.append(ce("p","hueco-hoja__plato",Semana.planPlateLabel(it)));
   const lineas=savedItemLines(it).join(" · ");
   if(lineas)caja.append(ce("p","screen__hint",lineas));
-  if(it.recipeSourceId){
+  // Las porciones se cargan para esta semana (Compras las usa); en la semana que viene no se muestran.
+  if(it.recipeSourceId&&!Semana.viendoProxima()){
     const campo=ce("div","portion-field"),label=ce("label",null,"Porciones"),inp=ce("input"),map=Semana.loadPlanPortions(),rinde=rendimientoDeReceta(it.recipeSourceId);
     inp.type="text";
     inp.inputMode="decimal";

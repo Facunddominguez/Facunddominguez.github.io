@@ -43,6 +43,46 @@
     llenosEsta === 28 && !!ir && /^Semana que viene/.test(titulo) && vaciaProx && llenosProx === 28 && estaDespues === estaAntes && !!prox && /^\d{4}-\d{2}-\d{2}$/.test(prox.lunes) && !!volver && /^Esta semana/.test(tituloVuelta) && llenosVuelta === 28 && !!respaldo.data.miPlatoFacil_planProxima_v1,
     JSON.stringify({ llenosEsta, titulo, vaciaProx, llenosProx, mismoPlan: estaDespues === estaAntes, prox: prox && prox.lunes, tituloVuelta, llenosVuelta }));
 
+  // E25-proxima-aislada: mirando la semana que viene, nada de esta semana cambia (plan, porciones, historial, copias fechadas).
+  const claves = ["miPlatoFacil_plan", "miPlatoFacil_planPortions_v1", "miPlatoFacil_planHistory_v1", "miPlatoFacil_datedWeeks_v1", "miPlatoFacil_planVars"];
+  const foto = () => JSON.stringify(claves.map(k => localStorage.getItem(k)));
+  const antesFoto = foto();
+  ev("Semana.verSemana(1)"); await espera(200);
+  if (armame()) await tocar(armame()); await espera(300);
+  ev("Selector.repetirSemanaAnterior()"); await espera(200);
+  const deshacerProx = doc().querySelector("#planAviso button");
+  if (deshacerProx) await tocar(deshacerProx);
+  ev('openTab("semana")'); await espera(200); // volver a esta semana tocando la pestaña: no queda un Deshacer de la otra semana
+  const avisoVuelta = doc().getElementById("planAviso").textContent;
+  ok("E25-proxima-aislada mirando la semana que viene no cambia nada de esta semana, y al volver no queda un Deshacer de la otra",
+    foto() === antesFoto && !/Deshacer/.test(avisoVuelta) && /^Esta semana/.test(doc().getElementById("planSemanaTitulo").textContent), avisoVuelta);
+
+  // E25-adopcion: cuando llega su lunes, lo armado pasa a ser el plan y la semana que termina queda en Semanas anteriores.
+  const actual = ev("Semana.semanaActual()"), anterior = ev("Semana.lunesAnterior()");
+  const planEsta = localStorage.getItem("miPlatoFacil_plan");
+  const proxGuardada = JSON.parse(localStorage.getItem("miPlatoFacil_planProxima_v1"));
+  localStorage.setItem("miPlatoFacil_planPortions_v1", JSON.stringify({ "lunes|cena": 4 }));
+  localStorage.setItem("miPlatoFacil_planProxima_v1", JSON.stringify({ lunes: actual, plan: proxGuardada.plan }));
+  await abrir(); ev("loadPlan()");
+  const adoptado = JSON.stringify(ev("loadPlan()")) === JSON.stringify(ev("Semana.migratePlan(" + JSON.stringify(proxGuardada.plan) + ")"));
+  const copias = ev("loadDatedWeeks()"), copiaAnterior = !!copias[anterior];
+  const sinClave = localStorage.getItem("miPlatoFacil_planProxima_v1") === null;
+  const porciones = JSON.parse(localStorage.getItem("miPlatoFacil_planPortions_v1") || "{}");
+  const planTrasUna = localStorage.getItem("miPlatoFacil_plan"), copiasTrasUna = localStorage.getItem("miPlatoFacil_datedWeeks_v1");
+  await abrir(); ev("loadPlan()");
+  const dosVeces = localStorage.getItem("miPlatoFacil_plan") === planTrasUna && localStorage.getItem("miPlatoFacil_datedWeeks_v1") === copiasTrasUna;
+  ok("E25-adopcion la semana que viene pasa a ser el plan en su lunes, la que termina queda copiada, las porciones viejas no se aplican y correrlo dos veces no cambia nada",
+    adoptado && planTrasUna !== planEsta && copiaAnterior && sinClave && porciones["lunes|cena"] === undefined && dosVeces,
+    JSON.stringify({ adoptado, copiaAnterior, sinClave, porciones, dosVeces }));
+
+  // E25-pasada: una semana que viene que ya pasó sin abrir la app va a Semanas anteriores y no toca el plan.
+  const haceDos = ev(`(() => { const d = new Date(Semana.semanaActual() + "T12:00:00"); d.setDate(d.getDate() - 14); return Rutina.localTrainingDate(d) })()`);
+  const planAntes = localStorage.getItem("miPlatoFacil_plan");
+  localStorage.setItem("miPlatoFacil_planProxima_v1", JSON.stringify({ lunes: haceDos, plan: proxGuardada.plan }));
+  await abrir(); ev("loadPlan()");
+  ok("E25-pasada una semana que viene que ya pasó va a Semanas anteriores sin tocar el plan",
+    !!ev("loadDatedWeeks()")[haceDos] && localStorage.getItem("miPlatoFacil_plan") === planAntes && localStorage.getItem("miPlatoFacil_planProxima_v1") === null);
+
   // E25-desayunos: con la semana armada, ningún desayuno o merienda sin proteína.
   const sinProteina = ev(`(() => { const plan = loadPlan(), by = new Map(MisPlatos.loadSaved().map(x => [x.id, x])); let n = 0, total = 0;
     for (const d of Object.values(plan)) for (const s of ["desayuno", "merienda"]) { const it = by.get((d || {})[s]); if (!it) continue; total++;
