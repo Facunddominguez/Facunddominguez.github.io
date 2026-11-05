@@ -35,7 +35,7 @@
   const elegir = doc().getElementById("planVacioElegir"), armame = doc().querySelector("#plan [data-armame]");
   const visibleElegir = !elegir && !doc().body.textContent.includes("Elegir el almuerzo de hoy") && visible(armame) && armame.classList.contains("button--primary");
   if (armame) { armame.click(); await espera(150) }
-  const abrioSelector = hojaAbierta();
+  const abrioSelector = hojaAbierta() || Object.values(ev("loadPlan()")).reduce((n, d) => n + Object.values(d || {}).filter(Boolean).length, 0) === 28; // v17.6: con la semana vacía arma directo
   ev("hoja.cerrar()");
   ev('openTab("miscomidas"); go("ideas")'); await espera(100);
   const entrada = doc().getElementById("menuSearchInput"); entrada.value = "zzzzqq"; ev("renderMenuSearch()"); await espera(100);

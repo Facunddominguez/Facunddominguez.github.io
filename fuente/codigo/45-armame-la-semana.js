@@ -99,13 +99,15 @@ var ArmameSemana=(function(){
     const frutas=data.frutas.filter(f=>textoPermitido(f[0])),prot=data.bfprot.filter(p=>textoPermitido(p[0])),cer=data.bfcarb.filter(c=>textoPermitido(c[0]));
     const buscar=(lista,re)=>lista.filter(o=>re.test(normalizeSearchText(o[0])));
     const yogur=buscar(prot,/yogur/),queso=buscar(prot,/queso/),leche=buscar(prot,/^leche/),huevo=buscar(prot,/huevo/),avena=buscar(cer,/avena|granola/),pan=buscar(cer,/^pan/);
-    const plantillas=[
+    // v17.6: siempre con proteína (el método del plato la pide). Fruta + cereal solo, sin proteína, queda únicamente si
+    // los filtros de dieta dejan sin ninguna proteína de desayuno.
+    let plantillas=[
       {prot:yogur,cer:avena,forma:()=>r()<0.5?"Entera":"En trozos"},
       {prot:queso,cer:pan,forma:()=>"En trozos"},
       {prot:leche,cer:[null],forma:()=>"Licuado"},
-      {prot:huevo,cer:pan,forma:()=>"Entera"},
-      {prot:[null],cer:avena.concat(pan),forma:()=>"En trozos"}
+      {prot:huevo,cer:pan,forma:()=>"Entera"}
     ].filter(t=>t.prot.length&&t.cer.length&&frutas.length);
+    if(!plantillas.length&&frutas.length&&avena.concat(pan).length)plantillas=[{prot:[null],cer:avena.concat(pan),forma:()=>"En trozos"}];
     let intentos=0;
     while(out.length<18&&plantillas.length&&intentos++<300){
       const t=plantillas[intentos%plantillas.length],f=frutas[Math.floor(r()*frutas.length)],p=t.prot[Math.floor(r()*t.prot.length)],c=t.cer[Math.floor(r()*t.cer.length)];
@@ -217,6 +219,20 @@ var ArmameSemana=(function(){
       return (sem.comidas.get(dia+"|"+otro)||{}).k!==c.k
     };
     let gastado=0;
+    // v17.6: las comidas que pidió el usuario (las ideas de la bienvenida) entran sí o sí, una vez cada una, en el primer
+    // almuerzo o cena válido; el ajuste por presupuesto no las cambia.
+    const primero=new Set(Array.isArray(opciones&&opciones.primero)?opciones.primero:[]),fijas=new Set();
+    for(const id of primero){
+      const c=cp.find(x=>x.tipo==="mia"&&x.item&&x.item.id===id);
+      if(!c||(sem.cuenta.get(c.k)||0)>0)continue;
+      const lugar=aFillar.find(([d,s])=>slotPool(s)==="plato"&&!asignadas.has(d+"|"+s)&&valido(c,d,s,d+"|"+s));
+      if(!lugar)continue;
+      const pos=lugar[0]+"|"+lugar[1];
+      sumar(sem,pos,c,1);
+      asignadas.set(pos,c);
+      fijas.add(pos);
+      gastado+=costo(c,lugar[0],lugar[1])
+    }
     const objetivo=slot=>presupuesto&&hayPrecios?Math.max(1,(presupuesto-gastado)*PESO_SLOT[slot]/Math.max(0.2,aFillar.filter(([d,s])=>!asignadas.has(d+"|"+s)).reduce((t,[,s])=>t+PESO_SLOT[s],0))):null;
     for(const [dia,slot] of aFillar){
       const pos=dia+"|"+slot;
@@ -270,6 +286,7 @@ var ArmameSemana=(function(){
       while(total>presupuesto&&guardia++<80){
         let mejor=null;
         for(const [pos,c] of asignadas){
+          if(fijas.has(pos))continue;
           const [dia,slot]=pos.split("|"),actual=costo(c,dia,slot);
           sumar(sem,pos,c,-1);
           for(const o of pool(slot)){
@@ -362,7 +379,10 @@ var ArmameSemana=(function(){
     return n
   }
   function abrir(){
-    const vacios=huecosVacios(),caja=ce("div","armame-hoja");
+    const vacios=huecosVacios();
+    // Con la semana vacía no hay nada que elegir: se arma directo (con Deshacer).
+    if(vacios===DAYS.length*SLOTS.length){correr("vacios");return}
+    const caja=ce("div","armame-hoja");
     caja.append(ce("p","screen__hint",presupuestoSemanal()?"Armo la semana sin pasarme de tu presupuesto.":"Armo la semana con tus comidas e ideas."));
     const acc=ce("div","hueco-hoja__acciones");
     if(vacios>0)acc.append(botonHoja("Completar los "+vacios+" huecos vacíos","button--primary",{armameModo:"vacios"}));
@@ -371,9 +391,9 @@ var ArmameSemana=(function(){
     huecoAbierto=null;
     hoja.abrir({titulo:"Armame la semana",contenido:[caja],botones:[],foco:false})
   }
-  function correr(modo){
+  function correr(modo,primero){
     try{
-      const res=aplicar(armar({modo}));
+      const res=aplicar(armar({modo,primero}));
       hoja.cerrar();
       // El aviso queda en la Semana, con Deshacer y el mismo total que Semana y Compras, hasta la próxima acción.
       if(deshacerPlan){

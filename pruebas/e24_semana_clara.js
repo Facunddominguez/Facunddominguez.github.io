@@ -32,7 +32,7 @@
 
   // Armar con el botón: el aviso queda con Deshacer y el mismo total que Semana y Compras, pasados más de 10 segundos.
   await tocar(armame());
-  await tocar(doc().querySelector('.hoja [data-armame-modo="vacios"]')); await espera(300);
+  { const v = doc().querySelector('.hoja [data-armame-modo="vacios"]'); if (v) await tocar(v); } await espera(300); // v17.6: con la semana vacía arma directo
   const avisoYa = texto("planAviso"), totalAviso = pesos(/≈ \$[\d.]+ la semana/.exec(avisoYa) && /≈ \$[\d.]+ la semana/.exec(avisoYa)[0]);
   await espera(10500);
   const avisoDespues = texto("planAviso"), hayDeshacer = !!doc().querySelector("#planAviso [data-plan-deshacer]");
@@ -62,9 +62,9 @@
   for (let i = 0; i < 2; i++) {
     await tocar(doc().querySelector("[data-completar-precios]"));
     await tocar(doc().querySelector(".completar-precios__fila"));
-    await tocar(doc().querySelector("[data-ficha-precio-abrir]"));
+    /* v17.6: el formulario de Mi precio ya se ve sin tocar "Agregar mi precio" */
     set("fichaPrecioMonto", "3000"); set("fichaPrecioCantidad", "1"); doc().getElementById("fichaPrecioUnidad").value = "kg";
-    await tocar([...doc().querySelectorAll(".hoja .ficha-precio__form button")].find(b => b.textContent === "Guardar"));
+    await tocar([...doc().querySelectorAll(".hoja .ficha-precio__form button")].find(b => /^Guardar( mi precio)?$/.test(b.textContent)));
     const igual = doc().querySelector("[data-ficha-precio-igual]"); if (igual) await tocar(igual);
     ev("hoja.cerrar()"); await espera(150)
   }

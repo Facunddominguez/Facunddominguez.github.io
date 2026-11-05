@@ -129,11 +129,15 @@ eliminarRecetaDesdeDetalle(id){
     openTab("miscomidas")
   }
 },
-abrirNutrientesDeIngrediente(nombre){
+abrirNutrientesDeIngrediente(nombre,precioPrimero){
   const limpio=String(nombre||"").split(":")[0].trim();
   const contenido=[nutrientesDeIngrediente(limpio)];
   try{
-    if(preciosActivos()&&preciosDataset())contenido.push(fichaPrecio(limpio))
+    // Desde "Completar precios" el precio va primero; en los demás casos, después de los nutrientes.
+    if(preciosActivos()&&preciosDataset()){
+      const f=fichaPrecio(limpio);
+      if(precioPrimero)contenido.unshift(f);else contenido.push(f)
+    }
   }catch(e){
   }
   hoja.abrir({
@@ -326,7 +330,7 @@ document.addEventListener("click",e=>{
       return planStatus("Guardada en Mis comidas.")
     }
     if(d.comidaEliminarReceta)return Comidas.eliminarRecetaDesdeDetalle(d.comidaEliminarReceta);
-    if(d.nutrienteIngrediente)return Comidas.abrirNutrientesDeIngrediente(d.nutrienteIngrediente);
+    if(d.nutrienteIngrediente)return Comidas.abrirNutrientesDeIngrediente(d.nutrienteIngrediente,d.completarPreciosFila!==undefined);
     if(d.openPreferencias!==undefined)return go("preferencias");
     if(d.openFuentes!==undefined)return Comidas.abrirFuentes();
     if(d.openComoFunciona!==undefined)return go("comoFunciona");

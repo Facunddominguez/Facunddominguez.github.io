@@ -33,6 +33,19 @@ migratePlan(o){
 },
 persistPlan(o){
   errorDelPlan="";
+  if(Semana.viendoProxima()){
+    Semana.alDiaProxima();
+    try{
+      localStorage.setItem(PROX_KEY,JSON.stringify({
+        lunes:Semana.lunesSiguiente(),plan:o
+      }));
+      deshacerPlan=null;
+      return true
+    }catch(e){
+      errorDelPlan="No se pudo guardar el cambio (falta de espacio u otro error). Tu plan no cambió.";
+      return false
+    }
+  }
   if(!Semana.copiaAutomaticaDeSemana())return false;
   try{
     localStorage.setItem(PKEY,JSON.stringify(o));
@@ -167,6 +180,80 @@ fechaCorta(d){
 semanaActual(){
   return mondayOf(Rutina.localTrainingDate(new Date()))
 },
+// ---- v17.6: la semana que viene ----
+// Se arma en su propia clave (miPlatoFacil_planProxima_v1 = {lunes, plan}) para no tocar el plan de esta semana.
+// Mientras se mira en Semana, loadPlan y persistPlan trabajan sobre ella; Hoy, Compras y lo demás siguen con esta semana.
+// Cuando llega su lunes pasa a ser el plan (antes se guarda la copia fechada de la semana que termina).
+lunesSiguiente(){
+  const d=new Date(Semana.semanaActual()+"T12:00:00");
+  d.setDate(d.getDate()+7);
+  return Rutina.localTrainingDate(d)
+},
+validProxima(v){
+  return !!v&&typeof v==="object"&&!Array.isArray(v)&&typeof v.lunes==="string"&&/^\d{4}-\d{2}-\d{2}$/.test(v.lunes)&&!!v.plan&&typeof v.plan==="object"&&!Array.isArray(v.plan)
+},
+loadProxima(){
+  try{
+    const v=JSON.parse(localStorage.getItem(PROX_KEY)||"null");
+    return Semana.validProxima(v)?v:null
+  }catch(e){
+    return null
+  }
+},
+viendoProxima(){
+  return semanaVista===1&&activeTab==="semana"
+},
+verSemana(n){
+  semanaVista=n===1?1:0;
+  planDiaElegido=semanaVista===1?"lunes":todayPlanDay();
+  deshacerPlan=null;
+  renderPlan()
+},
+pintarNavSemana(prox){
+  // En la misma línea del título, como en un calendario: "›" lleva a la semana que viene y "‹" vuelve a esta.
+  const cab=document.querySelector("#plan .semana-cabeza"),menu=cab&&cab.querySelector("[data-plan-menu]");
+  if(!cab||!menu)return;
+  let b=document.getElementById("planSemanaNav");
+  if(!b){
+    b=ce("button","filter-chip semana-menu semana-nav__boton");
+    b.id="planSemanaNav";
+    b.type="button";
+    menu.before(b)
+  }
+  b.textContent=prox?"‹":"›";
+  b.dataset.semanaVista=prox?"0":"1";
+  b.setAttribute("aria-label",prox?"Volver a esta semana":"Ver y armar la semana que viene");
+  b.title=prox?"Esta semana":"Semana que viene"
+},
+adoptarProxima(){
+  const p=Semana.loadProxima(),actual=Semana.semanaActual();
+  if(!p||p.lunes>actual)return;
+  try{
+    const prox=Semana.migratePlan(p.plan),raw=localStorage.getItem(PKEY),plan=Semana.migratePlan(raw?JSON.parse(raw)||{}:{}),s=Semana.semanaDelPlan(),saved=MisPlatos.loadSaved();
+    if(p.lunes===actual){
+      if(Semana.planTieneComidas(prox)){
+        // La semana que termina se guarda siempre antes de reemplazarla (sin fecha en el historial: el lunes anterior).
+        const antes=s&&s<actual?s:Semana.lunesAnterior();
+        if(Semana.planTieneComidas(plan))Semana.guardarCopiaDeSemana(antes,plan,saved,false);
+        localStorage.setItem(PKEY,JSON.stringify(prox));
+        Semana.prunePlanPortions(plan,prox);
+        Semana.logPlanChange("Empieza la semana que habías armado")
+      }
+    }else if(Semana.planTieneComidas(prox))Semana.guardarCopiaDeSemana(p.lunes,prox,saved,false);
+    localStorage.removeItem(PROX_KEY)
+  }catch(e){
+  }
+},
+lunesAnterior(){
+  const d=new Date(Semana.semanaActual()+"T12:00:00");
+  d.setDate(d.getDate()-7);
+  return Rutina.localTrainingDate(d)
+},
+// Si la app quedó abierta mirando la semana que viene y cambió la semana, lo armado ya es de esta semana.
+alDiaProxima(){
+  const p=Semana.loadProxima();
+  if(p&&p.lunes!==Semana.lunesSiguiente())Semana.adoptarProxima()
+},
 rangoDeSemana(lunes){
   const a=new Date(lunes+"T12:00:00"),b=new Date(a);
   b.setDate(b.getDate()+6);
@@ -238,6 +325,8 @@ guardarCopiaDeSemana(lunes,plan,saved,conVariacion){
   }
 },
 copiaAutomaticaDeSemana(){
+  // Mirando la semana que viene no se toca el plan de esta semana ni sus copias fechadas.
+  if(Semana.viendoProxima())return true;
   try{
     const s=Semana.semanaDelPlan();
     if(!s||s>=Semana.semanaActual())return true;
@@ -307,6 +396,8 @@ validPlanPortions(o){
   return !!o&&typeof o==="object"&&!Array.isArray(o)&&Object.keys(o).length<=28&&Object.entries(o).every(([k,v])=>/^(lunes|martes|miercoles|jueves|viernes|sabado|domingo)\|(desayuno|merienda|almuerzo|cena)$/.test(k)&&typeof v==="number"&&Number.isFinite(v)&&v>=0.25&&v<=100)
 },
 loadPlanPortions(){
+  if(Semana.viendoProxima())return {
+  };
   try{
     const o=JSON.parse(localStorage.getItem(PLAN_PORTIONS_KEY)||"{}");
     return Semana.validPlanPortions(o)?o:{
@@ -318,6 +409,7 @@ loadPlanPortions(){
 },
 savePlanPortions(o){
   if(!Semana.validPlanPortions(o))throw Error("Porciones inválidas.");
+  if(Semana.viendoProxima())return;
   if(Object.keys(o).length)localStorage.setItem(PLAN_PORTIONS_KEY,JSON.stringify(o));
   else localStorage.removeItem(PLAN_PORTIONS_KEY)
 },
@@ -333,6 +425,7 @@ loadPlanHistory(){
   }
 },
 logPlanChange(text){
+  if(Semana.viendoProxima())return;
   try{
     const a=Semana.loadPlanHistory();
     a.unshift({
@@ -454,8 +547,17 @@ extractIngredients(item){
   return out
 }
 };
-const PKEY="miPlatoFacil_plan",VKEY="miPlatoFacil_planVars";
+const PKEY="miPlatoFacil_plan",VKEY="miPlatoFacil_planVars",PROX_KEY="miPlatoFacil_planProxima_v1";
+// 0: esta semana; 1: la semana que viene (solo mientras se mira en la pestaña Semana).
+var semanaVista=0;
 function loadPlan(){
+  if(Semana.viendoProxima()){
+    Semana.alDiaProxima();
+    const p=Semana.loadProxima();
+    return Semana.migratePlan(p&&p.plan||{
+    })
+  }
+  Semana.adoptarProxima();
   try{
     const raw=localStorage.getItem(PKEY);
     const o=raw?JSON.parse(raw):{
@@ -680,8 +782,9 @@ function renderPlan(){
   const cont=document.getElementById("planList");
   if(!cont)return;
   Semana.refreshVarSelect();
-  const plan=loadPlan(),byId=new Map(MisPlatos.loadSaved().map(p=>[p.id,p])),dia=Semana.diaPlanElegido(),lunes=Semana.semanaActual(),hoy=todayPlanDay(),porciones=Semana.loadPlanPortions();
-  document.getElementById("planSemanaTitulo").textContent="Esta semana · "+Semana.rangoDeSemana(lunes);
+  const prox=Semana.viendoProxima(),plan=loadPlan(),byId=new Map(MisPlatos.loadSaved().map(p=>[p.id,p])),dia=Semana.diaPlanElegido(),lunes=prox?Semana.lunesSiguiente():Semana.semanaActual(),hoy=prox?null:todayPlanDay(),porciones=Semana.loadPlanPortions();
+  document.getElementById("planSemanaTitulo").textContent=(prox?"Semana que viene · ":"Esta semana · ")+Semana.rangoDeSemana(lunes);
+  Semana.pintarNavSemana(prox);
   let total=0;
   const chips=DAYS.map(([key,label],i)=>{
     const n=SLOTS.filter(([s])=>plan[key]&&plan[key][s]&&byId.has(plan[key][s])).length,f=new Date(lunes+"T12:00:00"),b=ce("button","semana-dia-chip"+(key===hoy?" es-hoy":"")),barra=ce("span","semana-dia-chip__barra");
@@ -724,7 +827,7 @@ function renderPlan(){
     return b
   }));
   const hint=document.getElementById("planHint");
-  if(hint){hint.textContent=total?total+" de 28 comidas en la semana.":"Todavía no elegiste nada para esta semana.";hint.hidden=total>=28}
+  if(hint){hint.textContent=total?total+" de 28 comidas en la semana.":prox?"Todavía no elegiste nada para la semana que viene.":"Todavía no elegiste nada para esta semana.";hint.hidden=total>=28}
   // Etapa 24: "Armame la semana" es la única acción principal; con la semana completa pasa a ser secundaria ("Rehacer semana").
   const armame=document.querySelector("#plan [data-armame]");
   if(armame){
@@ -746,7 +849,7 @@ function renderPlan(){
   }
   const nueva=document.getElementById("planSemanaNueva");
   if(nueva){
-    const pendiente=Semana.semanaNuevaPendiente(plan);
+    const pendiente=!prox&&Semana.semanaNuevaPendiente(plan);
     nueva.hidden=!pendiente;
     if(pendiente)document.getElementById("planSemanaNuevaTexto").textContent="Tu plan es de la semana del "+typedAppDateLabel(Semana.semanaDelPlan()).slice(0,5)+"."
   }
@@ -775,3 +878,8 @@ function renderPlan(){
 // Copiar un día a otros días (una sola escritura, con historial y Deshacer).
 const PLAN_PORTIONS_KEY="miPlatoFacil_planPortions_v1",PLAN_HISTORY_KEY="miPlatoFacil_planHistory_v1";
 // Desde la v15 devuelve alimentos que se compran (comprables, en 35-comida-real.js): nunca formas ni opciones dobles.
+// v17.6: "Semana que viene ›" y "‹ Esta semana".
+document.addEventListener("click",e=>{
+  const b=e.target.closest&&e.target.closest("[data-semana-vista]");
+  if(b)Semana.verSemana(Number(b.dataset.semanaVista))
+});

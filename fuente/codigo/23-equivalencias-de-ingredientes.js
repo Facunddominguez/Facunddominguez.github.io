@@ -141,7 +141,7 @@ document.getElementById("recipeCatalogTime").addEventListener("change",()=>{
   recipeCatalogPage=0;renderRecipeCatalog()
 });
 document.addEventListener("change",e=>{
-  const t=e.target;if(!t||!t.dataset||t.dataset.planPortions===undefined)return;const key=t.dataset.planPortions,raw=t.value.trim();try{
+  const t=e.target;if(!t||!t.dataset||t.dataset.planPortions===undefined)return;const key=t.dataset.planPortions,raw=t.value.trim();if(Semana.viendoProxima()){planStatus("Las porciones se cargan cuando empieza esa semana.");return}try{
     const p=Semana.loadPlanPortions();if(!raw)delete p[key];else{
       const n=Number(raw.replace(",","."));if(!Number.isFinite(n)||n<0.25||n>100)throw Error("Indicá porciones entre 0,25 y 100.");p[key]=Math.round(n*100)/100
     }if(!Semana.copiaAutomaticaDeSemana())throw Error(errorDelPlan);Semana.savePlanPortions(p);const [d,s]=key.split("|");Semana.logPlanChange(Semana.planDayName(d)+" · "+Semana.planSlotName(s)+": porciones "+(raw?String(p[key]).replace(".",","):"según la receta"));renderPlan();planStatus("Porciones guardadas. Compras las usa.")

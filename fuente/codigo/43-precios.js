@@ -580,6 +580,18 @@ function guardarMiPrecio(nombre,precio,cantidad,unidad){
   localStorage.setItem(REFERENCE_PRICES_KEY,JSON.stringify(todos));
   return antes
 }
+// Unidad con la que se suele comprar: por unidad lo que se vende así o pesa más de 300 g (ananá, melón, pomelo), si no por kg.
+function unidadSugeridaFicha(nombre){
+  try{
+    const p=precioAuto(nombre);
+    if(p&&p.it&&p.it.b==="unidad")return "unidad";
+    if(p&&p.it&&p.it.b==="l")return "kg";
+    const pu=typeof pesoUnidadCurado==="function"?pesoUnidadCurado(nombre):null;
+    if(pu&&pu>=300)return "unidad"
+  }catch(e){
+  }
+  return "kg"
+}
 function fichaPrecio(nombre){
   const cont=ce("div","ficha-precio");
   let deshacer=null,aviso=null;
@@ -598,13 +610,14 @@ function fichaPrecio(nombre){
       const auto=precioAuto(nombre);
       if(auto)cont.append(ce("p","screen__hint","Promedio de la zona: ≈ "+pesosCortos(auto.precio)+"/"+(auto.it.b==="l"?"l":auto.it.b==="unidad"?"unidad":"kg")))
     }
+    // v17.6: el formulario se ve siempre (antes había que tocar "Agregar mi precio" para abrirlo).
     const form=ce("div","ficha-precio__form"),monto=ce("input"),cant=ce("input"),uni=ce("select"),estado=ce("p","screen__hint");
-    form.hidden=true;
     estado.setAttribute("aria-live","polite");
     monto.type="text";monto.inputMode="decimal";monto.id="fichaPrecioMonto";
     cant.type="text";cant.inputMode="decimal";cant.id="fichaPrecioCantidad";cant.value="1";
     uni.id="fichaPrecioUnidad";
     for(const [v,t] of FICHA_UNIDADES)uni.append(new Option(t,v));
+    uni.value=unidadSugeridaFicha(nombre);
     const campo=(texto,el)=>{
       const f=ce("div","portion-field"),l=ce("label",null,texto);
       l.htmlFor=el.id;
@@ -619,8 +632,8 @@ function fichaPrecio(nombre){
       lCant.textContent=uni.value==="paquete"?"Gramos del paquete":"Cantidad";
       if(uni.value==="paquete"&&cant.value==="1")cant.value=""
     });
-    const guardar=ce("button","button button--primary","Guardar"),cancelar=ce("button","button button--soft","Cancelar");
-    guardar.type="button";cancelar.type="button";
+    const guardar=ce("button","button button--primary","Guardar mi precio");
+    guardar.type="button";
     const numero=t=>{
       const n=Number(String(t).trim().replace(/\./g,"").replace(",","."));
       return Number.isFinite(n)&&n>0?n:null
@@ -657,21 +670,9 @@ function fichaPrecio(nombre){
       }
       confirmar(precio,cantidad,unidad)
     });
-    cancelar.addEventListener("click",()=>{
-      form.hidden=true;
-      abrir.hidden=false
-    });
-    form.append(campo("Monto ($)",monto),fCant,campo("Unidad",uni),estado,ce("div","hoja__acciones"));
-    form.querySelector(".hoja__acciones").append(guardar,cancelar);
-    const abrir=ce("button","button button--soft",mio?"Cambiar mi precio":"Agregar mi precio");
-    abrir.type="button";
-    abrir.dataset.fichaPrecioAbrir="";
-    abrir.addEventListener("click",()=>{
-      form.hidden=false;
-      abrir.hidden=true;
-      monto.focus({preventScroll:true})
-    });
-    cont.append(abrir,form);
+    form.append(ce("p","ficha-precio__subtitulo",mio?"Cambiar tu precio":"¿Lo pagaste distinto? Cargá tu precio"),campo("Monto ($)",monto),fCant,campo("Unidad",uni),estado,ce("div","hoja__acciones"));
+    form.querySelector(".hoja__acciones").append(guardar);
+    cont.append(form);
     if(mio){
       const borrar=ce("button","button button--danger","Borrar mi precio");
       borrar.type="button";
