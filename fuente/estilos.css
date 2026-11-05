@@ -3570,3 +3570,8 @@ select{max-width:100%;min-width:0}
   #comprasHerramientas .shop-item,#pantryItemList .shop-item{flex-wrap:wrap}
   #comprasHerramientas .shop-item>span{flex:1 1 100%}
 }
+/* v17.6: navegación entre esta semana y la que viene */
+.semana-cabeza .semana-nav__boton{margin-left:auto;margin-right:-4px}
+/* v17.6: "Completar N precios" como enlace discreto, no como tarea pendiente */
+#planPreciosEstado .precios-aviso--inline{background:none;border:0;box-shadow:none;color:var(--green);text-decoration:underline;font-weight:600;padding:0 4px}
+.ficha-precio__subtitulo{margin:12px 0 4px;font-weight:600}

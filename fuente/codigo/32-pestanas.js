@@ -65,7 +65,11 @@ var resetTabs=null;
     if(!TABS[tab])return;
     remember();
     switching=true;
-    if(tab===activeTab)stack=[TABS[tab].root];
+    if(tab===activeTab){
+      stack=[TABS[tab].root];
+      // v17.6: tocar Semana estando en la semana que viene vuelve a esta semana (el inicio de la pestaña).
+      if(tab==="semana"&&typeof semanaVista!=="undefined"&&semanaVista===1){semanaVista=0;planDiaElegido=todayPlanDay()}
+    }
     else{
       activeTab=tab;
       const saved=memories[tab];

@@ -53,14 +53,14 @@
   ev('openTab("compras")'); await espera(250);
   const totalAntes = ev("Math.round(costoSemanaPlan().total)"), uiModo = ev("Interfaz.getUiMode()");
   await tocar([...doc().querySelectorAll("#comprasList .shop-item__nombre")].find(n => /^Arroz/.test(n.textContent)));
-  await tocar(doc().querySelector("[data-ficha-precio-abrir]"));
+  /* v17.6: el formulario de Mi precio ya se ve sin tocar "Agregar mi precio" */
   const set = (id, v) => { const e = doc().getElementById(id); e.value = v; e.dispatchEvent(new w.Event("input", { bubbles: true })); e.dispatchEvent(new w.Event("change", { bubbles: true })) };
   set("fichaPrecioMonto", "20000"); set("fichaPrecioCantidad", "1"); set("fichaPrecioUnidad", "kg");
-  await tocar([...doc().querySelectorAll(".hoja .ficha-precio__form button")].find(b => b.textContent === "Guardar"));
+  await tocar([...doc().querySelectorAll(".hoja .ficha-precio__form button")].find(b => /^Guardar( mi precio)?$/.test(b.textContent)));
   // $20.000 por kg de arroz es más de 3 veces lo típico de cereales: avisa y no guarda hasta "Guardar igual".
   const avisoFuera = !!doc().querySelector("[data-ficha-precio-igual]") && /veces más caro/.test(doc().querySelector(".hoja .ficha-precio__form").textContent) && localStorage.getItem(PRECIOS) === null;
   set("fichaPrecioMonto", "2500");
-  await tocar([...doc().querySelectorAll(".hoja .ficha-precio__form button")].find(b => b.textContent === "Guardar"));
+  await tocar([...doc().querySelectorAll(".hoja .ficha-precio__form button")].find(b => /^Guardar( mi precio)?$/.test(b.textContent)));
   const sinAviso = !doc().querySelector("[data-ficha-precio-igual]");
   const guardado = JSON.parse(localStorage.getItem(PRECIOS) || "{}"), entradas = Object.values(guardado);
   const totalDespues = ev("Math.round(costoSemanaPlan().total)");
@@ -76,9 +76,9 @@
   // E21-aviso: con un precio normal no aparece el aviso, con uno fuera de rango sí; "Guardar igual" guarda.
   const prueba = async (nombre, monto) => {
     ev(`Comidas.abrirNutrientesDeIngrediente(${JSON.stringify(nombre)})`); await espera(150);
-    await tocar(doc().querySelector("[data-ficha-precio-abrir]"));
+    /* v17.6: el formulario de Mi precio ya se ve sin tocar "Agregar mi precio" */
     set("fichaPrecioMonto", monto); set("fichaPrecioCantidad", "1"); set("fichaPrecioUnidad", "kg");
-    await tocar([...doc().querySelectorAll(".hoja .ficha-precio__form button")].find(b => b.textContent === "Guardar"));
+    await tocar([...doc().querySelectorAll(".hoja .ficha-precio__form button")].find(b => /^Guardar( mi precio)?$/.test(b.textContent)));
     const aviso = !!doc().querySelector("[data-ficha-precio-igual]"), msg = aviso ? doc().querySelector(".hoja .ficha-precio__form").textContent : "";
     return { aviso, msg, guardado: Object.keys(JSON.parse(localStorage.getItem(PRECIOS) || "{}")).length };
   };
@@ -96,9 +96,9 @@
   cargar({ ...MARCA, [PRECIOS]: JSON.stringify(previo) }); await abrir();
   const guardarArroz = async (monto) => {
     ev('Comidas.abrirNutrientesDeIngrediente("Arroz")'); await espera(150);
-    await tocar(doc().querySelector("[data-ficha-precio-abrir]"));
+    /* v17.6: el formulario de Mi precio ya se ve sin tocar "Agregar mi precio" */
     set("fichaPrecioMonto", monto); set("fichaPrecioCantidad", "1"); set("fichaPrecioUnidad", "kg");
-    await tocar([...doc().querySelectorAll(".hoja .ficha-precio__form button")].find(b => b.textContent === "Guardar"));
+    await tocar([...doc().querySelectorAll(".hoja .ficha-precio__form button")].find(b => /^Guardar( mi precio)?$/.test(b.textContent)));
   };
   await guardarArroz("2500");
   const trasGuardar = JSON.parse(localStorage.getItem(PRECIOS)), conserva = JSON.stringify(trasGuardar.p1) === JSON.stringify(previo.p1) && Object.keys(trasGuardar).length === 2;

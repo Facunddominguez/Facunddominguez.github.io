@@ -58,7 +58,7 @@ pintarBienvenida(){
   }));
   const n=bienvenidaIdeas.length;
   document.querySelector("#bienvenida [data-bienvenida-armar]").disabled=n<3;
-  document.getElementById("bienvenidaIdeasEstado").textContent=n?"Elegiste "+n+" de 5.":"Se guardan en Comidas para armar tu semana."
+  document.getElementById("bienvenidaIdeasEstado").textContent=n?"Elegiste "+n+" de 5."+(n<3?" Elegí al menos 3.":""):"Con estas ideas te armo la semana enseguida."
 },
 abrirBienvenida(){
   bienvenidaPaso=1;
@@ -78,7 +78,16 @@ armarSemanaDesdeBienvenida(){
     const idea=IdeasHoja.ideaPorTexto(texto);
     if(idea)IdeasHoja.guardarIdea(idea)
   }
-  Bienvenida.terminarBienvenida("semana")
+  Bienvenida.terminarBienvenida("semana");
+  // El botón dice "Armar mi semana": la arma de verdad (con las ideas elegidas primero) y deja el aviso con Deshacer.
+  try{
+    if(typeof ArmameSemana!=="undefined"&&ArmameSemana.huecosVacios()>0){
+      const elegidas=new Set(bienvenidaIdeas.map(t=>normalizeSearchText(t)));
+      const ids=MisPlatos.loadSaved().filter(x=>!x.deLaSemana&&elegidas.has(normalizeSearchText(mealName(x)))).map(x=>x.id);
+      ArmameSemana.correr("vacios",ids)
+    }
+  }catch(e){
+  }
 },
 guardarHogarDeBienvenida(){
   const st=document.getElementById("bienvenidaHogarEstado"),personas=Number(document.getElementById("bienvenidaPersonas").value),
@@ -123,7 +132,7 @@ var bienvenidaDias=new Set();
 var bienvenidaIdeas=[];
 // Usuario nuevo: sin comidas ni recetas guardadas, con el plan vacío y sin la marca.
 // Las ideas para arrancar: almuerzos y cenas del catálogo, las 8 primeras que respetan lo que evitás.
-// "Armar mi semana": guarda las ideas elegidas como comidas (sin duplicar) y abre la Semana para asignarlas.
+// "Armar mi semana": guarda las ideas elegidas como comidas (sin duplicar), abre la Semana y la arma con Armame la semana.
 // Paso opcional (Etapa 14): personas, presupuesto semanal y región de precios. Solo se guarda lo que se cargó; no cargar nada deja todo como estaba.
 document.getElementById("bienvenida").addEventListener("click",e=>{
   const b=e.target.closest("button");

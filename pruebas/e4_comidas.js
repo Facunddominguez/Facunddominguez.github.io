@@ -48,16 +48,11 @@
   await tocar(q('#bienvenida [data-bienvenida-paso="3"] [data-bienvenida-siguiente]')); // Etapa 14: personas y presupuesto, opcional ("Ahora no")
   for (let i = 1; i <= 3; i++) await tocar(q("#bienvenidaIdeas [data-bienvenida-idea]:nth-child(" + i + ")"));
   await tocar(q("#bienvenida [data-bienvenida-armar]"));
-  const ids = guardados().map(x => x.id), enSemana = pantalla() === "plan";
-  const huecos = [[hoy(), "almuerzo"], [hoy(), "cena"], [siguiente(), "almuerzo"]];
-  for (let i = 0; i < 3; i++) {
-    const [dia, comida] = huecos[i];
-    if (i === 2) await tocar(q('#planDias [data-plan-dia="' + dia + '"]'));
-    await tocar(q('[data-hueco="' + dia + "|" + comida + '"]'));
-    await tocar(q('.hoja [data-selector-seccion="mias"] [data-selector-id="' + ids[i] + '"]'));
-  }
-  const p1 = plan(), asignadas = huecos.map(([d, c]) => p1[d] && p1[d][c]);
-  ok("C4-1 un usuario nuevo arma una semana con 3 comidas en 15 toques o menos", arrancaEnBienvenida && enSemana && toques <= 15 && ids.length === 3 && asignadas.join() === ids.join() && localStorage.getItem(MARCA) === '{"vista":true}' && localStorage.getItem("miPlatoFacil_trainingWeek") === null && pantalla() === "plan" && !hojaAbierta(), toques + " toques · " + asignadas.join());
+  const ids = guardados().filter(x => !x.deLaSemana).map(x => x.id), enSemana = pantalla() === "plan";
+  // v17.6: "Armar mi semana" arma la semana de verdad: los 28 huecos, con las 3 ideas elegidas adentro.
+  const p1 = plan(), usados = Object.values(p1).flatMap(d => Object.values(d || {})), llenos = usados.length;
+  const asignadas = ids.filter(id => usados.includes(id));
+  ok("C4-1 un usuario nuevo termina la bienvenida con la semana armada (28 comidas, sus 3 ideas incluidas) en 15 toques o menos", arrancaEnBienvenida && enSemana && toques <= 15 && ids.length === 3 && llenos === 28 && asignadas.length === 3 && localStorage.getItem(MARCA) === '{"vista":true}' && localStorage.getItem("miPlatoFacil_trainingWeek") === null && pantalla() === "plan" && !hojaAbierta(), toques + " toques · " + llenos + " llenos · " + asignadas.length + " ideas");
 
   // C4-2 Pestañas en orden; Comidas con el segmento "Mis comidas | Ideas" (sin "← Comidas"); cada pestaña recuerda su recorrido
   cargar(R.data); await abrir();

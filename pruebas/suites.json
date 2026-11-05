@@ -54,6 +54,7 @@
     "e21_ficha_precio.js",
     "e22_armado_con_sentido.js",
     "e23_catalogo_lista.js",
-    "e24_semana_clara.js"
+    "e24_semana_clara.js",
+    "e25_arreglos.js"
   ]
 }

@@ -85,8 +85,8 @@
   ev('openTab("semana")'); await espera(200);
   const boton = q("#plan [data-armame]"), visibleBoton = boton.getClientRects().length > 0 && /Armame la semana/.test(boton.textContent);
   await tocar(boton);
-  const opcionesVacia = [...doc().querySelectorAll(".hoja [data-armame-modo]")].map(b => b.dataset.armameModo + ":" + b.textContent);
-  await tocar(q('.hoja [data-armame-modo="vacios"]'));
+  // v17.6: con la semana vacía, Armame la semana arma directo (sin la hoja de opciones).
+  const opcionesVacia = [...doc().querySelectorAll(".hoja [data-armame-modo]")].filter(b => b.getClientRects().length > 0).map(b => b.dataset.armameModo + ":" + b.textContent);
   const lleno = llenos() === 28, avisoDeshacer = /Deshacer/.test(doc().getElementById("planAviso").textContent), estado = doc().getElementById("planAviso").textContent;
   await tocar(boton);
   const opcionesLlena = [...doc().querySelectorAll(".hoja [data-armame-modo]")].map(b => b.dataset.armameModo);
@@ -97,8 +97,8 @@
   const empezar = [...doc().querySelectorAll(".hoja button")].find(b => b.textContent === "Empezar de nuevo");
   if (empezar) await tocar(empezar);
   const vacio = llenos() === 0, deshacer = /Deshacer/.test(doc().getElementById("planAviso").textContent);
-  ok("C15-6 Semana tiene el botón Armame la semana (completar vacíos o rehacer todo), el menú ⋯ tiene Empezar de nuevo y todo tiene Deshacer",
-    visibleBoton && opcionesVacia.length === 1 && /^vacios:Completar los 28 huecos vacíos$/.test(opcionesVacia[0]) && lleno && avisoDeshacer && /Listo: 28 comidas/.test(estado) && opcionesLlena.join() === "todo" && !!empezar && vacio && deshacer && !menu.includes("Vaciar la semana"),
+  ok("C15-6 Semana tiene el botón Armame la semana (con la semana vacía arma directo; llena, rehacer todo), el menú ⋯ tiene Empezar de nuevo y todo tiene Deshacer",
+    visibleBoton && opcionesVacia.length === 0 && lleno && avisoDeshacer && /Listo: 28 comidas/.test(estado) && opcionesLlena.join() === "todo" && !!empezar && vacio && deshacer && !menu.includes("Vaciar la semana"),
     JSON.stringify({ visibleBoton, opcionesVacia, lleno, avisoDeshacer, estado, opcionesLlena, menu, vacio, deshacer }));
 
   if (marco) marco.remove();

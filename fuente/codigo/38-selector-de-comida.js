@@ -168,7 +168,7 @@ function abrirHueco(dia,slot){
     caja.append(campo,h.porciones)
   }
   const acciones=ce("div","hueco-hoja__acciones");
-  if(dia===todayPlanDay()){
+  if(dia===todayPlanDay()&&!Semana.viendoProxima()){
     h.loComi=botonHoja("Lo comí hoy","button--primary",{
       planEaten:pk
     });
