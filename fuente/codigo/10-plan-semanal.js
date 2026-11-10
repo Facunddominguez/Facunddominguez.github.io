@@ -812,7 +812,7 @@ function renderPlan(){
     texto.append(ce("span","hueco__comida",SLOTS.find(s=>s[0]===slot)[1]));
     if(it){
       // Etapa 27: el ícono va solo en la etiqueta del hueco (🍳 Desayuno, ☕ Merienda…); el nombre de la comida va sin emoji.
-      texto.append(ce("span","hueco__plato",mealName(it)+(it.fav?" ⭐":"")+(it.recipeSourceId?" 📖":"")));
+      texto.append(ce("span","hueco__plato",IdeasHoja.nombreCorto(it)+(it.fav?" ⭐":"")+(it.recipeSourceId?" 📖":"")));
       const pk=dia+"|"+slot,detalle=savedItemLines(it).join(" · ")+(porciones[pk]!==undefined?" · "+String(porciones[pk]).replace(".",",")+" porciones":"");
       if(detalle)texto.append(ce("span","hueco__detalle",detalle));
       // ≈ costo de esta comida para el hogar (con los precios encendidos y cantidades conocidas).

@@ -75,7 +75,8 @@ function dietaPermite(texto){
 // Texto de una idea del catálogo para filtrar: nombre, etiquetas e ingredientes vinculados. No usa SUGERENCIA_GRUPOS (36) porque
 // las Ideas se pintan durante el arranque, antes de que corran esos archivos.
 function textoDeIdea(idea){
-  return idea.text+" "+(idea.tags||[]).join(" ")+" "+Object.values(idea.ingredientes||{}).flat().join(" ")
+  // Etapa 28: también los nombres de las cantidades (lo que de verdad lleva la idea).
+  return idea.text+" "+(idea.tags||[]).join(" ")+" "+Object.values(idea.ingredientes||{}).flat().join(" ")+" "+(Array.isArray(idea.cantidades)?idea.cantidades.map(c=>c[0]).join(" "):"")
 }
 function dietaPermiteIdea(idea){
   return dietaPermite(textoDeIdea(idea))

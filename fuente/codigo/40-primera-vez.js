@@ -49,7 +49,7 @@ pintarBienvenida(){
   });
   const box=document.getElementById("bienvenidaIdeas");
   box.replaceChildren(...Bienvenida.ideasParaArrancar().map(idea=>{
-    const b=ce("button","filter-chip",idea.text),on=bienvenidaIdeas.includes(idea.text);
+    const b=ce("button","filter-chip",idea.corto||idea.text),on=bienvenidaIdeas.includes(idea.text);
     b.type="button";
     b.dataset.bienvenidaIdea=idea.text;
     b.classList.toggle("is-selected",on);

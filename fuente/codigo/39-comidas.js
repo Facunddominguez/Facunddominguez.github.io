@@ -266,9 +266,23 @@ function pintarDetallePlato(it,conservarAviso){
   pintarCabeceraComida((it.fav?"⭐ ":"")+c.nombre,c.etiquetas.concat(it.recipeSourceId?["Copia de una receta"]:[]),conservarAviso);
   const box=document.getElementById("comidaPlato"),ul=document.getElementById("comidaComponentes"),acts=document.getElementById("comidaPlatoAcciones");
   box.hidden=false;
-  ul.replaceChildren(...(c.componentes.length?c.componentes.map(n=>{
+  // Etapa 28: si la comida es una idea del catálogo, "Qué lleva" trae la cantidad para el hogar y debajo "Cómo se hace" con los pasos.
+  let idea=null;
+  try{idea=IdeasHoja.ideaDeComida(it)}catch(e){}
+  const personas=typeof personasHogar==="function"?personasHogar():1,pasos=document.getElementById("comidaPasos");
+  if(idea&&Array.isArray(idea.cantidades)&&idea.cantidades.length){
+    ul.replaceChildren(...idea.cantidades.map(([n,q,u])=>{
+      const li=ce("li"),b=ce("button","comida-ingrediente",n+" · "+IdeasHoja.textoCantidad(q*personas,u));b.type="button";b.dataset.nutrienteIngrediente=n;li.append(b);return li
+    }))
+  }else ul.replaceChildren(...(c.componentes.length?c.componentes.map(n=>{
     const li=ce("li"),b=ce("button","comida-ingrediente",n);b.type="button";b.dataset.nutrienteIngrediente=n;li.append(b);return li
   }):[ce("li",null,"Sin ingredientes cargados")]));
+  if(pasos){
+    const hay=!!(idea&&Array.isArray(idea.pasos)&&idea.pasos.length);
+    pasos.hidden=!hay;
+    document.getElementById("comidaPasosLista").replaceChildren(...(hay?idea.pasos.map(p=>ce("li",null,p)):[]));
+    document.getElementById("comidaPasosTitulo").textContent="Cómo se hace"+(hay&&idea.minutos?" · "+idea.minutos+" min":"")
+  }
   const boton=(texto,clave,valor,clase)=>{
     const b=ce("button","button "+(clase||"button--soft"),texto);b.type="button";b.dataset[clave]=valor;return b
   };

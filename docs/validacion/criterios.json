@@ -168,6 +168,16 @@
     {"id": "R4-27-chips", "etapa": 27, "hecho": "A 390 px los 7 chips de los días miden 44 px o más de ancho.", "tipo": "prueba", "prueba": "R4-27-chips"},
     {"id": "R4-27-objetivos", "etapa": 27, "hecho": "Con el objetivo \"pescado: 2\" y $200.000, en 10 semanas con semillas distintas siempre hay 2 o más comidas con pescado. Con $20.000, \"Ver detalle\" nombra el objetivo que no se cumplió.", "tipo": "prueba", "prueba": "R4-27-objetivos"},
     {"id": "R4-27-registro", "etapa": 27, "hecho": "Qué cambió en Semana y las decisiones de la Etapa 27 quedan en el Registro.", "tipo": "registro", "seccion": "Etapa 27", "debeNombrar": ["R4-27-aviso", "R4-27-arriba", "R4-27-objetivos"]},
-    {"id": "R4-27-revisor", "etapa": 27, "hecho": "revisor-usuario no marca bloqueantes en Semana a 390 y 320 px.", "tipo": "revisor", "revisor": "revisor-usuario"}
+    {"id": "R4-27-revisor", "etapa": 27, "hecho": "revisor-usuario no marca bloqueantes en Semana a 390 y 320 px.", "tipo": "revisor", "revisor": "revisor-usuario"},
+    {"id": "R4-28-41", "etapa": 28, "hecho": "Las 41 ideas actuales tienen corto, cantidades, pasos y minutos válidos, y cada text coincide con el del catálogo.", "tipo": "prueba", "prueba": "R4-28-41"},
+    {"id": "R4-28-nombres", "etapa": 28, "hecho": "Cada nombre de cantidades resuelve a un ítem de precios o de nutrición, y ninguno es un básico de alacena.", "tipo": "prueba", "prueba": "R4-28-nombres"},
+    {"id": "R4-28-energia", "etapa": 28, "hecho": "Cada idea de almuerzo o cena aporta entre 450 y 850 kcal y 18 g de proteína o más por persona.", "tipo": "prueba", "prueba": "R4-28-energia"},
+    {"id": "R4-28-titulo", "etapa": 28, "hecho": "La prueba de título contra ingredientes de la Etapa 23 pasa mirando también cantidades.", "tipo": "prueba", "prueba": "R4-28-titulo"},
+    {"id": "R4-28-lista", "etapa": 28, "hecho": "Con una semana de 14 ideas para 2 personas, la lista suma exactamente el doble de las cantidades de cada idea, antes de pasar a envases.", "tipo": "prueba", "prueba": "R4-28-lista"},
+    {"id": "R4-28-editada", "etapa": 28, "hecho": "Una idea guardada a la que se le cambia un ingrediente vuelve al cálculo general y no usa las cantidades de la idea.", "tipo": "prueba", "prueba": "R4-28-editada"},
+    {"id": "R4-28-detalle", "etapa": 28, "hecho": "El detalle de una idea muestra cada ingrediente con cantidad y de 3 a 5 pasos; con 2 personas, las cantidades son el doble.", "tipo": "prueba", "prueba": "R4-28-detalle"},
+    {"id": "R4-28-corto", "etapa": 28, "hecho": "En Semana, ninguna comida que viene de una idea muestra más de 40 caracteres.", "tipo": "prueba", "prueba": "R4-28-corto"},
+    {"id": "R4-28-registro", "etapa": 28, "hecho": "Qué cambió, las decisiones y los valores recalculados de las pruebas de presupuesto quedan en el Registro.", "tipo": "registro", "seccion": "Etapa 28", "debeNombrar": ["R4-28-41", "R4-28-energia", "R4-28-lista", "R4-28-detalle"]},
+    {"id": "R4-28-revisor", "etapa": 28, "hecho": "revisor-usuario no marca bloqueantes en el detalle de una idea y en Semana a 390 y 320 px.", "tipo": "revisor", "revisor": "revisor-usuario"}
   ]
 }
