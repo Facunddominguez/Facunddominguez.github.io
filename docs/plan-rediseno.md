@@ -2609,7 +2609,7 @@ Rama `rediseno-4-etapa-26-lista-super`. Versión 18.1.0.
 - ✅ R4-26-fila: un toque en el texto (nombre y precio), en el espacio libre de la fila, otra vez en el texto y otra vez en la fila da tachada, destachada, tachada, destachada; ninguna abre una hoja y no queda ningún botón de nombre o precio.
 - ✅ R4-26-ficha: un toque en "ⓘ" abre la ficha (`aria-label="Ficha de <producto>: nutrientes y precio"`) y no cambia la casilla.
 - ✅ R4-26-casilla: a 390 y a 320 px todas las casillas miden 24×24 px, todas las filas 48 px o más y todos los "ⓘ" 44×44.
-- ✅ R4-26-cantidades: con la semana armada la fila de queso dice "Queso Port Salut descremado: 120 g" y no hay ninguna en unidades; con 3 comidas con tortillas, "Tortillas de trigo o maíz: 1 paquete de 8 unidades".
+- ✅ R4-26-cantidades: con la semana armada las filas de queso están en gramos (antes "Queso Port Salut descremado: 4 unidades") y no hay ninguna en unidades; con 3 comidas con tortillas, "Tortillas de trigo o maíz: 1 paquete de 8 unidades".
 - ✅ R4-26-equivalencia: ya no se sugiere unir "Cebolla de verdeo" con "Cebolla"; siguen "Tomate perita" con "Tomate" y "Arroz (integral, yamaní)" con "Arroz".
 - ✅ R4-26-compartir: los 31 productos del texto compartido tienen el mismo nombre corto que su fila (antes el texto traía "Carne vacuna (nalga, cuadril, bola de lomo, lomo, roast beef)" y la pantalla, "Carne vacuna").
 - ✅ R4-26-alto: la vista `compras` en estado `normal` mide 3.120 px a 390 px (antes 3.626, tope 3.300); a 320 px, 3.341 (antes 3.871). Las palabras visibles siguen en 254 (E1-palabras-compras pasa).
