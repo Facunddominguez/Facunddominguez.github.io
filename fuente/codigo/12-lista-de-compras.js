@@ -192,47 +192,41 @@ nombreCorto(texto){
   const corto=nom.replace(/\s*\([^)]*\)/g,"").split(/\s+o\s+/i)[0].replace(/\s+(arrollad[oa]|fluid[oa]|comprad[oa]|instant[aá]ne[oa])$/i,"").trim()||nom;
   return corto+(i>0?t.slice(i):"")
 },
+// El nombre corto solo se usa si no se confunde con otra fila: la pantalla y el texto compartido (comprasText) usan lo mismo (Etapa 26).
+marcarNombresCortos(items){
+  const cuentaCorto=new Map();
+  for(const x of items){const k=ingredientKey(Compras.nombreCorto(x.name));cuentaCorto.set(k,(cuentaCorto.get(k)||0)+1)}
+  for(const x of items)x.cortar=cuentaCorto.get(ingredientKey(Compras.nombreCorto(x.name)))===1;
+  return items
+},
 shoppingRow(x,i,checked,detail){
   const row=ce("div","shop-item"+(checked?" is-done":"")),cb=ce("input"),lab=ce("label");
-  // Etapa 21: tocar el nombre abre la ficha del ingrediente (nutrientes y precio) sin tachar la fila.
-  {
-    const txt=Ingredientes.textoLegible(x.cortar?Compras.nombreCorto(x.text):x.text)+(x.precioTxt?" · ":""),i=txt.indexOf(":");
-    if(i>0){
-      const nom=ce("span","shop-item__nombre",txt.slice(0,i)),abrirFicha=ev=>{
-        ev.preventDefault();ev.stopPropagation();
-        Comidas.abrirNutrientesDeIngrediente(x.name)
-      };
-      nom.setAttribute("role","button");nom.tabIndex=0;nom.dataset.fichaIngrediente=x.name;
-      nom.setAttribute("aria-label","Ficha de "+x.name+": nutrientes y precio");
-      nom.addEventListener("click",abrirFicha);
-      nom.addEventListener("keydown",ev=>{if(ev.key==="Enter"||ev.key===" ")abrirFicha(ev)});
-      lab.append(nom,document.createTextNode(txt.slice(i)))
-    }else lab.append(document.createTextNode(txt))
-  }
-  // El precio se toca para ver su fuente, mes y rango (no tacha el ítem).
-  let detallePrecioEl=null;
-  if(x.precioTxt){
-    const p=ce("span","precio-tap",x.precioTxt);
-    p.setAttribute("role","button");p.tabIndex=0;p.setAttribute("aria-expanded","false");
-    p.setAttribute("aria-label","Precio "+x.precioTxt+" de "+x.name+": ver fuente y rango");
-    detallePrecioEl=ce("span","shop-item__detail precio-detalle",x.precioDetalle||"");
-    detallePrecioEl.hidden=true;
-    const alternar=ev=>{
-      ev.preventDefault();ev.stopPropagation();
-      detallePrecioEl.hidden=!detallePrecioEl.hidden;p.setAttribute("aria-expanded",String(!detallePrecioEl.hidden))
-    };
-    p.addEventListener("click",alternar);
-    p.addEventListener("keydown",ev=>{if(ev.key==="Enter"||ev.key===" ")alternar(ev)});
-    lab.append(p)
-  }
+  // Etapa 26: un toque en cualquier parte de la fila tacha o destacha (el nombre y el precio ya no son botones).
+  // La ficha (nutrientes, fuente, mes y rango del precio) se abre con el botón "ⓘ" de la derecha, que no tacha.
+  // El importe ("≈ $135") va en un bloque que no se parte; el resto del texto puede bajar de línea (a 320 px, "sin precio · estimado" es largo).
+  const imp=x.precioTxt?/^(.*?)(≈ \$[\d.]+)$/.exec(x.precioTxt):null;
+  lab.append(document.createTextNode(Ingredientes.textoLegible(x.cortar?Compras.nombreCorto(x.text):x.text)+(x.precioTxt?" · "+(imp?imp[1]:x.precioTxt):"")));
+  if(imp)lab.append(ce("span","shop-item__precio",imp[2]));
   cb.type="checkbox";
   cb.checked=checked;
   cb.dataset.shopKey=x.key;
   cb.id="shopItem_"+i;
   lab.htmlFor=cb.id;
-  row.append(cb,lab);
+  const info=ce("button","shop-item__ficha","ⓘ");
+  info.type="button";
+  info.dataset.fichaIngrediente=x.name;
+  info.setAttribute("aria-label","Ficha de "+x.name+": nutrientes y precio");
+  info.addEventListener("click",ev=>{
+    ev.preventDefault();ev.stopPropagation();
+    Comidas.abrirNutrientesDeIngrediente(x.name)
+  });
+  // El texto ya tacha por su label; el espacio libre de la fila (márgenes y huecos) lo hace este toque.
+  row.addEventListener("click",ev=>{
+    if(ev.target===cb||ev.target.closest("label,button,a"))return;
+    cb.click()
+  });
+  row.append(cb,lab,info);
   if(detail)row.append(ce("span","shop-item__detail",Ingredientes.textoLegible(detail)));
-  if(detallePrecioEl)row.append(detallePrecioEl);
   return row
 },
 shoppingGroup(title,list,open,onToggle){
@@ -276,7 +270,7 @@ toggleShop(key,checked){
   renderCompras()
 },
 comprasText(){
-  const todos=shoppingDisplayItems(),pend=todos.filter(x=>x.group==="pendiente"&&!comprasDone[x.key]),lines=[],extras=manualShoppingText();
+  const todos=Compras.marcarNombresCortos(shoppingDisplayItems()),pend=todos.filter(x=>x.group==="pendiente"&&!comprasDone[x.key]),lines=[],extras=manualShoppingText();
   // Etapa 23: para WhatsApp. Por secciones del súper (título en negrita), con cantidades legibles, ≈ precio por producto y el total.
   let precios=null;
   try{
@@ -287,7 +281,7 @@ comprasText(){
     const l=pend.filter(x=>x.seccion===sec);
     if(l.length)lines.push(...(lines.length?[""]:[]),"*"+sec+"*",...l.map(x=>{
       const p=precios&&precios.porClave.get(x.key),est=p&&/^sin precio · estimado/.test(p),real=p&&!est&&p!=="sin precio";
-      return "• "+Ingredientes.textoLegible(x.text)+(real?" · "+p:est?" · "+p.replace("sin precio · estimado","estimado"):"")
+      return "• "+Ingredientes.textoLegible(x.cortar?Compras.nombreCorto(x.text):x.text)+(real?" · "+p:est?" · "+p.replace("sin precio · estimado","estimado"):"")
     }))
   }
   if(!lines.length&&!extras)return "";
@@ -521,9 +515,7 @@ function renderCompras(){
     return
   }
   // El nombre corto solo se usa si no se confunde con otra fila ("Arroz" y "Arroz (integral, yamaní)" siguen separados).
-  const cuentaCorto=new Map();
-  for(const x of items){const k=ingredientKey(Compras.nombreCorto(x.name));cuentaCorto.set(k,(cuentaCorto.get(k)||0)+1)}
-  for(const x of items)x.cortar=cuentaCorto.get(ingredientKey(Compras.nombreCorto(x.name)))===1;
+  Compras.marcarNombresCortos(items);
   const pend=items.filter(x=>x.group==="pendiente"),tenes=items.filter(x=>x.group==="tenes"),comprados=items.filter(x=>x.group==="comprado"),pending=pend.filter(x=>!comprasDone[x.key]),tachados=pend.length-pending.length+tenes.filter(x=>comprasDone[x.key]).length;
   let precios=null;
   try{
