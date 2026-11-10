@@ -2562,7 +2562,7 @@ El plan completo está en `docs/prompt-ronda-4.md` (el análisis del que sale, e
 | 25 | Base en verde | 18.0.0 | ✅ |
 | 26 | Lista para el súper | 18.1.0 | ✅ |
 | 27 | Semana más corta y con tus objetivos | 18.2.0 | ✅ |
-| 28 | Ideas con cantidades y preparación | 18.3.0 | Pendiente |
+| 28 | Ideas con cantidades y preparación | 18.3.0 | ✅ |
 | 29 | Cien ideas y una semana que alcanza | 18.4.0 | Pendiente |
 | 30 | Precios al día y de tu barrio | 18.5.0 | Pendiente |
 | 31 | Hoy con costo y la semana para compartir | 18.6.0 | Pendiente |
@@ -2655,3 +2655,28 @@ Rama `rediseno-4-etapa-27-semana-corta`. Versión 18.2.0.
 **Compuerta (Etapa 27), primera corrida** (Decisión): falló en 5 controles por dos causas, ambas mías. (1) La vista nueva `semana-armada` de `capturas.mjs` rehace el plan y corría antes de Compras y Registro, así que sus medidas cambiaron (Compras 3.339 px, Registro 650 palabras); ahora va al final, antes de `comida`. (2) El enlace "Completar N precios" tenía 44 px de toque con un margen negativo que se superponía con el primer hueco; ahora `#planPreciosEstado` deja 16 px debajo y el margen negativo no llega al hueco. Para no perder los 500 px se apretó el interior de los chips (alto 52 px) y el interlineado del título y del aviso.
 
 Compuerta final (Etapa 27): VALIDACIÓN ETAPA 27: OK (165 controles, 630 pruebas; línea base 624 → 630; la primera y la segunda corrida habían fallado, ver arriba).
+
+### Etapa 28 ✅ Ideas con cantidades y preparación
+Rama `rediseno-4-etapa-28-ideas`. Versión 18.3.0.
+
+**Plan corto**
+- `datos/ideas.json` (nuevo, ≈ 21 KB; tope 150.000) con las 41 ideas: `corto`, `cantidades` por persona, `pasos` y `minutos`. `construir.mjs` lo incrusta con `__DATOS_IDEAS__`; `01-datos-y-estado.js` le suma esos campos a cada idea del catálogo (si falta el archivo o está roto, las ideas siguen como antes). `37-ideas-y-hoja.js`: `IdeasHoja.ideaDeComida()`, `indiceDeIdeas()`, `nombreCorto()` y `textoCantidad()`. `44-cantidades-de-platos.js`: `cantidadesDePlatoArmado()` usa las cantidades de la idea y `pesoAlmidon()` la porción de adulto de los almidones por peso. `12-lista-de-compras.js`: una idea no deja filas "sin cantidad". `45-armame-la-semana.js`: `filasDe()` usa `idea.cantidades`. `39-comidas.js` y `24-comida.html`: "Qué lleva" con la cantidad para el hogar y "Cómo se hace · N min". `46-dieta.js`: `textoDeIdea()` suma los nombres de `cantidades`. `datos/envases.json`: `porcionAlmidon` (papa, batata y mandioca 200 g, choclo 150, pan 70) y `gramosPorCuarto.proteinas` de 120 a 150. Pruebas nuevas: `r4e28_ideas.js` (8).
+- Riesgos para los datos: ninguno (`miPlatoFacil_saved` no recibe ningún campo; la idea de una comida guardada se busca al mostrarla, por su nota y sus ingredientes).
+
+**Hecho cuando**
+- ✅ R4-28-41: las 41 ideas tienen `corto` (hasta 40 caracteres, sin "+"), `cantidades`, 3 a 5 pasos de hasta 140 caracteres y `minutos` entre 15 y 60; cada `text` coincide con el del catálogo y en el mismo orden.
+- ✅ R4-28-nombres: los 53 nombres de `cantidades` resuelven a un ítem de precios o de nutrición y ninguno es un básico de alacena.
+- ✅ R4-28-energia: cada idea aporta entre 450 y 850 kcal y 18 g de proteína o más por persona (de 457 a 820 kcal y de 26 a 58 g de proteína). El aceite no se cuenta.
+- ✅ R4-28-titulo: todo lo que nombra el título (pollo, atún, merluza, garbanzos…) está en las `cantidades` de cada idea.
+- ✅ R4-28-lista: con 14 ideas y 2 personas, `Compras.shoppingPlanItems()` da exactamente el doble de las cantidades de cada idea (misma clave y unidad), sin diferencias.
+- ✅ R4-28-editada: una idea guardada usa las cantidades de la idea; renombrada (con otro título y otra nota), también, porque solo hay una idea con ese conjunto de ingredientes; con un ingrediente cambiado (Zapallo → Zapallito) vuelve al cálculo general.
+- ✅ R4-28-detalle: el detalle muestra "Pollo · 150 g" con 1 persona y "Pollo · 300 g" con 2, "Cómo se hace · 40 min" y 4 pasos.
+- ✅ R4-28-corto: en Semana (los 7 días armados) ninguna comida muestra más de 40 caracteres, y los chips de la bienvenida usan el nombre corto.
+
+**Decisiones**
+- (Decisión) Autoría de `datos/ideas.json`: las porciones salen de los rangos de adulto del plan y se verificaron con la tabla de nutrición (kcal y proteínas cada 100 g) en un cálculo aparte; las que quedaban por debajo de 450 kcal (merluza con verduras salteadas, pescado con ensalada de remolacha) se subieron con más papa y pescado. Las 41 usan solo nombres de la tabla de nutrición con precio o estimado por categoría: "Fideos integrales", "Tomate cherry", "Cebolla morada", "Aceitunas verdes" y "Nueces" no tienen precio ni se pueden estimar, así que se usaron "Fideos", "Tomate", "Cebolla", "Queso fresco" y "Queso rallado" (el título de la idea no cambia).
+- (Decisión) Una comida que es una idea no genera filas "sin cantidad" por los nombres de su `state` (por ejemplo "Tortillas de trigo o maíz" frente a "Tortillas de trigo" de la idea): sin esto la lista duplicaba productos y "Con precio: N de M" no coincidía con los productos de la semana.
+- (Decisión) `nombreCortoDeComida()` es una función global que cae al nombre de siempre antes de que cargue `IdeasHoja` (el arranque pinta Hoy y Semana primero); la primera versión rompía el arranque.
+- (Decisión) El selector de comida usa el nombre corto, pero el filtro de texto sigue buscando en el nombre completo.
+
+**Pruebas recalculadas** (presupuestos, con los precios congelados): con porciones de adulto la semana más barata del catálogo de 41 ideas cuesta ≈ $72.700 para 1 persona (≈ $57.000 con las porciones chicas, v18.2.0), así que `e15_armame.js` C15-1 pasa de presupuestos 60/70/90 mil a 80/90/110 mil, C15-5 de $60.000 a $90.000, y `e24_semana_clara.js` de $70.000 a $90.000. La exigencia es la misma (llena los 28 huecos, no se pasa si se puede, avisa si no, hay una opción más barata en algún hueco). `r4e26_lista.js` R4-26-cantidades acepta "paquetes" (con 3 ideas de tortillas más la semana armada, la lista pide 2 paquetes de 8). `e13_precios_a_la_vista.js` y `e21_ficha_precio.js` ya estaban adaptadas en la Etapa 26.
