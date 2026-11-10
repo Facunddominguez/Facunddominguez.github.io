@@ -108,6 +108,17 @@ var ArmameSemana=(function(){
       vistas.add(clave(nombre));
       out.push({k:clave(nombre),nombre,tipo:"mia",item:it,ings:ings.map(ingredientKey)})
     }
+    // Etapa 29: las ideas de desayuno y merienda (con sus cantidades) entran como candidatas. Las plantillas de abajo quedan solo de
+    // respaldo, cuando los filtros de dieta dejan menos de 6 ideas.
+    const deIdeas=[];
+    for(const idea of data.desayunoCatalog||[]){
+      const k=clave(idea.text);
+      if(vistas.has(k)||!textoPermitido(textoDeIdea(idea)))continue;
+      vistas.add(k);
+      deIdeas.push({k,nombre:idea.text,tipo:"idea",idea,estado:IdeasHoja.ideaComoComida(idea),ings:IdeasHoja.nombresDeIdea(idea).map(ingredientKey)})
+    }
+    out.push(...deIdeas);
+    if(deIdeas.length>=6)return out;
     // Plantillas lógicas (Etapa 22): yogur + fruta + avena o granola; tostadas + queso + fruta; licuado de leche + fruta;
     // huevo + pan + fruta. Nunca huevo ni queso con granola.
     const frutas=data.frutas.filter(f=>textoPermitido(f[0])),prot=data.bfprot.filter(p=>textoPermitido(p[0])),cer=data.bfcarb.filter(c=>textoPermitido(c[0]));
@@ -350,7 +361,7 @@ var ArmameSemana=(function(){
     if(res.modo==="todo")for(const [dia] of DAYS)for(const [slot] of SLOTS)plan[dia][slot]=null;
     const idDe=(c,dia)=>{
       if(c.item)return c.item.id;
-      const snap=c.estado?snapDeEstado(c.estado,null):IdeasHoja.ideaComoGuardada(c.idea,diaDeRutinaDe(dia)||"Día libre"),igual=porSig.get(snap.sig||snap.text);
+      const snap=c.estado?snapDeEstado(c.estado,c.idea?c.idea.text:null):IdeasHoja.ideaComoGuardada(c.idea,diaDeRutinaDe(dia)||"Día libre"),igual=porSig.get(snap.sig||snap.text);
       if(igual)return igual.id;
       snap.deLaSemana=true;
       porSig.set(snap.sig||snap.text,snap);nuevos.push(snap);
@@ -503,7 +514,7 @@ var ArmameSemana=(function(){
     let id;
     if(mejor.item)id=mejor.item.id;
     else{
-      const snap=mejor.estado?snapDeEstado(mejor.estado,null):IdeasHoja.ideaComoGuardada(mejor.idea,diaDeRutinaDe(dia)||"Día libre"),a=MisPlatos.loadSaved(),igual=a.find(x=>(x.sig||x.text)===snap.sig);
+      const snap=mejor.estado?snapDeEstado(mejor.estado,mejor.idea?mejor.idea.text:null):IdeasHoja.ideaComoGuardada(mejor.idea,diaDeRutinaDe(dia)||"Día libre"),a=MisPlatos.loadSaved(),igual=a.find(x=>(x.sig||x.text)===snap.sig);
       if(igual)id=igual.id;
       else{
         snap.deLaSemana=true;
@@ -557,5 +568,5 @@ var ArmameSemana=(function(){
     return MisPlatos.persistSaved(a)
   }
   try{marcarDeLaSemana()}catch(e){}
-  return {armar,aplicar,resumen,avisoDe,avisoDetalle,abrir,correr,cambiarHueco,presupuestoSemanal,huecosVacios,marcarDeLaSemana,guardarEnMisComidas}
+  return {armar,aplicar,resumen,avisoDe,avisoDetalle,filasDe,abrir,correr,cambiarHueco,presupuestoSemanal,huecosVacios,marcarDeLaSemana,guardarEnMisComidas}
 })();

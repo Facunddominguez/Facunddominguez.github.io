@@ -36,8 +36,34 @@ esUsuarioNuevo(){
   return !DAYS.some(([d])=>SLOTS.some(([s])=>plan[d]&&plan[d][s]))
 },
 ideasParaArrancar(){
+  // Etapa 29: las 8 ideas de almuerzo o cena más baratas por porción que pasan los filtros de dieta, con al menos 4 proteínas base
+  // distintas (carne, pollo, huevo, legumbres, pescado o queso). Sin precios, las primeras del catálogo que pasan los filtros.
   const evitar=typeof recipeAvoidTerms==="function"?recipeAvoidTerms():[];
-  return data.menuCatalog.filter(x=>!evitar.length||!evitar.some(t=>normalizeSearchText(x.text).includes(t))).slice(0,8)
+  const pasan=data.menuCatalog.filter(x=>(!evitar.length||!evitar.some(t=>normalizeSearchText(x.text).includes(t)))&&(typeof textoPermitido!=="function"||textoPermitido(textoDeIdea(x))));
+  let costos=null;
+  try{costos=new Map(pasan.map(x=>[x,Bienvenida.costoPorPorcionDeIdea(x)]))}catch(e){}
+  if(!costos||pasan.every(x=>costos.get(x)===null))return pasan.slice(0,8);
+  const base=x=>Bienvenida.proteinaBaseDeIdea(x),orden=pasan.filter(x=>costos.get(x)!==null).sort((a,b)=>costos.get(a)-costos.get(b));
+  const elegidas=[],bases=new Set();
+  // Primero la más barata de cada proteína base (hasta 4 distintas); después, las más baratas que falten.
+  for(const x of orden){
+    const b=base(x);
+    if(b&&!bases.has(b)&&bases.size<4){bases.add(b);elegidas.push(x)}
+  }
+  for(const x of orden)if(elegidas.length<8&&!elegidas.includes(x))elegidas.push(x);
+  return elegidas.sort((a,b)=>costos.get(a)-costos.get(b)).slice(0,8)
+},
+// ≈ costo de una porción de una idea (una persona), o null si no hay precios o cantidades.
+costoPorPorcionDeIdea(idea){
+  if(!Array.isArray(idea.cantidades)||typeof preciosActivos!=="function"||!preciosActivos()||!preciosDataset())return null;
+  const c=costoDeFilas(idea.cantidades.map(([name,quantity,unit])=>({name,quantity,unit})),1);
+  return c.costo>0?c.costo:null
+},
+// Proteína base de una idea: carne, pollo, pescado, legumbres, huevo o queso (la primera que aparece en sus cantidades).
+proteinaBaseDeIdea(idea){
+  const nombres=(idea.cantidades||[]).map(c=>normalizeSearchText(c[0]));
+  for(const [b,re] of [["carne",/^carne/],["pollo",/^pollo/],["pescado",/^(merluza|atun|salmon)/],["legumbres",/^(lenteja|garbanzo|poroto)/],["huevo",/^huevo/],["queso",/^queso/]])if(nombres.some(n=>re.test(n)))return b;
+  return null
 },
 pintarBienvenida(){
   document.querySelectorAll("#bienvenida [data-bienvenida-paso]").forEach(p=>{

@@ -271,6 +271,14 @@ function seccionesSelector(h,q){
     const b=ce("button","selector-item");b.type="button";b.dataset.selectorReceta=r.id;b.append(ce("span","selector-item__nombre","📖 "+r.title));return b
   });
   out.push(seccion("Mis comidas","mias",[...mias.map(fila),...recetas],n?"Ninguna de tus comidas coincide.":"Todavía no guardaste comidas de este tipo: armá una nueva."));
+  // Etapa 29: al elegir desayuno o merienda, también las ideas de desayuno (con sus cantidades y pasos).
+  if(pool==="desayuno"){
+    const yaEstan=new Set(items.map(it=>normalizeSearchText(mealName(it))));
+    let ideasD=(data.desayunoCatalog||[]).filter(i=>textoPermitido(textoDeIdea(i))&&coincide(i.text+" "+(i.tags||[]).join(" "))&&!yaEstan.has(normalizeSearchText(i.text)));
+    out.push(seccion("Ideas","ideas",ideasD.slice(0,n?20:6).map(i=>{
+      const b=ce("button","selector-item");b.type="button";b.dataset.selectorIdea=i.text;b.append(ce("span","selector-item__nombre","💡 "+i.text));return b
+    }),n?"Ninguna idea coincide.":"No hay ideas de desayuno que no tengan lo que evitás."))
+  }
   if(h.slot==="almuerzo"||h.slot==="cena"){
     let ideas=[];
     try{

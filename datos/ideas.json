@@ -1705,6 +1705,2905 @@
     "Mezclá todo con un chorrito de aceite.",
     "Terminá con el queso rallado."
    ]
+  },
+  {
+   "text": "Guiso de fideos con carne y verduras",
+   "corto": "Guiso de fideos con carne y verduras",
+   "tipo": "plato",
+   "minutos": 40,
+   "tags": [
+    "guiso",
+    "fideos",
+    "carne",
+    "verduras",
+    "económico"
+   ],
+   "ingredientes": {
+    "verduras": [
+     "Zanahoria",
+     "Cebolla",
+     "Morrón rojo"
+    ],
+    "almidones": [
+     "Fideos y pastas (de trigo, maíz o arroz)"
+    ],
+    "proteinas": [
+     "Carne vacuna (nalga, cuadril, bola de lomo, lomo, roast beef)"
+    ]
+   },
+   "cantidades": [
+    [
+     "Fideos",
+     85,
+     "g"
+    ],
+    [
+     "Carne picada",
+     130,
+     "g"
+    ],
+    [
+     "Zanahoria",
+     100,
+     "g"
+    ],
+    [
+     "Cebolla",
+     60,
+     "g"
+    ],
+    [
+     "Morrón rojo",
+     80,
+     "g"
+    ],
+    [
+     "Tomate",
+     150,
+     "g"
+    ]
+   ],
+   "pasos": [
+    "Rehogá la cebolla, el morrón y la zanahoria en cubos.",
+    "Sumá la carne picada y desgranala hasta que cambie de color.",
+    "Agregá el tomate picado, agua y pimentón; cociná 10 minutos.",
+    "Incorporá los fideos y cociná hasta que estén tiernos y el guiso espese."
+   ]
+  },
+  {
+   "text": "Arroz con huevo y ensalada",
+   "corto": "Arroz con huevo y ensalada",
+   "tipo": "plato",
+   "minutos": 25,
+   "tags": [
+    "arroz",
+    "huevo",
+    "ensalada",
+    "rápido",
+    "económico"
+   ],
+   "ingredientes": {
+    "verduras": [
+     "Lechuga",
+     "Tomate",
+     "Zanahoria"
+    ],
+    "almidones": [
+     "Arroz (integral, yamaní)"
+    ],
+    "proteinas": [
+     "Huevo entero de gallina"
+    ]
+   },
+   "cantidades": [
+    [
+     "Arroz",
+     85,
+     "g"
+    ],
+    [
+     "Huevo",
+     2,
+     "unidad"
+    ],
+    [
+     "Lechuga",
+     80,
+     "g"
+    ],
+    [
+     "Tomate",
+     150,
+     "g"
+    ],
+    [
+     "Zanahoria",
+     80,
+     "g"
+    ],
+    [
+     "Queso rallado",
+     15,
+     "g"
+    ]
+   ],
+   "pasos": [
+    "Herví el arroz 12 minutos y escurrilo.",
+    "Hacé los huevos a la plancha con un chorrito de aceite.",
+    "Armá la ensalada con lechuga, tomate y zanahoria rallada.",
+    "Serví el arroz con el huevo encima, el queso rallado y la ensalada al lado."
+   ]
+  },
+  {
+   "text": "Polenta con salsa y queso",
+   "corto": "Polenta con salsa y queso",
+   "tipo": "plato",
+   "minutos": 30,
+   "tags": [
+    "polenta",
+    "salsa",
+    "queso",
+    "económico"
+   ],
+   "ingredientes": {
+    "verduras": [
+     "Tomate",
+     "Cebolla",
+     "Morrón rojo"
+    ],
+    "almidones": [
+     "Polenta"
+    ],
+    "proteinas": [
+     "Queso cremoso"
+    ]
+   },
+   "cantidades": [
+    [
+     "Polenta",
+     90,
+     "g"
+    ],
+    [
+     "Queso cremoso",
+     70,
+     "g"
+    ],
+    [
+     "Tomate",
+     250,
+     "g"
+    ],
+    [
+     "Cebolla",
+     60,
+     "g"
+    ],
+    [
+     "Morrón rojo",
+     80,
+     "g"
+    ],
+    [
+     "Huevo",
+     1,
+     "unidad"
+    ]
+   ],
+   "pasos": [
+    "Cociná la cebolla y el morrón en tiras; sumá el tomate picado 15 minutos.",
+    "Preparé la polenta con agua y sal, revolviendo 5 minutos.",
+    "Serví la polenta con la salsa y el queso en cubos.",
+    "Sumá un huevo a la plancha encima."
+   ]
+  },
+  {
+   "text": "Tortilla de papas con ensalada",
+   "corto": "Tortilla de papas con ensalada",
+   "tipo": "plato",
+   "minutos": 35,
+   "tags": [
+    "tortilla",
+    "papa",
+    "huevo",
+    "ensalada",
+    "económico"
+   ],
+   "ingredientes": {
+    "verduras": [
+     "Lechuga",
+     "Tomate",
+     "Cebolla"
+    ],
+    "almidones": [
+     "Papa"
+    ],
+    "proteinas": [
+     "Huevo entero de gallina"
+    ]
+   },
+   "cantidades": [
+    [
+     "Papa",
+     250,
+     "g"
+    ],
+    [
+     "Huevo",
+     3,
+     "unidad"
+    ],
+    [
+     "Cebolla",
+     60,
+     "g"
+    ],
+    [
+     "Lechuga",
+     80,
+     "g"
+    ],
+    [
+     "Tomate",
+     150,
+     "g"
+    ]
+   ],
+   "pasos": [
+    "Cortá las papas en rodajas finas y cocinalas 12 minutos en sartén con un poco de aceite.",
+    "Mezclalas con la cebolla rehogada y los huevos batidos con sal.",
+    "Cuajá la tortilla 5 minutos de cada lado.",
+    "Serví con ensalada de lechuga y tomate."
+   ]
+  },
+  {
+   "text": "Tarta de zapallitos",
+   "corto": "Tarta de zapallitos",
+   "tipo": "plato",
+   "minutos": 50,
+   "tags": [
+    "tarta",
+    "zapallito",
+    "huevo",
+    "verduras",
+    "económico"
+   ],
+   "ingredientes": {
+    "verduras": [
+     "Zapallito",
+     "Cebolla",
+     "Tomate"
+    ],
+    "almidones": [
+     "Harina de trigo"
+    ],
+    "proteinas": [
+     "Huevo entero de gallina",
+     "Queso cremoso"
+    ]
+   },
+   "cantidades": [
+    [
+     "Harina de trigo",
+     90,
+     "g"
+    ],
+    [
+     "Zapallito",
+     250,
+     "g"
+    ],
+    [
+     "Huevo",
+     2,
+     "unidad"
+    ],
+    [
+     "Queso cremoso",
+     50,
+     "g"
+    ],
+    [
+     "Cebolla",
+     60,
+     "g"
+    ],
+    [
+     "Tomate",
+     120,
+     "g"
+    ]
+   ],
+   "pasos": [
+    "Amasá la harina con agua, aceite y sal; forrá una tartera.",
+    "Rehogá la cebolla con el zapallito en rodajas.",
+    "Mezclá con los huevos y el queso; volcá sobre la masa.",
+    "Horneá 30 minutos y serví con tomate."
+   ]
+  },
+  {
+   "text": "Milanesa de carne con puré",
+   "corto": "Milanesa de carne con puré",
+   "tipo": "plato",
+   "minutos": 40,
+   "tags": [
+    "milanesa",
+    "carne",
+    "papa",
+    "puré",
+    "clásico"
+   ],
+   "ingredientes": {
+    "verduras": [
+     "Zanahoria",
+     "Lechuga"
+    ],
+    "almidones": [
+     "Papa",
+     "Pan rallado"
+    ],
+    "proteinas": [
+     "Carne vacuna (nalga, cuadril, bola de lomo, lomo, roast beef)"
+    ]
+   },
+   "cantidades": [
+    [
+     "Carne vacuna",
+     150,
+     "g"
+    ],
+    [
+     "Pan rallado",
+     30,
+     "g"
+    ],
+    [
+     "Huevo",
+     0.5,
+     "unidad"
+    ],
+    [
+     "Papa",
+     250,
+     "g"
+    ],
+    [
+     "Zanahoria",
+     100,
+     "g"
+    ],
+    [
+     "Lechuga",
+     50,
+     "g"
+    ]
+   ],
+   "pasos": [
+    "Pasá la carne por huevo batido y pan rallado.",
+    "Horneá 25 minutos dando vuelta a la mitad.",
+    "Herví las papas 20 minutos y hacelas puré con sal.",
+    "Serví con zanahoria rallada y lechuga."
+   ]
+  },
+  {
+   "text": "Milanesa de carne con ensalada",
+   "corto": "Milanesa de carne con ensalada",
+   "tipo": "plato",
+   "minutos": 35,
+   "tags": [
+    "milanesa",
+    "carne",
+    "ensalada"
+   ],
+   "ingredientes": {
+    "verduras": [
+     "Lechuga",
+     "Tomate",
+     "Zanahoria"
+    ],
+    "almidones": [
+     "Pan rallado",
+     "Papa"
+    ],
+    "proteinas": [
+     "Carne vacuna (nalga, cuadril, bola de lomo, lomo, roast beef)"
+    ]
+   },
+   "cantidades": [
+    [
+     "Carne vacuna",
+     150,
+     "g"
+    ],
+    [
+     "Pan rallado",
+     30,
+     "g"
+    ],
+    [
+     "Huevo",
+     0.5,
+     "unidad"
+    ],
+    [
+     "Papa",
+     220,
+     "g"
+    ],
+    [
+     "Lechuga",
+     80,
+     "g"
+    ],
+    [
+     "Tomate",
+     120,
+     "g"
+    ]
+   ],
+   "pasos": [
+    "Pasá la carne por huevo batido y pan rallado.",
+    "Horneá 25 minutos dando vuelta a la mitad.",
+    "Herví las papas en cubos 15 minutos.",
+    "Serví con ensalada de lechuga y tomate."
+   ]
+  },
+  {
+   "text": "Carne al horno con papas y zapallo",
+   "corto": "Carne al horno con papas y zapallo",
+   "tipo": "plato",
+   "minutos": 70,
+   "tags": [
+    "carne",
+    "horno",
+    "papa",
+    "zapallo",
+    "clásico"
+   ],
+   "ingredientes": {
+    "verduras": [
+     "Zapallo",
+     "Cebolla"
+    ],
+    "almidones": [
+     "Papa"
+    ],
+    "proteinas": [
+     "Carne vacuna (nalga, cuadril, bola de lomo, lomo, roast beef)"
+    ]
+   },
+   "cantidades": [
+    [
+     "Carne vacuna",
+     170,
+     "g"
+    ],
+    [
+     "Papa",
+     200,
+     "g"
+    ],
+    [
+     "Zapallo",
+     200,
+     "g"
+    ],
+    [
+     "Cebolla",
+     80,
+     "g"
+    ]
+   ],
+   "pasos": [
+    "Cortá las papas, el zapallo y la cebolla en trozos grandes.",
+    "Ubicá la carne en una asadera con las verduras, aceite, sal y romero.",
+    "Horneá 50 minutos a horno medio, regando con sus jugos.",
+    "Dejá reposar la carne 5 minutos antes de cortarla."
+   ]
+  },
+  {
+   "text": "Albóndigas con arroz",
+   "corto": "Albóndigas con arroz",
+   "tipo": "plato",
+   "minutos": 45,
+   "tags": [
+    "albóndigas",
+    "carne",
+    "arroz",
+    "salsa"
+   ],
+   "ingredientes": {
+    "verduras": [
+     "Tomate",
+     "Cebolla",
+     "Zanahoria"
+    ],
+    "almidones": [
+     "Arroz (integral, yamaní)",
+     "Pan rallado"
+    ],
+    "proteinas": [
+     "Carne vacuna (nalga, cuadril, bola de lomo, lomo, roast beef)",
+     "Huevo entero de gallina"
+    ]
+   },
+   "cantidades": [
+    [
+     "Carne picada",
+     130,
+     "g"
+    ],
+    [
+     "Arroz",
+     70,
+     "g"
+    ],
+    [
+     "Pan rallado",
+     15,
+     "g"
+    ],
+    [
+     "Huevo",
+     0.5,
+     "unidad"
+    ],
+    [
+     "Tomate",
+     200,
+     "g"
+    ],
+    [
+     "Cebolla",
+     60,
+     "g"
+    ],
+    [
+     "Zanahoria",
+     80,
+     "g"
+    ]
+   ],
+   "pasos": [
+    "Mezclá la carne con el pan rallado, el huevo, sal y perejil; formá bolitas.",
+    "Sellalas en sartén y retiralas.",
+    "Cociná la cebolla, la zanahoria y el tomate; volvé a sumar las albóndigas 15 minutos.",
+    "Servilas con el arroz hervido."
+   ]
+  },
+  {
+   "text": "Zapallitos rellenos",
+   "corto": "Zapallitos rellenos",
+   "tipo": "plato",
+   "minutos": 55,
+   "tags": [
+    "zapallito",
+    "relleno",
+    "carne",
+    "horno"
+   ],
+   "ingredientes": {
+    "verduras": [
+     "Zapallito",
+     "Cebolla",
+     "Tomate"
+    ],
+    "almidones": [
+     "Pan rallado",
+     "Papa"
+    ],
+    "proteinas": [
+     "Carne vacuna (nalga, cuadril, bola de lomo, lomo, roast beef)",
+     "Queso cremoso"
+    ]
+   },
+   "cantidades": [
+    [
+     "Zapallito",
+     300,
+     "g"
+    ],
+    [
+     "Carne picada",
+     120,
+     "g"
+    ],
+    [
+     "Cebolla",
+     60,
+     "g"
+    ],
+    [
+     "Queso cremoso",
+     40,
+     "g"
+    ],
+    [
+     "Pan rallado",
+     20,
+     "g"
+    ],
+    [
+     "Papa",
+     150,
+     "g"
+    ],
+    [
+     "Tomate",
+     100,
+     "g"
+    ]
+   ],
+   "pasos": [
+    "Cortá los zapallitos al medio y hervilos 8 minutos; vaciá un poco el centro.",
+    "Rehogá la cebolla con la carne picada y el centro picado del zapallito.",
+    "Rellená las mitades, cubrí con queso y pan rallado.",
+    "Horneá 20 minutos y serví con papa hervida y tomate."
+   ]
+  },
+  {
+   "text": "Fideos con tuco",
+   "corto": "Fideos con tuco",
+   "tipo": "plato",
+   "minutos": 30,
+   "tags": [
+    "fideos",
+    "tuco",
+    "carne",
+    "económico"
+   ],
+   "ingredientes": {
+    "verduras": [
+     "Tomate",
+     "Cebolla",
+     "Zanahoria"
+    ],
+    "almidones": [
+     "Fideos y pastas (de trigo, maíz o arroz)"
+    ],
+    "proteinas": [
+     "Carne vacuna (nalga, cuadril, bola de lomo, lomo, roast beef)"
+    ]
+   },
+   "cantidades": [
+    [
+     "Fideos",
+     90,
+     "g"
+    ],
+    [
+     "Carne picada",
+     120,
+     "g"
+    ],
+    [
+     "Tomate",
+     250,
+     "g"
+    ],
+    [
+     "Cebolla",
+     60,
+     "g"
+    ],
+    [
+     "Zanahoria",
+     80,
+     "g"
+    ],
+    [
+     "Queso rallado",
+     15,
+     "g"
+    ]
+   ],
+   "pasos": [
+    "Rehogá la cebolla con la zanahoria rallada y sumá la carne picada.",
+    "Agregá el tomate picado, sal, orégano y cociná 20 minutos.",
+    "Herví los fideos 9 minutos.",
+    "Servilos con el tuco y el queso rallado."
+   ]
+  },
+  {
+   "text": "Fideos con salsa de verduras",
+   "corto": "Fideos con salsa de verduras",
+   "tipo": "plato",
+   "minutos": 30,
+   "tags": [
+    "fideos",
+    "verduras",
+    "salsa",
+    "vegetariano"
+   ],
+   "ingredientes": {
+    "verduras": [
+     "Zanahoria",
+     "Zapallito",
+     "Tomate",
+     "Cebolla"
+    ],
+    "almidones": [
+     "Fideos y pastas (de trigo, maíz o arroz)"
+    ],
+    "proteinas": [
+     "Queso cremoso"
+    ]
+   },
+   "cantidades": [
+    [
+     "Fideos",
+     90,
+     "g"
+    ],
+    [
+     "Zanahoria",
+     80,
+     "g"
+    ],
+    [
+     "Zapallito",
+     120,
+     "g"
+    ],
+    [
+     "Tomate",
+     200,
+     "g"
+    ],
+    [
+     "Cebolla",
+     60,
+     "g"
+    ],
+    [
+     "Queso cremoso",
+     60,
+     "g"
+    ],
+    [
+     "Huevo",
+     1,
+     "unidad"
+    ]
+   ],
+   "pasos": [
+    "Cortá la cebolla, la zanahoria y el zapallito en cubos chicos y rehogalos.",
+    "Sumá el tomate picado y cociná 15 minutos.",
+    "Herví los fideos y mezclalos con la salsa.",
+    "Terminá con el queso y un huevo duro picado."
+   ]
+  },
+  {
+   "text": "Canelones de verdura",
+   "corto": "Canelones de verdura",
+   "tipo": "plato",
+   "minutos": 60,
+   "tags": [
+    "canelones",
+    "verduras",
+    "espinaca",
+    "queso",
+    "horno"
+   ],
+   "ingredientes": {
+    "verduras": [
+     "Espinaca",
+     "Acelga",
+     "Tomate"
+    ],
+    "almidones": [
+     "Harina de trigo"
+    ],
+    "proteinas": [
+     "Queso fresco",
+     "Huevo entero de gallina"
+    ]
+   },
+   "cantidades": [
+    [
+     "Harina de trigo",
+     80,
+     "g"
+    ],
+    [
+     "Espinaca",
+     150,
+     "g"
+    ],
+    [
+     "Queso fresco",
+     80,
+     "g"
+    ],
+    [
+     "Huevo",
+     1.5,
+     "unidad"
+    ],
+    [
+     "Tomate",
+     200,
+     "g"
+    ],
+    [
+     "Cebolla",
+     50,
+     "g"
+    ]
+   ],
+   "pasos": [
+    "Hacé panqueques salados con la harina, un huevo, agua y sal.",
+    "Salteá la espinaca con la cebolla y mezclala con el queso fresco.",
+    "Rellená los panqueques, enrollalos y ubicalos en una fuente con tomate.",
+    "Gratiná 15 minutos a horno fuerte."
+   ]
+  },
+  {
+   "text": "Empanadas de carne al horno con ensalada",
+   "corto": "Empanadas de carne al horno con ensalada",
+   "tipo": "plato",
+   "minutos": 60,
+   "tags": [
+    "empanadas",
+    "carne",
+    "horno",
+    "ensalada"
+   ],
+   "ingredientes": {
+    "verduras": [
+     "Cebolla",
+     "Lechuga",
+     "Tomate"
+    ],
+    "almidones": [
+     "Harina de trigo"
+    ],
+    "proteinas": [
+     "Carne vacuna (nalga, cuadril, bola de lomo, lomo, roast beef)",
+     "Huevo entero de gallina"
+    ]
+   },
+   "cantidades": [
+    [
+     "Harina de trigo",
+     110,
+     "g"
+    ],
+    [
+     "Carne picada",
+     120,
+     "g"
+    ],
+    [
+     "Cebolla",
+     100,
+     "g"
+    ],
+    [
+     "Huevo",
+     1,
+     "unidad"
+    ],
+    [
+     "Lechuga",
+     60,
+     "g"
+    ],
+    [
+     "Tomate",
+     120,
+     "g"
+    ]
+   ],
+   "pasos": [
+    "Amasá la harina con agua tibia, aceite y sal; estirala y cortá círculos.",
+    "Rehogá la cebolla con la carne, comino y pimentón; sumá el huevo duro picado.",
+    "Rellená, cerrá los repulgues y horneá 20 minutos a horno fuerte.",
+    "Serví con ensalada de lechuga y tomate."
+   ]
+  },
+  {
+   "text": "Pastel de zapallo y carne",
+   "corto": "Pastel de zapallo y carne",
+   "tipo": "plato",
+   "minutos": 60,
+   "tags": [
+    "pastel",
+    "zapallo",
+    "carne",
+    "horno"
+   ],
+   "ingredientes": {
+    "verduras": [
+     "Zapallo",
+     "Cebolla"
+    ],
+    "almidones": [
+     "Papa"
+    ],
+    "proteinas": [
+     "Carne vacuna (nalga, cuadril, bola de lomo, lomo, roast beef)"
+    ]
+   },
+   "cantidades": [
+    [
+     "Zapallo",
+     250,
+     "g"
+    ],
+    [
+     "Papa",
+     150,
+     "g"
+    ],
+    [
+     "Carne picada",
+     140,
+     "g"
+    ],
+    [
+     "Cebolla",
+     80,
+     "g"
+    ],
+    [
+     "Queso cremoso",
+     30,
+     "g"
+    ]
+   ],
+   "pasos": [
+    "Herví el zapallo y la papa y hacelos puré con sal.",
+    "Rehogá la cebolla con la carne picada, pimentón y comino.",
+    "Armá capas de carne y puré en una fuente; cubrí con queso.",
+    "Gratiná 15 minutos."
+   ]
+  },
+  {
+   "text": "Pollo a la cacerola con verduras",
+   "corto": "Pollo a la cacerola con verduras",
+   "tipo": "plato",
+   "minutos": 50,
+   "tags": [
+    "pollo",
+    "cacerola",
+    "verduras",
+    "papa"
+   ],
+   "ingredientes": {
+    "verduras": [
+     "Zanahoria",
+     "Cebolla",
+     "Morrón rojo"
+    ],
+    "almidones": [
+     "Papa"
+    ],
+    "proteinas": [
+     "Pollo (pechuga, muslo, pata-muslo)"
+    ]
+   },
+   "cantidades": [
+    [
+     "Pollo",
+     170,
+     "g"
+    ],
+    [
+     "Papa",
+     230,
+     "g"
+    ],
+    [
+     "Zanahoria",
+     100,
+     "g"
+    ],
+    [
+     "Cebolla",
+     60,
+     "g"
+    ],
+    [
+     "Morrón rojo",
+     80,
+     "g"
+    ],
+    [
+     "Tomate",
+     100,
+     "g"
+    ]
+   ],
+   "pasos": [
+    "Sellá el pollo en una cacerola con un chorrito de aceite.",
+    "Sumá la cebolla, el morrón, la zanahoria y el tomate picado.",
+    "Agregá las papas en trozos y agua hasta cubrir a la mitad.",
+    "Cociná tapado 35 minutos a fuego bajo."
+   ]
+  },
+  {
+   "text": "Hamburguesas caseras con ensalada",
+   "corto": "Hamburguesas caseras con ensalada",
+   "tipo": "plato",
+   "minutos": 30,
+   "tags": [
+    "hamburguesa",
+    "carne",
+    "ensalada",
+    "rápido"
+   ],
+   "ingredientes": {
+    "verduras": [
+     "Lechuga",
+     "Tomate",
+     "Cebolla"
+    ],
+    "almidones": [
+     "Pan",
+     "Papa"
+    ],
+    "proteinas": [
+     "Carne vacuna (nalga, cuadril, bola de lomo, lomo, roast beef)"
+    ]
+   },
+   "cantidades": [
+    [
+     "Carne picada",
+     150,
+     "g"
+    ],
+    [
+     "Pan",
+     70,
+     "g"
+    ],
+    [
+     "Papa",
+     200,
+     "g"
+    ],
+    [
+     "Lechuga",
+     60,
+     "g"
+    ],
+    [
+     "Tomate",
+     120,
+     "g"
+    ],
+    [
+     "Cebolla",
+     40,
+     "g"
+    ]
+   ],
+   "pasos": [
+    "Mezclá la carne picada con cebolla rallada, sal y pimienta; formá las hamburguesas.",
+    "Cocinalas 4 minutos de cada lado en plancha.",
+    "Cortá las papas en bastones y horneálas 30 minutos.",
+    "Armá la hamburguesa en el pan con lechuga y tomate; serví con las papas."
+   ]
+  },
+  {
+   "text": "Tortilla de acelga con arroz",
+   "corto": "Tortilla de acelga con arroz",
+   "tipo": "plato",
+   "minutos": 35,
+   "tags": [
+    "tortilla",
+    "acelga",
+    "huevo",
+    "arroz",
+    "económico"
+   ],
+   "ingredientes": {
+    "verduras": [
+     "Acelga",
+     "Cebolla"
+    ],
+    "almidones": [
+     "Arroz (integral, yamaní)"
+    ],
+    "proteinas": [
+     "Huevo entero de gallina"
+    ]
+   },
+   "cantidades": [
+    [
+     "Acelga",
+     200,
+     "g"
+    ],
+    [
+     "Huevo",
+     3,
+     "unidad"
+    ],
+    [
+     "Arroz",
+     80,
+     "g"
+    ],
+    [
+     "Cebolla",
+     60,
+     "g"
+    ],
+    [
+     "Queso rallado",
+     15,
+     "g"
+    ]
+   ],
+   "pasos": [
+    "Herví el arroz 12 minutos.",
+    "Herví la acelga 5 minutos, escurrila y picala.",
+    "Mezclala con la cebolla rehogada, los huevos batidos y el queso.",
+    "Cuajá la tortilla 5 minutos de cada lado y serví con el arroz."
+   ]
+  },
+  {
+   "text": "Ensalada de arroz con atún y huevo",
+   "corto": "Ensalada de arroz con atún y huevo",
+   "tipo": "plato",
+   "minutos": 25,
+   "tags": [
+    "ensalada",
+    "arroz",
+    "atún",
+    "huevo",
+    "frío"
+   ],
+   "ingredientes": {
+    "verduras": [
+     "Tomate",
+     "Zanahoria",
+     "Cebolla"
+    ],
+    "almidones": [
+     "Arroz (integral, yamaní)"
+    ],
+    "proteinas": [
+     "Atún",
+     "Huevo entero de gallina"
+    ]
+   },
+   "cantidades": [
+    [
+     "Arroz",
+     80,
+     "g"
+    ],
+    [
+     "Atún",
+     100,
+     "g"
+    ],
+    [
+     "Huevo",
+     1,
+     "unidad"
+    ],
+    [
+     "Tomate",
+     150,
+     "g"
+    ],
+    [
+     "Zanahoria",
+     80,
+     "g"
+    ],
+    [
+     "Cebolla",
+     40,
+     "g"
+    ]
+   ],
+   "pasos": [
+    "Herví el arroz 12 minutos, colalo y enfrialo.",
+    "Hacé el huevo duro 10 minutos y cortalo en cuartos.",
+    "Mezclá el arroz con el atún escurrido, el tomate, la zanahoria rallada y la cebolla.",
+    "Aderezá con aceite, limón y sal."
+   ]
+  },
+  {
+   "text": "Ensalada de lentejas con huevo",
+   "corto": "Ensalada de lentejas con huevo",
+   "tipo": "plato",
+   "minutos": 35,
+   "tags": [
+    "ensalada",
+    "lentejas",
+    "huevo",
+    "legumbres",
+    "frío"
+   ],
+   "ingredientes": {
+    "verduras": [
+     "Tomate",
+     "Cebolla",
+     "Zanahoria"
+    ],
+    "legCarb": [
+     "Lentejas"
+    ],
+    "proteinas": [
+     "Huevo entero de gallina"
+    ]
+   },
+   "cantidades": [
+    [
+     "Lentejas",
+     75,
+     "g"
+    ],
+    [
+     "Huevo",
+     2,
+     "unidad"
+    ],
+    [
+     "Tomate",
+     150,
+     "g"
+    ],
+    [
+     "Cebolla",
+     50,
+     "g"
+    ],
+    [
+     "Zanahoria",
+     80,
+     "g"
+    ],
+    [
+     "Pan",
+     50,
+     "g"
+    ]
+   ],
+   "pasos": [
+    "Herví las lentejas 25 minutos, escurrilas y enfrialas.",
+    "Hacé los huevos duros y cortalos.",
+    "Mezclá las lentejas con el tomate, la cebolla y la zanahoria rallada.",
+    "Aderezá con aceite, vinagre y sal; serví con el pan."
+   ]
+  },
+  {
+   "text": "Garbanzos guisados con arroz",
+   "corto": "Garbanzos guisados con arroz",
+   "tipo": "plato",
+   "minutos": 50,
+   "tags": [
+    "garbanzos",
+    "guiso",
+    "arroz",
+    "legumbres",
+    "económico"
+   ],
+   "ingredientes": {
+    "verduras": [
+     "Cebolla",
+     "Tomate",
+     "Zanahoria"
+    ],
+    "almidones": [
+     "Arroz (integral, yamaní)"
+    ],
+    "legProt": [
+     "Garbanzos"
+    ]
+   },
+   "cantidades": [
+    [
+     "Garbanzos",
+     75,
+     "g"
+    ],
+    [
+     "Arroz",
+     60,
+     "g"
+    ],
+    [
+     "Tomate",
+     200,
+     "g"
+    ],
+    [
+     "Cebolla",
+     60,
+     "g"
+    ],
+    [
+     "Zanahoria",
+     100,
+     "g"
+    ],
+    [
+     "Huevo",
+     1,
+     "unidad"
+    ]
+   ],
+   "pasos": [
+    "Dejá los garbanzos en remojo toda la noche y hervilos 40 minutos.",
+    "Rehogá la cebolla y la zanahoria; sumá el tomate picado y los garbanzos.",
+    "Cociná 15 minutos con pimentón y comino.",
+    "Servilos con el arroz hervido y un huevo duro."
+   ]
+  },
+  {
+   "text": "Berenjenas a la napolitana con arroz",
+   "corto": "Berenjenas a la napolitana con arroz",
+   "tipo": "plato",
+   "minutos": 50,
+   "tags": [
+    "berenjena",
+    "napolitana",
+    "queso",
+    "arroz",
+    "horno"
+   ],
+   "ingredientes": {
+    "verduras": [
+     "Berenjena",
+     "Tomate"
+    ],
+    "almidones": [
+     "Arroz (integral, yamaní)"
+    ],
+    "proteinas": [
+     "Queso cremoso",
+     "Huevo entero de gallina"
+    ]
+   },
+   "cantidades": [
+    [
+     "Berenjena",
+     250,
+     "g"
+    ],
+    [
+     "Queso cremoso",
+     70,
+     "g"
+    ],
+    [
+     "Tomate",
+     200,
+     "g"
+    ],
+    [
+     "Arroz",
+     80,
+     "g"
+    ],
+    [
+     "Huevo",
+     1,
+     "unidad"
+    ],
+    [
+     "Pan rallado",
+     15,
+     "g"
+    ]
+   ],
+   "pasos": [
+    "Cortá las berenjenas en rodajas y horneálas 15 minutos con un poco de aceite.",
+    "Cubrilas con tomate triturado, queso y pan rallado.",
+    "Gratiná 10 minutos.",
+    "Servilas con arroz hervido y un huevo a la plancha."
+   ]
+  },
+  {
+   "text": "Pollo con ensalada rusa",
+   "corto": "Pollo con ensalada rusa",
+   "tipo": "plato",
+   "minutos": 40,
+   "tags": [
+    "pollo",
+    "ensalada",
+    "papa",
+    "huevo",
+    "frío"
+   ],
+   "ingredientes": {
+    "verduras": [
+     "Zanahoria",
+     "Lechuga"
+    ],
+    "almidones": [
+     "Papa"
+    ],
+    "proteinas": [
+     "Pollo (pechuga, muslo, pata-muslo)",
+     "Huevo entero de gallina"
+    ]
+   },
+   "cantidades": [
+    [
+     "Pollo",
+     150,
+     "g"
+    ],
+    [
+     "Papa",
+     200,
+     "g"
+    ],
+    [
+     "Zanahoria",
+     100,
+     "g"
+    ],
+    [
+     "Arvejas",
+     50,
+     "g"
+    ],
+    [
+     "Huevo",
+     1,
+     "unidad"
+    ],
+    [
+     "Lechuga",
+     40,
+     "g"
+    ]
+   ],
+   "pasos": [
+    "Herví la papa y la zanahoria en cubos 12 minutos; sumá las arvejas 3 minutos.",
+    "Mezclalas con el huevo duro picado y un poco de yogur o mayonesa.",
+    "Hacé el pollo a la plancha con sal, pimienta y limón.",
+    "Serví el pollo con la ensalada rusa sobre la lechuga."
+   ]
+  },
+  {
+   "text": "Carbonada",
+   "corto": "Carbonada",
+   "tipo": "plato",
+   "minutos": 70,
+   "tags": [
+    "carbonada",
+    "guiso",
+    "carne",
+    "zapallo",
+    "choclo"
+   ],
+   "ingredientes": {
+    "verduras": [
+     "Zapallo",
+     "Cebolla",
+     "Tomate"
+    ],
+    "almidones": [
+     "Papa",
+     "Choclo"
+    ],
+    "proteinas": [
+     "Carne vacuna (nalga, cuadril, bola de lomo, lomo, roast beef)"
+    ]
+   },
+   "cantidades": [
+    [
+     "Carne vacuna",
+     130,
+     "g"
+    ],
+    [
+     "Papa",
+     150,
+     "g"
+    ],
+    [
+     "Zapallo",
+     150,
+     "g"
+    ],
+    [
+     "Choclo",
+     100,
+     "g"
+    ],
+    [
+     "Cebolla",
+     60,
+     "g"
+    ],
+    [
+     "Tomate",
+     100,
+     "g"
+    ],
+    [
+     "Arroz",
+     30,
+     "g"
+    ]
+   ],
+   "pasos": [
+    "Sellá la carne en cubos con la cebolla.",
+    "Sumá el tomate picado, la papa, el zapallo y el choclo en trozos.",
+    "Cubrí con agua, agregá el arroz y condimentá con pimentón y orégano.",
+    "Cociná tapado 45 minutos a fuego bajo."
+   ]
+  },
+  {
+   "text": "Sopa de lentejas con verduras y huevo",
+   "corto": "Sopa de lentejas con verduras y huevo",
+   "tipo": "plato",
+   "minutos": 50,
+   "tags": [
+    "sopa",
+    "lentejas",
+    "verduras",
+    "huevo",
+    "legumbres"
+   ],
+   "ingredientes": {
+    "verduras": [
+     "Zanahoria",
+     "Zapallo",
+     "Cebolla"
+    ],
+    "legCarb": [
+     "Lentejas"
+    ],
+    "proteinas": [
+     "Huevo entero de gallina"
+    ],
+    "almidones": [
+     "Papa"
+    ]
+   },
+   "cantidades": [
+    [
+     "Lentejas",
+     75,
+     "g"
+    ],
+    [
+     "Zanahoria",
+     100,
+     "g"
+    ],
+    [
+     "Zapallo",
+     150,
+     "g"
+    ],
+    [
+     "Cebolla",
+     60,
+     "g"
+    ],
+    [
+     "Papa",
+     150,
+     "g"
+    ],
+    [
+     "Huevo",
+     1,
+     "unidad"
+    ]
+   ],
+   "pasos": [
+    "Rehogá la cebolla y la zanahoria en cubos.",
+    "Sumá las lentejas, el zapallo, la papa y 1 litro de agua.",
+    "Cociná 35 minutos hasta que todo esté tierno; condimentá con comino.",
+    "Serví con un huevo duro picado."
+   ]
+  },
+  {
+   "text": "Polenta con boloñesa de carne",
+   "corto": "Polenta con boloñesa de carne",
+   "tipo": "plato",
+   "minutos": 35,
+   "tags": [
+    "polenta",
+    "carne",
+    "salsa",
+    "económico"
+   ],
+   "ingredientes": {
+    "verduras": [
+     "Tomate",
+     "Cebolla",
+     "Zanahoria"
+    ],
+    "almidones": [
+     "Polenta"
+    ],
+    "proteinas": [
+     "Carne vacuna (nalga, cuadril, bola de lomo, lomo, roast beef)"
+    ]
+   },
+   "cantidades": [
+    [
+     "Polenta",
+     85,
+     "g"
+    ],
+    [
+     "Carne picada",
+     130,
+     "g"
+    ],
+    [
+     "Tomate",
+     200,
+     "g"
+    ],
+    [
+     "Cebolla",
+     60,
+     "g"
+    ],
+    [
+     "Zanahoria",
+     80,
+     "g"
+    ],
+    [
+     "Queso rallado",
+     15,
+     "g"
+    ]
+   ],
+   "pasos": [
+    "Rehogá la cebolla y la zanahoria rallada; sumá la carne picada.",
+    "Agregá el tomate y cociná 20 minutos con orégano.",
+    "Preparé la polenta con agua y sal, revolviendo 5 minutos.",
+    "Serví la polenta con la boloñesa y el queso rallado."
+   ]
+  },
+  {
+   "text": "Pollo al limón con arroz y ensalada",
+   "corto": "Pollo al limón con arroz y ensalada",
+   "tipo": "plato",
+   "minutos": 40,
+   "tags": [
+    "pollo",
+    "limón",
+    "arroz",
+    "ensalada"
+   ],
+   "ingredientes": {
+    "verduras": [
+     "Lechuga",
+     "Tomate",
+     "Zanahoria"
+    ],
+    "almidones": [
+     "Arroz (integral, yamaní)"
+    ],
+    "proteinas": [
+     "Pollo (pechuga, muslo, pata-muslo)"
+    ]
+   },
+   "cantidades": [
+    [
+     "Pollo",
+     160,
+     "g"
+    ],
+    [
+     "Arroz",
+     80,
+     "g"
+    ],
+    [
+     "Lechuga",
+     60,
+     "g"
+    ],
+    [
+     "Tomate",
+     120,
+     "g"
+    ],
+    [
+     "Zanahoria",
+     80,
+     "g"
+    ]
+   ],
+   "pasos": [
+    "Dejá el pollo en jugo de limón, ajo y sal 15 minutos.",
+    "Horneálo 25 minutos o hacelo a la plancha.",
+    "Herví el arroz 12 minutos.",
+    "Serví con ensalada de lechuga, tomate y zanahoria rallada."
+   ]
+  },
+  {
+   "text": "Tarta de choclo y queso con ensalada",
+   "corto": "Tarta de choclo y queso con ensalada",
+   "tipo": "plato",
+   "minutos": 50,
+   "tags": [
+    "tarta",
+    "choclo",
+    "queso",
+    "ensalada"
+   ],
+   "ingredientes": {
+    "verduras": [
+     "Cebolla",
+     "Lechuga",
+     "Tomate"
+    ],
+    "almidones": [
+     "Harina de trigo",
+     "Choclo"
+    ],
+    "proteinas": [
+     "Queso cremoso",
+     "Huevo entero de gallina"
+    ]
+   },
+   "cantidades": [
+    [
+     "Harina de trigo",
+     80,
+     "g"
+    ],
+    [
+     "Choclo",
+     120,
+     "g"
+    ],
+    [
+     "Queso cremoso",
+     60,
+     "g"
+    ],
+    [
+     "Huevo",
+     1.5,
+     "unidad"
+    ],
+    [
+     "Cebolla",
+     60,
+     "g"
+    ],
+    [
+     "Lechuga",
+     60,
+     "g"
+    ],
+    [
+     "Tomate",
+     120,
+     "g"
+    ]
+   ],
+   "pasos": [
+    "Amasá la harina con agua, aceite y sal; forrá una tartera.",
+    "Mezclá el choclo con la cebolla rehogada, el queso y los huevos.",
+    "Volcá sobre la masa y horneá 30 minutos.",
+    "Serví con ensalada de lechuga y tomate."
+   ]
+  },
+  {
+   "text": "Pescado con puré de papa y tomate",
+   "corto": "Pescado con puré de papa y tomate",
+   "tipo": "plato",
+   "minutos": 30,
+   "tags": [
+    "pescado",
+    "merluza",
+    "puré",
+    "papa"
+   ],
+   "ingredientes": {
+    "verduras": [
+     "Tomate",
+     "Lechuga"
+    ],
+    "almidones": [
+     "Papa"
+    ],
+    "proteinas": [
+     "Merluza"
+    ]
+   },
+   "cantidades": [
+    [
+     "Merluza",
+     180,
+     "g"
+    ],
+    [
+     "Papa",
+     330,
+     "g"
+    ],
+    [
+     "Tomate",
+     150,
+     "g"
+    ],
+    [
+     "Lechuga",
+     60,
+     "g"
+    ],
+    [
+     "Zanahoria",
+     60,
+     "g"
+    ]
+   ],
+   "pasos": [
+    "Herví las papas 20 minutos y hacelas puré con sal.",
+    "Cociná la merluza al horno o a la plancha con limón 8 minutos.",
+    "Cortá el tomate, la lechuga y la zanahoria rallada para la ensalada.",
+    "Serví el pescado con el puré y la ensalada."
+   ]
+  },
+  {
+   "text": "Tostadas con queso untable y naranja",
+   "corto": "Tostadas con queso untable y naranja",
+   "tipo": "desayuno",
+   "minutos": 5,
+   "tags": [],
+   "desayuno": {
+    "fruta": "Naranja",
+    "prot": "Queso untable descremado",
+    "cereal": "Pan"
+   },
+   "cantidades": [
+    [
+     "Pan",
+     60,
+     "g"
+    ],
+    [
+     "Queso untable descremado",
+     40,
+     "g"
+    ],
+    [
+     "Naranja",
+     1,
+     "unidad"
+    ]
+   ],
+   "pasos": [
+    "Tostá el pan.",
+    "Untalo con el queso.",
+    "Comé la naranja en gajos, con un té o un mate."
+   ]
+  },
+  {
+   "text": "Yogur con avena y banana",
+   "corto": "Yogur con avena y banana",
+   "tipo": "desayuno",
+   "minutos": 5,
+   "tags": [],
+   "desayuno": {
+    "fruta": "Banana",
+    "prot": "Yogur natural",
+    "cereal": "Avena"
+   },
+   "cantidades": [
+    [
+     "Yogur natural",
+     190,
+     "g"
+    ],
+    [
+     "Avena",
+     30,
+     "g"
+    ],
+    [
+     "Banana",
+     1,
+     "unidad"
+    ]
+   ],
+   "pasos": [
+    "Poné el yogur en un bowl.",
+    "Sumá la avena y la banana en rodajas.",
+    "Mezclá y comelo enseguida."
+   ]
+  },
+  {
+   "text": "Licuado de banana con leche y tostadas",
+   "corto": "Licuado de banana con leche y tostadas",
+   "tipo": "desayuno",
+   "minutos": 5,
+   "tags": [],
+   "desayuno": {
+    "fruta": "Banana",
+    "prot": "Leche",
+    "cereal": "Pan"
+   },
+   "cantidades": [
+    [
+     "Leche descremada",
+     250,
+     "g"
+    ],
+    [
+     "Banana",
+     1,
+     "unidad"
+    ],
+    [
+     "Pan",
+     50,
+     "g"
+    ]
+   ],
+   "pasos": [
+    "Licuá la leche con la banana.",
+    "Tostá el pan.",
+    "Tomá el licuado con las tostadas."
+   ]
+  },
+  {
+   "text": "Huevo revuelto con tostadas y mandarina",
+   "corto": "Huevo revuelto con tostadas y mandarina",
+   "tipo": "desayuno",
+   "minutos": 5,
+   "tags": [],
+   "desayuno": {
+    "fruta": "Mandarina",
+    "prot": "Huevo",
+    "cereal": "Pan"
+   },
+   "cantidades": [
+    [
+     "Huevo",
+     2,
+     "unidad"
+    ],
+    [
+     "Pan",
+     50,
+     "g"
+    ],
+    [
+     "Mandarina",
+     2,
+     "unidad"
+    ]
+   ],
+   "pasos": [
+    "Batí los huevos con una pizca de sal.",
+    "Revolvelos en la sartén con un chorrito de aceite hasta que cuajen.",
+    "Serví con el pan tostado y la mandarina."
+   ]
+  },
+  {
+   "text": "Avena con leche y manzana",
+   "corto": "Avena con leche y manzana",
+   "tipo": "desayuno",
+   "minutos": 10,
+   "tags": [],
+   "desayuno": {
+    "fruta": "Manzana",
+    "prot": "Leche",
+    "cereal": "Avena"
+   },
+   "cantidades": [
+    [
+     "Avena",
+     40,
+     "g"
+    ],
+    [
+     "Leche descremada",
+     250,
+     "g"
+    ],
+    [
+     "Manzana",
+     1,
+     "unidad"
+    ]
+   ],
+   "pasos": [
+    "Calentá la leche y sumá la avena.",
+    "Cociná 4 minutos revolviendo.",
+    "Servila con la manzana picada y canela."
+   ]
+  },
+  {
+   "text": "Pan con queso y tomate",
+   "corto": "Pan con queso y tomate",
+   "tipo": "desayuno",
+   "minutos": 5,
+   "tags": [],
+   "desayuno": {
+    "fruta": "Tomate",
+    "prot": "Queso fresco",
+    "cereal": "Pan"
+   },
+   "cantidades": [
+    [
+     "Pan",
+     60,
+     "g"
+    ],
+    [
+     "Queso fresco",
+     40,
+     "g"
+    ],
+    [
+     "Tomate",
+     80,
+     "g"
+    ]
+   ],
+   "pasos": [
+    "Cortá el pan y tostalo.",
+    "Sumá el queso en fetas y el tomate en rodajas.",
+    "Acompañalo con tu mate o té."
+   ]
+  },
+  {
+   "text": "Yogur con granola y frutillas",
+   "corto": "Yogur con granola y frutillas",
+   "tipo": "desayuno",
+   "minutos": 5,
+   "tags": [],
+   "desayuno": {
+    "fruta": "Frutillas",
+    "prot": "Yogur natural",
+    "cereal": "Granola"
+   },
+   "cantidades": [
+    [
+     "Yogur natural",
+     190,
+     "g"
+    ],
+    [
+     "Granola",
+     30,
+     "g"
+    ],
+    [
+     "Frutillas",
+     100,
+     "g"
+    ]
+   ],
+   "pasos": [
+    "Poné el yogur en un vaso o bowl.",
+    "Agregá las frutillas cortadas.",
+    "Terminá con la granola para que no se ablande."
+   ]
+  },
+  {
+   "text": "Tostadas con ricota y durazno",
+   "corto": "Tostadas con ricota y durazno",
+   "tipo": "desayuno",
+   "minutos": 5,
+   "tags": [],
+   "desayuno": {
+    "fruta": "Durazno",
+    "prot": "Ricota",
+    "cereal": "Pan"
+   },
+   "cantidades": [
+    [
+     "Pan",
+     60,
+     "g"
+    ],
+    [
+     "Ricota",
+     50,
+     "g"
+    ],
+    [
+     "Durazno",
+     1,
+     "unidad"
+    ]
+   ],
+   "pasos": [
+    "Tostá el pan.",
+    "Untalo con la ricota.",
+    "Sumá el durazno en rodajas y un hilo de miel si querés."
+   ]
+  },
+  {
+   "text": "Pan con jamón y queso con mandarina",
+   "corto": "Pan con jamón y queso con mandarina",
+   "tipo": "desayuno",
+   "minutos": 5,
+   "tags": [],
+   "desayuno": {
+    "fruta": "Mandarina",
+    "prot": "Jamón cocido",
+    "cereal": "Pan"
+   },
+   "cantidades": [
+    [
+     "Pan",
+     70,
+     "g"
+    ],
+    [
+     "Jamón cocido",
+     40,
+     "g"
+    ],
+    [
+     "Queso cremoso",
+     25,
+     "g"
+    ],
+    [
+     "Mandarina",
+     2,
+     "unidad"
+    ]
+   ],
+   "pasos": [
+    "Abrí el pan.",
+    "Armá el sándwich con el jamón y el queso.",
+    "Calentalo 2 minutos y comé la mandarina al lado."
+   ]
+  },
+  {
+   "text": "Licuado de frutilla con leche y tostadas",
+   "corto": "Licuado de frutilla con leche y tostadas",
+   "tipo": "desayuno",
+   "minutos": 5,
+   "tags": [],
+   "desayuno": {
+    "fruta": "Frutillas",
+    "prot": "Leche",
+    "cereal": "Pan"
+   },
+   "cantidades": [
+    [
+     "Leche descremada",
+     300,
+     "g"
+    ],
+    [
+     "Frutillas",
+     120,
+     "g"
+    ],
+    [
+     "Pan",
+     60,
+     "g"
+    ]
+   ],
+   "pasos": [
+    "Licuá la leche con las frutillas.",
+    "Serví el licuado frío.",
+    "Acompañalo con una tostada."
+   ]
+  },
+  {
+   "text": "Avena con yogur y pera",
+   "corto": "Avena con yogur y pera",
+   "tipo": "desayuno",
+   "minutos": 10,
+   "tags": [],
+   "desayuno": {
+    "fruta": "Pera",
+    "prot": "Yogur natural",
+    "cereal": "Avena"
+   },
+   "cantidades": [
+    [
+     "Avena",
+     35,
+     "g"
+    ],
+    [
+     "Yogur natural",
+     190,
+     "g"
+    ],
+    [
+     "Pera",
+     1,
+     "unidad"
+    ]
+   ],
+   "pasos": [
+    "Mezclá la avena con el yogur y dejala 5 minutos.",
+    "Sumá la pera en cubos.",
+    "Comela fría o con unas gotas de limón."
+   ]
+  },
+  {
+   "text": "Tostadas con huevo duro y naranja",
+   "corto": "Tostadas con huevo duro y naranja",
+   "tipo": "desayuno",
+   "minutos": 12,
+   "tags": [],
+   "desayuno": {
+    "fruta": "Naranja",
+    "prot": "Huevo",
+    "cereal": "Pan"
+   },
+   "cantidades": [
+    [
+     "Pan",
+     60,
+     "g"
+    ],
+    [
+     "Huevo",
+     2,
+     "unidad"
+    ],
+    [
+     "Naranja",
+     1,
+     "unidad"
+    ]
+   ],
+   "pasos": [
+    "Herví los huevos 10 minutos y pelalos.",
+    "Tostá el pan.",
+    "Servilos con la naranja y sal a gusto."
+   ]
+  },
+  {
+   "text": "Pan de molde con queso untable y banana",
+   "corto": "Pan de molde con queso untable y banana",
+   "tipo": "desayuno",
+   "minutos": 5,
+   "tags": [],
+   "desayuno": {
+    "fruta": "Banana",
+    "prot": "Queso untable descremado",
+    "cereal": "Pan de molde"
+   },
+   "cantidades": [
+    [
+     "Pan de molde",
+     60,
+     "g"
+    ],
+    [
+     "Queso untable descremado",
+     40,
+     "g"
+    ],
+    [
+     "Banana",
+     1,
+     "unidad"
+    ]
+   ],
+   "pasos": [
+    "Tostá las rebanadas de pan de molde.",
+    "Untalas con el queso.",
+    "Acompañalas con la banana."
+   ]
+  },
+  {
+   "text": "Leche con avena y banana",
+   "corto": "Leche con avena y banana",
+   "tipo": "desayuno",
+   "minutos": 5,
+   "tags": [],
+   "desayuno": {
+    "fruta": "Banana",
+    "prot": "Leche",
+    "cereal": "Avena"
+   },
+   "cantidades": [
+    [
+     "Leche descremada",
+     250,
+     "g"
+    ],
+    [
+     "Avena",
+     35,
+     "g"
+    ],
+    [
+     "Banana",
+     1,
+     "unidad"
+    ]
+   ],
+   "pasos": [
+    "Licuá la leche con la banana y la avena.",
+    "Tomala fría o calentala 2 minutos.",
+    "Sumá canela si te gusta."
+   ]
+  },
+  {
+   "text": "Tostadas con manteca de maní y banana",
+   "corto": "Tostadas con manteca de maní y banana",
+   "tipo": "desayuno",
+   "minutos": 5,
+   "tags": [],
+   "desayuno": {
+    "fruta": "Banana",
+    "prot": "Mantequilla de maní",
+    "cereal": "Pan"
+   },
+   "cantidades": [
+    [
+     "Pan",
+     50,
+     "g"
+    ],
+    [
+     "Mantequilla de maní",
+     15,
+     "g"
+    ],
+    [
+     "Banana",
+     1,
+     "unidad"
+    ],
+    [
+     "Leche descremada",
+     150,
+     "g"
+    ]
+   ],
+   "pasos": [
+    "Tostá el pan.",
+    "Untalo con la manteca de maní.",
+    "Sumá la banana en rodajas y un vaso de leche."
+   ]
+  },
+  {
+   "text": "Yogur con pan y mermelada",
+   "corto": "Yogur con pan y mermelada",
+   "tipo": "desayuno",
+   "minutos": 5,
+   "tags": [],
+   "desayuno": {
+    "fruta": "Manzana",
+    "prot": "Yogur natural",
+    "cereal": "Pan"
+   },
+   "cantidades": [
+    [
+     "Yogur natural",
+     190,
+     "g"
+    ],
+    [
+     "Pan",
+     60,
+     "g"
+    ],
+    [
+     "Mermelada",
+     15,
+     "g"
+    ],
+    [
+     "Manzana",
+     1,
+     "unidad"
+    ]
+   ],
+   "pasos": [
+    "Tostá el pan y untalo con la mermelada.",
+    "Servilo con el yogur.",
+    "Comé la manzana al lado."
+   ]
+  },
+  {
+   "text": "Omelette con pan y mandarina",
+   "corto": "Omelette con pan y mandarina",
+   "tipo": "desayuno",
+   "minutos": 10,
+   "tags": [],
+   "desayuno": {
+    "fruta": "Mandarina",
+    "prot": "Huevo",
+    "cereal": "Pan"
+   },
+   "cantidades": [
+    [
+     "Huevo",
+     2,
+     "unidad"
+    ],
+    [
+     "Queso fresco",
+     20,
+     "g"
+    ],
+    [
+     "Pan",
+     40,
+     "g"
+    ],
+    [
+     "Mandarina",
+     2,
+     "unidad"
+    ]
+   ],
+   "pasos": [
+    "Batí los huevos con sal y volcalos en la sartén.",
+    "Sumá el queso y doblá la omelette.",
+    "Servila con el pan y la mandarina."
+   ]
+  },
+  {
+   "text": "Yogur con avena y manzana",
+   "corto": "Yogur con avena y manzana",
+   "tipo": "desayuno",
+   "minutos": 5,
+   "tags": [],
+   "desayuno": {
+    "fruta": "Manzana",
+    "prot": "Yogur natural",
+    "cereal": "Avena"
+   },
+   "cantidades": [
+    [
+     "Yogur natural",
+     190,
+     "g"
+    ],
+    [
+     "Avena",
+     30,
+     "g"
+    ],
+    [
+     "Manzana",
+     1,
+     "unidad"
+    ]
+   ],
+   "pasos": [
+    "Poné el yogur en un bowl.",
+    "Rallá la manzana encima y sumá la avena.",
+    "Mezclá y comelo."
+   ]
+  },
+  {
+   "text": "Tostadas con queso Port Salut y pera",
+   "corto": "Tostadas con queso Port Salut y pera",
+   "tipo": "desayuno",
+   "minutos": 5,
+   "tags": [],
+   "desayuno": {
+    "fruta": "Pera",
+    "prot": "Queso Port Salut",
+    "cereal": "Pan"
+   },
+   "cantidades": [
+    [
+     "Pan",
+     60,
+     "g"
+    ],
+    [
+     "Queso Port Salut",
+     40,
+     "g"
+    ],
+    [
+     "Pera",
+     1,
+     "unidad"
+    ]
+   ],
+   "pasos": [
+    "Tostá el pan.",
+    "Sumá el queso en fetas.",
+    "Acompañalo con la pera."
+   ]
+  },
+  {
+   "text": "Licuado de durazno con yogur y tostadas",
+   "corto": "Licuado de durazno con yogur y tostadas",
+   "tipo": "desayuno",
+   "minutos": 5,
+   "tags": [],
+   "desayuno": {
+    "fruta": "Durazno",
+    "prot": "Yogur natural",
+    "cereal": "Pan"
+   },
+   "cantidades": [
+    [
+     "Yogur natural",
+     190,
+     "g"
+    ],
+    [
+     "Durazno",
+     1,
+     "unidad"
+    ],
+    [
+     "Pan",
+     50,
+     "g"
+    ]
+   ],
+   "pasos": [
+    "Licuá el yogur con el durazno.",
+    "Tostá el pan.",
+    "Servilo bien frío con las tostadas."
+   ]
+  },
+  {
+   "text": "Leche con granola y banana",
+   "corto": "Leche con granola y banana",
+   "tipo": "desayuno",
+   "minutos": 5,
+   "tags": [],
+   "desayuno": {
+    "fruta": "Banana",
+    "prot": "Leche",
+    "cereal": "Granola"
+   },
+   "cantidades": [
+    [
+     "Leche descremada",
+     250,
+     "g"
+    ],
+    [
+     "Granola",
+     35,
+     "g"
+    ],
+    [
+     "Banana",
+     1,
+     "unidad"
+    ]
+   ],
+   "pasos": [
+    "Poné la granola en un bowl.",
+    "Cubrila con la leche fría.",
+    "Sumá la banana en rodajas."
+   ]
+  },
+  {
+   "text": "Pan con queso fresco y naranja",
+   "corto": "Pan con queso fresco y naranja",
+   "tipo": "desayuno",
+   "minutos": 5,
+   "tags": [],
+   "desayuno": {
+    "fruta": "Naranja",
+    "prot": "Queso fresco",
+    "cereal": "Pan"
+   },
+   "cantidades": [
+    [
+     "Pan",
+     60,
+     "g"
+    ],
+    [
+     "Queso fresco",
+     50,
+     "g"
+    ],
+    [
+     "Naranja",
+     1,
+     "unidad"
+    ]
+   ],
+   "pasos": [
+    "Cortá el pan y untalo con el queso fresco pisado.",
+    "Tostalo 2 minutos si querés.",
+    "Acompañalo con la naranja."
+   ]
+  },
+  {
+   "text": "Huevo a la plancha con pan y manzana",
+   "corto": "Huevo a la plancha con pan y manzana",
+   "tipo": "desayuno",
+   "minutos": 8,
+   "tags": [],
+   "desayuno": {
+    "fruta": "Manzana",
+    "prot": "Huevo",
+    "cereal": "Pan"
+   },
+   "cantidades": [
+    [
+     "Huevo",
+     2,
+     "unidad"
+    ],
+    [
+     "Pan",
+     50,
+     "g"
+    ],
+    [
+     "Manzana",
+     1,
+     "unidad"
+    ]
+   ],
+   "pasos": [
+    "Hacé los huevos a la plancha con un chorrito de aceite.",
+    "Tostá el pan.",
+    "Serví con la manzana al lado."
+   ]
+  },
+  {
+   "text": "Avena cocida con leche y mandarina",
+   "corto": "Avena cocida con leche y mandarina",
+   "tipo": "desayuno",
+   "minutos": 10,
+   "tags": [],
+   "desayuno": {
+    "fruta": "Mandarina",
+    "prot": "Leche",
+    "cereal": "Avena"
+   },
+   "cantidades": [
+    [
+     "Avena",
+     40,
+     "g"
+    ],
+    [
+     "Leche descremada",
+     250,
+     "g"
+    ],
+    [
+     "Mandarina",
+     2,
+     "unidad"
+    ]
+   ],
+   "pasos": [
+    "Calentá la leche con la avena 4 minutos.",
+    "Revolvé hasta que espese.",
+    "Servila con la mandarina en gajos."
+   ]
+  },
+  {
+   "text": "Tostadas con ricota y pera",
+   "corto": "Tostadas con ricota y pera",
+   "tipo": "desayuno",
+   "minutos": 5,
+   "tags": [],
+   "desayuno": {
+    "fruta": "Pera",
+    "prot": "Ricota",
+    "cereal": "Pan"
+   },
+   "cantidades": [
+    [
+     "Pan",
+     60,
+     "g"
+    ],
+    [
+     "Ricota",
+     50,
+     "g"
+    ],
+    [
+     "Pera",
+     1,
+     "unidad"
+    ]
+   ],
+   "pasos": [
+    "Tostá el pan.",
+    "Untalo con la ricota.",
+    "Sumá la pera en láminas finas."
+   ]
+  },
+  {
+   "text": "Pan de molde con jamón y queso",
+   "corto": "Pan de molde con jamón y queso",
+   "tipo": "desayuno",
+   "minutos": 5,
+   "tags": [],
+   "desayuno": {
+    "fruta": "Banana",
+    "prot": "Jamón cocido",
+    "cereal": "Pan de molde"
+   },
+   "cantidades": [
+    [
+     "Pan de molde",
+     60,
+     "g"
+    ],
+    [
+     "Jamón cocido",
+     40,
+     "g"
+    ],
+    [
+     "Queso cremoso",
+     25,
+     "g"
+    ],
+    [
+     "Banana",
+     1,
+     "unidad"
+    ]
+   ],
+   "pasos": [
+    "Armá el tostado con el jamón y el queso.",
+    "Cocinalo 2 minutos de cada lado en la sartén.",
+    "Comé la banana al lado."
+   ]
+  },
+  {
+   "text": "Yogur con granola y banana",
+   "corto": "Yogur con granola y banana",
+   "tipo": "desayuno",
+   "minutos": 5,
+   "tags": [],
+   "desayuno": {
+    "fruta": "Banana",
+    "prot": "Yogur natural",
+    "cereal": "Granola"
+   },
+   "cantidades": [
+    [
+     "Yogur natural",
+     190,
+     "g"
+    ],
+    [
+     "Granola",
+     30,
+     "g"
+    ],
+    [
+     "Banana",
+     1,
+     "unidad"
+    ]
+   ],
+   "pasos": [
+    "Poné el yogur en un bowl.",
+    "Cortá la banana encima.",
+    "Terminá con la granola."
+   ]
+  },
+  {
+   "text": "Leche con tostadas y mermelada",
+   "corto": "Leche con tostadas y mermelada",
+   "tipo": "desayuno",
+   "minutos": 5,
+   "tags": [],
+   "desayuno": {
+    "fruta": "Naranja",
+    "prot": "Leche",
+    "cereal": "Pan"
+   },
+   "cantidades": [
+    [
+     "Leche descremada",
+     250,
+     "g"
+    ],
+    [
+     "Pan",
+     60,
+     "g"
+    ],
+    [
+     "Mermelada",
+     15,
+     "g"
+    ],
+    [
+     "Naranja",
+     1,
+     "unidad"
+    ]
+   ],
+   "pasos": [
+    "Calentá la leche o tomala fría.",
+    "Tostá el pan y untalo con la mermelada.",
+    "Acompañalo con la naranja."
+   ]
+  },
+  {
+   "text": "Pan con huevo y tomate",
+   "corto": "Pan con huevo y tomate",
+   "tipo": "desayuno",
+   "minutos": 8,
+   "tags": [],
+   "desayuno": {
+    "fruta": "Tomate",
+    "prot": "Huevo",
+    "cereal": "Pan"
+   },
+   "cantidades": [
+    [
+     "Pan",
+     70,
+     "g"
+    ],
+    [
+     "Huevo",
+     2,
+     "unidad"
+    ],
+    [
+     "Tomate",
+     100,
+     "g"
+    ],
+    [
+     "Mandarina",
+     1,
+     "unidad"
+    ]
+   ],
+   "pasos": [
+    "Hacé los huevos revueltos o a la plancha.",
+    "Abrí el pan y armá el sándwich con el tomate en rodajas.",
+    "Cerralo y comé la mandarina al lado."
+   ]
+  },
+  {
+   "text": "Avena con yogur y frutillas",
+   "corto": "Avena con yogur y frutillas",
+   "tipo": "desayuno",
+   "minutos": 10,
+   "tags": [],
+   "desayuno": {
+    "fruta": "Frutillas",
+    "prot": "Yogur natural",
+    "cereal": "Avena"
+   },
+   "cantidades": [
+    [
+     "Avena",
+     30,
+     "g"
+    ],
+    [
+     "Yogur natural",
+     190,
+     "g"
+    ],
+    [
+     "Frutillas",
+     100,
+     "g"
+    ]
+   ],
+   "pasos": [
+    "Mezclá la avena con el yogur.",
+    "Sumá las frutillas picadas.",
+    "Dejala reposar 5 minutos y comela."
+   ]
   }
  ]
 }
