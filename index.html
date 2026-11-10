@@ -1025,8 +1025,9 @@ button:active{
 }
 
 .shop-item input{
-  width:20px;
-  height:20px;
+  flex:0 0 24px;
+  width:24px;
+  height:24px;
   accent-color:var(--green)
 }
 
@@ -3524,7 +3525,6 @@ body.con-hoja{
 /* Precios automáticos (v15.6): aviso para quien no los activó y línea de fuente. */
 .precios-aviso{display:block;min-height:44px;margin:0 0 8px;padding:0;border:0;background:none;color:var(--primary,var(--accent));font:inherit;text-align:left;text-decoration:underline;cursor:pointer}
 .precios-aviso[hidden]{display:none}
-.shop-item__nombre{display:inline-block;min-height:44px;line-height:44px;text-decoration:underline dotted;text-underline-offset:3px;cursor:pointer}
 .hoja__cuerpo a{color:var(--primary,var(--accent))}
 .completar-precios{display:grid;gap:8px}
 .completar-precios__fila{width:100%}
@@ -3545,9 +3545,6 @@ body.con-hoja{
 
 /* Etapa 13 (v16.2): precios a la vista. */
 .hueco__costo{display:block;font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums}
-.precio-tap{display:inline;cursor:pointer;text-decoration:underline dotted;text-underline-offset:3px;padding:12px 4px;margin:-12px 0}
-.precio-detalle{display:block;width:100%}
-.precio-detalle[hidden]{display:none}
 
 /* Etapa 15 (v16.4): Armame la semana. */
 .armame-boton{width:100%;min-height:44px;margin:0 0 16px}
@@ -3576,6 +3573,12 @@ select{max-width:100%;min-width:0}
 /* v17.6: "Completar N precios" como enlace discreto, no como tarea pendiente */
 #planPreciosEstado .precios-aviso--inline{background:none;border:0;box-shadow:none;color:var(--green);text-decoration:underline;font-weight:600;padding:0 4px}
 .ficha-precio__subtitulo{margin:12px 0 4px;font-weight:600}
+
+/* Lista de compras (Etapa 26, v18.1.0): un toque en cualquier parte de la fila tacha; la ficha del producto está en el botón ⓘ (44×44). */
+#comprasList .shop-item{min-height:48px;padding:2px 0 2px 4px;cursor:pointer}
+#comprasList .shop-item>label{flex:1 1 0;min-width:0;padding:8px 0;cursor:pointer;overflow-wrap:anywhere}
+.shop-item__ficha{flex:0 0 44px;width:44px;height:44px;padding:0;border:0;border-radius:50%;background:none;color:var(--muted);font:inherit;font-size:20px;line-height:1;cursor:pointer}
+.shop-item__ficha:focus-visible{outline:3px solid var(--green);outline-offset:-3px}
 </style></head><body>
 <div class="app-shell"><header class="app-header"><div class="app-header__row"><div class="brand"><div><h1 class="brand__title" aria-label="Mi Plato Fácil"><span class="wordmark-mi">mi</span> plato <span class="wordmark-facil">fácil</span></h1></div></div><button class="home-button" id="homeTop" type="button">Inicio</button></div></header><main id="appMain">
 <section class="screen card is-active" id="home"><p class="screen__kicker">Hoy</p><h2 class="screen__title">Hoy</h2><p class="screen__hint"></p><div class="today" id="todayPanel"><div class="today__entreno" id="todayEntreno"></div><p class="today__primera" id="todayPrimera" hidden></p><div class="today__rows" id="todayRows"></div><p class="screen__hint today__status" id="todayStatus" aria-live="polite"></p><p class="today__registro"><button class="button button--soft" type="button" data-open-registro id="todayRegistro">Ver tu registro de hoy →</button></p><details class="today__manana" id="todayManana"><summary id="todayMananaTitulo">Mañana</summary><div class="today__rows" id="todayMananaRows"></div></details></div><div class="home-group home-group--main"><p class="settings-label">Atajos</p><div class="grid home-grid"><div class="tool-button armar-comida" role="group" aria-labelledby="armarComidaTitulo"><span class="tool-button__emoji">🥗</span><span class="tool-button__label" id="armarComidaTitulo">Armar una comida</span><span class="tool-button__desc">Con el método del plato</span><div class="armar-comida__opciones"><button class="button button--soft" type="button" data-start="desayuno">Desayuno o merienda</button><button class="button button--soft" type="button" data-start="plato">Almuerzo o cena</button></div></div><button class="tool-button" type="button" data-sugerime><span class="tool-button__emoji">🎲</span><span class="tool-button__label">Sugerime algo</span><span class="tool-button__desc">Una idea para tu próxima comida</span></button><button class="tool-button" type="button" data-con-lo-que-tengo><span class="tool-button__emoji">🧊</span><span class="tool-button__label">Con lo que tengo</span><span class="tool-button__desc">Ideas con tu despensa</span></button></div></div><div class="home-group" id="sectionSettings"><div class="tools-grid"><button class="tool-button" type="button" data-open-training><span class="tool-button__emoji">🏋️</span><span class="tool-button__label">Mi rutina</span><span class="tool-button__desc">Qué días entrenás</span></button><button class="tool-button" type="button" data-open-registro><span class="tool-button__emoji">📒</span><span class="tool-button__label">Registro</span><span class="tool-button__desc">Lo que comiste y cocinaste</span></button><button class="tool-button" type="button" data-open-preferencias><span class="tool-button__emoji">⚙️</span><span class="tool-button__label">Preferencias</span><span class="tool-button__desc">Evitar, objetivos y precios</span></button><button class="tool-button" type="button" id="backupOpen" data-open-mis-datos><span class="tool-button__emoji">💾</span><span class="tool-button__label">Mis datos</span><span class="tool-button__desc">Respaldo, exportar e importar</span></button><button class="tool-button" type="button" id="aiSettingsOpen"><span class="tool-button__emoji">✨</span><span class="tool-button__label">Asistente de IA</span><span class="tool-button__desc">Con tu app de IA o con Gemini</span></button><button class="tool-button theme-fab" id="themeToggle" type="button" data-theme-toggle><span class="tool-button__emoji">🌙</span><span class="tool-button__label">Tema: Auto</span><span class="tool-button__desc">Apariencia: claro, oscuro o automático</span></button><button class="tool-button" type="button" data-open-fuentes><span class="tool-button__emoji">📚</span><span class="tool-button__label">Fuentes de datos</span><span class="tool-button__desc">De dónde salen los datos</span></button><button class="tool-button" type="button" data-open-como-funciona><span class="tool-button__emoji">❓</span><span class="tool-button__label">Cómo funciona</span><span class="tool-button__desc">El método y la bienvenida</span></button></div></div></section>
@@ -7234,47 +7237,38 @@ nombreCorto(texto){
   const corto=nom.replace(/\s*\([^)]*\)/g,"").split(/\s+o\s+/i)[0].replace(/\s+(arrollad[oa]|fluid[oa]|comprad[oa]|instant[aá]ne[oa])$/i,"").trim()||nom;
   return corto+(i>0?t.slice(i):"")
 },
+// El nombre corto solo se usa si no se confunde con otra fila: la pantalla y el texto compartido (comprasText) usan lo mismo (Etapa 26).
+marcarNombresCortos(items){
+  const cuentaCorto=new Map();
+  for(const x of items){const k=ingredientKey(Compras.nombreCorto(x.name));cuentaCorto.set(k,(cuentaCorto.get(k)||0)+1)}
+  for(const x of items)x.cortar=cuentaCorto.get(ingredientKey(Compras.nombreCorto(x.name)))===1;
+  return items
+},
 shoppingRow(x,i,checked,detail){
   const row=ce("div","shop-item"+(checked?" is-done":"")),cb=ce("input"),lab=ce("label");
-  // Etapa 21: tocar el nombre abre la ficha del ingrediente (nutrientes y precio) sin tachar la fila.
-  {
-    const txt=Ingredientes.textoLegible(x.cortar?Compras.nombreCorto(x.text):x.text)+(x.precioTxt?" · ":""),i=txt.indexOf(":");
-    if(i>0){
-      const nom=ce("span","shop-item__nombre",txt.slice(0,i)),abrirFicha=ev=>{
-        ev.preventDefault();ev.stopPropagation();
-        Comidas.abrirNutrientesDeIngrediente(x.name)
-      };
-      nom.setAttribute("role","button");nom.tabIndex=0;nom.dataset.fichaIngrediente=x.name;
-      nom.setAttribute("aria-label","Ficha de "+x.name+": nutrientes y precio");
-      nom.addEventListener("click",abrirFicha);
-      nom.addEventListener("keydown",ev=>{if(ev.key==="Enter"||ev.key===" ")abrirFicha(ev)});
-      lab.append(nom,document.createTextNode(txt.slice(i)))
-    }else lab.append(document.createTextNode(txt))
-  }
-  // El precio se toca para ver su fuente, mes y rango (no tacha el ítem).
-  let detallePrecioEl=null;
-  if(x.precioTxt){
-    const p=ce("span","precio-tap",x.precioTxt);
-    p.setAttribute("role","button");p.tabIndex=0;p.setAttribute("aria-expanded","false");
-    p.setAttribute("aria-label","Precio "+x.precioTxt+" de "+x.name+": ver fuente y rango");
-    detallePrecioEl=ce("span","shop-item__detail precio-detalle",x.precioDetalle||"");
-    detallePrecioEl.hidden=true;
-    const alternar=ev=>{
-      ev.preventDefault();ev.stopPropagation();
-      detallePrecioEl.hidden=!detallePrecioEl.hidden;p.setAttribute("aria-expanded",String(!detallePrecioEl.hidden))
-    };
-    p.addEventListener("click",alternar);
-    p.addEventListener("keydown",ev=>{if(ev.key==="Enter"||ev.key===" ")alternar(ev)});
-    lab.append(p)
-  }
+  // Etapa 26: un toque en cualquier parte de la fila tacha o destacha (el nombre y el precio ya no son botones).
+  // La ficha (nutrientes, fuente, mes y rango del precio) se abre con el botón "ⓘ" de la derecha, que no tacha.
+  lab.append(document.createTextNode(Ingredientes.textoLegible(x.cortar?Compras.nombreCorto(x.text):x.text)+(x.precioTxt?" · "+x.precioTxt:"")));
   cb.type="checkbox";
   cb.checked=checked;
   cb.dataset.shopKey=x.key;
   cb.id="shopItem_"+i;
   lab.htmlFor=cb.id;
-  row.append(cb,lab);
+  const info=ce("button","shop-item__ficha","ⓘ");
+  info.type="button";
+  info.dataset.fichaIngrediente=x.name;
+  info.setAttribute("aria-label","Ficha de "+x.name+": nutrientes y precio");
+  info.addEventListener("click",ev=>{
+    ev.preventDefault();ev.stopPropagation();
+    Comidas.abrirNutrientesDeIngrediente(x.name)
+  });
+  // El texto ya tacha por su label; el espacio libre de la fila (márgenes y huecos) lo hace este toque.
+  row.addEventListener("click",ev=>{
+    if(ev.target===cb||ev.target.closest("label,button,a"))return;
+    cb.click()
+  });
+  row.append(cb,lab,info);
   if(detail)row.append(ce("span","shop-item__detail",Ingredientes.textoLegible(detail)));
-  if(detallePrecioEl)row.append(detallePrecioEl);
   return row
 },
 shoppingGroup(title,list,open,onToggle){
@@ -7318,7 +7312,7 @@ toggleShop(key,checked){
   renderCompras()
 },
 comprasText(){
-  const todos=shoppingDisplayItems(),pend=todos.filter(x=>x.group==="pendiente"&&!comprasDone[x.key]),lines=[],extras=manualShoppingText();
+  const todos=Compras.marcarNombresCortos(shoppingDisplayItems()),pend=todos.filter(x=>x.group==="pendiente"&&!comprasDone[x.key]),lines=[],extras=manualShoppingText();
   // Etapa 23: para WhatsApp. Por secciones del súper (título en negrita), con cantidades legibles, ≈ precio por producto y el total.
   let precios=null;
   try{
@@ -7329,7 +7323,7 @@ comprasText(){
     const l=pend.filter(x=>x.seccion===sec);
     if(l.length)lines.push(...(lines.length?[""]:[]),"*"+sec+"*",...l.map(x=>{
       const p=precios&&precios.porClave.get(x.key),est=p&&/^sin precio · estimado/.test(p),real=p&&!est&&p!=="sin precio";
-      return "• "+Ingredientes.textoLegible(x.text)+(real?" · "+p:est?" · "+p.replace("sin precio · estimado","estimado"):"")
+      return "• "+Ingredientes.textoLegible(x.cortar?Compras.nombreCorto(x.text):x.text)+(real?" · "+p:est?" · "+p.replace("sin precio · estimado","estimado"):"")
     }))
   }
   if(!lines.length&&!extras)return "";
@@ -7563,9 +7557,7 @@ function renderCompras(){
     return
   }
   // El nombre corto solo se usa si no se confunde con otra fila ("Arroz" y "Arroz (integral, yamaní)" siguen separados).
-  const cuentaCorto=new Map();
-  for(const x of items){const k=ingredientKey(Compras.nombreCorto(x.name));cuentaCorto.set(k,(cuentaCorto.get(k)||0)+1)}
-  for(const x of items)x.cortar=cuentaCorto.get(ingredientKey(Compras.nombreCorto(x.name)))===1;
+  Compras.marcarNombresCortos(items);
   const pend=items.filter(x=>x.group==="pendiente"),tenes=items.filter(x=>x.group==="tenes"),comprados=items.filter(x=>x.group==="comprado"),pending=pend.filter(x=>!comprasDone[x.key]),tachados=pend.length-pending.length+tenes.filter(x=>comprasDone[x.key]).length;
   let precios=null;
   try{
@@ -10204,7 +10196,7 @@ function ingredientAliasSuggestions(names){
     // Etapa 23: solo variantes de nombre del mismo ingrediente (la nutrición los reconoce como el mismo, o el nombre más largo es
     // el corto con una variante). "Queso Port Salut descremado" y "Queso cremoso" son quesos distintos: no se sugiere unirlos.
     // Familias donde una palabra más cambia de producto (queso Port Salut ≠ queso cremoso): ahí solo se sugiere una variante de nombre.
-    const DISTINTOS=["queso","yogur","harina","porotos","poroto","pan","aceite","carne","fideos","leche","semillas"];
+    const DISTINTOS=["queso","yogur","harina","porotos","poroto","pan","aceite","carne","fideos","leche","semillas","cebolla"];
     const mismo=(a,b)=>{
       if(Ingredientes.variantesNombre(a).some(v=>ingredientKey(v)===ingredientKey(b))||Ingredientes.variantesNombre(b).some(v=>ingredientKey(v)===ingredientKey(a)))return true;
       const x=nutritionFor(a),y=nutritionFor(b);
@@ -15157,7 +15149,7 @@ cambiarPersonasHogar(valor){
   if(typeof refrescarPrecios==="function")try{refrescarPrecios()}catch(e){}
 }
 };
-var ENVASES_DATOS={"version":1,"revisado":"2026-11-04","fuente":"Tabla curada a mano (tamaños típicos de supermercado en Argentina). No son precios: solo cuánto trae un envase común.","gramosPorCuarto":{"verduras":100,"almidones":80,"proteinas":120},"basicos":["Aceite","Sal","Pimienta","Vinagre","Orégano","Pimentón","Comino","Ají molido","Especias","Condimentos","Hierbas secas","Laurel","Tomillo","Nuez moscada","Canela"],"pesoPorcion":{"Ananá":{"rodaja":80},"Melón":{"tajada":200},"Sandía":{"tajada":300},"Huevo":{"unidad":55}},"envases":[{"n":"Fideos","tam":500,"u":"g","envase":"paquete"},{"n":"Pastas","tam":500,"u":"g","envase":"paquete"},{"n":"Arroz","tam":1000,"u":"g","envase":"paquete"},{"n":"Harina","tam":1000,"u":"g","envase":"paquete"},{"n":"Avena","tam":500,"u":"g","envase":"paquete"},{"n":"Polenta","tam":500,"u":"g","envase":"paquete"},{"n":"Quinoa","tam":500,"u":"g","envase":"paquete"},{"n":"Cuscús","tam":500,"u":"g","envase":"paquete"},{"n":"Lentejas","tam":500,"u":"g","envase":"paquete"},{"n":"Garbanzos","tam":500,"u":"g","envase":"paquete"},{"n":"Porotos","tam":500,"u":"g","envase":"paquete"},{"n":"Arvejas","tam":500,"u":"g","envase":"paquete"},{"n":"Azúcar","tam":1000,"u":"g","envase":"paquete"},{"n":"Pan rallado","tam":500,"u":"g","envase":"paquete"},{"n":"Granola","tam":350,"u":"g","envase":"paquete"},{"n":"Frutos secos","tam":200,"u":"g","envase":"bolsa"},{"n":"Semillas","tam":200,"u":"g","envase":"bolsa"},{"n":"Manteca","tam":200,"u":"g","envase":"pan"},{"n":"Leche","tam":1000,"u":"ml","envase":"sachet"},{"n":"Atún","tam":170,"u":"g","envase":"lata"},{"n":"Caballa","tam":300,"u":"g","envase":"lata"},{"n":"Sardina","tam":125,"u":"g","envase":"lata"},{"n":"Pan de molde","tam":20,"u":"unidad","envase":"paquete","ut":"rebanadas"},{"n":"Tortillas","tam":8,"u":"unidad","envase":"paquete","ut":"unidades"},{"n":"Huevo","tam":12,"u":"unidad","envase":"docena","corto":true},{"n":"Yogur","tam":1,"u":"unidad","envase":"pote","corto":true},{"n":"Lechuga","tam":300,"u":"g","envase":"planta"}],"pesoUnidad":{"Zanahoria":100,"Batata":250,"Palta":200,"Morrón":200,"Limón":100,"Naranja":200,"Pepino":250,"Tomate":150,"Cebolla":150,"Banana":120,"Manzana":180,"Papa":200,"Zapallito":200,"Yogur":190,"Mandarina":100,"Pera":180,"Durazno":150,"Kiwi":80,"Ciruela":60,"Pomelo":250,"Mango":300},"_pesoUnidad":"Gramos de una unidad común de cada ingrediente (para pasar unidades a kilos al calcular precios). Reemplaza al peso de la tabla de nutrición cuando esa unidad es chica o rara (la zanahoria de USDA pesa 61 g).","porcionVerdura":{"Lechuga":80,"Tomate":100,"Zanahoria":80,"Cebolla":50,"Morrón":80,"Zapallito":150,"Zapallo":150,"Espinaca":80,"Brócoli":100,"Pepino":80,"Repollo":80,"Rúcula":40,"Acelga":100,"Remolacha":80},"_porcionVerdura":"Gramos de una porción común por persona de cada verdura (Etapa 23). Reemplaza el reparto en partes iguales del medio plato, que daba 65 g de lechuga y de tomate."};
+var ENVASES_DATOS={"version":1,"revisado":"2026-11-04","fuente":"Tabla curada a mano (tamaños típicos de supermercado en Argentina). No son precios: solo cuánto trae un envase común.","gramosPorCuarto":{"verduras":100,"almidones":80,"proteinas":120},"basicos":["Aceite","Sal","Pimienta","Vinagre","Orégano","Pimentón","Comino","Ají molido","Especias","Condimentos","Hierbas secas","Laurel","Tomillo","Nuez moscada","Canela"],"pesoPorcion":{"Ananá":{"rodaja":80},"Melón":{"tajada":200},"Sandía":{"tajada":300},"Huevo":{"unidad":55},"Queso":{"rebanada":30}},"envases":[{"n":"Fideos","tam":500,"u":"g","envase":"paquete"},{"n":"Pastas","tam":500,"u":"g","envase":"paquete"},{"n":"Arroz","tam":1000,"u":"g","envase":"paquete"},{"n":"Harina","tam":1000,"u":"g","envase":"paquete"},{"n":"Avena","tam":500,"u":"g","envase":"paquete"},{"n":"Polenta","tam":500,"u":"g","envase":"paquete"},{"n":"Quinoa","tam":500,"u":"g","envase":"paquete"},{"n":"Cuscús","tam":500,"u":"g","envase":"paquete"},{"n":"Lentejas","tam":500,"u":"g","envase":"paquete"},{"n":"Garbanzos","tam":500,"u":"g","envase":"paquete"},{"n":"Porotos","tam":500,"u":"g","envase":"paquete"},{"n":"Arvejas","tam":500,"u":"g","envase":"paquete"},{"n":"Azúcar","tam":1000,"u":"g","envase":"paquete"},{"n":"Pan rallado","tam":500,"u":"g","envase":"paquete"},{"n":"Granola","tam":350,"u":"g","envase":"paquete"},{"n":"Frutos secos","tam":200,"u":"g","envase":"bolsa"},{"n":"Semillas","tam":200,"u":"g","envase":"bolsa"},{"n":"Manteca","tam":200,"u":"g","envase":"pan"},{"n":"Leche","tam":1000,"u":"ml","envase":"sachet"},{"n":"Atún","tam":170,"u":"g","envase":"lata"},{"n":"Caballa","tam":300,"u":"g","envase":"lata"},{"n":"Sardina","tam":125,"u":"g","envase":"lata"},{"n":"Pan de molde","tam":20,"u":"unidad","envase":"paquete","ut":"rebanadas"},{"n":"Tortillas","tam":8,"u":"unidad","envase":"paquete","ut":"unidades"},{"n":"Huevo","tam":12,"u":"unidad","envase":"docena","corto":true},{"n":"Yogur","tam":1,"u":"unidad","envase":"pote","corto":true},{"n":"Lechuga","tam":300,"u":"g","envase":"planta"}],"pesoUnidad":{"Zanahoria":100,"Batata":250,"Palta":200,"Morrón":200,"Limón":100,"Naranja":200,"Pepino":250,"Tomate":150,"Cebolla":150,"Banana":120,"Manzana":180,"Papa":200,"Zapallito":200,"Yogur":190,"Mandarina":100,"Pera":180,"Durazno":150,"Kiwi":80,"Ciruela":60,"Pomelo":250,"Mango":300,"Tortillas":40},"_pesoUnidad":"Gramos de una unidad común de cada ingrediente (para pasar unidades a kilos al calcular precios). Reemplaza al peso de la tabla de nutrición cuando esa unidad es chica o rara (la zanahoria de USDA pesa 61 g).","porcionVerdura":{"Lechuga":80,"Tomate":100,"Zanahoria":80,"Cebolla":50,"Morrón":80,"Zapallito":150,"Zapallo":150,"Espinaca":80,"Brócoli":100,"Pepino":80,"Repollo":80,"Rúcula":40,"Acelga":100,"Remolacha":80},"_porcionVerdura":"Gramos de una porción común por persona de cada verdura (Etapa 23). Reemplaza el reparto en partes iguales del medio plato, que daba 65 g de lechuga y de tomate."};
 var HOGAR_KEY="miPlatoFacil_hogar_v1";
 var BASICOS_FALTANTES_KEY="miPlatoFacil_basicosFaltantes_v1";
 function validHogar(o){
@@ -15239,14 +15231,15 @@ function leerPorcion(texto){
   else if(/^cditas?\b|^cucharaditas?/.test(w))unit="cucharadita";
   else if(/^taza/.test(w))unit="taza";
   else if(/^vaso/.test(w)){q*=200;unit="ml"}
-  else if(/^(rodaja|tajada|rebanada|pote|porci[oó]n|pu[nñ]ado)/.test(w))unit=/^(rodaja|tajada)/.test(w)?w.split(/\s/)[0].replace(/s$/,""):"unidad";
+  else if(/^(rodaja|tajada|rebanada|pote|porci[oó]n|pu[nñ]ado)/.test(w))unit=/^(rodaja|tajada|rebanada)/.test(w)?w.split(/\s/)[0].replace(/s$/,""):"unidad";
   if(!unit||!(q>0)||!Number.isFinite(q))return null;
   return {q,unit}
 }
 // Pasa rodajas y tajadas a gramos con la tabla curada (Ananá, Melón, Sandía); el resto queda como está.
 function cantidadNormal(nombre,q,unit){
   const t=datosEnvases().pesoPorcion;
-  if(unit==="rodaja"||unit==="tajada"){
+  // Etapa 26: una rebanada de queso son 30 g ("Queso Port Salut: 180 g", no "12 unidades"); la de pan de molde sigue siendo una unidad.
+  if(unit==="rodaja"||unit==="tajada"||unit==="rebanada"){
     for(const [n,u] of Object.entries(t))if(u[unit]&&nombreEmpiezaCon(nombre,n))return {q:q*u[unit],unit:"g"};
     return {q,unit:"unidad"}
   }
@@ -15297,6 +15290,8 @@ function cantidadesDePlatoArmado(item){
       nombres.forEach(n=>{
         const gr=curada(n)||Math.max(40,(total-fijas)/Math.max(1,libres)),pu=datosEnvases().pesoPorcion.Huevo;
         if(nombreEmpiezaCon(n,"Huevo")&&pu&&pu.unidad)sumar(n,Math.max(1,Math.round(gr/pu.unidad)),"unidad");
+        // Etapa 26: las tortillas se cuentan de a 2 por persona y por comida (de 40 g cada una) y se compran por paquete.
+        else if(claves[0]==="almidones"&&nombreEmpiezaCon(n,"Tortilla"))sumar(n,2,"unidad");
         else sumar(n,gr,"g")
       })
     }

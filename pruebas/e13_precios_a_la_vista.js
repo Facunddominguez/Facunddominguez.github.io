@@ -28,10 +28,13 @@
   const p = JSON.parse(ev(`JSON.stringify((() => { const items = shoppingDisplayItems(), pr = preciosDeLaLista(items); const reales = new Set(pr.productos.filter(x => x.tipo === "real").map(x => x.key)); return { n: items.length, con: reales.size, detalles: [...pr.porDetalle].filter(([k]) => reales.has(k)).map(e => e[1]), faltan: pr.faltan } })())`));
   const conFuenteYMes = p.detalles.length > 0 && p.detalles.every(t => /^≈ \$[\d.]+( · entre \$[\d.]+ y \$[\d.]+)? · .*(SEPA|INDEC|Mi precio)/.test(t) && /(20\d\d|\b(ene|feb|mar|abr|may|jun|jul|ago|sept|oct|nov|dic)\.|\d{1,2}\/\d{1,2})/.test(t));
   const rangos = p.detalles.filter(t => / · entre \$/.test(t)).length;
-  const tap = doc().querySelector("#comprasList .precio-tap"), cb = tap && tap.closest(".shop-item").querySelector("input"), marcaAntes = cb && cb.checked;
-  if (tap) tap.click(); await espera(60);
-  const detalleVisible = tap && !tap.closest(".shop-item").querySelector(".precio-detalle").hidden && /≈ \$/.test(tap.closest(".shop-item").querySelector(".precio-detalle").textContent) && tap.getAttribute("aria-expanded") === "true" && cb.checked === marcaAntes;
-  ok("C13-1 con precios encendidos por defecto, el 80 % o más de la lista tiene precio y cada uno muestra fuente, mes y rango al tocarlo", encendidos && p.n >= 15 && p.con / p.n >= 0.8 && conFuenteYMes && rangos > 0 && detalleVisible, JSON.stringify({ encendidos, n: p.n, con: p.con, conFuenteYMes, rangos, detalleVisible, ejemplo: p.detalles[0] }));
+  // Etapa 26 (Ronda 4): el precio ya no es un botón; fuente, mes y rango se ven en la ficha, que se abre con el ⓘ de la fila y no tacha.
+  const fila = [...doc().querySelectorAll("#comprasList .shop-item")].find(r => /≈ \$/.test(r.textContent) && r.querySelector(".shop-item__ficha")), cb = fila && fila.querySelector("input"), marcaAntes = cb && cb.checked;
+  if (fila) fila.querySelector(".shop-item__ficha").click(); await espera(250);
+  const lineaFicha = (doc().querySelector(".hoja .ficha-precio__linea") || { textContent: "" }).textContent;
+  const detalleVisible = !!fila && /^≈ \$[\d.]+\/(kg|l|unidad)/.test(lineaFicha) && /(SEPA|INDEC|Mi precio)/.test(lineaFicha) && /20\d\d/.test(lineaFicha) && cb.checked === marcaAntes;
+  ev("hoja.cerrar()"); await espera(100);
+  ok("C13-1 con precios encendidos por defecto, el 80 % o más de la lista tiene precio y cada uno muestra fuente, mes y rango en su ficha (botón ⓘ)", encendidos && p.n >= 15 && p.con / p.n >= 0.8 && conFuenteYMes && rangos > 0 && detalleVisible, JSON.stringify({ encendidos, n: p.n, con: p.con, conFuenteYMes, rangos, detalleVisible, ejemplo: p.detalles[0] }));
 
   // C13-2 Costo por comida, por día y por semana; "faltan N precios" una sola vez; personas lo escalan.
   ev('openTab("semana")'); await espera(200);

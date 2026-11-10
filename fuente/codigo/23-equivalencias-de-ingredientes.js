@@ -85,7 +85,7 @@ function ingredientAliasSuggestions(names){
     // Etapa 23: solo variantes de nombre del mismo ingrediente (la nutrición los reconoce como el mismo, o el nombre más largo es
     // el corto con una variante). "Queso Port Salut descremado" y "Queso cremoso" son quesos distintos: no se sugiere unirlos.
     // Familias donde una palabra más cambia de producto (queso Port Salut ≠ queso cremoso): ahí solo se sugiere una variante de nombre.
-    const DISTINTOS=["queso","yogur","harina","porotos","poroto","pan","aceite","carne","fideos","leche","semillas"];
+    const DISTINTOS=["queso","yogur","harina","porotos","poroto","pan","aceite","carne","fideos","leche","semillas","cebolla"];
     const mismo=(a,b)=>{
       if(Ingredientes.variantesNombre(a).some(v=>ingredientKey(v)===ingredientKey(b))||Ingredientes.variantesNombre(b).some(v=>ingredientKey(v)===ingredientKey(a)))return true;
       const x=nutritionFor(a),y=nutritionFor(b);

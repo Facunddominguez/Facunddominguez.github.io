@@ -151,6 +151,15 @@
     {"id": "R4-25-tamano", "etapa": 25, "hecho": "construir.mjs falla con más de 1.100.000 bytes o más de 300.000 con gzip, y si precios.json pasa 80.000 bytes.", "tipo": "comando", "comando": "node pruebas/tamano-construccion.mjs"},
     {"id": "R4-25-bienvenida", "etapa": 25, "hecho": "Después de \"Armar mi semana\" y de \"Saltar\", tocar Hoy muestra la pantalla home.", "tipo": "prueba", "prueba": "R4-25-bienvenida"},
     {"id": "R4-25-costo", "etapa": 25, "hecho": "Después de \"Rehacer la semana entera\", el costo del día y el de cada hueco son los mismos antes y después de ir a otra pestaña y volver, y los 4 huecos muestran costo.", "tipo": "prueba", "prueba": "R4-25-costo"},
-    {"id": "R4-25-registro", "etapa": 25, "hecho": "Qué cambió y las decisiones de la Etapa 25 quedan en el Registro de la Ronda 4.", "tipo": "registro", "seccion": "Etapa 25", "debeNombrar": ["R4-25-verde", "R4-25-datos", "R4-25-tamano", "R4-25-bienvenida", "R4-25-costo"]}
+    {"id": "R4-25-registro", "etapa": 25, "hecho": "Qué cambió y las decisiones de la Etapa 25 quedan en el Registro de la Ronda 4.", "tipo": "registro", "seccion": "Etapa 25", "debeNombrar": ["R4-25-verde", "R4-25-datos", "R4-25-tamano", "R4-25-bienvenida", "R4-25-costo"]},
+    {"id": "R4-26-fila", "etapa": 26, "hecho": "Un toque en el nombre, en el precio o en el espacio libre de la fila la tacha; otro la destacha; ninguno abre una hoja.", "tipo": "prueba", "prueba": "R4-26-fila"},
+    {"id": "R4-26-ficha", "etapa": 26, "hecho": "Un toque en ⓘ abre la ficha y no tacha.", "tipo": "prueba", "prueba": "R4-26-ficha"},
+    {"id": "R4-26-casilla", "etapa": 26, "hecho": "A 390 y a 320 px todas las casillas miden 24×24 px y todas las filas, 48 px o más de alto.", "tipo": "prueba", "prueba": "R4-26-casilla"},
+    {"id": "R4-26-cantidades", "etapa": 26, "hecho": "Con la semana armada de la prueba, ninguna fila de queso está en \"unidades\" y la de tortillas dice \"paquete\".", "tipo": "prueba", "prueba": "R4-26-cantidades"},
+    {"id": "R4-26-equivalencia", "etapa": 26, "hecho": "No aparece la sugerencia de cebolla de verdeo; siguen las de tomate perita y arroz.", "tipo": "prueba", "prueba": "R4-26-equivalencia"},
+    {"id": "R4-26-compartir", "etapa": 26, "hecho": "Cada producto del texto compartido tiene el mismo nombre que su fila en pantalla.", "tipo": "prueba", "prueba": "R4-26-compartir"},
+    {"id": "R4-26-alto", "etapa": 26, "hecho": "La vista compras en estado normal mide 3.300 px o menos a 390 px (antes 3.626), sin sumar palabras visibles.", "tipo": "medida", "vista": "compras", "estado": "normal", "metrica": "alto", "operador": "<=", "umbral": 3300},
+    {"id": "R4-26-registro", "etapa": 26, "hecho": "Qué cambió en la lista de compras queda en el Registro.", "tipo": "registro", "seccion": "Etapa 26", "debeNombrar": ["R4-26-fila", "R4-26-casilla", "R4-26-cantidades", "R4-26-alto"]},
+    {"id": "R4-26-revisor", "etapa": 26, "hecho": "revisor-usuario no marca bloqueantes en las vistas de Compras a 390 y 320 px.", "tipo": "revisor", "revisor": "revisor-usuario"}
   ]
 }

@@ -29,8 +29,9 @@
 
   // E21-un-toque: desde la lista, desde Completar precios y desde una comida se llega a la ficha en un toque.
   ev('openTab("compras")'); await espera(250);
-  const nombres = [...doc().querySelectorAll("#comprasList .shop-item__nombre")];
-  const nArroz = nombres.find(n => /^Arroz/.test(n.textContent));
+  // Etapa 26 (Ronda 4): la ficha se abre con el botón ⓘ de la fila (un toque), no con el nombre.
+  const nombres = [...doc().querySelectorAll("#comprasList .shop-item__ficha")];
+  const nArroz = nombres.find(n => /^Arroz/.test(n.dataset.fichaIngrediente));
   await tocar(nArroz);
   const desdeLista = !!ficha() && doc().querySelector(".hoja__titulo").textContent.startsWith("Arroz") && /^≈ \$[\d.]+\/kg · (SEPA|INDEC) .+ · .*20\d\d/.test(linea()) && /entre \$[\d.]+ y \$[\d.]+/.test(linea()) && !!doc().querySelector(".hoja .nutrition-facts");
   const lineaArroz = linea();
@@ -52,7 +53,7 @@
   // E21-mi-precio: guardar cambia al instante todos los costos, sin herramientas avanzadas; se puede deshacer y borrar.
   ev('openTab("compras")'); await espera(250);
   const totalAntes = ev("Math.round(costoSemanaPlan().total)"), uiModo = ev("Interfaz.getUiMode()");
-  await tocar([...doc().querySelectorAll("#comprasList .shop-item__nombre")].find(n => /^Arroz/.test(n.textContent)));
+  await tocar([...doc().querySelectorAll("#comprasList .shop-item__ficha")].find(n => /^Arroz/.test(n.dataset.fichaIngrediente)));
   /* v17.6: el formulario de Mi precio ya se ve sin tocar "Agregar mi precio" */
   const set = (id, v) => { const e = doc().getElementById(id); e.value = v; e.dispatchEvent(new w.Event("input", { bubbles: true })); e.dispatchEvent(new w.Event("change", { bubbles: true })) };
   set("fichaPrecioMonto", "20000"); set("fichaPrecioCantidad", "1"); set("fichaPrecioUnidad", "kg");

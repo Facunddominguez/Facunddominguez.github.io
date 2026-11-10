@@ -95,14 +95,15 @@ function leerPorcion(texto){
   else if(/^cditas?\b|^cucharaditas?/.test(w))unit="cucharadita";
   else if(/^taza/.test(w))unit="taza";
   else if(/^vaso/.test(w)){q*=200;unit="ml"}
-  else if(/^(rodaja|tajada|rebanada|pote|porci[oó]n|pu[nñ]ado)/.test(w))unit=/^(rodaja|tajada)/.test(w)?w.split(/\s/)[0].replace(/s$/,""):"unidad";
+  else if(/^(rodaja|tajada|rebanada|pote|porci[oó]n|pu[nñ]ado)/.test(w))unit=/^(rodaja|tajada|rebanada)/.test(w)?w.split(/\s/)[0].replace(/s$/,""):"unidad";
   if(!unit||!(q>0)||!Number.isFinite(q))return null;
   return {q,unit}
 }
 // Pasa rodajas y tajadas a gramos con la tabla curada (Ananá, Melón, Sandía); el resto queda como está.
 function cantidadNormal(nombre,q,unit){
   const t=datosEnvases().pesoPorcion;
-  if(unit==="rodaja"||unit==="tajada"){
+  // Etapa 26: una rebanada de queso son 30 g ("Queso Port Salut: 180 g", no "12 unidades"); la de pan de molde sigue siendo una unidad.
+  if(unit==="rodaja"||unit==="tajada"||unit==="rebanada"){
     for(const [n,u] of Object.entries(t))if(u[unit]&&nombreEmpiezaCon(nombre,n))return {q:q*u[unit],unit:"g"};
     return {q,unit:"unidad"}
   }
@@ -153,6 +154,8 @@ function cantidadesDePlatoArmado(item){
       nombres.forEach(n=>{
         const gr=curada(n)||Math.max(40,(total-fijas)/Math.max(1,libres)),pu=datosEnvases().pesoPorcion.Huevo;
         if(nombreEmpiezaCon(n,"Huevo")&&pu&&pu.unidad)sumar(n,Math.max(1,Math.round(gr/pu.unidad)),"unidad");
+        // Etapa 26: las tortillas se cuentan de a 2 por persona y por comida (de 40 g cada una) y se compran por paquete.
+        else if(claves[0]==="almidones"&&nombreEmpiezaCon(n,"Tortilla"))sumar(n,2,"unidad");
         else sumar(n,gr,"g")
       })
     }
