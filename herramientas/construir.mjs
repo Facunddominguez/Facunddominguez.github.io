@@ -38,6 +38,7 @@ const datos = JSON.stringify(JSON.parse(await leer('datos/nutricion.json')))
   .replace(/<\//g, '<\\/').split('\u2028').join('\\u2028').split('\u2029').join('\\u2029');
 
 // Precios de INDEC incluidos en la app (misma idea que la nutrición).
+if (arg('--precios') && !arg('--salida')) throw new Error('--precios solo se usa con --salida: index.html del repositorio siempre se construye con datos/precios.json.');
 const archivoPrecios = arg('--precios') ? await readFile(resolve(arg('--precios')), 'utf8') : await leer('datos/precios.json');
 const datosPrecios = JSON.stringify(JSON.parse(archivoPrecios))
   .replace(/<\//g, '<\\/').split('\u2028').join('\\u2028').split('\u2029').join('\\u2029');

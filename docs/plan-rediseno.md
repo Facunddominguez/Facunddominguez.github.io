@@ -2559,7 +2559,7 @@ El plan completo está en `docs/prompt-ronda-4.md` (el análisis del que sale, e
 
 | Etapa | Tema | Versión | Estado |
 |---|---|---|---|
-| 25 | Base en verde | 18.0.0 | 🔧 En curso |
+| 25 | Base en verde | 18.0.0 | ✅ |
 | 26 | Lista para el súper | 18.1.0 | Pendiente |
 | 27 | Semana más corta y con tus objetivos | 18.2.0 | Pendiente |
 | 28 | Ideas con cantidades y preparación | 18.3.0 | Pendiente |
@@ -2568,9 +2568,32 @@ El plan completo está en `docs/prompt-ronda-4.md` (el análisis del que sale, e
 | 31 | Hoy con costo y la semana para compartir | 18.6.0 | Pendiente |
 | 32 | Respaldo sin olvidos, recordatorio y recorrido final | 18.7.0 | Pendiente |
 
-### Etapa 25 🔧 Base en verde
+### Etapa 25 ✅ Base en verde
 Rama `rediseno-4-etapa-25-base`. Versión 18.0.0.
 
 **Plan corto**
-- `construir.mjs`: opción `--precios <archivo>`, topes nuevos (index.html 1.100.000 bytes y 300.000 con gzip; precios.json 80.000) y `--tope-html` / `--tope-gzip`, que solo pueden bajarlos (los usa `pruebas/tamano-construccion.mjs`). `probar.mjs` y `capturas.mjs` construyen la app en una carpeta temporal con `pruebas/fixtures/precios-congelados.json` y su servidor entrega ese `index.html`, ese `sw.js` y, en `/datos/precios.json`, el archivo congelado. `actualizar-precios.mjs`: `fueraDeRango()` y el descarte por plausibilidad al generar; `--verificar` rechaza lo que quede fuera de rango en GBA y exige 100 o más ingredientes con precio en GBA. `datos/precios-notas.json`: dos excepciones nuevas y 16 productos menos en `sinDato`. Código: `Bienvenida.terminarBienvenida()` y `MisPlatos.persistSaved()`. Pruebas nuevas: `r4e25_base.js`, `tamano-construccion.mjs` y tres casos en `sepa-lector.mjs`.
+- `construir.mjs`: opción `--precios <archivo>`, topes nuevos (index.html 1.100.000 bytes y 300.000 con gzip; precios.json 80.000) y `--tope-html` / `--tope-gzip`, que solo pueden bajarlos (los usa `pruebas/tamano-construccion.mjs`). `probar.mjs` y `capturas.mjs` construyen la app en una carpeta temporal con `pruebas/fixtures/precios-congelados.json` y su servidor entrega ese `index.html`, ese `sw.js` y, en `/datos/precios.json`, el archivo congelado (con `--raiz` o `--archivo`, `capturas.mjs` sigue como antes). `actualizar-precios.mjs`: `fueraDeRango()` y el descarte por plausibilidad al generar; `--verificar` rechaza lo que quede fuera de rango en GBA y exige 100 o más ingredientes con precio en GBA. `datos/precios-notas.json`: dos excepciones nuevas y 16 productos menos en `sinDato`. Código: `Bienvenida.terminarBienvenida()` y `MisPlatos.persistSaved()`. Pruebas nuevas: `r4e25_base.js`, `tamano-construccion.mjs` y tres casos en `sepa-lector.mjs`.
 - Riesgos para los datos: ninguno (no se toca ninguna clave `miPlatoFacil_*`; `datos/precios.json` queda igual).
+
+**Hecho cuando**
+- ✅ R4-25-verde: con los precios congelados, `node herramientas/probar.mjs` da 100 % (el control R4-25-verde de `r4e25_base.js` comprueba que la app de las pruebas incrusta y sirve el archivo congelado y no el `datos/precios.json` del día).
+- ✅ R4-25-independiente: copia temporal del repositorio con `datos/precios.json` sin 10 ítems (Frutilla, Kiwi, Arándanos, Mandarina, Pera, Durazno, Uva, Ananá, Ciruela y Melón) y con todos los precios por 1,3: las 14 baterías de precios (`e7_precios.js`, `e9_sepa.js` y `e13` a `e25`, sin `e18`, que no existe) dieron **72/72, con el mismo resultado, prueba por prueba**, que en el repositorio original. La copia no se commitea. (Con el `datos/precios.json` del día cambiando, nada de lo que miden las pruebas se mueve, porque ya no lo leen.)
+- ✅ R4-25-datos: `actualizar-precios.mjs --verificar` pasa con los datos de hoy ("Precios válidos… 43622 bytes") y falla con un archivo con Frutilla multiplicada por 10 ("Frutilla GBA 183600 se aparta más de 4 veces de la mediana de su categoría"). Al generar, ese precio no se publica y se imprime "Descartado por plausibilidad: <ingrediente> <región> <precio>". Probado en `pruebas/sepa-lector.mjs` (3 casos nuevos).
+- ✅ R4-25-tamano: `pruebas/tamano-construccion.mjs` comprueba que la construcción falla por bytes, por gzip y por `precios.json` de más de 80.000. Hoy `index.html` pesa 858.903 bytes (228.950 con gzip).
+- ✅ R4-25-bienvenida: después de "Armar mi semana" y de "Saltar", tocar Hoy muestra `home`. Sin el arreglo la prueba falla con "pantalla: bienvenida" (reproducido antes de arreglar).
+- ✅ R4-25-costo: después de "Rehacer la semana entera", `#planDiaCosto` y el costo de cada hueco son iguales antes y después de ir a otra pestaña y volver, y los 4 huecos muestran costo.
+
+**Causas** (Decisión, reproducidas antes de arreglar)
+- **Tres pruebas en rojo:** E19-plausibilidad (arándanos $31.120/kg y chía $23.367/kg, ahora excepciones con su motivo), E20-sin-cero y `e24_semana_clara.js`. Las tres leían el `datos/precios.json` del día. E20 y E24 ahora arman el caso: un snapshot donde Frutilla (E20) o los 16 productos que antes no tenían precio (E24) pasan a `categorias` (con su categoría y sin precio), que es como figuraban antes en los datos. La exigencia es la misma.
+- **Bienvenida:** `switchTab()` recordaba la pila de Hoy con el paso 4. `terminarBienvenida()` ahora llama a `restart()` (que ya dejaba todas las pestañas en su inicio) antes de cambiar de pestaña, tanto en "Armar mi semana" como en "Saltar".
+- **Costo del día:** `contextoCostos()` lee lo guardado una vez por turno (`PRECIOS_CAZUELA`) y `ArmameSemana.armar()` lo había llenado antes de guardar las comidas nuevas, así que `renderPlan()` no encontraba la última comida guardada. `MisPlatos.persistSaved()` ahora descarta ese caché. Arregla también el armado desde la bienvenida.
+- **Plausibilidad** (Decisión): la regla es la de E19 (cuatro veces la mediana de la categoría y unidad base, con SEPA primero y INDEC si no hay, sin ítems por unidad). Agregué dos condiciones para no descartar de más: la categoría necesita al menos 5 ingredientes con precio en esa región y solo cuenta el precio de SEPA (el de INDEC no se toca). Al generar se mira cada región, con la mediana de esa región; `--verificar` mira solo GBA, que es lo que mide E19 y lo que usa la app por defecto, porque con los datos de hoy hay 10 precios de otras regiones (Azúcar Cuyo, Frutilla, Granola…) que se descartarían en la próxima corrida y `--verificar` tiene que pasar hoy.
+- **`sinDato`:** se sacaron los 16 que ya tienen precio. E19-cobertura sigue pasando con la misma exigencia (90 % entre real y anotado) y E19-cobertura-real (70 %).
+- **Topes** (Decisión): `--tope-html` y `--tope-gzip` existen solo para probar que la construcción falla y no pueden subir los topes. `MAX_BYTES_JSON` de `actualizar-precios.mjs` queda en 60.000 (los datos pesan 43.622); el tope de 80.000 es el de la construcción, como pide el plan.
+- **Compuerta:** `validar-etapa.mjs` acepta 0 a 32 y desde la 25 compara contra `rediseno-4`. `criterios.json` suma R4-25-verde, R4-25-independiente, R4-25-datos, R4-25-tamano, R4-25-bienvenida, R4-25-costo y R4-25-registro, y actualiza el texto de E9-tamano-app.
+
+**Tests adaptados**: `e20_un_costo.js` (E20-sin-cero) y `e24_semana_clara.js` (arman su propio caso de productos sin precio, ver arriba). Prueba nueva: `r4e25_base.js` (R4-25-verde, R4-25-bienvenida ×2, R4-25-costo).
+
+**Revisores (Etapa 25)**: `revisor-codigo` NO BLOQUEANTE. Se aplicó: `--precios` sin `--salida` ahora falla (no puede construir el `index.html` del repositorio con precios ajenos). Quedan como sugerencias: con los datos de hoy la próxima corrida descartará 10 precios de SEPA de otras regiones (Azúcar Cuyo, que es un falso positivo por barato y conviene anotar como excepción, Frutilla, Ciruela, Champiñones, Granola, Alcaucil); si la construcción falla, `probar.mjs` y `capturas.mjs` dejan su carpeta temporal.
+
+Compuerta final (Etapa 25): VALIDACIÓN ETAPA 25: OK (150 controles, 618 pruebas; línea base 607 → 618).
