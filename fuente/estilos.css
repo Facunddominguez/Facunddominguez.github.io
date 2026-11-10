@@ -3582,18 +3582,21 @@ select{max-width:100%;min-width:0}
 
 /* Etapa 27 (v18.2.0): Semana más corta. El aviso de semana armada es una línea con Deshacer y un "Ver detalle" cerrado, en la misma línea
    (E24-separacion sigue pidiendo 16 px entre la cabecera, el botón, los chips y el contenido). */
-#planAviso{margin:0 0 2px;font-size:13px;line-height:1.35}
+#planAviso{margin:0 0 2px;font-size:13px;line-height:1.25}
 #planAviso .filter-chip{min-height:40px;vertical-align:middle}
 .semana-aviso__detalle{display:inline-block;vertical-align:middle;font-size:13px}
 .semana-aviso__detalle[open]{display:block;margin-top:2px}
 .semana-aviso__detalle>summary{display:inline-flex;align-items:center;min-height:40px;padding:0 6px;cursor:pointer;color:var(--green);font-weight:600;list-style:none;text-decoration:underline}
 .semana-aviso__detalle>summary::-webkit-details-marker{display:none}
 .semana-aviso__detalle>p{margin:0 0 4px;color:var(--muted)}
-#plan .semana-dia-chip{min-height:52px}
+#plan .semana-dia-chip{min-height:52px;padding:3px 0 4px;gap:0;line-height:1.05}
+#plan .semana-dia-chip>*{line-height:1.05}
+#plan .semana-cabeza .screen__title{line-height:1.1}
+#plan .armame-boton{min-height:44px}
 #plan .semana-dia__titulo{line-height:1.2}
 @media(min-width:380px){#plan .semana-dias{gap:2px;margin:16px -6px}}
 /* "Con precio: 35 de 37 productos · Completar 2 precios" en una sola línea: el enlace mide 44 px de alto al tocarlo, pero no agranda la línea. */
-#planPreciosEstado{font-size:12.5px;gap:0 4px;margin-bottom:2px}
+#planPreciosEstado{font-size:12.5px;gap:0 4px;margin-bottom:16px}
 #planPreciosEstado .precios-aviso--inline{min-height:0;padding:15px 4px;margin:-15px 0;font-size:12.5px}
 @media(min-width:380px){#planPreciosEstado{flex-wrap:nowrap;white-space:nowrap}}
 #planPreciosEstado .precios-sep{margin:0 -2px}
