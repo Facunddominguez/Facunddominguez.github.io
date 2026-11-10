@@ -203,7 +203,9 @@ shoppingRow(x,i,checked,detail){
   const row=ce("div","shop-item"+(checked?" is-done":"")),cb=ce("input"),lab=ce("label");
   // Etapa 26: un toque en cualquier parte de la fila tacha o destacha (el nombre y el precio ya no son botones).
   // La ficha (nutrientes, fuente, mes y rango del precio) se abre con el botón "ⓘ" de la derecha, que no tacha.
-  lab.append(document.createTextNode(Ingredientes.textoLegible(x.cortar?Compras.nombreCorto(x.text):x.text)+(x.precioTxt?" · "+x.precioTxt:"")));
+  lab.append(document.createTextNode(Ingredientes.textoLegible(x.cortar?Compras.nombreCorto(x.text):x.text)+(x.precioTxt?" · ":"")));
+  // El precio va en un bloque que no se parte ("≈" y "$135" siempre juntos).
+  if(x.precioTxt)lab.append(ce("span","shop-item__precio",x.precioTxt));
   cb.type="checkbox";
   cb.checked=checked;
   cb.dataset.shopKey=x.key;

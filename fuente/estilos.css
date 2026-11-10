@@ -3576,5 +3576,6 @@ select{max-width:100%;min-width:0}
 /* Lista de compras (Etapa 26, v18.1.0): un toque en cualquier parte de la fila tacha; la ficha del producto está en el botón ⓘ (44×44). */
 #comprasList .shop-item{min-height:48px;padding:2px 0 2px 4px;cursor:pointer}
 #comprasList .shop-item>label{flex:1 1 0;min-width:0;padding:8px 0;cursor:pointer;overflow-wrap:anywhere}
-.shop-item__ficha{flex:0 0 44px;width:44px;height:44px;padding:0;border:0;border-radius:50%;background:none;color:var(--muted);font:inherit;font-size:20px;line-height:1;cursor:pointer}
+.shop-item__ficha{flex:0 0 44px;width:44px;height:44px;padding:0;border:0;border-radius:50%;background:none;color:var(--text);font:inherit;font-size:20px;line-height:1;cursor:pointer}
+.shop-item__precio{white-space:nowrap}
 .shop-item__ficha:focus-visible{outline:3px solid var(--green);outline-offset:-3px}
