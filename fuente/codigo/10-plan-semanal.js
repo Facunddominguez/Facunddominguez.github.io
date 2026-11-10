@@ -779,6 +779,15 @@ document.getElementById("planRecipeReference").addEventListener("toggle",e=>{
 // El plan sigue guardado por día de la semana: las fechas son solo de presentación. Son var (y funciones) porque
 // renderPlan puede correr antes de que carguen los archivos siguientes.
 var planDiaElegido=null,deshacerPlan=null;
+// Nombre que se ve en Semana, Hoy y los selectores (el corto si es una idea sin renombrar). Antes de que cargue IdeasHoja (el arranque
+// pinta Hoy y Semana primero), o si algo falla, es el nombre de siempre.
+function nombreCortoDeComida(item){
+  try{
+    return IdeasHoja.nombreCorto(item)
+  }catch(e){
+    return mealName(item)
+  }
+}
 // La semana del plan es la de su último cambio (el historial guarda la hora en UTC; se pasa a la fecha local).
 function renderPlan(){
   const cont=document.getElementById("planList");
@@ -812,7 +821,7 @@ function renderPlan(){
     texto.append(ce("span","hueco__comida",SLOTS.find(s=>s[0]===slot)[1]));
     if(it){
       // Etapa 27: el ícono va solo en la etiqueta del hueco (🍳 Desayuno, ☕ Merienda…); el nombre de la comida va sin emoji.
-      texto.append(ce("span","hueco__plato",IdeasHoja.nombreCorto(it)+(it.fav?" ⭐":"")+(it.recipeSourceId?" 📖":"")));
+      texto.append(ce("span","hueco__plato",nombreCortoDeComida(it)+(it.fav?" ⭐":"")+(it.recipeSourceId?" 📖":"")));
       const pk=dia+"|"+slot,detalle=savedItemLines(it).join(" · ")+(porciones[pk]!==undefined?" · "+String(porciones[pk]).replace(".",",")+" porciones":"");
       if(detalle)texto.append(ce("span","hueco__detalle",detalle));
       // ≈ costo de esta comida para el hogar (con los precios encendidos y cantidades conocidas).

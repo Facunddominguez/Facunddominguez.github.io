@@ -93,7 +93,10 @@ shoppingPlanItems(){
         e.units.set(u.unit,(e.units.get(u.unit)||0)+u.q);
         conCantidad.add(ingredientKey(c.name))
       }
-      Semana.extractIngredients(item).forEach(name=>{
+      // Etapa 28: una idea del catálogo trae todas sus cantidades (con otros nombres que los del state): nada queda "sin cantidad".
+      let porIdea=null;
+      try{porIdea=IdeasHoja.ideaDeComida(item)}catch(e){}
+      if(!porIdea)Semana.extractIngredients(item).forEach(name=>{
         if(String(name).trim()&&!fueraDeLaLista(name)&&!conCantidad.has(ingredientKey(name)))entry(name).unknown++
       })
     }

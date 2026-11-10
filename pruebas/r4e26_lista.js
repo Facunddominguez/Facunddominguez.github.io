@@ -70,7 +70,7 @@
   ev('openTab("semana")'); await espera(200); ev('openTab("compras")'); await espera(300);
   const filaTortilla = filas().map(r => r.querySelector("label").textContent).find(t => /^Tortilla/.test(t)) || "";
   ok("R4-26-cantidades ninguna fila de queso está en 'unidades' (con la semana armada hay " + textoQueso.length + ") y las tortillas dicen 'paquete'",
-    textoQueso.length >= 1 && !textoQueso.some(t => /unidad/i.test(t) && !/paquete|sachet|pote/i.test(t)) && /paquete de 8 unidades/.test(filaTortilla), JSON.stringify({ textoQueso, filaTortilla }));
+    textoQueso.length >= 1 && !textoQueso.some(t => /unidad/i.test(t) && !/paquete|sachet|pote/i.test(t)) && /paquetes? de 8 unidades/.test(filaTortilla), JSON.stringify({ textoQueso, filaTortilla }));
 
   // R4-26-equivalencia: no se sugiere unir cebolla de verdeo con cebolla; siguen tomate perita / tomate y arroz.
   const pares = JSON.parse(ev(`JSON.stringify(ingredientAliasSuggestions(["Cebolla de verdeo", "Cebolla", "Tomate perita", "Tomate", "Arroz (integral, yamaní)", "Arroz"]))`));

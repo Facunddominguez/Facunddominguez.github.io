@@ -26,7 +26,8 @@
   const armar = async (extra, modo) => { cargar({ ...MARCA, ...extra }); await abrir(); const res = ev(`(() => { const r = ArmameSemana.aplicar(ArmameSemana.armar({ modo: ${JSON.stringify(modo || "todo")} })); return JSON.parse(JSON.stringify({ huecos: r.huecos, llenos: r.llenos, costo: r.costo, presupuesto: r.presupuesto, pasado: r.pasado, reutilizados: r.reutilizados, dobles: r.dobles, txt: ArmameSemana.resumen(r) })) })()`); await espera(100); return res };
 
   // C15-1 Con presupuestos bajo, medio y alto completa los 28 huecos sin pasarse cuando es posible, y avisa cuando no.
-  const bajo = await armar(PRES(60000)), medio = await armar(PRES(70000)), alto = await armar(PRES(90000)), imposible = await armar(PRES(1000));
+  // Etapa 28 (Ronda 4): con porciones de adulto la semana más barata del catálogo cuesta unos $72.700 (con porciones chicas, unos $57.000): los presupuestos pasan de 60/70/90 mil a 80/90/110 mil.
+  const bajo = await armar(PRES(80000)), medio = await armar(PRES(90000)), alto = await armar(PRES(110000)), imposible = await armar(PRES(1000));
   const sin = await armar({});
   ok("C15-1 con presupuesto bajo, medio y alto completa los 28 huecos sin pasarse cuando es posible y avisa cuando no",
     [bajo, medio, alto, imposible, sin].every(r => r.huecos === 28 && r.llenos === 28) && llenos() === 28 &&
@@ -63,7 +64,7 @@
     tipoOk && maxRep <= 2 && !conPollo.length && rutinaOk && igual && llenos() === 28 && cuentaIdea <= 2, JSON.stringify({ tipoOk, maxRep, conPollo: conPollo.length, rutinaOk, igual, llenos: llenos(), cuentaIdea }));
 
   // C15-5 Cambiar un hueco (parecida o más barata) no toca los demás y se puede deshacer.
-  await armar(PRES(60000)); await espera(100);
+  await armar(PRES(90000)); await espera(100); // Etapa 28: antes $60.000 (ver C15-1)
   const antes = planPlano(), costoDe = id => ev(`(() => { const a = cantidadesDeComida("plato", ${JSON.stringify(id)}); return a ? costoDeFilas(a.rows, Semana.portionFactor(null, a) * personasHogar()).costo : null })()`);
   // Con los precios completos no siempre hay una más barata en un hueco dado: se prueba cada almuerzo y cena hasta encontrar una.
   let diaB = "miercoles", slotB = "cena", rb = null;

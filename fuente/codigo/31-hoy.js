@@ -98,7 +98,7 @@ function esPrimeraVez(plan,day){
 function filaHoy(day,slot,plan,byId,esHoy,primera){
   const label=SLOTS.find(s=>s[0]===slot)[1],name=Semana.planSlotName(slot),id=plan[day]&&plan[day][slot],it=id?byId.get(id):null,row=ce("div","today-row"+(it?"":" today-row--vacia"));
   row.dataset.todaySlot=slot;
-  const plato=ce("span","today-row__plate"+(it?"":" is-empty"),it?IdeasHoja.nombreCorto(it):"Sin elegir");
+  const plato=ce("span","today-row__plate"+(it?"":" is-empty"),it?nombreCortoDeComida(it):"Sin elegir");
   // El botón de acción va primero (es el principal de la fila); el nombre, al lado, abre las opciones del hueco.
   let action=null;
   if(!it){

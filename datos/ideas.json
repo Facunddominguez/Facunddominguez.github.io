@@ -9,7 +9,7 @@
    "minutos": 20,
    "cantidades": [
     [
-     "Fideos integrales",
+     "Fideos",
      90,
      "g"
     ],
@@ -19,7 +19,7 @@
      "g"
     ],
     [
-     "Tomate cherry",
+     "Tomate",
      120,
      "g"
     ],
@@ -29,15 +29,15 @@
      "g"
     ],
     [
-     "Aceitunas verdes",
-     20,
+     "Queso fresco",
+     30,
      "g"
     ]
    ],
    "pasos": [
     "Herví los fideos 9 minutos, colalos y pasalos por agua fría.",
-    "Cortá los tomates cherry al medio y el pepino en cubos.",
-    "Mezclá todo con el atún escurrido y las aceitunas.",
+    "Cortá el tomate y el pepino en cubos.",
+    "Mezclá todo con el atún escurrido y el queso en cubos.",
     "Aderezá con aceite de oliva, limón y sal."
    ]
   },
@@ -48,7 +48,7 @@
    "minutos": 40,
    "cantidades": [
     [
-     "Fideos integrales",
+     "Fideos",
      85,
      "g"
     ],
@@ -649,7 +649,7 @@
      "g"
     ],
     [
-     "Cebolla morada",
+     "Cebolla",
      40,
      "g"
     ],
@@ -839,7 +839,7 @@
    "minutos": 30,
    "cantidades": [
     [
-     "Fideos integrales",
+     "Fideos",
      85,
      "g"
     ],
@@ -854,26 +854,26 @@
      "g"
     ],
     [
-     "Tomate cherry",
+     "Tomate",
      100,
      "g"
     ],
     [
-     "Nueces",
-     15,
+     "Queso rallado",
+     25,
      "g"
     ],
     [
-     "Queso rallado",
-     15,
+     "Pan rallado",
+     10,
      "g"
     ]
    ],
    "pasos": [
-    "Procesá la albahaca con las nueces, el queso, ajo en polvo y aceite.",
+    "Procesá la albahaca con el queso, el pan rallado, ajo en polvo y aceite.",
     "Herví los fideos 9 minutos.",
     "Hacé el pollo en tiras a la plancha.",
-    "Mezclá los fideos con el pesto, el pollo y los tomates cherry."
+    "Mezclá los fideos con el pesto, el pollo y el tomate en cubos."
    ]
   },
   {
