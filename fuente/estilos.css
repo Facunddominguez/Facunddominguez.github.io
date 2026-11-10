@@ -3594,6 +3594,6 @@ select{max-width:100%;min-width:0}
 @media(min-width:380px){#plan .semana-dias{gap:2px;margin:16px -6px}}
 /* "Con precio: 35 de 37 productos · Completar 2 precios" en una sola línea: el enlace mide 44 px de alto al tocarlo, pero no agranda la línea. */
 #planPreciosEstado{font-size:12.5px;gap:0 4px;margin-bottom:2px}
-#planPreciosEstado .precios-aviso--inline{min-height:0;padding:12px 4px;margin:-12px 0;font-size:12.5px}
+#planPreciosEstado .precios-aviso--inline{min-height:0;padding:15px 4px;margin:-15px 0;font-size:12.5px}
 @media(min-width:380px){#planPreciosEstado{flex-wrap:nowrap;white-space:nowrap}}
 #planPreciosEstado .precios-sep{margin:0 -2px}

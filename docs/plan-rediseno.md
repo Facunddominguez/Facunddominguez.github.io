@@ -2561,7 +2561,7 @@ El plan completo está en `docs/prompt-ronda-4.md` (el análisis del que sale, e
 |---|---|---|---|
 | 25 | Base en verde | 18.0.0 | ✅ |
 | 26 | Lista para el súper | 18.1.0 | ✅ |
-| 27 | Semana más corta y con tus objetivos | 18.2.0 | Pendiente |
+| 27 | Semana más corta y con tus objetivos | 18.2.0 | ✅ |
 | 28 | Ideas con cantidades y preparación | 18.3.0 | Pendiente |
 | 29 | Cien ideas y una semana que alcanza | 18.4.0 | Pendiente |
 | 30 | Precios al día y de tu barrio | 18.5.0 | Pendiente |
@@ -2625,3 +2625,27 @@ Rama `rediseno-4-etapa-26-lista-super`. Versión 18.1.0.
 **Revisores (Etapa 26)**: `revisor-usuario` (Compras a 390 y 320 px, antes y después) NO BLOQUEANTE. Se aplicó: "≈ $precio" va en un bloque que no se parte (a 320 px el "≈" quedaba solo al final de una línea) y el "ⓘ" pasó a la tinta del texto (tenía poco contraste en gris). Quedan como sugerencias: el "ⓘ" no dice qué abre la primera vez; cantidades sueltas como "Ajo: 1,5 unidades" o "Zanahoria: 160 g + 3 unidades · faltan 160 g"; en "Otros productos" el "Quitar" baja a otra línea (ya estaba antes); el aviso de presupuesto con borde rojo parece una alarma y el resumen repite lo mismo; una fila tachada se marca solo con tilde y tachado, sin atenuarse. `revisor-codigo` no corresponde en esta etapa (no toca datos guardados ni `datos/` salvo `envases.json`, tabla curada sin formato nuevo).
 
 Compuerta final (Etapa 26): VALIDACIÓN ETAPA 26: OK (158 controles, 624 pruebas; línea base 618 → 624). Nota: la primera corrida falló solo por la versión sin subir y la segunda por un desborde a 320 px del bloque del precio con "sin precio · estimado" (se acotó el bloque sin partir a "≈ $importe").
+
+### Etapa 27 ✅ Semana más corta y con tus objetivos
+Rama `rediseno-4-etapa-27-semana-corta`. Versión 18.2.0.
+
+**Plan corto**
+- `45-armame-la-semana.js`: `lineaDe()`, `detalleDe()`, `avisoDe()` y `avisoDetalle()` reemplazan al aviso largo (`resumen()` sigue devolviendo todo junto, para el Deshacer y para las pruebas); `gruposDe()` y las metas de `loadHabitGoals()` entran en el puntaje de cada candidata y en el ajuste por presupuesto; `armar()` devuelve `usoDespensa` y `sinObjetivo`. `10-plan-semanal.js`: el aviso con Deshacer y "Ver detalle", `planStatus()` que cede ante el aviso, el nombre de la comida sin emoji. `24-consumo-y-habitos.js`: `resumenObjetivosSemana()` en una línea. `32-pestanas.js`: `#planStatus` se vacía al abrir Semana desde otra pestaña. `estilos.css`: aviso compacto, chips, línea de precios. `capturas.mjs`: vista nueva `semana-armada`.
+- Riesgos para los datos: ninguno (no se toca ninguna clave ni el plan ni su historial; `miPlatoFacil_habitGoals_v1` solo se lee).
+
+**Hecho cuando**
+- ✅ R4-27-aviso: con 2 personas y $90.000 el aviso dice "Te pasás $N de tu presupuesto de $90.000. Lo que más pesa: …" (N es el total menos el presupuesto, con ±$1 de redondeo) y nombra 3 productos; con 1 persona y $200.000 dice "Entra en tu presupuesto de $200.000". "Deshacer" va en la misma línea y "Ver detalle" queda cerrado.
+- ✅ R4-27-un-mensaje: después de un mensaje temporal (como el de "Lo comí") al abrir Semana desde otra pestaña `#planStatus` está vacío; después de armar solo `#planAviso` tiene texto, y un `planStatus()` posterior no se muestra mientras está el aviso.
+- ✅ R4-27-arriba: caso común (1 persona, presupuesto que alcanza, los cuatro objetivos cargados): el primer hueco queda a 500 px o menos a 390 px (antes 573; se mide 499) y a 517 px a 320 px (tope 600; antes 590 con el aviso largo). Caso más largo, 2 personas y $90.000 con "Te pasás…": 520 px a 390 y 536 a 320 (el tope de la prueba es 540 y 600).
+- ✅ R4-27-iconos: ningún nombre de comida empieza con emoji (el favorito ⭐ y la receta 📖 pasaron al final) y las etiquetas son "🍳 Desayuno", "☕ Merienda", "🥗 Almuerzo" y "🌙 Cena".
+- ✅ R4-27-chips: a 390 px los 7 chips miden 44,7 px (antes 43); a 320 px quedan como estaban.
+- ✅ R4-27-objetivos: con "pescado: 2" y $200.000, en 10 semanas distintas el armado siempre cumple el objetivo, y armada de verdad la línea dice "Pescado N/2" con N de 2 o más. Con $20.000 "Ver detalle" dice "No llegué a tu objetivo de pescado (N de 2) para no pasarme del presupuesto."
+
+**Decisiones**
+- (Decisión) El tope de 500 px se cumple en el caso común; el caso más largo (el aviso con "Te pasás…" y los tres productos) queda 20 px más abajo. No se bajó más porque `E24-separacion` pide 16 px entre la cabecera, el botón, los chips y el contenido, y porque el título "Esta semana · 26 oct – 1 nov" ocupa dos líneas entre los botones › y ⋯.
+- (Decisión) "Ver detalle" es un `<details>` en la misma línea que Deshacer (los dos de 40 px de alto; en la hoja de Deshacer sigue 44). El enlace "Completar N precios" mantiene los 44 px de toque con relleno y margen negativo, pero no agranda la línea. A 390 px la línea de precios va en una sola línea (`nowrap`); a 320 px puede bajar.
+- (Decisión) El ajuste por presupuesto (`armar()`) hace dos pasadas: primero sin dejar ningún grupo de objetivo por debajo de lo que ya tenía o del objetivo; si así no baja el costo, sin esa condición. Los objetivos suman 3 puntos por grupo mientras falta, antes de mirar el costo.
+- (Decisión) `planStatus()` no muestra nada mientras está el aviso de la semana armada (es lo más simple que cumple "nunca los dos a la vez"; los demás avisos con Deshacer siguen igual).
+- (Decisión) Se dejó el emoji en la hoja del hueco y en el selector (solo cambia lo que se ve en la lista de Semana).
+
+**Tests adaptados**: `e8_herramientas.js` C8-3 (la línea de objetivos es "Verduras 2/14 · Pescado 0/2" y "Verduras 2/2 ✓"; antes "Verduras en 2 de 14 comidas…"), `e15_armame.js` C15-1 (el presupuesto imposible dice "Te pasás $… de tu presupuesto de", antes "No llego al presupuesto"), `r3_saved.js` G3a y G7 (el plan muestra el nombre de la receta, sin el 📖 adelante). La misma exigencia. Prueba nueva: `r4e27_semana.js` (6).

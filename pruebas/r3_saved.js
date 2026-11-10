@@ -25,7 +25,7 @@
   // v15.1: la Semana muestra un día a la vez; el plan de la prueba está en el lunes.
   planDiaElegido = "lunes"; go("plan"); await wait(40);
   const planText = document.getElementById("planList").textContent;
-  T.ok("G3a el plan muestra el nombre actual de la receta", planText.includes("📖 Papas rústicas") && !planText.includes("Papas al horno"));
+  T.ok("G3a el plan muestra el nombre actual de la receta (desde la Etapa 27, sin el emoji adelante)", planText.includes("Papas rústicas") && !planText.includes("Papas al horno"));
   go("misplatos"); await wait(30);
   T.ok("G3b Mis comidas también (receta y copia del plan), sin reescribir lo guardado", document.querySelector("#savedList .comida-card[data-recipe-id] .comida-card__nombre").textContent === "Papas rústicas" && document.querySelector("#savedList details.saved-recipes strong").textContent === "📖 Papas rústicas" && MisPlatos.loadSaved().find(p => p.recipeSourceId).title === "Papas al horno");
   T.ok("G4a el plan muestra los ingredientes de la receta", planText.includes("Ingredientes: Papa, Romero"));
@@ -45,6 +45,6 @@
   planDiaElegido = "lunes"; go("plan"); await wait(30);
   let err = null; try { renderPlan(); renderCompras(); renderSaved() } catch (e) { err = e.message }
   go("compras"); await wait(30);
-  T.ok("G7 si se borra la receta, el plan usa el nombre guardado y Compras sus ingredientes", err === null && document.getElementById("planList").textContent.includes("📖 Papas al horno") && R.renderedRows().includes("Papa") && R.renderedRows().includes("Romero"), R.renderedRows().join(" | "));
+  T.ok("G7 si se borra la receta, el plan usa el nombre guardado y Compras sus ingredientes", err === null && document.getElementById("planList").textContent.includes("Papas al horno") && R.renderedRows().includes("Papa") && R.renderedRows().includes("Romero"), R.renderedRows().join(" | "));
   return T;
 })()
