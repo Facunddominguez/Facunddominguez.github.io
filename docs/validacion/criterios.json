@@ -160,6 +160,14 @@
     {"id": "R4-26-compartir", "etapa": 26, "hecho": "Cada producto del texto compartido tiene el mismo nombre que su fila en pantalla.", "tipo": "prueba", "prueba": "R4-26-compartir"},
     {"id": "R4-26-alto", "etapa": 26, "hecho": "La vista compras en estado normal mide 3.300 px o menos a 390 px (antes 3.626), sin sumar palabras visibles.", "tipo": "medida", "vista": "compras", "estado": "normal", "metrica": "alto", "operador": "<=", "umbral": 3300},
     {"id": "R4-26-registro", "etapa": 26, "hecho": "Qué cambió en la lista de compras queda en el Registro.", "tipo": "registro", "seccion": "Etapa 26", "debeNombrar": ["R4-26-fila", "R4-26-casilla", "R4-26-cantidades", "R4-26-alto"]},
-    {"id": "R4-26-revisor", "etapa": 26, "hecho": "revisor-usuario no marca bloqueantes en las vistas de Compras a 390 y 320 px.", "tipo": "revisor", "revisor": "revisor-usuario"}
+    {"id": "R4-26-revisor", "etapa": 26, "hecho": "revisor-usuario no marca bloqueantes en las vistas de Compras a 390 y 320 px.", "tipo": "revisor", "revisor": "revisor-usuario"},
+    {"id": "R4-27-aviso", "etapa": 27, "hecho": "Con 2 personas y $90.000, el aviso contiene \"Te pasás $\", el monto es el total menos el presupuesto y nombra 3 productos. Con 1 persona y $200.000 contiene \"Entra en tu presupuesto\".", "tipo": "prueba", "prueba": "R4-27-aviso"},
+    {"id": "R4-27-un-mensaje", "etapa": 27, "hecho": "Al abrir Semana desde otra pestaña #planStatus está vacío; después de armar, solo #planAviso tiene texto.", "tipo": "prueba", "prueba": "R4-27-un-mensaje"},
+    {"id": "R4-27-arriba", "etapa": 27, "hecho": "Con la semana armada y sin desplazar, el borde de arriba del primer hueco queda a 500 px o menos a 390 px y a 600 px o menos a 320 px.", "tipo": "prueba", "prueba": "R4-27-arriba"},
+    {"id": "R4-27-iconos", "etapa": 27, "hecho": "Ningún nombre de comida empieza con emoji y la merienda lleva ☕.", "tipo": "prueba", "prueba": "R4-27-iconos"},
+    {"id": "R4-27-chips", "etapa": 27, "hecho": "A 390 px los 7 chips de los días miden 44 px o más de ancho.", "tipo": "prueba", "prueba": "R4-27-chips"},
+    {"id": "R4-27-objetivos", "etapa": 27, "hecho": "Con el objetivo \"pescado: 2\" y $200.000, en 10 semanas con semillas distintas siempre hay 2 o más comidas con pescado. Con $20.000, \"Ver detalle\" nombra el objetivo que no se cumplió.", "tipo": "prueba", "prueba": "R4-27-objetivos"},
+    {"id": "R4-27-registro", "etapa": 27, "hecho": "Qué cambió en Semana y las decisiones de la Etapa 27 quedan en el Registro.", "tipo": "registro", "seccion": "Etapa 27", "debeNombrar": ["R4-27-aviso", "R4-27-arriba", "R4-27-objetivos"]},
+    {"id": "R4-27-revisor", "etapa": 27, "hecho": "revisor-usuario no marca bloqueantes en Semana a 390 y 320 px.", "tipo": "revisor", "revisor": "revisor-usuario"}
   ]
 }

@@ -43,6 +43,7 @@ const version = JSON.parse(await readFile(join(RAIZ, 'fuente', 'version.json'), 
 const VISTAS = [
   { id: 'hoy', ir: 'openTab("hoy")' },
   { id: 'semana', ir: 'openTab("semana")' },
+  { id: 'semana-armada', ir: 'openTab("semana"); ArmameSemana.correr("todo")' },
   { id: 'compras', ir: 'openTab("compras")' },
   { id: 'comidas', ir: 'openTab("miscomidas")' },
   { id: 'mas', ir: 'openTab("mas")' },

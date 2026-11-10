@@ -3536,7 +3536,7 @@ body.con-hoja{
 .semana-aviso:empty,#planStatus:empty{display:none}
 #planAviso{margin:0 0 16px}
 @media (max-width:420px){.precios-sep{display:none}}
-#planDiaCosto{margin-bottom:2px}
+#planDiaCosto{margin-bottom:0}
 #planPreciosEstado{margin-top:0;margin-bottom:6px;font-size:13px;display:flex;flex-wrap:wrap;align-items:center;gap:0 6px}
 #planPreciosEstado .precios-aviso--inline{font-size:13px;margin:0;padding:0 8px}
 .precios-aviso--inline{display:inline-flex;align-items:center;min-height:44px;margin:0 0 0 4px;padding:0 4px;vertical-align:middle}
@@ -3579,3 +3579,21 @@ select{max-width:100%;min-width:0}
 .shop-item__ficha{flex:0 0 44px;width:44px;height:44px;padding:0;border:0;border-radius:50%;background:none;color:var(--text);font:inherit;font-size:20px;line-height:1;cursor:pointer}
 .shop-item__precio{white-space:nowrap}
 .shop-item__ficha:focus-visible{outline:3px solid var(--green);outline-offset:-3px}
+
+/* Etapa 27 (v18.2.0): Semana más corta. El aviso de semana armada es una línea con Deshacer y un "Ver detalle" cerrado, en la misma línea
+   (E24-separacion sigue pidiendo 16 px entre la cabecera, el botón, los chips y el contenido). */
+#planAviso{margin:0 0 2px;font-size:13px;line-height:1.35}
+#planAviso .filter-chip{min-height:40px;vertical-align:middle}
+.semana-aviso__detalle{display:inline-block;vertical-align:middle;font-size:13px}
+.semana-aviso__detalle[open]{display:block;margin-top:2px}
+.semana-aviso__detalle>summary{display:inline-flex;align-items:center;min-height:40px;padding:0 6px;cursor:pointer;color:var(--green);font-weight:600;list-style:none;text-decoration:underline}
+.semana-aviso__detalle>summary::-webkit-details-marker{display:none}
+.semana-aviso__detalle>p{margin:0 0 4px;color:var(--muted)}
+#plan .semana-dia-chip{min-height:52px}
+#plan .semana-dia__titulo{line-height:1.2}
+@media(min-width:380px){#plan .semana-dias{gap:2px;margin:16px -6px}}
+/* "Con precio: 35 de 37 productos · Completar 2 precios" en una sola línea: el enlace mide 44 px de alto al tocarlo, pero no agranda la línea. */
+#planPreciosEstado{font-size:12.5px;gap:0 4px;margin-bottom:2px}
+#planPreciosEstado .precios-aviso--inline{min-height:0;padding:12px 4px;margin:-12px 0;font-size:12.5px}
+@media(min-width:380px){#planPreciosEstado{flex-wrap:nowrap;white-space:nowrap}}
+#planPreciosEstado .precios-sep{margin:0 -2px}

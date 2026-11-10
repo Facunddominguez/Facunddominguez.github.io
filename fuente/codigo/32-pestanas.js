@@ -72,6 +72,8 @@ var resetTabs=null;
     }
     else{
       activeTab=tab;
+      // Etapa 27: al abrir Semana desde otra pestaña, el mensaje temporal anterior ("Registrado como comido hoy…") ya no corresponde.
+      if(tab==="semana"){const st=document.getElementById("planStatus");if(st)st.textContent=""}
       const saved=memories[tab];
       stack=saved?saved.stack.slice():[TABS[tab].root];
       if(saved){

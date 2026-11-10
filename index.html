@@ -3537,7 +3537,7 @@ body.con-hoja{
 .semana-aviso:empty,#planStatus:empty{display:none}
 #planAviso{margin:0 0 16px}
 @media (max-width:420px){.precios-sep{display:none}}
-#planDiaCosto{margin-bottom:2px}
+#planDiaCosto{margin-bottom:0}
 #planPreciosEstado{margin-top:0;margin-bottom:6px;font-size:13px;display:flex;flex-wrap:wrap;align-items:center;gap:0 6px}
 #planPreciosEstado .precios-aviso--inline{font-size:13px;margin:0;padding:0 8px}
 .precios-aviso--inline{display:inline-flex;align-items:center;min-height:44px;margin:0 0 0 4px;padding:0 4px;vertical-align:middle}
@@ -3580,6 +3580,24 @@ select{max-width:100%;min-width:0}
 .shop-item__ficha{flex:0 0 44px;width:44px;height:44px;padding:0;border:0;border-radius:50%;background:none;color:var(--text);font:inherit;font-size:20px;line-height:1;cursor:pointer}
 .shop-item__precio{white-space:nowrap}
 .shop-item__ficha:focus-visible{outline:3px solid var(--green);outline-offset:-3px}
+
+/* Etapa 27 (v18.2.0): Semana más corta. El aviso de semana armada es una línea con Deshacer y un "Ver detalle" cerrado, en la misma línea
+   (E24-separacion sigue pidiendo 16 px entre la cabecera, el botón, los chips y el contenido). */
+#planAviso{margin:0 0 2px;font-size:13px;line-height:1.35}
+#planAviso .filter-chip{min-height:40px;vertical-align:middle}
+.semana-aviso__detalle{display:inline-block;vertical-align:middle;font-size:13px}
+.semana-aviso__detalle[open]{display:block;margin-top:2px}
+.semana-aviso__detalle>summary{display:inline-flex;align-items:center;min-height:40px;padding:0 6px;cursor:pointer;color:var(--green);font-weight:600;list-style:none;text-decoration:underline}
+.semana-aviso__detalle>summary::-webkit-details-marker{display:none}
+.semana-aviso__detalle>p{margin:0 0 4px;color:var(--muted)}
+#plan .semana-dia-chip{min-height:52px}
+#plan .semana-dia__titulo{line-height:1.2}
+@media(min-width:380px){#plan .semana-dias{gap:2px;margin:16px -6px}}
+/* "Con precio: 35 de 37 productos · Completar 2 precios" en una sola línea: el enlace mide 44 px de alto al tocarlo, pero no agranda la línea. */
+#planPreciosEstado{font-size:12.5px;gap:0 4px;margin-bottom:2px}
+#planPreciosEstado .precios-aviso--inline{min-height:0;padding:12px 4px;margin:-12px 0;font-size:12.5px}
+@media(min-width:380px){#planPreciosEstado{flex-wrap:nowrap;white-space:nowrap}}
+#planPreciosEstado .precios-sep{margin:0 -2px}
 </style></head><body>
 <div class="app-shell"><header class="app-header"><div class="app-header__row"><div class="brand"><div><h1 class="brand__title" aria-label="Mi Plato Fácil"><span class="wordmark-mi">mi</span> plato <span class="wordmark-facil">fácil</span></h1></div></div><button class="home-button" id="homeTop" type="button">Inicio</button></div></header><main id="appMain">
 <section class="screen card is-active" id="home"><p class="screen__kicker">Hoy</p><h2 class="screen__title">Hoy</h2><p class="screen__hint"></p><div class="today" id="todayPanel"><div class="today__entreno" id="todayEntreno"></div><p class="today__primera" id="todayPrimera" hidden></p><div class="today__rows" id="todayRows"></div><p class="screen__hint today__status" id="todayStatus" aria-live="polite"></p><p class="today__registro"><button class="button button--soft" type="button" data-open-registro id="todayRegistro">Ver tu registro de hoy →</button></p><details class="today__manana" id="todayManana"><summary id="todayMananaTitulo">Mañana</summary><div class="today__rows" id="todayMananaRows"></div></details></div><div class="home-group home-group--main"><p class="settings-label">Atajos</p><div class="grid home-grid"><div class="tool-button armar-comida" role="group" aria-labelledby="armarComidaTitulo"><span class="tool-button__emoji">🥗</span><span class="tool-button__label" id="armarComidaTitulo">Armar una comida</span><span class="tool-button__desc">Con el método del plato</span><div class="armar-comida__opciones"><button class="button button--soft" type="button" data-start="desayuno">Desayuno o merienda</button><button class="button button--soft" type="button" data-start="plato">Almuerzo o cena</button></div></div><button class="tool-button" type="button" data-sugerime><span class="tool-button__emoji">🎲</span><span class="tool-button__label">Sugerime algo</span><span class="tool-button__desc">Una idea para tu próxima comida</span></button><button class="tool-button" type="button" data-con-lo-que-tengo><span class="tool-button__emoji">🧊</span><span class="tool-button__label">Con lo que tengo</span><span class="tool-button__desc">Ideas con tu despensa</span></button></div></div><div class="home-group" id="sectionSettings"><div class="tools-grid"><button class="tool-button" type="button" data-open-training><span class="tool-button__emoji">🏋️</span><span class="tool-button__label">Mi rutina</span><span class="tool-button__desc">Qué días entrenás</span></button><button class="tool-button" type="button" data-open-registro><span class="tool-button__emoji">📒</span><span class="tool-button__label">Registro</span><span class="tool-button__desc">Lo que comiste y cocinaste</span></button><button class="tool-button" type="button" data-open-preferencias><span class="tool-button__emoji">⚙️</span><span class="tool-button__label">Preferencias</span><span class="tool-button__desc">Evitar, objetivos y precios</span></button><button class="tool-button" type="button" id="backupOpen" data-open-mis-datos><span class="tool-button__emoji">💾</span><span class="tool-button__label">Mis datos</span><span class="tool-button__desc">Respaldo, exportar e importar</span></button><button class="tool-button" type="button" id="aiSettingsOpen"><span class="tool-button__emoji">✨</span><span class="tool-button__label">Asistente de IA</span><span class="tool-button__desc">Con tu app de IA o con Gemini</span></button><button class="tool-button theme-fab" id="themeToggle" type="button" data-theme-toggle><span class="tool-button__emoji">🌙</span><span class="tool-button__label">Tema: Auto</span><span class="tool-button__desc">Apariencia: claro, oscuro o automático</span></button><button class="tool-button" type="button" data-open-fuentes><span class="tool-button__emoji">📚</span><span class="tool-button__label">Fuentes de datos</span><span class="tool-button__desc">De dónde salen los datos</span></button><button class="tool-button" type="button" data-open-como-funciona><span class="tool-button__emoji">❓</span><span class="tool-button__label">Cómo funciona</span><span class="tool-button__desc">El método y la bienvenida</span></button></div></div></section>
@@ -6394,6 +6412,8 @@ let planStatusTimer=null;
 function planStatus(msg){
   const s=document.getElementById("planStatus");
   if(!s)return;
+  // Nunca se ven los dos mensajes a la vez: mientras está el aviso de la semana armada, no se muestra otro (Etapa 27).
+  if(deshacerPlan&&deshacerPlan.res&&document.getElementById("planAviso").textContent)return;
   s.textContent=msg;
   clearTimeout(planStatusTimer);
   planStatusTimer=setTimeout(()=>{
@@ -6626,7 +6646,8 @@ function renderPlan(){
     b.dataset.hueco=dia+"|"+slot;
     texto.append(ce("span","hueco__comida",SLOTS.find(s=>s[0]===slot)[1]));
     if(it){
-      texto.append(ce("span","hueco__plato",Semana.planPlateLabel(it)));
+      // Etapa 27: el ícono va solo en la etiqueta del hueco (🍳 Desayuno, ☕ Merienda…); el nombre de la comida va sin emoji.
+      texto.append(ce("span","hueco__plato",mealName(it)+(it.fav?" ⭐":"")+(it.recipeSourceId?" 📖":"")));
       const pk=dia+"|"+slot,detalle=savedItemLines(it).join(" · ")+(porciones[pk]!==undefined?" · "+String(porciones[pk]).replace(".",",")+" porciones":"");
       if(detalle)texto.append(ce("span","hueco__detalle",detalle));
       // ≈ costo de esta comida para el hogar (con los precios encendidos y cantidades conocidas).
@@ -6677,7 +6698,21 @@ function renderPlan(){
       const b=ce("button","filter-chip","Deshacer");
       b.type="button";
       b.dataset.planDeshacer="";
-      aviso.append(document.createTextNode((deshacerPlan.res&&typeof ArmameSemana!=="undefined"?ArmameSemana.avisoDe(deshacerPlan.res):deshacerPlan.texto)+". "),b)
+      const armado=deshacerPlan.res&&typeof ArmameSemana!=="undefined";
+      aviso.append(document.createTextNode((armado?ArmameSemana.avisoDe(deshacerPlan.res):deshacerPlan.texto)+". "),b);
+      // Etapa 27: la línea es lo que importa; el resto (estimados, cociná doble, despensa, objetivos) va en "Ver detalle", cerrado.
+      let detalle=[];
+      if(armado)try{detalle=ArmameSemana.avisoDetalle(deshacerPlan.res)}catch(e){}
+      if(detalle.length){
+        const d=ce("details","semana-aviso__detalle"),s=ce("summary",null,"Ver detalle");
+        d.append(s,ce("p",null,detalle.join(" ")));
+        aviso.append(d)
+      }
+      // Un solo mensaje a la vez: con el aviso de la semana armada, el mensaje temporal se vacía.
+      if(armado){
+        const st=document.getElementById("planStatus");
+        if(st)st.textContent=""
+      }
     }
   }
   if(typeof refrescarHojaHueco==="function")refrescarHojaHueco();
@@ -10346,8 +10381,7 @@ function renderObjetivosPreferencias(){
     if(i&&document.activeElement!==i)i.value=goals[g]?String(goals[g]):""
   }
 }
-// Resumen de la Semana: "Verduras en 9 de 14 comidas · Legumbres 2 de 3 ✓" (comidas del plan con ese grupo, sobre el
-// objetivo). Sin objetivos devuelve "".
+// Resumen de la Semana: "Verduras 9/14 · Legumbres 2/3 ✓" (comidas del plan con ese grupo, sobre el objetivo). Sin objetivos devuelve "".
 function resumenObjetivosSemana(plan,saved,goals){
   const byId=new Map((saved||[]).map(p=>[p.id,p])),labels={
     verduras:"Verduras",legumbres:"Legumbres",pescado:"Pescado",fruta:"Fruta"
@@ -10359,14 +10393,13 @@ function resumenObjetivosSemana(plan,saved,goals){
     if(!it)continue;
     for(const g of plateGroups(it))if(g in counts)counts[g]++
   }
+  // Etapa 27: una línea corta, "Verduras 14/10 ✓ · Legumbres 11/3 ✓ · Pescado 0/2 · Fruta 14/7 ✓".
   const partes=[];
   for(const g of HABIT_GROUPS){
     const goal=(goals||{})[g];
     if(!goal)continue;
     const n=counts[g];
-    // Por debajo del objetivo: "Verduras en 9 de 14 comidas" (planificado de objetivo). Si se llega o se pasa, no se lee "14 de 10": "Verduras: 14 comidas (objetivo 10) ✓".
-    if(n>=goal)partes.push(labels[g]+": "+n+" comida"+(n===1?"":"s")+" (objetivo "+goal+") ✓");
-    else partes.push(labels[g]+(partes.length?" ":" en ")+n+" de "+goal+(partes.length?"":" comida"+(goal===1?"":"s")))
+    partes.push(labels[g]+" "+n+"/"+goal+(n>=goal?" ✓":""))
   }
   return partes.join(" · ")
 }
@@ -11868,6 +11901,8 @@ var resetTabs=null;
     }
     else{
       activeTab=tab;
+      // Etapa 27: al abrir Semana desde otra pestaña, el mensaje temporal anterior ("Registrado como comido hoy…") ya no corresponde.
+      if(tab==="semana"){const st=document.getElementById("planStatus");if(st)st.textContent=""}
       const saved=memories[tab];
       stack=saved?saved.stack.slice():[TABS[tab].root];
       if(saved){
@@ -15435,6 +15470,20 @@ var ArmameSemana=(function(){
     return /granola/.test(t)&&/huevo|queso/.test(t)
   };
   const esPlatoPos=pos=>/\|(almuerzo|cena)$/.test(pos);
+  // Objetivos semanales (Etapa 27): grupos de hábitos (verduras, legumbres, pescado, fruta) que tiene una candidata o una comida del plan.
+  const GRUPOS_META=["verduras","legumbres","pescado","fruta"],cacheGrupos=new Map();
+  function gruposDe(x){
+    const c=x&&x.cand?x.cand:x,id=c&&c.k;
+    if(id!==undefined&&cacheGrupos.has(id))return cacheGrupos.get(id);
+    let g=new Set();
+    try{
+      const it=c.item||x.item||{state:c.estado||(c.idea?IdeasHoja.ideaComoComida(c.idea,"Día libre"):null)};
+      g=new Set(plateGroups(it).filter(n=>GRUPOS_META.includes(n)))
+    }catch(e){
+    }
+    if(id!==undefined)cacheGrupos.set(id,g);
+    return g
+  }
   const clave=texto=>normalizeSearchText(String(texto||"")).replace(/[^a-z0-9ñ]+/g," ").trim();
   const semilla=extra=>hash(Semana.semanaActual()+"|"+extra);
   // Presupuesto de la semana en pesos, o null (sin presupuesto o en otra moneda).
@@ -15631,11 +15680,14 @@ var ArmameSemana=(function(){
       fijas.add(pos);
       gastado+=costo(c,lugar[0],lugar[1])
     }
+    // Objetivos de hábitos (Etapa 27): mientras la semana no llegue al objetivo de un grupo, las candidatas con ese grupo suman 3 puntos.
+    const metas=(()=>{try{return loadHabitGoals()}catch(e){return {}}})(),contarGrupo=g=>{let n=0;for(const x of sem.comidas.values())if(gruposDe(x).has(g))n++;return n};
     const objetivo=slot=>presupuesto&&hayPrecios?Math.max(1,(presupuesto-gastado)*PESO_SLOT[slot]/Math.max(0.2,aFillar.filter(([d,s])=>!asignadas.has(d+"|"+s)).reduce((t,[,s])=>t+PESO_SLOT[s],0))):null;
     for(const [dia,slot] of aFillar){
       const pos=dia+"|"+slot;
       if(asignadas.has(pos))continue;
-      const meta=objetivo(slot);
+      const meta=objetivo(slot),faltaGrupo={};
+      for(const g of GRUPOS_META)if(metas[g])faltaGrupo[g]=metas[g]-contarGrupo(g);
       let mejor=null,mejorPuntos=-1e9;
       for(const c of pool(slot)){
         if(!valido(c,dia,slot,pos))continue;
@@ -15644,6 +15696,7 @@ var ArmameSemana=(function(){
         let puntos=1+(slotPool(slot)==="plato"?0.6:0.1)*reuso+0.4*desp+r()*0.8;
         // Lo que guardaste (por ejemplo las ideas que elegiste en la bienvenida) entra primero; lo armado antes "de la semana" no.
         if(c.tipo==="mia"&&c.item&&!c.item.deLaSemana)puntos+=2;
+        for(const g of gruposDe(c))if(metas[g]&&faltaGrupo[g]>0)puntos+=3;
         if(meta){const v=costo(c,dia,slot);if(v>meta)puntos-=1.5*(v/meta-1)}
         if(puntos>mejorPuntos){mejor=c;mejorPuntos=puntos}
       }
@@ -15683,17 +15736,26 @@ var ArmameSemana=(function(){
       let guardia=0;
       while(total>presupuesto&&guardia++<80){
         let mejor=null;
-        for(const [pos,c] of asignadas){
-          if(fijas.has(pos))continue;
-          const [dia,slot]=pos.split("|"),actual=costo(c,dia,slot);
-          sumar(sem,pos,c,-1);
-          for(const o of pool(slot)){
-            if(o.k===c.k||!valido(o,dia,slot,pos))continue;
-            const ahorro=actual-costo(o,dia,slot);
-            const parecido=o.ings.filter(g=>c.ings.includes(g)).length;
-            if(ahorro>1&&(!mejor||ahorro+parecido*5>mejor.ahorro+mejor.parecido*5))mejor={pos,dia,slot,o,ahorro,parecido,c}
+        // Primero sin dejar ningún objetivo por debajo de lo que ya tenía (o del objetivo); si así no se baja el costo, sin esa condición.
+        for(const cuidar of [true,false]){
+          for(const [pos,c] of asignadas){
+            if(fijas.has(pos))continue;
+            const [dia,slot]=pos.split("|"),actual=costo(c,dia,slot),gc=gruposDe(c),antes={};
+            if(cuidar)for(const g of GRUPOS_META)if(metas[g])antes[g]=contarGrupo(g);
+            sumar(sem,pos,c,-1);
+            for(const o of pool(slot)){
+              if(o.k===c.k||!valido(o,dia,slot,pos))continue;
+              if(cuidar){
+                const go=gruposDe(o);
+                if(Object.keys(antes).some(g=>antes[g]-(gc.has(g)?1:0)+(go.has(g)?1:0)<Math.min(metas[g],antes[g])))continue
+              }
+              const ahorro=actual-costo(o,dia,slot);
+              const parecido=o.ings.filter(g=>c.ings.includes(g)).length;
+              if(ahorro>1&&(!mejor||ahorro+parecido*5>mejor.ahorro+mejor.parecido*5))mejor={pos,dia,slot,o,ahorro,parecido,c}
+            }
+            sumar(sem,pos,c,1)
           }
-          sumar(sem,pos,c,1)
+          if(mejor)break
         }
         if(!mejor)break;
         sumar(sem,mejor.pos,mejor.c,-1);
@@ -15704,9 +15766,13 @@ var ArmameSemana=(function(){
       }
     }
     const reutilizados=[...sem.ings.values()].filter(n=>n>=2).length;
+    // Lo que se usa de la Despensa y los objetivos de hábitos que no se alcanzaron (para "Ver detalle").
+    const usoDespensa=new Set();
+    for(const x of sem.comidas.values())for(const g of x.ings||[])if(enDespensa(g))usoDespensa.add(g);
+    const sinObjetivo=GRUPOS_META.filter(g=>metas[g]&&contarGrupo(g)<metas[g]).map(g=>({g,n:contarGrupo(g),meta:metas[g]}));
     const resultado={modo,plan,asignadas:[...asignadas].map(([pos,c])=>({dia:pos.split("|")[0],slot:pos.split("|")[1],cand:c})),huecos:aFillar.length,
       llenos:asignadas.size,costo:Math.round(total),presupuesto:presupuesto===null?null:Math.round(presupuesto),pasado:!!(presupuesto&&hayPrecios&&total>presupuesto),
-      sinPrecios:!!(presupuesto&&!hayPrecios),dobles,reutilizados,cambios};
+      sinPrecios:!!(presupuesto&&!hayPrecios),dobles,reutilizados,cambios,usoDespensa:usoDespensa.size,sinObjetivo};
     return resultado
   }
   // Escribe lo armado: Mis comidas una vez, el plan una vez, con historial y Deshacer.
@@ -15743,20 +15809,50 @@ var ArmameSemana=(function(){
     }
     return res
   }
-  function resumen(res){
-    const pesos=n=>"$"+Math.round(n).toLocaleString("es-AR");
-    let t="Listo: "+res.llenos+(res.llenos===1?" comida armada":" comidas armadas")+(res.costo?" · "+(res.sinEstimar?"al menos ":"")+"≈ "+pesos(res.costo)+" la semana":"")+".";
-    if(res.costo&&res.faltan)t+=" Incluye "+res.faltan+(res.faltan===1?" precio estimado":" precios estimados")+".";
-    if(res.presupuesto&&res.costo)t+=res.pasado?" No llego al presupuesto de "+pesos(res.presupuesto)+": es lo más barato que pude armar con lo que tenés para elegir.":" Entra en tu presupuesto de "+pesos(res.presupuesto)+".";
-    if(res.sinPrecios)t+=" No tengo precios para controlar el presupuesto.";
-    if(res.dobles.length)t+=" Cociná doble: "+res.dobles.map(d=>"la cena del "+Semana.planDayName(d.de).toLowerCase()+" es el almuerzo del "+Semana.planDayName(d.a).toLowerCase()).join("; ")+".";
-    const pocas=dietaAvisoPocas();
-    if(pocas)t+=" "+pocas;
-    if(res.llenos<res.huecos)t+=" Quedaron "+(res.huecos-res.llenos)+" huecos sin llenar: faltan comidas que cumplan lo que evitás.";
+  // Etapa 27: el aviso de semana armada es una línea (lo que importa) y, aparte, el detalle que se abre con "Ver detalle".
+  const pesosAviso=n=>"$"+Math.round(n).toLocaleString("es-AR");
+  const minuscula=s=>{s=String(s||"");return s.charAt(0).toLowerCase()+s.slice(1)};
+  // Los 3 productos que más pesan en el costo de la semana (nombre corto, en minúscula).
+  function masPesan(){
+    try{
+      const c=costoSemanaPlan();
+      if(!c)return [];
+      const vistos=new Set();
+      return c.productos.filter(p=>p.costo>0).sort((x,y)=>y.costo-x.costo).map(p=>minuscula(Compras.nombreCorto(p.name))).filter(n=>!vistos.has(n)&&vistos.add(n)).slice(0,3)
+    }catch(e){
+      return []
+    }
+  }
+  const listaY=a=>a.length<2?a.join(""):a.slice(0,-1).join(", ")+" y "+a[a.length-1];
+  // Primera línea: "Listo: 28 comidas armadas · ≈ $X la semana." y, si hay presupuesto, si entra o cuánto se pasa y qué pesa más.
+  function lineaDe(res){
+    let t="Listo: "+res.llenos+(res.llenos===1?" comida armada":" comidas armadas")+(res.costo?" · "+(res.sinEstimar?"al menos ":"")+"≈ "+pesosAviso(res.costo)+" la semana":"")+".";
+    if(res.presupuesto&&res.costo){
+      if(res.pasado){
+        const pesan=masPesan();
+        t+=" Te pasás "+pesosAviso(res.costo-res.presupuesto)+" de tu presupuesto de "+pesosAviso(res.presupuesto)+"."+(pesan.length?" Lo que más pesa: "+listaY(pesan)+".":"")
+      }else t+=" Entra en tu presupuesto de "+pesosAviso(res.presupuesto)+"."
+    }
     return t
   }
-  // Texto del aviso de semana armada con el total de ahora (si se completan precios después de armar, no queda el total viejo).
-  function avisoDe(res){
+  // El resto (se ve en "Ver detalle"): precios estimados, cociná doble, Despensa, objetivos que no se alcanzaron, dieta y huecos sin llenar.
+  function detalleDe(res){
+    const out=[];
+    if(res.costo&&res.faltan)out.push("Incluye "+res.faltan+(res.faltan===1?" precio estimado":" precios estimados")+".");
+    if(res.sinPrecios)out.push("No tengo precios para controlar el presupuesto.");
+    if(res.dobles&&res.dobles.length)out.push("Cociná doble: "+res.dobles.map(d=>"la cena del "+Semana.planDayName(d.de).toLowerCase()+" es el almuerzo del "+Semana.planDayName(d.a).toLowerCase()).join("; ")+".");
+    if(res.usoDespensa>0)out.push("Usé "+res.usoDespensa+(res.usoDespensa===1?" producto":" productos")+" de tu despensa.");
+    for(const o of res.sinObjetivo||[])out.push("No llegué a tu objetivo de "+o.g+" ("+o.n+" de "+o.meta+")"+(res.presupuesto?" para no pasarme del presupuesto.":": no hay más comidas con eso que cumplan lo que evitás."));
+    const pocas=dietaAvisoPocas();
+    if(pocas)out.push(pocas);
+    if(res.llenos<res.huecos)out.push("Quedaron "+(res.huecos-res.llenos)+" huecos sin llenar: faltan comidas que cumplan lo que evitás.");
+    return out
+  }
+  function resumen(res){
+    return [lineaDe(res)].concat(detalleDe(res)).join(" ")
+  }
+  // El total de ahora (si se completan precios después de armar, no queda el total viejo).
+  function conTotalDeAhora(res){
     const r={...res};
     try{
       const c=costoSemanaPlan();
@@ -15768,7 +15864,15 @@ var ArmameSemana=(function(){
       }
     }catch(e){
     }
-    return resumen(r).replace(/\.$/,"")
+    return r
+  }
+  // Texto de la línea del aviso de semana armada (sin el punto final, para que siga "Deshacer").
+  function avisoDe(res){
+    return lineaDe(conTotalDeAhora(res)).replace(/\.$/,"")
+  }
+  // Lo que va dentro de "Ver detalle" (puede estar vacío).
+  function avisoDetalle(res){
+    return detalleDe(conTotalDeAhora(res))
   }
   function huecosVacios(){
     const plan=loadPlan(),ids=new Set(MisPlatos.loadSaved().map(x=>x.id));
@@ -15885,7 +15989,7 @@ var ArmameSemana=(function(){
     return MisPlatos.persistSaved(a)
   }
   try{marcarDeLaSemana()}catch(e){}
-  return {armar,aplicar,resumen,avisoDe,abrir,correr,cambiarHueco,presupuestoSemanal,huecosVacios,marcarDeLaSemana,guardarEnMisComidas}
+  return {armar,aplicar,resumen,avisoDe,avisoDetalle,abrir,correr,cambiarHueco,presupuestoSemanal,huecosVacios,marcarDeLaSemana,guardarEnMisComidas}
 })();
 // Mi Plato Fácil · Filtros de dieta (Etapa 16): sin carne roja, sin cerdo, sin pescado, vegetariano, sin lácteos y sin huevo.
 // Parte 47: los archivos se unen en orden según su número, que define el orden de arranque.

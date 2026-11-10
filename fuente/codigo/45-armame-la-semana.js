@@ -37,6 +37,20 @@ var ArmameSemana=(function(){
     return /granola/.test(t)&&/huevo|queso/.test(t)
   };
   const esPlatoPos=pos=>/\|(almuerzo|cena)$/.test(pos);
+  // Objetivos semanales (Etapa 27): grupos de hábitos (verduras, legumbres, pescado, fruta) que tiene una candidata o una comida del plan.
+  const GRUPOS_META=["verduras","legumbres","pescado","fruta"],cacheGrupos=new Map();
+  function gruposDe(x){
+    const c=x&&x.cand?x.cand:x,id=c&&c.k;
+    if(id!==undefined&&cacheGrupos.has(id))return cacheGrupos.get(id);
+    let g=new Set();
+    try{
+      const it=c.item||x.item||{state:c.estado||(c.idea?IdeasHoja.ideaComoComida(c.idea,"Día libre"):null)};
+      g=new Set(plateGroups(it).filter(n=>GRUPOS_META.includes(n)))
+    }catch(e){
+    }
+    if(id!==undefined)cacheGrupos.set(id,g);
+    return g
+  }
   const clave=texto=>normalizeSearchText(String(texto||"")).replace(/[^a-z0-9ñ]+/g," ").trim();
   const semilla=extra=>hash(Semana.semanaActual()+"|"+extra);
   // Presupuesto de la semana en pesos, o null (sin presupuesto o en otra moneda).
@@ -233,11 +247,14 @@ var ArmameSemana=(function(){
       fijas.add(pos);
       gastado+=costo(c,lugar[0],lugar[1])
     }
+    // Objetivos de hábitos (Etapa 27): mientras la semana no llegue al objetivo de un grupo, las candidatas con ese grupo suman 3 puntos.
+    const metas=(()=>{try{return loadHabitGoals()}catch(e){return {}}})(),contarGrupo=g=>{let n=0;for(const x of sem.comidas.values())if(gruposDe(x).has(g))n++;return n};
     const objetivo=slot=>presupuesto&&hayPrecios?Math.max(1,(presupuesto-gastado)*PESO_SLOT[slot]/Math.max(0.2,aFillar.filter(([d,s])=>!asignadas.has(d+"|"+s)).reduce((t,[,s])=>t+PESO_SLOT[s],0))):null;
     for(const [dia,slot] of aFillar){
       const pos=dia+"|"+slot;
       if(asignadas.has(pos))continue;
-      const meta=objetivo(slot);
+      const meta=objetivo(slot),faltaGrupo={};
+      for(const g of GRUPOS_META)if(metas[g])faltaGrupo[g]=metas[g]-contarGrupo(g);
       let mejor=null,mejorPuntos=-1e9;
       for(const c of pool(slot)){
         if(!valido(c,dia,slot,pos))continue;
@@ -246,6 +263,7 @@ var ArmameSemana=(function(){
         let puntos=1+(slotPool(slot)==="plato"?0.6:0.1)*reuso+0.4*desp+r()*0.8;
         // Lo que guardaste (por ejemplo las ideas que elegiste en la bienvenida) entra primero; lo armado antes "de la semana" no.
         if(c.tipo==="mia"&&c.item&&!c.item.deLaSemana)puntos+=2;
+        for(const g of gruposDe(c))if(metas[g]&&faltaGrupo[g]>0)puntos+=3;
         if(meta){const v=costo(c,dia,slot);if(v>meta)puntos-=1.5*(v/meta-1)}
         if(puntos>mejorPuntos){mejor=c;mejorPuntos=puntos}
       }
@@ -285,17 +303,26 @@ var ArmameSemana=(function(){
       let guardia=0;
       while(total>presupuesto&&guardia++<80){
         let mejor=null;
-        for(const [pos,c] of asignadas){
-          if(fijas.has(pos))continue;
-          const [dia,slot]=pos.split("|"),actual=costo(c,dia,slot);
-          sumar(sem,pos,c,-1);
-          for(const o of pool(slot)){
-            if(o.k===c.k||!valido(o,dia,slot,pos))continue;
-            const ahorro=actual-costo(o,dia,slot);
-            const parecido=o.ings.filter(g=>c.ings.includes(g)).length;
-            if(ahorro>1&&(!mejor||ahorro+parecido*5>mejor.ahorro+mejor.parecido*5))mejor={pos,dia,slot,o,ahorro,parecido,c}
+        // Primero sin dejar ningún objetivo por debajo de lo que ya tenía (o del objetivo); si así no se baja el costo, sin esa condición.
+        for(const cuidar of [true,false]){
+          for(const [pos,c] of asignadas){
+            if(fijas.has(pos))continue;
+            const [dia,slot]=pos.split("|"),actual=costo(c,dia,slot),gc=gruposDe(c),antes={};
+            if(cuidar)for(const g of GRUPOS_META)if(metas[g])antes[g]=contarGrupo(g);
+            sumar(sem,pos,c,-1);
+            for(const o of pool(slot)){
+              if(o.k===c.k||!valido(o,dia,slot,pos))continue;
+              if(cuidar){
+                const go=gruposDe(o);
+                if(Object.keys(antes).some(g=>antes[g]-(gc.has(g)?1:0)+(go.has(g)?1:0)<Math.min(metas[g],antes[g])))continue
+              }
+              const ahorro=actual-costo(o,dia,slot);
+              const parecido=o.ings.filter(g=>c.ings.includes(g)).length;
+              if(ahorro>1&&(!mejor||ahorro+parecido*5>mejor.ahorro+mejor.parecido*5))mejor={pos,dia,slot,o,ahorro,parecido,c}
+            }
+            sumar(sem,pos,c,1)
           }
-          sumar(sem,pos,c,1)
+          if(mejor)break
         }
         if(!mejor)break;
         sumar(sem,mejor.pos,mejor.c,-1);
@@ -306,9 +333,13 @@ var ArmameSemana=(function(){
       }
     }
     const reutilizados=[...sem.ings.values()].filter(n=>n>=2).length;
+    // Lo que se usa de la Despensa y los objetivos de hábitos que no se alcanzaron (para "Ver detalle").
+    const usoDespensa=new Set();
+    for(const x of sem.comidas.values())for(const g of x.ings||[])if(enDespensa(g))usoDespensa.add(g);
+    const sinObjetivo=GRUPOS_META.filter(g=>metas[g]&&contarGrupo(g)<metas[g]).map(g=>({g,n:contarGrupo(g),meta:metas[g]}));
     const resultado={modo,plan,asignadas:[...asignadas].map(([pos,c])=>({dia:pos.split("|")[0],slot:pos.split("|")[1],cand:c})),huecos:aFillar.length,
       llenos:asignadas.size,costo:Math.round(total),presupuesto:presupuesto===null?null:Math.round(presupuesto),pasado:!!(presupuesto&&hayPrecios&&total>presupuesto),
-      sinPrecios:!!(presupuesto&&!hayPrecios),dobles,reutilizados,cambios};
+      sinPrecios:!!(presupuesto&&!hayPrecios),dobles,reutilizados,cambios,usoDespensa:usoDespensa.size,sinObjetivo};
     return resultado
   }
   // Escribe lo armado: Mis comidas una vez, el plan una vez, con historial y Deshacer.
@@ -345,20 +376,50 @@ var ArmameSemana=(function(){
     }
     return res
   }
-  function resumen(res){
-    const pesos=n=>"$"+Math.round(n).toLocaleString("es-AR");
-    let t="Listo: "+res.llenos+(res.llenos===1?" comida armada":" comidas armadas")+(res.costo?" · "+(res.sinEstimar?"al menos ":"")+"≈ "+pesos(res.costo)+" la semana":"")+".";
-    if(res.costo&&res.faltan)t+=" Incluye "+res.faltan+(res.faltan===1?" precio estimado":" precios estimados")+".";
-    if(res.presupuesto&&res.costo)t+=res.pasado?" No llego al presupuesto de "+pesos(res.presupuesto)+": es lo más barato que pude armar con lo que tenés para elegir.":" Entra en tu presupuesto de "+pesos(res.presupuesto)+".";
-    if(res.sinPrecios)t+=" No tengo precios para controlar el presupuesto.";
-    if(res.dobles.length)t+=" Cociná doble: "+res.dobles.map(d=>"la cena del "+Semana.planDayName(d.de).toLowerCase()+" es el almuerzo del "+Semana.planDayName(d.a).toLowerCase()).join("; ")+".";
-    const pocas=dietaAvisoPocas();
-    if(pocas)t+=" "+pocas;
-    if(res.llenos<res.huecos)t+=" Quedaron "+(res.huecos-res.llenos)+" huecos sin llenar: faltan comidas que cumplan lo que evitás.";
+  // Etapa 27: el aviso de semana armada es una línea (lo que importa) y, aparte, el detalle que se abre con "Ver detalle".
+  const pesosAviso=n=>"$"+Math.round(n).toLocaleString("es-AR");
+  const minuscula=s=>{s=String(s||"");return s.charAt(0).toLowerCase()+s.slice(1)};
+  // Los 3 productos que más pesan en el costo de la semana (nombre corto, en minúscula).
+  function masPesan(){
+    try{
+      const c=costoSemanaPlan();
+      if(!c)return [];
+      const vistos=new Set();
+      return c.productos.filter(p=>p.costo>0).sort((x,y)=>y.costo-x.costo).map(p=>minuscula(Compras.nombreCorto(p.name))).filter(n=>!vistos.has(n)&&vistos.add(n)).slice(0,3)
+    }catch(e){
+      return []
+    }
+  }
+  const listaY=a=>a.length<2?a.join(""):a.slice(0,-1).join(", ")+" y "+a[a.length-1];
+  // Primera línea: "Listo: 28 comidas armadas · ≈ $X la semana." y, si hay presupuesto, si entra o cuánto se pasa y qué pesa más.
+  function lineaDe(res){
+    let t="Listo: "+res.llenos+(res.llenos===1?" comida armada":" comidas armadas")+(res.costo?" · "+(res.sinEstimar?"al menos ":"")+"≈ "+pesosAviso(res.costo)+" la semana":"")+".";
+    if(res.presupuesto&&res.costo){
+      if(res.pasado){
+        const pesan=masPesan();
+        t+=" Te pasás "+pesosAviso(res.costo-res.presupuesto)+" de tu presupuesto de "+pesosAviso(res.presupuesto)+"."+(pesan.length?" Lo que más pesa: "+listaY(pesan)+".":"")
+      }else t+=" Entra en tu presupuesto de "+pesosAviso(res.presupuesto)+"."
+    }
     return t
   }
-  // Texto del aviso de semana armada con el total de ahora (si se completan precios después de armar, no queda el total viejo).
-  function avisoDe(res){
+  // El resto (se ve en "Ver detalle"): precios estimados, cociná doble, Despensa, objetivos que no se alcanzaron, dieta y huecos sin llenar.
+  function detalleDe(res){
+    const out=[];
+    if(res.costo&&res.faltan)out.push("Incluye "+res.faltan+(res.faltan===1?" precio estimado":" precios estimados")+".");
+    if(res.sinPrecios)out.push("No tengo precios para controlar el presupuesto.");
+    if(res.dobles&&res.dobles.length)out.push("Cociná doble: "+res.dobles.map(d=>"la cena del "+Semana.planDayName(d.de).toLowerCase()+" es el almuerzo del "+Semana.planDayName(d.a).toLowerCase()).join("; ")+".");
+    if(res.usoDespensa>0)out.push("Usé "+res.usoDespensa+(res.usoDespensa===1?" producto":" productos")+" de tu despensa.");
+    for(const o of res.sinObjetivo||[])out.push("No llegué a tu objetivo de "+o.g+" ("+o.n+" de "+o.meta+")"+(res.presupuesto?" para no pasarme del presupuesto.":": no hay más comidas con eso que cumplan lo que evitás."));
+    const pocas=dietaAvisoPocas();
+    if(pocas)out.push(pocas);
+    if(res.llenos<res.huecos)out.push("Quedaron "+(res.huecos-res.llenos)+" huecos sin llenar: faltan comidas que cumplan lo que evitás.");
+    return out
+  }
+  function resumen(res){
+    return [lineaDe(res)].concat(detalleDe(res)).join(" ")
+  }
+  // El total de ahora (si se completan precios después de armar, no queda el total viejo).
+  function conTotalDeAhora(res){
     const r={...res};
     try{
       const c=costoSemanaPlan();
@@ -370,7 +431,15 @@ var ArmameSemana=(function(){
       }
     }catch(e){
     }
-    return resumen(r).replace(/\.$/,"")
+    return r
+  }
+  // Texto de la línea del aviso de semana armada (sin el punto final, para que siga "Deshacer").
+  function avisoDe(res){
+    return lineaDe(conTotalDeAhora(res)).replace(/\.$/,"")
+  }
+  // Lo que va dentro de "Ver detalle" (puede estar vacío).
+  function avisoDetalle(res){
+    return detalleDe(conTotalDeAhora(res))
   }
   function huecosVacios(){
     const plan=loadPlan(),ids=new Set(MisPlatos.loadSaved().map(x=>x.id));
@@ -487,5 +556,5 @@ var ArmameSemana=(function(){
     return MisPlatos.persistSaved(a)
   }
   try{marcarDeLaSemana()}catch(e){}
-  return {armar,aplicar,resumen,avisoDe,abrir,correr,cambiarHueco,presupuestoSemanal,huecosVacios,marcarDeLaSemana,guardarEnMisComidas}
+  return {armar,aplicar,resumen,avisoDe,avisoDetalle,abrir,correr,cambiarHueco,presupuestoSemanal,huecosVacios,marcarDeLaSemana,guardarEnMisComidas}
 })();
