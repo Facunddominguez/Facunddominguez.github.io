@@ -4,6 +4,51 @@
 // tocando afuera o con Escape. Devuelve el foco a lo que la abrió.
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como IdeasHoja.nombre().
 var IdeasHoja={
+// Etapa 28: la idea del catálogo de la que viene una comida guardada (para sus cantidades, sus pasos y su nombre corto), o null.
+// Vale si la nota de la comida es la de la idea (idea.text.slice(0, 80)) y los ingredientes del state son los mismos que los de la idea.
+// Si la comida se renombró, la idea se busca por ingredientes y solo vale si hay una sola con ese mismo conjunto. Una comida a la que
+// se le cambió un ingrediente no es la idea: vuelve al cálculo general. No escribe nada.
+ideaDeComida(item){
+  const st=item&&item.state;
+  if(!st||typeof st!=="object"||item.recipeSourceId||st.type!=="plato")return null;
+  const claveDe=nombres=>[...new Set(nombres.map(n=>ingredientKey(n)).filter(Boolean))].sort().join("|");
+  const idx=IdeasHoja.indiceDeIdeas(),mios=[];
+  for(const k of SUGERENCIA_GRUPOS)for(const o of Array.isArray(st[k])?st[k]:[])if(o&&o.name)mios.push(o.name);
+  if(!mios.length)return null;
+  const conjunto=claveDe(mios);
+  const porNota=item.note?idx.porNota.get(item.note):null;
+  if(porNota&&claveDe(ideaIngredientes(porNota))===conjunto)return porNota;
+  const posibles=idx.porConjunto.get(conjunto)||[];
+  return posibles.length===1?posibles[0]:null
+},
+indiceDeIdeas(){
+  // El índice depende de los alias de ingredientes del usuario (ingredientKey): si cambian, se arma de nuevo.
+  let sig="";
+  try{sig=localStorage.getItem("miPlatoFacil_ingredientAliases_v1")||""}catch(e){}
+  if(!IdeasHoja._indice||IdeasHoja._indice.total!==data.menuCatalog.length||IdeasHoja._indice.sig!==sig){
+    const porNota=new Map(),porConjunto=new Map();
+    for(const idea of data.menuCatalog){
+      if(!Array.isArray(idea.cantidades))continue;
+      porNota.set(idea.text.slice(0,80),idea);
+      const k=[...new Set(ideaIngredientes(idea).map(n=>ingredientKey(n)).filter(Boolean))].sort().join("|");
+      if(!porConjunto.has(k))porConjunto.set(k,[]);
+      porConjunto.get(k).push(idea)
+    }
+    IdeasHoja._indice={total:data.menuCatalog.length,sig,porNota,porConjunto}
+  }
+  return IdeasHoja._indice
+},
+// Nombre que se ve en Semana, Hoy y los selectores: el corto si es una idea sin renombrar; si no, el de siempre.
+nombreCorto(item){
+  const nombre=mealName(item),idea=IdeasHoja.ideaDeComida(item);
+  return idea&&idea.corto&&normalizeSearchText(nombre)===normalizeSearchText(idea.text)?idea.corto:nombre
+},
+// "300 g", "2 unidades", "½ unidad": la cantidad de una fila de la idea para el hogar.
+textoCantidad(q,unit){
+  if(unit==="g")return (q>=1000?Number((q/1000).toFixed(2)).toLocaleString("es-AR")+" kg":Math.round(q/5)*5+" g").replace(/^0 g$/,"5 g");
+  if(unit==="unidad")return q===0.5?"½ unidad":Number(q.toFixed(2)).toLocaleString("es-AR")+(q===1?" unidad":" unidades");
+  return Number(q.toFixed(2)).toLocaleString("es-AR")+" "+unit
+},
 ideaComoComida(idea,dia){
   const st={
     type:"plato",day:dia||diaDeRutina(new Date())||"Día libre",fruta:null,bfprot:null,bfcarb:null,grasa:null,pre:null,snack:null,verduras:[],almidones:[],proteinas:[],legCarb:[],legProt:[],replaceCarb:false,replaceProt:false,customPortions:null,nombreSugerido:""

@@ -258,7 +258,7 @@ function recetasSinCopia(items){
 }
 function seccionesSelector(h,q){
   const pool=slotPool(h.slot),items=MisPlatos.loadSaved().filter(p=>p&&p.type===pool),labels=mealLabels(items),n=normalizeSearchText(String(q||"").trim());
-  const nombre=it=>labels.get(it.id)||mealName(it),coincide=t=>!n||normalizeSearchText(t).includes(n);
+  const nombre=it=>labels.get(it.id)||nombreCortoDeComida(it),coincide=t=>!n||normalizeSearchText(t).includes(n);
   const fila=it=>{
     const b=ce("button","selector-item"+(it.id===h.id?" is-actual":""));b.type="button";b.dataset.selectorId=it.id;b.append(ce("span","selector-item__nombre",Semana.planPlateLabel(it,nombre(it))));const d=savedItemLines(it).join(" · ");if(d)b.append(ce("span","selector-item__detalle",d));if(it.id===h.id)b.setAttribute("aria-current","true");return b
   };

@@ -47,12 +47,18 @@ const datosPrecios = JSON.stringify(JSON.parse(archivoPrecios))
 const datosEnvases = JSON.stringify(JSON.parse(await leer('datos/envases.json')))
   .replace(/<\//g, '<\\/').split('\u2028').join('\\u2028').split('\u2029').join('\\u2029');
 
+// Ideas del catálogo con cantidades, pasos y tiempo (Ronda 4, Etapa 28).
+const archivoIdeas = await leer('datos/ideas.json');
+if (Buffer.byteLength(archivoIdeas) > 150000) throw new Error('datos/ideas.json pesa más de 150.000 bytes: ' + Buffer.byteLength(archivoIdeas));
+const datosIdeas = JSON.stringify(JSON.parse(archivoIdeas))
+  .replace(/<\//g, '<\\/').split('\u2028').join('\\u2028').split('\u2029').join('\\u2029');
+
 if (Buffer.byteLength(datosPrecios) > 80000) throw new Error('datos/precios.json pesa más de 80.000 bytes: ' + Buffer.byteLength(datosPrecios));
 
 let html = await leer('fuente/plantilla.html');
 html = unaVez(html, '{{ESTILOS}}', (await leer('fuente/estilos.css')).replace(/\n+$/, ''));
 html = unaVez(html, '{{CUERPO}}', cuerpo);
-html = unaVez(html, '{{CODIGO}}', unaVez(unaVez(unaVez(codigo, '__DATOS_NUTRICION__', datos), '__DATOS_PRECIOS__', datosPrecios), '__DATOS_ENVASES__', datosEnvases));
+html = unaVez(html, '{{CODIGO}}', unaVez(unaVez(unaVez(unaVez(codigo, '__DATOS_NUTRICION__', datos), '__DATOS_PRECIOS__', datosPrecios), '__DATOS_ENVASES__', datosEnvases), '__DATOS_IDEAS__', datosIdeas));
 html = unaVez(html, '{{VERSION}}', version);
 const sw = unaVez(await leer('fuente/sw.js'), '{{VERSION}}', version);
 
@@ -60,7 +66,7 @@ const sw = unaVez(await leer('fuente/sw.js'), '{{VERSION}}', version);
 const script = html.slice(html.indexOf('<script>') + 8, html.lastIndexOf('</script>'));
 new vm.Script(script, { filename: 'index.html' });
 new vm.Script(sw, { filename: 'sw.js' });
-if (/\{\{[A-Z]+\}\}|__DATOS_NUTRICION__|__DATOS_PRECIOS__|__DATOS_ENVASES__/.test(html)) throw new Error('Quedaron marcas sin reemplazar en index.html');
+if (/\{\{[A-Z]+\}\}|__DATOS_NUTRICION__|__DATOS_PRECIOS__|__DATOS_ENVASES__|__DATOS_IDEAS__/.test(html)) throw new Error('Quedaron marcas sin reemplazar en index.html');
 
 const topeHtml = Math.min(1100000, Number(arg('--tope-html')) || 1100000), topeGzip = Math.min(300000, Number(arg('--tope-gzip')) || 300000);
 if (Buffer.byteLength(html) > topeHtml) throw new Error(`index.html pesa más de ${topeHtml.toLocaleString('es-AR')} bytes: ${Buffer.byteLength(html)}`);

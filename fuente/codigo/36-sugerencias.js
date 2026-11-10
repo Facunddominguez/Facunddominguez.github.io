@@ -36,7 +36,7 @@ function sugerenciasPara(comida,dia){
   if(comida!=="almuerzo"&&comida!=="cena"&&comida!=="plato")return out;
   for(const idea of data.menuCatalog){
     const ings=ideaIngredientes(idea);
-    if(!ings.length||evitada(idea.text+" "+(idea.tags||[]).join(" ")+" "+ings.join(" ")))continue;
+    if(!ings.length||evitada(textoDeIdea(idea)))continue;
     out.push({
       tipo:"idea",idea,peso:1+ings.filter(enDespensa).length
     })

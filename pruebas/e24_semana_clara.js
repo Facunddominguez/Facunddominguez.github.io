@@ -24,7 +24,7 @@
   const set = (id, v) => { const e = doc().getElementById(id); e.value = v; e.dispatchEvent(new w.Event("input", { bubbles: true })) };
 
   // Semana vacía: "Armame la semana" es la única acción principal y no hay "Elegir el almuerzo de hoy".
-  cargar({ ...MARCA, ...PRES(70000) }); await abrir();
+  cargar({ ...MARCA, ...PRES(90000) }); await abrir(); // Etapa 28 (Ronda 4): antes $70.000; las porciones de adulto suben la semana
   // Etapa 25 (Ronda 4): el dato real ya trae precio de frutas y otros productos que antes no tenían. La prueba arma el caso
   // de siempre —hay productos sin precio para completar— con un snapshot donde esos 16 ítems pasan a 'categorias' (con su categoría, sin precio), como figuraban antes en los datos.
   ev(`(() => { const sin = new Set(["Frutilla","Kiwi","Arándanos","Mandarina","Pera","Durazno","Uva","Ananá","Ciruela","Melón","Sandía","Mango","Pomelo","Granola","Champiñones","Semillas de chía"]); const q = PRECIOS_SNAPSHOT.items.filter(i => sin.has(i.n)); preciosDataset.data = { ...PRECIOS_SNAPSHOT, items: PRECIOS_SNAPSHOT.items.filter(i => !sin.has(i.n)), categorias: { ...PRECIOS_SNAPSHOT.categorias, ...Object.fromEntries(q.map(i => [i.n, [i.k, i.b]])) } }; preciosDataset.cache = null; refrescarPrecios() })()`);

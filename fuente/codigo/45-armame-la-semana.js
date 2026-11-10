@@ -92,7 +92,7 @@ var ArmameSemana=(function(){
     }
     for(const idea of data.menuCatalog){
       const ings=ideaIngredientes(idea),k=clave(idea.text);
-      if(!ings.length||por.has(k)||!ver(idea.text+" "+(idea.tags||[]).join(" "),ings))continue;
+      if(!ings.length||por.has(k)||!ver(textoDeIdea(idea),ings))continue;
       por.set(k,{k,nombre:idea.text,tipo:"idea",idea,ings:ings.map(ingredientKey)})
     }
     return [...por.values()]
@@ -140,6 +140,7 @@ var ArmameSemana=(function(){
   function filasDe(c,dia){
     let a=null;
     if(c.item)a=cantidadesDeComida("plato",c.item.id);
+    else if(c.idea&&Array.isArray(c.idea.cantidades))a={yield:1,rows:c.idea.cantidades.map(([name,quantity,unit])=>({name,quantity,unit}))};
     else{
       const st=c.estado||IdeasHoja.ideaComoComida(c.idea,diaDeRutinaDe(dia)||"Día libre"),cant=cantidadesDePlatoArmado({state:st});
       if(cant.length)a={yield:1,rows:cant.map(x=>({name:x.name,quantity:x.q,unit:x.unit}))}

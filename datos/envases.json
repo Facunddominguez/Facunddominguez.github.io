@@ -5,8 +5,16 @@
   "gramosPorCuarto": {
     "verduras": 100,
     "almidones": 80,
-    "proteinas": 120
+    "proteinas": 150
   },
+  "porcionAlmidon": {
+    "Papa": 200,
+    "Batata": 200,
+    "Mandioca": 200,
+    "Choclo": 150,
+    "Pan": 70
+  },
+  "_porcionAlmidon": "Gramos por cuarto del plato de los almidones que se comen por peso (Etapa 28): reemplaza a los 80 g de gramosPorCuarto. Porción de adulto.",
   "basicos": [
     "Aceite",
     "Sal",

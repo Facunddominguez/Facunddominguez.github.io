@@ -1,0 +1,1735 @@
+{
+ "version": 1,
+ "revisado": "2026-11-10",
+ "ideas": [
+  {
+   "text": "Ensalada de fideos integrales + atún + tomates cherry + aderezo de oliva",
+   "corto": "Ensalada de fideos con atún",
+   "tipo": "plato",
+   "minutos": 20,
+   "cantidades": [
+    [
+     "Fideos",
+     90,
+     "g"
+    ],
+    [
+     "Atún",
+     120,
+     "g"
+    ],
+    [
+     "Tomate",
+     120,
+     "g"
+    ],
+    [
+     "Pepino",
+     100,
+     "g"
+    ],
+    [
+     "Queso fresco",
+     30,
+     "g"
+    ]
+   ],
+   "pasos": [
+    "Herví los fideos 9 minutos, colalos y pasalos por agua fría.",
+    "Cortá el tomate y el pepino en cubos.",
+    "Mezclá todo con el atún escurrido y el queso en cubos.",
+    "Aderezá con aceite de oliva, limón y sal."
+   ]
+  },
+  {
+   "text": "Fideos integrales con salsa de tomate + albóndigas de garbanzo",
+   "corto": "Fideos con albóndigas de garbanzo",
+   "tipo": "plato",
+   "minutos": 60,
+   "cantidades": [
+    [
+     "Fideos",
+     85,
+     "g"
+    ],
+    [
+     "Garbanzos",
+     70,
+     "g"
+    ],
+    [
+     "Tomate",
+     250,
+     "g"
+    ],
+    [
+     "Cebolla",
+     60,
+     "g"
+    ],
+    [
+     "Pan rallado",
+     15,
+     "g"
+    ],
+    [
+     "Huevo",
+     0.5,
+     "unidad"
+    ]
+   ],
+   "pasos": [
+    "Usá garbanzos cocidos o hervilos 40 minutos tras remojarlos toda la noche.",
+    "Pisalos con el huevo, el pan rallado, sal y comino; formá bolitas.",
+    "Horneá las albóndigas 20 minutos a horno fuerte.",
+    "Cociná la cebolla con el tomate picado 15 minutos y mezclá con los fideos."
+   ]
+  },
+  {
+   "text": "Filet de pescado con verduras salteadas",
+   "corto": "Merluza con verduras salteadas",
+   "tipo": "plato",
+   "minutos": 30,
+   "cantidades": [
+    [
+     "Merluza",
+     180,
+     "g"
+    ],
+    [
+     "Papa",
+     250,
+     "g"
+    ],
+    [
+     "Zanahoria",
+     80,
+     "g"
+    ],
+    [
+     "Zapallito",
+     120,
+     "g"
+    ],
+    [
+     "Cebolla",
+     60,
+     "g"
+    ],
+    [
+     "Choclo",
+     100,
+     "g"
+    ]
+   ],
+   "pasos": [
+    "Herví las papas en cubos 15 minutos.",
+    "Salteá la cebolla, la zanahoria y el zapallito con un chorrito de aceite.",
+    "Hacé la merluza a la plancha 3 minutos de cada lado con limón.",
+    "Serví el pescado con las verduras y las papas."
+   ]
+  },
+  {
+   "text": "Milanesas de zapallito con ensalada de hojas verdes y zanahoria",
+   "corto": "Milanesas de zapallito con ensalada",
+   "tipo": "plato",
+   "minutos": 35,
+   "cantidades": [
+    [
+     "Zapallito",
+     250,
+     "g"
+    ],
+    [
+     "Huevo",
+     2,
+     "unidad"
+    ],
+    [
+     "Pan rallado",
+     50,
+     "g"
+    ],
+    [
+     "Lechuga",
+     80,
+     "g"
+    ],
+    [
+     "Zanahoria",
+     80,
+     "g"
+    ],
+    [
+     "Queso cremoso",
+     30,
+     "g"
+    ]
+   ],
+   "pasos": [
+    "Cortá los zapallitos en rodajas finas a lo largo.",
+    "Pasalos por huevo batido y pan rallado.",
+    "Horneá 20 minutos, dándolos vuelta a la mitad.",
+    "Serví con la lechuga y la zanahoria rallada."
+   ]
+  },
+  {
+   "text": "Pizza integral con pollo + puerro y cebolla de verdeo",
+   "corto": "Pizza integral de pollo y puerro",
+   "tipo": "plato",
+   "minutos": 60,
+   "cantidades": [
+    [
+     "Harina de trigo integral",
+     110,
+     "g"
+    ],
+    [
+     "Pollo",
+     130,
+     "g"
+    ],
+    [
+     "Puerro",
+     100,
+     "g"
+    ],
+    [
+     "Cebolla de verdeo",
+     50,
+     "g"
+    ],
+    [
+     "Queso cremoso",
+     40,
+     "g"
+    ],
+    [
+     "Tomate triturado",
+     120,
+     "g"
+    ]
+   ],
+   "pasos": [
+    "Amasá la harina con agua tibia, sal y un chorrito de aceite; dejá descansar 30 minutos.",
+    "Hacé el pollo en tiritas a la plancha y cociná el puerro y el verdeo.",
+    "Estirá la masa, cubrila con el tomate, el pollo, las verduras y el queso.",
+    "Horneá 20 minutos a horno fuerte."
+   ]
+  },
+  {
+   "text": "Sándwich de pan integral + hummus de remolacha + rúcula y queso",
+   "corto": "Sándwich de hummus y queso",
+   "tipo": "plato",
+   "minutos": 45,
+   "cantidades": [
+    [
+     "Pan integral",
+     80,
+     "g"
+    ],
+    [
+     "Garbanzos",
+     60,
+     "g"
+    ],
+    [
+     "Remolacha",
+     120,
+     "g"
+    ],
+    [
+     "Rúcula",
+     40,
+     "g"
+    ],
+    [
+     "Queso fresco",
+     70,
+     "g"
+    ],
+    [
+     "Tomate",
+     100,
+     "g"
+    ]
+   ],
+   "pasos": [
+    "Herví los garbanzos 40 minutos (o usá de lata) y la remolacha 30; procesalos con limón, sal y comino.",
+    "Untá el pan con el hummus.",
+    "Sumá el queso en fetas, la rúcula y el tomate en rodajas.",
+    "Cerrá el sándwich y cortalo al medio."
+   ]
+  },
+  {
+   "text": "Tacos de maíz con garbanzos especiados + repollo morado + salsa de yogur",
+   "corto": "Tacos de garbanzos y repollo",
+   "tipo": "plato",
+   "minutos": 35,
+   "cantidades": [
+    [
+     "Tortillas de trigo",
+     3,
+     "unidad"
+    ],
+    [
+     "Garbanzos",
+     70,
+     "g"
+    ],
+    [
+     "Repollo colorado",
+     120,
+     "g"
+    ],
+    [
+     "Yogur natural",
+     80,
+     "g"
+    ],
+    [
+     "Tomate",
+     100,
+     "g"
+    ]
+   ],
+   "pasos": [
+    "Usá garbanzos cocidos (o hervilos 40 minutos tras remojarlos) y salteálos con pimentón, comino y ajo en polvo.",
+    "Cortá el repollo en tiras finas y el tomate en cubos.",
+    "Mezclá el yogur con limón y sal.",
+    "Calentá las tortillas, armá los tacos y bañalos con la salsa."
+   ]
+  },
+  {
+   "text": "Tacos de porotos colorados con verduras salteadas",
+   "corto": "Tacos de porotos y verduras",
+   "tipo": "plato",
+   "minutos": 35,
+   "cantidades": [
+    [
+     "Tortillas de trigo",
+     3,
+     "unidad"
+    ],
+    [
+     "Porotos colorados",
+     70,
+     "g"
+    ],
+    [
+     "Morrón rojo",
+     100,
+     "g"
+    ],
+    [
+     "Cebolla",
+     60,
+     "g"
+    ],
+    [
+     "Zapallito",
+     120,
+     "g"
+    ],
+    [
+     "Queso cremoso",
+     30,
+     "g"
+    ]
+   ],
+   "pasos": [
+    "Usá porotos cocidos (o hervilos 45 minutos tras remojarlos) con una hoja de laurel.",
+    "Salteá el morrón, la cebolla y el zapallito en tiras.",
+    "Mezclá las verduras con los porotos y condimentá con comino.",
+    "Rellená las tortillas calientes y sumá el queso."
+   ]
+  },
+  {
+   "text": "Tarta de jamón cocido, queso y huevo",
+   "corto": "Tarta de jamón, queso y huevo",
+   "tipo": "plato",
+   "minutos": 50,
+   "cantidades": [
+    [
+     "Harina de trigo",
+     90,
+     "g"
+    ],
+    [
+     "Jamón cocido",
+     60,
+     "g"
+    ],
+    [
+     "Queso cremoso",
+     60,
+     "g"
+    ],
+    [
+     "Huevo",
+     2,
+     "unidad"
+    ],
+    [
+     "Cebolla",
+     80,
+     "g"
+    ],
+    [
+     "Tomate",
+     120,
+     "g"
+    ]
+   ],
+   "pasos": [
+    "Amasá la harina con agua, aceite y sal; estirala y forrá una tartera.",
+    "Rehogá la cebolla y mezclala con el jamón, el queso y los huevos batidos.",
+    "Volcá el relleno sobre la masa.",
+    "Horneá 30 minutos y serví con tomate en rodajas."
+   ]
+  },
+  {
+   "text": "Tortilla de maíz rellena de revuelto de huevo y arvejas + cebolla de verdeo",
+   "corto": "Tortillas rellenas de huevo y arvejas",
+   "tipo": "plato",
+   "minutos": 20,
+   "cantidades": [
+    [
+     "Tortillas de trigo",
+     3,
+     "unidad"
+    ],
+    [
+     "Huevo",
+     2,
+     "unidad"
+    ],
+    [
+     "Arvejas",
+     120,
+     "g"
+    ],
+    [
+     "Cebolla de verdeo",
+     50,
+     "g"
+    ],
+    [
+     "Tomate",
+     150,
+     "g"
+    ]
+   ],
+   "pasos": [
+    "Salteá el verdeo picado con un chorrito de aceite.",
+    "Sumá las arvejas y los huevos batidos; revolvé hasta que cuajen.",
+    "Calentá las tortillas y rellenalas con el revuelto.",
+    "Serví con tomate en cubos."
+   ]
+  },
+  {
+   "text": "Wrap integral de crema de lentejas + palta + verduras crudas",
+   "corto": "Wrap de lentejas y palta",
+   "tipo": "plato",
+   "minutos": 30,
+   "cantidades": [
+    [
+     "Tortillas de trigo",
+     3,
+     "unidad"
+    ],
+    [
+     "Lentejas",
+     70,
+     "g"
+    ],
+    [
+     "Palta",
+     70,
+     "g"
+    ],
+    [
+     "Lechuga",
+     50,
+     "g"
+    ],
+    [
+     "Tomate",
+     100,
+     "g"
+    ],
+    [
+     "Zanahoria",
+     80,
+     "g"
+    ]
+   ],
+   "pasos": [
+    "Herví las lentejas 25 minutos y procesalas con ajo en polvo, comino y limón.",
+    "Rallá la zanahoria y cortá el tomate y la lechuga.",
+    "Untá las tortillas con la crema de lentejas y la palta pisada.",
+    "Sumá las verduras, enrollá y cortá al medio."
+   ]
+  },
+  {
+   "text": "Bowl de quinoa + pollo grillado + brócoli y zanahoria",
+   "corto": "Bowl de quinoa y pollo",
+   "tipo": "plato",
+   "minutos": 30,
+   "cantidades": [
+    [
+     "Quinoa",
+     80,
+     "g"
+    ],
+    [
+     "Pollo",
+     150,
+     "g"
+    ],
+    [
+     "Brócoli",
+     150,
+     "g"
+    ],
+    [
+     "Zanahoria",
+     100,
+     "g"
+    ],
+    [
+     "Palta",
+     40,
+     "g"
+    ]
+   ],
+   "pasos": [
+    "Enjuagá la quinoa y hervila 15 minutos con el doble de agua.",
+    "Cociná el brócoli y la zanahoria al vapor 8 minutos.",
+    "Hacé el pollo grillado 5 minutos de cada lado con sal y pimienta.",
+    "Armá el bowl con todo y sumá la palta en fetas."
+   ]
+  },
+  {
+   "text": "Salmón al horno con puré de calabaza y espinaca",
+   "corto": "Salmón con puré de calabaza",
+   "tipo": "plato",
+   "minutos": 35,
+   "cantidades": [
+    [
+     "Salmón",
+     140,
+     "g"
+    ],
+    [
+     "Zapallo",
+     250,
+     "g"
+    ],
+    [
+     "Papa",
+     120,
+     "g"
+    ],
+    [
+     "Espinaca",
+     100,
+     "g"
+    ]
+   ],
+   "pasos": [
+    "Herví el zapallo y la papa 20 minutos y hacelos puré con sal.",
+    "Horneá el salmón 15 minutos con limón y pimienta.",
+    "Salteá la espinaca 2 minutos con ajo en polvo.",
+    "Serví el salmón sobre el puré y la espinaca al lado."
+   ]
+  },
+  {
+   "text": "Guiso de lentejas con calabaza, zanahoria y carne magra",
+   "corto": "Guiso de lentejas con carne",
+   "tipo": "plato",
+   "minutos": 60,
+   "cantidades": [
+    [
+     "Lentejas",
+     75,
+     "g"
+    ],
+    [
+     "Carne vacuna",
+     130,
+     "g"
+    ],
+    [
+     "Zapallo",
+     150,
+     "g"
+    ],
+    [
+     "Zanahoria",
+     100,
+     "g"
+    ],
+    [
+     "Cebolla",
+     60,
+     "g"
+    ],
+    [
+     "Papa",
+     120,
+     "g"
+    ]
+   ],
+   "pasos": [
+    "Sellá la carne en cubos con la cebolla en una olla.",
+    "Sumá las lentejas, la zanahoria, el zapallo y la papa en cubos.",
+    "Cubrí con agua, condimentá con pimentón y comino.",
+    "Cociná tapado 40 minutos hasta que todo esté tierno."
+   ]
+  },
+  {
+   "text": "Merluza al vapor con arroz integral y ensalada mixta",
+   "corto": "Merluza con arroz integral",
+   "tipo": "plato",
+   "minutos": 35,
+   "cantidades": [
+    [
+     "Merluza",
+     160,
+     "g"
+    ],
+    [
+     "Arroz integral",
+     80,
+     "g"
+    ],
+    [
+     "Lechuga",
+     80,
+     "g"
+    ],
+    [
+     "Tomate",
+     120,
+     "g"
+    ],
+    [
+     "Cebolla",
+     40,
+     "g"
+    ]
+   ],
+   "pasos": [
+    "Herví el arroz integral 35 minutos.",
+    "Cociná la merluza al vapor 8 minutos con limón.",
+    "Cortá la lechuga, el tomate y la cebolla para la ensalada.",
+    "Serví todo junto y condimentá con aceite y sal."
+   ]
+  },
+  {
+   "text": "Ensalada tibia de garbanzos, espinaca y huevo",
+   "corto": "Ensalada tibia de garbanzos y huevo",
+   "tipo": "plato",
+   "minutos": 35,
+   "cantidades": [
+    [
+     "Garbanzos",
+     80,
+     "g"
+    ],
+    [
+     "Espinaca",
+     120,
+     "g"
+    ],
+    [
+     "Huevo",
+     2,
+     "unidad"
+    ],
+    [
+     "Tomate",
+     120,
+     "g"
+    ],
+    [
+     "Cebolla",
+     40,
+     "g"
+    ],
+    [
+     "Pan",
+     60,
+     "g"
+    ]
+   ],
+   "pasos": [
+    "Usá garbanzos cocidos (o hervilos 40 minutos tras remojarlos) y calentalos.",
+    "Hacé los huevos duros 10 minutos y cortalos en cuartos.",
+    "Mezclá la espinaca cruda con los garbanzos tibios, el tomate y la cebolla.",
+    "Aderezá con aceite, limón y sal; serví con el pan."
+   ]
+  },
+  {
+   "text": "Pollo al curry con arroz basmati y arvejas",
+   "corto": "Pollo al curry con arroz",
+   "tipo": "plato",
+   "minutos": 35,
+   "cantidades": [
+    [
+     "Pollo",
+     150,
+     "g"
+    ],
+    [
+     "Arroz",
+     80,
+     "g"
+    ],
+    [
+     "Arvejas",
+     80,
+     "g"
+    ],
+    [
+     "Cebolla",
+     80,
+     "g"
+    ],
+    [
+     "Zanahoria",
+     120,
+     "g"
+    ]
+   ],
+   "pasos": [
+    "Cortá el pollo en cubos y salteálo con la cebolla.",
+    "Sumá curry en polvo, la zanahoria en rodajas y medio vaso de agua.",
+    "Cociná 15 minutos y agregá las arvejas al final.",
+    "Herví el arroz 12 minutos y serví con el pollo."
+   ]
+  },
+  {
+   "text": "Hamburguesa casera de lentejas con ensalada y batata al horno",
+   "corto": "Hamburguesa de lentejas con batata",
+   "tipo": "plato",
+   "minutos": 50,
+   "cantidades": [
+    [
+     "Lentejas",
+     70,
+     "g"
+    ],
+    [
+     "Batata",
+     220,
+     "g"
+    ],
+    [
+     "Pan rallado",
+     25,
+     "g"
+    ],
+    [
+     "Huevo",
+     1,
+     "unidad"
+    ],
+    [
+     "Lechuga",
+     60,
+     "g"
+    ],
+    [
+     "Tomate",
+     120,
+     "g"
+    ],
+    [
+     "Zanahoria",
+     80,
+     "g"
+    ]
+   ],
+   "pasos": [
+    "Herví las lentejas 25 minutos y pisalas con el huevo, el pan rallado y comino.",
+    "Formá las hamburguesas y cocinalas 4 minutos de cada lado.",
+    "Cortá la batata en bastones y horneala 30 minutos.",
+    "Serví con ensalada de lechuga y tomate."
+   ]
+  },
+  {
+   "text": "Cazuela de porotos negros con calabaza y choclo",
+   "corto": "Cazuela de porotos negros",
+   "tipo": "plato",
+   "minutos": 60,
+   "cantidades": [
+    [
+     "Porotos negros",
+     75,
+     "g"
+    ],
+    [
+     "Zapallo",
+     200,
+     "g"
+    ],
+    [
+     "Choclo",
+     150,
+     "g"
+    ],
+    [
+     "Cebolla",
+     60,
+     "g"
+    ],
+    [
+     "Queso cremoso",
+     40,
+     "g"
+    ]
+   ],
+   "pasos": [
+    "Dejá los porotos en remojo toda la noche y hervilos 45 minutos.",
+    "Rehogá la cebolla y sumá el zapallo en cubos y el choclo.",
+    "Agregá los porotos con un poco de caldo y cociná 15 minutos.",
+    "Servilo con queso rallado encima."
+   ]
+  },
+  {
+   "text": "Tarta de atún, cebolla y morrón",
+   "corto": "Tarta de atún y morrón",
+   "tipo": "plato",
+   "minutos": 50,
+   "cantidades": [
+    [
+     "Harina de trigo",
+     90,
+     "g"
+    ],
+    [
+     "Atún",
+     120,
+     "g"
+    ],
+    [
+     "Cebolla",
+     80,
+     "g"
+    ],
+    [
+     "Morrón rojo",
+     100,
+     "g"
+    ],
+    [
+     "Huevo",
+     1,
+     "unidad"
+    ],
+    [
+     "Lechuga",
+     60,
+     "g"
+    ]
+   ],
+   "pasos": [
+    "Amasá la harina con agua, aceite y sal; forrá una tartera.",
+    "Rehogá la cebolla y el morrón en tiras.",
+    "Mezclalos con el atún escurrido y el huevo batido.",
+    "Volcá sobre la masa y horneá 30 minutos; serví con lechuga."
+   ]
+  },
+  {
+   "text": "Fideos integrales con pesto de albahaca y pollo",
+   "corto": "Fideos con pesto y pollo",
+   "tipo": "plato",
+   "minutos": 30,
+   "cantidades": [
+    [
+     "Fideos",
+     85,
+     "g"
+    ],
+    [
+     "Pollo",
+     140,
+     "g"
+    ],
+    [
+     "Albahaca",
+     20,
+     "g"
+    ],
+    [
+     "Tomate",
+     100,
+     "g"
+    ],
+    [
+     "Zapallito",
+     100,
+     "g"
+    ],
+    [
+     "Queso rallado",
+     25,
+     "g"
+    ],
+    [
+     "Pan rallado",
+     10,
+     "g"
+    ]
+   ],
+   "pasos": [
+    "Procesá la albahaca con el queso, el pan rallado, ajo en polvo y aceite.",
+    "Herví los fideos 9 minutos.",
+    "Hacé el pollo en tiras a la plancha.",
+    "Mezclá los fideos con el pesto, el pollo y el tomate en cubos."
+   ]
+  },
+  {
+   "text": "Sopa de verduras con ñoquis de papa y queso",
+   "corto": "Sopa de verduras con ñoquis",
+   "tipo": "plato",
+   "minutos": 50,
+   "cantidades": [
+    [
+     "Papa",
+     250,
+     "g"
+    ],
+    [
+     "Harina de trigo",
+     50,
+     "g"
+    ],
+    [
+     "Zanahoria",
+     100,
+     "g"
+    ],
+    [
+     "Zapallo",
+     120,
+     "g"
+    ],
+    [
+     "Puerro",
+     60,
+     "g"
+    ],
+    [
+     "Queso fresco",
+     60,
+     "g"
+    ]
+   ],
+   "pasos": [
+    "Herví la papa con cáscara, pelala y pisala; mezclá con la harina y sal.",
+    "Formá los ñoquis y hervilos hasta que suban.",
+    "Cociná la zanahoria, el zapallo y el puerro en cubos en 1 litro de agua.",
+    "Sumá los ñoquis a la sopa y serví con el queso."
+   ]
+  },
+  {
+   "text": "Milanesa de merluza al horno con puré y ensalada verde",
+   "corto": "Milanesa de merluza con puré",
+   "tipo": "plato",
+   "minutos": 40,
+   "cantidades": [
+    [
+     "Merluza",
+     170,
+     "g"
+    ],
+    [
+     "Pan rallado",
+     35,
+     "g"
+    ],
+    [
+     "Huevo",
+     0.5,
+     "unidad"
+    ],
+    [
+     "Papa",
+     250,
+     "g"
+    ],
+    [
+     "Lechuga",
+     100,
+     "g"
+    ],
+    [
+     "Tomate",
+     100,
+     "g"
+    ]
+   ],
+   "pasos": [
+    "Pasá la merluza por huevo batido y pan rallado.",
+    "Horneá 15 minutos a horno fuerte, dando vuelta a la mitad.",
+    "Herví las papas 20 minutos y hacelas puré con sal.",
+    "Serví con ensalada de lechuga y tomate."
+   ]
+  },
+  {
+   "text": "Risotto de hongos con arvejas y queso",
+   "corto": "Risotto de hongos y arvejas",
+   "tipo": "plato",
+   "minutos": 40,
+   "cantidades": [
+    [
+     "Arroz",
+     85,
+     "g"
+    ],
+    [
+     "Champiñones",
+     150,
+     "g"
+    ],
+    [
+     "Arvejas",
+     80,
+     "g"
+    ],
+    [
+     "Cebolla",
+     60,
+     "g"
+    ],
+    [
+     "Queso cremoso",
+     60,
+     "g"
+    ],
+    [
+     "Huevo",
+     1,
+     "unidad"
+    ]
+   ],
+   "pasos": [
+    "Rehogá la cebolla y los champiñones en láminas.",
+    "Sumá el arroz y agregá caldo caliente de a poco, revolviendo.",
+    "A los 15 minutos incorporá las arvejas.",
+    "Terminá con el queso y serví con un huevo a la plancha."
+   ]
+  },
+  {
+   "text": "Ensalada completa: lechuga, tomate, huevo, atún y papa",
+   "corto": "Ensalada de huevo, atún y papa",
+   "tipo": "plato",
+   "minutos": 25,
+   "cantidades": [
+    [
+     "Papa",
+     250,
+     "g"
+    ],
+    [
+     "Huevo",
+     2,
+     "unidad"
+    ],
+    [
+     "Atún",
+     100,
+     "g"
+    ],
+    [
+     "Lechuga",
+     80,
+     "g"
+    ],
+    [
+     "Tomate",
+     120,
+     "g"
+    ]
+   ],
+   "pasos": [
+    "Herví la papa en cubos 15 minutos y los huevos 10 minutos.",
+    "Cortá la lechuga y el tomate.",
+    "Mezclá todo con el atún escurrido.",
+    "Aderezá con aceite, limón y sal."
+   ]
+  },
+  {
+   "text": "Sándwich caliente de pollo, tomate y rúcula",
+   "corto": "Sándwich de pollo y rúcula",
+   "tipo": "plato",
+   "minutos": 20,
+   "cantidades": [
+    [
+     "Pan",
+     80,
+     "g"
+    ],
+    [
+     "Pollo",
+     150,
+     "g"
+    ],
+    [
+     "Tomate",
+     120,
+     "g"
+    ],
+    [
+     "Rúcula",
+     40,
+     "g"
+    ],
+    [
+     "Queso cremoso",
+     30,
+     "g"
+    ],
+    [
+     "Zanahoria",
+     100,
+     "g"
+    ]
+   ],
+   "pasos": [
+    "Cortá el pollo en tiras y hacelo a la plancha con sal y orégano.",
+    "Calentá el pan abierto 2 minutos.",
+    "Armá con el pollo, el queso, el tomate en rodajas y la rúcula.",
+    "Servilo con zanahoria rallada."
+   ]
+  },
+  {
+   "text": "Tacos de pescado con repollo y salsa de yogur",
+   "corto": "Tacos de pescado con repollo",
+   "tipo": "plato",
+   "minutos": 25,
+   "cantidades": [
+    [
+     "Tortillas de trigo",
+     3,
+     "unidad"
+    ],
+    [
+     "Merluza",
+     150,
+     "g"
+    ],
+    [
+     "Repollo blanco",
+     120,
+     "g"
+    ],
+    [
+     "Yogur natural",
+     80,
+     "g"
+    ],
+    [
+     "Tomate",
+     100,
+     "g"
+    ]
+   ],
+   "pasos": [
+    "Cortá la merluza en tiras y hacela a la plancha con pimentón.",
+    "Cortá el repollo fino y el tomate en cubos.",
+    "Mezclá el yogur con limón y sal.",
+    "Armá los tacos con el pescado, el repollo y la salsa."
+   ]
+  },
+  {
+   "text": "Wrap de pollo, palta y vegetales",
+   "corto": "Wrap de pollo y palta",
+   "tipo": "plato",
+   "minutos": 20,
+   "cantidades": [
+    [
+     "Tortillas de trigo",
+     3,
+     "unidad"
+    ],
+    [
+     "Pollo",
+     140,
+     "g"
+    ],
+    [
+     "Palta",
+     60,
+     "g"
+    ],
+    [
+     "Lechuga",
+     60,
+     "g"
+    ],
+    [
+     "Tomate",
+     120,
+     "g"
+    ],
+    [
+     "Zanahoria",
+     60,
+     "g"
+    ]
+   ],
+   "pasos": [
+    "Hacé el pollo en tiras a la plancha con sal y pimienta.",
+    "Pisá la palta con limón.",
+    "Untá las tortillas con la palta y sumá el pollo y las verduras.",
+    "Enrollá y cortá al medio."
+   ]
+  },
+  {
+   "text": "Omelette de espinaca y queso con pan integral",
+   "corto": "Omelette de espinaca con pan",
+   "tipo": "plato",
+   "minutos": 20,
+   "cantidades": [
+    [
+     "Huevo",
+     2,
+     "unidad"
+    ],
+    [
+     "Espinaca",
+     120,
+     "g"
+    ],
+    [
+     "Queso fresco",
+     60,
+     "g"
+    ],
+    [
+     "Pan integral",
+     70,
+     "g"
+    ],
+    [
+     "Tomate",
+     120,
+     "g"
+    ]
+   ],
+   "pasos": [
+    "Salteá la espinaca 2 minutos con ajo en polvo.",
+    "Batí los huevos con sal y volcalos en la sartén.",
+    "Sumá la espinaca y el queso, doblá la omelette.",
+    "Servila con el pan tostado y tomate."
+   ]
+  },
+  {
+   "text": "Milanesa de pollo al horno con puré de calabaza y ensalada",
+   "corto": "Milanesa de pollo con puré",
+   "tipo": "plato",
+   "minutos": 40,
+   "cantidades": [
+    [
+     "Pollo",
+     150,
+     "g"
+    ],
+    [
+     "Pan rallado",
+     30,
+     "g"
+    ],
+    [
+     "Huevo",
+     0.5,
+     "unidad"
+    ],
+    [
+     "Zapallo",
+     250,
+     "g"
+    ],
+    [
+     "Lechuga",
+     60,
+     "g"
+    ],
+    [
+     "Tomate",
+     100,
+     "g"
+    ]
+   ],
+   "pasos": [
+    "Pasá el pollo por huevo batido y pan rallado.",
+    "Horneá 25 minutos a horno fuerte, dando vuelta a la mitad.",
+    "Herví el zapallo 15 minutos y pisalo con sal y un chorrito de aceite.",
+    "Serví con lechuga y tomate."
+   ]
+  },
+  {
+   "text": "Bife a la plancha con ensalada mixta y papas al horno",
+   "corto": "Bife con ensalada y papas",
+   "tipo": "plato",
+   "minutos": 40,
+   "cantidades": [
+    [
+     "Carne vacuna",
+     160,
+     "g"
+    ],
+    [
+     "Papa",
+     250,
+     "g"
+    ],
+    [
+     "Lechuga",
+     80,
+     "g"
+    ],
+    [
+     "Tomate",
+     120,
+     "g"
+    ],
+    [
+     "Cebolla",
+     40,
+     "g"
+    ]
+   ],
+   "pasos": [
+    "Cortá las papas en gajos y horneálas 35 minutos con sal.",
+    "Cociná el bife en plancha caliente 3 minutos de cada lado.",
+    "Dejalo descansar 2 minutos antes de cortar.",
+    "Serví con la ensalada de lechuga, tomate y cebolla."
+   ]
+  },
+  {
+   "text": "Pastel de papa con ensalada verde",
+   "corto": "Pastel de papa con ensalada",
+   "tipo": "plato",
+   "minutos": 55,
+   "cantidades": [
+    [
+     "Papa",
+     250,
+     "g"
+    ],
+    [
+     "Carne picada",
+     130,
+     "g"
+    ],
+    [
+     "Cebolla",
+     80,
+     "g"
+    ],
+    [
+     "Lechuga",
+     80,
+     "g"
+    ],
+    [
+     "Tomate",
+     100,
+     "g"
+    ]
+   ],
+   "pasos": [
+    "Herví las papas, pisalas con sal y un poco de leche si hace falta.",
+    "Rehogá la cebolla y la carne picada con pimentón y comino.",
+    "Armá capas de carne y puré en una fuente.",
+    "Gratiná 15 minutos y serví con ensalada."
+   ]
+  },
+  {
+   "text": "Guiso de arroz con pollo y verduras",
+   "corto": "Guiso de arroz con pollo",
+   "tipo": "plato",
+   "minutos": 45,
+   "cantidades": [
+    [
+     "Arroz",
+     80,
+     "g"
+    ],
+    [
+     "Pollo",
+     150,
+     "g"
+    ],
+    [
+     "Zanahoria",
+     100,
+     "g"
+    ],
+    [
+     "Morrón rojo",
+     100,
+     "g"
+    ],
+    [
+     "Cebolla",
+     60,
+     "g"
+    ],
+    [
+     "Tomate",
+     100,
+     "g"
+    ]
+   ],
+   "pasos": [
+    "Sellá el pollo en cubos con la cebolla.",
+    "Sumá la zanahoria, el morrón y el tomate picado.",
+    "Agregá el arroz y el doble de agua con pimentón.",
+    "Cociná tapado 20 minutos a fuego bajo."
+   ]
+  },
+  {
+   "text": "Tarta de acelga y huevo con ensalada de tomate",
+   "corto": "Tarta de acelga y huevo",
+   "tipo": "plato",
+   "minutos": 50,
+   "cantidades": [
+    [
+     "Harina de trigo",
+     90,
+     "g"
+    ],
+    [
+     "Acelga",
+     150,
+     "g"
+    ],
+    [
+     "Huevo",
+     2,
+     "unidad"
+    ],
+    [
+     "Cebolla",
+     60,
+     "g"
+    ],
+    [
+     "Queso cremoso",
+     40,
+     "g"
+    ],
+    [
+     "Tomate",
+     150,
+     "g"
+    ]
+   ],
+   "pasos": [
+    "Amasá la harina con agua, aceite y sal; forrá una tartera.",
+    "Herví la acelga 5 minutos, escurrila y picala.",
+    "Mezclala con la cebolla rehogada, los huevos y el queso.",
+    "Horneá 30 minutos y serví con tomate."
+   ]
+  },
+  {
+   "text": "Pollo al horno con papas, batatas y cebolla",
+   "corto": "Pollo al horno con papas y batatas",
+   "tipo": "plato",
+   "minutos": 55,
+   "cantidades": [
+    [
+     "Pollo",
+     180,
+     "g"
+    ],
+    [
+     "Papa",
+     130,
+     "g"
+    ],
+    [
+     "Batata",
+     120,
+     "g"
+    ],
+    [
+     "Cebolla",
+     80,
+     "g"
+    ],
+    [
+     "Morrón rojo",
+     100,
+     "g"
+    ],
+    [
+     "Zanahoria",
+     40,
+     "g"
+    ]
+   ],
+   "pasos": [
+    "Cortá las papas, las batatas, la cebolla y el morrón en trozos.",
+    "Ubicalos en una asadera con el pollo, aceite, sal y romero.",
+    "Horneá 45 minutos a horno medio.",
+    "Serví todo junto con los jugos de la asadera."
+   ]
+  },
+  {
+   "text": "Ñoquis de papa con salsa de tomate y queso",
+   "corto": "Ñoquis con salsa de tomate",
+   "tipo": "plato",
+   "minutos": 50,
+   "cantidades": [
+    [
+     "Papa",
+     250,
+     "g"
+    ],
+    [
+     "Harina de trigo",
+     75,
+     "g"
+    ],
+    [
+     "Tomate",
+     250,
+     "g"
+    ],
+    [
+     "Cebolla",
+     50,
+     "g"
+    ],
+    [
+     "Queso cremoso",
+     60,
+     "g"
+    ],
+    [
+     "Huevo",
+     1,
+     "unidad"
+    ]
+   ],
+   "pasos": [
+    "Herví la papa con cáscara, pelala, pisala y mezclala con la harina, el huevo y sal.",
+    "Formá los ñoquis y hervilos hasta que suban.",
+    "Cociná la cebolla con el tomate picado 15 minutos.",
+    "Mezclá los ñoquis con la salsa y el queso."
+   ]
+  },
+  {
+   "text": "Lentejas guisadas con arroz y verduras",
+   "corto": "Lentejas con arroz y verduras",
+   "tipo": "plato",
+   "minutos": 50,
+   "cantidades": [
+    [
+     "Lentejas",
+     70,
+     "g"
+    ],
+    [
+     "Arroz",
+     70,
+     "g"
+    ],
+    [
+     "Zanahoria",
+     100,
+     "g"
+    ],
+    [
+     "Cebolla",
+     60,
+     "g"
+    ],
+    [
+     "Morrón rojo",
+     100,
+     "g"
+    ],
+    [
+     "Huevo",
+     1,
+     "unidad"
+    ]
+   ],
+   "pasos": [
+    "Rehogá la cebolla, el morrón y la zanahoria.",
+    "Sumá las lentejas y cubrí con agua; cociná 25 minutos.",
+    "Agregá el arroz y cociná 15 minutos más.",
+    "Serví con un huevo duro."
+   ]
+  },
+  {
+   "text": "Revuelto de zapallitos con huevo y arroz",
+   "corto": "Revuelto de zapallitos y arroz",
+   "tipo": "plato",
+   "minutos": 25,
+   "cantidades": [
+    [
+     "Zapallito",
+     250,
+     "g"
+    ],
+    [
+     "Huevo",
+     2,
+     "unidad"
+    ],
+    [
+     "Arroz",
+     90,
+     "g"
+    ],
+    [
+     "Cebolla",
+     60,
+     "g"
+    ],
+    [
+     "Tomate",
+     100,
+     "g"
+    ]
+   ],
+   "pasos": [
+    "Herví el arroz 12 minutos.",
+    "Salteá la cebolla y el zapallito en cubos 8 minutos.",
+    "Agregá los huevos batidos y revolvé hasta que cuajen.",
+    "Serví sobre el arroz con el tomate."
+   ]
+  },
+  {
+   "text": "Pescado a la plancha con ensalada de remolacha y papa",
+   "corto": "Pescado con ensalada de remolacha",
+   "tipo": "plato",
+   "minutos": 30,
+   "cantidades": [
+    [
+     "Merluza",
+     180,
+     "g"
+    ],
+    [
+     "Papa",
+     250,
+     "g"
+    ],
+    [
+     "Remolacha",
+     120,
+     "g"
+    ],
+    [
+     "Zanahoria",
+     80,
+     "g"
+    ],
+    [
+     "Lechuga",
+     40,
+     "g"
+    ],
+    [
+     "Huevo",
+     1,
+     "unidad"
+    ]
+   ],
+   "pasos": [
+    "Herví la papa y la remolacha hasta que estén tiernas.",
+    "Cortalas en cubos y mezclalas con la zanahoria rallada.",
+    "Hacé el pescado a la plancha con limón y sal.",
+    "Serví con la ensalada sobre la lechuga."
+   ]
+  },
+  {
+   "text": "Polenta con salsa de tomate y pollo",
+   "corto": "Polenta con tomate y pollo",
+   "tipo": "plato",
+   "minutos": 35,
+   "cantidades": [
+    [
+     "Polenta",
+     80,
+     "g"
+    ],
+    [
+     "Pollo",
+     150,
+     "g"
+    ],
+    [
+     "Tomate",
+     250,
+     "g"
+    ],
+    [
+     "Cebolla",
+     60,
+     "g"
+    ],
+    [
+     "Queso rallado",
+     15,
+     "g"
+    ]
+   ],
+   "pasos": [
+    "Cociná la cebolla con el tomate picado 15 minutos.",
+    "Sumá el pollo en cubos y cociná 15 minutos más.",
+    "Preparé la polenta con agua y sal, revolviendo 5 minutos.",
+    "Serví la polenta con el pollo y el queso rallado."
+   ]
+  },
+  {
+   "text": "Fideos con brócoli y pollo",
+   "corto": "Fideos con brócoli y pollo",
+   "tipo": "plato",
+   "minutos": 30,
+   "cantidades": [
+    [
+     "Fideos",
+     85,
+     "g"
+    ],
+    [
+     "Pollo",
+     150,
+     "g"
+    ],
+    [
+     "Brócoli",
+     200,
+     "g"
+    ],
+    [
+     "Ajo",
+     5,
+     "g"
+    ],
+    [
+     "Queso rallado",
+     15,
+     "g"
+    ]
+   ],
+   "pasos": [
+    "Herví los fideos y el brócoli en la misma olla.",
+    "Salteá el pollo en cubos con el ajo.",
+    "Mezclá todo con un chorrito de aceite.",
+    "Terminá con el queso rallado."
+   ]
+  }
+ ]
+}
