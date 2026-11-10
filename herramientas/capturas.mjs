@@ -69,6 +69,8 @@ const VISTAS = [
   { id: 'hueco', ir: 'openTab("semana"); abrirHueco(todayPlanDay(), "almuerzo")', medir: '.hoja' },
   { id: 'resumen', ir: 'openTab("hoy"); start("desayuno"); for (const id of ["fruit", "bfprot", "bfcarb", "bffat"]) { document.querySelector("#" + id + " .choice").click(); await new Promise(r => setTimeout(r, 150)) }' },
   // Última: en el estado vacío guarda una idea para tener un detalle que mostrar (no contamina las vistas anteriores).
+  // Rehace la semana (cambia el plan y su historial): va después de todas las vistas que dependen de ella.
+  { id: 'semana-armada', ir: 'openTab("semana"); ArmameSemana.correr("todo")' },
   { id: 'comida', ir: 'openTab("miscomidas"); const g = MisPlatos.loadSaved()[0] || IdeasHoja.guardarIdea(data.menuCatalog[0]).item; Comidas.abrirComida("plato", g.id)' }
 ].filter(v => !arg('--vistas') || arg('--vistas').split(',').includes(v.id));
 

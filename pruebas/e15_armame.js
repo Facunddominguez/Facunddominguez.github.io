@@ -31,7 +31,7 @@
   ok("C15-1 con presupuesto bajo, medio y alto completa los 28 huecos sin pasarse cuando es posible y avisa cuando no",
     [bajo, medio, alto, imposible, sin].every(r => r.huecos === 28 && r.llenos === 28) && llenos() === 28 &&
     [bajo, medio, alto].every(r => !r.pasado && r.costo <= r.presupuesto && /Entra en tu presupuesto/.test(r.txt)) &&
-    imposible.pasado && /No llego al presupuesto/.test(imposible.txt) && sin.presupuesto === null && sin.reutilizados >= 3,
+    imposible.pasado && /Te pasás \$[\d.]+ de tu presupuesto de/.test(imposible.txt) && sin.presupuesto === null && sin.reutilizados >= 3,
     JSON.stringify({ bajo, medio, alto, imposible: { costo: imposible.costo, pasado: imposible.pasado, txt: imposible.txt }, sin: sin.costo }));
 
   // C15-2 El costo de la semana armada reutiliza al menos 3 ingredientes entre comidas.
