@@ -3602,5 +3602,5 @@ select{max-width:100%;min-width:0}
 #planPreciosEstado .precios-sep{margin:0 -2px}
 
 /* Etapa 28 (v18.3.0): detalle de una idea con cantidades y pasos. */
-.comida-pasos{margin:6px 0 12px;padding-left:22px;display:grid;gap:6px}
+.comida-pasos{margin:6px 0 16px;padding-left:22px;display:grid;gap:6px}
 .comida-pasos li{line-height:1.4}
