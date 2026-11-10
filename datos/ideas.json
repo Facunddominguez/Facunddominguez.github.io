@@ -45,7 +45,7 @@
    "text": "Fideos integrales con salsa de tomate + albóndigas de garbanzo",
    "corto": "Fideos con albóndigas de garbanzo",
    "tipo": "plato",
-   "minutos": 40,
+   "minutos": 60,
    "cantidades": [
     [
      "Fideos",
@@ -59,7 +59,7 @@
     ],
     [
      "Tomate",
-     250,
+     150,
      "g"
     ],
     [
@@ -79,7 +79,7 @@
     ]
    ],
    "pasos": [
-    "Dejá los garbanzos en remojo toda la noche y hervilos 40 minutos.",
+    "Usá garbanzos cocidos o hervilos 40 minutos tras remojarlos toda la noche.",
     "Pisalos con el huevo, el pan rallado, sal y comino; formá bolitas.",
     "Horneá las albóndigas 20 minutos a horno fuerte.",
     "Cociná la cebolla con el tomate picado 15 minutos y mezclá con los fideos."
@@ -98,7 +98,7 @@
     ],
     [
      "Papa",
-     300,
+     250,
      "g"
     ],
     [
@@ -114,6 +114,11 @@
     [
      "Cebolla",
      60,
+     "g"
+    ],
+    [
+     "Choclo",
+     100,
      "g"
     ]
    ],
@@ -186,22 +191,27 @@
     ],
     [
      "Puerro",
-     100,
-     "g"
-    ],
-    [
-     "Cebolla de verdeo",
-     50,
-     "g"
-    ],
-    [
-     "Queso cremoso",
      40,
      "g"
     ],
     [
+     "Cebolla de verdeo",
+     30,
+     "g"
+    ],
+    [
+     "Queso cremoso",
+     30,
+     "g"
+    ],
+    [
      "Tomate triturado",
-     80,
+     60,
+     "g"
+    ],
+    [
+     "Zanahoria",
+     100,
      "g"
     ]
    ],
@@ -216,16 +226,16 @@
    "text": "Sándwich de pan integral + hummus de remolacha + rúcula y queso",
    "corto": "Sándwich de hummus y queso",
    "tipo": "plato",
-   "minutos": 15,
+   "minutos": 45,
    "cantidades": [
     [
      "Pan integral",
-     120,
+     80,
      "g"
     ],
     [
      "Garbanzos",
-     50,
+     60,
      "g"
     ],
     [
@@ -250,7 +260,7 @@
     ]
    ],
    "pasos": [
-    "Hervidos los garbanzos y la remolacha, procesalos con limón, sal y comino.",
+    "Herví los garbanzos 40 minutos (o usá de lata) y la remolacha 30; procesalos con limón, sal y comino.",
     "Untá el pan con el hummus.",
     "Sumá el queso en fetas, la rúcula y el tomate en rodajas.",
     "Cerrá el sándwich y cortalo al medio."
@@ -260,7 +270,7 @@
    "text": "Tacos de maíz con garbanzos especiados + repollo morado + salsa de yogur",
    "corto": "Tacos de garbanzos y repollo",
    "tipo": "plato",
-   "minutos": 30,
+   "minutos": 35,
    "cantidades": [
     [
      "Tortillas de trigo",
@@ -289,7 +299,7 @@
     ]
    ],
    "pasos": [
-    "Hervidos los garbanzos, salteálos con pimentón, comino y ajo en polvo.",
+    "Usá garbanzos cocidos (o hervilos 40 minutos tras remojarlos) y salteálos con pimentón, comino y ajo en polvo.",
     "Cortá el repollo en tiras finas y el tomate en cubos.",
     "Mezclá el yogur con limón y sal.",
     "Calentá las tortillas, armá los tacos y bañalos con la salsa."
@@ -299,7 +309,7 @@
    "text": "Tacos de porotos colorados con verduras salteadas",
    "corto": "Tacos de porotos y verduras",
    "tipo": "plato",
-   "minutos": 30,
+   "minutos": 35,
    "cantidades": [
     [
      "Tortillas de trigo",
@@ -333,7 +343,7 @@
     ]
    ],
    "pasos": [
-    "Hervidos los porotos con una hoja de laurel.",
+    "Usá porotos cocidos (o hervilos 45 minutos tras remojarlos) con una hoja de laurel.",
     "Salteá el morrón, la cebolla y el zapallito en tiras.",
     "Mezclá las verduras con los porotos y condimentá con comino.",
     "Rellená las tortillas calientes y sumá el queso."
@@ -411,7 +421,7 @@
     ],
     [
      "Tomate",
-     120,
+     150,
      "g"
     ]
    ],
@@ -484,7 +494,7 @@
     ],
     [
      "Brócoli",
-     150,
+     120,
      "g"
     ],
     [
@@ -494,7 +504,7 @@
     ],
     [
      "Palta",
-     40,
+     30,
      "g"
     ]
    ],
@@ -626,7 +636,7 @@
    "text": "Ensalada tibia de garbanzos, espinaca y huevo",
    "corto": "Ensalada tibia de garbanzos y huevo",
    "tipo": "plato",
-   "minutos": 25,
+   "minutos": 35,
    "cantidades": [
     [
      "Garbanzos",
@@ -655,12 +665,12 @@
     ],
     [
      "Pan",
-     50,
+     60,
      "g"
     ]
    ],
    "pasos": [
-    "Herví los garbanzos o usá los ya cocidos y calentalos.",
+    "Usá garbanzos cocidos (o hervilos 40 minutos tras remojarlos) y calentalos.",
     "Hacé los huevos duros 10 minutos y cortalos en cuartos.",
     "Mezclá la espinaca cruda con los garbanzos tibios, el tomate y la cebolla.",
     "Aderezá con aceite, limón y sal; serví con el pan."
@@ -694,7 +704,7 @@
     ],
     [
      "Zanahoria",
-     100,
+     120,
      "g"
     ]
    ],
@@ -732,13 +742,18 @@
      "unidad"
     ],
     [
-     "Lechuga",
+     "Repollo blanco",
      60,
      "g"
     ],
     [
      "Tomate",
-     120,
+     60,
+     "g"
+    ],
+    [
+     "Zanahoria",
+     80,
      "g"
     ]
    ],
@@ -767,7 +782,7 @@
     ],
     [
      "Choclo",
-     150,
+     100,
      "g"
     ],
     [
@@ -777,7 +792,7 @@
     ],
     [
      "Queso cremoso",
-     40,
+     30,
      "g"
     ]
    ],
@@ -859,8 +874,13 @@
      "g"
     ],
     [
+     "Zapallito",
+     100,
+     "g"
+    ],
+    [
      "Queso rallado",
-     25,
+     15,
      "g"
     ],
     [
@@ -1055,7 +1075,7 @@
    "cantidades": [
     [
      "Pan",
-     100,
+     80,
      "g"
     ],
     [
@@ -1182,7 +1202,7 @@
    "cantidades": [
     [
      "Huevo",
-     3,
+     2,
      "unidad"
     ],
     [
@@ -1221,32 +1241,32 @@
    "cantidades": [
     [
      "Pollo",
-     150,
+     140,
      "g"
     ],
     [
      "Pan rallado",
-     30,
+     40,
      "g"
     ],
     [
      "Huevo",
-     0.5,
+     1,
      "unidad"
     ],
     [
      "Zapallo",
-     250,
+     200,
      "g"
     ],
     [
      "Lechuga",
-     60,
+     50,
      "g"
     ],
     [
      "Tomate",
-     100,
+     60,
      "g"
     ]
    ],
@@ -1353,12 +1373,12 @@
     ],
     [
      "Zanahoria",
-     100,
+     120,
      "g"
     ],
     [
      "Morrón rojo",
-     100,
+     60,
      "g"
     ],
     [
@@ -1368,7 +1388,7 @@
     ],
     [
      "Tomate",
-     100,
+     60,
      "g"
     ]
    ],
@@ -1431,17 +1451,17 @@
    "cantidades": [
     [
      "Pollo",
-     170,
+     180,
      "g"
     ],
     [
      "Papa",
-     150,
+     130,
      "g"
     ],
     [
      "Batata",
-     150,
+     120,
      "g"
     ],
     [
@@ -1452,6 +1472,11 @@
     [
      "Morrón rojo",
      100,
+     "g"
+    ],
+    [
+     "Zanahoria",
+     40,
      "g"
     ]
    ],
@@ -1514,12 +1539,12 @@
    "cantidades": [
     [
      "Lentejas",
-     75,
+     70,
      "g"
     ],
     [
      "Arroz",
-     50,
+     70,
      "g"
     ],
     [
@@ -1563,12 +1588,12 @@
     ],
     [
      "Huevo",
-     3,
+     2,
      "unidad"
     ],
     [
      "Arroz",
-     80,
+     90,
      "g"
     ],
     [
@@ -1602,7 +1627,7 @@
     ],
     [
      "Papa",
-     300,
+     250,
      "g"
     ],
     [
@@ -1619,6 +1644,11 @@
      "Lechuga",
      40,
      "g"
+    ],
+    [
+     "Huevo",
+     1,
+     "unidad"
     ]
    ],
    "pasos": [
@@ -1685,17 +1715,17 @@
     ],
     [
      "Brócoli",
-     200,
+     150,
+     "g"
+    ],
+    [
+     "Zanahoria",
+     60,
      "g"
     ],
     [
      "Ajo",
      5,
-     "g"
-    ],
-    [
-     "Queso rallado",
-     15,
      "g"
     ]
    ],
@@ -1753,13 +1783,8 @@
      "g"
     ],
     [
-     "Morrón rojo",
-     80,
-     "g"
-    ],
-    [
      "Tomate",
-     150,
+     60,
      "g"
     ]
    ],
@@ -1808,22 +1833,17 @@
     ],
     [
      "Lechuga",
-     80,
-     "g"
-    ],
-    [
-     "Tomate",
-     150,
+     60,
      "g"
     ],
     [
      "Zanahoria",
-     80,
+     100,
      "g"
     ],
     [
-     "Queso rallado",
-     15,
+     "Repollo blanco",
+     80,
      "g"
     ]
    ],
@@ -1930,8 +1950,13 @@
     ],
     [
      "Huevo",
-     3,
+     2,
      "unidad"
+    ],
+    [
+     "Queso cremoso",
+     40,
+     "g"
     ],
     [
      "Cebolla",
@@ -1940,12 +1965,12 @@
     ],
     [
      "Lechuga",
-     80,
+     60,
      "g"
     ],
     [
-     "Tomate",
-     150,
+     "Zanahoria",
+     100,
      "g"
     ]
    ],
@@ -2069,7 +2094,7 @@
     ],
     [
      "Zanahoria",
-     100,
+     150,
      "g"
     ],
     [
@@ -2250,7 +2275,7 @@
     ],
     [
      "Tomate",
-     200,
+     100,
      "g"
     ],
     [
@@ -2260,7 +2285,7 @@
     ],
     [
      "Zanahoria",
-     80,
+     100,
      "g"
     ]
    ],
@@ -2305,7 +2330,7 @@
     ],
     [
      "Carne picada",
-     120,
+     130,
      "g"
     ],
     [
@@ -2315,22 +2340,22 @@
     ],
     [
      "Queso cremoso",
-     40,
+     30,
      "g"
     ],
     [
      "Pan rallado",
-     20,
+     30,
      "g"
     ],
     [
      "Papa",
-     150,
+     200,
      "g"
     ],
     [
      "Tomate",
-     100,
+     60,
      "g"
     ]
    ],
@@ -2373,27 +2398,22 @@
     ],
     [
      "Carne picada",
-     120,
+     130,
      "g"
     ],
     [
      "Tomate",
-     250,
+     100,
      "g"
     ],
     [
      "Cebolla",
-     60,
+     50,
      "g"
     ],
     [
      "Zanahoria",
-     80,
-     "g"
-    ],
-    [
-     "Queso rallado",
-     15,
+     100,
      "g"
     ]
    ],
@@ -2566,12 +2586,12 @@
    "cantidades": [
     [
      "Harina de trigo",
-     110,
+     100,
      "g"
     ],
     [
      "Carne picada",
-     120,
+     130,
      "g"
     ],
     [
@@ -2591,7 +2611,7 @@
     ],
     [
      "Tomate",
-     120,
+     60,
      "g"
     ]
    ],
@@ -2686,31 +2706,26 @@
    "cantidades": [
     [
      "Pollo",
-     170,
+     150,
      "g"
     ],
     [
      "Papa",
-     230,
+     240,
      "g"
     ],
     [
      "Zanahoria",
-     100,
+     120,
      "g"
     ],
     [
      "Cebolla",
-     60,
+     50,
      "g"
     ],
     [
-     "Morrón rojo",
-     80,
-     "g"
-    ],
-    [
-     "Tomate",
+     "Repollo blanco",
      100,
      "g"
     ]
@@ -2818,8 +2833,13 @@
     ],
     [
      "Huevo",
-     3,
+     2,
      "unidad"
+    ],
+    [
+     "Queso cremoso",
+     30,
+     "g"
     ],
     [
      "Arroz",
@@ -2829,11 +2849,6 @@
     [
      "Cebolla",
      60,
-     "g"
-    ],
-    [
-     "Queso rallado",
-     15,
      "g"
     ]
    ],
@@ -2947,7 +2962,7 @@
     ],
     [
      "Tomate",
-     150,
+     80,
      "g"
     ],
     [
@@ -2957,12 +2972,12 @@
     ],
     [
      "Zanahoria",
-     80,
+     100,
      "g"
     ],
     [
      "Pan",
-     50,
+     60,
      "g"
     ]
    ],
@@ -3006,12 +3021,12 @@
     ],
     [
      "Arroz",
-     60,
+     70,
      "g"
     ],
     [
      "Tomate",
-     200,
+     100,
      "g"
     ],
     [
@@ -3139,7 +3154,12 @@
     ],
     [
      "Zanahoria",
-     100,
+     150,
+     "g"
+    ],
+    [
+     "Repollo blanco",
+     50,
      "g"
     ],
     [
@@ -3151,11 +3171,6 @@
      "Huevo",
      1,
      "unidad"
-    ],
-    [
-     "Lechuga",
-     40,
-     "g"
     ]
    ],
    "pasos": [
@@ -3224,7 +3239,7 @@
     ],
     [
      "Arroz",
-     30,
+     70,
      "g"
     ]
    ],
@@ -3339,7 +3354,7 @@
     ],
     [
      "Tomate",
-     200,
+     100,
      "g"
     ],
     [
@@ -3349,12 +3364,7 @@
     ],
     [
      "Zanahoria",
-     80,
-     "g"
-    ],
-    [
-     "Queso rallado",
-     15,
+     100,
      "g"
     ]
    ],
@@ -3524,8 +3534,13 @@
     ],
     [
      "Papa",
-     330,
+     250,
      "g"
+    ],
+    [
+     "Huevo",
+     1,
+     "unidad"
     ],
     [
      "Tomate",
@@ -3564,12 +3579,12 @@
    "cantidades": [
     [
      "Pan",
-     60,
+     50,
      "g"
     ],
     [
      "Queso untable descremado",
-     40,
+     30,
      "g"
     ],
     [
@@ -3597,13 +3612,13 @@
    },
    "cantidades": [
     [
-     "Yogur natural",
-     190,
+     "Yogur descremado",
+     125,
      "g"
     ],
     [
      "Avena",
-     30,
+     25,
      "g"
     ],
     [
@@ -3632,7 +3647,7 @@
    "cantidades": [
     [
      "Leche descremada",
-     250,
+     200,
      "g"
     ],
     [
@@ -3671,12 +3686,12 @@
     ],
     [
      "Pan",
-     50,
+     40,
      "g"
     ],
     [
      "Mandarina",
-     2,
+     1,
      "unidad"
     ]
    ],
@@ -3739,12 +3754,12 @@
     ],
     [
      "Queso fresco",
-     40,
+     30,
      "g"
     ],
     [
      "Tomate",
-     80,
+     60,
      "g"
     ]
    ],
@@ -3767,18 +3782,18 @@
    },
    "cantidades": [
     [
-     "Yogur natural",
-     190,
+     "Yogur descremado",
+     150,
      "g"
     ],
     [
      "Granola",
-     30,
+     40,
      "g"
     ],
     [
      "Frutillas",
-     100,
+     80,
      "g"
     ]
    ],
@@ -3802,12 +3817,12 @@
    "cantidades": [
     [
      "Pan",
-     60,
+     50,
      "g"
     ],
     [
      "Ricota",
-     50,
+     40,
      "g"
     ],
     [
@@ -3880,12 +3895,12 @@
     ],
     [
      "Frutillas",
-     120,
+     80,
      "g"
     ],
     [
      "Pan",
-     60,
+     70,
      "g"
     ]
    ],
@@ -3909,16 +3924,16 @@
    "cantidades": [
     [
      "Avena",
-     35,
+     30,
      "g"
     ],
     [
-     "Yogur natural",
-     190,
+     "Yogur descremado",
+     125,
      "g"
     ],
     [
-     "Pera",
+     "Banana",
      1,
      "unidad"
     ]
@@ -3943,7 +3958,7 @@
    "cantidades": [
     [
      "Pan",
-     60,
+     50,
      "g"
     ],
     [
@@ -3977,7 +3992,7 @@
    "cantidades": [
     [
      "Pan de molde",
-     60,
+     50,
      "g"
     ],
     [
@@ -4011,7 +4026,7 @@
    "cantidades": [
     [
      "Leche descremada",
-     250,
+     200,
      "g"
     ],
     [
@@ -4083,13 +4098,13 @@
    },
    "cantidades": [
     [
-     "Yogur natural",
-     190,
+     "Yogur descremado",
+     125,
      "g"
     ],
     [
      "Pan",
-     60,
+     50,
      "g"
     ],
     [
@@ -4098,7 +4113,7 @@
      "g"
     ],
     [
-     "Manzana",
+     "Naranja",
      1,
      "unidad"
     ]
@@ -4128,7 +4143,7 @@
     ],
     [
      "Queso fresco",
-     20,
+     15,
      "g"
     ],
     [
@@ -4138,7 +4153,7 @@
     ],
     [
      "Mandarina",
-     2,
+     1,
      "unidad"
     ]
    ],
@@ -4161,8 +4176,8 @@
    },
    "cantidades": [
     [
-     "Yogur natural",
-     190,
+     "Yogur descremado",
+     125,
      "g"
     ],
     [
@@ -4171,8 +4186,8 @@
      "g"
     ],
     [
-     "Manzana",
-     1,
+     "Mandarina",
+     2,
      "unidad"
     ]
    ],
@@ -4229,8 +4244,8 @@
    },
    "cantidades": [
     [
-     "Yogur natural",
-     190,
+     "Yogur descremado",
+     125,
      "g"
     ],
     [
@@ -4264,12 +4279,12 @@
    "cantidades": [
     [
      "Leche descremada",
-     250,
+     200,
      "g"
     ],
     [
      "Granola",
-     35,
+     25,
      "g"
     ],
     [
@@ -4298,12 +4313,12 @@
    "cantidades": [
     [
      "Pan",
-     60,
+     50,
      "g"
     ],
     [
      "Queso fresco",
-     50,
+     40,
      "g"
     ],
     [
@@ -4366,17 +4381,17 @@
    "cantidades": [
     [
      "Avena",
-     40,
+     35,
      "g"
     ],
     [
      "Leche descremada",
-     250,
+     200,
      "g"
     ],
     [
      "Mandarina",
-     2,
+     1,
      "unidad"
     ]
    ],
@@ -4472,13 +4487,13 @@
    },
    "cantidades": [
     [
-     "Yogur natural",
-     190,
+     "Yogur descremado",
+     125,
      "g"
     ],
     [
      "Granola",
-     30,
+     25,
      "g"
     ],
     [
@@ -4507,12 +4522,12 @@
    "cantidades": [
     [
      "Leche descremada",
-     250,
+     200,
      "g"
     ],
     [
      "Pan",
-     60,
+     50,
      "g"
     ],
     [
@@ -4585,17 +4600,17 @@
    "cantidades": [
     [
      "Avena",
-     30,
+     45,
      "g"
     ],
     [
-     "Yogur natural",
-     190,
+     "Yogur descremado",
+     125,
      "g"
     ],
     [
      "Frutillas",
-     100,
+     80,
      "g"
     ]
    ],

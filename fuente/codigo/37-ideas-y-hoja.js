@@ -31,7 +31,10 @@ nombresDeIdea(idea){
 },
 indiceDeIdeas(){
   const total=data.menuCatalog.length+(data.desayunoCatalog||[]).length;
-  if(!IdeasHoja._indice||IdeasHoja._indice.total!==total){
+  // El índice depende de los alias de ingredientes del usuario (ingredientKey): si cambian, se arma de nuevo.
+  let sig="";
+  try{sig=localStorage.getItem("miPlatoFacil_ingredientAliases_v1")||""}catch(e){}
+  if(!IdeasHoja._indice||IdeasHoja._indice.total!==total||IdeasHoja._indice.sig!==sig){
     const porNota=new Map(),porConjunto=new Map();
     for(const idea of data.menuCatalog.concat(data.desayunoCatalog||[])){
       if(!Array.isArray(idea.cantidades))continue;
@@ -40,7 +43,7 @@ indiceDeIdeas(){
       if(!porConjunto.has(k))porConjunto.set(k,[]);
       porConjunto.get(k).push(idea)
     }
-    IdeasHoja._indice={total,porNota,porConjunto}
+    IdeasHoja._indice={total,sig,porNota,porConjunto}
   }
   return IdeasHoja._indice
 },

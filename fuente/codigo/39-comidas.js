@@ -277,6 +277,10 @@ function pintarDetallePlato(it,conservarAviso){
   }else ul.replaceChildren(...(c.componentes.length?c.componentes.map(n=>{
     const li=ce("li"),b=ce("button","comida-ingrediente",n);b.type="button";b.dataset.nutrienteIngrediente=n;li.append(b);return li
   }):[ce("li",null,"Sin ingredientes cargados")]));
+  {
+    const h=document.querySelector("#comidaPlato h4");
+    if(h)h.textContent=idea&&Array.isArray(idea.cantidades)&&idea.cantidades.length?"Qué lleva · para "+personas+(personas===1?" persona":" personas"):"Qué lleva"
+  }
   if(pasos){
     const hay=!!(idea&&Array.isArray(idea.pasos)&&idea.pasos.length);
     pasos.hidden=!hay;

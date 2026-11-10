@@ -2664,9 +2664,9 @@ Rama `rediseno-4-etapa-28-ideas`. Versión 18.3.0.
 - Riesgos para los datos: ninguno (`miPlatoFacil_saved` no recibe ningún campo; la idea de una comida guardada se busca al mostrarla, por su nota y sus ingredientes).
 
 **Hecho cuando**
-- ✅ R4-28-41: las 41 ideas tienen `corto` (hasta 40 caracteres, sin "+"), `cantidades`, 3 a 5 pasos de hasta 140 caracteres y `minutos` entre 15 y 60; cada `text` coincide con el del catálogo y en el mismo orden.
+- ✅ R4-28-41: las 41 ideas tienen `corto` (hasta 40 caracteres, sin "+"), `cantidades`, 3 a 5 pasos de hasta 140 caracteres y `minutos` entre 20 y 60; cada `text` coincide con el del catálogo y en el mismo orden.
 - ✅ R4-28-nombres: los 53 nombres de `cantidades` resuelven a un ítem de precios o de nutrición y ninguno es un básico de alacena.
-- ✅ R4-28-energia: cada idea aporta entre 450 y 850 kcal y 18 g de proteína o más por persona (de 457 a 820 kcal y de 26 a 58 g de proteína). El aceite no se cuenta.
+- ✅ R4-28-energia: cada idea aporta entre 450 y 850 kcal y 18 g de proteína o más por persona (de 457 a 820 kcal y de 23 a 59 g de proteína). El aceite no se cuenta.
 - ✅ R4-28-titulo: todo lo que nombra el título (pollo, atún, merluza, garbanzos…) está en las `cantidades` de cada idea.
 - ✅ R4-28-lista: con 14 ideas y 2 personas, `Compras.shoppingPlanItems()` da exactamente el doble de las cantidades de cada idea (misma clave y unidad), sin diferencias.
 - ✅ R4-28-editada: una idea guardada usa las cantidades de la idea; renombrada (con otro título y otra nota), también, porque solo hay una idea con ese conjunto de ingredientes; con un ingrediente cambiado (Zapallo → Zapallito) vuelve al cálculo general.
@@ -2680,3 +2680,9 @@ Rama `rediseno-4-etapa-28-ideas`. Versión 18.3.0.
 - (Decisión) El selector de comida usa el nombre corto, pero el filtro de texto sigue buscando en el nombre completo.
 
 **Pruebas recalculadas** (presupuestos, con los precios congelados): con porciones de adulto la semana más barata del catálogo de 41 ideas cuesta ≈ $72.700 para 1 persona (≈ $57.000 con las porciones chicas, v18.2.0), así que `e15_armame.js` C15-1 pasa de presupuestos 60/70/90 mil a 80/90/110 mil, C15-5 de $60.000 a $90.000, y `e24_semana_clara.js` de $70.000 a $90.000. La exigencia es la misma (llena los 28 huecos, no se pasa si se puede, avisa si no, hay una opción más barata en algún hueco). `r4e26_lista.js` R4-26-cantidades acepta "paquetes" (con 3 ideas de tortillas más la semana armada, la lista pide 2 paquetes de 8). `e13_precios_a_la_vista.js` y `e21_ficha_precio.js` ya estaban adaptadas en la Etapa 26.
+
+**Revisores (Etapa 28)**: `revisor-usuario` (detalle de una idea y Semana a 390 y 320 px) NO BLOQUEANTE; `revisor-codigo` BLOQUEANTE la primera vez, por porciones fuera de los rangos de adulto del plan: papa de 300 g en dos ideas de pescado, pan de 100 y 120 g en dos sándwiches y de 50 g en una ensalada, arroz de 50 g, garbanzos de 50 g, tres huevos en dos ideas y una hamburguesa con 180 g de verduras. Se corrigió todo en `datos/ideas.json` (papa 250 g con choclo o un huevo para no bajar de 450 kcal, pan de 60 a 80 g, arroz de 70 a 90 g, legumbres de 60 a 80 g, 2 huevos, 200 g de verduras o más) y se verificó con un script aparte que revisa los rangos de las 41. También se aplicó: los `minutos` y el primer paso de las ideas con legumbres secas ahora hablan del remojo o de usar legumbres cocidas; el índice de ideas se arma de nuevo si cambian los alias de ingredientes; `R4-28-titulo` usa la misma lista de palabras que `E23-titulo` (más "maíz"); el detalle dice "Qué lleva · para N personas" y los pasos tienen 16 px de aire antes de "Lo cociné".
+- (Decisión) **Tortillas:** las ideas "de maíz" (tacos de garbanzos y tortillas rellenas) llevan "Tortillas de trigo" en `cantidades` porque "Tortillas de maíz" no tiene precio ni se puede estimar. Queda anotado; con un filtro sin gluten esas ideas no entran (no hay filtro sin gluten en la app).
+- Quedan como sugerencias: con `porcionAlmidon`, un plato armado a mano con papa de 200 g y otro almidón no curado en el mismo cuarto deja a ese almidón en 40 g (caso borde); `$80.000` deja poco margen en C15-1 (la semana más barata cuesta ≈ $72.700; la Etapa 29 baja ese piso).
+
+Compuerta final (Etapa 28): VALIDACIÓN ETAPA 28: OK (174 controles, 638 pruebas; línea base 630 → 638).
