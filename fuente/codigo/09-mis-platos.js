@@ -14,6 +14,8 @@ loadSaved(){
 persistSaved(a){
   try{
     localStorage.setItem(SKEY,JSON.stringify(a));
+    // Los costos leen lo guardado una vez por turno (contextoCostos): al guardar se descarta, si no una comida recién guardada no tiene costo (Etapa 25).
+    if(typeof PRECIOS_CAZUELA!=="undefined")PRECIOS_CAZUELA=null;
     return true
   }catch(e){
     return false

@@ -477,13 +477,40 @@ export async function descargarSepa() {
 // ---------- Composición ----------
 const redondeoPrecio = (v, b) => redondeo(v, b === 'unidad' && v < 100 ? 2 : 0);
 // Junta INDEC (p) y SEPA (s, r, c) en un solo JSON. indec: salida de armar() o null (se usa lo guardado); sepa: salida de leerSepa() o null.
-export function componer({ previo, indec, sepa, mapa, hoy }) {
+// Plausibilidad (Etapa 25, Ronda 4): el precio por kg o litro de un ingrediente no puede apartarse más de 4 veces de la mediana de
+// su categoría y unidad base en la misma región, salvo que figure en 'excepcionesPlausibilidad' de datos/precios-notas.json.
+// La comparación usa SEPA si hay y si no INDEC (igual que la prueba E19-plausibilidad) y exige al menos 5 ingredientes con
+// precio en la categoría para que la mediana signifique algo. Sin 'solo', mira todas las regiones; con solo = ['GBA'], esa región.
+// Devuelve [{ n, reg, precio, mediana, categoria }].
+export const FACTOR_PLAUSIBLE = 4, MIN_ITEMS_CATEGORIA = 5, MIN_ITEMS_GBA = 100;
+const valorPlausible = (it, reg) => it.s && it.s[reg] > 0 ? it.s[reg] : (it.p && it.p[reg] > 0 ? it.p[reg] : null);
+export function fueraDeRango(items, excepciones = [], solo = null) {
+  const exc = new Set(excepciones), regiones = new Set();
+  for (const it of items) for (const f of [it.s, it.p]) if (f) for (const r of Object.keys(f)) if (!solo || solo.includes(r)) regiones.add(r);
+  const fuera = [];
+  for (const reg of regiones) {
+    const por = new Map();
+    for (const it of items) {
+      const v = valorPlausible(it, reg);
+      if (v === null || it.b === 'unidad' || !it.k) continue;
+      const c = it.k + '/' + it.b; if (!por.has(c)) por.set(c, []); por.get(c).push([it, v]);
+    }
+    for (const [c, a] of por) {
+      if (a.length < MIN_ITEMS_CATEGORIA) continue;
+      const s = a.map(x => x[1]).sort((x, y) => x - y), m = s.length >> 1, med = s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;
+      for (const [it, v] of a) if ((v > FACTOR_PLAUSIBLE * med || v < med / FACTOR_PLAUSIBLE) && !exc.has(it.n)) fuera.push({ n: it.n, reg, precio: v, mediana: med, categoria: c });
+    }
+  }
+  return fuera;
+}
+export function itemsEnGba(items) { return items.filter(i => (i.p && i.p.GBA > 0) || (i.s && i.s.GBA > 0)).length }
+export function componer({ previo, indec, sepa, mapa, hoy, excepciones = [] }) {
   const base = indec || previo;
   if (!base || !base.fuente || !base.mes) throw new Error('Falta la base de INDEC (ni se pudo leer ni hay un datos/precios.json anterior)');
   const avisos = [];
   const deIndec = new Map((base.items || []).map(i => [i.n, i]));
   const previoPorN = new Map(((previo && previo.items) || []).map(i => [i.n, i]));
-  const items = [];
+  const items = [], todos = [];
   let conSepaAntes = 0, saltos = 0;
   for (const m of mapa.items) {
     const o = { n: m.n, b: m.b };
@@ -506,8 +533,17 @@ export function componer({ previo, indec, sepa, mapa, hoy }) {
       if (sepa && pa > 0) { conSepaAntes++; const k = s[reg] / pa; if (k > 2.5 || k < 0.4) { saltos++; avisos.push(`${m.n} (${reg}): salto de ${pa} a ${s[reg]}, se conserva el anterior`); s[reg] = pa; r[reg] = (ant.r || {})[reg] || r[reg]; c[reg] = (ant.c || {})[reg] || c[reg] } }
     }
     if (Object.keys(s).length) { o.s = s; o.r = r; o.c = c; if (m.sepa && m.sepa.a) o.sa = true }
-    if ((o.p && o.p.GBA > 0) || (o.s && o.s.GBA > 0)) items.push(o);
+    todos.push(o);
   }
+  // Plausibilidad: el precio de SEPA que se aparta más de 4 veces de la mediana de su categoría no se publica (queda el de INDEC si existe).
+  for (const x of fueraDeRango(todos, excepciones)) {
+    const o = todos.find(i => i.n === x.n);
+    if (!(o.s && o.s[x.reg] > 0)) continue;
+    delete o.s[x.reg]; delete o.r[x.reg]; delete o.c[x.reg];
+    if (!Object.keys(o.s).length) { delete o.s; delete o.r; delete o.c; delete o.sa }
+    avisos.push(`Descartado por plausibilidad: ${x.n} ${x.reg} ${x.precio}`);
+  }
+  for (const o of todos) if ((o.p && o.p.GBA > 0) || (o.s && o.s.GBA > 0)) items.push(o);
   if (conSepaAntes >= 8 && saltos / conSepaAntes > 0.25) throw new Error(`Más de un cuarto de los precios de SEPA saltó contra la semana anterior (${saltos} de ${conSepaAntes}): probablemente cambió el formato`);
   const datos = { version: 1, revisado: hoy, mes: base.mes, fuente: base.fuente, regiones: REGIONES };
   const sp = sepa ? { fecha: sepa.fecha, recurso: sepa.recurso, productos: sepa.cuentas.filas, sucursales: sepa.cuentas.sucursales, comercios: sepa.cuentas.comercios } : (previo && previo.sepa);
@@ -544,12 +580,15 @@ async function descargar() {
 async function principal() {
   const leerJson = async rel => JSON.parse(await readFile(/^([a-z]:|[\/])/i.test(rel) ? rel : ruta(rel), 'utf8'));
   const catalogo = await catalogoNutricion(), mapa = await leerJson('datos/precios-mapa.json');
+  const excepciones = ((await leerJson('datos/precios-notas.json')).excepcionesPlausibilidad || []).map(x => x.n);
   if (args.includes('--verificar')) {
     const fallas = [...validarMapa(mapa, catalogo)];
     const real = arg('--archivo-json') || 'datos/precios.json';
     const txtReal = await readFile(/^([a-z]:|[\/])/i.test(real) ? real : ruta(real), 'utf8');
     const dReal = JSON.parse(txtReal);
     fallas.push(...validar(dReal, { catalogo, mapa }).map(x => `${real}: ${x}`));
+    for (const x of fueraDeRango(dReal.items, excepciones, ['GBA'])) fallas.push(`${real}: ${x.n} ${x.reg} ${x.precio} se aparta más de ${FACTOR_PLAUSIBLE} veces de la mediana de su categoría (${x.categoria}, ${Math.round(x.mediana)}) y no está en excepcionesPlausibilidad de datos/precios-notas.json`);
+    if (itemsEnGba(dReal.items) < MIN_ITEMS_GBA) fallas.push(`${real}: solo ${itemsEnGba(dReal.items)} ingredientes con precio en GBA y el mínimo es ${MIN_ITEMS_GBA}`);
     if (Buffer.byteLength(JSON.stringify(dReal)) > MAX_BYTES_JSON) fallas.push(`${real}: pesa más de ${MAX_BYTES_JSON} bytes`);
     if (!arg('--archivo-json')) {
       fallas.push(...validar(await leerJson('datos/precios-ejemplo.json'), { catalogo }).map(x => `datos/precios-ejemplo.json: ${x}`));
@@ -595,7 +634,7 @@ async function principal() {
   }
   if (!indec && !sepa) throw new Error(errores.join(' · ') || 'No se pudo actualizar nada');
   for (const e of errores) console.warn('Aviso, se conserva lo anterior: ' + e);
-  const { datos, avisos } = componer({ previo, indec, sepa, mapa, hoy });
+  const { datos, avisos } = componer({ previo, indec, sepa, mapa, hoy, excepciones });
   for (const a of avisos) console.warn('Aviso: ' + a);
   const fallas = validar(datos, { catalogo, mapa, hoy });
   const bytes = Buffer.byteLength(JSON.stringify(datos));

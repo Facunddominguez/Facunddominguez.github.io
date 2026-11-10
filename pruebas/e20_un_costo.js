@@ -41,8 +41,11 @@
   const lista = JSON.parse(ev(`JSON.stringify((() => { const pr = costoSemanaPlan(); return [...pr.porClave.entries()] })())`));
   const textosEst = lista.filter(([k]) => estimados.some(p => p.key === k)).map(x => x[1]), textosSin = lista.filter(([k]) => sinNada.some(p => p.key === k)).map(x => x[1]);
   // Una comida con un ingrediente sin precio real: el costo suma el estimado y lo dice.
+  // Etapa 25 (Ronda 4): el dato real ya trae precio de Frutilla, así que la prueba arma el caso: un snapshot donde Frutilla pasa a 'categorias' (con su categoría, sin precio), como figuraba antes en los datos.
+  ev(`(() => { const q = PRECIOS_SNAPSHOT.items.find(i => i.n === "Frutilla"); preciosDataset.data = { ...PRECIOS_SNAPSHOT, items: PRECIOS_SNAPSHOT.items.filter(i => i !== q), categorias: { ...PRECIOS_SNAPSHOT.categorias, Frutilla: [q.k, q.b] } }; preciosDataset.cache = null; refrescarPrecios() })()`);
   const comida = ev(`(() => { const filas = [{ name: "Frutillas", quantity: 1, unit: "taza" }, { name: "Arroz", quantity: 200, unit: "g" }]; const c = costoDeFilas(filas, 1); const solo = costoDeFilas([filas[1]], 1); return JSON.stringify({ costo: c.costo, solo: solo.costo, estimados: c.estimados, faltan: c.faltan }) })()`);
   const cm = JSON.parse(comida);
+  ev(`(() => { preciosDataset.data = null; preciosDataset.cache = null; refrescarPrecios() })()`);
   // Sin categoría ni precio (nada que estimar): el total dice "al menos" y el producto figura como faltante.
   const raro = JSON.parse(ev(`(() => { const x = { key: "zz", name: "Producto inventado sin dato", units: new Map([["g", 100]]), group: "pendiente" }; const pr = preciosDeLaLista([x], "semana"); return JSON.stringify({ t: pr.total, faltan: pr.faltan, sin: pr.sinEstimar, txt: [...pr.porClave.values()][0], resumen: resumenPrecios(pr) }) })()`));
   ok("E20-sin-cero ningún costo trata un faltante como $0: se estima con la mediana de la categoría y se marca, y lo que no se puede estimar dice 'al menos'",

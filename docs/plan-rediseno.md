@@ -2559,7 +2559,7 @@ El plan completo está en `docs/prompt-ronda-4.md` (el análisis del que sale, e
 
 | Etapa | Tema | Versión | Estado |
 |---|---|---|---|
-| 25 | Base en verde | 18.0.0 | Pendiente |
+| 25 | Base en verde | 18.0.0 | 🔧 En curso |
 | 26 | Lista para el súper | 18.1.0 | Pendiente |
 | 27 | Semana más corta y con tus objetivos | 18.2.0 | Pendiente |
 | 28 | Ideas con cantidades y preparación | 18.3.0 | Pendiente |
@@ -2567,3 +2567,10 @@ El plan completo está en `docs/prompt-ronda-4.md` (el análisis del que sale, e
 | 30 | Precios al día y de tu barrio | 18.5.0 | Pendiente |
 | 31 | Hoy con costo y la semana para compartir | 18.6.0 | Pendiente |
 | 32 | Respaldo sin olvidos, recordatorio y recorrido final | 18.7.0 | Pendiente |
+
+### Etapa 25 🔧 Base en verde
+Rama `rediseno-4-etapa-25-base`. Versión 18.0.0.
+
+**Plan corto**
+- `construir.mjs`: opción `--precios <archivo>`, topes nuevos (index.html 1.100.000 bytes y 300.000 con gzip; precios.json 80.000) y `--tope-html` / `--tope-gzip`, que solo pueden bajarlos (los usa `pruebas/tamano-construccion.mjs`). `probar.mjs` y `capturas.mjs` construyen la app en una carpeta temporal con `pruebas/fixtures/precios-congelados.json` y su servidor entrega ese `index.html`, ese `sw.js` y, en `/datos/precios.json`, el archivo congelado. `actualizar-precios.mjs`: `fueraDeRango()` y el descarte por plausibilidad al generar; `--verificar` rechaza lo que quede fuera de rango en GBA y exige 100 o más ingredientes con precio en GBA. `datos/precios-notas.json`: dos excepciones nuevas y 16 productos menos en `sinDato`. Código: `Bienvenida.terminarBienvenida()` y `MisPlatos.persistSaved()`. Pruebas nuevas: `r4e25_base.js`, `tamano-construccion.mjs` y tres casos en `sepa-lector.mjs`.
+- Riesgos para los datos: ninguno (no se toca ninguna clave `miPlatoFacil_*`; `datos/precios.json` queda igual).
