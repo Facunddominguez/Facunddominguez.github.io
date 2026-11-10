@@ -9,7 +9,7 @@ import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
-import { leerSepa, regionDe, precioBase, componer, validar } from '../herramientas/actualizar-precios.mjs';
+import { leerSepa, regionDe, precioBase, componer, validar, fueraDeRango, itemsEnGba } from '../herramientas/actualizar-precios.mjs';
 
 const RAIZ = fileURLToPath(new URL('../', import.meta.url));
 let fallas = 0;
@@ -99,5 +99,31 @@ try {
   const cli2 = spawnSync(process.execPath, [join(RAIZ, 'herramientas/actualizar-precios.mjs'), '--solo-sepa', '--archivo-sepa', archivo, '--hoy', '2026-11-03', '--salida', join(dir, 'salida2.json')], { encoding: 'utf8' });
   ok('C9-9 la herramienta con un archivo roto o con muy poca cobertura sale con error y deja datos/precios.json igual',
     cli.status === 1 && cli2.status === 1 && huella() === antes && /cobertura|No se actualizaron/.test(cli.stderr + cli2.stderr), (cli2.stderr || '').split('\n')[0]);
+
+  // Etapa 25 (Ronda 4): plausibilidad. Un precio de SEPA 10 veces mayor que la mediana de su categoría no se publica y --verificar lo rechaza.
+  const nombres = ['A', 'B', 'C', 'D', 'E', 'F'], ent = med => new Map([['GBA', { med, p25: med, p75: med, n: 12, com: 4 }]]);
+  const mkSepa = precioF => ({ fecha: '2026-11-02', recurso: 'prueba', cuentas: { filas: 1, sucursales: 1, comercios: 4 }, items: new Map(nombres.map(n => [n, ent(n === 'F' ? precioF : 3000)])) });
+  const mapaPl = { items: nombres.map(n => ({ n, b: 'kg', cat: 'verduras' })) };
+  const previoPl = JSON.parse(readFileSync(join(RAIZ, 'datos/precios-ejemplo.json'), 'utf8'));
+  const sinExc = componer({ previo: previoPl, indec: null, sepa: mkSepa(30000), mapa: mapaPl, hoy: '2026-11-03' });
+  const conExc = componer({ previo: previoPl, indec: null, sepa: mkSepa(30000), mapa: mapaPl, hoy: '2026-11-03', excepciones: ['F'] });
+  const normal = componer({ previo: previoPl, indec: null, sepa: mkSepa(3600), mapa: mapaPl, hoy: '2026-11-03' });
+  ok('R4-25-datos al generar, un precio de SEPA 10 veces mayor que la mediana de su categoría no se publica y se avisa; con excepción o dentro de 4 veces, se publica',
+    !sinExc.datos.items.some(i => i.n === 'F') && sinExc.avisos.includes('Descartado por plausibilidad: F GBA 30000') && sinExc.datos.items.length === 5
+    && conExc.datos.items.some(i => i.n === 'F') && !conExc.avisos.some(a => /plausibilidad/.test(a)) && normal.datos.items.some(i => i.n === 'F') && !normal.avisos.some(a => /plausibilidad/.test(a)),
+    JSON.stringify(sinExc.avisos));
+  ok('R4-25-datos fueraDeRango necesita 5 ingredientes por categoría para opinar y no mira los precios por unidad',
+    fueraDeRango([{ n: 'x', b: 'kg', k: 'c', s: { GBA: 100000 } }, { n: 'y', b: 'kg', k: 'c', s: { GBA: 10 } }]).length === 0
+    && fueraDeRango([...nombres.map(n => ({ n, b: 'unidad', k: 'c', s: { GBA: n === 'F' ? 1e6 : 100 } }))]).length === 0
+    && itemsEnGba([{ s: { GBA: 1 } }, { p: { GBA: 2 } }, { s: { Cuyo: 3 } }]) === 2);
+  // El verificador (el que corre el workflow antes de guardar): pasa con los datos de hoy y falla con un precio 10 veces mayor.
+  const real = JSON.parse(readFileSync(join(RAIZ, 'datos/precios.json'), 'utf8')), diez = JSON.parse(JSON.stringify(real));
+  const fr = diez.items.find(i => i.n === 'Frutilla'); for (const r of Object.keys(fr.s)) { fr.s[r] *= 10; fr.r[r] = fr.r[r].map(x => x * 10) }
+  delete fr.p;
+  const archivoDiez = join(dir, 'diez.json'); writeFileSync(archivoDiez, JSON.stringify(diez));
+  const v0 = spawnSync(process.execPath, [join(RAIZ, 'herramientas/actualizar-precios.mjs'), '--verificar'], { encoding: 'utf8' });
+  const v1 = spawnSync(process.execPath, [join(RAIZ, 'herramientas/actualizar-precios.mjs'), '--verificar', '--archivo-json', archivoDiez], { encoding: 'utf8' });
+  ok('R4-25-datos --verificar pasa con los datos de hoy y falla con un archivo con un precio 10 veces mayor que la mediana de su categoría',
+    v0.status === 0 && itemsEnGba(real.items) >= 100 && v1.status === 1 && new RegExp(fr.n + ' \\w+ \\d+ se aparta más de 4 veces').test(v1.stderr), (v0.stderr + v1.stderr).split('\n').slice(0, 3).join(' | '));
 } finally { rmSync(dir, { recursive: true, force: true }) }
 process.exit(fallas ? 1 : 0);

@@ -7,7 +7,7 @@ import { readFile, writeFile, mkdtemp, rm } from 'node:fs/promises';
 import { existsSync, statSync, createReadStream } from 'node:fs';
 import { join, extname, resolve, sep } from 'node:path';
 import { tmpdir } from 'node:os';
-import { spawn } from 'node:child_process';
+import { spawn, execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { StringDecoder } from 'node:string_decoder';
 
@@ -23,13 +23,21 @@ const navegador = [arg('--navegador'), process.env.CHROME_PATH, '/usr/bin/google
   'C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe'].find(p => p && existsSync(p));
 if (!navegador) { console.error('No se encontró Chrome, Chromium ni Edge. Indicá la ruta con --navegador.'); process.exit(2) }
 
-// Servidor local: la app desde la raíz del repositorio y las pruebas en /tests/.
+// La app se construye en una carpeta temporal con los precios congelados (pruebas/fixtures/precios-congelados.json):
+// así las pruebas no dependen de lo que traiga datos/precios.json el día que se corren (Etapa 25, Ronda 4).
+const PRECIOS_CONGELADOS = join(RAIZ, 'pruebas', 'fixtures', 'precios-congelados.json');
+const carpetaApp = await mkdtemp(join(tmpdir(), 'mpf-app-'));
+execFileSync(process.execPath, [join(RAIZ, 'herramientas', 'construir.mjs'), '--salida', carpetaApp, '--precios', PRECIOS_CONGELADOS], { stdio: 'pipe' });
+
+// Servidor local: la app construida, los precios congelados, el resto del repositorio y las pruebas en /tests/.
 const TIPOS = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.mjs': 'text/javascript; charset=utf-8', '.json': 'application/json', '.webmanifest': 'application/manifest+json', '.png': 'image/png' };
 const servidor = createServer((req, res) => {
   let ruta = decodeURIComponent(new URL(req.url, 'http://x').pathname);
   if (ruta.startsWith('/tests/')) ruta = '/pruebas/' + ruta.slice(7);
   let archivo = resolve(RAIZ, '.' + ruta);
-  if (archivo !== RAIZ && !archivo.startsWith(RAIZ + sep)) { res.writeHead(403); return res.end() }
+  if (ruta === '/index.html' || ruta === '/' || ruta === '/sw.js') archivo = join(carpetaApp, ruta === '/sw.js' ? 'sw.js' : 'index.html');
+  else if (ruta === '/datos/precios.json') archivo = PRECIOS_CONGELADOS;
+  else if (archivo !== RAIZ && !archivo.startsWith(RAIZ + sep)) { res.writeHead(403); return res.end() }
   if (existsSync(archivo) && statSync(archivo).isDirectory()) archivo = join(archivo, 'index.html');
   if (!existsSync(archivo)) { res.writeHead(404); return res.end() }
   res.writeHead(200, { 'Content-Type': TIPOS[extname(archivo)] || 'application/octet-stream', 'Cache-Control': 'no-store' });
@@ -49,7 +57,7 @@ const enviar = (method, params = {}, sessionId) => new Promise((res, rej) => { c
 
 let codigo = 1;
 const limite = setTimeout(() => { console.error('Las pruebas tardaron más de 15 minutos.'); terminar(3) }, 15 * 60 * 1000);
-async function terminar(c) { clearTimeout(limite); try { await enviar('Browser.close') } catch (e) { } await espera(500); try { nav.kill() } catch (e) { } servidor.close(); await rm(perfil, { recursive: true, force: true }).catch(() => { }); process.exit(c) }
+async function terminar(c) { clearTimeout(limite); await rm(carpetaApp, { recursive: true, force: true }).catch(() => { }); try { await enviar('Browser.close') } catch (e) { } await espera(500); try { nav.kill() } catch (e) { } servidor.close(); await rm(perfil, { recursive: true, force: true }).catch(() => { }); process.exit(c) }
 try {
   const { targetId } = await enviar('Target.createTarget', { url: 'about:blank' });
   const { sessionId: S } = await enviar('Target.attachToTarget', { targetId, flatten: true });

@@ -70,7 +70,9 @@ abrirBienvenida(){
 },
 terminarBienvenida(destino){
   Bienvenida.marcarBienvenidaVista();
-  if(destino==="semana")openTab("semana");else restart()
+  // La pila de Hoy vuelve a su raíz (home) antes de cambiar de pestaña: si no, Hoy recordaba el paso 4 de la bienvenida (Etapa 25).
+  restart();
+  if(destino==="semana")openTab("semana")
 },
 armarSemanaDesdeBienvenida(){
   if(bienvenidaIdeas.length<3)return;
