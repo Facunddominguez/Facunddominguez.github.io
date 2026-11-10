@@ -2560,7 +2560,7 @@ El plan completo está en `docs/prompt-ronda-4.md` (el análisis del que sale, e
 | Etapa | Tema | Versión | Estado |
 |---|---|---|---|
 | 25 | Base en verde | 18.0.0 | ✅ |
-| 26 | Lista para el súper | 18.1.0 | Pendiente |
+| 26 | Lista para el súper | 18.1.0 | ✅ |
 | 27 | Semana más corta y con tus objetivos | 18.2.0 | Pendiente |
 | 28 | Ideas con cantidades y preparación | 18.3.0 | Pendiente |
 | 29 | Cien ideas y una semana que alcanza | 18.4.0 | Pendiente |
@@ -2597,3 +2597,27 @@ Rama `rediseno-4-etapa-25-base`. Versión 18.0.0.
 **Revisores (Etapa 25)**: `revisor-codigo` NO BLOQUEANTE. Se aplicó: `--precios` sin `--salida` ahora falla (no puede construir el `index.html` del repositorio con precios ajenos). Quedan como sugerencias: con los datos de hoy la próxima corrida descartará 10 precios de SEPA de otras regiones (Azúcar Cuyo, que es un falso positivo por barato y conviene anotar como excepción, Frutilla, Ciruela, Champiñones, Granola, Alcaucil); si la construcción falla, `probar.mjs` y `capturas.mjs` dejan su carpeta temporal.
 
 Compuerta final (Etapa 25): VALIDACIÓN ETAPA 25: OK (150 controles, 618 pruebas; línea base 607 → 618).
+
+### Etapa 26 ✅ Lista para el súper
+Rama `rediseno-4-etapa-26-lista-super`. Versión 18.1.0.
+
+**Plan corto**
+- `12-lista-de-compras.js`: `Compras.shoppingRow()` pasa a una fila que se toca entera (casilla, texto con nombre y precio, y un botón "ⓘ"); `Compras.marcarNombresCortos()` calcula una sola vez qué nombres se acortan y lo usan la pantalla y `comprasText()`. `23-equivalencias-de-ingredientes.js`: "cebolla" en `DISTINTOS`. `44-cantidades-de-platos.js`: la rebanada pasa a gramos con la tabla `pesoPorcion` y las tortillas se cuentan de a 2 por persona y comida. `datos/envases.json`: `pesoPorcion.Queso.rebanada = 30` y `pesoUnidad.Tortillas = 40`. `estilos.css`: casilla de 24 px que no se achica, filas de 48 px, botón ⓘ de 44×44; se sacaron los estilos del nombre y del precio tocables.
+- Riesgos para los datos: ninguno (`miPlatoFacil_shoppingChecks_v1` y su formato no cambian; no se tocan claves).
+
+**Hecho cuando**
+- ✅ R4-26-fila: un toque en el texto (nombre y precio), en el espacio libre de la fila, otra vez en el texto y otra vez en la fila da tachada, destachada, tachada, destachada; ninguna abre una hoja y no queda ningún botón de nombre o precio.
+- ✅ R4-26-ficha: un toque en "ⓘ" abre la ficha (`aria-label="Ficha de <producto>: nutrientes y precio"`) y no cambia la casilla.
+- ✅ R4-26-casilla: a 390 y a 320 px todas las casillas miden 24×24 px, todas las filas 48 px o más y todos los "ⓘ" 44×44.
+- ✅ R4-26-cantidades: con la semana armada la fila de queso dice "Queso Port Salut descremado: 120 g" y no hay ninguna en unidades; con 3 comidas con tortillas, "Tortillas de trigo o maíz: 1 paquete de 8 unidades".
+- ✅ R4-26-equivalencia: ya no se sugiere unir "Cebolla de verdeo" con "Cebolla"; siguen "Tomate perita" con "Tomate" y "Arroz (integral, yamaní)" con "Arroz".
+- ✅ R4-26-compartir: los 31 productos del texto compartido tienen el mismo nombre corto que su fila (antes el texto traía "Carne vacuna (nalga, cuadril, bola de lomo, lomo, roast beef)" y la pantalla, "Carne vacuna").
+- ✅ R4-26-alto: la vista `compras` en estado `normal` mide 3.120 px a 390 px (antes 3.626, tope 3.300); a 320 px, 3.341 (antes 3.871). Las palabras visibles siguen en 254 (E1-palabras-compras pasa).
+
+**Decisiones**
+- (Decisión) La rebanada de queso se pasa a gramos con `pesoPorcion` (la tabla que ya usan Ananá, Melón y Sandía) en vez de `pesoUnidad`, porque `pesoUnidad` solo sirve para pasar unidades a kilos al calcular el precio y habría convertido a gramos también las zanahorias o las bananas de la lista. La rebanada de pan de molde sigue siendo una unidad (el queso tiene entrada propia y el pan no).
+- (Decisión) El toque en el espacio libre de la fila lo resuelve un `click` de la fila que ignora lo que cae dentro del texto (el `label` ya tacha solo) o del botón: así un toque nunca tacha dos veces.
+- (Decisión) Las tortillas de 40 g se cuentan en unidades solo cuando son el almidón de un plato armado (2 por persona y por comida, sin importar la fracción del plato); la lista ya envasa en paquetes de 8.
+- (Decisión) El detalle del precio ("SEPA · mes · rango") dejó de tener su propio toque en la fila: se ve en la ficha, que ya lo mostraba.
+
+**Tests adaptados**: `e13_precios_a_la_vista.js` C13-1 (la fuente, el mes y el rango se leen en la ficha que abre el ⓘ, y la fila no se tacha; antes se tocaba el precio) y `e21_ficha_precio.js` (E21-un-toque y E21-mi-precio llegan a la ficha con el botón "ⓘ": sigue siendo un toque). La misma exigencia. Prueba nueva: `r4e26_lista.js` (6).
