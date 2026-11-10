@@ -2550,3 +2550,20 @@ Pedidos por Facundo al probar la v17.5.0. Hechos fuera del modo autónomo, en la
 **Tests adaptados**: `e4_comidas.js` C4-1 (la bienvenida termina con la semana armada: 28 comidas con las 3 ideas elegidas, en 15 toques o menos; antes asignaba 3 huecos a mano), `e10_pulido.js` C10-1 y `e24_semana_clara.js` (Armame la semana con la semana vacía arma directo), `e15_armame.js` C15-6 (sin hoja con la semana vacía), `e21_ficha_precio.js` y `e24_semana_clara.js` (el formulario de Mi precio ya está abierto; el botón puede decir "Guardar mi precio"). Prueba nueva: `e25_arreglos.js` (semana que viene, aislamiento de esta semana mientras se mira la otra, adopción en su lunes —una vez o dos, mismo resultado— y la que quedó vieja sin abrir la app, ficha, texto y desayunos con proteína). 614 pruebas en total.
 
 **Revisión (`revisor-codigo`)**: tres bloqueantes corregidos: (1) volver a esta semana tocando la pestaña dejaba un Deshacer de la otra semana que podía pisar el plan → se borra `deshacerPlan` al cambiar de semana; (2) mirando la semana que viene no se guardan copias fechadas, porciones ni historial (se ocultan Porciones y "Lo comí hoy"; "Repetir semana anterior" pasa a "Repetir esta semana"); (3) la condición de C10-1 siempre daba verdadero. Además: al adoptar se limpian las porciones viejas, y si la app queda abierta al cambiar de semana la adopción corre igual (`Semana.alDiaProxima()`).
+
+## Ronda 4: la semana que se puede cocinar y pagar
+
+El plan completo está en `docs/prompt-ronda-4.md` (el análisis del que sale, en `docs/analisis-ronda-4.md`).
+
+### Registro de la Ronda 4
+
+| Etapa | Tema | Versión | Estado |
+|---|---|---|---|
+| 25 | Base en verde | 18.0.0 | Pendiente |
+| 26 | Lista para el súper | 18.1.0 | Pendiente |
+| 27 | Semana más corta y con tus objetivos | 18.2.0 | Pendiente |
+| 28 | Ideas con cantidades y preparación | 18.3.0 | Pendiente |
+| 29 | Cien ideas y una semana que alcanza | 18.4.0 | Pendiente |
+| 30 | Precios al día y de tu barrio | 18.5.0 | Pendiente |
+| 31 | Hoy con costo y la semana para compartir | 18.6.0 | Pendiente |
+| 32 | Respaldo sin olvidos, recordatorio y recorrido final | 18.7.0 | Pendiente |
