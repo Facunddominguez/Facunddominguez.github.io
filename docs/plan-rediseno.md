@@ -2566,7 +2566,7 @@ El plan completo está en `docs/prompt-ronda-4.md` (el análisis del que sale, e
 | 29 | Cien ideas y una semana que alcanza | 18.4.0 | ✅ |
 | 30 | Precios al día y de tu barrio | 18.5.0 | ✅ |
 | 31 | Hoy con costo y la semana para compartir | 18.6.0 | ✅ |
-| 32 | Respaldo sin olvidos, recordatorio y recorrido final | 18.7.0 | Pendiente |
+| 32 | Respaldo sin olvidos, recordatorio y recorrido final | 18.7.0 | ✅ |
 
 ### Etapa 25 ✅ Base en verde
 Rama `rediseno-4-etapa-25-base`. Versión 18.0.0.
@@ -2779,3 +2779,30 @@ Rama `rediseno-4-etapa-31-hoy-costo`. Versión 18.6.0.
 **Revisores (Etapa 31)**: `revisor-usuario` (Hoy y la hoja de compartir a 390 y 320 px) NO BLOQUEANTE. La imagen que se comparte se miró aparte en una captura (vista nueva `imagen-semana`): el título, las 7 filas con almuerzo y cena en nombre corto y el total al pie entran sin cortes. Quedan como sugerencias (los textos de Hoy son los que pide el plan): la línea enumera los 4 grupos aunque el plato esté completo; "Plato completo" se lee como lo planificado y no como lo comido; "Te falta" puede sonar a reproche; con la semana vacía igual se ofrece compartir; en la hoja las dos opciones van alineadas a la izquierda y "Cerrar" centrado. `revisor-codigo` no corresponde en esta etapa (no toca datos guardados ni `datos/`).
 
 Compuerta final (Etapa 31): VALIDACIÓN ETAPA 31: OK (199 controles, 660 pruebas; línea base 656 → 660).
+
+### Etapa 32 ✅ Respaldo sin olvidos, recordatorio y recorrido final
+Rama `rediseno-4-etapa-32-respaldo`. Versión 18.7.0.
+
+**Plan corto**
+- `18-respaldo-completo.js`: `validRespaldoAviso()` y el módulo `RespaldoAviso` (`estado()`, `pintar()`, `masTarde()`, `guardarCopia()`, `pedirPersistencia()`); el botón `#backupExport` ("Guardar copia" en Mis datos) pasa a `RespaldoAviso.guardarCopia()`; la clave `miPlatoFacil_respaldoAviso_v1` entra al respaldo como opcional, con validador. `01-home.html` y `20-backupScreen.html`: el aviso al pie de Hoy y en Mis datos. `31-hoy.js` y `go()`: pintan el aviso. `40-primera-vez.js` y `09-mis-platos.js`: piden el almacenamiento persistente. `08-copiar-y-compartir.js` y `38-selector-de-comida.js`: "Recordarme armar la semana" en el menú ⋯ de Semana (día, hora y "Agregar al calendario") y el archivo `armar-la-semana.ics`. `46-dieta.js` (último archivo): el enlace `?ir=semana-proxima`. `capturas.mjs`: vistas `hoy-aviso-respaldo`, `respaldo-aviso` y `recordatorio`. Pruebas nuevas: `r4e32_respaldo.js` (7).
+- Riesgos para los datos: clave nueva `miPlatoFacil_respaldoAviso_v1` (`{"version":1,"primerUso":"AAAA-MM-DD","ultimo":"AAAA-MM-DD","pospuesto":"AAAA-MM-DD"}`, `ultimo` y `pospuesto` opcionales), opcional en el respaldo y con validador (rechaza fechas imposibles); la app la crea sola (`primerUso` de hoy) la primera vez que mira Hoy con comidas o plan guardados. No se toca el formato `complete-local-v1` ni `validateCompleteBackup()` salvo por sumar la clave como opcional; un respaldo viejo se restaura igual.
+
+**Hecho cuando**
+- ✅ R4-32-aviso: con el último respaldo hace 30 días aparece "Hace 30 días que no guardás una copia de tus datos." en Hoy y en Mis datos; con 29, no; sin comidas ni plan, no; sin respaldo se cuenta desde el primer uso ("Hace 34 días"); "Más tarde" lo esconde hoy y los 7 días siguientes (aparece de nuevo el octavo).
+- ✅ R4-32-copia: "Guardar copia" comparte `mi-plato-respaldo-<fecha>.json` (`application/json`) que `validateCompleteBackup()` acepta, con `navigator.share` y `canShare` simulados, y deja `ultimo` con la fecha de hoy; sin `canShare`, descarga el mismo archivo (desde `#backupExport`) y también guarda la fecha.
+- ✅ R4-32-persistente: `navigator.storage.persist()` se llama una vez al terminar la bienvenida (y no de nuevo al guardar la primera comida en la misma sesión); sin `navigator.storage`, no falla.
+- ✅ R4-32-ics: "Recordarme armar la semana" propone domingo 18:00; con martes 19:30 baja `armar-la-semana.ics` con `BEGIN:VCALENDAR`, un `VEVENT`, `RRULE:FREQ=WEEKLY;BYDAY=TU`, `DTSTART` a las 19:30, un `VALARM`, el título "Armar la semana · Mi Plato Fácil" y el enlace con `?ir=semana-proxima` (armado con `location.origin + location.pathname`, sin ningún dominio escrito en el código).
+- ✅ R4-32-enlace: `index.html?ir=semana-proxima` abre Semana en "Semana que viene"; sin el parámetro, Hoy como siempre.
+- ✅ R4-32-respaldo: la clave nueva va y vuelve, una fecha imposible (2026-99-99) se rechaza, y el respaldo de ejemplo v14.9.94 se restaura igual.
+- ✅ R4-32-recorrido: una sola prueba hace el recorrido final con la interfaz: bienvenida (Siguiente, Ahora no, Ahora no, 3 ideas, "Armar mi semana") con 28 comidas armadas; el detalle de una comida que viene de una idea (3 pasos o más); "Supermercado" en Preferencias, que sube el total de la semana; 5 productos tachados en Compras y "Terminé de comprar" (los pendientes bajan); compartir la semana como texto y guardar una copia.
+
+**Recorrido final con `revisor-usuario`** (a 390, 360 y 320 px): bienvenida, semana, detalle de una comida, Preferencias, Compras, "Compartir la semana", el aviso de respaldo en Hoy y en Mis datos y el recordatorio; capturas en `capturas/despues32-<ancho>` (no se versionan). Ver el veredicto abajo.
+
+**Decisiones**
+- (Decisión) El aviso se cuenta en días calendario locales y "Más tarde" esconde el aviso hoy y los 7 días siguientes ("durante 7 días, vuelve al octavo").
+- (Decisión) `primerUso` se escribe la primera vez que se mira Hoy con datos (no al instalar), así quien ya tenía datos recibe el aviso 30 días después de actualizar.
+- (Decisión) El almacenamiento persistente se pide al terminar la bienvenida y, para quien ya la había visto, al guardar una comida (la primera de la sesión); siempre una vez por sesión, sin texto en pantalla.
+- (Decisión) El enlace del recordatorio se interpreta en el último archivo de código: en `14-eventos-y-arranque.js` las pestañas todavía no existen y no pasa nada (se vio al probarlo).
+- (Decisión) Con `navigator.canShare({ files })` la copia y el recordatorio van al menú de compartir; si el usuario cancela, no se guarda la fecha; si falla otra cosa, se descarga.
+
+**Pruebas adaptadas**: `f03_plan.js` P9c (el respaldo conserva 17 claves sin contar `miPlatoFacil_respaldoAviso_v1`, que la app crea sola al mirar Hoy con datos; la exigencia sobre las 17 de siempre es la misma). Se renombró el texto del botón `#backupExport` de "Descargar respaldo" a "Guardar copia" (ninguna prueba lo leía por su texto).

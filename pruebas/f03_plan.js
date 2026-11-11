@@ -61,6 +61,6 @@
   let e2 = null; try { Respaldo.validateCompleteBackup(bad) } catch (e) { e2 = e.message }
   T.ok("P9b porciones con franjas inválidas se rechazan", /Porciones del plan inválidas/.test(e2 || ""), e2);
   localStorage.removeItem("miPlatoFacil_planHistory_v1"); localStorage.removeItem("miPlatoFacil_planPortions_v1");
-  T.ok("P9c sin porciones ni historial, el respaldo conserva 17 claves", Object.keys(completeBackupSnapshot(localStorage).data).length === 17);
+  T.ok("P9c sin porciones ni historial, el respaldo conserva 17 claves (sin contar miPlatoFacil_respaldoAviso_v1, que la app crea sola al mirar Hoy con datos: Etapa 32)", Object.keys(completeBackupSnapshot(localStorage).data).filter(k => k !== "miPlatoFacil_respaldoAviso_v1").length === 17);
   return T;
 })()
