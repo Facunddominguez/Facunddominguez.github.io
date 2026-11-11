@@ -397,7 +397,8 @@ var ArmameSemana=(function(){
       const c=costoSemanaPlan();
       if(!c)return [];
       const vistos=new Set();
-      return c.productos.filter(p=>p.costo>0).sort((x,y)=>y.costo-x.costo).map(p=>minuscula(Compras.nombreCorto(p.name))).filter(n=>!vistos.has(n)&&vistos.add(n)).slice(0,3)
+      // v18.8: solo la primera palabra ("leche", "carne", "queso"): alcanza para saber qué pesa y el aviso no crece.
+      return c.productos.filter(p=>p.costo>0).sort((x,y)=>y.costo-x.costo).map(p=>minuscula(Compras.nombreCorto(p.name)).split(/\s+/)[0]).filter(n=>n&&!vistos.has(n)&&vistos.add(n)).slice(0,3)
     }catch(e){
       return []
     }
@@ -486,7 +487,7 @@ var ArmameSemana=(function(){
     }
   }
   // Cambiar un solo hueco: "parecida" (más ingredientes en común) o "barata" (cuesta menos). No toca los demás.
-  function cambiarHueco(dia,slot,como){
+  function cambiarHueco(dia,slot,como,simular){
     const plan=loadPlan(),items=new Map(MisPlatos.loadSaved().map(x=>[x.id,x])),actual=items.get((plan[dia]||{})[slot]);
     if(!actual)return {ok:false,texto:"Ese hueco está vacío."};
     const memo=new Map(),sem=leerSemana(plan,new Set([dia+"|"+slot])),kActual=clave(mealName(actual));
@@ -501,6 +502,8 @@ var ArmameSemana=(function(){
     let mejor=null,mejorPuntos=-1e9;
     for(const c of lista){
       if(c.k===kActual||(sem.cuenta.get(c.k)||0)>=MAX_REPETIDA||vecina(-1)===c.k||vecina(1)===c.k)continue;
+      // v18.8: no repetir en el mismo día la comida de otro hueco (sopa de lentejas al almuerzo y a la cena).
+      if(SLOTS.some(([o])=>o!==slot&&(sem.comidas.get(dia+"|"+o)||{}).k===c.k))continue;
       if(c.tipo==="mia"&&c.item&&c.item.state&&c.item.state.day&&slotPool(slot)==="plato"){const d=diaDeRutinaDe(dia);if(d&&c.item.state.day!==d)continue}
       if(prohibido(c.ings))continue;
       if(slotPool(slot)==="plato"&&[...basesDe(c.ings)].some(b=>(sem.bases.get(b)||0)>=topeDe(b)))continue;
@@ -511,6 +514,8 @@ var ArmameSemana=(function(){
       if(puntos>mejorPuntos){mejor=c;mejorPuntos=puntos;mejor._costo=vc}
     }
     if(!mejor)return {ok:false,texto:como==="barata"?"No encontré una opción más barata para este hueco.":"No encontré otra opción parecida para este hueco."};
+    // v18.8: "Ajustar al presupuesto" pregunta primero cuánto ahorraría cada hueco, sin cambiar nada.
+    if(simular)return {ok:true,ahorro:(costoActual===null?med:costoActual)-mejor._costo};
     let id;
     if(mejor.item)id=mejor.item.id;
     else{
@@ -529,11 +534,53 @@ var ArmameSemana=(function(){
     planStatus(texto);
     return {ok:true,texto,id}
   }
+  // v18.8: ¿la semana de ahora se pasa del presupuesto? (para mostrar "Ajustar al presupuesto").
+  function sePasa(){
+    const p=presupuestoSemanal();
+    if(!p)return false;
+    try{const c=costoSemanaPlan();return !!c&&c.total>p+1}catch(e){return false}
+  }
+  // v18.8: "Ajustar al presupuesto": cambia, de a una, la comida que más ahorra por otra más barata (con los mismos topes de
+  // variedad que "Cambiar por una más barata") hasta entrar o hasta que no haya cambios que ahorren. Todo con un solo Deshacer.
+  function ajustarPresupuesto(){
+    const p=presupuestoSemanal(),pesos=n=>"$"+Math.round(n).toLocaleString("es-AR");
+    if(!p)return {ok:false,texto:"Cargá un presupuesto semanal en Compras para poder ajustarlo."};
+    const total0=costoSemanaPlan();
+    if(!total0)return {ok:false,texto:"No tengo precios para ajustar la semana."};
+    if(total0.total<=p)return {ok:false,texto:"La semana ya entra en tu presupuesto."};
+    const antes={plan:loadPlan(),porciones:Semana.loadPlanPortions()},ids=new Set(MisPlatos.loadSaved().map(x=>x.id));
+    let total=total0.total,n=0;
+    for(let vuelta=0;vuelta<28&&total>p;vuelta++){
+      const plan=loadPlan();
+      let mejor=null;
+      for(const [dia] of DAYS)for(const slot of ORDEN){
+        if(!ids.has((plan[dia]||{})[slot]))continue;
+        const r=cambiarHueco(dia,slot,"barata",true);
+        if(r.ok&&r.ahorro>1&&(!mejor||r.ahorro>mejor.ahorro))mejor={dia,slot,ahorro:r.ahorro}
+      }
+      if(!mejor)break;
+      const r=cambiarHueco(mejor.dia,mejor.slot,"barata");
+      if(!r.ok)break;
+      n++;
+      MisPlatos.loadSaved().forEach(x=>ids.add(x.id));
+      const c=costoSemanaPlan();
+      if(!c)break;
+      total=c.total
+    }
+    if(!n){planStatus("No encontré comidas más baratas para cambiar: es lo más barato que puedo armar con tus comidas e ideas.");return {ok:false}}
+    if(n)Semana.logPlanChange("Ajustar al presupuesto: "+n+(n===1?" comida cambiada":" comidas cambiadas")+" (≈ "+pesos(total)+")");
+    const texto="Cambié "+n+(n===1?" comida por otra más barata":" comidas por otras más baratas")+": la semana queda en ≈ "+pesos(total)+(total<=p?" y entra en tu presupuesto de "+pesos(p):". No encontré más cambios que ahorren: te pasás "+pesos(total-p));
+    deshacerPlan={texto,plan:antes.plan,porciones:antes.porciones};
+    planStatus("");
+    renderPlan();
+    return {ok:true,texto,total,n}
+  }
   document.addEventListener("click",e=>{
     const b=e.target.closest&&e.target.closest("button");
     if(!b)return;
     const d=b.dataset;
     if(d.armame!==undefined)return abrir();
+    if(d.armameAjustar!==undefined)return ajustarPresupuesto();
     if(d.armameModo)return correr(d.armameModo);
     if(d.huecoParecida||d.huecoBarata){
       const [dia,slot]=(d.huecoParecida||d.huecoBarata).split("|"),r=cambiarHueco(dia,slot,d.huecoParecida?"parecida":"barata");
@@ -568,5 +615,5 @@ var ArmameSemana=(function(){
     return MisPlatos.persistSaved(a)
   }
   try{marcarDeLaSemana()}catch(e){}
-  return {armar,aplicar,resumen,avisoDe,avisoDetalle,filasDe,abrir,correr,cambiarHueco,presupuestoSemanal,huecosVacios,marcarDeLaSemana,guardarEnMisComidas}
+  return {armar,aplicar,resumen,avisoDe,avisoDetalle,filasDe,abrir,correr,cambiarHueco,sePasa,ajustarPresupuesto,presupuestoSemanal,huecosVacios,marcarDeLaSemana,guardarEnMisComidas}
 })();

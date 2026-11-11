@@ -192,6 +192,15 @@ function abrirHueco(dia,slot){
     });
     acciones.append(h.loComi)
   }
+  // v18.8: la receta (cantidades y pasos) a un toque desde Semana y desde Hoy.
+  {
+    let idea=null;
+    try{idea=IdeasHoja.ideaDeComida(it)}catch(e){}
+    const hayPasos=!!(idea&&Array.isArray(idea.pasos)&&idea.pasos.length);
+    acciones.append(botonHoja(hayPasos?"Ver receta"+(idea.minutos?" · "+idea.minutos+" min":""):"Ver ingredientes","button--soft",{
+      huecoReceta:it.id
+    }))
+  }
   acciones.append(botonHoja("Cambiar","button--soft",{
     huecoCambiar:pk
   }),botonHoja("Cambiar por otra parecida","button--soft",{
@@ -472,6 +481,9 @@ document.addEventListener("click",e=>{
   }
   if(d.huecoCambiar){
     const [dia,slot]=d.huecoCambiar.split("|");return abrirSelector(dia,slot)
+  }
+  if(d.huecoReceta){
+    huecoAbierto=null;hoja.cerrar();return Comidas.abrirComida("plato",d.huecoReceta)
   }
   if(d.selectorId)return Selector.elegirEnSelector(h=>Selector.asignarHueco(h.dia,h.slot,d.selectorId));
   if(d.selectorReceta)return Selector.elegirEnSelector(h=>asignarRecetaAlPlan(d.selectorReceta,h.dia,h.slot,false));
