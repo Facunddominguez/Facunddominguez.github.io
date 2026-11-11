@@ -8,7 +8,7 @@
     "navegador": "Chrome/156.0.8078.73"
   },
   "pruebas": {
-    "total": 650,
+    "total": 656,
     "suites": {
       "d01_diseno.js": 8,
       "m01_modo.js": 13,
@@ -69,7 +69,8 @@
       "r4e26_lista.js": 6,
       "r4e27_semana.js": 6,
       "r4e28_ideas.js": 8,
-      "r4e29_cien.js": 12
+      "r4e29_cien.js": 12,
+      "r4e30_precios.js": 6
     }
   },
   "claves": [
@@ -82,6 +83,7 @@
     "miPlatoFacil_cookingHistory_v1",
     "miPlatoFacil_datedWeeks_v1",
     "miPlatoFacil_dieta_v1",
+    "miPlatoFacil_dondeCompro_v1",
     "miPlatoFacil_habitGoals_v1",
     "miPlatoFacil_hogar_v1",
     "miPlatoFacil_ingredientAliases_v1",
@@ -95,6 +97,7 @@
     "miPlatoFacil_planPortions_v1",
     "miPlatoFacil_planProxima_v1",
     "miPlatoFacil_planVars",
+    "miPlatoFacil_preciosRevisados_v1",
     "miPlatoFacil_purchases_v1",
     "miPlatoFacil_recipeAmounts_v1",
     "miPlatoFacil_recipeDetails_v1",
@@ -118,6 +121,7 @@
     "miPlatoFacil_cookingHistory_v1",
     "miPlatoFacil_datedWeeks_v1",
     "miPlatoFacil_dieta_v1",
+    "miPlatoFacil_dondeCompro_v1",
     "miPlatoFacil_habitGoals_v1",
     "miPlatoFacil_hogar_v1",
     "miPlatoFacil_ingredientAliases_v1",
@@ -131,6 +135,7 @@
     "miPlatoFacil_planPortions_v1",
     "miPlatoFacil_planProxima_v1",
     "miPlatoFacil_planVars",
+    "miPlatoFacil_preciosRevisados_v1",
     "miPlatoFacil_purchases_v1",
     "miPlatoFacil_recipeAmounts_v1",
     "miPlatoFacil_recipeDetails_v1",
@@ -151,6 +156,7 @@
     "miPlatoFacil_consumption_v1",
     "miPlatoFacil_cookingHistory_v1",
     "miPlatoFacil_dieta_v1",
+    "miPlatoFacil_dondeCompro_v1",
     "miPlatoFacil_habitGoals_v1",
     "miPlatoFacil_hogar_v1",
     "miPlatoFacil_ingredientAliases_v1",
@@ -160,6 +166,7 @@
     "miPlatoFacil_planHistory_v1",
     "miPlatoFacil_planPortions_v1",
     "miPlatoFacil_planProxima_v1",
+    "miPlatoFacil_preciosRevisados_v1",
     "miPlatoFacil_purchases_v1",
     "miPlatoFacil_recipeAmounts_v1",
     "miPlatoFacil_recipeDetails_v1",
@@ -1061,8 +1068,8 @@
     }
   },
   "actualizada": {
-    "etapa": 29,
-    "version": "18.4.0",
+    "etapa": 30,
+    "version": "18.5.0",
     "fecha": "2026-11-11"
   }
 }
