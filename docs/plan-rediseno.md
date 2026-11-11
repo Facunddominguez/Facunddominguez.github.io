@@ -2765,6 +2765,6 @@ Rama `rediseno-4-etapa-31-hoy-costo`. Versión 18.6.0.
 - (Decisión) El total de la semana compartida es `costoSemanaPlan()` (el de Semana y Compras) para esta semana y `costoSemanaDeFilas()` con las comidas de su plan para la que viene, porque Compras sigue con esta semana mientras se mira la otra. Sin precios (apagados) no hay línea de total.
 - (Decisión) En la imagen, cada día lleva solo el almuerzo y la cena (como pide el plan) en nombre corto, recortado con "…" si no entra; el texto, las cuatro comidas.
 - (Decisión) La línea de Hoy no aparece si no hay ninguna comida planificada para hoy, aunque haya plan otros días.
-- (Decisión) Los grupos que cubre el día son verduras, almidón, proteína y fruta, mirando todas las comidas de hoy; las legumbres cuentan como almidón o proteína según cómo estén en la comida.
+- (Decisión) Los grupos que cubre el día son verduras, almidón, proteína y fruta, mirando todas las comidas de hoy; las legumbres cuentan: las que van como "legCarb" valen como almidón y las de "legProt", como proteína (si no, "Garbanzos guisados con arroz" diría que falta proteína).
 
 **Pruebas adaptadas**: ninguna.

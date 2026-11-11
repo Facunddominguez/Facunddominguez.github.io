@@ -11910,7 +11910,13 @@ function textoCostoHoy(day,plan,byId){
   }
   try{
     const tiene=new Set();
-    for(const it of items)for(const g of plateGroups(it))tiene.add(g);
+    for(const it of items){
+      for(const g of plateGroups(it))tiene.add(g);
+      // Las legumbres cuentan: las de "legCarb" como almidón y las de "legProt" como proteína.
+      const st=it.state;
+      if(st&&Array.isArray(st.legCarb)&&st.legCarb.length)tiene.add("almidones");
+      if(st&&Array.isArray(st.legProt)&&st.legProt.length)tiene.add("proteinas")
+    }
     const faltan=HOY_GRUPOS.filter(([k])=>!tiene.has(k)).map(x=>x[1]);
     partes.push(faltan.length?"Te falta: "+(faltan.length>1?faltan.slice(0,-1).join(", ")+" y "+faltan.at(-1):faltan[0]):"Plato completo: verduras, almidón, proteína y fruta")
   }catch(e){
