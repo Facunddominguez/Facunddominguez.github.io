@@ -71,6 +71,10 @@ const VISTAS = [
   { id: 'resumen', ir: 'openTab("hoy"); start("desayuno"); for (const id of ["fruit", "bfprot", "bfcarb", "bffat"]) { document.querySelector("#" + id + " .choice").click(); await new Promise(r => setTimeout(r, 150)) }' },
   // Última: en el estado vacío guarda una idea para tener un detalle que mostrar (no contamina las vistas anteriores).
   // Rehace la semana (cambia el plan y su historial): va después de todas las vistas que dependen de ella.
+  { id: 'ficha-papa', ir: 'openTab("compras"); Comidas.abrirNutrientesDeIngrediente("Papa", true)', medir: '.hoja' },
+  // Un Mi precio de tomate de hace 67 días (el reloj de las capturas es el 26/10/2026): la hoja para revisarlo y su ficha.
+  { id: 'revisar-precios', ir: 'localStorage.setItem("miPlatoFacil_referencePrices_v1", JSON.stringify({ ficha_tomate: { id: "ficha_tomate", name: "Tomate", pack: "", amount: 1, unit: "kg", price: 2500, currency: "ARS", date: "2026-08-20" } })); openTab("semana"); abrirRevisarPrecios()', medir: '.hoja' },
+  { id: 'ficha-revisar', ir: 'Comidas.abrirNutrientesDeIngrediente("Tomate", true)', medir: '.hoja' },
   { id: 'semana-armada', ir: 'openTab("semana"); ArmameSemana.correr("todo")' },
   { id: 'comida', ir: 'openTab("miscomidas"); const g = MisPlatos.loadSaved()[0] || IdeasHoja.guardarIdea(data.menuCatalog[0]).item; Comidas.abrirComida("plato", g.id)' }
 ].filter(v => !arg('--vistas') || arg('--vistas').split(',').includes(v.id));
