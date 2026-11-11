@@ -512,8 +512,16 @@ function pintarCostoComida(){
   const p=document.getElementById("comidaCosto");
   if(!p)return;
   const t=comidaActual?textoCostoComida(costoPorPorcion(comidaActual.origen,comidaActual.id)):"";
-  p.textContent=t?t+" · "+fuentePrecios():"";
+  p.textContent=t?t+" · "+fuenteSimplePrecios():"";
   p.hidden=!t
+}
+// v18.8: la fuente en palabras simples para el detalle de una comida ("precios de verdulería y súper · GBA · 4 nov. 2026").
+// El detalle técnico (SEPA, INDEC, mediana, rango) queda en la ficha de cada ingrediente.
+function fuenteSimplePrecios(){
+  const d=preciosDataset();
+  if(!d)return "";
+  const sepa=datosSepaPrecios(d),fecha=sepa?fechaCortaPrecios(sepa.fecha):mesCortoPrecios(d.meta.mes);
+  return (!sepa?"precios promedio":dondeCompro()==="verduleria"?"precios de verdulería y súper":"precios de súper")+" · "+regionPrecios()+" · "+fecha
 }
 // Costos de la semana y del día elegido (los dos juntos, para la línea de Semana).
 function costosDelPlan(){
@@ -583,6 +591,24 @@ function pintarCostoDia(){
         r.type="button";
         r.dataset.revisarPrecios="";
         q.append(r)
+      }
+      // v18.8: si la semana se pasa del presupuesto, un toque la abarata (con Deshacer).
+      let pasa=false;
+      try{pasa=typeof ArmameSemana!=="undefined"&&!Semana.viendoProxima()&&ArmameSemana.sePasa()}catch(e){}
+      // Solo si es el único enlace de la línea: así entra en un renglón (con otros, va en el aviso de la semana armada).
+      if(pasa&&!u.faltan&&!rev.length){
+        q.append(ce("span","precios-sep"," · "));
+        let tope="";
+        try{tope=" a $"+Math.round(ArmameSemana.presupuestoSemanal()).toLocaleString("es-AR")}catch(e){}
+        // Texto corto para que entre en la línea a 390 px aun con tipografías anchas (R4-27-arriba); lo completo va en aria-label.
+        const a=ce("button","button button--soft precios-aviso--inline","Abaratar");
+        a.setAttribute("aria-label","Abaratar la semana para entrar en tu presupuesto"+tope);
+        a.title="Cambia comidas por otras más baratas hasta entrar en tu presupuesto"+tope;
+        a.style.whiteSpace="nowrap";
+        a.type="button";
+        a.dataset.armameAjustar="";
+        a.title="Cambia comidas por otras más baratas hasta entrar en tu presupuesto";
+        q.append(a)
       }
     }
     q.hidden=!u

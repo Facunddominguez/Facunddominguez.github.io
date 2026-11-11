@@ -644,6 +644,16 @@ let savedRecipeTitleCache={
 function savedItemTitle(it){
   return Semana.savedRecipeTitle(it)||it.title||"Plato"
 }
+// v18.8: debajo del nombre, en la tarjeta de Semana: "40 min" si la comida es una idea con receta; si no, solo lo que lleva
+// ("Lechuga, Tomate, Arroz, Huevo"), sin las etiquetas del plato ni lo "No elegido". Lo completo queda en la hoja y la receta.
+function detalleCortoHueco(it){
+  try{
+    const idea=IdeasHoja.ideaDeComida(it);
+    if(idea&&idea.minutos&&Array.isArray(idea.pasos)&&idea.pasos.length)return "⏱ "+idea.minutos+" min"
+  }catch(e){
+  }
+  return savedItemLines(it).map(l=>/^Ingredientes:/.test(l)?l:l.replace(/^[^:]{1,40}:\s*/,"")).filter(v=>v&&!/^No elegid/.test(v)).join(", ").replace(/\s*\([^)]*\)/g,"")
+}
 function savedItemLines(it){
   const lines=Array.isArray(it.lines)?it.lines:[];
   if(lines.length||!it.recipeSourceId||!Array.isArray(it.recipeIngredients)||!it.recipeIngredients.length)return lines;
@@ -822,12 +832,15 @@ function renderPlan(){
     if(it){
       // Etapa 27: el ícono va solo en la etiqueta del hueco (🍳 Desayuno, ☕ Merienda…); el nombre de la comida va sin emoji.
       texto.append(ce("span","hueco__plato",nombreCortoDeComida(it)+(it.fav?" ⭐":"")+(it.recipeSourceId?" 📖":"")));
-      const pk=dia+"|"+slot,detalle=savedItemLines(it).join(" · ")+(porciones[pk]!==undefined?" · "+String(porciones[pk]).replace(".",",")+" porciones":"");
-      if(detalle)texto.append(ce("span","hueco__detalle",detalle));
+      const pk=dia+"|"+slot,detalle=detalleCortoHueco(it)+(porciones[pk]!==undefined?" · "+String(porciones[pk]).replace(".",",")+" porciones":"");
+      // v18.8: con receta, minutos y costo en una sola línea ("⏱ 40 min · ≈ $3.415").
+      const fila=/^⏱/.test(detalle)?ce("span","hueco__linea"):texto;
+      if(detalle)fila.append(ce("span","hueco__detalle",detalle));
+      if(fila!==texto)texto.append(fila);
       // ≈ costo de esta comida para el hogar (con los precios encendidos y cantidades conocidas).
       try{
         const ct=typeof costoDeLaComida==="function"?costoDeLaComida(it,porciones[dia+"|"+slot]):null;
-        if(ct)texto.append(ce("span","hueco__costo",ct))
+        if(ct)fila.append(ce("span","hueco__costo",ct))
       }catch(e){
       }
       b.setAttribute("aria-label",Semana.nombreDelHueco(dia,slot)+": "+mealName(it)+". Cambiar, quitar y más")
@@ -874,6 +887,19 @@ function renderPlan(){
       b.dataset.planDeshacer="";
       const armado=deshacerPlan.res&&typeof ArmameSemana!=="undefined";
       aviso.append(document.createTextNode((armado?ArmameSemana.avisoDe(deshacerPlan.res):deshacerPlan.texto)+". "),b);
+      // v18.8: "Abaratar" en el aviso cuando la línea de precios ya tiene otros enlaces (si no, va en esa línea).
+      if(armado&&!prox&&!document.querySelector("#planPreciosEstado [data-armame-ajustar]")){
+        let pasa=false;
+        try{pasa=ArmameSemana.sePasa()}catch(e){}
+        if(pasa){
+          const aj=ce("button","filter-chip","Abaratar");
+          aj.type="button";
+          aj.dataset.armameAjustar="";
+          aj.setAttribute("aria-label","Abaratar la semana para entrar en tu presupuesto");
+          aj.title="Cambia comidas por otras más baratas hasta entrar en tu presupuesto";
+          aviso.append(aj)
+        }
+      }
       // Etapa 27: la línea es lo que importa; el resto (estimados, cociná doble, despensa, objetivos) va en "Ver detalle", cerrado.
       let detalle=[];
       if(armado)try{detalle=ArmameSemana.avisoDetalle(deshacerPlan.res)}catch(e){}

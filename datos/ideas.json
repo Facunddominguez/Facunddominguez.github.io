@@ -742,7 +742,7 @@
      "unidad"
     ],
     [
-     "Repollo blanco",
+     "Lechuga",
      60,
      "g"
     ],
@@ -761,7 +761,7 @@
     "Herví las lentejas 25 minutos y pisalas con el huevo, el pan rallado y comino.",
     "Formá las hamburguesas y cocinalas 4 minutos de cada lado.",
     "Cortá la batata en bastones y horneala 30 minutos.",
-    "Serví con ensalada de lechuga y tomate."
+    "Serví con ensalada de lechuga, tomate y zanahoria rallada."
    ]
   },
   {
@@ -928,6 +928,11 @@
      "g"
     ],
     [
+     "Apio",
+     40,
+     "g"
+    ],
+    [
      "Queso fresco",
      60,
      "g"
@@ -936,7 +941,7 @@
    "pasos": [
     "Herví la papa con cáscara, pelala y pisala; mezclá con la harina y sal.",
     "Formá los ñoquis y hervilos hasta que suban.",
-    "Cociná la zanahoria, el zapallo y el puerro en cubos en 1 litro de agua.",
+    "Cociná la zanahoria, el zapallo, el puerro y el apio en cubos en 1 litro de agua.",
     "Sumá los ñoquis a la sopa y serví con el queso."
    ]
   },
@@ -1349,7 +1354,7 @@
     ]
    ],
    "pasos": [
-    "Herví las papas, pisalas con sal y un poco de leche si hace falta.",
+    "Herví las papas y pisalas con sal y un chorrito del agua de cocción.",
     "Rehogá la cebolla y la carne picada con pimentón y comino.",
     "Armá capas de carne y puré en una fuente.",
     "Gratiná 15 minutos y serví con ensalada."
@@ -1730,10 +1735,10 @@
     ]
    ],
    "pasos": [
-    "Herví los fideos y el brócoli en la misma olla.",
+    "Herví los fideos, el brócoli y la zanahoria en rodajas en la misma olla.",
     "Salteá el pollo en cubos con el ajo.",
     "Mezclá todo con un chorrito de aceite.",
-    "Terminá con el queso rallado."
+    "Serví caliente, con pimienta a gusto."
    ]
   },
   {
@@ -1785,6 +1790,11 @@
     [
      "Tomate",
      60,
+     "g"
+    ],
+    [
+     "Morrón rojo",
+     50,
      "g"
     ]
    ],
@@ -1842,8 +1852,8 @@
      "g"
     ],
     [
-     "Repollo blanco",
-     80,
+     "Tomate",
+     100,
      "g"
     ]
    ],
@@ -1851,7 +1861,7 @@
     "Herví el arroz 12 minutos y escurrilo.",
     "Hacé los huevos a la plancha con un chorrito de aceite.",
     "Armá la ensalada con lechuga, tomate y zanahoria rallada.",
-    "Serví el arroz con el huevo encima, el queso rallado y la ensalada al lado."
+    "Serví el arroz con el huevo encima y la ensalada al lado."
    ]
   },
   {
@@ -1969,14 +1979,14 @@
      "g"
     ],
     [
-     "Zanahoria",
+     "Tomate",
      100,
      "g"
     ]
    ],
    "pasos": [
     "Cortá las papas en rodajas finas y cocinalas 12 minutos en sartén con un poco de aceite.",
-    "Mezclalas con la cebolla rehogada y los huevos batidos con sal.",
+    "Mezclalas con la cebolla rehogada, los huevos batidos con sal y el queso en cubos.",
     "Cuajá la tortilla 5 minutos de cada lado.",
     "Serví con ensalada de lechuga y tomate."
    ]
@@ -2164,13 +2174,18 @@
      "Tomate",
      120,
      "g"
+    ],
+    [
+     "Zanahoria",
+     60,
+     "g"
     ]
    ],
    "pasos": [
     "Pasá la carne por huevo batido y pan rallado.",
     "Horneá 25 minutos dando vuelta a la mitad.",
     "Herví las papas en cubos 15 minutos.",
-    "Serví con ensalada de lechuga y tomate."
+    "Serví con ensalada de lechuga, tomate y zanahoria rallada."
    ]
   },
   {
@@ -2421,7 +2436,7 @@
     "Rehogá la cebolla con la zanahoria rallada y sumá la carne picada.",
     "Agregá el tomate picado, sal, orégano y cociná 20 minutos.",
     "Herví los fideos 9 minutos.",
-    "Servilos con el tuco y el queso rallado."
+    "Servilos con el tuco por encima."
    ]
   },
   {
@@ -2527,7 +2542,12 @@
     ],
     [
      "Espinaca",
-     150,
+     75,
+     "g"
+    ],
+    [
+     "Acelga",
+     75,
      "g"
     ],
     [
@@ -2553,7 +2573,7 @@
    ],
    "pasos": [
     "Hacé panqueques salados con la harina, un huevo, agua y sal.",
-    "Salteá la espinaca con la cebolla y mezclala con el queso fresco.",
+    "Salteá la espinaca y la acelga con la cebolla y mezclalas con el queso fresco.",
     "Rellená los panqueques, enrollalos y ubicalos en una fuente con tomate.",
     "Gratiná 15 minutos a horno fuerte."
    ]
@@ -2725,8 +2745,13 @@
      "g"
     ],
     [
-     "Repollo blanco",
-     100,
+     "Morrón rojo",
+     50,
+     "g"
+    ],
+    [
+     "Tomate",
+     60,
      "g"
     ]
    ],
@@ -3158,7 +3183,7 @@
      "g"
     ],
     [
-     "Repollo blanco",
+     "Lechuga",
      50,
      "g"
     ],
@@ -3175,7 +3200,7 @@
    ],
    "pasos": [
     "Herví la papa y la zanahoria en cubos 12 minutos; sumá las arvejas 3 minutos.",
-    "Mezclalas con el huevo duro picado y un poco de yogur o mayonesa.",
+    "Mezclalas con el huevo duro picado, un chorrito de aceite y limón.",
     "Hacé el pollo a la plancha con sal, pimienta y limón.",
     "Serví el pollo con la ensalada rusa sobre la lechuga."
    ]
@@ -3371,8 +3396,8 @@
    "pasos": [
     "Rehogá la cebolla y la zanahoria rallada; sumá la carne picada.",
     "Agregá el tomate y cociná 20 minutos con orégano.",
-    "Preparé la polenta con agua y sal, revolviendo 5 minutos.",
-    "Serví la polenta con la boloñesa y el queso rallado."
+    "Prepará la polenta con agua y sal, revolviendo 5 minutos.",
+    "Serví la polenta con la boloñesa por encima."
    ]
   },
   {

@@ -3223,6 +3223,12 @@ body.con-hoja{
   color:var(--muted);
   overflow-wrap:anywhere
 }
+.hueco__linea{
+  display:flex;
+  flex-wrap:wrap;
+  gap:0 10px;
+  align-items:baseline
+}
 .hueco__accion{
   font-size:14px;
   font-weight:850;

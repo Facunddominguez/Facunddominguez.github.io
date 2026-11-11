@@ -225,6 +225,10 @@ function envasar(nombre,units){
     const i=Ingredientes.unitInfo(u);
     if(e.u==="g"&&i.dim==="masa"){base+=q*i.factor;hay=true}
     else if(e.u==="ml"&&i.dim==="volumen"){base+=q*i.factor;hay=true}
+    // v18.8: un líquido cargado en gramos (las ideas traen "Leche descremada" en g) se toma como 1 g ≈ 1 ml.
+    else if(e.u==="ml"&&i.dim==="masa"){base+=q*i.factor;hay=true}
+    // v18.8: algo que se vende por unidad (un pote de yogur) cargado en gramos se pasa con el peso de la unidad.
+    else if(e.u==="unidad"&&i.dim==="masa"&&pesoUnidadCurado(nombre)){base+=q*i.factor/pesoUnidadCurado(nombre);hay=true}
     else if(e.u==="unidad"&&i.dim==="unidad"){base+=q;hay=true}
     else if(e.u==="g"){
       // Cucharadas, tazas o unidades de algo que se vende por peso: se pasan a gramos con la tabla de nutrición.
