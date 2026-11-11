@@ -224,22 +224,27 @@ guardarCopia(){
   let copy,texto,nombre;
   try{
     copy=completeBackupSnapshot(localStorage);
+    // El archivo ya lleva la fecha de esta copia, así que al restaurarlo el aviso no vuelve enseguida.
+    const previo=RespaldoAviso.leer()||{version:1,primerUso:RespaldoAviso.hoy()};
+    copy.data.miPlatoFacil_respaldoAviso_v1=JSON.stringify({version:1,primerUso:previo.primerUso,ultimo:RespaldoAviso.hoy()});
     texto=JSON.stringify(copy,null,2);
     nombre="mi-plato-respaldo-"+RespaldoAviso.hoy()+".json"
   }catch(e){
     Respaldo.completeBackupStatus("No se pudo exportar el respaldo.");
     return
   }
-  let check;
+  let check,valido=true;
   try{
     Respaldo.validateCompleteBackup(copy);
     check="Comprobado: este respaldo se puede restaurar."
   }catch(err){
+    valido=false;
     check="Atención: este respaldo no se podría restaurar. Motivo: "+err.message+" Conservalo y no borres datos hasta resolverlo."
   }
   const hecho=como=>{
+    // La fecha se guarda solo si el respaldo era válido (si no, el aviso sigue hasta que se pueda guardar uno bueno).
     const o=RespaldoAviso.leer()||{version:1,primerUso:RespaldoAviso.hoy()};
-    RespaldoAviso.escribir({version:1,primerUso:o.primerUso,ultimo:RespaldoAviso.hoy()});
+    if(valido)RespaldoAviso.escribir({version:1,primerUso:o.primerUso,ultimo:RespaldoAviso.hoy()});
     RespaldoAviso.pintar();
     Respaldo.completeBackupStatus(como+" "+check+" Verificá que el archivo esté guardado antes de restaurar.")
   };
