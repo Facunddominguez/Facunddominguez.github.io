@@ -3607,3 +3607,9 @@ select{max-width:100%;min-width:0}
 
 /* Etapa 29 (v18.4.0): etiqueta "Económica" de las ideas. */
 .tag-chip--eco{background:var(--soft);color:var(--green);font-weight:700}
+
+/* Etapa 30 (v18.5.0): revisar tus precios. */
+.revisar-precio{display:grid;gap:8px;padding:10px 0;border-bottom:1px solid var(--line)}
+.revisar-precio__texto{margin:0}
+.revisar-precio__acciones,.ficha-precio__revision{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.ficha-precio__revision .screen__hint{flex:1 1 100%;margin:0}

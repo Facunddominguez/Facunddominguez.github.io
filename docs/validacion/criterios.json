@@ -192,6 +192,14 @@
     {"id": "R4-29-selector", "etapa": 29, "hecho": "Al elegir desayuno o merienda aparecen las ideas de desayuno con el mismo detalle (cantidades y pasos).", "tipo": "prueba", "prueba": "R4-29-selector"},
     {"id": "R4-29-economica", "etapa": 29, "hecho": "La etiqueta \"Económica\" marca el tercio más barato de las ideas de cada tipo.", "tipo": "prueba", "prueba": "R4-29-economica"},
     {"id": "R4-29-registro", "etapa": 29, "hecho": "Qué cambió, las decisiones y el piso de presupuesto quedan en el Registro.", "tipo": "registro", "seccion": "Etapa 29", "debeNombrar": ["R4-29-cien", "R4-29-baratas", "R4-29-piso", "R4-29-semana"]},
-    {"id": "R4-29-revisor", "etapa": 29, "hecho": "revisor-usuario no marca bloqueantes en Ideas, el selector de desayuno y Semana a 390 y 320 px.", "tipo": "revisor", "revisor": "revisor-usuario"}
+    {"id": "R4-29-revisor", "etapa": 29, "hecho": "revisor-usuario no marca bloqueantes en Ideas, el selector de desayuno y Semana a 390 y 320 px.", "tipo": "revisor", "revisor": "revisor-usuario"},
+    {"id": "R4-30-verduleria", "etapa": 30, "hecho": "Con los precios congelados y \"Verdulería\", la papa cuesta $2.201/kg en GBA; con \"Supermercado\", $3.999/kg; con un Mi precio, ese.", "tipo": "prueba", "prueba": "R4-30-verduleria"},
+    {"id": "R4-30-defecto", "etapa": 30, "hecho": "Sin la clave, se usa \"Verdulería\". Arroz, leche y pollo cuestan lo mismo con las dos opciones.", "tipo": "prueba", "prueba": "R4-30-defecto"},
+    {"id": "R4-30-ficha", "etapa": 30, "hecho": "La ficha de la papa muestra los dos precios con su fuente y su mes.", "tipo": "prueba", "prueba": "R4-30-ficha"},
+    {"id": "R4-30-revisar", "etapa": 30, "hecho": "Con un Mi precio de hace 61 días aparece \"Revisar 1 precio tuyo\"; con uno de 59 días y el automático un 10 % arriba, no; con uno de 31 días y el automático un 25 % arriba, sí.", "tipo": "prueba", "prueba": "R4-30-revisar"},
+    {"id": "R4-30-sigue-igual", "etapa": 30, "hecho": "\"Sigue igual\" lo saca de la lista, no cambia referencePrices_v1 byte a byte y escribe en preciosRevisados_v1.", "tipo": "prueba", "prueba": "R4-30-sigue-igual"},
+    {"id": "R4-30-respaldo", "etapa": 30, "hecho": "Las dos claves van y vuelven en el respaldo; el respaldo de ejemplo, que no las trae, se restaura igual.", "tipo": "prueba", "prueba": "R4-30-respaldo"},
+    {"id": "R4-30-registro", "etapa": 30, "hecho": "Qué cambió, cuánto cambia el total de la semana con cada opción y el diagnóstico del yogur quedan en el Registro.", "tipo": "registro", "seccion": "Etapa 30", "debeNombrar": ["R4-30-verduleria", "R4-30-revisar", "R4-30-respaldo", "Yogur"]},
+    {"id": "R4-30-revisor", "etapa": 30, "hecho": "revisor-usuario no marca bloqueantes en Preferencias, la ficha, Semana y la hoja de revisar precios a 390 y 320 px.", "tipo": "revisor", "revisor": "revisor-usuario"}
   ]
 }
