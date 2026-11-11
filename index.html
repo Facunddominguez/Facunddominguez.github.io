@@ -8116,14 +8116,6 @@ setInterval(function(){
 Interfaz.applyTheme();
 Existencias.startupGuard("Pantalla de inicio",init);
 nav();
-// Etapa 32: el enlace del recordatorio ("?ir=semana-proxima") abre Semana en "Semana que viene".
-try{
-  if(new URLSearchParams(location.search).get("ir")==="semana-proxima"){
-    openTab("semana");
-    Semana.verSemana(1)
-  }
-}catch(e){
-}
 // Mi Plato Fácil · Calendario mensual de entrenamiento.
 // Parte 16: los archivos se unen en orden según su número, que define el orden de arranque.
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como CalendarioEntreno.nombre().
@@ -16883,4 +16875,12 @@ document.addEventListener("click",e=>{
   if(b&&b.dataset.dietaFiltro)Dieta.alternarDieta(b.dataset.dietaFiltro)
 });
 Dieta.renderDieta();
+// Etapa 32: el enlace del recordatorio ("?ir=semana-proxima") abre Semana en "Semana que viene". Va en el último archivo, cuando ya corrieron las pestañas.
+try{
+  if(new URLSearchParams(location.search).get("ir")==="semana-proxima"){
+    openTab("semana");
+    Semana.verSemana(1)
+  }
+}catch(e){
+}
 </script></body></html>
