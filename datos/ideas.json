@@ -3607,7 +3607,7 @@
    "tags": [],
    "desayuno": {
     "fruta": "Banana",
-    "prot": "Yogur natural",
+    "prot": "Yogur descremado",
     "cereal": "Avena"
    },
    "cantidades": [
@@ -3736,20 +3736,20 @@
    ]
   },
   {
-   "text": "Pan con queso y tomate",
-   "corto": "Pan con queso y tomate",
+   "text": "Pan con queso, tomate y mandarina",
+   "corto": "Pan con queso, tomate y mandarina",
    "tipo": "desayuno",
    "minutos": 5,
    "tags": [],
    "desayuno": {
-    "fruta": "Tomate",
+    "fruta": "Mandarina",
     "prot": "Queso fresco",
     "cereal": "Pan"
    },
    "cantidades": [
     [
      "Pan",
-     60,
+     50,
      "g"
     ],
     [
@@ -3761,12 +3761,17 @@
      "Tomate",
      60,
      "g"
+    ],
+    [
+     "Mandarina",
+     1,
+     "unidad"
     ]
    ],
    "pasos": [
     "Cortá el pan y tostalo.",
     "Sumá el queso en fetas y el tomate en rodajas.",
-    "Acompañalo con tu mate o té."
+    "Acompañalo con la mandarina y tu mate o té."
    ]
   },
   {
@@ -3777,7 +3782,7 @@
    "tags": [],
    "desayuno": {
     "fruta": "Frutillas",
-    "prot": "Yogur natural",
+    "prot": "Yogur descremado",
     "cereal": "Granola"
    },
    "cantidades": [
@@ -3804,14 +3809,14 @@
    ]
   },
   {
-   "text": "Tostadas con ricota y durazno",
-   "corto": "Tostadas con ricota y durazno",
+   "text": "Tostadas con queso untable y durazno",
+   "corto": "Tostadas con queso untable y durazno",
    "tipo": "desayuno",
    "minutos": 5,
    "tags": [],
    "desayuno": {
     "fruta": "Durazno",
-    "prot": "Ricota",
+    "prot": "Queso untable descremado",
     "cereal": "Pan"
    },
    "cantidades": [
@@ -3821,8 +3826,8 @@
      "g"
     ],
     [
-     "Ricota",
-     40,
+     "Queso untable descremado",
+     30,
      "g"
     ],
     [
@@ -3833,7 +3838,7 @@
    ],
    "pasos": [
     "Tostá el pan.",
-    "Untalo con la ricota.",
+    "Untalo con el queso untable.",
     "Sumá el durazno en rodajas y un hilo de miel si querés."
    ]
   },
@@ -3911,14 +3916,14 @@
    ]
   },
   {
-   "text": "Avena con yogur y pera",
-   "corto": "Avena con yogur y pera",
+   "text": "Avena con yogur y mandarina",
+   "corto": "Avena con yogur y mandarina",
    "tipo": "desayuno",
    "minutos": 10,
    "tags": [],
    "desayuno": {
-    "fruta": "Pera",
-    "prot": "Yogur natural",
+    "fruta": "Mandarina",
+    "prot": "Yogur descremado",
     "cereal": "Avena"
    },
    "cantidades": [
@@ -3933,14 +3938,14 @@
      "g"
     ],
     [
-     "Banana",
-     1,
+     "Mandarina",
+     2,
      "unidad"
     ]
    ],
    "pasos": [
     "Mezclá la avena con el yogur y dejala 5 minutos.",
-    "Sumá la pera en cubos.",
+    "Sumá la mandarina en gajos.",
     "Comela fría o con unas gotas de limón."
    ]
   },
@@ -4047,53 +4052,48 @@
    ]
   },
   {
-   "text": "Tostadas con manteca de maní y banana",
-   "corto": "Tostadas con manteca de maní y banana",
+   "text": "Tostadas con huevo duro y banana",
+   "corto": "Tostadas con huevo duro y banana",
    "tipo": "desayuno",
-   "minutos": 5,
+   "minutos": 12,
    "tags": [],
    "desayuno": {
     "fruta": "Banana",
-    "prot": "Mantequilla de maní",
+    "prot": "Huevo",
     "cereal": "Pan"
    },
    "cantidades": [
     [
      "Pan",
-     50,
+     40,
      "g"
     ],
     [
-     "Mantequilla de maní",
-     15,
-     "g"
+     "Huevo",
+     2,
+     "unidad"
     ],
     [
      "Banana",
      1,
      "unidad"
-    ],
-    [
-     "Leche descremada",
-     150,
-     "g"
     ]
    ],
    "pasos": [
+    "Herví los huevos 10 minutos y pelalos.",
     "Tostá el pan.",
-    "Untalo con la manteca de maní.",
-    "Sumá la banana en rodajas y un vaso de leche."
+    "Servilos con sal a gusto y la banana al lado."
    ]
   },
   {
-   "text": "Yogur con pan y mermelada",
-   "corto": "Yogur con pan y mermelada",
+   "text": "Yogur con pan y naranja",
+   "corto": "Yogur con pan y naranja",
    "tipo": "desayuno",
    "minutos": 5,
    "tags": [],
    "desayuno": {
-    "fruta": "Manzana",
-    "prot": "Yogur natural",
+    "fruta": "Naranja",
+    "prot": "Yogur descremado",
     "cereal": "Pan"
    },
    "cantidades": [
@@ -4108,30 +4108,25 @@
      "g"
     ],
     [
-     "Mermelada",
-     15,
-     "g"
-    ],
-    [
      "Naranja",
      1,
      "unidad"
     ]
    ],
    "pasos": [
-    "Tostá el pan y untalo con la mermelada.",
+    "Tostá el pan.",
     "Servilo con el yogur.",
-    "Comé la manzana al lado."
+    "Comé la naranja en gajos al lado."
    ]
   },
   {
-   "text": "Omelette con pan y mandarina",
-   "corto": "Omelette con pan y mandarina",
+   "text": "Omelette con pan y durazno",
+   "corto": "Omelette con pan y durazno",
    "tipo": "desayuno",
    "minutos": 10,
    "tags": [],
    "desayuno": {
-    "fruta": "Mandarina",
+    "fruta": "Durazno",
     "prot": "Huevo",
     "cereal": "Pan"
    },
@@ -4152,7 +4147,7 @@
      "g"
     ],
     [
-     "Mandarina",
+     "Durazno",
      1,
      "unidad"
     ]
@@ -4160,18 +4155,18 @@
    "pasos": [
     "Batí los huevos con sal y volcalos en la sartén.",
     "Sumá el queso y doblá la omelette.",
-    "Servila con el pan y la mandarina."
+    "Servila con el pan y el durazno."
    ]
   },
   {
-   "text": "Yogur con avena y manzana",
-   "corto": "Yogur con avena y manzana",
+   "text": "Yogur con avena y naranja",
+   "corto": "Yogur con avena y naranja",
    "tipo": "desayuno",
    "minutos": 5,
    "tags": [],
    "desayuno": {
-    "fruta": "Manzana",
-    "prot": "Yogur natural",
+    "fruta": "Naranja",
+    "prot": "Yogur descremado",
     "cereal": "Avena"
    },
    "cantidades": [
@@ -4186,14 +4181,14 @@
      "g"
     ],
     [
-     "Mandarina",
-     2,
+     "Naranja",
+     1,
      "unidad"
     ]
    ],
    "pasos": [
     "Poné el yogur en un bowl.",
-    "Rallá la manzana encima y sumá la avena.",
+    "Pelá la naranja y cortala en gajos; sumala con la avena.",
     "Mezclá y comelo."
    ]
   },
@@ -4239,7 +4234,7 @@
    "tags": [],
    "desayuno": {
     "fruta": "Durazno",
-    "prot": "Yogur natural",
+    "prot": "Yogur descremado",
     "cereal": "Pan"
    },
    "cantidades": [
@@ -4402,25 +4397,25 @@
    ]
   },
   {
-   "text": "Tostadas con ricota y pera",
-   "corto": "Tostadas con ricota y pera",
+   "text": "Tostadas con queso untable y pera",
+   "corto": "Tostadas con queso untable y pera",
    "tipo": "desayuno",
    "minutos": 5,
    "tags": [],
    "desayuno": {
     "fruta": "Pera",
-    "prot": "Ricota",
+    "prot": "Queso untable descremado",
     "cereal": "Pan"
    },
    "cantidades": [
     [
      "Pan",
-     60,
+     50,
      "g"
     ],
     [
-     "Ricota",
-     50,
+     "Queso untable descremado",
+     30,
      "g"
     ],
     [
@@ -4431,7 +4426,7 @@
    ],
    "pasos": [
     "Tostá el pan.",
-    "Untalo con la ricota.",
+    "Untalo con el queso untable.",
     "Sumá la pera en láminas finas."
    ]
   },
@@ -4482,7 +4477,7 @@
    "tags": [],
    "desayuno": {
     "fruta": "Banana",
-    "prot": "Yogur natural",
+    "prot": "Yogur descremado",
     "cereal": "Granola"
    },
    "cantidades": [
@@ -4509,8 +4504,8 @@
    ]
   },
   {
-   "text": "Leche con tostadas y mermelada",
-   "corto": "Leche con tostadas y mermelada",
+   "text": "Leche con tostadas y naranja",
+   "corto": "Leche con tostadas y naranja",
    "tipo": "desayuno",
    "minutos": 5,
    "tags": [],
@@ -4531,11 +4526,6 @@
      "g"
     ],
     [
-     "Mermelada",
-     15,
-     "g"
-    ],
-    [
      "Naranja",
      1,
      "unidad"
@@ -4543,25 +4533,25 @@
    ],
    "pasos": [
     "Calentá la leche o tomala fría.",
-    "Tostá el pan y untalo con la mermelada.",
+    "Tostá el pan.",
     "Acompañalo con la naranja."
    ]
   },
   {
-   "text": "Pan con huevo y tomate",
-   "corto": "Pan con huevo y tomate",
+   "text": "Pan con huevo, tomate y pera",
+   "corto": "Pan con huevo, tomate y pera",
    "tipo": "desayuno",
    "minutos": 8,
    "tags": [],
    "desayuno": {
-    "fruta": "Tomate",
+    "fruta": "Pera",
     "prot": "Huevo",
     "cereal": "Pan"
    },
    "cantidades": [
     [
      "Pan",
-     70,
+     60,
      "g"
     ],
     [
@@ -4575,7 +4565,7 @@
      "g"
     ],
     [
-     "Mandarina",
+     "Pera",
      1,
      "unidad"
     ]
@@ -4583,7 +4573,7 @@
    "pasos": [
     "Hacé los huevos revueltos o a la plancha.",
     "Abrí el pan y armá el sándwich con el tomate en rodajas.",
-    "Cerralo y comé la mandarina al lado."
+    "Cerralo y comé la pera al lado."
    ]
   },
   {
@@ -4594,7 +4584,7 @@
    "tags": [],
    "desayuno": {
     "fruta": "Frutillas",
-    "prot": "Yogur natural",
+    "prot": "Yogur descremado",
     "cereal": "Avena"
    },
    "cantidades": [

@@ -57,7 +57,8 @@ ideasParaArrancar(){
 costoPorPorcionDeIdea(idea){
   if(!Array.isArray(idea.cantidades)||typeof preciosActivos!=="function"||!preciosActivos()||!preciosDataset())return null;
   const c=costoDeFilas(idea.cantidades.map(([name,quantity,unit])=>({name,quantity,unit})),1);
-  return c.costo>0?c.costo:null
+  // Con un ingrediente sin precio ni estimado el costo quedaría subestimado: mejor no dar costo.
+  return c.costo>0&&!c.sinPrecio?c.costo:null
 },
 // Proteína base de una idea: carne, pollo, pescado, legumbres, huevo o queso (la primera que aparece en sus cantidades).
 proteinaBaseDeIdea(idea){

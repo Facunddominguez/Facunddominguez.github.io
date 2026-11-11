@@ -37,6 +37,10 @@
       if (!(i.minutos >= 5 && i.minutos <= 90)) malas.push(i.text.slice(0, 30) + ": minutos");
       if (!Array.isArray(c) || c.length < 3 || c.some(f => !Array.isArray(f) || f.length !== 3 || !(f[1] > 0) || !(nutritionFor(f[0]) || Precios.itemDe(f[0])) || BAS(f[0]))) malas.push(i.text.slice(0, 30) + ": cantidades");
       if (d && !(i.desayuno && i.desayuno.fruta && i.desayuno.prot && i.desayuno.cereal)) malas.push(i.text.slice(0, 30) + ": desayuno");
+      // La fruta, la proteína y el cereal del campo "desayuno" están en las cantidades (y la fruta es una de data.frutas).
+      if (d && i.desayuno) for (const [k, v] of Object.entries(i.desayuno)) { const a = normalizeSearchText(v); if (!c.some(f => { const b = normalizeSearchText(f[0]); return b.startsWith(a) || a.startsWith(b) })) malas.push(i.text.slice(0, 30) + ": " + k + " " + v + " no está en cantidades") }
+      if (d && i.desayuno && !data.frutas.some(f => normalizeSearchText(f[0]).replace(/s$/, "") === normalizeSearchText(i.desayuno.fruta).replace(/s$/, ""))) malas.push(i.text.slice(0, 30) + ": fruta " + i.desayuno.fruta + " no es una fruta");
+      if (d && !i.pasos.some(p => normalizeSearchText(p).includes(normalizeSearchText(i.desayuno.fruta).slice(0, 5)))) malas.push(i.text.slice(0, 30) + ": los pasos no nombran la fruta");
       if (!d && (!i.ingredientes || !Object.values(i.ingredientes).flat().length || !Array.isArray(i.tags))) malas.push(i.text.slice(0, 30) + ": ingredientes");
       if (!d && data.menuCatalog.indexOf(i) >= 41 && i.text.length > 40) malas.push(i.text.slice(0, 30) + ": text de más de 40");
       let kcal = 0, prot = 0;
@@ -45,12 +49,14 @@
       if (kcal < a || kcal > b || prot < pm) fuera.push(i.text.slice(0, 34) + ": " + Math.round(kcal) + " kcal, " + Math.round(prot) + " g");
     }
     return JSON.stringify({ platos: data.menuCatalog.length, desayunos: data.desayunoCatalog.length, malas, fuera }) })()`));
-  ok("R4-29-validas las 100 ideas cumplen el formato (los desayunos, de 2 a 4 pasos y con fruta, proteína y cereal; las 29 nuevas, con text de hasta 40 caracteres)",
+  ok("R4-29-validas las 100 ideas cumplen el formato (los desayunos, de 2 a 4 pasos, con fruta, proteína y cereal que están en las cantidades y en los pasos; las 29 nuevas, con text de hasta 40 caracteres)",
     an.platos === 70 && an.desayunos === 30 && !an.malas.length, JSON.stringify({ platos: an.platos, desayunos: an.desayunos, malas: an.malas.slice(0, 5) }));
   ok("R4-29-energia cada almuerzo o cena aporta de 450 a 850 kcal y 18 g de proteína o más; cada desayuno o merienda, de 250 a 450 kcal y 8 g o más", !an.fuera.length, JSON.stringify(an.fuera.slice(0, 6)));
 
   // R4-29-baratas
   const bar = JSON.parse(ev(`(() => JSON.stringify({ platos: data.menuCatalog.filter(i => (Bienvenida.costoPorPorcionDeIdea(i) || 1e9) <= 2500).length, desayunos: data.desayunoCatalog.filter(i => (Bienvenida.costoPorPorcionDeIdea(i) || 1e9) <= 1300).length }))()`));
+  const trios = JSON.parse(ev(`JSON.stringify(data.desayunoCatalog.map(i => [i.desayuno.fruta, i.desayuno.prot, i.desayuno.cereal].join("|")))`));
+  ok("R4-29-cien cada desayuno tiene su propia combinación de fruta, proteína y cereal (dos ideas con la misma se guardarían como una sola comida)", new Set(trios).size === trios.length && trios.length === 30, trios.length + " desayunos, " + new Set(trios).size + " combinaciones");
   ok("R4-29-baratas con los precios congelados, 20 o más almuerzos o cenas cuestan $2.500 o menos por porción y 10 o más desayunos, $1.300 o menos", bar.platos >= 20 && bar.desayunos >= 10, JSON.stringify(bar));
 
   // R4-29-dieta: con cada filtro, ninguna idea permitida contiene un ingrediente excluido (en sus ingredientes ni en sus cantidades).
@@ -74,9 +80,10 @@
 
   // R4-29-economica: la etiqueta "Económica" aparece en el tercio más barato.
   ev('openTab("miscomidas"); go("ideas")'); await espera(300);
-  ev("Ideas.renderMenuIdeas()");
+  ev("ideasMenuTodas = true; Ideas.renderMenuIdeas()"); await espera(150);
+  const chipsEco = doc().querySelectorAll("#menuIdeas .tag-chip--eco").length;
   const eco = JSON.parse(ev(`JSON.stringify({ total: data.menuCatalog.length, eco: data.menuCatalog.filter(i => IdeasHoja.esEconomica(i)).length, ecoD: data.desayunoCatalog.filter(i => IdeasHoja.esEconomica(i)).length })`));
-  ok("R4-29-economica 'Económica' marca el tercio más barato de las ideas de cada tipo (de 70 platos, entre 20 y 27; de 30 desayunos, entre 8 y 12)", eco.eco >= 20 && eco.eco <= 27 && eco.ecoD >= 8 && eco.ecoD <= 12, JSON.stringify(eco));
+  ok("R4-29-economica 'Económica' marca el tercio más barato de las ideas de cada tipo (de 70 platos, entre 20 y 27, y se ve en Ideas con \"Ver todas\"; de 30 desayunos, entre 8 y 12)", eco.eco >= 20 && eco.eco <= 27 && eco.ecoD >= 8 && eco.ecoD <= 12 && chipsEco === eco.eco, JSON.stringify({ ...eco, chipsEco }));
 
   // R4-29-semana: 1 persona, 10 semillas distintas: de media entre 1.600 y 2.300 kcal por día y ningún día baja de 1.400.
   const dias = [];
