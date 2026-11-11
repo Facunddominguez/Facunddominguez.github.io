@@ -219,11 +219,12 @@
   const elegido = plan().lunes.almuerzo, enGuardados = guardados().some(p => p.id === elegido && p.type === "plato");
   ok("C2-8b Sugerime propone una comida y \"Usar esta\" la asigna", propuesta && enGuardados && !hojaAbierta(), elegido);
   await abrirHueco("lunes", "merienda"); if (!doc().querySelector(".hoja [data-selector-seccion]")) await tocar(q(".hoja [data-hueco-cambiar]"));
-  const sinIdeas = !doc().querySelector('.hoja [data-selector-seccion="ideas"]'), receta8 = doc().querySelector(".hoja [data-selector-receta]");
+  // Etapa 29 (Ronda 4): desayuno y merienda sí muestran Ideas (las de desayuno); el almuerzo y la cena siguen igual.
+  const sinIdeas = !!doc().querySelector('.hoja [data-selector-seccion="ideas"] [data-selector-idea]'), receta8 = doc().querySelector(".hoja [data-selector-receta]");
   const rid = receta8 && receta8.dataset.selectorReceta;
   if (receta8) await tocar(receta8);
   const asignada = guardados().find(p => p.id === plan().lunes.merienda);
-  ok("C2-8c desayuno y merienda no muestran Ideas; una receta propia se asigna con su copia", sinIdeas && !!rid && !!asignada && asignada.recipeSourceId === rid && asignada.type === "desayuno");
+  ok("C2-8c desayuno y merienda muestran las ideas de desayuno (Etapa 29); una receta propia se asigna con su copia", sinIdeas && !!rid && !!asignada && asignada.recipeSourceId === rid && asignada.type === "desayuno");
 
   // C2-9 Listas largas del armado: grilla de chips con buscador; lo elegido no se pierde al filtrar
   cargar({}); await abrir(); await irA("hoy"); await tocar(q('#home [data-start="plato"]'));

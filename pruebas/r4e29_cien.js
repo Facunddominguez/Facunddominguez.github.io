@@ -50,7 +50,7 @@
   ok("R4-29-energia cada almuerzo o cena aporta de 450 a 850 kcal y 18 g de proteína o más; cada desayuno o merienda, de 250 a 450 kcal y 8 g o más", !an.fuera.length, JSON.stringify(an.fuera.slice(0, 6)));
 
   // R4-29-baratas
-  const bar = JSON.parse(ev(`(() => ({ platos: data.menuCatalog.filter(i => (Bienvenida.costoPorPorcionDeIdea(i) || 1e9) <= 2500).length, desayunos: data.desayunoCatalog.filter(i => (Bienvenida.costoPorPorcionDeIdea(i) || 1e9) <= 1300).length }))()`));
+  const bar = JSON.parse(ev(`(() => JSON.stringify({ platos: data.menuCatalog.filter(i => (Bienvenida.costoPorPorcionDeIdea(i) || 1e9) <= 2500).length, desayunos: data.desayunoCatalog.filter(i => (Bienvenida.costoPorPorcionDeIdea(i) || 1e9) <= 1300).length }))()`));
   ok("R4-29-baratas con los precios congelados, 20 o más almuerzos o cenas cuestan $2.500 o menos por porción y 10 o más desayunos, $1.300 o menos", bar.platos >= 20 && bar.desayunos >= 10, JSON.stringify(bar));
 
   // R4-29-dieta: con cada filtro, ninguna idea permitida contiene un ingrediente excluido (en sus ingredientes ni en sus cantidades).
