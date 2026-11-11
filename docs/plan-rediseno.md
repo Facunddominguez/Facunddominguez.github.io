@@ -2777,3 +2777,5 @@ Rama `rediseno-4-etapa-31-hoy-costo`. Versión 18.6.0.
 **Pruebas adaptadas**: ninguna.
 
 **Revisores (Etapa 31)**: `revisor-usuario` (Hoy y la hoja de compartir a 390 y 320 px) NO BLOQUEANTE. La imagen que se comparte se miró aparte en una captura (vista nueva `imagen-semana`): el título, las 7 filas con almuerzo y cena en nombre corto y el total al pie entran sin cortes. Quedan como sugerencias (los textos de Hoy son los que pide el plan): la línea enumera los 4 grupos aunque el plato esté completo; "Plato completo" se lee como lo planificado y no como lo comido; "Te falta" puede sonar a reproche; con la semana vacía igual se ofrece compartir; en la hoja las dos opciones van alineadas a la izquierda y "Cerrar" centrado. `revisor-codigo` no corresponde en esta etapa (no toca datos guardados ni `datos/`).
+
+Compuerta final (Etapa 31): VALIDACIÓN ETAPA 31: OK (199 controles, 660 pruebas; línea base 656 → 660).
