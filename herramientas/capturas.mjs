@@ -76,6 +76,8 @@ const VISTAS = [
   { id: 'revisar-precios', ir: 'localStorage.setItem("miPlatoFacil_referencePrices_v1", JSON.stringify({ ficha_tomate: { id: "ficha_tomate", name: "Tomate", pack: "", amount: 1, unit: "kg", price: 2500, currency: "ARS", date: "2026-08-20" } })); openTab("semana"); abrirRevisarPrecios()', medir: '.hoja' },
   { id: 'ficha-revisar', ir: 'Comidas.abrirNutrientesDeIngrediente("Tomate", true)', medir: '.hoja' },
   { id: 'compartir-semana', ir: 'openTab("semana"); Selector.abrirMenuSemana(); await new Promise(r => setTimeout(r, 150)); document.querySelector("[data-compartir-semana-menu]").click()', medir: '.hoja' },
+  // Muestra a pantalla completa la imagen que se comparte (Etapa 31).
+  { id: 'imagen-semana', ir: 'openTab("semana"); ArmameSemana.correr("todo"); const c = Compartir.buildSemanaCanvas(), im = document.createElement("img"); im.src = c.toDataURL("image/png"); im.style.cssText = "position:fixed;top:0;left:0;width:100%;height:auto;z-index:99999;background:#fff"; document.body.append(im); await new Promise(r => setTimeout(r, 200))' },
   { id: 'semana-armada', ir: 'openTab("semana"); ArmameSemana.correr("todo")' },
   { id: 'comida', ir: 'openTab("miscomidas"); const g = MisPlatos.loadSaved()[0] || IdeasHoja.guardarIdea(data.menuCatalog[0]).item; Comidas.abrirComida("plato", g.id)' }
 ].filter(v => !arg('--vistas') || arg('--vistas').split(',').includes(v.id));
