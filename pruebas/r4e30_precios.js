@@ -66,7 +66,7 @@
   await tocar(igual);
   const rev = localStorage.getItem("miPlatoFacil_preciosRevisados_v1"), despues = ev("preciosParaRevisar().length");
   ok("R4-30-sigue-igual la hoja muestra 'Tomate · tu precio … · en la zona ≈ …'; 'Sigue igual' lo saca de la lista, no cambia referencePrices_v1 byte a byte y escribe en preciosRevisados_v1",
-    filas.length === 1 && /^Tomate · tu precio \$[\d.]+\/1 kg \(\d+ \S+\) · en la zona ≈ \$[\d.]+\/kg$/.test(filas[0]) && despues === 0 && localStorage.getItem("miPlatoFacil_referencePrices_v1") === rpAntes && rev === JSON.stringify({ version: 1, revisados: { ficha_tomate: hoy } }),
+    filas.length === 1 && /^Tomate · tu precio \$[\d.]+\/kg \(\d+ \S+\) · en la zona ≈ \$[\d.]+\/kg$/.test(filas[0]) && despues === 0 && localStorage.getItem("miPlatoFacil_referencePrices_v1") === rpAntes && rev === JSON.stringify({ version: 1, revisados: { ficha_tomate: hoy } }),
     JSON.stringify({ filas, despues, rev }));
 
   // R4-30-respaldo: las dos claves van y vuelven en el respaldo (como opcionales) y el respaldo de ejemplo, que no las trae, se restaura igual.

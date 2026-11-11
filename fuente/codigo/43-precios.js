@@ -112,7 +112,7 @@ function guardarDondeCompro(valor){
   localStorage.setItem(DONDE_COMPRO_KEY,JSON.stringify(o))
 }
 function validPreciosRevisados(v){
-  return!!v&&typeof v==="object"&&!Array.isArray(v)&&Object.keys(v).length===2&&v.version===1&&!!v.revisados&&typeof v.revisados==="object"&&!Array.isArray(v.revisados)&&Object.keys(v.revisados).length<=500&&Object.entries(v.revisados).every(([k,d])=>typeof k==="string"&&k.length>0&&k.length<=120&&typeof d==="string"&&/^\d{4}-\d{2}-\d{2}$/.test(d))
+  return!!v&&typeof v==="object"&&!Array.isArray(v)&&Object.keys(v).length===2&&v.version===1&&!!v.revisados&&typeof v.revisados==="object"&&!Array.isArray(v.revisados)&&Object.keys(v.revisados).length<=500&&Object.entries(v.revisados).every(([k,d])=>typeof k==="string"&&k.length>0&&k.length<=120&&typeof d==="string"&&/^\d{4}-\d{2}-\d{2}$/.test(d)&&Number.isFinite(Date.parse(d+"T12:00:00"))&&new Date(d+"T12:00:00").toISOString().slice(0,10)===d)
 }
 function preciosRevisados(){
   try{
@@ -233,9 +233,9 @@ function precioAuto(nombre){
   const it=Precios.itemDe(nombre,d);
   if(!it)return null;
   const r=regionPrecios();
-  // Etapa 30: con "Verdulería" (por defecto), las frutas y verduras con precio de INDEC usan INDEC antes que SEPA (el supermercado es más caro).
+  // Etapa 30: con "Verdulería" (por defecto), las frutas y verduras con precio de INDEC (de tu región o, si falta, de GBA) usan INDEC antes que SEPA (el supermercado es más caro).
   const verduleria=(it.k==="frutas"||it.k==="verduras")&&dondeCompro()==="verduleria";
-  for(const [f,reg] of (verduleria?[["indec",r],["sepa",r],["indec","GBA"],["sepa","GBA"]]:[["sepa",r],["indec",r],["sepa","GBA"],["indec","GBA"]])){
+  for(const [f,reg] of (verduleria?[["indec",r],["indec","GBA"],["sepa",r],["sepa","GBA"]]:[["sepa",r],["indec",r],["sepa","GBA"],["indec","GBA"]])){
     const v=valorRegionPrecio(f==="sepa"?it.s:it.p,reg);
     if(v!==null)return {
       it,precio:v,region:reg,fuente:f,rango:f==="sepa"?rangoSepaPrecios(it,reg):null,aprox:f==="sepa"?!!it.sa:!!it.a
@@ -679,11 +679,13 @@ function precioParaRevisar(entrada){
 }
 function preciosParaRevisar(){
   if(!preciosActivos())return [];
-  return Object.values(loadReferencePrices()).map(precioParaRevisar).filter(Boolean).sort((x,y)=>y.dias-x.dias)
+  // Cuenta la entrada que se usa de cada ingrediente (la más nueva), no las viejas que quedaron debajo.
+  return Object.values(loadReferencePrices()).filter(e=>{const u=misPreciosDe(e.name)[0];return !u||u.id===e.id}).map(precioParaRevisar).filter(Boolean).sort((x,y)=>y.dias-x.dias)
 }
 // "Sigue igual": guarda la fecha de hoy para esa entrada en preciosRevisados_v1 (no toca referencePrices_v1).
 function marcarPrecioRevisado(id){
-  const actual=preciosRevisados(),o={
+  // Se podan los ids de entradas que ya no existen en referencePrices_v1 (así la lista no crece sin límite).
+  const vivos=loadReferencePrices(),actual=Object.fromEntries(Object.entries(preciosRevisados()).filter(([k])=>Object.prototype.hasOwnProperty.call(vivos,k))),o={
     version:1,revisados:{...actual,[id]:fechaHoyPrecios()}
   };
   if(!validPreciosRevisados(o))throw new Error("No se pudo guardar.");
@@ -698,7 +700,7 @@ function abrirRevisarPrecios(){
   caja.append(ce("p","screen__hint",lista.length?"Estos precios tuyos son viejos o quedaron por debajo de lo que se ve en la zona. ¿Siguen igual?":"Tus precios están al día."));
   for(const x of lista){
     const fila=ce("div","revisar-precio"),en=x.auto?" · en la zona ≈ "+pesosCortos(x.auto.precio)+"/"+x.auto.unidad:"";
-    fila.append(ce("p","revisar-precio__texto",x.nombre+" · tu precio "+pesosCortos(x.entrada.price)+"/"+cantidadLegible(x.entrada.amount,x.entrada.unit)+" ("+fechaCortaEntrada(x.entrada.date)+")"+en));
+    fila.append(ce("p","revisar-precio__texto",x.nombre+" · tu precio "+pesosCortos(x.entrada.price)+"/"+(x.entrada.amount===1?x.entrada.unit:cantidadLegible(x.entrada.amount,x.entrada.unit))+" ("+fechaCortaEntrada(x.entrada.date)+")"+en));
     const acc=ce("div","revisar-precio__acciones"),igual=ce("button","button button--soft","Sigue igual"),act=ce("button","button button--primary","Actualizar");
     igual.type=act.type="button";
     igual.dataset.precioIgual=x.id;
@@ -718,7 +720,6 @@ document.addEventListener("click",e=>{
   else if(t.dataset.precioIgual!==undefined){
     try{marcarPrecioRevisado(t.dataset.precioIgual)}catch(err){}
     if(hoja.abierta()&&document.querySelector(".completar-precios .revisar-precio"))abrirRevisarPrecios();
-    else if(typeof renderRevisionFicha==="function")renderRevisionFicha();
     try{refrescarPrecios()}catch(err){}
   }else if(t.dataset.precioActualizar!==undefined){
     Comidas.abrirNutrientesDeIngrediente(t.dataset.precioActualizar,true)

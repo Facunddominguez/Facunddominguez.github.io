@@ -4065,13 +4065,18 @@
    "cantidades": [
     [
      "Pan",
-     40,
+     50,
      "g"
     ],
     [
      "Huevo",
-     2,
+     1,
      "unidad"
+    ],
+    [
+     "Queso fresco",
+     15,
+     "g"
     ],
     [
      "Banana",
@@ -4080,9 +4085,9 @@
     ]
    ],
    "pasos": [
-    "Herví los huevos 10 minutos y pelalos.",
-    "Tostá el pan.",
-    "Servilos con sal a gusto y la banana al lado."
+    "Herví el huevo 10 minutos y pelalo.",
+    "Tostá el pan y sumá el queso fresco.",
+    "Serví con el huevo, sal a gusto y la banana al lado."
    ]
   },
   {
@@ -4274,12 +4279,12 @@
    "cantidades": [
     [
      "Leche descremada",
-     200,
+     180,
      "g"
     ],
     [
      "Granola",
-     25,
+     20,
      "g"
     ],
     [
