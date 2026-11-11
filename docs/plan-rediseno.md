@@ -2563,7 +2563,7 @@ El plan completo está en `docs/prompt-ronda-4.md` (el análisis del que sale, e
 | 26 | Lista para el súper | 18.1.0 | ✅ |
 | 27 | Semana más corta y con tus objetivos | 18.2.0 | ✅ |
 | 28 | Ideas con cantidades y preparación | 18.3.0 | ✅ |
-| 29 | Cien ideas y una semana que alcanza | 18.4.0 | Pendiente |
+| 29 | Cien ideas y una semana que alcanza | 18.4.0 | ✅ |
 | 30 | Precios al día y de tu barrio | 18.5.0 | Pendiente |
 | 31 | Hoy con costo y la semana para compartir | 18.6.0 | Pendiente |
 | 32 | Respaldo sin olvidos, recordatorio y recorrido final | 18.7.0 | Pendiente |
@@ -2686,3 +2686,33 @@ Rama `rediseno-4-etapa-28-ideas`. Versión 18.3.0.
 - Quedan como sugerencias: con `porcionAlmidon`, un plato armado a mano con papa de 200 g y otro almidón no curado en el mismo cuarto deja a ese almidón en 40 g (caso borde); `$80.000` deja poco margen en C15-1 (la semana más barata cuesta ≈ $72.700; la Etapa 29 baja ese piso).
 
 Compuerta final (Etapa 28): VALIDACIÓN ETAPA 28: OK (174 controles, 638 pruebas; línea base 630 → 638).
+
+### Etapa 29 ✅ Cien ideas y una semana que alcanza
+Rama `rediseno-4-etapa-29-cien-ideas`. Versión 18.4.0.
+
+**Plan corto**
+- `datos/ideas.json` pasa de 41 a 100 ideas (≈ 55 KB; tope 150.000): 29 platos nuevos y 30 desayunos y meriendas. `01-datos-y-estado.js`: los platos nuevos se agregan al final de `data.menuCatalog` y los desayunos van a `data.desayunoCatalog`. `37-ideas-y-hoja.js`: `ideaDeComida()`, `ideaComoComida()` y el índice entienden los desayunos (nota de la idea y conjunto fruta, proteína y cereal); `esEconomica()`. `45-armame-la-semana.js`: `candidatosDesayuno()` usa las ideas de desayuno y deja las plantillas de la Etapa 22 como respaldo con menos de 6; las comidas guardadas por el armado llevan la nota de la idea; `filasDe` sale expuesta. `38-selector-de-comida.js`: sección "Ideas" al elegir desayuno o merienda. `40-primera-vez.js`: `ideasParaArrancar()` elige las 8 más baratas por porción con 4 proteínas base distintas (`costoPorPorcionDeIdea()`, `proteinaBaseDeIdea()`). `02-tema-y-componentes.js`: etiqueta "Económica". `datos/precios-mapa.json`: solo el ámbito (Berenjena pasa de "armado" a "núcleo", porque una idea nueva la usa). Pruebas nuevas: `r4e29_cien.js` (11).
+- Riesgos para los datos: ninguno (`miPlatoFacil_saved` no recibe campos nuevos; las comidas guardadas desde una idea de desayuno tienen la misma forma que las de siempre, con la nota de la idea).
+
+**Hecho cuando**
+- ✅ R4-29-cien: 100 ideas (70 de plato y 30 de desayuno), sin `text` ni `corto` repetidos.
+- ✅ R4-29-validas: las 100 cumplen el formato (los desayunos, con 2 a 4 pasos y con `desayuno` {fruta, prot, cereal}); las 29 nuevas tienen `text` de hasta 40 caracteres. Las 24 pedidas por el plan están, con el título de la lista (una más, "Pollo con arroz y ensalada", se llamó antes "al limón": se renombró porque el título nombraba un limón que no está en las cantidades).
+- ✅ R4-29-energia: cada almuerzo o cena aporta 450 a 850 kcal y 18 g de proteína o más; cada desayuno o merienda, 250 a 450 kcal y 8 g o más.
+- ✅ R4-29-semana: una semana armada para 1 persona da de media 1.921 kcal por día (mínimo 1.515, máximo 2.328) en 10 semillas distintas, y ninguna baja de 1.400 (antes de la ronda, ≈ 1.340 de media).
+- ✅ R4-29-dieta: con cada uno de los 6 filtros de dieta, ninguna idea permitida contiene un ingrediente excluido en sus ingredientes ni en sus cantidades, y quedan 10 ideas o más con cada filtro.
+- ✅ R4-29-baratas: con los precios congelados, 22 almuerzos o cenas cuestan $2.500 o menos por porción y 12 desayunos, $1.300 o menos.
+- ✅ R4-29-piso: con los precios congelados y porciones de adulto, la semana más barata cuesta **$62.064 para 1 persona y $103.679 para 2** (con las 41 ideas de adulto de la Etapa 28, ≈ $72.700 para 1 persona; con las 100 ideas sin ajustar el costo, $69.188 y $113.959; con porciones chicas, v17.6, ≈ $57.100 y ≈ $92.900), dentro de los topes de $68.000 y $110.000.
+- ✅ R4-29-bienvenida: las 8 ideas son las más baratas por porción (de $1.753 a $2.263) con 4 proteínas base distintas (huevo, pollo, legumbres y carne) y ninguna pasa de 40 caracteres.
+- ✅ R4-29-variedad: `E22-variedad` y las demás de la Etapa 22 (topes y combinaciones prohibidas) siguen pasando con el catálogo nuevo.
+- ✅ R4-29-armado: en 10 semanas, los 14 desayunos y meriendas de cada una salen de las ideas de desayuno.
+- ✅ R4-29-selector: al elegir desayuno aparecen las ideas de desayuno; al elegir una queda en el plan como idea y su detalle muestra cantidades y de 2 a 4 pasos.
+- ✅ R4-29-economica: "Económica" marca 24 de los 70 platos y 10 de los 30 desayunos (el tercio más barato de cada tipo).
+
+**Decisiones**
+- (Decisión) **Costos de las ideas.** Con los precios congelados, el primer borrador de las 29 ideas nuevas costaba entre $2.200 y $5.400 por porción y solo 4 de 70 platos y 7 de 30 desayunos llegaban a los topes. Se ajustaron las cantidades (no los títulos) con un cálculo aparte que replica `costoDeFilas()`: menos tomate (a $6.590/kg pesa más que la carne picada a $6.999/kg), menos queso rallado ($51.137/kg), carne picada en vez de carne vacuna donde el nombre lo permite, yogur descremado ($8.667/kg) en vez de natural ($16.699/kg), fruta de unidad barata (naranja, mandarina, banana) en vez de manzana ($900 la unidad). Se mantuvieron los rangos de adulto del plan (revisados con el mismo script de la Etapa 28) y la energía de cada idea. Las 41 ideas de la Etapa 28 también cambiaron algunas cantidades por este motivo (por ejemplo, menos tomate y más zanahoria o repollo en las ensaladas); su `text` y su orden no cambian.
+- (Decisión) Las plantillas de desayuno de la Etapa 22 quedan solo de respaldo: si los filtros dejan menos de 6 ideas de desayuno, el armado vuelve a ellas.
+- (Decisión) "Económica" se calcula por tipo (plato o desayuno) sobre el costo por porción del día (precios y región vigentes) y se recalcula si cambian los precios o la región.
+- (Decisión) La bienvenida deja de ofrecer las 8 primeras del catálogo: ahora son las 8 más baratas, y con los precios apagados vuelven a ser las 8 primeras que pasan los filtros.
+- (Decisión) El ámbito de `datos/precios-mapa.json` es una lista que la prueba E9-cobertura-precios exige igual a la de la app: se movió Berenjena de "armado" a "núcleo". Es el único cambio de datos fuera de `ideas.json`.
+
+**Pruebas adaptadas**: `e2_semana.js` C2-8c (desayuno y merienda ahora sí muestran Ideas: las de desayuno), `e23_catalogo_lista.js` E23-titulo (recorre las 70 ideas de plato), `r4e28_ideas.js` (R4-28-41 y R4-28-titulo miran las primeras 41 ideas, y R4-28-detalle lee Pollo 140 g y Pan rallado 40 g de la idea de milanesa de pollo, ajustada por costo), `r4e27_semana.js` (el aviso puede decir "al menos ≈ $X" cuando algún producto no tiene precio; el tope de R4-27-arriba para el caso largo pasa de 540 a 580 px porque el aviso nombra productos de nombre largo como "leche descremada"; el caso común sigue en 500 px). La misma exigencia en lo demás.
