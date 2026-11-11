@@ -2565,7 +2565,7 @@ El plan completo está en `docs/prompt-ronda-4.md` (el análisis del que sale, e
 | 28 | Ideas con cantidades y preparación | 18.3.0 | ✅ |
 | 29 | Cien ideas y una semana que alcanza | 18.4.0 | ✅ |
 | 30 | Precios al día y de tu barrio | 18.5.0 | ✅ |
-| 31 | Hoy con costo y la semana para compartir | 18.6.0 | Pendiente |
+| 31 | Hoy con costo y la semana para compartir | 18.6.0 | ✅ |
 | 32 | Respaldo sin olvidos, recordatorio y recorrido final | 18.7.0 | Pendiente |
 
 ### Etapa 25 ✅ Base en verde
@@ -2754,3 +2754,28 @@ Rama `rediseno-4-etapa-30-precios-barrio`. Versión 18.5.0.
 **Pendientes para vos** (Etapa 30): revisar `datos/precios-mapa.json` para "Yogur natural" (unidad de SEPA y la brecha con el descremado, ver arriba) con una corrida real de "Actualizar precios".
 
 Compuerta final (Etapa 30): VALIDACIÓN ETAPA 30: OK (194 controles, 656 pruebas y 37 claves; línea base 650 → 656; la primera corrida falló en E8-palabras-preferencias por la línea de ayuda, que se sacó).
+
+### Etapa 31 ✅ Hoy con costo y la semana para compartir
+Rama `rediseno-4-etapa-31-hoy-costo`. Versión 18.6.0.
+
+**Plan corto**
+- `31-hoy.js`: `textoCostoHoy()` y la línea `#todayCosto` (en `01-home.html`) debajo del chip de entrenamiento: costo del día (`costoDelDiaPlan(dia)`, que ahora acepta un día) y grupos del plato que cubren las comidas de hoy (`plateGroups()`). `08-copiar-y-compartir.js`: `Compartir.semanaParaCompartir()`, `rangoCorto()`, `semanaTexto()`, `buildSemanaCanvas()` y `compartirSemana()`. `38-selector-de-comida.js`: "Compartir la semana" en el menú ⋯ de Semana, con "Como texto" y "Como imagen". `capturas.mjs`: vista `compartir-semana`. Pruebas nuevas: `r4e31_hoy.js` (4).
+- Riesgos para los datos: ninguno (no se escribe nada; "Lo comí", el registro y el plan no se tocan).
+
+**Hecho cuando**
+- ✅ R4-31-hoy: con la semana armada, Hoy dice "Hoy ≈ $… · Plato completo…" o "Te falta: …" con el mismo monto que "hoy ≈" de Semana; un día con solo un almuerzo sin fruta dice "Hoy ≈ $… · Te falta: fruta"; con un desayuno con fruta, "Plato completo: verduras, almidón, proteína y fruta"; sin plan para hoy la línea se oculta; con los precios apagados queda "Te falta: …" sin ningún "$".
+- ✅ R4-31-texto: el menú ⋯ de Semana ofrece "Compartir la semana" con "Como texto" y "Como imagen"; el texto empieza con "🍽️ Mi semana · 9 al 15 de nov" (según la semana), trae los 7 días ("*Lunes 9*"), las 28 comidas en nombre corto con el ícono de su hueco y "*Total ≈ $…*", el mismo que Semana. Se comparte con `navigator.share` (título "Mi semana") o se copia.
+- ✅ R4-31-imagen: el canvas mide 1080×1350, el PNG pesa más de 20 KB y se comparte como archivo `image/png` ("mi-semana.png") con `navigator.share` y `canShare` simulados; sin `navigator.share`, se descarga "mi-semana.png".
+- ✅ R4-31-proxima: desde "Semana que viene" el texto y la imagen llevan las fechas y las 28 comidas de esa semana y su total.
+
+**Decisiones**
+- (Decisión) El total de la semana compartida es `costoSemanaPlan()` (el de Semana y Compras) para esta semana y `costoSemanaDeFilas()` con las comidas de su plan para la que viene, porque Compras sigue con esta semana mientras se mira la otra. Sin precios (apagados) no hay línea de total.
+- (Decisión) En la imagen, cada día lleva solo el almuerzo y la cena (como pide el plan) en nombre corto, recortado con "…" si no entra; el texto, las cuatro comidas.
+- (Decisión) La línea de Hoy no aparece si no hay ninguna comida planificada para hoy, aunque haya plan otros días.
+- (Decisión) Los grupos que cubre el día son verduras, almidón, proteína y fruta, mirando todas las comidas de hoy; las legumbres cuentan: las que van como "legCarb" valen como almidón y las de "legProt", como proteína (si no, "Garbanzos guisados con arroz" diría que falta proteína).
+
+**Pruebas adaptadas**: ninguna.
+
+**Revisores (Etapa 31)**: `revisor-usuario` (Hoy y la hoja de compartir a 390 y 320 px) NO BLOQUEANTE. La imagen que se comparte se miró aparte en una captura (vista nueva `imagen-semana`): el título, las 7 filas con almuerzo y cena en nombre corto y el total al pie entran sin cortes. Quedan como sugerencias (los textos de Hoy son los que pide el plan): la línea enumera los 4 grupos aunque el plato esté completo; "Plato completo" se lee como lo planificado y no como lo comido; "Te falta" puede sonar a reproche; con la semana vacía igual se ofrece compartir; en la hoja las dos opciones van alineadas a la izquierda y "Cerrar" centrado. `revisor-codigo` no corresponde en esta etapa (no toca datos guardados ni `datos/`).
+
+Compuerta final (Etapa 31): VALIDACIÓN ETAPA 31: OK (199 controles, 660 pruebas; línea base 656 → 660).
