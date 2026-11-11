@@ -3604,3 +3604,6 @@ select{max-width:100%;min-width:0}
 /* Etapa 28 (v18.3.0): detalle de una idea con cantidades y pasos. */
 .comida-pasos{margin:6px 0 16px;padding-left:22px;display:grid;gap:6px}
 .comida-pasos li{line-height:1.4}
+
+/* Etapa 29 (v18.4.0): etiqueta "Económica" de las ideas. */
+.tag-chip--eco{background:var(--soft);color:var(--green);font-weight:700}

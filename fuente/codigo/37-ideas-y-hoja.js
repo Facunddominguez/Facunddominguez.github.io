@@ -10,33 +10,60 @@ var IdeasHoja={
 // se le cambió un ingrediente no es la idea: vuelve al cálculo general. No escribe nada.
 ideaDeComida(item){
   const st=item&&item.state;
-  if(!st||typeof st!=="object"||item.recipeSourceId||st.type!=="plato")return null;
+  if(!st||typeof st!=="object"||item.recipeSourceId||(st.type!=="plato"&&st.type!=="desayuno"))return null;
   const claveDe=nombres=>[...new Set(nombres.map(n=>ingredientKey(n)).filter(Boolean))].sort().join("|");
   const idx=IdeasHoja.indiceDeIdeas(),mios=[];
-  for(const k of SUGERENCIA_GRUPOS)for(const o of Array.isArray(st[k])?st[k]:[])if(o&&o.name)mios.push(o.name);
+  if(st.type==="desayuno"){
+    // Un desayuno o merienda de una idea: fruta, proteína y cereal (los nombres de su campo "desayuno").
+    for(const k of ["fruta","bfprot","bfcarb"])if(st[k]&&st[k].name)mios.push(st[k].name)
+  }else for(const k of SUGERENCIA_GRUPOS)for(const o of Array.isArray(st[k])?st[k]:[])if(o&&o.name)mios.push(o.name);
   if(!mios.length)return null;
   const conjunto=claveDe(mios);
   const porNota=item.note?idx.porNota.get(item.note):null;
-  if(porNota&&claveDe(ideaIngredientes(porNota))===conjunto)return porNota;
-  const posibles=idx.porConjunto.get(conjunto)||[];
+  if(porNota&&claveDe(IdeasHoja.nombresDeIdea(porNota))===conjunto)return porNota;
+  const posibles=(idx.porConjunto.get(conjunto)||[]).filter(i=>(i.tipo==="desayuno")===(st.type==="desayuno"));
   return posibles.length===1?posibles[0]:null
 },
+// Los ingredientes con que se reconoce una idea: los del plato o, en un desayuno, fruta, proteína y cereal.
+nombresDeIdea(idea){
+  const d=idea&&idea.desayuno;
+  return d?[d.fruta,d.prot,d.cereal].filter(Boolean):ideaIngredientes(idea)
+},
 indiceDeIdeas(){
+  const total=data.menuCatalog.length+(data.desayunoCatalog||[]).length;
   // El índice depende de los alias de ingredientes del usuario (ingredientKey): si cambian, se arma de nuevo.
   let sig="";
   try{sig=localStorage.getItem("miPlatoFacil_ingredientAliases_v1")||""}catch(e){}
-  if(!IdeasHoja._indice||IdeasHoja._indice.total!==data.menuCatalog.length||IdeasHoja._indice.sig!==sig){
+  if(!IdeasHoja._indice||IdeasHoja._indice.total!==total||IdeasHoja._indice.sig!==sig){
     const porNota=new Map(),porConjunto=new Map();
-    for(const idea of data.menuCatalog){
+    for(const idea of data.menuCatalog.concat(data.desayunoCatalog||[])){
       if(!Array.isArray(idea.cantidades))continue;
       porNota.set(idea.text.slice(0,80),idea);
-      const k=[...new Set(ideaIngredientes(idea).map(n=>ingredientKey(n)).filter(Boolean))].sort().join("|");
+      const k=[...new Set(IdeasHoja.nombresDeIdea(idea).map(n=>ingredientKey(n)).filter(Boolean))].sort().join("|");
       if(!porConjunto.has(k))porConjunto.set(k,[]);
       porConjunto.get(k).push(idea)
     }
-    IdeasHoja._indice={total:data.menuCatalog.length,sig,porNota,porConjunto}
+    IdeasHoja._indice={total,sig,porNota,porConjunto}
   }
   return IdeasHoja._indice
+},
+// Etapa 29: ¿el costo por porción de la idea está en el tercio más barato de las ideas de su tipo (plato o desayuno)? Con los precios
+// apagados o sin precio para la idea, no. Se calcula una vez por conjunto de precios.
+esEconomica(idea){
+  const ds=typeof preciosDataset==="function"?preciosDataset():null;
+  if(!ds||typeof preciosActivos!=="function"||!preciosActivos())return false;
+  const marca=ds.meta,tipo=idea.desayuno?"desayuno":"plato";
+  let propios="";
+  try{propios=localStorage.getItem(REFERENCE_PRICES_KEY)||""}catch(e){}
+  if(!IdeasHoja._eco||IdeasHoja._eco.marca!==marca||IdeasHoja._eco.region!==regionPrecios()||IdeasHoja._eco.propios!==propios){
+    const por=(lista)=>{
+      const costos=lista.map(i=>Bienvenida.costoPorPorcionDeIdea(i)).filter(c=>c!==null).sort((a,b)=>a-b);
+      return costos.length?costos[Math.max(0,Math.ceil(costos.length/3)-1)]:null
+    };
+    IdeasHoja._eco={marca,propios,region:regionPrecios(),plato:por(data.menuCatalog.filter(i=>Array.isArray(i.cantidades))),desayuno:por((data.desayunoCatalog||[]).filter(i=>Array.isArray(i.cantidades)))}
+  }
+  const tope=IdeasHoja._eco[tipo],c=Bienvenida.costoPorPorcionDeIdea(idea);
+  return tope!==null&&c!==null&&c<=tope
 },
 // Nombre que se ve en Semana, Hoy y los selectores: el corto si es una idea sin renombrar; si no, el de siempre.
 nombreCorto(item){
@@ -50,6 +77,16 @@ textoCantidad(q,unit){
   return Number(q.toFixed(2)).toLocaleString("es-AR")+" "+unit
 },
 ideaComoComida(idea,dia){
+  // Etapa 29: una idea de desayuno o merienda arma un estado de desayuno con su fruta, su proteína y su cereal.
+  if(idea&&idea.desayuno){
+    const st=JSON.parse(JSON.stringify(state));
+    Object.assign(st,{type:"desayuno",day:"",fruta:null,bfprot:null,bfcarb:null,grasa:null,pre:null,snack:null,verduras:[],almidones:[],proteinas:[],legCarb:[],legProt:[],replaceCarb:false,replaceProt:false,customPortions:null});
+    const d=idea.desayuno,cant=n=>{const f=(idea.cantidades||[]).find(c=>ingredientKey(c[0])===ingredientKey(n));return f?IdeasHoja.textoCantidad(f[1],f[2]):"1 porción"};
+    if(d.fruta)st.fruta={name:d.fruta,quantity:cant(d.fruta),forma:"Entera"};
+    if(d.prot)st.bfprot={name:d.prot,quantity:cant(d.prot)};
+    if(d.cereal)st.bfcarb={name:d.cereal,quantity:cant(d.cereal)};
+    return st
+  }
   const st={
     type:"plato",day:dia||diaDeRutina(new Date())||"Día libre",fruta:null,bfprot:null,bfcarb:null,grasa:null,pre:null,snack:null,verduras:[],almidones:[],proteinas:[],legCarb:[],legProt:[],replaceCarb:false,replaceProt:false,customPortions:null,nombreSugerido:""
   };
@@ -102,7 +139,7 @@ agregarIdeaALaSemana(idea,dayKey,slot){
   if(typeof renderToday==="function")renderToday()
 },
 ideaPorTexto(texto){
-  return data.menuCatalog.find(x=>x.text===texto)||null
+  return data.menuCatalog.find(x=>x.text===texto)||(data.desayunoCatalog||[]).find(x=>x.text===texto)||null
 },
 abrirIdea(idea){
   if(!idea)return;

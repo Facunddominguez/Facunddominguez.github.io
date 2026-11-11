@@ -63,6 +63,7 @@ const VISTAS = [
   { id: 'fuentes', ir: 'openTab("mas"); Comidas.abrirFuentes()' },
   // Hojas: el contenedor real es .hoja (section con rol dialog, su propio scroll y sus campos).
   { id: 'selector', ir: 'openTab("semana"); abrirSelector(todayPlanDay(), "almuerzo")', medir: '.hoja' },
+  { id: 'selector-desayuno', ir: 'openTab("semana"); abrirSelector(todayPlanDay(), "desayuno")', medir: '.hoja' },
   { id: 'sugerime', ir: 'openTab("hoy"); abrirSugerime("almuerzo")', medir: '.hoja' },
   { id: 'semana-menu', ir: 'openTab("semana"); Selector.abrirMenuSemana()', medir: '.hoja' },
   { id: 'comidas-nueva', ir: 'openTab("miscomidas"); Comidas.abrirNuevaComida()', medir: '.hoja' },

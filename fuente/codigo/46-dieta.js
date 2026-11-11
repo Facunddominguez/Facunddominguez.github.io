@@ -76,7 +76,7 @@ function dietaPermite(texto){
 // las Ideas se pintan durante el arranque, antes de que corran esos archivos.
 function textoDeIdea(idea){
   // Etapa 28: también los nombres de las cantidades (lo que de verdad lleva la idea).
-  return idea.text+" "+(idea.tags||[]).join(" ")+" "+Object.values(idea.ingredientes||{}).flat().join(" ")+" "+(Array.isArray(idea.cantidades)?idea.cantidades.map(c=>c[0]).join(" "):"")
+  return idea.text+" "+(idea.tags||[]).join(" ")+" "+Object.values(idea.ingredientes||{}).flat().join(" ")+" "+(Array.isArray(idea.cantidades)?idea.cantidades.map(c=>c[0]).join(" "):"")+" "+(idea.desayuno?[idea.desayuno.fruta,idea.desayuno.prot,idea.desayuno.cereal].join(" "):"")
 }
 function dietaPermiteIdea(idea){
   return dietaPermite(textoDeIdea(idea))

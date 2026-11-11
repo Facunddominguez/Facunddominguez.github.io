@@ -36,7 +36,7 @@
       }
     }
     return JSON.stringify({ n: data.menuCatalog.length, faltan }) })()`));
-  ok("E23-titulo cada idea tiene vinculado todo lo que nombra su título (las 41 ideas)", r.n === 41 && !r.faltan.length, JSON.stringify(r));
+  ok("E23-titulo cada idea tiene vinculado todo lo que nombra su título (las 70 ideas desde la Etapa 29, 41 antes)", r.n === 70 && !r.faltan.length, JSON.stringify(r));
 
   // E23-envases: ningún producto de la lista queda en cucharadas, cucharaditas ni tazas; las verduras tienen porciones comunes.
   cargar({ ...MARCA, ...PRES(80000) }); await abrir();

@@ -131,6 +131,11 @@ renderMenuList(target,items,showTags=false){
   target.replaceChildren(...items.map(item=>{
     const obj=typeof item==="string"?data.menuCatalog.find(x=>x.text===item):item;const li=ce("li");li.append(Interfaz.ideaBoton(obj,item));if(target===el.menuIdeas||target.id==="menuSearchList")li.append(adviceFavButton("menu",obj?obj.text:item));if(showTags&&obj&&obj.tags){
       const wrap=ce("div","menu-item-tags");obj.tags.slice(0,5).forEach(t=>wrap.append(ce("span","tag-chip",t)));li.append(wrap)
+    }
+    try{
+      // Etapa 29: "Económica" si el costo por porción está en el tercio más barato de las ideas de su tipo.
+      if(obj&&IdeasHoja.esEconomica(obj))li.append(ce("span","tag-chip tag-chip--eco","Económica"))
+    }catch(e){
     }return li
   }))
 }
