@@ -2564,7 +2564,7 @@ El plan completo está en `docs/prompt-ronda-4.md` (el análisis del que sale, e
 | 27 | Semana más corta y con tus objetivos | 18.2.0 | ✅ |
 | 28 | Ideas con cantidades y preparación | 18.3.0 | ✅ |
 | 29 | Cien ideas y una semana que alcanza | 18.4.0 | ✅ |
-| 30 | Precios al día y de tu barrio | 18.5.0 | Pendiente |
+| 30 | Precios al día y de tu barrio | 18.5.0 | ✅ |
 | 31 | Hoy con costo y la semana para compartir | 18.6.0 | Pendiente |
 | 32 | Respaldo sin olvidos, recordatorio y recorrido final | 18.7.0 | Pendiente |
 
@@ -2720,3 +2720,30 @@ Rama `rediseno-4-etapa-29-cien-ideas`. Versión 18.4.0.
 **Revisión (`revisor-codigo`)**: BLOQUEANTE la primera vez, con dos hallazgos que eran reales y se corrigieron: (1) cinco desayunos tenían `desayuno.fruta` distinta de la fruta de sus `cantidades` y de sus pasos (o una "fruta" que era un tomate) y dos pares de ideas tenían la misma combinación de fruta, proteína y cereal, con lo que se habrían guardado como una sola comida (de hecho una aparecía 4 veces en una semana): ahora cada desayuno tiene su combinación, su fruta está en `data.frutas`, en las cantidades y en los pasos, y `R4-29-validas` y `R4-29-cien` lo controlan. (2) Cinco desayunos usaban Ricota, Mantequilla de maní o Mermelada, que no tienen precio ni estimado y contaban $0 (por eso el aviso decía "al menos" y las pruebas de la Etapa 27 se habían relajado): se reemplazaron por ingredientes con precio y `costoPorPorcionDeIdea()` ahora no da costo si falta un precio. Las pruebas de la Etapa 27 **volvieron a su exigencia original** (aviso sin "al menos" y tope de 540 px en el caso largo). También se aplicó: `textoDeIdea()` mira los tres nombres del desayuno y `esEconomica()` se recalcula si cambian tus precios propios. Quedan como sugerencias: pasos que nombran queso rallado, lechuga o mayonesa sin cantidad, y un desayuno propio sin nota con el mismo trío que una idea hereda su nombre corto (igual que ya pasaba con los platos).
 
 Compuerta final (Etapa 29): VALIDACIÓN ETAPA 29: OK (187 controles, 650 pruebas; línea base 638 → 650).
+
+### Etapa 30 ✅ Precios al día y de tu barrio
+Rama `rediseno-4-etapa-30-precios-barrio`. Versión 18.5.0.
+
+**Plan corto**
+- `43-precios.js`: `dondeCompro()`, `guardarDondeCompro()`, `validDondeCompro()`, `preciosRevisados()`, `validPreciosRevisados()`; `precioAuto()` usa INDEC antes que SEPA para frutas y verduras con "Verdulería"; `preciosDeVerdura()` (los dos precios de la ficha); `precioParaRevisar()`, `preciosParaRevisar()`, `marcarPrecioRevisado()` y `abrirRevisarPrecios()`; enlace "Revisar N precios tuyos" en la línea de precios de Semana y bloque "Tu precio es de hace N días." con "Sigue igual" y "Actualizar" en la ficha. `26-preferencias.html`: "Compro frutas y verduras en" junto a la región. `18-respaldo-completo.js`: las dos claves nuevas, opcionales y con validador. `capturas.mjs`: vistas `ficha-papa`, `revisar-precios` y `ficha-revisar`. Pruebas nuevas: `r4e30_precios.js` (6).
+- Riesgos para los datos: `miPlatoFacil_referencePrices_v1` no se toca (ni su `date`); "Sigue igual" escribe solo en `miPlatoFacil_preciosRevisados_v1`. Claves nuevas: `miPlatoFacil_dondeCompro_v1` (`{"version":1,"verduras":"verduleria"|"super"}`) y `miPlatoFacil_preciosRevisados_v1` (`{"version":1,"revisados":{"<id>":"AAAA-MM-DD"}}`), las dos opcionales en el respaldo y con validador; un respaldo viejo, que no las trae, se restaura igual y usa "Verdulería".
+
+**Hecho cuando**
+- ✅ R4-30-verduleria: con los precios congelados y "Verdulería", la papa cuesta $2.201/kg en GBA (INDEC); con "Supermercado", $3.999/kg (SEPA); con un Mi precio de $1.500/kg, ese.
+- ✅ R4-30-defecto: sin la clave, se usa "Verdulería" y la papa da lo mismo que con la clave; arroz, leche y pollo cuestan lo mismo con las dos opciones (misma fuente); el tomate cambia.
+- ✅ R4-30-ficha: la ficha de la papa muestra "En verdulería ≈ $2.201/kg · INDEC GBA · <mes> 2026" y "En súper ≈ $3.999/kg · SEPA GBA · 4 nov. 2026"; Preferencias tiene el selector, con verdulería por defecto, y guarda la elección.
+- ✅ R4-30-revisar: con un Mi precio de hace 61 días, Semana dice "Revisar 1 precio tuyo"; con uno de 59 días y el automático un 10 % arriba, no; con uno de 31 días y el automático un 25 % arriba, sí (con uno de 31 días y 10 %, o de 10 días y 25 %, tampoco).
+- ✅ R4-30-sigue-igual: la hoja dice "Tomate · tu precio $4.039/1 kg (11 sept.) · en la zona ≈ $4.039/kg"; "Sigue igual" lo saca de la lista, `referencePrices_v1` queda igual byte a byte y `preciosRevisados_v1` queda con `{"ficha_tomate":"<hoy>"}`.
+- ✅ R4-30-respaldo: las dos claves van y vuelven en el respaldo (opcionales), un `verduras` inválido se rechaza, y el respaldo de ejemplo v14.9.94 se restaura igual.
+
+**Total de la semana de la prueba** (misma semana armada con presupuesto de $90.000, precios congelados): **$88.419 con "Supermercado" y $80.950 con "Verdulería"**, $7.469 menos (8,4 %). Papa $2.201 contra $3.999 el kilo, tomate $4.039 contra $6.590, naranja $1.207 contra $1.860; la banana sube: $3.239 con INDEC contra $2.499 con SEPA.
+
+**Yogur** (Decisión): `datos/precios-mapa.json` busca "Yogur natural" en litros (INDEC "Yogur firme 195 cc" y SEPA "yogur natural" con tamaño de 0,1 a 1,5 kg, sin griego ni bebible) y "Yogur descremado" en kilos (solo SEPA). No es un error de unidad ni de búsqueda: SEPA da $17.200 el litro de natural (≈ $16.699 el kilo), un 29 % arriba del INDEC ($13.325 el litro, dentro del rango de 0,5 a 2 veces que ya controla la herramienta), y el descremado cuesta $8.667 el kilo porque es otro producto, que SEPA publica sin INDEC. No se tocó el mapa. Las ideas de desayuno de la Etapa 29 usan "Yogur descremado" justamente por eso.
+
+**Decisiones**
+- (Decisión) Con "Verdulería" el orden de fuentes es INDEC de la región, SEPA de la región, INDEC de GBA y SEPA de GBA solo para ítems de categoría `frutas` o `verduras`; el resto no cambia. La ficha muestra los dos precios solo si el ítem tiene INDEC y SEPA (un ítem con una sola fuente conserva su línea de siempre).
+- (Decisión) "Para revisar" mira todas las entradas válidas de `referencePrices_v1` en pesos (no solo las que se cargaron desde la ficha), compara contra el precio automático de esa región y fuente según la preferencia, y cuenta desde la fecha más nueva entre la de la entrada y la de "Sigue igual".
+- (Decisión) "Actualizar" en la hoja abre la ficha del ingrediente con el formulario de Mi precio; en la ficha enfoca el campo "Monto".
+- (Decisión) Con los precios apagados no se muestra el enlace.
+
+**Pruebas adaptadas**: ninguna (655 pruebas en verde con el cambio de fuentes por defecto; las pruebas de ficha y de totales ya leían los valores de los datos congelados).
