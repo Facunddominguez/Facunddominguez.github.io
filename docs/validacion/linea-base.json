@@ -8,7 +8,7 @@
     "navegador": "Chrome/156.0.8078.73"
   },
   "pruebas": {
-    "total": 660,
+    "total": 667,
     "suites": {
       "d01_diseno.js": 8,
       "m01_modo.js": 13,
@@ -71,7 +71,8 @@
       "r4e28_ideas.js": 8,
       "r4e29_cien.js": 12,
       "r4e30_precios.js": 6,
-      "r4e31_hoy.js": 4
+      "r4e31_hoy.js": 4,
+      "r4e32_respaldo.js": 7
     }
   },
   "claves": [
@@ -105,6 +106,7 @@
     "miPlatoFacil_recipePreferences_v1",
     "miPlatoFacil_referencePrices_v1",
     "miPlatoFacil_region_v1",
+    "miPlatoFacil_respaldoAviso_v1",
     "miPlatoFacil_saved",
     "miPlatoFacil_shoppingBudget_v1",
     "miPlatoFacil_shoppingChecks_v1",
@@ -143,6 +145,7 @@
     "miPlatoFacil_recipePreferences_v1",
     "miPlatoFacil_referencePrices_v1",
     "miPlatoFacil_region_v1",
+    "miPlatoFacil_respaldoAviso_v1",
     "miPlatoFacil_saved",
     "miPlatoFacil_shoppingBudget_v1",
     "miPlatoFacil_shoppingChecks_v1",
@@ -174,6 +177,7 @@
     "miPlatoFacil_recipePreferences_v1",
     "miPlatoFacil_referencePrices_v1",
     "miPlatoFacil_region_v1",
+    "miPlatoFacil_respaldoAviso_v1",
     "miPlatoFacil_shoppingBudget_v1",
     "miPlatoFacil_shoppingChecks_v1"
   ],
@@ -1069,8 +1073,8 @@
     }
   },
   "actualizada": {
-    "etapa": 31,
-    "version": "18.6.0",
+    "etapa": 32,
+    "version": "18.7.0",
     "fecha": "2026-11-11"
   }
 }

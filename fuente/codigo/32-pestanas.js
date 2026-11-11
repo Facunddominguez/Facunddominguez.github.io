@@ -58,6 +58,7 @@ var resetTabs=null;
     if(id==="ingredientes")renderPantry();
     if(id==="ideas")Armado.renderContextAdvice();
     if(id==="registro"&&typeof renderRegistro==="function")renderRegistro();
+    if(id==="backupScreen"&&typeof RespaldoAviso!=="undefined")RespaldoAviso.pintar();
     if(id==="preferencias"&&typeof renderObjetivosPreferencias==="function")renderObjetivosPreferencias();
     nav()
   }

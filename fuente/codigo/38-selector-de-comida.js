@@ -79,6 +79,8 @@ abrirMenuSemana(){
     planCopiarDia:""
   }),botonHoja("Compartir la semana","button--soft",{
     compartirSemanaMenu:""
+  }),botonHoja("Recordarme armar la semana","button--soft",{
+    recordatorioMenu:""
   }),botonHoja("Empezar de nuevo","button--danger",{
     clearPlan:""
   }));
@@ -493,6 +495,25 @@ document.addEventListener("click",e=>{
     return
   }
   if(d.compartirSemana){hoja.cerrar();Compartir.compartirSemana(d.compartirSemana);return}
+  if(d.recordatorioMenu!==undefined){
+    const c=ce("div","recordatorio"),dia=ce("select"),hora=ce("input"),ok=botonHoja("Agregar al calendario","button--primary",{recordatorioAgregar:""});
+    dia.id="recordatorioDia";
+    for(const [v,t] of [["SU","Domingo"],["MO","Lunes"],["TU","Martes"],["WE","Miércoles"],["TH","Jueves"],["FR","Viernes"],["SA","Sábado"]])dia.append(new Option(t,v));
+    dia.value="SU";
+    hora.type="time";
+    hora.id="recordatorioHora";
+    hora.value="18:00";
+    const campo=(texto,el)=>{const f=ce("div","portion-field"),l=ce("label",null,texto);l.htmlFor=el.id;f.append(l,el);return f};
+    c.append(ce("p","screen__hint","Un aviso semanal en tu calendario para armar la semana que viene."),campo("Día",dia),campo("Hora",hora),ok);
+    hoja.abrir({titulo:"Recordarme armar la semana",contenido:[c],botones:[],foco:false});
+    return
+  }
+  if(d.recordatorioAgregar!==undefined){
+    const dia=document.getElementById("recordatorioDia"),hora=document.getElementById("recordatorioHora");
+    hoja.cerrar();
+    Compartir.compartirRecordatorio(dia?dia.value:"SU",hora?hora.value:"18:00");
+    return
+  }
   if(d.planHerr)return abrirHerramientaPlan(d.planHerr);
   if(d.planRepetirAnterior!==undefined)return Selector.repetirSemanaAnterior();
   if(d.planCopiarDia!==undefined)return Selector.abrirCopiarDia();

@@ -206,6 +206,15 @@
     {"id": "R4-31-imagen", "etapa": 31, "hecho": "El canvas mide 1080×1350, el PNG pesa más de 20 KB y se comparte como archivo image/png (con navigator.share simulado); sin navigator.share, se descarga.", "tipo": "prueba", "prueba": "R4-31-imagen"},
     {"id": "R4-31-proxima", "etapa": 31, "hecho": "Desde la semana que viene, el texto y la imagen llevan las fechas y las comidas de esa semana.", "tipo": "prueba", "prueba": "R4-31-proxima"},
     {"id": "R4-31-registro", "etapa": 31, "hecho": "Qué cambió en Hoy y en Compartir la semana queda en el Registro.", "tipo": "registro", "seccion": "Etapa 31", "debeNombrar": ["R4-31-hoy", "R4-31-texto", "R4-31-imagen", "R4-31-proxima"]},
-    {"id": "R4-31-revisor", "etapa": 31, "hecho": "revisor-usuario no marca bloqueantes en Hoy y en la hoja Compartir la semana a 390 y 320 px.", "tipo": "revisor", "revisor": "revisor-usuario"}
+    {"id": "R4-31-revisor", "etapa": 31, "hecho": "revisor-usuario no marca bloqueantes en Hoy y en la hoja Compartir la semana a 390 y 320 px.", "tipo": "revisor", "revisor": "revisor-usuario"},
+    {"id": "R4-32-aviso", "etapa": 32, "hecho": "Con el último respaldo hace 30 días aparece el aviso en Hoy y en Más; con 29 días, no; sin comidas ni plan, no; después de \"Más tarde\" no aparece durante 7 días y vuelve al octavo.", "tipo": "prueba", "prueba": "R4-32-aviso"},
+    {"id": "R4-32-copia", "etapa": 32, "hecho": "\"Guardar copia\" comparte un archivo .json que Respaldo.validateCompleteBackup() acepta (con navigator.share simulado) y deja ultimo con la fecha de hoy; sin navigator.canShare, descarga.", "tipo": "prueba", "prueba": "R4-32-copia"},
+    {"id": "R4-32-persistente", "etapa": 32, "hecho": "navigator.storage.persist() se llama una vez al terminar la bienvenida, y la app no falla si no existe.", "tipo": "prueba", "prueba": "R4-32-persistente"},
+    {"id": "R4-32-ics", "etapa": 32, "hecho": "El archivo tiene BEGIN:VCALENDAR, un VEVENT, RRULE:FREQ=WEEKLY con el día elegido, un VALARM y el enlace con ?ir=semana-proxima.", "tipo": "prueba", "prueba": "R4-32-ics"},
+    {"id": "R4-32-enlace", "etapa": 32, "hecho": "Abrir index.html?ir=semana-proxima muestra \"Semana que viene\"; sin el parámetro, la app abre como siempre.", "tipo": "prueba", "prueba": "R4-32-enlace"},
+    {"id": "R4-32-respaldo", "etapa": 32, "hecho": "La clave nueva va y vuelve en el respaldo, y el respaldo de ejemplo se restaura completo.", "tipo": "prueba", "prueba": "R4-32-respaldo"},
+    {"id": "R4-32-recorrido", "etapa": 32, "hecho": "El recorrido final pasa de punta a punta en una prueba.", "tipo": "prueba", "prueba": "R4-32-recorrido"},
+    {"id": "R4-32-registro", "etapa": 32, "hecho": "Qué cambió y el recorrido final quedan en el Registro.", "tipo": "registro", "seccion": "Etapa 32", "debeNombrar": ["R4-32-aviso", "R4-32-copia", "R4-32-ics", "R4-32-recorrido"]},
+    {"id": "R4-32-revisor", "etapa": 32, "hecho": "revisor-usuario no marca bloqueantes en el recorrido final a 390, 360 y 320 px.", "tipo": "revisor", "revisor": "revisor-usuario"}
   ]
 }

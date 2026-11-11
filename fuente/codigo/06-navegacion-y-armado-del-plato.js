@@ -458,6 +458,7 @@ function go(id){
   if(id==="ingredientes")renderPantry();
   if(id==="ideas")Armado.renderContextAdvice();
   if(id==="registro"&&typeof renderRegistro==="function")renderRegistro();
+  if(id==="backupScreen"&&typeof RespaldoAviso!=="undefined")RespaldoAviso.pintar();
   if(id==="preferencias"&&typeof renderObjetivosPreferencias==="function")renderObjetivosPreferencias();
   if(id==="bf_fruit"){
     frutaForma=state.fruta&&state.fruta.forma&&Armado.formaDeFrutaValida(state.fruta.forma)?state.fruta.forma:"Entera";

@@ -93,3 +93,11 @@ document.addEventListener("click",e=>{
   if(b&&b.dataset.dietaFiltro)Dieta.alternarDieta(b.dataset.dietaFiltro)
 });
 Dieta.renderDieta();
+// Etapa 32: el enlace del recordatorio ("?ir=semana-proxima") abre Semana en "Semana que viene". Va en el último archivo, cuando ya corrieron las pestañas.
+try{
+  if(new URLSearchParams(location.search).get("ir")==="semana-proxima"){
+    openTab("semana");
+    Semana.verSemana(1)
+  }
+}catch(e){
+}

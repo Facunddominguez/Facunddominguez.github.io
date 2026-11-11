@@ -78,6 +78,10 @@ const VISTAS = [
   { id: 'compartir-semana', ir: 'openTab("semana"); Selector.abrirMenuSemana(); await new Promise(r => setTimeout(r, 150)); document.querySelector("[data-compartir-semana-menu]").click()', medir: '.hoja' },
   // Muestra a pantalla completa la imagen que se comparte (Etapa 31).
   { id: 'imagen-semana', ir: 'openTab("semana"); ArmameSemana.correr("todo"); const c = Compartir.buildSemanaCanvas(), im = document.createElement("img"); im.src = c.toDataURL("image/png"); im.style.cssText = "position:fixed;top:0;left:0;width:100%;height:auto;z-index:99999;background:#fff"; document.body.append(im); await new Promise(r => setTimeout(r, 200))' },
+  // Aviso de respaldo (Etapa 32): el último respaldo fue hace más de 30 días (el reloj de las capturas es el 26/10/2026).
+  { id: 'hoy-aviso-respaldo', ir: 'localStorage.setItem("miPlatoFacil_respaldoAviso_v1", JSON.stringify({ version: 1, primerUso: "2026-08-01", ultimo: "2026-09-20" })); openTab("hoy"); renderToday()' },
+  { id: 'respaldo-aviso', ir: 'localStorage.setItem("miPlatoFacil_respaldoAviso_v1", JSON.stringify({ version: 1, primerUso: "2026-08-01", ultimo: "2026-09-20" })); openTab("mas"); go("backupScreen")' },
+  { id: 'recordatorio', ir: 'openTab("semana"); Selector.abrirMenuSemana(); await new Promise(r => setTimeout(r, 150)); document.querySelector("[data-recordatorio-menu]").click()', medir: '.hoja' },
   { id: 'semana-armada', ir: 'openTab("semana"); ArmameSemana.correr("todo")' },
   { id: 'comida', ir: 'openTab("miscomidas"); const g = MisPlatos.loadSaved()[0] || IdeasHoja.guardarIdea(data.menuCatalog[0]).item; Comidas.abrirComida("plato", g.id)' }
 ].filter(v => !arg('--vistas') || arg('--vistas').split(',').includes(v.id));

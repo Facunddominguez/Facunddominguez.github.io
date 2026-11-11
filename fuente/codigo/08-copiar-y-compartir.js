@@ -143,6 +143,57 @@ buildPlateCanvas(){
   ctx.fillText("Armado con Mi plato fácil",M+pad,H-M-38);
   return c
 },
+// ---- Etapa 32: recordatorio semanal para armar la semana (archivo .ics) ----
+// Un evento semanal "Armar la semana · Mi Plato Fácil" con alarma a la hora y un enlace a la app (location.origin + location.pathname + "?ir=semana-proxima").
+icsRecordatorio(byday,hora){
+  const dias=["SU","MO","TU","WE","TH","FR","SA"],i=dias.indexOf(byday),m=/^(\d{2}):(\d{2})$/.exec(hora||"");
+  if(i<0||!m)throw new Error("Elegí un día y una hora.");
+  const d=new Date();
+  d.setHours(Number(m[1]),Number(m[2]),0,0);
+  d.setDate(d.getDate()+((i-d.getDay()+7)%7));
+  const p=n=>String(n).padStart(2,"0"),fecha=x=>x.getFullYear()+p(x.getMonth()+1)+p(x.getDate())+"T"+p(x.getHours())+p(x.getMinutes())+"00",
+    enlace=(location.origin&&location.origin!=="null"?location.origin+location.pathname:location.href.split("?")[0].split("#")[0])+"?ir=semana-proxima",
+    ahora=new Date(),sello=ahora.getUTCFullYear()+p(ahora.getUTCMonth()+1)+p(ahora.getUTCDate())+"T"+p(ahora.getUTCHours())+p(ahora.getUTCMinutes())+p(ahora.getUTCSeconds())+"Z";
+  const plegar=l=>{
+    let out="";
+    while(l.length>74){out+=l.slice(0,74)+"\r\n ";l=l.slice(74)}
+    return out+l
+  };
+  return [
+    "BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Mi Plato Facil//ES","CALSCALE:GREGORIAN","BEGIN:VEVENT",
+    "UID:armar-la-semana-"+byday+"@miplatofacil","DTSTAMP:"+sello,"DTSTART:"+fecha(d),"RRULE:FREQ=WEEKLY;BYDAY="+byday,
+    "SUMMARY:Armar la semana · Mi Plato Fácil","DESCRIPTION:Armá la semana que viene: "+enlace,"URL:"+enlace,
+    "BEGIN:VALARM","TRIGGER:PT0S","ACTION:DISPLAY","DESCRIPTION:Armar la semana","END:VALARM","END:VEVENT","END:VCALENDAR"
+  ].map(plegar).join("\r\n")+"\r\n"
+},
+compartirRecordatorio(byday,hora){
+  const estado=msg=>{try{planStatus(msg)}catch(e){}};
+  let texto;
+  try{texto=Compartir.icsRecordatorio(byday,hora)}catch(e){estado(e.message);return}
+  const bajar=()=>{
+    try{
+      const url=URL.createObjectURL(new Blob([texto],{type:"text/calendar"})),a=document.createElement("a");
+      a.href=url;
+      a.download="armar-la-semana.ics";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(()=>URL.revokeObjectURL(url),1000);
+      estado("Recordatorio descargado: abrilo para agregarlo al calendario.")
+    }catch(e){
+      estado("No se pudo descargar el recordatorio.")
+    }
+  };
+  try{
+    const file=new File([texto],"armar-la-semana.ics",{type:"text/calendar"});
+    if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){
+      navigator.share({files:[file],title:"Armar la semana"}).then(()=>estado("¡Recordatorio compartido!")).catch(e=>{if(e&&e.name==="AbortError")return;bajar()});
+      return
+    }
+  }catch(e){
+  }
+  bajar()
+},
 // ---- Etapa 31: compartir la semana (esta o la que viene), como texto o como imagen ----
 // "9 al 15 de nov" (o "26 de oct al 1 de nov" si cruza de mes).
 rangoCorto(lunes){

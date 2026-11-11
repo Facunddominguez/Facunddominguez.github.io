@@ -175,6 +175,7 @@ function renderToday(){
   if(!box)return;
   const day=todayPlanDay(),plan=loadPlan(),byId=new Map(MisPlatos.loadSaved().map(p=>[p.id,p])),primera=esPrimeraVez(plan,day);
   renderEntrenoHoy();
+  try{RespaldoAviso.pintar()}catch(e){}
   const tc=document.getElementById("todayCosto");
   if(tc){
     const txt=textoCostoHoy(day,plan,byId);

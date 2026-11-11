@@ -3617,3 +3617,9 @@ select{max-width:100%;min-width:0}
 /* Etapa 31 (v18.6.0): costo y grupos del día en Hoy. */
 .today__costo{margin:2px 0 8px;font-size:13.5px;color:var(--muted);font-variant-numeric:tabular-nums}
 .today__costo[hidden]{display:none}
+
+/* Etapa 32 (v18.7.0): aviso de respaldo y recordatorio semanal. */
+.respaldo-aviso{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:12px 0;padding:10px 12px;border:1px solid var(--line);border-radius:14px;background:var(--surface);font-size:13.5px}
+.respaldo-aviso[hidden]{display:none}
+.respaldo-aviso__texto{flex:1 1 100%}
+.recordatorio{display:grid;gap:8px}
