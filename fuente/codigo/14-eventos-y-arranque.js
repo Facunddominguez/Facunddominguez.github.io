@@ -76,3 +76,11 @@ setInterval(function(){
 Interfaz.applyTheme();
 Existencias.startupGuard("Pantalla de inicio",init);
 nav();
+// Etapa 32: el enlace del recordatorio ("?ir=semana-proxima") abre Semana en "Semana que viene".
+try{
+  if(new URLSearchParams(location.search).get("ir")==="semana-proxima"){
+    openTab("semana");
+    Semana.verSemana(1)
+  }
+}catch(e){
+}

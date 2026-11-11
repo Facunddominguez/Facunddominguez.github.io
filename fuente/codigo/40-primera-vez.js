@@ -97,6 +97,7 @@ abrirBienvenida(){
 },
 terminarBienvenida(destino){
   Bienvenida.marcarBienvenidaVista();
+  try{RespaldoAviso.pedirPersistencia()}catch(e){}
   // La pila de Hoy vuelve a su raíz (home) antes de cambiar de pestaña: si no, Hoy recordaba el paso 4 de la bienvenida (Etapa 25).
   restart();
   if(destino==="semana")openTab("semana")
