@@ -97,6 +97,31 @@ data.comprables={
 };
 // En Almidones, lo que no se come como base del plato va a "Más opciones" (plegado).
 data.almidonesMas=["Fécula de maíz (maicena)","Fécula de mandioca","Harina de arroz","Harina de avena","Harina de maíz","Harina de trigo","Pan rallado"];
+// Etapa 28 (Ronda 4): datos/ideas.json (incrustado al construir) le suma a cada idea del catálogo su nombre corto, sus cantidades por
+// persona, sus pasos y su tiempo. Si falta o está roto, las ideas siguen funcionando como antes.
+var IDEAS_DATOS=__DATOS_IDEAS__;
+// Etapa 29: las ideas de tipo "plato" que no están en el catálogo se agregan al final; las de tipo "desayuno" van a data.desayunoCatalog.
+data.desayunoCatalog=[];
+try{
+  const porTexto=new Map(data.menuCatalog.map(x=>[x.text,x]));
+  for(const x of (IDEAS_DATOS&&Array.isArray(IDEAS_DATOS.ideas)?IDEAS_DATOS.ideas:[])){
+    if(!x||typeof x.text!=="string"||!Array.isArray(x.cantidades)||!Array.isArray(x.pasos))continue;
+    const idea=porTexto.get(x.text);
+    if(idea){
+      idea.corto=typeof x.corto==="string"?x.corto:idea.text;
+      idea.cantidades=x.cantidades;
+      idea.pasos=x.pasos;
+      idea.minutos=x.minutos
+    }else if(x.tipo==="plato"&&x.ingredientes&&typeof x.ingredientes==="object"){
+      const nueva={text:x.text,tags:Array.isArray(x.tags)?x.tags:[],ingredientes:x.ingredientes,corto:typeof x.corto==="string"?x.corto:x.text,cantidades:x.cantidades,pasos:x.pasos,minutos:x.minutos};
+      data.menuCatalog.push(nueva);
+      porTexto.set(nueva.text,nueva)
+    }else if(x.tipo==="desayuno"&&x.desayuno&&typeof x.desayuno==="object"){
+      data.desayunoCatalog.push({text:x.text,tipo:"desayuno",tags:Array.isArray(x.tags)?x.tags:[],desayuno:x.desayuno,corto:typeof x.corto==="string"?x.corto:x.text,cantidades:x.cantidades,pasos:x.pasos,minutos:x.minutos})
+    }
+  }
+}catch(e){
+}
 data.menuIdeas=data.menuCatalog.map(x=>x.text);
 const PANTRY=[["pollo","🍗 Pollo",["pollo"]],["carne","🥩 Carne",["carne","hamburguesa"]],["pescado","🐟 Pescado / atún",["pescado","atun","merluza","salmon","filet","sardina","caballa"]],["huevo","🥚 Huevos",["huevo","tortilla","omelette","revuelto"]],["queso","🧀 Queso",["queso"]],["yogur","🥛 Yogur",["yogur"]],["lentejas","🟤 Lentejas",["lenteja","lentejas","legumbres"]],["garbanzos","🟡 Garbanzos",["garbanzo","garbanzos","legumbres","hummus"]],["porotos","🫘 Porotos",["poroto","porotos","legumbres"]],["arvejas","🟢 Arvejas",["arvejas","legumbres"]],["arroz","🍚 Arroz",["arroz","risotto"]],["fideos","🍝 Fideos / pasta",["fideos","pastas","noquis"]],["papa","🥔 Papa",["papa","pure"]],["batata","🍠 Batata",["batata"]],["pan","🍞 Pan",["pan","sandwich"]],["maiz","🌽 Maíz / tortilla",["maiz","tortilla","tacos","wrap"]],["quinoa","🌾 Quinoa",["quinoa","bowl"]],["tomate","🍅 Tomate",["tomate"]],["hojas","🥬 Hojas verdes",["lechuga","rucula","ensalada","espinaca"]],["zanahoria","🥕 Zanahoria",["zanahoria"]],["calabaza","🎃 Calabaza / zapallo",["calabaza","zapallo"]],["brocoli","🥦 Brócoli",["brocoli"]],["palta","🥑 Palta",["palta"]],["zapallito","🫑 Zapallito",["zapallito"]]];
 const PANKEY="miPlatoFacil_pantry";

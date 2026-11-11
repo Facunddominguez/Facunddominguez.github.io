@@ -77,6 +77,10 @@ abrirMenuSemana(){
     planRepetirAnterior:""
   }),botonHoja("Copiar un día","button--soft",{
     planCopiarDia:""
+  }),botonHoja("Compartir la semana","button--soft",{
+    compartirSemanaMenu:""
+  }),botonHoja("Recordarme armar la semana","button--soft",{
+    recordatorioMenu:""
   }),botonHoja("Empezar de nuevo","button--danger",{
     clearPlan:""
   }));
@@ -258,7 +262,7 @@ function recetasSinCopia(items){
 }
 function seccionesSelector(h,q){
   const pool=slotPool(h.slot),items=MisPlatos.loadSaved().filter(p=>p&&p.type===pool),labels=mealLabels(items),n=normalizeSearchText(String(q||"").trim());
-  const nombre=it=>labels.get(it.id)||mealName(it),coincide=t=>!n||normalizeSearchText(t).includes(n);
+  const nombre=it=>labels.get(it.id)||nombreCortoDeComida(it),coincide=t=>!n||normalizeSearchText(t).includes(n);
   const fila=it=>{
     const b=ce("button","selector-item"+(it.id===h.id?" is-actual":""));b.type="button";b.dataset.selectorId=it.id;b.append(ce("span","selector-item__nombre",Semana.planPlateLabel(it,nombre(it))));const d=savedItemLines(it).join(" · ");if(d)b.append(ce("span","selector-item__detalle",d));if(it.id===h.id)b.setAttribute("aria-current","true");return b
   };
@@ -271,6 +275,14 @@ function seccionesSelector(h,q){
     const b=ce("button","selector-item");b.type="button";b.dataset.selectorReceta=r.id;b.append(ce("span","selector-item__nombre","📖 "+r.title));return b
   });
   out.push(seccion("Mis comidas","mias",[...mias.map(fila),...recetas],n?"Ninguna de tus comidas coincide.":"Todavía no guardaste comidas de este tipo: armá una nueva."));
+  // Etapa 29: al elegir desayuno o merienda, también las ideas de desayuno (con sus cantidades y pasos).
+  if(pool==="desayuno"){
+    const yaEstan=new Set(items.map(it=>normalizeSearchText(mealName(it))));
+    let ideasD=(data.desayunoCatalog||[]).filter(i=>textoPermitido(textoDeIdea(i))&&coincide(i.text+" "+(i.tags||[]).join(" "))&&!yaEstan.has(normalizeSearchText(i.text)));
+    out.push(seccion("Ideas","ideas",ideasD.slice(0,n?20:6).map(i=>{
+      const b=ce("button","selector-item");b.type="button";b.dataset.selectorIdea=i.text;b.append(ce("span","selector-item__nombre","💡 "+i.text));return b
+    }),n?"Ninguna idea coincide.":"No hay ideas de desayuno que no tengan lo que evitás."))
+  }
   if(h.slot==="almuerzo"||h.slot==="cena"){
     let ideas=[];
     try{
@@ -476,6 +488,32 @@ document.addEventListener("click",e=>{
     const s=h.sugerencia;if(!s)throw Error("Pedí una sugerencia.");if(s.tipo==="idea")Selector.asignarIdeaAlHueco(h,s.idea);else Selector.asignarHueco(h.dia,h.slot,s.item.id)
   });
   if(d.planMenu!==undefined)return Selector.abrirMenuSemana();
+  if(d.compartirSemanaMenu!==undefined){
+    const l=ce("div","menu-semana");
+    l.append(botonHoja("Como texto","button--soft",{compartirSemana:"texto"}),botonHoja("Como imagen","button--soft",{compartirSemana:"imagen"}));
+    hoja.abrir({titulo:"Compartir la semana",contenido:[l],botones:[],foco:false});
+    return
+  }
+  if(d.compartirSemana){hoja.cerrar();Compartir.compartirSemana(d.compartirSemana);return}
+  if(d.recordatorioMenu!==undefined){
+    const c=ce("div","recordatorio"),dia=ce("select"),hora=ce("input"),ok=botonHoja("Agregar al calendario","button--primary",{recordatorioAgregar:""});
+    dia.id="recordatorioDia";
+    for(const [v,t] of [["SU","Domingo"],["MO","Lunes"],["TU","Martes"],["WE","Miércoles"],["TH","Jueves"],["FR","Viernes"],["SA","Sábado"]])dia.append(new Option(t,v));
+    dia.value="SU";
+    hora.type="time";
+    hora.id="recordatorioHora";
+    hora.value="18:00";
+    const campo=(texto,el)=>{const f=ce("div","portion-field"),l=ce("label",null,texto);l.htmlFor=el.id;f.append(l,el);return f};
+    c.append(ce("p","screen__hint","Un aviso semanal en tu calendario para armar la semana que viene."),campo("Día",dia),campo("Hora",hora),ok);
+    hoja.abrir({titulo:"Recordarme armar la semana",contenido:[c],botones:[],foco:false});
+    return
+  }
+  if(d.recordatorioAgregar!==undefined){
+    const dia=document.getElementById("recordatorioDia"),hora=document.getElementById("recordatorioHora");
+    hoja.cerrar();
+    Compartir.compartirRecordatorio(dia?dia.value:"SU",hora?hora.value:"18:00");
+    return
+  }
   if(d.planHerr)return abrirHerramientaPlan(d.planHerr);
   if(d.planRepetirAnterior!==undefined)return Selector.repetirSemanaAnterior();
   if(d.planCopiarDia!==undefined)return Selector.abrirCopiarDia();

@@ -1024,8 +1024,9 @@ button:active{
 }
 
 .shop-item input{
-  width:20px;
-  height:20px;
+  flex:0 0 24px;
+  width:24px;
+  height:24px;
   accent-color:var(--green)
 }
 
@@ -3523,7 +3524,6 @@ body.con-hoja{
 /* Precios automáticos (v15.6): aviso para quien no los activó y línea de fuente. */
 .precios-aviso{display:block;min-height:44px;margin:0 0 8px;padding:0;border:0;background:none;color:var(--primary,var(--accent));font:inherit;text-align:left;text-decoration:underline;cursor:pointer}
 .precios-aviso[hidden]{display:none}
-.shop-item__nombre{display:inline-block;min-height:44px;line-height:44px;text-decoration:underline dotted;text-underline-offset:3px;cursor:pointer}
 .hoja__cuerpo a{color:var(--primary,var(--accent))}
 .completar-precios{display:grid;gap:8px}
 .completar-precios__fila{width:100%}
@@ -3536,7 +3536,7 @@ body.con-hoja{
 .semana-aviso:empty,#planStatus:empty{display:none}
 #planAviso{margin:0 0 16px}
 @media (max-width:420px){.precios-sep{display:none}}
-#planDiaCosto{margin-bottom:2px}
+#planDiaCosto{margin-bottom:0}
 #planPreciosEstado{margin-top:0;margin-bottom:6px;font-size:13px;display:flex;flex-wrap:wrap;align-items:center;gap:0 6px}
 #planPreciosEstado .precios-aviso--inline{font-size:13px;margin:0;padding:0 8px}
 .precios-aviso--inline{display:inline-flex;align-items:center;min-height:44px;margin:0 0 0 4px;padding:0 4px;vertical-align:middle}
@@ -3544,9 +3544,6 @@ body.con-hoja{
 
 /* Etapa 13 (v16.2): precios a la vista. */
 .hueco__costo{display:block;font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums}
-.precio-tap{display:inline;cursor:pointer;text-decoration:underline dotted;text-underline-offset:3px;padding:12px 4px;margin:-12px 0}
-.precio-detalle{display:block;width:100%}
-.precio-detalle[hidden]{display:none}
 
 /* Etapa 15 (v16.4): Armame la semana. */
 .armame-boton{width:100%;min-height:44px;margin:0 0 16px}
@@ -3575,3 +3572,56 @@ select{max-width:100%;min-width:0}
 /* v17.6: "Completar N precios" como enlace discreto, no como tarea pendiente */
 #planPreciosEstado .precios-aviso--inline{background:none;border:0;box-shadow:none;color:var(--green);text-decoration:underline;font-weight:600;padding:0 4px}
 .ficha-precio__subtitulo{margin:12px 0 4px;font-weight:600}
+
+/* Lista de compras (Etapa 26, v18.1.0): un toque en cualquier parte de la fila tacha; la ficha del producto está en el botón ⓘ (44×44). */
+#comprasList .shop-item{min-height:48px;padding:2px 0 2px 4px;cursor:pointer}
+#comprasList .shop-item>label{flex:1 1 0;min-width:0;padding:8px 0;cursor:pointer;overflow-wrap:anywhere}
+.shop-item__ficha{flex:0 0 44px;width:44px;height:44px;padding:0;border:0;border-radius:50%;background:none;color:var(--text);font:inherit;font-size:20px;line-height:1;cursor:pointer}
+.shop-item__precio{white-space:nowrap}
+.shop-item__ficha:focus-visible{outline:3px solid var(--green);outline-offset:-3px}
+
+/* Etapa 27 (v18.2.0): Semana más corta. El aviso de semana armada es una línea con Deshacer y un "Ver detalle" cerrado, en la misma línea
+   (E24-separacion sigue pidiendo 16 px entre la cabecera, el botón, los chips y el contenido). */
+#planAviso{margin:0 0 2px;font-size:13px;line-height:1.25}
+#planAviso .filter-chip{min-height:40px;vertical-align:middle;margin-left:2px;padding:8px 8px}
+.semana-aviso__detalle{display:inline-block;vertical-align:middle;font-size:13px}
+.semana-aviso__detalle[open]{display:block;margin-top:2px}
+.semana-aviso__detalle>summary{display:inline-flex;align-items:center;min-height:40px;padding:0 4px;cursor:pointer;color:var(--green);font-weight:600;list-style:none;text-decoration:underline}
+.semana-aviso__detalle>summary::-webkit-details-marker{display:none}
+.semana-aviso__detalle>p{margin:0 0 4px;color:var(--muted)}
+#plan .semana-dia-chip{min-height:52px;padding:3px 0 4px;gap:0;line-height:1.05}
+#plan .semana-dia-chip>*{line-height:1.05}
+#plan .semana-cabeza .screen__title{line-height:1.1}
+/* A 320 px el título de la semana entra en dos líneas aun con tipografías más anchas (Chrome en Linux sin Inter). */
+@media(max-width:340px){#plan .semana-cabeza .screen__title{font-size:17px}}
+#plan .armame-boton{min-height:44px}
+#plan .semana-dia__titulo{line-height:1.2}
+@media(min-width:380px){#plan .semana-dias{gap:2px;margin:16px -6px}}
+/* "Con precio: 35 de 37 productos · Completar 2 precios" en una sola línea: el enlace mide 44 px de alto al tocarlo, pero no agranda la línea. */
+#planPreciosEstado{font-size:12.5px;gap:0 4px;margin-bottom:16px}
+#planPreciosEstado .precios-aviso--inline{min-height:0;padding:15px 4px;margin:-15px 0;font-size:12.5px}
+@media(min-width:380px){#planPreciosEstado{flex-wrap:nowrap;white-space:nowrap}}
+#planPreciosEstado .precios-sep{margin:0 -2px}
+
+/* Etapa 28 (v18.3.0): detalle de una idea con cantidades y pasos. */
+.comida-pasos{margin:6px 0 16px;padding-left:22px;display:grid;gap:6px}
+.comida-pasos li{line-height:1.4}
+
+/* Etapa 29 (v18.4.0): etiqueta "Económica" de las ideas. */
+.tag-chip--eco{background:var(--soft);color:var(--green);font-weight:700}
+
+/* Etapa 30 (v18.5.0): revisar tus precios. */
+.revisar-precio{display:grid;gap:8px;padding:10px 0;border-bottom:1px solid var(--line)}
+.revisar-precio__texto{margin:0}
+.revisar-precio__acciones,.ficha-precio__revision{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.ficha-precio__revision .screen__hint{flex:1 1 100%;margin:0}
+
+/* Etapa 31 (v18.6.0): costo y grupos del día en Hoy. */
+.today__costo{margin:2px 0 8px;font-size:13.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.today__costo[hidden]{display:none}
+
+/* Etapa 32 (v18.7.0): aviso de respaldo y recordatorio semanal. */
+.respaldo-aviso{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:12px 0;padding:10px 12px;border:1px solid var(--line);border-radius:14px;background:var(--surface);font-size:13.5px}
+.respaldo-aviso[hidden]{display:none}
+.respaldo-aviso__texto{flex:1 1 100%}
+.recordatorio{display:grid;gap:8px}

@@ -143,6 +143,187 @@ buildPlateCanvas(){
   ctx.fillText("Armado con Mi plato fácil",M+pad,H-M-38);
   return c
 },
+// ---- Etapa 32: recordatorio semanal para armar la semana (archivo .ics) ----
+// Un evento semanal "Armar la semana · Mi Plato Fácil" con alarma a la hora y un enlace a la app (location.origin + location.pathname + "?ir=semana-proxima").
+icsRecordatorio(byday,hora){
+  const dias=["SU","MO","TU","WE","TH","FR","SA"],i=dias.indexOf(byday),m=/^(\d{2}):(\d{2})$/.exec(hora||"");
+  if(i<0||!m)throw new Error("Elegí un día y una hora.");
+  const d=new Date();
+  d.setHours(Number(m[1]),Number(m[2]),0,0);
+  d.setDate(d.getDate()+((i-d.getDay()+7)%7));
+  const p=n=>String(n).padStart(2,"0"),fecha=x=>x.getFullYear()+p(x.getMonth()+1)+p(x.getDate())+"T"+p(x.getHours())+p(x.getMinutes())+"00",
+    enlace=(location.origin&&location.origin!=="null"?location.origin+location.pathname:location.href.split("?")[0].split("#")[0])+"?ir=semana-proxima",
+    ahora=new Date(),sello=ahora.getUTCFullYear()+p(ahora.getUTCMonth()+1)+p(ahora.getUTCDate())+"T"+p(ahora.getUTCHours())+p(ahora.getUTCMinutes())+p(ahora.getUTCSeconds())+"Z";
+  const plegar=l=>{
+    let out="";
+    while(l.length>74){out+=l.slice(0,74)+"\r\n ";l=l.slice(74)}
+    return out+l
+  };
+  return [
+    "BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Mi Plato Facil//ES","CALSCALE:GREGORIAN","BEGIN:VEVENT",
+    "UID:armar-la-semana-"+byday+"@miplatofacil","DTSTAMP:"+sello,"DTSTART:"+fecha(d),"RRULE:FREQ=WEEKLY;BYDAY="+byday,
+    "SUMMARY:Armar la semana · Mi Plato Fácil","DESCRIPTION:Armá la semana que viene: "+enlace,"URL:"+enlace,
+    "BEGIN:VALARM","TRIGGER:PT0S","ACTION:DISPLAY","DESCRIPTION:Armar la semana","END:VALARM","END:VEVENT","END:VCALENDAR"
+  ].map(plegar).join("\r\n")+"\r\n"
+},
+compartirRecordatorio(byday,hora){
+  const estado=msg=>{try{planStatus(msg)}catch(e){}};
+  let texto;
+  try{texto=Compartir.icsRecordatorio(byday,hora)}catch(e){estado(e.message);return}
+  const bajar=()=>{
+    try{
+      const url=URL.createObjectURL(new Blob([texto],{type:"text/calendar"})),a=document.createElement("a");
+      a.href=url;
+      a.download="armar-la-semana.ics";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(()=>URL.revokeObjectURL(url),1000);
+      estado("Recordatorio descargado: abrilo para agregarlo al calendario.")
+    }catch(e){
+      estado("No se pudo descargar el recordatorio.")
+    }
+  };
+  try{
+    const file=new File([texto],"armar-la-semana.ics",{type:"text/calendar"});
+    if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){
+      navigator.share({files:[file],title:"Armar la semana"}).then(()=>estado("¡Recordatorio compartido!")).catch(e=>{if(e&&e.name==="AbortError")return;bajar()});
+      return
+    }
+  }catch(e){
+  }
+  bajar()
+},
+// ---- Etapa 31: compartir la semana (esta o la que viene), como texto o como imagen ----
+// "9 al 15 de nov" (o "26 de oct al 1 de nov" si cruza de mes).
+rangoCorto(lunes){
+  const a=new Date(lunes+"T12:00:00"),b=new Date(a);
+  b.setDate(b.getDate()+6);
+  const m=d=>["ene","feb","mar","abr","may","jun","jul","ago","sept","oct","nov","dic"][d.getMonth()];
+  return a.getMonth()===b.getMonth()?a.getDate()+" al "+b.getDate()+" de "+m(b):a.getDate()+" de "+m(a)+" al "+b.getDate()+" de "+m(b)
+},
+// {titulo, dias:[{nombre, comidas:{desayuno, almuerzo, merienda, cena}}], total} de la semana que se está mirando (null si el total no se puede calcular).
+semanaParaCompartir(){
+  const prox=Semana.viendoProxima(),lunes=prox?Semana.lunesSiguiente():Semana.semanaActual(),plan=loadPlan(),byId=new Map(MisPlatos.loadSaved().map(p=>[p.id,p]));
+  const dias=DAYS.map(([key,label],i)=>{
+    const f=new Date(lunes+"T12:00:00");
+    f.setDate(f.getDate()+i);
+    const comidas={};
+    for(const [slot] of SLOTS){
+      const id=plan[key]&&plan[key][slot],it=id?byId.get(id):null;
+      comidas[slot]=it?nombreCortoDeComida(it):""
+    }
+    return {nombre:label+" "+f.getDate(),comidas}
+  });
+  let total=null;
+  try{
+    if(typeof preciosActivos==="function"&&preciosActivos()&&preciosDataset()){
+      // Esta semana: el mismo total que Semana y Compras. La que viene: con las comidas de su plan.
+      const c=prox?(()=>{
+        const grupos=[],personas=personasHogar();
+        for(const [key] of DAYS)for(const [slot] of SLOTS){
+          const id=plan[key]&&plan[key][slot],a=id?cantidadesDeComida("plato",id):null;
+          if(a)grupos.push({rows:a.rows,factor:Semana.portionFactor(null,a)*personas})
+        }
+        return costoSemanaDeFilas(grupos)
+      })():costoSemanaPlan();
+      if(c&&c.total>0)total=c.total
+    }
+  }catch(e){
+    total=null
+  }
+  return {titulo:"Mi semana · "+Compartir.rangoCorto(lunes),dias,total}
+},
+semanaTexto(){
+  const s=Compartir.semanaParaCompartir(),lineas=["🍽️ "+s.titulo];
+  for(const d of s.dias){
+    lineas.push("","*"+d.nombre+"*");
+    for(const [slot,label] of SLOTS)lineas.push(label+": "+(d.comidas[slot]||"—"))
+  }
+  if(s.total!==null)lineas.push("","*Total "+formatoPesos(s.total)+"*");
+  return lineas.join(NL)
+},
+// PNG de 1080×1350 con el título, 7 filas (día, almuerzo y cena en nombre corto) y el total al pie. Sin fuentes ni imágenes externas.
+buildSemanaCanvas(){
+  const s=Compartir.semanaParaCompartir(),W=1080,H=1350,M=40,pad=56,dark=document.documentElement.getAttribute("data-theme")==="dark";
+  const c=document.createElement("canvas");
+  c.width=W;
+  c.height=H;
+  const ctx=c.getContext("2d"),fam="system-ui,-apple-system,Segoe UI,Arial";
+  ctx.fillStyle=dark?"#0b1110":"#0b6b57";
+  ctx.fillRect(0,0,W,H);
+  Compartir.roundRect(ctx,M,M,W-M*2,H-M*2,44);
+  ctx.fillStyle=dark?"#141d1a":"#ffffff";
+  ctx.fill();
+  ctx.textBaseline="alphabetic";
+  ctx.fillStyle=dark?"#eef4f1":"#10201b";
+  ctx.font="800 54px "+fam;
+  ctx.fillText(s.titulo,M+pad,M+112);
+  const recortar=(texto,fuente,maxW)=>{
+    ctx.font=fuente;
+    let t=texto||"—";
+    if(ctx.measureText(t).width<=maxW)return t;
+    while(t.length>1&&ctx.measureText(t+"…").width>maxW)t=t.slice(0,-1);
+    return t.trimEnd()+"…"
+  },top=M+160,fila=(H-M-110-top)/7,maxW=W-M*2-pad*2-34;
+  s.dias.forEach((d,i)=>{
+    const y=top+i*fila;
+    if(i>0){
+      ctx.fillStyle=dark?"#26332e":"#dfe9e5";
+      ctx.fillRect(M+pad,y-14,W-M*2-pad*2,2)
+    }
+    ctx.fillStyle=dark?"#57c8a4":"#0b6b57";
+    ctx.font="800 34px "+fam;
+    ctx.fillText(d.nombre,M+pad,y+30);
+    ctx.fillStyle=dark?"#eef4f1":"#10201b";
+    ctx.fillText(recortar("🥗 "+d.comidas.almuerzo,"600 30px "+fam,maxW),M+pad+34,y+72);
+    ctx.fillText(recortar("🌙 "+d.comidas.cena,"600 30px "+fam,maxW),M+pad+34,y+110)
+  });
+  ctx.fillStyle=dark?"#97a8a2":"#56655f";
+  ctx.font="700 34px "+fam;
+  ctx.fillText((s.total!==null?formatoPesos(s.total)+" · ":"")+"Mi Plato Fácil",M+pad,H-M-44);
+  return c
+},
+compartirSemana(como){
+  const estado=msg=>{try{planStatus(msg)}catch(e){}};
+  if(como==="texto"){
+    let t="";
+    try{t=Compartir.semanaTexto()}catch(e){estado("No se pudo armar el texto de la semana.");return}
+    if(navigator.share)navigator.share({title:"Mi semana",text:t}).then(()=>estado("¡Compartido!")).catch(e=>{
+      if(e&&e.name==="AbortError")return;doCopy(t).then(ok=>estado(ok?"Compartir no está disponible; copiamos la semana.":"No se pudo compartir ni copiar."))
+    });
+    else doCopy(t).then(ok=>estado(ok?"Compartir no está disponible; copiamos la semana.":"No se pudo compartir ni copiar."));
+    return
+  }
+  let canvas;
+  try{canvas=Compartir.buildSemanaCanvas()}catch(e){estado("No se pudo generar la imagen.");return}
+  const bajar=()=>{
+    try{
+      const a=document.createElement("a");
+      a.href=canvas.toDataURL("image/png");
+      a.download="mi-semana.png";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      estado("Imagen descargada 📷")
+    }catch(e){
+      estado("No se pudo descargar la imagen.")
+    }
+  };
+  if(!canvas.toBlob){bajar();return}
+  canvas.toBlob(blob=>{
+    if(!blob){bajar();return}
+    try{
+      const file=new File([blob],"mi-semana.png",{type:"image/png"});
+      if(navigator.canShare&&navigator.canShare({files:[file]})&&navigator.share)navigator.share({files:[file],title:"Mi semana"}).then(()=>estado("¡Imagen compartida!")).catch(e=>{
+        if(e&&e.name==="AbortError")return;bajar()
+      });
+      else bajar()
+    }catch(e){
+      bajar()
+    }
+  },"image/png")
+},
 downloadCanvas(canvas){
   try{
     const url=canvas.toDataURL("image/png");

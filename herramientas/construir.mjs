@@ -2,10 +2,14 @@
 // Uso:
 //   node herramientas/construir.mjs                 → escribe index.html y sw.js
 //   node herramientas/construir.mjs --verificar     → solo comprueba que index.html y sw.js estén al día
-//   node herramientas/construir.mjs --salida <dir> [--version X]  → escribe en otra carpeta (pruebas)
+//   node herramientas/construir.mjs --salida <dir> [--version X] [--precios <archivo>]  → escribe en otra carpeta (pruebas);
+//     --precios usa otro archivo de precios en vez de datos/precios.json (pruebas y capturas, con precios congelados)
+//   Topes de tamaño: index.html 1.100.000 bytes y 300.000 con gzip; datos/precios.json 80.000. --tope-html y --tope-gzip
+//     solo pueden bajarlos (las pruebas los usan para comprobar que la construcción falla).
 // Sin dependencias: requiere Node 18 o superior.
 import { readFile, writeFile, readdir, mkdir } from 'node:fs/promises';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
+import { gzipSync } from 'node:zlib';
 import { fileURLToPath } from 'node:url';
 import vm from 'node:vm';
 
@@ -34,19 +38,27 @@ const datos = JSON.stringify(JSON.parse(await leer('datos/nutricion.json')))
   .replace(/<\//g, '<\\/').split('\u2028').join('\\u2028').split('\u2029').join('\\u2029');
 
 // Precios de INDEC incluidos en la app (misma idea que la nutrición).
-const datosPrecios = JSON.stringify(JSON.parse(await leer('datos/precios.json')))
+if (arg('--precios') && !arg('--salida')) throw new Error('--precios solo se usa con --salida: index.html del repositorio siempre se construye con datos/precios.json.');
+const archivoPrecios = arg('--precios') ? await readFile(resolve(arg('--precios')), 'utf8') : await leer('datos/precios.json');
+const datosPrecios = JSON.stringify(JSON.parse(archivoPrecios))
   .replace(/<\//g, '<\\/').split('\u2028').join('\\u2028').split('\u2029').join('\\u2029');
 
 // Envases típicos, básicos de alacena y gramajes por defecto (Ronda 2, Etapa 12).
 const datosEnvases = JSON.stringify(JSON.parse(await leer('datos/envases.json')))
   .replace(/<\//g, '<\\/').split('\u2028').join('\\u2028').split('\u2029').join('\\u2029');
 
-if (Buffer.byteLength(datosPrecios) > 60000) throw new Error('datos/precios.json pesa más de 60.000 bytes: ' + Buffer.byteLength(datosPrecios));
+// Ideas del catálogo con cantidades, pasos y tiempo (Ronda 4, Etapa 28).
+const archivoIdeas = await leer('datos/ideas.json');
+if (Buffer.byteLength(archivoIdeas) > 150000) throw new Error('datos/ideas.json pesa más de 150.000 bytes: ' + Buffer.byteLength(archivoIdeas));
+const datosIdeas = JSON.stringify(JSON.parse(archivoIdeas))
+  .replace(/<\//g, '<\\/').split('\u2028').join('\\u2028').split('\u2029').join('\\u2029');
+
+if (Buffer.byteLength(datosPrecios) > 80000) throw new Error('datos/precios.json pesa más de 80.000 bytes: ' + Buffer.byteLength(datosPrecios));
 
 let html = await leer('fuente/plantilla.html');
 html = unaVez(html, '{{ESTILOS}}', (await leer('fuente/estilos.css')).replace(/\n+$/, ''));
 html = unaVez(html, '{{CUERPO}}', cuerpo);
-html = unaVez(html, '{{CODIGO}}', unaVez(unaVez(unaVez(codigo, '__DATOS_NUTRICION__', datos), '__DATOS_PRECIOS__', datosPrecios), '__DATOS_ENVASES__', datosEnvases));
+html = unaVez(html, '{{CODIGO}}', unaVez(unaVez(unaVez(unaVez(codigo, '__DATOS_NUTRICION__', datos), '__DATOS_PRECIOS__', datosPrecios), '__DATOS_ENVASES__', datosEnvases), '__DATOS_IDEAS__', datosIdeas));
 html = unaVez(html, '{{VERSION}}', version);
 const sw = unaVez(await leer('fuente/sw.js'), '{{VERSION}}', version);
 
@@ -54,9 +66,12 @@ const sw = unaVez(await leer('fuente/sw.js'), '{{VERSION}}', version);
 const script = html.slice(html.indexOf('<script>') + 8, html.lastIndexOf('</script>'));
 new vm.Script(script, { filename: 'index.html' });
 new vm.Script(sw, { filename: 'sw.js' });
-if (/\{\{[A-Z]+\}\}|__DATOS_NUTRICION__|__DATOS_PRECIOS__|__DATOS_ENVASES__/.test(html)) throw new Error('Quedaron marcas sin reemplazar en index.html');
+if (/\{\{[A-Z]+\}\}|__DATOS_NUTRICION__|__DATOS_PRECIOS__|__DATOS_ENVASES__|__DATOS_IDEAS__/.test(html)) throw new Error('Quedaron marcas sin reemplazar en index.html');
 
-if (Buffer.byteLength(html) > 860000) throw new Error('index.html pesa más de 860.000 bytes: ' + Buffer.byteLength(html));
+const topeHtml = Math.min(1100000, Number(arg('--tope-html')) || 1100000), topeGzip = Math.min(300000, Number(arg('--tope-gzip')) || 300000);
+if (Buffer.byteLength(html) > topeHtml) throw new Error(`index.html pesa más de ${topeHtml.toLocaleString('es-AR')} bytes: ${Buffer.byteLength(html)}`);
+const pesoGzip = gzipSync(html).length;
+if (pesoGzip > topeGzip) throw new Error(`index.html pesa más de ${topeGzip.toLocaleString('es-AR')} bytes con gzip: ${pesoGzip}`);
 
 const salidas = { 'index.html': html, 'sw.js': sw };
 if (args.includes('--verificar')) {

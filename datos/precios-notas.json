@@ -2,81 +2,6 @@
  "_descripcion": "Notas sobre los datos de precios (Ronda 3, Etapa 19). No se incrusta en la app: la leen las pruebas. 'sinDato' son productos que la app usa y que ni INDEC ni SEPA publican hoy con datos suficientes en datos/precios.json: la app los estima con la mediana de su categoría (Etapa 20). Los que figuran con 'mapa: true' ya están en datos/precios-mapa.json (consulta a SEPA) y entran solos con la próxima corrida de 'Actualizar precios' si SEPA tiene al menos 10 observaciones y 3 comercios; esta sesión no pudo bajar SEPA ni INDEC (el entorno bloquea esos dominios). 'excepcionesPlausibilidad' son ingredientes que se apartan más de 4 veces de la mediana de su categoría y unidad base por motivos reales.",
  "sinDato": [
   {
-   "n": "Frutilla",
-   "mapa": true,
-   "motivo": "Sin precio en datos/precios.json: se sumó al mapa de SEPA en la Etapa 19"
-  },
-  {
-   "n": "Kiwi",
-   "mapa": true,
-   "motivo": "Sin precio en datos/precios.json: se sumó al mapa de SEPA en la Etapa 19"
-  },
-  {
-   "n": "Arándanos",
-   "mapa": true,
-   "motivo": "Sin precio en datos/precios.json: se sumó al mapa de SEPA en la Etapa 19"
-  },
-  {
-   "n": "Mandarina",
-   "mapa": true,
-   "motivo": "Sin precio en datos/precios.json: se sumó al mapa de SEPA en la Etapa 19"
-  },
-  {
-   "n": "Pera",
-   "mapa": true,
-   "motivo": "Sin precio en datos/precios.json: se sumó al mapa de SEPA en la Etapa 19"
-  },
-  {
-   "n": "Durazno",
-   "mapa": true,
-   "motivo": "Sin precio en datos/precios.json: se sumó al mapa de SEPA en la Etapa 19"
-  },
-  {
-   "n": "Uva",
-   "mapa": true,
-   "motivo": "Sin precio en datos/precios.json: se sumó al mapa de SEPA en la Etapa 19"
-  },
-  {
-   "n": "Ananá",
-   "mapa": true,
-   "motivo": "Sin precio en datos/precios.json: se sumó al mapa de SEPA en la Etapa 19"
-  },
-  {
-   "n": "Ciruela",
-   "mapa": true,
-   "motivo": "Sin precio en datos/precios.json: se sumó al mapa de SEPA en la Etapa 19"
-  },
-  {
-   "n": "Melón",
-   "mapa": true,
-   "motivo": "Sin precio en datos/precios.json: se sumó al mapa de SEPA en la Etapa 19"
-  },
-  {
-   "n": "Sandía",
-   "mapa": true,
-   "motivo": "Sin precio en datos/precios.json: se sumó al mapa de SEPA en la Etapa 19"
-  },
-  {
-   "n": "Mango",
-   "mapa": true,
-   "motivo": "Sin precio en datos/precios.json: se sumó al mapa de SEPA en la Etapa 19"
-  },
-  {
-   "n": "Pomelo",
-   "mapa": true,
-   "motivo": "Sin precio en datos/precios.json: se sumó al mapa de SEPA en la Etapa 19"
-  },
-  {
-   "n": "Granola",
-   "mapa": true,
-   "motivo": "Sin precio en datos/precios.json: se sumó al mapa de SEPA en la Etapa 19"
-  },
-  {
-   "n": "Champiñones",
-   "mapa": true,
-   "motivo": "Sin precio en datos/precios.json: se sumó al mapa de SEPA en la Etapa 19"
-  },
-  {
    "n": "Puerro",
    "mapa": true,
    "motivo": "Sin precio en datos/precios.json: SEPA no tuvo observaciones suficientes"
@@ -155,11 +80,6 @@
    "n": "Clara de huevo",
    "mapa": true,
    "motivo": "Sin precio en datos/precios.json: SEPA no tuvo observaciones suficientes"
-  },
-  {
-   "n": "Semillas de chía",
-   "mapa": true,
-   "motivo": "Sin precio en datos/precios.json: SEPA no tuvo observaciones suficientes"
   }
  ],
  "excepcionesPlausibilidad": [
@@ -190,6 +110,14 @@
   {
    "n": "Agua",
    "motivo": "agua mineral: por litro cuesta menos de la cuarta parte que los aceites con los que comparte categoría (almacén)"
+  },
+  {
+   "n": "Arándanos",
+   "motivo": "fruta fina que se vende en bandejas de 125 g: el precio por kg es alto"
+  },
+  {
+   "n": "Semillas de chía",
+   "motivo": "semilla que se vende en bolsas chicas: el precio por kg es alto"
   }
  ]
 }

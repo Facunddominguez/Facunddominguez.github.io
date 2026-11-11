@@ -55,6 +55,14 @@
     "e22_armado_con_sentido.js",
     "e23_catalogo_lista.js",
     "e24_semana_clara.js",
-    "e25_arreglos.js"
+    "e25_arreglos.js",
+    "r4e25_base.js",
+    "r4e26_lista.js",
+    "r4e27_semana.js",
+    "r4e28_ideas.js",
+    "r4e29_cien.js",
+    "r4e30_precios.js",
+    "r4e31_hoy.js",
+    "r4e32_respaldo.js"
   ]
 }

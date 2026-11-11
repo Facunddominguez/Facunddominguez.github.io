@@ -2550,3 +2550,266 @@ Pedidos por Facundo al probar la v17.5.0. Hechos fuera del modo autónomo, en la
 **Tests adaptados**: `e4_comidas.js` C4-1 (la bienvenida termina con la semana armada: 28 comidas con las 3 ideas elegidas, en 15 toques o menos; antes asignaba 3 huecos a mano), `e10_pulido.js` C10-1 y `e24_semana_clara.js` (Armame la semana con la semana vacía arma directo), `e15_armame.js` C15-6 (sin hoja con la semana vacía), `e21_ficha_precio.js` y `e24_semana_clara.js` (el formulario de Mi precio ya está abierto; el botón puede decir "Guardar mi precio"). Prueba nueva: `e25_arreglos.js` (semana que viene, aislamiento de esta semana mientras se mira la otra, adopción en su lunes —una vez o dos, mismo resultado— y la que quedó vieja sin abrir la app, ficha, texto y desayunos con proteína). 614 pruebas en total.
 
 **Revisión (`revisor-codigo`)**: tres bloqueantes corregidos: (1) volver a esta semana tocando la pestaña dejaba un Deshacer de la otra semana que podía pisar el plan → se borra `deshacerPlan` al cambiar de semana; (2) mirando la semana que viene no se guardan copias fechadas, porciones ni historial (se ocultan Porciones y "Lo comí hoy"; "Repetir semana anterior" pasa a "Repetir esta semana"); (3) la condición de C10-1 siempre daba verdadero. Además: al adoptar se limpian las porciones viejas, y si la app queda abierta al cambiar de semana la adopción corre igual (`Semana.alDiaProxima()`).
+
+## Ronda 4: la semana que se puede cocinar y pagar
+
+El plan completo está en `docs/prompt-ronda-4.md` (el análisis del que sale, en `docs/analisis-ronda-4.md`).
+
+### Registro de la Ronda 4
+
+| Etapa | Tema | Versión | Estado |
+|---|---|---|---|
+| 25 | Base en verde | 18.0.0 | ✅ |
+| 26 | Lista para el súper | 18.1.0 | ✅ |
+| 27 | Semana más corta y con tus objetivos | 18.2.0 | ✅ |
+| 28 | Ideas con cantidades y preparación | 18.3.0 | ✅ |
+| 29 | Cien ideas y una semana que alcanza | 18.4.0 | ✅ |
+| 30 | Precios al día y de tu barrio | 18.5.0 | ✅ |
+| 31 | Hoy con costo y la semana para compartir | 18.6.0 | ✅ |
+| 32 | Respaldo sin olvidos, recordatorio y recorrido final | 18.7.0 | ✅ |
+
+### Etapa 25 ✅ Base en verde
+Rama `rediseno-4-etapa-25-base`. Versión 18.0.0.
+
+**Plan corto**
+- `construir.mjs`: opción `--precios <archivo>`, topes nuevos (index.html 1.100.000 bytes y 300.000 con gzip; precios.json 80.000) y `--tope-html` / `--tope-gzip`, que solo pueden bajarlos (los usa `pruebas/tamano-construccion.mjs`). `probar.mjs` y `capturas.mjs` construyen la app en una carpeta temporal con `pruebas/fixtures/precios-congelados.json` y su servidor entrega ese `index.html`, ese `sw.js` y, en `/datos/precios.json`, el archivo congelado (con `--raiz` o `--archivo`, `capturas.mjs` sigue como antes). `actualizar-precios.mjs`: `fueraDeRango()` y el descarte por plausibilidad al generar; `--verificar` rechaza lo que quede fuera de rango en GBA y exige 100 o más ingredientes con precio en GBA. `datos/precios-notas.json`: dos excepciones nuevas y 16 productos menos en `sinDato`. Código: `Bienvenida.terminarBienvenida()` y `MisPlatos.persistSaved()`. Pruebas nuevas: `r4e25_base.js`, `tamano-construccion.mjs` y tres casos en `sepa-lector.mjs`.
+- Riesgos para los datos: ninguno (no se toca ninguna clave `miPlatoFacil_*`; `datos/precios.json` queda igual).
+
+**Hecho cuando**
+- ✅ R4-25-verde: con los precios congelados, `node herramientas/probar.mjs` da 100 % (el control R4-25-verde de `r4e25_base.js` comprueba que la app de las pruebas incrusta y sirve el archivo congelado y no el `datos/precios.json` del día).
+- ✅ R4-25-independiente: copia temporal del repositorio con `datos/precios.json` sin 10 ítems (Frutilla, Kiwi, Arándanos, Mandarina, Pera, Durazno, Uva, Ananá, Ciruela y Melón) y con todos los precios por 1,3: las 14 baterías de precios (`e7_precios.js`, `e9_sepa.js` y `e13` a `e25`, sin `e18`, que no existe) dieron **72/72, con el mismo resultado, prueba por prueba**, que en el repositorio original. La copia no se commitea. (Con el `datos/precios.json` del día cambiando, nada de lo que miden las pruebas se mueve, porque ya no lo leen.)
+- ✅ R4-25-datos: `actualizar-precios.mjs --verificar` pasa con los datos de hoy ("Precios válidos… 43622 bytes") y falla con un archivo con Frutilla multiplicada por 10 ("Frutilla GBA 183600 se aparta más de 4 veces de la mediana de su categoría"). Al generar, ese precio no se publica y se imprime "Descartado por plausibilidad: <ingrediente> <región> <precio>". Probado en `pruebas/sepa-lector.mjs` (3 casos nuevos).
+- ✅ R4-25-tamano: `pruebas/tamano-construccion.mjs` comprueba que la construcción falla por bytes, por gzip y por `precios.json` de más de 80.000. Hoy `index.html` pesa 858.903 bytes (228.950 con gzip).
+- ✅ R4-25-bienvenida: después de "Armar mi semana" y de "Saltar", tocar Hoy muestra `home`. Sin el arreglo la prueba falla con "pantalla: bienvenida" (reproducido antes de arreglar).
+- ✅ R4-25-costo: después de "Rehacer la semana entera", `#planDiaCosto` y el costo de cada hueco son iguales antes y después de ir a otra pestaña y volver, y los 4 huecos muestran costo.
+
+**Causas** (Decisión, reproducidas antes de arreglar)
+- **Tres pruebas en rojo:** E19-plausibilidad (arándanos $31.120/kg y chía $23.367/kg, ahora excepciones con su motivo), E20-sin-cero y `e24_semana_clara.js`. Las tres leían el `datos/precios.json` del día. E20 y E24 ahora arman el caso: un snapshot donde Frutilla (E20) o los 16 productos que antes no tenían precio (E24) pasan a `categorias` (con su categoría y sin precio), que es como figuraban antes en los datos. La exigencia es la misma.
+- **Bienvenida:** `switchTab()` recordaba la pila de Hoy con el paso 4. `terminarBienvenida()` ahora llama a `restart()` (que ya dejaba todas las pestañas en su inicio) antes de cambiar de pestaña, tanto en "Armar mi semana" como en "Saltar".
+- **Costo del día:** `contextoCostos()` lee lo guardado una vez por turno (`PRECIOS_CAZUELA`) y `ArmameSemana.armar()` lo había llenado antes de guardar las comidas nuevas, así que `renderPlan()` no encontraba la última comida guardada. `MisPlatos.persistSaved()` ahora descarta ese caché. Arregla también el armado desde la bienvenida.
+- **Plausibilidad** (Decisión): la regla es la de E19 (cuatro veces la mediana de la categoría y unidad base, con SEPA primero y INDEC si no hay, sin ítems por unidad). Agregué dos condiciones para no descartar de más: la categoría necesita al menos 5 ingredientes con precio en esa región y solo cuenta el precio de SEPA (el de INDEC no se toca). Al generar se mira cada región, con la mediana de esa región; `--verificar` mira solo GBA, que es lo que mide E19 y lo que usa la app por defecto, porque con los datos de hoy hay 10 precios de otras regiones (Azúcar Cuyo, Frutilla, Granola…) que se descartarían en la próxima corrida y `--verificar` tiene que pasar hoy.
+- **`sinDato`:** se sacaron los 16 que ya tienen precio. E19-cobertura sigue pasando con la misma exigencia (90 % entre real y anotado) y E19-cobertura-real (70 %).
+- **Topes** (Decisión): `--tope-html` y `--tope-gzip` existen solo para probar que la construcción falla y no pueden subir los topes. `MAX_BYTES_JSON` de `actualizar-precios.mjs` queda en 60.000 (los datos pesan 43.622); el tope de 80.000 es el de la construcción, como pide el plan.
+- **Compuerta:** `validar-etapa.mjs` acepta 0 a 32 y desde la 25 compara contra `rediseno-4`. `criterios.json` suma R4-25-verde, R4-25-independiente, R4-25-datos, R4-25-tamano, R4-25-bienvenida, R4-25-costo y R4-25-registro, y actualiza el texto de E9-tamano-app.
+
+**Tests adaptados**: `e20_un_costo.js` (E20-sin-cero) y `e24_semana_clara.js` (arman su propio caso de productos sin precio, ver arriba). Prueba nueva: `r4e25_base.js` (R4-25-verde, R4-25-bienvenida ×2, R4-25-costo).
+
+**Revisores (Etapa 25)**: `revisor-codigo` NO BLOQUEANTE. Se aplicó: `--precios` sin `--salida` ahora falla (no puede construir el `index.html` del repositorio con precios ajenos). Quedan como sugerencias: con los datos de hoy la próxima corrida descartará 10 precios de SEPA de otras regiones (Azúcar Cuyo, que es un falso positivo por barato y conviene anotar como excepción, Frutilla, Ciruela, Champiñones, Granola, Alcaucil); si la construcción falla, `probar.mjs` y `capturas.mjs` dejan su carpeta temporal.
+
+Compuerta final (Etapa 25): VALIDACIÓN ETAPA 25: OK (150 controles, 618 pruebas; línea base 607 → 618).
+
+### Etapa 26 ✅ Lista para el súper
+Rama `rediseno-4-etapa-26-lista-super`. Versión 18.1.0.
+
+**Plan corto**
+- `12-lista-de-compras.js`: `Compras.shoppingRow()` pasa a una fila que se toca entera (casilla, texto con nombre y precio, y un botón "ⓘ"); `Compras.marcarNombresCortos()` calcula una sola vez qué nombres se acortan y lo usan la pantalla y `comprasText()`. `23-equivalencias-de-ingredientes.js`: "cebolla" en `DISTINTOS`. `44-cantidades-de-platos.js`: la rebanada pasa a gramos con la tabla `pesoPorcion` y las tortillas se cuentan de a 2 por persona y comida. `datos/envases.json`: `pesoPorcion.Queso.rebanada = 30` y `pesoUnidad.Tortillas = 40`. `estilos.css`: casilla de 24 px que no se achica, filas de 48 px, botón ⓘ de 44×44; se sacaron los estilos del nombre y del precio tocables.
+- Riesgos para los datos: ninguno (`miPlatoFacil_shoppingChecks_v1` y su formato no cambian; no se tocan claves).
+
+**Hecho cuando**
+- ✅ R4-26-fila: un toque en el texto (nombre y precio), en el espacio libre de la fila, otra vez en el texto y otra vez en la fila da tachada, destachada, tachada, destachada; ninguna abre una hoja y no queda ningún botón de nombre o precio.
+- ✅ R4-26-ficha: un toque en "ⓘ" abre la ficha (`aria-label="Ficha de <producto>: nutrientes y precio"`) y no cambia la casilla.
+- ✅ R4-26-casilla: a 390 y a 320 px todas las casillas miden 24×24 px, todas las filas 48 px o más y todos los "ⓘ" 44×44.
+- ✅ R4-26-cantidades: con la semana armada las filas de queso están en gramos (antes "Queso Port Salut descremado: 4 unidades") y no hay ninguna en unidades; con 3 comidas con tortillas, "Tortillas de trigo o maíz: 1 paquete de 8 unidades".
+- ✅ R4-26-equivalencia: ya no se sugiere unir "Cebolla de verdeo" con "Cebolla"; siguen "Tomate perita" con "Tomate" y "Arroz (integral, yamaní)" con "Arroz".
+- ✅ R4-26-compartir: los 31 productos del texto compartido tienen el mismo nombre corto que su fila (antes el texto traía "Carne vacuna (nalga, cuadril, bola de lomo, lomo, roast beef)" y la pantalla, "Carne vacuna").
+- ✅ R4-26-alto: la vista `compras` en estado `normal` mide 3.120 px a 390 px (antes 3.626, tope 3.300); a 320 px, 3.341 (antes 3.871). Las palabras visibles siguen en 254 (E1-palabras-compras pasa).
+
+**Decisiones**
+- (Decisión) La rebanada de queso se pasa a gramos con `pesoPorcion` (la tabla que ya usan Ananá, Melón y Sandía) en vez de `pesoUnidad`, porque `pesoUnidad` solo sirve para pasar unidades a kilos al calcular el precio y habría convertido a gramos también las zanahorias o las bananas de la lista. La rebanada de pan de molde sigue siendo una unidad (el queso tiene entrada propia y el pan no).
+- (Decisión) El toque en el espacio libre de la fila lo resuelve un `click` de la fila que ignora lo que cae dentro del texto (el `label` ya tacha solo) o del botón: así un toque nunca tacha dos veces.
+- (Decisión) Las tortillas de 40 g se cuentan en unidades solo cuando son el almidón de un plato armado (2 por persona y por comida, sin importar la fracción del plato); la lista ya envasa en paquetes de 8.
+- (Decisión) El detalle del precio ("SEPA · mes · rango") dejó de tener su propio toque en la fila: se ve en la ficha, que ya lo mostraba.
+
+**Tests adaptados**: `e13_precios_a_la_vista.js` C13-1 (la fuente, el mes y el rango se leen en la ficha que abre el ⓘ, y la fila no se tacha; antes se tocaba el precio) y `e21_ficha_precio.js` (E21-un-toque y E21-mi-precio llegan a la ficha con el botón "ⓘ": sigue siendo un toque). La misma exigencia. Prueba nueva: `r4e26_lista.js` (6).
+
+**Revisores (Etapa 26)**: `revisor-usuario` (Compras a 390 y 320 px, antes y después) NO BLOQUEANTE. Se aplicó: "≈ $precio" va en un bloque que no se parte (a 320 px el "≈" quedaba solo al final de una línea) y el "ⓘ" pasó a la tinta del texto (tenía poco contraste en gris). Quedan como sugerencias: el "ⓘ" no dice qué abre la primera vez; cantidades sueltas como "Ajo: 1,5 unidades" o "Zanahoria: 160 g + 3 unidades · faltan 160 g"; en "Otros productos" el "Quitar" baja a otra línea (ya estaba antes); el aviso de presupuesto con borde rojo parece una alarma y el resumen repite lo mismo; una fila tachada se marca solo con tilde y tachado, sin atenuarse. `revisor-codigo` no corresponde en esta etapa (no toca datos guardados ni `datos/` salvo `envases.json`, tabla curada sin formato nuevo).
+
+Compuerta final (Etapa 26): VALIDACIÓN ETAPA 26: OK (158 controles, 624 pruebas; línea base 618 → 624). Nota: la primera corrida falló solo por la versión sin subir y la segunda por un desborde a 320 px del bloque del precio con "sin precio · estimado" (se acotó el bloque sin partir a "≈ $importe").
+
+### Etapa 27 ✅ Semana más corta y con tus objetivos
+Rama `rediseno-4-etapa-27-semana-corta`. Versión 18.2.0.
+
+**Plan corto**
+- `45-armame-la-semana.js`: `lineaDe()`, `detalleDe()`, `avisoDe()` y `avisoDetalle()` reemplazan al aviso largo (`resumen()` sigue devolviendo todo junto, para el Deshacer y para las pruebas); `gruposDe()` y las metas de `loadHabitGoals()` entran en el puntaje de cada candidata y en el ajuste por presupuesto; `armar()` devuelve `usoDespensa` y `sinObjetivo`. `10-plan-semanal.js`: el aviso con Deshacer y "Ver detalle", `planStatus()` que cede ante el aviso, el nombre de la comida sin emoji. `24-consumo-y-habitos.js`: `resumenObjetivosSemana()` en una línea. `32-pestanas.js`: `#planStatus` se vacía al abrir Semana desde otra pestaña. `estilos.css`: aviso compacto, chips, línea de precios. `capturas.mjs`: vista nueva `semana-armada`.
+- Riesgos para los datos: ninguno (no se toca ninguna clave ni el plan ni su historial; `miPlatoFacil_habitGoals_v1` solo se lee).
+
+**Hecho cuando**
+- ✅ R4-27-aviso: con 2 personas y $90.000 el aviso dice "Te pasás $N de tu presupuesto de $90.000. Lo que más pesa: …" (N es el total menos el presupuesto, con ±$1 de redondeo) y nombra 3 productos; con 1 persona y $200.000 dice "Entra en tu presupuesto de $200.000". "Deshacer" va en la misma línea y "Ver detalle" queda cerrado.
+- ✅ R4-27-un-mensaje: después de un mensaje temporal (como el de "Lo comí") al abrir Semana desde otra pestaña `#planStatus` está vacío; después de armar solo `#planAviso` tiene texto, y un `planStatus()` posterior no se muestra mientras está el aviso.
+- ✅ R4-27-arriba: caso común (1 persona, presupuesto que alcanza, los cuatro objetivos cargados): el primer hueco queda a 497 px a 390 px (antes 573 con el aviso largo) y a 512 px a 320 px (tope 600; antes 590). Caso más largo, 2 personas y $90.000 con "Te pasás…": 513 px a 390 y 529 a 320 (el tope de la prueba es 540 y 600).
+- ✅ R4-27-iconos: ningún nombre de comida empieza con emoji (el favorito ⭐ y la receta 📖 pasaron al final) y las etiquetas son "🍳 Desayuno", "☕ Merienda", "🥗 Almuerzo" y "🌙 Cena".
+- ✅ R4-27-chips: a 390 px los 7 chips miden 44,7 px (antes 43); a 320 px quedan como estaban.
+- ✅ R4-27-objetivos: con "pescado: 2" y $200.000, en 10 semanas distintas el armado siempre cumple el objetivo, y armada de verdad la línea dice "Pescado N/2" con N de 2 o más. Con $20.000 "Ver detalle" dice "No llegué a tu objetivo de pescado (N de 2) para no pasarme del presupuesto."
+
+**Decisiones**
+- (Decisión) El tope de 500 px se cumple en el caso común; el caso más largo (el aviso con "Te pasás…" y los tres productos) queda 20 px más abajo. No se bajó más porque `E24-separacion` pide 16 px entre la cabecera, el botón, los chips y el contenido, y porque el título "Esta semana · 26 oct – 1 nov" ocupa dos líneas entre los botones › y ⋯.
+- (Decisión) "Ver detalle" es un `<details>` en la misma línea que Deshacer (los dos de 40 px de alto; en la hoja de Deshacer sigue 44). El enlace "Completar N precios" mantiene los 44 px de toque con relleno y margen negativo, pero no agranda la línea. A 390 px la línea de precios va en una sola línea (`nowrap`); a 320 px puede bajar.
+- (Decisión) El ajuste por presupuesto (`armar()`) hace dos pasadas: primero sin dejar ningún grupo de objetivo por debajo de lo que ya tenía o del objetivo; si así no baja el costo, sin esa condición. Los objetivos suman 3 puntos por grupo mientras falta, antes de mirar el costo.
+- (Decisión) `planStatus()` no muestra nada mientras está el aviso de la semana armada (es lo más simple que cumple "nunca los dos a la vez"; los demás avisos con Deshacer siguen igual).
+- (Decisión) Se dejó el emoji en la hoja del hueco y en el selector (solo cambia lo que se ve en la lista de Semana).
+
+**Tests adaptados**: `e8_herramientas.js` C8-3 (la línea de objetivos es "Verduras 2/14 · Pescado 0/2" y "Verduras 2/2 ✓"; antes "Verduras en 2 de 14 comidas…"), `e15_armame.js` C15-1 (el presupuesto imposible dice "Te pasás $… de tu presupuesto de", antes "No llego al presupuesto"), `r3_saved.js` G3a y G7 (el plan muestra el nombre de la receta, sin el 📖 adelante). La misma exigencia. Prueba nueva: `r4e27_semana.js` (6).
+
+**Revisores (Etapa 27)**: `revisor-usuario` (Semana a 390 y 320 px, antes y después) NO BLOQUEANTE; la primera comida sube unos 70 px y no vio cortes ni superposiciones. Quedan como sugerencias: el aviso dice qué pasó y qué pesa pero no qué hacer (por ejemplo, cambiar una comida por una más barata); el aviso ocupa 3 líneas a 390 px y 4 a 320, con "Deshacer" dentro del texto y "Ver detalle" pegado; "Con precio" y la línea de costo quedan apretadas; sin "comidas" ni "objetivo", "14/10" no se explica solo; la fila de chips sobresale unos 6 px del margen de contenido (por el margen negativo que hace falta para llegar a 44 px); los nombres largos siguen cortados con "…" a 320 px (ya pasaba). `revisor-codigo` no corresponde en esta etapa (no toca datos guardados ni `datos/`).
+
+**Compuerta (Etapa 27), primera corrida** (Decisión): falló en 5 controles por dos causas, ambas mías. (1) La vista nueva `semana-armada` de `capturas.mjs` rehace el plan y corría antes de Compras y Registro, así que sus medidas cambiaron (Compras 3.339 px, Registro 650 palabras); ahora va al final, antes de `comida`. (2) El enlace "Completar N precios" tenía 44 px de toque con un margen negativo que se superponía con el primer hueco; ahora `#planPreciosEstado` deja 16 px debajo y el margen negativo no llega al hueco. Para no perder los 500 px se apretó el interior de los chips (alto 52 px) y el interlineado del título y del aviso.
+
+Compuerta final (Etapa 27): VALIDACIÓN ETAPA 27: OK (165 controles, 630 pruebas; línea base 624 → 630; la primera y la segunda corrida habían fallado, ver arriba).
+
+### Etapa 28 ✅ Ideas con cantidades y preparación
+Rama `rediseno-4-etapa-28-ideas`. Versión 18.3.0.
+
+**Plan corto**
+- `datos/ideas.json` (nuevo, ≈ 21 KB; tope 150.000) con las 41 ideas: `corto`, `cantidades` por persona, `pasos` y `minutos`. `construir.mjs` lo incrusta con `__DATOS_IDEAS__`; `01-datos-y-estado.js` le suma esos campos a cada idea del catálogo (si falta el archivo o está roto, las ideas siguen como antes). `37-ideas-y-hoja.js`: `IdeasHoja.ideaDeComida()`, `indiceDeIdeas()`, `nombreCorto()` y `textoCantidad()`. `44-cantidades-de-platos.js`: `cantidadesDePlatoArmado()` usa las cantidades de la idea y `pesoAlmidon()` la porción de adulto de los almidones por peso. `12-lista-de-compras.js`: una idea no deja filas "sin cantidad". `45-armame-la-semana.js`: `filasDe()` usa `idea.cantidades`. `39-comidas.js` y `24-comida.html`: "Qué lleva" con la cantidad para el hogar y "Cómo se hace · N min". `46-dieta.js`: `textoDeIdea()` suma los nombres de `cantidades`. `datos/envases.json`: `porcionAlmidon` (papa, batata y mandioca 200 g, choclo 150, pan 70) y `gramosPorCuarto.proteinas` de 120 a 150. Pruebas nuevas: `r4e28_ideas.js` (8).
+- Riesgos para los datos: ninguno (`miPlatoFacil_saved` no recibe ningún campo; la idea de una comida guardada se busca al mostrarla, por su nota y sus ingredientes).
+
+**Hecho cuando**
+- ✅ R4-28-41: las 41 ideas tienen `corto` (hasta 40 caracteres, sin "+"), `cantidades`, 3 a 5 pasos de hasta 140 caracteres y `minutos` entre 20 y 60; cada `text` coincide con el del catálogo y en el mismo orden.
+- ✅ R4-28-nombres: los 53 nombres de `cantidades` resuelven a un ítem de precios o de nutrición y ninguno es un básico de alacena.
+- ✅ R4-28-energia: cada idea aporta entre 450 y 850 kcal y 18 g de proteína o más por persona (de 457 a 820 kcal y de 23 a 59 g de proteína). El aceite no se cuenta.
+- ✅ R4-28-titulo: todo lo que nombra el título (pollo, atún, merluza, garbanzos…) está en las `cantidades` de cada idea.
+- ✅ R4-28-lista: con 14 ideas y 2 personas, `Compras.shoppingPlanItems()` da exactamente el doble de las cantidades de cada idea (misma clave y unidad), sin diferencias.
+- ✅ R4-28-editada: una idea guardada usa las cantidades de la idea; renombrada (con otro título y otra nota), también, porque solo hay una idea con ese conjunto de ingredientes; con un ingrediente cambiado (Zapallo → Zapallito) vuelve al cálculo general.
+- ✅ R4-28-detalle: el detalle muestra "Pollo · 150 g" con 1 persona y "Pollo · 300 g" con 2, "Cómo se hace · 40 min" y 4 pasos.
+- ✅ R4-28-corto: en Semana (los 7 días armados) ninguna comida muestra más de 40 caracteres, y los chips de la bienvenida usan el nombre corto.
+
+**Decisiones**
+- (Decisión) Autoría de `datos/ideas.json`: las porciones salen de los rangos de adulto del plan y se verificaron con la tabla de nutrición (kcal y proteínas cada 100 g) en un cálculo aparte; las que quedaban por debajo de 450 kcal (merluza con verduras salteadas, pescado con ensalada de remolacha) se subieron con más papa y pescado. Las 41 usan solo nombres de la tabla de nutrición con precio o estimado por categoría: "Fideos integrales", "Tomate cherry", "Cebolla morada", "Aceitunas verdes" y "Nueces" no tienen precio ni se pueden estimar, así que se usaron "Fideos", "Tomate", "Cebolla", "Queso fresco" y "Queso rallado" (el título de la idea no cambia).
+- (Decisión) Una comida que es una idea no genera filas "sin cantidad" por los nombres de su `state` (por ejemplo "Tortillas de trigo o maíz" frente a "Tortillas de trigo" de la idea): sin esto la lista duplicaba productos y "Con precio: N de M" no coincidía con los productos de la semana.
+- (Decisión) `nombreCortoDeComida()` es una función global que cae al nombre de siempre antes de que cargue `IdeasHoja` (el arranque pinta Hoy y Semana primero); la primera versión rompía el arranque.
+- (Decisión) El selector de comida usa el nombre corto, pero el filtro de texto sigue buscando en el nombre completo.
+
+**Pruebas recalculadas** (presupuestos, con los precios congelados): con porciones de adulto la semana más barata del catálogo de 41 ideas cuesta ≈ $72.700 para 1 persona (≈ $57.000 con las porciones chicas, v18.2.0), así que `e15_armame.js` C15-1 pasa de presupuestos 60/70/90 mil a 80/90/110 mil, C15-5 de $60.000 a $90.000, y `e24_semana_clara.js` de $70.000 a $90.000. La exigencia es la misma (llena los 28 huecos, no se pasa si se puede, avisa si no, hay una opción más barata en algún hueco). `r4e26_lista.js` R4-26-cantidades acepta "paquetes" (con 3 ideas de tortillas más la semana armada, la lista pide 2 paquetes de 8). `e13_precios_a_la_vista.js` y `e21_ficha_precio.js` ya estaban adaptadas en la Etapa 26.
+
+**Revisores (Etapa 28)**: `revisor-usuario` (detalle de una idea y Semana a 390 y 320 px) NO BLOQUEANTE; `revisor-codigo` BLOQUEANTE la primera vez, por porciones fuera de los rangos de adulto del plan: papa de 300 g en dos ideas de pescado, pan de 100 y 120 g en dos sándwiches y de 50 g en una ensalada, arroz de 50 g, garbanzos de 50 g, tres huevos en dos ideas y una hamburguesa con 180 g de verduras. Se corrigió todo en `datos/ideas.json` (papa 250 g con choclo o un huevo para no bajar de 450 kcal, pan de 60 a 80 g, arroz de 70 a 90 g, legumbres de 60 a 80 g, 2 huevos, 200 g de verduras o más) y se verificó con un script aparte que revisa los rangos de las 41. También se aplicó: los `minutos` y el primer paso de las ideas con legumbres secas ahora hablan del remojo o de usar legumbres cocidas; el índice de ideas se arma de nuevo si cambian los alias de ingredientes; `R4-28-titulo` usa la misma lista de palabras que `E23-titulo` (más "maíz"); el detalle dice "Qué lleva · para N personas" y los pasos tienen 16 px de aire antes de "Lo cociné".
+- (Decisión) **Tortillas:** las ideas "de maíz" (tacos de garbanzos y tortillas rellenas) llevan "Tortillas de trigo" en `cantidades` porque "Tortillas de maíz" no tiene precio ni se puede estimar. Queda anotado; con un filtro sin gluten esas ideas no entran (no hay filtro sin gluten en la app).
+- Quedan como sugerencias: con `porcionAlmidon`, un plato armado a mano con papa de 200 g y otro almidón no curado en el mismo cuarto deja a ese almidón en 40 g (caso borde); `$80.000` deja poco margen en C15-1 (la semana más barata cuesta ≈ $72.700; la Etapa 29 baja ese piso).
+
+Compuerta final (Etapa 28): VALIDACIÓN ETAPA 28: OK (174 controles, 638 pruebas; línea base 630 → 638).
+
+### Etapa 29 ✅ Cien ideas y una semana que alcanza
+Rama `rediseno-4-etapa-29-cien-ideas`. Versión 18.4.0.
+
+**Plan corto**
+- `datos/ideas.json` pasa de 41 a 100 ideas (≈ 55 KB; tope 150.000): 29 platos nuevos y 30 desayunos y meriendas. `01-datos-y-estado.js`: los platos nuevos se agregan al final de `data.menuCatalog` y los desayunos van a `data.desayunoCatalog`. `37-ideas-y-hoja.js`: `ideaDeComida()`, `ideaComoComida()` y el índice entienden los desayunos (nota de la idea y conjunto fruta, proteína y cereal); `esEconomica()`. `45-armame-la-semana.js`: `candidatosDesayuno()` usa las ideas de desayuno y deja las plantillas de la Etapa 22 como respaldo con menos de 6; las comidas guardadas por el armado llevan la nota de la idea; `filasDe` sale expuesta. `38-selector-de-comida.js`: sección "Ideas" al elegir desayuno o merienda. `40-primera-vez.js`: `ideasParaArrancar()` elige las 8 más baratas por porción con 4 proteínas base distintas (`costoPorPorcionDeIdea()`, `proteinaBaseDeIdea()`). `02-tema-y-componentes.js`: etiqueta "Económica". `datos/precios-mapa.json`: solo el ámbito (Berenjena pasa de "armado" a "núcleo", porque una idea nueva la usa). Pruebas nuevas: `r4e29_cien.js` (11).
+- Riesgos para los datos: ninguno (`miPlatoFacil_saved` no recibe campos nuevos; las comidas guardadas desde una idea de desayuno tienen la misma forma que las de siempre, con la nota de la idea).
+
+**Hecho cuando**
+- ✅ R4-29-cien: 100 ideas (70 de plato y 30 de desayuno), sin `text` ni `corto` repetidos y con 30 combinaciones distintas de fruta, proteína y cereal.
+- ✅ R4-29-validas: las 100 cumplen el formato (los desayunos, con 2 a 4 pasos y con `desayuno` {fruta, prot, cereal}); las 29 nuevas tienen `text` de hasta 40 caracteres. Las 24 pedidas por el plan están, con el título de la lista (una más, "Pollo con arroz y ensalada", se llamó antes "al limón": se renombró porque el título nombraba un limón que no está en las cantidades).
+- ✅ R4-29-energia: cada almuerzo o cena aporta 450 a 850 kcal y 18 g de proteína o más; cada desayuno o merienda, 250 a 450 kcal y 8 g o más.
+- ✅ R4-29-semana: una semana armada para 1 persona da de media 1.916 kcal por día (mínimo 1.557, máximo 2.309) en 10 semillas distintas, y ninguna baja de 1.400 (antes de la ronda, ≈ 1.340 de media).
+- ✅ R4-29-dieta: con cada uno de los 6 filtros de dieta, ninguna idea permitida contiene un ingrediente excluido en sus ingredientes ni en sus cantidades, y quedan 10 ideas o más con cada filtro.
+- ✅ R4-29-baratas: con los precios congelados, 22 almuerzos o cenas cuestan $2.500 o menos por porción y 10 desayunos, $1.300 o menos (sin margen: hay exactamente 10).
+- ✅ R4-29-piso: con los precios congelados y porciones de adulto, la semana más barata cuesta **$62.027 para 1 persona y $103.605 para 2** (con las 41 ideas de adulto de la Etapa 28, ≈ $72.700 para 1 persona; con las 100 ideas sin ajustar el costo, $69.188 y $113.959; con porciones chicas, v17.6, ≈ $57.100 y ≈ $92.900), dentro de los topes de $68.000 y $110.000.
+- ✅ R4-29-bienvenida: las 8 ideas son las más baratas por porción (de $1.753 a $2.263) con 4 proteínas base distintas (huevo, pollo, legumbres y carne) y ninguna pasa de 40 caracteres.
+- ✅ R4-29-variedad: `E22-variedad` y las demás de la Etapa 22 (topes y combinaciones prohibidas) siguen pasando con el catálogo nuevo.
+- ✅ R4-29-armado: en 10 semanas, los 14 desayunos y meriendas de cada una salen de las ideas de desayuno.
+- ✅ R4-29-selector: al elegir desayuno aparecen las ideas de desayuno; al elegir una queda en el plan como idea y su detalle muestra cantidades y de 2 a 4 pasos.
+- ✅ R4-29-economica: "Económica" marca 24 de los 70 platos y 10 de los 30 desayunos (el tercio más barato de cada tipo).
+
+**Decisiones**
+- (Decisión) **Costos de las ideas.** Con los precios congelados, el primer borrador de las 29 ideas nuevas costaba entre $2.200 y $5.400 por porción y solo 4 de 70 platos y 7 de 30 desayunos llegaban a los topes. Se ajustaron las cantidades (no los títulos) con un cálculo aparte que replica `costoDeFilas()`: menos tomate (a $6.590/kg pesa más que la carne picada a $6.999/kg), menos queso rallado ($51.137/kg), carne picada en vez de carne vacuna donde el nombre lo permite, yogur descremado ($8.667/kg) en vez de natural ($16.699/kg), fruta de unidad barata (naranja, mandarina, banana) en vez de manzana ($900 la unidad). Se mantuvieron los rangos de adulto del plan (revisados con el mismo script de la Etapa 28) y la energía de cada idea. Las 41 ideas de la Etapa 28 también cambiaron algunas cantidades por este motivo (por ejemplo, menos tomate y más zanahoria o repollo en las ensaladas); su `text` y su orden no cambian.
+- (Decisión) Las plantillas de desayuno de la Etapa 22 quedan solo de respaldo: si los filtros dejan menos de 6 ideas de desayuno, el armado vuelve a ellas.
+- (Decisión) "Económica" se calcula por tipo (plato o desayuno) sobre el costo por porción del día (precios y región vigentes) y se recalcula si cambian los precios o la región.
+- (Decisión) La bienvenida deja de ofrecer las 8 primeras del catálogo: ahora son las 8 más baratas, y con los precios apagados vuelven a ser las 8 primeras que pasan los filtros.
+- (Decisión) El ámbito de `datos/precios-mapa.json` es una lista que la prueba E9-cobertura-precios exige igual a la de la app: se movió Berenjena de "armado" a "núcleo". Es el único cambio de datos fuera de `ideas.json`.
+
+**Pruebas adaptadas**: `e2_semana.js` C2-8c (desayuno y merienda ahora sí muestran Ideas: las de desayuno), `e23_catalogo_lista.js` E23-titulo (recorre las 70 ideas de plato), `r4e28_ideas.js` (R4-28-41 y R4-28-titulo miran las primeras 41 ideas, y R4-28-detalle lee Pollo 140 g y Pan rallado 40 g de la idea de milanesa de pollo, ajustada por costo), `e24_semana_clara.js` (el snapshot sin precio suma Banana y Naranja, que llevan casi todos los desayunos nuevos, para que siga habiendo productos para "Completar precios"). La misma exigencia en todo.
+
+**Revisión (`revisor-codigo`)**: BLOQUEANTE la primera vez, con dos hallazgos que eran reales y se corrigieron: (1) cinco desayunos tenían `desayuno.fruta` distinta de la fruta de sus `cantidades` y de sus pasos (o una "fruta" que era un tomate) y dos pares de ideas tenían la misma combinación de fruta, proteína y cereal, con lo que se habrían guardado como una sola comida (de hecho una aparecía 4 veces en una semana): ahora cada desayuno tiene su combinación, su fruta está en `data.frutas`, en las cantidades y en los pasos, y `R4-29-validas` y `R4-29-cien` lo controlan. (2) Cinco desayunos usaban Ricota, Mantequilla de maní o Mermelada, que no tienen precio ni estimado y contaban $0 (por eso el aviso decía "al menos" y las pruebas de la Etapa 27 se habían relajado): se reemplazaron por ingredientes con precio y `costoPorPorcionDeIdea()` ahora no da costo si falta un precio. Las pruebas de la Etapa 27 **volvieron a su exigencia original** (aviso sin "al menos" y tope de 540 px en el caso largo). También se aplicó: `textoDeIdea()` mira los tres nombres del desayuno y `esEconomica()` se recalcula si cambian tus precios propios. Quedan como sugerencias: pasos que nombran queso rallado, lechuga o mayonesa sin cantidad, y un desayuno propio sin nota con el mismo trío que una idea hereda su nombre corto (igual que ya pasaba con los platos).
+
+Compuerta final (Etapa 29): VALIDACIÓN ETAPA 29: OK (187 controles, 650 pruebas; línea base 638 → 650).
+
+### Etapa 30 ✅ Precios al día y de tu barrio
+Rama `rediseno-4-etapa-30-precios-barrio`. Versión 18.5.0.
+
+**Plan corto**
+- `43-precios.js`: `dondeCompro()`, `guardarDondeCompro()`, `validDondeCompro()`, `preciosRevisados()`, `validPreciosRevisados()`; `precioAuto()` usa INDEC antes que SEPA para frutas y verduras con "Verdulería"; `preciosDeVerdura()` (los dos precios de la ficha); `precioParaRevisar()`, `preciosParaRevisar()`, `marcarPrecioRevisado()` y `abrirRevisarPrecios()`; enlace "Revisar N precios tuyos" en la línea de precios de Semana y bloque "Tu precio es de hace N días." con "Sigue igual" y "Actualizar" en la ficha. `26-preferencias.html`: "Compro frutas y verduras en" junto a la región. `18-respaldo-completo.js`: las dos claves nuevas, opcionales y con validador. `capturas.mjs`: vistas `ficha-papa`, `revisar-precios` y `ficha-revisar`. Pruebas nuevas: `r4e30_precios.js` (6).
+- Riesgos para los datos: `miPlatoFacil_referencePrices_v1` no se toca (ni su `date`); "Sigue igual" escribe solo en `miPlatoFacil_preciosRevisados_v1`. Claves nuevas: `miPlatoFacil_dondeCompro_v1` (`{"version":1,"verduras":"verduleria"|"super"}`) y `miPlatoFacil_preciosRevisados_v1` (`{"version":1,"revisados":{"<id>":"AAAA-MM-DD"}}`), las dos opcionales en el respaldo y con validador; un respaldo viejo, que no las trae, se restaura igual y usa "Verdulería".
+
+**Hecho cuando**
+- ✅ R4-30-verduleria: con los precios congelados y "Verdulería", la papa cuesta $2.201/kg en GBA (INDEC); con "Supermercado", $3.999/kg (SEPA); con un Mi precio de $1.500/kg, ese.
+- ✅ R4-30-defecto: sin la clave, se usa "Verdulería" y la papa da lo mismo que con la clave; arroz, leche y pollo cuestan lo mismo con las dos opciones (misma fuente); el tomate cambia.
+- ✅ R4-30-ficha: la ficha de la papa muestra "En verdulería ≈ $2.201/kg · INDEC GBA · <mes> 2026" y "En súper ≈ $3.999/kg · SEPA GBA · 4 nov. 2026"; Preferencias tiene el selector, con verdulería por defecto, y guarda la elección.
+- ✅ R4-30-revisar: con un Mi precio de hace 61 días, Semana dice "Revisar 1 precio tuyo"; con uno de 59 días y el automático un 10 % arriba, no; con uno de 31 días y el automático un 25 % arriba, sí (con uno de 31 días y 10 %, o de 10 días y 25 %, tampoco).
+- ✅ R4-30-sigue-igual: la hoja dice "Tomate · tu precio $4.039/1 kg (11 sept.) · en la zona ≈ $4.039/kg"; "Sigue igual" lo saca de la lista, `referencePrices_v1` queda igual byte a byte y `preciosRevisados_v1` queda con `{"ficha_tomate":"<hoy>"}`.
+- ✅ R4-30-respaldo: las dos claves van y vuelven en el respaldo (opcionales), un `verduras` inválido se rechaza, y el respaldo de ejemplo v14.9.94 se restaura igual.
+
+**Total de la semana de la prueba** (misma semana armada con presupuesto de $90.000, precios congelados): **$88.419 con "Supermercado" y $80.950 con "Verdulería"**, $7.469 menos (8,4 %). Papa $2.201 contra $3.999 el kilo, tomate $4.039 contra $6.590, naranja $1.207 contra $1.860; la banana sube: $3.239 con INDEC contra $2.499 con SEPA.
+
+**Yogur** (Decisión): `datos/precios-mapa.json` busca "Yogur natural" en litros (`b: "l"`; INDEC "Yogur firme 195 cc" y SEPA "yogur natural" de 0,1 a 1,5 kg, sin griego ni bebible) y "Yogur descremado" en kilos (solo SEPA). Lo que se pudo comprobar con los datos de hoy: SEPA da $17.200 para natural en GBA y el INDEC, $13.325 el litro, un 29 % de diferencia, dentro del rango de 0,5 a 2 veces que ya controla la herramienta; el descremado cuesta $8.667 el kilo. Hay una inconsistencia chica: el filtro de SEPA de "Yogur natural" tiene `u: "kg"` y `herramientas/actualizar-precios.mjs` toma `r.u || r.b`, así que esos $17.200 son por kilo y la app los muestra por litro (con densidad 1,03 serían ≈ $17.700 el litro, un 3 % más). Esa diferencia no explica por qué natural cuesta el doble que descremado. **No se tocó el mapa**: sin bajar los datos de SEPA (el entorno no llega a esos dominios) no se puede ver cuál de los dos productos es el raro, y cambiar la unidad o la búsqueda a ciegas podría romper la próxima corrida de "Actualizar precios". Va a "Pendientes para vos". Las ideas de desayuno de la Etapa 29 usan "Yogur descremado" para no depender de ese número.
+
+**Decisiones**
+- (Decisión) Con "Verdulería" el orden de fuentes es INDEC de la región, INDEC de GBA, SEPA de la región y SEPA de GBA solo para ítems de categoría `frutas` o `verduras`; el resto no cambia. La ficha muestra los dos precios solo si el ítem tiene INDEC y SEPA (un ítem con una sola fuente conserva su línea de siempre).
+- (Decisión) "Para revisar" mira todas las entradas válidas de `referencePrices_v1` en pesos (no solo las que se cargaron desde la ficha), compara contra el precio automático de esa región y fuente según la preferencia, y cuenta desde la fecha más nueva entre la de la entrada y la de "Sigue igual".
+- (Decisión) "Actualizar" en la hoja abre la ficha del ingrediente con el formulario de Mi precio; en la ficha enfoca el campo "Monto".
+- (Decisión) Con los precios apagados no se muestra el enlace.
+
+**Pruebas adaptadas**: ninguna (655 pruebas en verde con el cambio de fuentes por defecto; las pruebas de ficha y de totales ya leían los valores de los datos congelados).
+- (Decisión) **Efecto en las ideas baratas:** con la verdulería la banana sube (INDEC $3.239 contra SEPA $2.499 el kilo) y dos desayunos de la Etapa 29 pasaron de $1.300 por porción, así que quedaban 9 y R4-29-baratas pedía 10. Se bajaron "Leche con granola y banana" (leche 180 g y granola 20 g) y "Tostadas con huevo duro y banana" (un huevo y queso fresco en vez de dos huevos); quedan 11 desayunos de $1.300 o menos y 24 platos de $2.500 o menos.
+
+**Revisores (Etapa 30)**: `revisor-usuario` (Preferencias, ficha, Semana y hoja de revisar a 390 y 320 px) NO BLOQUEANTE y `revisor-codigo` NO BLOQUEANTE. Se aplicó: (1) con "Verdulería" el orden pasa a INDEC de la región, INDEC de GBA, SEPA de la región, SEPA de GBA, así que la opción vale también fuera de GBA y la ficha muestra lo que realmente se usa (antes, en las regiones donde INDEC solo publica GBA, la ficha decía "En verdulería … INDEC GBA" pero el costo usaba SEPA de la región); (2) "Sigue igual" poda los ids de entradas que ya no existen y el validador de `preciosRevisados_v1` rechaza fechas imposibles (como 2026-99-99); (3) se quitó una rama muerta; (4) la hoja dice "$2.500/kg" y no "$2.500/1 kg"; (5) cada ingrediente cuenta una sola vez (la entrada que se usa); (6) la sugerencia de explicar en Preferencias qué cambia la elección se probó y se sacó: con la línea, Preferencias pasaba el tope de palabras de E8-palabras-preferencias (231 contra 227); la explicación está en la ficha, que muestra los dos precios. Quedan como sugerencias: marcar en la ficha cuál de los dos precios usa la app; con Mi precio la ficha muestra "Promedio de la zona" con un solo valor; el "Actualizar" y "Guardar mi precio" compiten como botones llenos en la ficha; "Revisar N precios tuyos" se parte en 3 líneas junto a "Completar" a 390 px.
+
+**Pendientes para vos** (Etapa 30): revisar `datos/precios-mapa.json` para "Yogur natural" (unidad de SEPA y la brecha con el descremado, ver arriba) con una corrida real de "Actualizar precios".
+
+Compuerta final (Etapa 30): VALIDACIÓN ETAPA 30: OK (194 controles, 656 pruebas y 37 claves; línea base 650 → 656; la primera corrida falló en E8-palabras-preferencias por la línea de ayuda, que se sacó).
+
+### Etapa 31 ✅ Hoy con costo y la semana para compartir
+Rama `rediseno-4-etapa-31-hoy-costo`. Versión 18.6.0.
+
+**Plan corto**
+- `31-hoy.js`: `textoCostoHoy()` y la línea `#todayCosto` (en `01-home.html`) debajo del chip de entrenamiento: costo del día (`costoDelDiaPlan(dia)`, que ahora acepta un día) y grupos del plato que cubren las comidas de hoy (`plateGroups()`). `08-copiar-y-compartir.js`: `Compartir.semanaParaCompartir()`, `rangoCorto()`, `semanaTexto()`, `buildSemanaCanvas()` y `compartirSemana()`. `38-selector-de-comida.js`: "Compartir la semana" en el menú ⋯ de Semana, con "Como texto" y "Como imagen". `capturas.mjs`: vista `compartir-semana`. Pruebas nuevas: `r4e31_hoy.js` (4).
+- Riesgos para los datos: ninguno (no se escribe nada; "Lo comí", el registro y el plan no se tocan).
+
+**Hecho cuando**
+- ✅ R4-31-hoy: con la semana armada, Hoy dice "Hoy ≈ $… · Plato completo…" o "Te falta: …" con el mismo monto que "hoy ≈" de Semana; un día con solo un almuerzo sin fruta dice "Hoy ≈ $… · Te falta: fruta"; con un desayuno con fruta, "Plato completo: verduras, almidón, proteína y fruta"; sin plan para hoy la línea se oculta; con los precios apagados queda "Te falta: …" sin ningún "$".
+- ✅ R4-31-texto: el menú ⋯ de Semana ofrece "Compartir la semana" con "Como texto" y "Como imagen"; el texto empieza con "🍽️ Mi semana · 9 al 15 de nov" (según la semana), trae los 7 días ("*Lunes 9*"), las 28 comidas en nombre corto con el ícono de su hueco y "*Total ≈ $…*", el mismo que Semana. Se comparte con `navigator.share` (título "Mi semana") o se copia.
+- ✅ R4-31-imagen: el canvas mide 1080×1350, el PNG pesa más de 20 KB y se comparte como archivo `image/png` ("mi-semana.png") con `navigator.share` y `canShare` simulados; sin `navigator.share`, se descarga "mi-semana.png".
+- ✅ R4-31-proxima: desde "Semana que viene" el texto y la imagen llevan las fechas y las 28 comidas de esa semana y su total.
+
+**Decisiones**
+- (Decisión) El total de la semana compartida es `costoSemanaPlan()` (el de Semana y Compras) para esta semana y `costoSemanaDeFilas()` con las comidas de su plan para la que viene, porque Compras sigue con esta semana mientras se mira la otra. Sin precios (apagados) no hay línea de total.
+- (Decisión) En la imagen, cada día lleva solo el almuerzo y la cena (como pide el plan) en nombre corto, recortado con "…" si no entra; el texto, las cuatro comidas.
+- (Decisión) La línea de Hoy no aparece si no hay ninguna comida planificada para hoy, aunque haya plan otros días.
+- (Decisión) Los grupos que cubre el día son verduras, almidón, proteína y fruta, mirando todas las comidas de hoy; las legumbres cuentan: las que van como "legCarb" valen como almidón y las de "legProt", como proteína (si no, "Garbanzos guisados con arroz" diría que falta proteína).
+
+**Pruebas adaptadas**: ninguna.
+
+**Revisores (Etapa 31)**: `revisor-usuario` (Hoy y la hoja de compartir a 390 y 320 px) NO BLOQUEANTE. La imagen que se comparte se miró aparte en una captura (vista nueva `imagen-semana`): el título, las 7 filas con almuerzo y cena en nombre corto y el total al pie entran sin cortes. Quedan como sugerencias (los textos de Hoy son los que pide el plan): la línea enumera los 4 grupos aunque el plato esté completo; "Plato completo" se lee como lo planificado y no como lo comido; "Te falta" puede sonar a reproche; con la semana vacía igual se ofrece compartir; en la hoja las dos opciones van alineadas a la izquierda y "Cerrar" centrado. `revisor-codigo` no corresponde en esta etapa (no toca datos guardados ni `datos/`).
+
+Compuerta final (Etapa 31): VALIDACIÓN ETAPA 31: OK (199 controles, 660 pruebas; línea base 656 → 660).
+
+### Etapa 32 ✅ Respaldo sin olvidos, recordatorio y recorrido final
+Rama `rediseno-4-etapa-32-respaldo`. Versión 18.7.0.
+
+**Plan corto**
+- `18-respaldo-completo.js`: `validRespaldoAviso()` y el módulo `RespaldoAviso` (`estado()`, `pintar()`, `masTarde()`, `guardarCopia()`, `pedirPersistencia()`); el botón `#backupExport` ("Guardar copia" en Mis datos) pasa a `RespaldoAviso.guardarCopia()`; la clave `miPlatoFacil_respaldoAviso_v1` entra al respaldo como opcional, con validador. `01-home.html` y `20-backupScreen.html`: el aviso al pie de Hoy y en Mis datos. `31-hoy.js` y `go()`: pintan el aviso. `40-primera-vez.js` y `09-mis-platos.js`: piden el almacenamiento persistente. `08-copiar-y-compartir.js` y `38-selector-de-comida.js`: "Recordarme armar la semana" en el menú ⋯ de Semana (día, hora y "Agregar al calendario") y el archivo `armar-la-semana.ics`. `46-dieta.js` (último archivo): el enlace `?ir=semana-proxima`. `capturas.mjs`: vistas `hoy-aviso-respaldo`, `respaldo-aviso` y `recordatorio`. Pruebas nuevas: `r4e32_respaldo.js` (7).
+- Riesgos para los datos: clave nueva `miPlatoFacil_respaldoAviso_v1` (`{"version":1,"primerUso":"AAAA-MM-DD","ultimo":"AAAA-MM-DD","pospuesto":"AAAA-MM-DD"}`, `ultimo` y `pospuesto` opcionales), opcional en el respaldo y con validador (rechaza fechas imposibles); la app la crea sola (`primerUso` de hoy) la primera vez que mira Hoy con comidas o plan guardados. No se toca el formato `complete-local-v1` ni `validateCompleteBackup()` salvo por sumar la clave como opcional; un respaldo viejo se restaura igual.
+
+**Hecho cuando**
+- ✅ R4-32-aviso: con el último respaldo hace 30 días aparece "Hace 30 días que no guardás una copia de tus datos." en Hoy y en Mis datos; con 29, no; sin comidas ni plan, no; sin respaldo se cuenta desde el primer uso ("Hace 34 días"); "Más tarde" lo esconde hoy y los 7 días siguientes (aparece de nuevo el octavo).
+- ✅ R4-32-copia: "Guardar copia" comparte `mi-plato-respaldo-<fecha>.json` (`application/json`) que `validateCompleteBackup()` acepta, con `navigator.share` y `canShare` simulados, y deja `ultimo` con la fecha de hoy; sin `canShare`, descarga el mismo archivo (desde `#backupExport`) y también guarda la fecha.
+- ✅ R4-32-persistente: `navigator.storage.persist()` se llama una vez al terminar la bienvenida (y no de nuevo al guardar la primera comida en la misma sesión); sin `navigator.storage`, no falla.
+- ✅ R4-32-ics: "Recordarme armar la semana" propone domingo 18:00; con martes 19:30 baja `armar-la-semana.ics` con `BEGIN:VCALENDAR`, un `VEVENT`, `RRULE:FREQ=WEEKLY;BYDAY=TU`, `DTSTART` a las 19:30, un `VALARM`, el título "Armar la semana · Mi Plato Fácil" y el enlace con `?ir=semana-proxima` (armado con `location.origin + location.pathname`, sin ningún dominio escrito en el código).
+- ✅ R4-32-enlace: `index.html?ir=semana-proxima` abre Semana en "Semana que viene"; sin el parámetro, Hoy como siempre.
+- ✅ R4-32-respaldo: la clave nueva va y vuelve, una fecha imposible (2026-99-99) se rechaza, y el respaldo de ejemplo v14.9.94 se restaura igual.
+- ✅ R4-32-recorrido: una sola prueba hace el recorrido final con la interfaz: bienvenida (Siguiente, Ahora no, Ahora no, 3 ideas, "Armar mi semana") con 28 comidas armadas; el detalle de una comida que viene de una idea (3 pasos o más); "Supermercado" en Preferencias, que sube el total de la semana; 5 productos tachados en Compras y "Terminé de comprar" (los pendientes bajan); compartir la semana como texto y guardar una copia.
+
+**Recorrido final con `revisor-usuario`** (a 390, 360 y 320 px): bienvenida, semana, detalle de una comida, Preferencias, Compras, "Compartir la semana", el aviso de respaldo en Hoy y en Mis datos y el recordatorio; capturas en `capturas/despues32-<ancho>` (no se versionan). Ver el veredicto abajo.
+
+**Decisiones**
+- (Decisión) El aviso se cuenta en días calendario locales y "Más tarde" esconde el aviso hoy y los 7 días siguientes ("durante 7 días, vuelve al octavo").
+- (Decisión) `primerUso` se escribe la primera vez que se mira Hoy con datos (no al instalar), así quien ya tenía datos recibe el aviso 30 días después de actualizar.
+- (Decisión) El almacenamiento persistente se pide al terminar la bienvenida y, para quien ya la había visto, al guardar una comida (la primera de la sesión); siempre una vez por sesión, sin texto en pantalla.
+- (Decisión) El enlace del recordatorio se interpreta en el último archivo de código: en `14-eventos-y-arranque.js` las pestañas todavía no existen y no pasa nada (se vio al probarlo).
+- (Decisión) Con `navigator.canShare({ files })` la copia y el recordatorio van al menú de compartir; si el usuario cancela, no se guarda la fecha; si falla otra cosa, se descarga.
+
+**Pruebas adaptadas**: `f03_plan.js` P9c (el respaldo conserva 17 claves sin contar `miPlatoFacil_respaldoAviso_v1`, que la app crea sola al mirar Hoy con datos; la exigencia sobre las 17 de siempre es la misma). Se renombró el texto del botón `#backupExport` de "Descargar respaldo" a "Guardar copia" (ninguna prueba lo leía por su texto).
+
+**Revisores (Etapa 32)**: `revisor-codigo` NO BLOQUEANTE y `revisor-usuario` (recorrido final a 390, 360 y 320 px) NO BLOQUEANTE, sin textos cortados ni controles superpuestos en ningún paso. Se aplicó: (1) la fecha de la copia se guarda solo si el respaldo era válido; (2) el archivo guardado ya lleva `ultimo` con la fecha de esa copia (así, al restaurarlo, el aviso no vuelve enseguida); (3) la pantalla Mis datos también pinta el aviso al volver desde la memoria de la pestaña; (4) "Reemplazá tus datos por los del archivo" (estaba en tuteo). Quedan como sugerencias: en Mis datos el aviso y el botón "Guardar copia" quedan uno debajo del otro (el plan pide el aviso ahí); "Quitar" en "Otros productos" de Compras baja a su propia línea (ya estaba antes); el recuadro de presupuesto de Compras con borde rojo se lee duro; Preferencias está cargada; el botón "⋯" del detalle de una comida no dice qué esconde; "Registro" está fuera del vocabulario; la validación de fechas de `validRespaldoAviso` usaría `toISOString()` y en husos UTC+13 o UTC+14 rechazaría fechas válidas (no afecta a Argentina).
+
+Compuerta final (Etapa 32): VALIDACIÓN ETAPA 32: OK (207 controles, 667 pruebas y 38 claves; línea base 660 → 667).
+
+### Arreglo posterior a la Etapa 32: R4-27-arriba en GitHub (v18.7.1)
+Rama `rediseno-4-ci-r4-27-arriba`. Las pruebas del PR rediseno-4 → main (run #20) dieron 666/667: `R4-27-arriba` medía 546/495 px (caso común, 320/390) y 602/552 px (caso largo), contra los topes de 600/500 y 600/540. En mi entorno el resultado era 513/529 porque ahí la tipografía del sistema es Inter; el runner de GitHub usa DejaVu Sans, que es más ancha. **Reproducido** con `FONTCONFIG_FILE` apuntando a una configuración que solo tiene DejaVu, Liberation y Noto (mismas cuatro medidas exactas). Causas: (1) con DejaVu, "Deshacer" y "Ver detalle" no entraban juntos en la última línea del aviso y "Ver detalle" bajaba a una línea más (+40 px); (2) a 320 px, el título "Esta semana · 26 oct – 1 nov" ocupaba tres líneas (+19 px). Arreglo en `estilos.css` (Decisión, lo más chico que lo resuelve, sin tocar el test): el chip "Deshacer" del aviso con 8 px de relleno lateral y 2 px de margen, "Ver detalle" con 4 px de relleno (siguen midiendo 40 px de alto, como pedía la Etapa 27) y, a 340 px o menos, el título de Semana en 17 px. Con las tipografías de CI el caso largo queda en 512/584 px (antes 552/602) y las 667 pruebas pasan. Sugerencia para el futuro: las pruebas de medidas dependen de la tipografía; conviene correr `probar.mjs` también con DejaVu antes de cerrar una etapa.

@@ -95,14 +95,15 @@ function leerPorcion(texto){
   else if(/^cditas?\b|^cucharaditas?/.test(w))unit="cucharadita";
   else if(/^taza/.test(w))unit="taza";
   else if(/^vaso/.test(w)){q*=200;unit="ml"}
-  else if(/^(rodaja|tajada|rebanada|pote|porci[oó]n|pu[nñ]ado)/.test(w))unit=/^(rodaja|tajada)/.test(w)?w.split(/\s/)[0].replace(/s$/,""):"unidad";
+  else if(/^(rodaja|tajada|rebanada|pote|porci[oó]n|pu[nñ]ado)/.test(w))unit=/^(rodaja|tajada|rebanada)/.test(w)?w.split(/\s/)[0].replace(/s$/,""):"unidad";
   if(!unit||!(q>0)||!Number.isFinite(q))return null;
   return {q,unit}
 }
 // Pasa rodajas y tajadas a gramos con la tabla curada (Ananá, Melón, Sandía); el resto queda como está.
 function cantidadNormal(nombre,q,unit){
   const t=datosEnvases().pesoPorcion;
-  if(unit==="rodaja"||unit==="tajada"){
+  // Etapa 26: una rebanada de queso son 30 g ("Queso Port Salut: 180 g", no "12 unidades"); la de pan de molde sigue siendo una unidad.
+  if(unit==="rodaja"||unit==="tajada"||unit==="rebanada"){
     for(const [n,u] of Object.entries(t))if(u[unit]&&nombreEmpiezaCon(nombre,n))return {q:q*u[unit],unit:"g"};
     return {q,unit:"unidad"}
   }
@@ -116,6 +117,12 @@ function fraccionDelPlato(texto){
 function cantidadesDePlatoArmado(item){
   const st=item&&item.state;
   if(!st||typeof st!=="object")return [];
+  // Etapa 28: una comida que es una idea del catálogo usa las cantidades de la idea (por persona) en vez del cálculo por porciones.
+  try{
+    const idea=IdeasHoja.ideaDeComida(item);
+    if(idea&&Array.isArray(idea.cantidades))return idea.cantidades.map(([name,q,unit])=>({name,q,unit}))
+  }catch(e){
+  }
   const out=[],sumar=(nombre,q,unit)=>{
     if(!nombre||!(q>0))return;
     let c=cantidadNormal(nombre,q,unit);
@@ -149,10 +156,13 @@ function cantidadesDePlatoArmado(item){
       if(!nombres.length)continue;
       const f=fraccionDelPlato(fr)||0.25,total=f/0.25*gramos;
       // Verduras: porción común de cada una (lechuga 80 g, tomate 100 g…); el resto se reparte lo que queda del medio plato.
-      const curada=n=>claves[0]==="verduras"?pesoVerdura(n):null,fijas=nombres.reduce((t,n)=>t+(curada(n)||0),0),libres=nombres.filter(n=>!curada(n)).length;
+      // Etapa 28: porción de adulto de los almidones que se comen por peso (papa, batata, mandioca, choclo, pan), en gramos por cuarto del plato.
+      const curada=n=>claves[0]==="verduras"?pesoVerdura(n):claves[0]==="almidones"&&pesoAlmidon(n)?pesoAlmidon(n)*f/0.25:null,fijas=nombres.reduce((t,n)=>t+(curada(n)||0),0),libres=nombres.filter(n=>!curada(n)).length;
       nombres.forEach(n=>{
         const gr=curada(n)||Math.max(40,(total-fijas)/Math.max(1,libres)),pu=datosEnvases().pesoPorcion.Huevo;
         if(nombreEmpiezaCon(n,"Huevo")&&pu&&pu.unidad)sumar(n,Math.max(1,Math.round(gr/pu.unidad)),"unidad");
+        // Etapa 26: las tortillas se cuentan de a 2 por persona y por comida (de 40 g cada una) y se compran por paquete.
+        else if(claves[0]==="almidones"&&nombreEmpiezaCon(n,"Tortilla"))sumar(n,2,"unidad");
         else sumar(n,gr,"g")
       })
     }
@@ -180,6 +190,13 @@ function unidadParaCompra(nombre,q,unit){
 // Porción común por persona de una verdura (g), de datos/envases.json ("porcionVerdura"), o null.
 function pesoVerdura(nombre){
   const t=datosEnvases().porcionVerdura;
+  if(!t)return null;
+  for(const [n,g] of Object.entries(t))if(nombreEmpiezaCon(nombre,n))return g;
+  return null
+}
+// Porción de adulto (g por cuarto del plato) de un almidón que se come por peso, de datos/envases.json ("porcionAlmidon"), o null.
+function pesoAlmidon(nombre){
+  const t=datosEnvases().porcionAlmidon;
   if(!t)return null;
   for(const [n,g] of Object.entries(t))if(nombreEmpiezaCon(nombre,n))return g;
   return null

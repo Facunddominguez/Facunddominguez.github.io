@@ -98,7 +98,7 @@ function esPrimeraVez(plan,day){
 function filaHoy(day,slot,plan,byId,esHoy,primera){
   const label=SLOTS.find(s=>s[0]===slot)[1],name=Semana.planSlotName(slot),id=plan[day]&&plan[day][slot],it=id?byId.get(id):null,row=ce("div","today-row"+(it?"":" today-row--vacia"));
   row.dataset.todaySlot=slot;
-  const plato=ce("span","today-row__plate"+(it?"":" is-empty"),it?mealName(it):"Sin elegir");
+  const plato=ce("span","today-row__plate"+(it?"":" is-empty"),it?nombreCortoDeComida(it):"Sin elegir");
   // El botón de acción va primero (es el principal de la fila); el nombre, al lado, abre las opciones del hueco.
   let action=null;
   if(!it){
@@ -141,11 +141,47 @@ function renderEntrenoHoy(){
   b.setAttribute("aria-label",t===null?"¿Entrenás hoy? Elegir":(t?"Hoy entrenás":"Hoy descansás")+". Cambiar solo por hoy");
   box.replaceChildren(b)
 }
+// Etapa 31: "Hoy ≈ $9.020 · Plato completo: verduras, almidón, proteína y fruta" o "Hoy ≈ $6.300 · Te falta: fruta". Sin comidas planificadas para
+// hoy, no hay línea; con los precios apagados, no se muestra el costo.
+var HOY_GRUPOS=[["verduras","verduras"],["almidones","almidón"],["proteinas","proteína"],["fruta","fruta"]];
+function textoCostoHoy(day,plan,byId){
+  const items=["desayuno","merienda","almuerzo","cena"].map(s=>plan[day]&&plan[day][s]?byId.get(plan[day][s]):null).filter(Boolean);
+  if(!items.length)return "";
+  const partes=[];
+  try{
+    if(preciosActivos()&&preciosDataset()){
+      const c=costoDelDiaPlan(day);
+      if(c>0)partes.push("Hoy "+formatoPesos(c))
+    }
+  }catch(e){
+  }
+  try{
+    const tiene=new Set();
+    for(const it of items){
+      for(const g of plateGroups(it))tiene.add(g);
+      // Las legumbres cuentan: las de "legCarb" como almidón y las de "legProt" como proteína.
+      const st=it.state;
+      if(st&&Array.isArray(st.legCarb)&&st.legCarb.length)tiene.add("almidones");
+      if(st&&Array.isArray(st.legProt)&&st.legProt.length)tiene.add("proteinas")
+    }
+    const faltan=HOY_GRUPOS.filter(([k])=>!tiene.has(k)).map(x=>x[1]);
+    partes.push(faltan.length?"Te falta: "+(faltan.length>1?faltan.slice(0,-1).join(", ")+" y "+faltan.at(-1):faltan[0]):"Plato completo: verduras, almidón, proteína y fruta")
+  }catch(e){
+  }
+  return partes.join(" · ")
+}
 function renderToday(){
   const box=document.getElementById("todayRows");
   if(!box)return;
   const day=todayPlanDay(),plan=loadPlan(),byId=new Map(MisPlatos.loadSaved().map(p=>[p.id,p])),primera=esPrimeraVez(plan,day);
   renderEntrenoHoy();
+  try{RespaldoAviso.pintar()}catch(e){}
+  const tc=document.getElementById("todayCosto");
+  if(tc){
+    const txt=textoCostoHoy(day,plan,byId);
+    tc.textContent=txt;
+    tc.hidden=!txt
+  }
   const pv=document.getElementById("todayPrimera");
   if(pv){
     pv.hidden=!primera;

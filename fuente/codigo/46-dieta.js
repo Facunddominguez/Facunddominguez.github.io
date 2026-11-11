@@ -75,7 +75,8 @@ function dietaPermite(texto){
 // Texto de una idea del catálogo para filtrar: nombre, etiquetas e ingredientes vinculados. No usa SUGERENCIA_GRUPOS (36) porque
 // las Ideas se pintan durante el arranque, antes de que corran esos archivos.
 function textoDeIdea(idea){
-  return idea.text+" "+(idea.tags||[]).join(" ")+" "+Object.values(idea.ingredientes||{}).flat().join(" ")
+  // Etapa 28: también los nombres de las cantidades (lo que de verdad lleva la idea).
+  return idea.text+" "+(idea.tags||[]).join(" ")+" "+Object.values(idea.ingredientes||{}).flat().join(" ")+" "+(Array.isArray(idea.cantidades)?idea.cantidades.map(c=>c[0]).join(" "):"")+" "+(idea.desayuno?[idea.desayuno.fruta,idea.desayuno.prot,idea.desayuno.cereal].join(" "):"")
 }
 function dietaPermiteIdea(idea){
   return dietaPermite(textoDeIdea(idea))
@@ -92,3 +93,11 @@ document.addEventListener("click",e=>{
   if(b&&b.dataset.dietaFiltro)Dieta.alternarDieta(b.dataset.dietaFiltro)
 });
 Dieta.renderDieta();
+// Etapa 32: el enlace del recordatorio ("?ir=semana-proxima") abre Semana en "Semana que viene". Va en el último archivo, cuando ya corrieron las pestañas.
+try{
+  if(new URLSearchParams(location.search).get("ir")==="semana-proxima"){
+    openTab("semana");
+    Semana.verSemana(1)
+  }
+}catch(e){
+}

@@ -5,8 +5,16 @@
   "gramosPorCuarto": {
     "verduras": 100,
     "almidones": 80,
-    "proteinas": 120
+    "proteinas": 150
   },
+  "porcionAlmidon": {
+    "Papa": 200,
+    "Batata": 200,
+    "Mandioca": 200,
+    "Choclo": 150,
+    "Pan": 70
+  },
+  "_porcionAlmidon": "Gramos por cuarto del plato de los almidones que se comen por peso (Etapa 28): reemplaza a los 80 g de gramosPorCuarto. Porción de adulto.",
   "basicos": [
     "Aceite",
     "Sal",
@@ -36,6 +44,9 @@
     },
     "Huevo": {
       "unidad": 55
+    },
+    "Queso": {
+      "rebanada": 30
     }
   },
   "envases": [
@@ -227,7 +238,8 @@
     "Kiwi": 80,
     "Ciruela": 60,
     "Pomelo": 250,
-    "Mango": 300
+    "Mango": 300,
+    "Tortillas": 40
   },
   "_pesoUnidad": "Gramos de una unidad común de cada ingrediente (para pasar unidades a kilos al calcular precios). Reemplaza al peso de la tabla de nutrición cuando esa unidad es chica o rara (la zanahoria de USDA pesa 61 g).",
   "porcionVerdura": {

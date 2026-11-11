@@ -70,8 +70,7 @@ function renderObjetivosPreferencias(){
     if(i&&document.activeElement!==i)i.value=goals[g]?String(goals[g]):""
   }
 }
-// Resumen de la Semana: "Verduras en 9 de 14 comidas · Legumbres 2 de 3 ✓" (comidas del plan con ese grupo, sobre el
-// objetivo). Sin objetivos devuelve "".
+// Resumen de la Semana: "Verduras 9/14 · Legumbres 2/3 ✓" (comidas del plan con ese grupo, sobre el objetivo). Sin objetivos devuelve "".
 function resumenObjetivosSemana(plan,saved,goals){
   const byId=new Map((saved||[]).map(p=>[p.id,p])),labels={
     verduras:"Verduras",legumbres:"Legumbres",pescado:"Pescado",fruta:"Fruta"
@@ -83,14 +82,13 @@ function resumenObjetivosSemana(plan,saved,goals){
     if(!it)continue;
     for(const g of plateGroups(it))if(g in counts)counts[g]++
   }
+  // Etapa 27: una línea corta, "Verduras 14/10 ✓ · Legumbres 11/3 ✓ · Pescado 0/2 · Fruta 14/7 ✓".
   const partes=[];
   for(const g of HABIT_GROUPS){
     const goal=(goals||{})[g];
     if(!goal)continue;
     const n=counts[g];
-    // Por debajo del objetivo: "Verduras en 9 de 14 comidas" (planificado de objetivo). Si se llega o se pasa, no se lee "14 de 10": "Verduras: 14 comidas (objetivo 10) ✓".
-    if(n>=goal)partes.push(labels[g]+": "+n+" comida"+(n===1?"":"s")+" (objetivo "+goal+") ✓");
-    else partes.push(labels[g]+(partes.length?" ":" en ")+n+" de "+goal+(partes.length?"":" comida"+(goal===1?"":"s")))
+    partes.push(labels[g]+" "+n+"/"+goal+(n>=goal?" ✓":""))
   }
   return partes.join(" · ")
 }

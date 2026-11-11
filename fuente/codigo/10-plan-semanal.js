@@ -577,6 +577,8 @@ let planStatusTimer=null;
 function planStatus(msg){
   const s=document.getElementById("planStatus");
   if(!s)return;
+  // Nunca se ven los dos mensajes a la vez: mientras está el aviso de la semana armada, no se muestra otro (Etapa 27).
+  if(deshacerPlan&&deshacerPlan.res&&document.getElementById("planAviso").textContent)return;
   s.textContent=msg;
   clearTimeout(planStatusTimer);
   planStatusTimer=setTimeout(()=>{
@@ -777,6 +779,15 @@ document.getElementById("planRecipeReference").addEventListener("toggle",e=>{
 // El plan sigue guardado por día de la semana: las fechas son solo de presentación. Son var (y funciones) porque
 // renderPlan puede correr antes de que carguen los archivos siguientes.
 var planDiaElegido=null,deshacerPlan=null;
+// Nombre que se ve en Semana, Hoy y los selectores (el corto si es una idea sin renombrar). Antes de que cargue IdeasHoja (el arranque
+// pinta Hoy y Semana primero), o si algo falla, es el nombre de siempre.
+function nombreCortoDeComida(item){
+  try{
+    return IdeasHoja.nombreCorto(item)
+  }catch(e){
+    return mealName(item)
+  }
+}
 // La semana del plan es la de su último cambio (el historial guarda la hora en UTC; se pasa a la fecha local).
 function renderPlan(){
   const cont=document.getElementById("planList");
@@ -809,7 +820,8 @@ function renderPlan(){
     b.dataset.hueco=dia+"|"+slot;
     texto.append(ce("span","hueco__comida",SLOTS.find(s=>s[0]===slot)[1]));
     if(it){
-      texto.append(ce("span","hueco__plato",Semana.planPlateLabel(it)));
+      // Etapa 27: el ícono va solo en la etiqueta del hueco (🍳 Desayuno, ☕ Merienda…); el nombre de la comida va sin emoji.
+      texto.append(ce("span","hueco__plato",nombreCortoDeComida(it)+(it.fav?" ⭐":"")+(it.recipeSourceId?" 📖":"")));
       const pk=dia+"|"+slot,detalle=savedItemLines(it).join(" · ")+(porciones[pk]!==undefined?" · "+String(porciones[pk]).replace(".",",")+" porciones":"");
       if(detalle)texto.append(ce("span","hueco__detalle",detalle));
       // ≈ costo de esta comida para el hogar (con los precios encendidos y cantidades conocidas).
@@ -860,7 +872,21 @@ function renderPlan(){
       const b=ce("button","filter-chip","Deshacer");
       b.type="button";
       b.dataset.planDeshacer="";
-      aviso.append(document.createTextNode((deshacerPlan.res&&typeof ArmameSemana!=="undefined"?ArmameSemana.avisoDe(deshacerPlan.res):deshacerPlan.texto)+". "),b)
+      const armado=deshacerPlan.res&&typeof ArmameSemana!=="undefined";
+      aviso.append(document.createTextNode((armado?ArmameSemana.avisoDe(deshacerPlan.res):deshacerPlan.texto)+". "),b);
+      // Etapa 27: la línea es lo que importa; el resto (estimados, cociná doble, despensa, objetivos) va en "Ver detalle", cerrado.
+      let detalle=[];
+      if(armado)try{detalle=ArmameSemana.avisoDetalle(deshacerPlan.res)}catch(e){}
+      if(detalle.length){
+        const d=ce("details","semana-aviso__detalle"),s=ce("summary",null,"Ver detalle");
+        d.append(s,ce("p",null,detalle.join(" ")));
+        aviso.append(d)
+      }
+      // Un solo mensaje a la vez: con el aviso de la semana armada, el mensaje temporal se vacía.
+      if(armado){
+        const st=document.getElementById("planStatus");
+        if(st)st.textContent=""
+      }
     }
   }
   if(typeof refrescarHojaHueco==="function")refrescarHojaHueco();

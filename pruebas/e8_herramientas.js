@@ -115,7 +115,7 @@
   ok("C8-2 los objetivos semanales están en Preferencias (llenos aunque no pases por el Registro), guardar valida y no borra los guardados, y ya no están en el Registro",
     sinRegistro && llenos && igualSinAbrir && llenosPref && igual && invalido && cambiado && vaciado, [sinRegistro, llenos, igualSinAbrir, llenosPref, igual, invalido, cambiado, vaciado].join(","));
 
-  // C8-3 Semana resume los objetivos: "Verduras en N de M comidas"; sin objetivos no hay línea
+  // C8-3 Semana resume los objetivos en una línea: "Verduras 2/14 · Pescado 0/2" (Etapa 27); sin objetivos no hay línea
   const veg = ev("data.verduras[0]");
   const rv = conReceta("recipe_e8verd01", "Ensalada", [{ name: veg, quantity: 100, unit: "g" }], 1);
   const plan2 = planDe([["lunes", "almuerzo", "rp_recipe_e8verd01"], ["martes", "almuerzo", "rp_recipe_e8verd01"]]);
@@ -127,7 +127,7 @@
   localStorage.removeItem(GOALS); ev("renderPlan()");
   const oculto = doc().getElementById("planObjetivos").hidden && texto("planObjetivos") === "";
   ok("C8-3 Semana resume los objetivos con el plan de la semana y no muestra nada sin objetivos",
-    t1 === "Verduras en 2 de 14 comidas · Pescado 0 de 2" && t2 === "Verduras: 2 comidas (objetivo 2) ✓" && oculto && /comidas en la semana/.test(texto("planHint")), [t1, t2].join(" | "));
+    t1 === "Verduras 2/14 · Pescado 0/2" && t2 === "Verduras 2/2 ✓" && oculto && /comidas en la semana/.test(texto("planHint")), [t1, t2].join(" | "));
 
   // C8-4 Costo semanal en Semana: suma los días y dice cuántos precios faltan
   cargar(base({ [UI]: "completo", miPlatoFacil_plan: planDe([["lunes", "almuerzo", "rp_recipe_e7prue01"], ["martes", "almuerzo", "rp_recipe_e7prue01"]]) })); await abrirConEjemplo();
