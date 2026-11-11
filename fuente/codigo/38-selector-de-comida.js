@@ -77,6 +77,8 @@ abrirMenuSemana(){
     planRepetirAnterior:""
   }),botonHoja("Copiar un día","button--soft",{
     planCopiarDia:""
+  }),botonHoja("Compartir la semana","button--soft",{
+    compartirSemanaMenu:""
   }),botonHoja("Empezar de nuevo","button--danger",{
     clearPlan:""
   }));
@@ -484,6 +486,13 @@ document.addEventListener("click",e=>{
     const s=h.sugerencia;if(!s)throw Error("Pedí una sugerencia.");if(s.tipo==="idea")Selector.asignarIdeaAlHueco(h,s.idea);else Selector.asignarHueco(h.dia,h.slot,s.item.id)
   });
   if(d.planMenu!==undefined)return Selector.abrirMenuSemana();
+  if(d.compartirSemanaMenu!==undefined){
+    const l=ce("div","menu-semana");
+    l.append(botonHoja("Como texto","button--soft",{compartirSemana:"texto"}),botonHoja("Como imagen","button--soft",{compartirSemana:"imagen"}));
+    hoja.abrir({titulo:"Compartir la semana",contenido:[l],botones:[],foco:false});
+    return
+  }
+  if(d.compartirSemana){hoja.cerrar();Compartir.compartirSemana(d.compartirSemana);return}
   if(d.planHerr)return abrirHerramientaPlan(d.planHerr);
   if(d.planRepetirAnterior!==undefined)return Selector.repetirSemanaAnterior();
   if(d.planCopiarDia!==undefined)return Selector.abrirCopiarDia();

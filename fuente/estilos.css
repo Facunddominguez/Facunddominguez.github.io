@@ -3613,3 +3613,7 @@ select{max-width:100%;min-width:0}
 .revisar-precio__texto{margin:0}
 .revisar-precio__acciones,.ficha-precio__revision{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .ficha-precio__revision .screen__hint{flex:1 1 100%;margin:0}
+
+/* Etapa 31 (v18.6.0): costo y grupos del día en Hoy. */
+.today__costo{margin:2px 0 8px;font-size:13.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.today__costo[hidden]{display:none}

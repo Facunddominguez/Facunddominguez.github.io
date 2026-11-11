@@ -141,11 +141,40 @@ function renderEntrenoHoy(){
   b.setAttribute("aria-label",t===null?"¿Entrenás hoy? Elegir":(t?"Hoy entrenás":"Hoy descansás")+". Cambiar solo por hoy");
   box.replaceChildren(b)
 }
+// Etapa 31: "Hoy ≈ $9.020 · Plato completo: verduras, almidón, proteína y fruta" o "Hoy ≈ $6.300 · Te falta: fruta". Sin comidas planificadas para
+// hoy, no hay línea; con los precios apagados, no se muestra el costo.
+var HOY_GRUPOS=[["verduras","verduras"],["almidones","almidón"],["proteinas","proteína"],["fruta","fruta"]];
+function textoCostoHoy(day,plan,byId){
+  const items=["desayuno","merienda","almuerzo","cena"].map(s=>plan[day]&&plan[day][s]?byId.get(plan[day][s]):null).filter(Boolean);
+  if(!items.length)return "";
+  const partes=[];
+  try{
+    if(preciosActivos()&&preciosDataset()){
+      const c=costoDelDiaPlan(day);
+      if(c>0)partes.push("Hoy "+formatoPesos(c))
+    }
+  }catch(e){
+  }
+  try{
+    const tiene=new Set();
+    for(const it of items)for(const g of plateGroups(it))tiene.add(g);
+    const faltan=HOY_GRUPOS.filter(([k])=>!tiene.has(k)).map(x=>x[1]);
+    partes.push(faltan.length?"Te falta: "+(faltan.length>1?faltan.slice(0,-1).join(", ")+" y "+faltan.at(-1):faltan[0]):"Plato completo: verduras, almidón, proteína y fruta")
+  }catch(e){
+  }
+  return partes.join(" · ")
+}
 function renderToday(){
   const box=document.getElementById("todayRows");
   if(!box)return;
   const day=todayPlanDay(),plan=loadPlan(),byId=new Map(MisPlatos.loadSaved().map(p=>[p.id,p])),primera=esPrimeraVez(plan,day);
   renderEntrenoHoy();
+  const tc=document.getElementById("todayCosto");
+  if(tc){
+    const txt=textoCostoHoy(day,plan,byId);
+    tc.textContent=txt;
+    tc.hidden=!txt
+  }
   const pv=document.getElementById("todayPrimera");
   if(pv){
     pv.hidden=!primera;

@@ -200,6 +200,12 @@
     {"id": "R4-30-sigue-igual", "etapa": 30, "hecho": "\"Sigue igual\" lo saca de la lista, no cambia referencePrices_v1 byte a byte y escribe en preciosRevisados_v1.", "tipo": "prueba", "prueba": "R4-30-sigue-igual"},
     {"id": "R4-30-respaldo", "etapa": 30, "hecho": "Las dos claves van y vuelven en el respaldo; el respaldo de ejemplo, que no las trae, se restaura igual.", "tipo": "prueba", "prueba": "R4-30-respaldo"},
     {"id": "R4-30-registro", "etapa": 30, "hecho": "Qué cambió, cuánto cambia el total de la semana con cada opción y el diagnóstico del yogur quedan en el Registro.", "tipo": "registro", "seccion": "Etapa 30", "debeNombrar": ["R4-30-verduleria", "R4-30-revisar", "R4-30-respaldo", "Yogur"]},
-    {"id": "R4-30-revisor", "etapa": 30, "hecho": "revisor-usuario no marca bloqueantes en Preferencias, la ficha, Semana y la hoja de revisar precios a 390 y 320 px.", "tipo": "revisor", "revisor": "revisor-usuario"}
+    {"id": "R4-30-revisor", "etapa": 30, "hecho": "revisor-usuario no marca bloqueantes en Preferencias, la ficha, Semana y la hoja de revisar precios a 390 y 320 px.", "tipo": "revisor", "revisor": "revisor-usuario"},
+    {"id": "R4-31-hoy", "etapa": 31, "hecho": "Con la semana armada, Hoy muestra \"Hoy ≈ $\" con el mismo monto que \"hoy ≈\" de Semana; sin fruta en el día dice \"Te falta: fruta\"; con los precios apagados no muestra ningún \"$\".", "tipo": "prueba", "prueba": "R4-31-hoy"},
+    {"id": "R4-31-texto", "etapa": 31, "hecho": "El texto tiene los 7 días, 28 comidas y el mismo total que Semana.", "tipo": "prueba", "prueba": "R4-31-texto"},
+    {"id": "R4-31-imagen", "etapa": 31, "hecho": "El canvas mide 1080×1350, el PNG pesa más de 20 KB y se comparte como archivo image/png (con navigator.share simulado); sin navigator.share, se descarga.", "tipo": "prueba", "prueba": "R4-31-imagen"},
+    {"id": "R4-31-proxima", "etapa": 31, "hecho": "Desde la semana que viene, el texto y la imagen llevan las fechas y las comidas de esa semana.", "tipo": "prueba", "prueba": "R4-31-proxima"},
+    {"id": "R4-31-registro", "etapa": 31, "hecho": "Qué cambió en Hoy y en Compartir la semana queda en el Registro.", "tipo": "registro", "seccion": "Etapa 31", "debeNombrar": ["R4-31-hoy", "R4-31-texto", "R4-31-imagen", "R4-31-proxima"]},
+    {"id": "R4-31-revisor", "etapa": 31, "hecho": "revisor-usuario no marca bloqueantes en Hoy y en la hoja Compartir la semana a 390 y 320 px.", "tipo": "revisor", "revisor": "revisor-usuario"}
   ]
 }

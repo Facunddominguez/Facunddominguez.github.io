@@ -521,8 +521,8 @@ function costosDelPlan(){
   return c?{semana:c.total,dia:costoDelDiaPlan(),faltan:c.faltan,pendientes:c.pendientes,conPrecio:c.conPrecio,sinEstimar:c.sinEstimar,productos:c.productos}:null
 }
 // Costo de lo que cuesta hoy (el día elegido en Semana): suma de sus comidas, por lo que se usa (sin redondear a envases).
-function costoDelDiaPlan(){
-  const dia=Semana.diaPlanElegido();
+function costoDelDiaPlan(diaDado){
+  const dia=diaDado||Semana.diaPlanElegido();
   let costo=0;
   for(const e of Semana.planEntriesFlat()){
     if(e.day!==dia)continue;
