@@ -53,12 +53,14 @@ esEconomica(idea){
   const ds=typeof preciosDataset==="function"?preciosDataset():null;
   if(!ds||typeof preciosActivos!=="function"||!preciosActivos())return false;
   const marca=ds.meta,tipo=idea.desayuno?"desayuno":"plato";
-  if(!IdeasHoja._eco||IdeasHoja._eco.marca!==marca||IdeasHoja._eco.region!==regionPrecios()){
+  let propios="";
+  try{propios=localStorage.getItem(REFERENCE_PRICES_KEY)||""}catch(e){}
+  if(!IdeasHoja._eco||IdeasHoja._eco.marca!==marca||IdeasHoja._eco.region!==regionPrecios()||IdeasHoja._eco.propios!==propios){
     const por=(lista)=>{
       const costos=lista.map(i=>Bienvenida.costoPorPorcionDeIdea(i)).filter(c=>c!==null).sort((a,b)=>a-b);
       return costos.length?costos[Math.max(0,Math.ceil(costos.length/3)-1)]:null
     };
-    IdeasHoja._eco={marca,region:regionPrecios(),plato:por(data.menuCatalog.filter(i=>Array.isArray(i.cantidades))),desayuno:por((data.desayunoCatalog||[]).filter(i=>Array.isArray(i.cantidades)))}
+    IdeasHoja._eco={marca,propios,region:regionPrecios(),plato:por(data.menuCatalog.filter(i=>Array.isArray(i.cantidades))),desayuno:por((data.desayunoCatalog||[]).filter(i=>Array.isArray(i.cantidades)))}
   }
   const tope=IdeasHoja._eco[tipo],c=Bienvenida.costoPorPorcionDeIdea(idea);
   return tope!==null&&c!==null&&c<=tope
