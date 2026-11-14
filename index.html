@@ -8394,7 +8394,8 @@ function renderDatedWeek(){
     pintarCalendarioDeSemanas();
     return
   }
-  semanaFechada=key;
+  // Solo cuenta como "copia abierta" (y cambia lo que lee loadPlan) mientras esta pantalla está a la vista.
+  semanaFechada=document.getElementById("planHerramientas").classList.contains("is-active")?key:null;
   if(acciones){
     acciones.hidden=false;
     const r=acciones.querySelector("[data-dated-reuse]");
