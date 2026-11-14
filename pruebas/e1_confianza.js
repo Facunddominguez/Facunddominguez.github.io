@@ -99,14 +99,14 @@
   ok("C1-4 50 sugerencias seguidas de almuerzo o cena salen del catálogo o de tus comidas", !fuera.length, fuera.slice(0, 3).join(" | ") || deMias + " de tus comidas");
   const libres = w.sugerenciasPara("almuerzo", "Día libre").filter(x => x.tipo === "mia"), entreno = w.sugerenciasPara("almuerzo", "Día de entrenamiento").filter(x => x.tipo === "mia");
   ok("C1-4b con rutina, tus comidas de otro tipo de día no salen", libres.length > 0 && entreno.length > 0 && libres.every(x => x.item.state.day === "Día libre") && entreno.every(x => x.item.state.day === "Día de entrenamiento") && ![...libres, ...entreno].some(x => x.item.recipeSourceId));
-  await irA("hoy"); await tocar(q('#home [data-sugerime]')); await tocar(q('.hoja [data-open-azar]'));
+  await irA("hoy"); await tocar(q('#home [data-sugerime]')); ev('hoja.cerrar(); go("azar")'); await espera(150); // desde la v19.5 (R5-H-03) no hay botón "Al azar" en Sugerime: la pantalla se abre directo
   await tocar(q('#azar [data-random-type="plato"]'));
   const nombre = ev("state.nombreSugerido");
   ok("C1-4c \"Sugerir al azar\" muestra una idea del catálogo o una comida tuya, con su nombre", pantalla() === "resumen" && (catalogo.has(nombre) || w.MisPlatos.loadSaved().some(x => w.mealName(x) === nombre)) && ev("state.verduras.length + state.almidones.length + state.proteinas.length + state.legCarb.length + state.legProt.length") > 0, nombre);
   await tocar(q('#azar [data-random-type="desayuno"]'));
   ok("C1-4d \"Sugerir al azar\" de desayuno elige una fruta real", ev("data.frutas.some(f => f[0] === state.fruta.name) && data.frutaFormas.includes(state.fruta.forma)"), ev("JSON.stringify(state.fruta)"));
   localStorage.setItem("miPlatoFacil_recipePreferences_v1", JSON.stringify({ enabled: true, words: "a, e, ra, la, ta, na, ca, de, es, on, an, en, or, er, ar, pa, po, ll, ro, to, ma, co, ri, ce, li, ga, za, ne, bo, ho" }));
-  await irA("hoy"); await tocar(q('#home [data-sugerime]')); await tocar(q('.hoja [data-open-azar]'));
+  await irA("hoy"); await tocar(q('#home [data-sugerime]')); ev('hoja.cerrar(); go("azar")'); await espera(150); // desde la v19.5 (R5-H-03) no hay botón "Al azar" en Sugerime: la pantalla se abre directo
   const antes = ev("JSON.stringify(state)");
   await tocar(q('#azar [data-random-type="plato"]'));
   ok("C1-4e si las preferencias dejan sin ideas, se avisa y nunca se combinan ingredientes sueltos", w.sugerenciasPara("almuerzo", "").length === 0 && pantalla() === "azar" && /No hay ideas que no tengan lo que evitás/.test($("azarStatus").textContent) && ev("JSON.stringify(state)") === antes, $("azarStatus").textContent);

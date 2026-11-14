@@ -9,10 +9,11 @@
   // D1 Inicio: todas las entradas son tarjetas iguales (emoji, título y descripción)
   go('home');
   // v15.3: cada entrada es un hijo de la grilla de Atajos o de Más. "Armar una comida" es una tarjeta con sus dos opciones.
-  const homeButtons = [...document.querySelectorAll('#home .home-group .home-grid > *, #sectionSettings .tools-grid > *')];
+  // v19.5 (R5-H-05): los atajos de Hoy son botones del mismo formato (.hoy-botones), no tarjetas; las tarjetas son las de Más.
+  const homeButtons = [...document.querySelectorAll('#sectionSettings .tools-grid > *')];
   const notCards = homeButtons.filter(b => !b.classList.contains('tool-button') || !b.querySelector('.tool-button__emoji') || !b.querySelector('.tool-button__label') || !b.querySelector('.tool-button__desc')).map(b => b.textContent.trim().slice(0, 30));
   // v15.3: 3 atajos en Hoy y 7 entradas en Más (antes: 9 tarjetas).
-  T.ok('D1 todas las entradas del inicio son tarjetas iguales', homeButtons.length >= 10 && notCards.length === 0, notCards.join(' | '));
+  T.ok('D1 todas las entradas del inicio son tarjetas iguales', homeButtons.length >= 8 && notCards.length === 0, notCards.join(' | '));
   // D2 Tema: la tarjeta muestra el tema elegido
   const before = localStorage.getItem('miPlatoFacil_theme');
   localStorage.setItem('miPlatoFacil_theme', 'dark'); Interfaz.applyTheme();

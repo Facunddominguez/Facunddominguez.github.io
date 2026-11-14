@@ -14,8 +14,10 @@
   const s0 = keys();
   document.querySelector('#todayRows [data-today-slot="almuerzo"] button').click(); await wait(60);
   const eaten = loadConsumption().length === 1 && /✓ Lo comí/.test(document.querySelector('#todayRows [data-today-slot="almuerzo"]').textContent);
-  $("todayStatus").querySelector("[data-today-undo]").click(); await wait(40);
-  T.ok("U1 'Lo comí' en Hoy se puede deshacer", eaten && loadConsumption().length === 0 && keys() === s0 && document.querySelector('#todayRows [data-today-slot="almuerzo"] button').textContent === "Lo comí" && /se deshizo/.test($("todayStatus").textContent));
+  // Desde la v19.5 (R5-H-01) Hoy no tiene Deshacer: el Lo comí se quita desde el Registro.
+  const sinDeshacer = !$("todayStatus").querySelector("[data-today-undo]");
+  go("registro"); await wait(60); document.querySelector("#registroLista [data-registro-quitar]").click(); await wait(60); tab("hoy").click(); await wait(60);
+  T.ok("U1 'Lo comí' en Hoy no ofrece Deshacer y se quita desde Registro", eaten && sinDeshacer && loadConsumption().length === 0 && document.querySelector('#todayRows [data-today-slot="almuerzo"] button').textContent === "Lo comí");
   // U2 "Lo cociné" desde Mis comidas: anota la preparación de hoy y descuenta lo que tenés
   reset();
   setAmounts({ [IDEA1]: { yield: 2, rows: [{ name: "Lentejas", quantity: 300, unit: "g" }, { name: "Cebolla", quantity: 1, unit: "unidad" }, { name: "Sal", quantity: null, unit: "g" }] } });

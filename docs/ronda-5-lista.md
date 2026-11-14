@@ -28,11 +28,11 @@ Cada ítem tiene un control `R5-<ID>` en `docs/validacion/criterios.json`. Las c
 | C-02 | "Sugerirme" funciona igual en desayuno y merienda que en almuerzo y cena: sugiere una idea (no te pide armar una comida; para eso está "+ Armar nueva"). | 37 | R5-C-02 | sugerime-desayuno-antes.png | sugerime-desayuno-despues.png | ✅ |
 | C-03 | Al ver una comida que tiene receta, botón "Editar receta"; si no tiene, "Añadir receta". | 37 | R5-C-03 | comida-receta-antes.png | comida-receta-despues.png | ✅ |
 | C-04 | Con una dieta elegida (por ejemplo, vegetariano), al cambiar una comida no aparecen ideas que no la cumplen; tus comidas guardadas que no la cumplen se ven apagadas, con el motivo. | 37 | R5-C-04 | selector-dieta-antes.png | selector-dieta-despues.png | ✅ |
-| H-01 | Se elimina el botón Deshacer que aparece debajo de las 4 comidas del día. | 38 | R5-H-01 | — | — | ⬜ |
-| H-02 | "Ver tu registro de hoy" sin la flecha y con el mismo formato que "Desayuno o merienda" y "Almuerzo o cena". | 38 | R5-H-02 | — | — | ⬜ |
-| H-03 | En "Sugerirme algo" se elimina el botón interno "Al azar" (hace lo mismo). | 38 | R5-H-03 | — | — | ⬜ |
-| H-04 | "Sugerirme algo" sugiere directo un plato con 3 opciones (Usar esta, Otra, Ver y cambiar), igual en desayuno y merienda que en almuerzo y cena. | 38 | R5-H-04 | — | — | ⬜ |
-| H-05 | Debajo del plan del día, se redistribuyen Ver tu registro de hoy, Mañana, Desayuno o merienda, Almuerzo o cena, Sugerirme algo y Con lo que tengo: un mismo formato de botón, agrupados por para qué sirven y en un orden claro. Proponé la distribución en el Registro con captura. | 38 | R5-H-05 | — | — | ⬜ |
+| H-01 | Se elimina el botón Deshacer que aparece debajo de las 4 comidas del día. | 38 | R5-H-01 | hoy-lo-comi-antes.png | hoy-lo-comi-despues.png | ✅ |
+| H-02 | "Ver tu registro de hoy" sin la flecha y con el mismo formato que "Desayuno o merienda" y "Almuerzo o cena". | 38 | R5-H-02 | hoy-antes.png, hoy-antes-oscuro.png | hoy-despues.png, hoy-despues-oscuro.png | ✅ |
+| H-03 | En "Sugerirme algo" se elimina el botón interno "Al azar" (hace lo mismo). | 38 | R5-H-03 | hoy-sugerime-antes.png | hoy-sugerime-despues.png | ✅ |
+| H-04 | "Sugerirme algo" sugiere directo un plato con 3 opciones (Usar esta, Otra, Ver y cambiar), igual en desayuno y merienda que en almuerzo y cena. | 38 | R5-H-04 | hoy-sugerime-antes.png | hoy-sugerime-despues.png | ✅ |
+| H-05 | Debajo del plan del día, se redistribuyen Ver tu registro de hoy, Mañana, Desayuno o merienda, Almuerzo o cena, Sugerirme algo y Con lo que tengo: un mismo formato de botón, agrupados por para qué sirven y en un orden claro. Proponé la distribución en el Registro con captura. | 38 | R5-H-05 | hoy-antes.png, hoy-antes-oscuro.png | hoy-despues.png, hoy-despues-oscuro.png | ✅ |
 | R-01 | En toda la app, "Lo cociné" pasa a "Lo comí" (botones, hojas, textos y avisos). Los registros viejos de cocinado se muestran como "Lo comí". | 39 | R5-R-01 | — | — | ⬜ |
 | R-02 | En Registro se eliminan los botones "+ Lo comí" y "+ Lo cociné". | 39 | R5-R-02 | — | — | ⬜ |
 | R-03 | Se ve directo, sin desplegables, el contenido de "Anotar otra comida y ver la semana" y "Veces que comiste cada comida" (antes "cocinaste"; suma lo viejo de los dos registros). | 39 | R5-R-03 | — | — | ⬜ |

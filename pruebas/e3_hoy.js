@@ -46,12 +46,15 @@
   await tocar(q('#todayRows [data-today-slot="almuerzo"] [data-today-choose]'));
   const enSelector = hojaAbierta() && pantalla() === "home" && !!doc().querySelector('.hoja [data-selector-seccion="mias"] [data-selector-id="plato_p3"]');
   await tocar(q('.hoja [data-selector-id="plato_p3"]'));
-  const asignado = plan()[hoy()].almuerzo === "plato_p3" && !hojaAbierta() && pantalla() === "home" && !!estado().querySelector("[data-plan-deshacer]");
+  const asignado = plan()[hoy()].almuerzo === "plato_p3" && !hojaAbierta() && pantalla() === "home" && !estado().querySelector("[data-plan-deshacer]");
   await tocar(q('#todayRows [data-today-slot="almuerzo"] [data-plan-eaten]'));
   const rec = consumo().at(-1) || {};
   ok("C3-1 desde Hoy, elegir y marcar Lo comí en un hueco vacío lleva 3 toques o menos", enSelector && asignado && toques <= 3 && pantalla() === "home" && rec.date === fechaHoy() && rec.meal === "almuerzo" && rec.planned === true && rec.sourceId === "plato_p3" && /✓ Lo comí/.test(fila("almuerzo").textContent), toques + " toques");
-  await tocar(q("#todayStatus [data-today-undo]"));
-  ok("C3-1b el Lo comí de ese hueco se puede deshacer y el plan queda asignado", !consumo().some(x => x.id === rec.id) && plan()[hoy()].almuerzo === "plato_p3");
+  // Desde la v19.5 (R5-H-01) Hoy no tiene Deshacer: el registro se quita desde Registro y el plan queda asignado.
+  const sinDeshacer = !estado().querySelector("[data-today-undo]");
+  await irA("mas"); await tocar(q("#sectionSettings [data-open-registro]")); await tocar(q("#registroLista [data-registro-quitar]"));
+  ok("C3-1b el Lo comí de ese hueco no tiene Deshacer en Hoy, se quita desde Registro y el plan queda asignado", sinDeshacer && !consumo().some(x => x.id === rec.id) && plan()[hoy()].almuerzo === "plato_p3");
+  await irA("hoy");
 
   // C3-2 Chip de entrenamiento: cambia solo la excepción de hoy, conserva las demás (aunque sean raras) y se deshace
   const rarasTexto = JSON.stringify({ "2026-10-25": true, "no-es-fecha": "rara", "2020-02-30": false, "2019-01-01": 1 });
@@ -99,16 +102,18 @@
   // C3-4 Mañana: plegado, con las comidas del día siguiente del plan; elegir ahí asigna a ese día, sin Lo comí
   cargar(R.data); await abrir(); await irA("hoy");
   const pm = plan()[manana()], porId = new Map(guardados().map(x => [x.id, x]));
-  const nombresManana = [...doc().querySelectorAll("#todayMananaRows .today-row__plate")].map(x => x.textContent);
-  ok("C3-4 Mañana arranca plegado y muestra las comidas del día siguiente del plan", visible($("todayManana")) && $("todayManana").open === false && $("todayMananaTitulo").textContent === "Mañana · " + ev("Semana.planDayName(" + JSON.stringify(manana()) + ")").toLowerCase() && JSON.stringify(nombresManana) === JSON.stringify(["desayuno", "almuerzo", "merienda", "cena"].map(c => w.mealName(porId.get(pm[c])))) && !doc().querySelector("#todayMananaRows [data-plan-eaten]") && ev('diaSiguienteDelPlan("domingo")') === "lunes", nombresManana.join(" | "));
+  await tocar($("todayMananaBoton"));
+  const nombresMananaH = [...doc().querySelectorAll(".hoja .today-row__plate")].map(x => x.textContent), tituloManana = $("hojaTitulo").textContent;
+  ev("hoja.cerrar()");
+  ok("C3-4 Mañana es un botón que abre las comidas del día siguiente del plan (desde la v19.5, R5-H-05)", visible($("todayMananaBoton")) && tituloManana === "Mañana · " + ev("Semana.planDayName(" + JSON.stringify(manana()) + ")").toLowerCase() && JSON.stringify(nombresMananaH) === JSON.stringify(["desayuno", "almuerzo", "merienda", "cena"].map(c => w.mealName(porId.get(pm[c])))) && !doc().querySelector(".hoja [data-plan-eaten]") && ev('diaSiguienteDelPlan("domingo")') === "lunes", nombresMananaH.join(" | "));
   cargar(conPlan([[manana(), "cena", null]])); await abrir(); await irA("hoy");
   const planHoy4 = JSON.stringify(plan()[hoy()]);
-  $("todayManana").open = true;
-  await tocar(q('#todayMananaRows [data-today-slot="cena"] button'));
+  await tocar($("todayMananaBoton"));
+  await tocar(q('.hoja [data-today-slot="cena"] button'));
   const titulo4 = $("hojaTitulo").textContent;
   await tocar(q('.hoja [data-selector-id="plato_p3"]'));
   ok("C3-4b elegir en Mañana asigna a ese día sin salir de Hoy", /^Elegir cena del /.test(titulo4) && plan()[manana()].cena === "plato_p3" && JSON.stringify(plan()[hoy()]) === planHoy4 && pantalla() === "home", titulo4);
-  await tocar(q('#todayMananaRows [data-today-slot="cena"] [data-hueco-hoy]'));
+  await tocar($("todayMananaBoton")); await tocar(q('.hoja [data-today-slot="cena"] [data-hueco-hoy]'));
   ok("C3-4c el hueco lleno de mañana abre sus opciones sin Lo comí", hojaAbierta() && !!doc().querySelector(".hoja [data-hueco-cambiar]") && !doc().querySelector(".hoja [data-plan-eaten]"));
   ev("hoja.cerrar()");
 
@@ -132,9 +137,9 @@
   const elegida = ev("huecoAbierto.sugerencia"), nombreElegida = nombreDe(elegida);
   await tocar(q(".hoja [data-selector-usar]"));
   const idAlm = plan()[hoy()].almuerzo, itAlm = guardados().find(x => x.id === idAlm);
-  ok("C3-5d \"Usar esta\" asigna la propuesta al hueco de hoy, con Deshacer", !!itAlm && w.mealName(itAlm) === nombreElegida && !hojaAbierta() && pantalla() === "home" && !!estado().querySelector("[data-plan-deshacer]"), nombreElegida);
-  await tocar(q("#todayStatus [data-plan-deshacer]"));
-  ok("C3-5e Deshacer vuelve el hueco a vacío", plan()[hoy()].almuerzo === null && /se deshizo/.test(estado().textContent));
+  ok("C3-5d \"Usar esta\" asigna la propuesta al hueco de hoy (sin Deshacer, R5-H-01)", !!itAlm && w.mealName(itAlm) === nombreElegida && !hojaAbierta() && pantalla() === "home" && !estado().querySelector("[data-plan-deshacer]"), nombreElegida);
+  await tocar(q('#todayRows [data-hueco-hoy="' + hoy() + '|almuerzo"]')); await tocar(q(".hoja [data-plan-clear]"));
+  ok("C3-5e Quitar vuelve el hueco a vacío", plan()[hoy()].almuerzo === null);
   const catalogo = new Set(ev("data.menuCatalog.map(x=>x.text)"));
   await tocar(q('#home [data-sugerime]'));
   const p5 = propuesta();
@@ -147,11 +152,12 @@
   cargar(conPlan([[hoy(), "desayuno", null]])); await abrir(); await irA("hoy");
   await tocar(q('#home [data-sugerime]'));
   const enDesayuno = q('.hoja [data-sugerime-comida="desayuno"]').getAttribute("aria-pressed") === "true";
-  await tocar(q(".hoja [data-selector-sugerir]"));
-  const frutaOk = ev("data.frutas.some(f => f[0] === state.fruta.name) && data.frutaFormas.includes(state.fruta.forma)"), destino6 = ev("JSON.stringify(armadoDestino)");
+  // Desde la v19.5 (R5-H-04) el desayuno también propone una idea; "Ver y cambiar" la lleva al armado.
+  await tocar(q(".hoja [data-sugerime-ver]"));
+  const frutaOk = ev("!!(state.fruta && state.fruta.name) && data.frutaFormas.includes(state.fruta.forma)"), destino6 = ev("JSON.stringify(armadoDestino)");
   await tocar(q("#resumen [data-save-plate]")); await tocar(q(".hoja .button--primary"));
   const it6 = guardados().find(x => x.id === plan()[hoy()].desayuno);
-  ok("C3-5h en el desayuno arma uno con fruta real y, al guardarlo, queda asignado", enDesayuno && frutaOk && destino6 === JSON.stringify({ dia: hoy(), slot: "desayuno", tab: "hoy" }) && !!it6 && it6.type === "desayuno" && pantalla() === "home", destino6);
+  ok("C3-5h en el desayuno, \"Ver y cambiar\" arma uno con fruta y, al guardarlo, queda asignado", enDesayuno && frutaOk && destino6 === JSON.stringify({ dia: hoy(), slot: "desayuno", tab: "hoy" }) && !!it6 && it6.type === "desayuno" && pantalla() === "home", destino6);
   cargar(conPlan([[hoy(), "almuerzo", null]], { miPlatoFacil_recipePreferences_v1: JSON.stringify({ enabled: true, words: EVITAR }) })); await abrir(); await irA("hoy");
   const antes7 = ev("JSON.stringify(state)"), datos7 = todo();
   await tocar(q('#home [data-sugerime]'));
@@ -161,16 +167,16 @@
   // C3-6 Atajos: Sugerime algo y Con lo que tengo; ninguna entrada separada de Plato del día ni de Sugerir al azar
   for (const modo of ["simple", "completo"]) {
     cargar(R.data); localStorage.setItem("miPlatoFacil_uiMode_v1", modo); await abrir(); await irA("hoy");
-    const atajos = [...doc().querySelectorAll("#home .home-group--main .tool-button")].filter(visible).map(b => b.querySelector(".tool-button__label").textContent);
+    const atajos = [...doc().querySelectorAll("#home .hoy-acciones .button")].filter(visible).map(b => b.textContent.trim().replace(/^\S+\s/, ""));
     // v15.3: "Armar una comida" es una sola tarjeta con sus dos opciones (los mismos data-start).
-    const armarOk = visible(q('#home .armar-comida [data-start="desayuno"]')) && visible(q('#home .armar-comida [data-start="plato"]'));
+    const armarOk = visible(q('#home .hoy-acciones [data-start="desayuno"]')) && visible(q('#home .hoy-acciones [data-start="plato"]'));
     const enHoy = [...doc().querySelectorAll("#home .tool-button")].filter(visible).map(b => b.textContent).join(" | ");
-    const vistaHoy = visible(q("#todayEntreno [data-hoy-entreno]")) && visible($("todayManana")) && doc().querySelectorAll("#todayRows .today-row").length === 4;
+    const vistaHoy = visible(q("#todayEntreno [data-hoy-entreno]")) && visible($("todayMananaBoton")) && doc().querySelectorAll("#todayRows .today-row").length === 4;
     await irA("mas");
     const enMas = [...doc().querySelectorAll("#home .tool-button")].filter(visible).map(b => b.textContent).join(" | ");
     // v15.3: Más tiene Mi rutina y los ajustes; Ideas pasó a Comidas.
     const masOk = visible(q("#sectionSettings [data-open-training]")) && visible(q("#sectionSettings [data-open-como-funciona]")) && !visible($("todayPanel"));
-    ok("C3-6" + (modo === "simple" ? "" : "b") + " atajos de Hoy en modo " + modo + ": chip, 4 comidas, Mañana y Armar, Sugerime algo y Con lo que tengo", vistaHoy && JSON.stringify(atajos) === JSON.stringify(["Armar una comida", "Sugerime algo", "Con lo que tengo"]) && armarOk && !/Plato del día|Sugerir al azar/.test(enHoy + enMas) && masOk, atajos.join(" | "));
+    ok("C3-6" + (modo === "simple" ? "" : "b") + " atajos de Hoy en modo " + modo + ": chip, 4 comidas, Mañana y Armar, Sugerime algo y Con lo que tengo", vistaHoy && JSON.stringify(atajos) === JSON.stringify(["Ver tu registro de hoy", "Mañana", "Desayuno o merienda", "Almuerzo o cena", "Sugerime algo", "Con lo que tengo"]) && armarOk && !/Plato del día|Sugerir al azar/.test(enHoy + enMas) && masOk, atajos.join(" | "));
   }
   await irA("miscomidas"); await tocar(q('#misplatos [data-comidas-vista="ideas"]'));
   const ideasOk = pantalla() === "ideas";
@@ -178,7 +184,7 @@
   const rutinaOk = pantalla() === "trainingCalendar";
   await irA("hoy"); ev("AlAzar.platoDelDia()"); await espera(100);
   const platoDiaOk = pantalla() === "resumen" && !!ev("state.nombreSugerido");
-  await irA("hoy"); await tocar(q('#home [data-sugerime]')); await tocar(q('.hoja [data-open-azar]'));
+  await irA("hoy"); await tocar(q('#home [data-sugerime]')); ev('hoja.cerrar(); go("azar")'); await espera(150); // desde la v19.5 (R5-H-03) no hay botón "Al azar" en Sugerime: la pantalla se abre directo
   const azarOk = pantalla() === "azar" && !hojaAbierta();
   await tocar(q('#azar [data-random-type="plato"]'));
   ok("C3-6c Ideas, Días de entrenamiento, Plato del día y la pantalla al azar siguen funcionando", ideasOk && rutinaOk && platoDiaOk && azarOk && pantalla() === "resumen", [ideasOk, rutinaOk, platoDiaOk, azarOk].join());
@@ -189,9 +195,10 @@
   await tocar(q('#todayRows [data-today-slot="almuerzo"] [data-hueco-hoy]'));
   const opciones = hojaAbierta() && !!doc().querySelector(".hoja [data-hueco-cambiar]") && !!doc().querySelector(".hoja [data-plan-clear]") && /Lo comí hoy/.test((doc().querySelector(".hoja [data-plan-eaten]") || {}).textContent || "");
   await tocar(q(".hoja [data-plan-clear]"));
-  const quitado = plan()[hoy()].almuerzo === null && pantalla() === "home" && !!estado().querySelector("[data-plan-deshacer]") && fila("almuerzo").querySelector("[data-today-choose]");
-  await tocar(q("#todayStatus [data-plan-deshacer]"));
-  ok("C3-7 el nombre de un hueco lleno abre Cambiar, Quitar y Lo comí hoy; Quitar se deshace desde Hoy", opciones && !!quitado && plan()[hoy()].almuerzo === antes8);
+  const quitado = plan()[hoy()].almuerzo === null && pantalla() === "home" && !estado().querySelector("[data-plan-deshacer]") && fila("almuerzo").querySelector("[data-today-choose]");
+  // Desde la v19.5 (R5-H-01) Hoy no ofrece Deshacer: el de la Semana sigue valiendo.
+  await irA("semana"); await tocar(q("#planAviso [data-plan-deshacer]")); await irA("hoy");
+  ok("C3-7 el nombre de un hueco lleno abre Cambiar, Quitar y Lo comí hoy; Quitar no tiene Deshacer en Hoy y se deshace desde Semana", opciones && !!quitado && plan()[hoy()].almuerzo === antes8);
   cargar({}); await abrir(); await irA("hoy");
   await tocar(q('#todayRows [data-today-slot="cena"] [data-today-choose]'));
   await tocar(q('.hoja [data-start="plato"][data-start-slot="cena"]'));

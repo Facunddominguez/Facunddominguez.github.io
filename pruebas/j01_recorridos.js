@@ -51,7 +51,8 @@
     },
     async tacharYLoCompre(clave) { await tocar(q('#comprasList [data-shop-key="' + clave + '"]')); await tocar($("comprasBought")) },
     async loComi(comida) { await irA("hoy"); await tocar(q('#todayRows [data-today-slot="' + comida + '"] button')) },
-    async deshacerLoComi() { const b = $("todayStatus").querySelector("[data-today-undo]"); if (!b) throw Error("no apareció Deshacer: «" + $("todayStatus").textContent + "»"); await tocar(b) },
+    // Desde la v19.5 (R5-H-01) Hoy no ofrece Deshacer: el Lo comí se quita desde Registro (Más → Registro → Quitar).
+    async deshacerLoComi() { await irA("mas"); await tocar(q("#sectionSettings [data-open-registro]")); await tocar(q("#registroLista [data-registro-quitar]")) },
     async respaldar() {
       const blobs = [], crear = w.URL.createObjectURL, clic = w.HTMLAnchorElement.prototype.click;
       w.URL.createObjectURL = b => { blobs.push(b); return crear.call(w.URL, b) };
