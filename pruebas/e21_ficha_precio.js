@@ -38,9 +38,9 @@
   await cerrar();
   ev('openTab("semana")'); await espera(250);
   await tocar(doc().querySelector("[data-completar-precios]"));
-  const fila = doc().querySelector(".completar-precios__fila"), nombreFila = fila.querySelector(".tool-button__label").textContent;
-  await tocar(fila);
-  const desdeCompletar = !!ficha() && doc().querySelector(".hoja__titulo").textContent === nombreFila && /Sin precio publicado|estimado|^≈/.test(linea());
+  // v19.3 (R5-S-07): "Completar precios" abre directo el formulario del primer producto (sin lista), con su precio de referencia.
+  const nombreFila = doc().querySelector(".completar-precios__nombre").textContent, infoFila = doc().querySelector(".completar-precios .screen__hint").textContent;
+  const desdeCompletar = !!doc().getElementById("completarMonto") && nombreFila.length > 0 && /Todavía no tiene precio|estimado|≈/.test(infoFila);
   await cerrar();
   ev('Comidas.abrirComida("plato", MisPlatos.loadSaved().find(x => x.state && ArmameSemana && Object.values(JSON.parse(localStorage.getItem("miPlatoFacil_plan"))).some(d => Object.values(d).includes(x.id))).id)'); await espera(250);
   const ing = doc().querySelector("#comida .comida-ingrediente");

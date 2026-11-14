@@ -63,12 +63,11 @@
   const conPrecio = () => { const m = /Con precio: (\d+) de (\d+)/.exec(texto("planPreciosEstado")); return m ? Number(m[1]) : null };
   const antes = conPrecio();
   for (let i = 0; i < 2; i++) {
+    /* v19.3 (R5-S-07 y S-09): "Completar N precios" abre directo el formulario del primer producto y "Guardar precios" lo guarda. */
     await tocar(doc().querySelector("[data-completar-precios]"));
-    await tocar(doc().querySelector(".completar-precios__fila"));
-    /* v17.6: el formulario de Mi precio ya se ve sin tocar "Agregar mi precio" */
-    set("fichaPrecioMonto", "3000"); set("fichaPrecioCantidad", "1"); doc().getElementById("fichaPrecioUnidad").value = "kg";
-    await tocar([...doc().querySelectorAll(".hoja .ficha-precio__form button")].find(b => /^Guardar( mi precio)?$/.test(b.textContent)));
-    const igual = doc().querySelector("[data-ficha-precio-igual]"); if (igual) await tocar(igual);
+    const producto = doc().querySelector(".completar-precios__nombre").textContent;
+    set("completarMonto", String(ev(`Math.max(1, Math.round((costoDeIngrediente(${JSON.stringify(producto)}, 1, unidadSugeridaFicha(${JSON.stringify(producto)})) || { costo: 2000 }).costo))`)));
+    await tocar([...doc().querySelectorAll(".hoja button")].find(b => /^Guardar precios$/.test(b.textContent)));
     ev("hoja.cerrar()"); await espera(150)
   }
   const despuesPrecios = conPrecio();

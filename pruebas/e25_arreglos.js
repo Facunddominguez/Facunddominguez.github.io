@@ -95,16 +95,12 @@
   let fichaOk = false, detalle = "sin Completar precios";
   if (completar) {
     await tocar(completar);
-    const fila = doc().querySelector(".completar-precios__fila");
-    if (fila) {
-      await tocar(fila);
-      const hoja = [...doc().querySelectorAll(".hoja")].find(h => h.getClientRects().length && h.querySelector(".ficha-precio"));
-      const html = hoja ? hoja.innerHTML : "", form = hoja && hoja.querySelector(".ficha-precio__form");
-      const abrirBoton = !!(hoja && hoja.querySelector("[data-ficha-precio-abrir]"));
-      const precioAntes = html.indexOf("ficha-precio") >= 0 && html.indexOf("ficha-precio") < html.search(/Energía|kcal/);
-      fichaOk = !!form && !form.hidden && form.getClientRects().length > 0 && !abrirBoton && precioAntes;
-      detalle = JSON.stringify({ form: !!form, visible: !!form && !form.hidden, abrirBoton, precioAntes });
-    } else detalle = "sin filas";
+    // v19.3 (R5-S-07): se abre directo el formulario del primer producto: a la vista, sin botón para abrirlo y sin nutrientes antes del precio.
+    const hoja = [...doc().querySelectorAll(".hoja")].find(h => h.getClientRects().length && h.querySelector(".completar-precios"));
+    const form = hoja && hoja.querySelector("#completarMonto");
+    const abrirBoton = !!(hoja && hoja.querySelector("[data-ficha-precio-abrir]")), nutrientes = !!(hoja && /Energía|kcal/.test(hoja.textContent));
+    fichaOk = !!form && form.getClientRects().length > 0 && !abrirBoton && !nutrientes;
+    detalle = JSON.stringify({ form: !!form, abrirBoton, nutrientes });
   } else {
     // Si no falta ningún precio, se prueba la ficha desde una comida: formulario abierto y sin botón para abrirlo.
     ev("hoja.cerrar()");
