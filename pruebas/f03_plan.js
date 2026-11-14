@@ -38,14 +38,15 @@
   setSlot("lunes", "almuerzo", "tp1");
   T.ok("P5b cambiar la comida de esa franja descarta sus porciones", Semana.loadPlanPortions()["lunes|almuerzo"] === undefined);
   // Variation load keeps nothing for changed slot, history logs
-  const vs = $("varSelect"); vs.value = "Con porciones"; vs.dispatchEvent(new Event("change", { bubbles: true })); await wait(20);
+  // Desde la v19.2 el plan guardado se aplica con "Usar un plan guardado" (Semana.usarPlanGuardado), no con un selector.
+  Semana.usarPlanGuardado("Con porciones"); await wait(20);
   T.ok("P6 cargar una variación no arrastra porciones de otra comida", Object.keys(Semana.loadPlanPortions()).length === 0 && loadPlan().lunes.almuerzo !== "tp1");
   // Desde la v19.1 (R5-S-16) el historial ya no se muestra, pero se sigue guardando: se lee lo guardado.
   const hist = Semana.loadPlanHistory().map(x => x.text).join("\n");
-  T.ok("P7 el historial registra asignaciones, porciones y variaciones", /Lunes · Almuerzo: asignado Papas al horno/.test(hist) && /porciones 2/.test(hist) && /porciones según la receta/.test(hist) && /Variación "Con porciones" cargada/.test(hist) && hist.includes("Lunes · Almuerzo: asignado " + mealName(MisPlatos.loadSaved().find(x => x.id === "tp1"))), hist.slice(0, 300));
+  T.ok("P7 el historial registra asignaciones, porciones y variaciones", /Lunes · Almuerzo: asignado Papas al horno/.test(hist) && /porciones 2/.test(hist) && /porciones según la receta/.test(hist) && /Plan guardado "Con porciones" aplicado/.test(hist) && hist.includes("Lunes · Almuerzo: asignado " + mealName(MisPlatos.loadSaved().find(x => x.id === "tp1"))), hist.slice(0, 300));
   // Reuse a dated week whose plate was deleted afterwards
   setSlot("martes", "cena", "tp2");
-  $("datedWeeksPanel").open = true; await wait(10); document.querySelector("[data-dated-save]").click(); await wait(20);
+  document.querySelector("[data-dated-save]").click(); await wait(20);
   const key = $("datedWeekStart").value;
   MisPlatos.deleteSaved("tp2"); window.confirm = () => true; clearPlan();
   renderDatedWeek(); const reuse = document.querySelector("[data-dated-reuse]");

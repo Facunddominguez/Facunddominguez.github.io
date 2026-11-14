@@ -451,6 +451,9 @@ function go(id){
   n.removeAttribute("aria-hidden");
   if(stack.at(-1)!==id)stack.push(id);
   nav();
+  // v19.2: la copia fechada solo vale mientras "Semanas anteriores y mes" está abierta.
+  if(id!=="planHerramientas")semanaFechada=null;
+  else if(typeof renderDatedWeek==="function")renderDatedWeek();
   if(id==="resumen")summary();
   if(id==="misplatos")renderSaved();
   if(id==="plan")renderPlan();

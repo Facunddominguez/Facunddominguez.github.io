@@ -3640,3 +3640,11 @@ select{max-width:100%;min-width:0}
 .respaldo-aviso[hidden]{display:none}
 .respaldo-aviso__texto{flex:1 1 100%}
 .recordatorio{display:grid;gap:8px}
+
+/* v19.2 (Etapa 35): Semanas anteriores y mes, todo a la vista. */
+#planHerramientas [hidden]{display:none!important}
+#planHerramientas .summary-actions{margin:0 0 12px}
+#planHerramientas .portion-field{margin-top:12px}
+#planHerramientas .planes-guardados{margin:16px 0 0}
+.plan-guardado-fila{display:grid;grid-template-columns:1fr auto;gap:8px}
+.plan-guardado-fila .button{margin:0}

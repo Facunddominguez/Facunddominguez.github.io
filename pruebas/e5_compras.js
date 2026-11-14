@@ -88,10 +88,12 @@
     ev("hoja.cerrar()"); await espera(60)
   }
   const menuSemana = async herr => { await tocar(q("#plan [data-plan-menu]")); await tocar(q('.hoja [data-plan-herr="' + herr + '"]')) };
-  await menuSemana("variaciones");
-  for (const nombre of Object.keys(J("miPlatoFacil_planVars"))) exigir("plan guardado", visible($("varSelect")) && [...$("varSelect").options].some(o => o.textContent.includes(nombre)), nombre);
+  // Desde la v19.2 los planes guardados se eligen con "Mis planes" en Semana y las semanas con fecha se ven por tarjetas.
+  await irA("semana"); await tocar(q("#plan [data-planes-guardados]"));
+  for (const nombre of Object.keys(J("miPlatoFacil_planVars"))) exigir("plan guardado", visible(q(".hoja")) && q(".hoja").textContent.includes(nombre), nombre);
+  ev("hoja.cerrar()"); await espera(100);
   await irA("semana"); await menuSemana("semanas");
-  for (const fecha of Object.keys(J("miPlatoFacil_datedWeeks_v1"))) exigir("semana con fecha", seVe($("datedWeekList"), fecha), fecha);
+  for (const fecha of Object.keys(J("miPlatoFacil_datedWeeks_v1"))) { ev("elegirSemanaFechada(" + JSON.stringify(fecha) + ")"); await espera(100); exigir("semana con fecha", qa("#datedWeekView .hueco").length === 28 && qa("#datedWeekView .hueco__plato").length > 0, fecha) }
   // Desde la v19.1 (R5-S-16) el historial del plan ya no se muestra: lo guardado sigue y lo lee la propia app.
   exigir("historial del plan", J("miPlatoFacil_planHistory_v1").length > 0 && ev("Semana.loadPlanHistory().length") === J("miPlatoFacil_planHistory_v1").length);
   await irA("semana"); await menuSemana("consumo");

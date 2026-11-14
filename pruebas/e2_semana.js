@@ -169,11 +169,13 @@
   // C2-6 El menú ⋯ tiene lo del plan y cada ítem abre su herramienta funcionando
   await irA("semana"); await tocar(q("[data-plan-menu]"));
   const items = [...doc().querySelectorAll(".hoja .menu-semana button")].map(b => b.textContent);
-  const esperados = ["Repetir semana anterior", "Copiar un día", "Empezar de nuevo", "Planes guardados", "Semanas anteriores y mes", "Compartir la semana", "Registro y objetivos"];
+  const esperados = ["Repetir semana anterior", "Copiar un día", "Empezar de nuevo", "Semanas anteriores y mes", "Compartir la semana", "Registro y objetivos"];
   const herr = {};
   const abrirHerr = async nombre => { if (pantalla() !== "plan") await irA("semana"); await tocar(q("[data-plan-menu]")); await tocar(q('.hoja [data-plan-herr="' + nombre + '"]')); return pantalla() === "planHerramientas" && !q('#planHerramientas [data-herr="' + nombre + '"]').hidden };
-  herr.variaciones = await abrirHerr("variaciones") && [...$("varSelect").options].some(x => x.value === "Semana liviana") && visible(q("#planHerramientas [data-del-var]"));
-  herr.semanas = await abrirHerr("semanas") && visible($("monthlyPlanPanel")) && visible($("datedWeeksPanel")) && $("datedWeekList").querySelectorAll("[data-dated-open]").length === 2 && $("monthlyPlanGrid").querySelectorAll("button").length >= 28;
+  // Desde la v19.2 (R5-S-14) "Planes guardados" no está en el menú ⋯: se usa desde Semana ("Mis planes") y desde Semanas anteriores y mes.
+  await irA("semana"); await tocar(q("#plan [data-planes-guardados]"));
+  herr.variaciones = /Semana liviana/.test(doc().querySelector(".hoja").textContent) && !items.includes("Planes guardados"); ev("hoja.cerrar()"); await espera(100);
+  herr.semanas = await abrirHerr("semanas") && visible($("monthlyPlanGrid")) && visible($("datedWeekView")) && $("monthlyPlanGrid").querySelectorAll("button").length >= 28 && $("monthlyPlanGrid").querySelectorAll("[data-mark]").length >= 2 && visible(q("#planHerramientas [data-plan-guardar]"));
   // Desde la v19.1: sin Historial de cambios ni Buscar en mis recetas (R5-S-16 y S-18); Descargar está en Compartir la semana (R5-S-11); las recetas, en "Mis recetas" del selector (R5-S-19).
   herr.historial = !items.includes("Historial de cambios") && !doc().querySelector('.hoja [data-plan-herr="historial"]') && Semana.loadPlanHistory().length >= 6;
   await irA("semana"); await tocar(q("[data-plan-menu]")); await tocar(q(".hoja [data-compartir-semana-menu]"));

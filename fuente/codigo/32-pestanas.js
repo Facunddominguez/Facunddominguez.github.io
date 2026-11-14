@@ -51,6 +51,8 @@ var resetTabs=null;
       const on=s.id===id;s.classList.toggle("is-active",on);if(on)s.removeAttribute("aria-hidden");else s.setAttribute("aria-hidden","true")
     });
     // Las mismas actualizaciones que hace go() al abrir cada pantalla.
+    if(id!=="planHerramientas")semanaFechada=null;
+    else if(typeof renderDatedWeek==="function")renderDatedWeek();
     if(id==="resumen")summary();
     if(id==="misplatos")renderSaved();
     if(id==="plan")renderPlan();
