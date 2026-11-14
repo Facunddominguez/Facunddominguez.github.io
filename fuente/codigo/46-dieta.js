@@ -72,6 +72,14 @@ function dietaPermite(texto){
   const t=" "+normalizeSearchText(String(texto||"")).replace(/[^a-z0-9ñ]+/g," ").trim()+" ";
   return !dietaTabla().some(f=>activos.includes(f.id)&&f.palabras.some(p=>new RegExp("(?: )(?:"+p+")(?:s|es)?(?: )").test(t)))
 }
+// v19.4 (R5-C-04): por qué un texto no cumple lo que evitás ("" si cumple): "No cumple «Vegetariano»" o "Tiene «maní», que evitás".
+function dietaMotivo(texto){
+  const t=" "+normalizeSearchText(String(texto||"")).replace(/[^a-z0-9ñ]+/g," ").trim()+" ",activos=dietaFiltros();
+  const f=dietaTabla().find(x=>activos.includes(x.id)&&x.palabras.some(p=>new RegExp("(?: )(?:"+p+")(?:s|es)?(?: )").test(t)));
+  if(f)return "No cumple «"+f.nombre+"»";
+  const plano=normalizeSearchText(String(texto||"")),w=typeof preferenciasEvitar==="function"?preferenciasEvitar().find(x=>plano.includes(x)):null;
+  return w?"Tiene «"+w+"», que evitás":""
+}
 // Texto de una idea del catálogo para filtrar: nombre, etiquetas e ingredientes vinculados. No usa SUGERENCIA_GRUPOS (36) porque
 // las Ideas se pintan durante el arranque, antes de que corran esos archivos.
 function textoDeIdea(idea){

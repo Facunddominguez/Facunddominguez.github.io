@@ -77,6 +77,28 @@ startRecipeFromIdea(title){
   showRecipeView("editor");
   document.getElementById("recipeDetailsTitle").focus()
 },
+// v19.4 (R5-C-03): abre el editor con una receta nueva armada desde una comida: con los pasos y cantidades de su idea ("Editar receta") o
+// con sus ingredientes y sin pasos ("Añadir receta"). No guarda nada hasta que se toca "Guardar receta".
+startRecipeFromComida(it,idea){
+  resetRecipeDetailsForm();
+  const box=document.getElementById("recipeIngredientRows");
+  document.getElementById("recipeDetailsTitle").value=(idea?idea.text:mealName(it)).slice(0,100);
+  if(idea){
+    const fuente=document.getElementById("recipeDetailsSource");
+    if([...fuente.options].some(o=>o.value===idea.text))fuente.value=idea.text;
+    if(Array.isArray(idea.pasos))document.getElementById("recipeDetailsSteps").value=idea.pasos.join("\n");
+    if(idea.minutos)document.getElementById("recipeMinutes").value=String(idea.minutos);
+    (idea.cantidades||[]).forEach(([name,quantity,unit])=>appendRecipeAmountRow({name,quantity,unit},box));
+    document.getElementById("recipeYield").value="1"
+  }else{
+    let nombres=[];
+    try{nombres=Semana.extractIngredients(it)}catch(e){}
+    nombres.forEach(name=>appendRecipeAmountRow({name,quantity:null,unit:"g"},box))
+  }
+  recipeDetailsStatus(idea?"Receta armada con los pasos y las cantidades de esta comida (por persona). Revisala y guardala.":"Receta nueva con los ingredientes de esta comida. Sumá los pasos y guardala.");
+  showRecipeView("editor");
+  document.getElementById("recipeDetailsTitle").focus({preventScroll:true})
+},
 duplicateRecipeDetails(id){
   const all=loadRecipeDetails(),original=all[id];
   if(!original)throw Error("Elegí una receta guardada para duplicar.");

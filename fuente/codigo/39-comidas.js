@@ -290,7 +290,48 @@ function pintarDetallePlato(it,conservarAviso){
   const boton=(texto,clave,valor,clase)=>{
     const b=ce("button","button "+(clase||"button--soft"),texto);b.type="button";b.dataset[clave]=valor;return b
   };
-  acts.replaceChildren(boton("🍳 Lo cociné","cookSaved",it.id),boton("Editar nombre","renameSaved",it.id))
+  // v19.4 (R5-C-03): "Editar receta" si la comida tiene receta; si no, "Añadir receta".
+  acts.replaceChildren(boton("🍳 Lo cociné","cookSaved",it.id),boton("Editar nombre","renameSaved",it.id),boton(comidaTieneReceta(it)?"Editar receta":"Añadir receta","comidaRecetaDe",it.id))
+}
+// La receta propia que corresponde a una comida (su copia de receta, la que se armó desde su idea o la que tiene su mismo nombre), o null.
+function recetaDeComida(it){
+  try{
+    const todas=loadRecipeDetails();
+    if(it.recipeSourceId&&todas[it.recipeSourceId])return it.recipeSourceId;
+    const idea=IdeasHoja.ideaDeComida(it);
+    if(idea){
+      const r=Object.values(todas).find(x=>x.sourceTitle===idea.text);
+      if(r)return r.id
+    }
+    const nombre=normalizeSearchText(mealName(it)),r=Object.values(todas).find(x=>normalizeSearchText(x.title)===nombre);
+    if(r)return r.id
+  }catch(e){
+  }
+  return null
+}
+function comidaTieneReceta(it){
+  if(recetaDeComida(it))return true;
+  try{
+    const idea=IdeasHoja.ideaDeComida(it);
+    return !!(idea&&Array.isArray(idea.pasos)&&idea.pasos.length)
+  }catch(e){
+    return false
+  }
+}
+function editarRecetaDeComida(id){
+  const it=MisPlatos.loadSaved().find(x=>x.id===id);
+  if(!it)return;
+  const rid=recetaDeComida(it);
+  if(rid){
+    recipeDetailsEditing=rid;
+    renderRecipeDetails();
+    showRecipeView("editor");
+    document.getElementById("recipeDetailsTitle").focus({preventScroll:true});
+    return
+  }
+  let idea=null;
+  try{idea=IdeasHoja.ideaDeComida(it)}catch(e){}
+  Recetas.startRecipeFromComida(it,idea&&Array.isArray(idea.pasos)&&idea.pasos.length?idea:null)
 }
 function refrescarDetalleComida(){
   if(stack.at(-1)!=="comida"||!comidaActual)return;
@@ -329,6 +370,7 @@ document.addEventListener("click",e=>{
   try{
     const d=b.dataset;
     if(d.comidaId&&b.classList.contains("comida-card"))return Comidas.abrirComida(d.comidaOrigen,d.comidaId);
+    if(d.comidaRecetaDe)return editarRecetaDeComida(d.comidaRecetaDe);
     if(d.comidasVista==="ideas")return abrirIdeas(false);
     if(d.comidasVista==="mias")return openTab("miscomidas");
     if(d.comidaNueva!==undefined)return Comidas.abrirNuevaComida();
@@ -348,7 +390,7 @@ document.addEventListener("click",e=>{
       return planStatus("Guardada en Mis comidas.")
     }
     if(d.comidaEliminarReceta)return Comidas.eliminarRecetaDesdeDetalle(d.comidaEliminarReceta);
-    if(d.nutrienteIngrediente)return Comidas.abrirNutrientesDeIngrediente(d.nutrienteIngrediente,d.completarPreciosFila!==undefined);
+    if(d.nutrienteIngrediente)return Comidas.abrirNutrientesDeIngrediente(d.nutrienteIngrediente);
     if(d.openPreferencias!==undefined)return go("preferencias");
     if(d.openFuentes!==undefined)return Comidas.abrirFuentes();
     if(d.openComoFunciona!==undefined)return go("comoFunciona");

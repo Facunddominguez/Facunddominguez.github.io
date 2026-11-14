@@ -936,13 +936,16 @@ function abrirCompletarPrecios(){
     guardar=boton("Guardar precios","button--primary","completarGuardar"),cuenta=ce("p","screen__hint");
   aviso.setAttribute("aria-live","polite");
   pos.setAttribute("aria-live","polite");
+  const cantLabel=ce("label",null,"Cantidad"),fCant=ce("div","portion-field");
+  cantLabel.htmlFor="completarCantidad";
   monto.type="text";monto.inputMode="decimal";monto.id="completarMonto";
   cant.type="text";cant.inputMode="decimal";cant.id="completarCantidad";
   uni.id="completarUnidad";
+  fCant.append(cantLabel,cant);
   for(const [v,t] of FICHA_UNIDADES)uni.append(new Option(t,v));
   const fila=ce("div","completar-precios__nav");
   fila.append(ant,sig);
-  caja.append(pos,nombre,info,campo("Monto ($)",monto),campo("Cantidad",cant),campo("Unidad",uni),fila,guardar,cuenta,aviso);
+  caja.append(pos,nombre,info,campo("Monto ($)",monto),fCant,campo("Unidad",uni),fila,guardar,cuenta,aviso);
   const recordar=()=>{
     const x=lista[i];
     if(x)valores.set(x.key,{monto:monto.value,cant:cant.value,uni:uni.value})
@@ -962,6 +965,7 @@ function abrirCompletarPrecios(){
   };
   uni.addEventListener("change",()=>{
     if(uni.value==="paquete"&&cant.value==="1")cant.value="";
+    cantLabel.textContent=uni.value==="paquete"?"Gramos del paquete":"Cantidad";
     recordar()
   });
   monto.addEventListener("input",()=>{recordar();cuenta.textContent=llenos()?"Completaste "+llenos()+" de "+lista.length+".":""});
@@ -977,7 +981,7 @@ function abrirCompletarPrecios(){
       const precio=numero(v.monto),cantidad=numero(v.cant);
       if(precio===null||cantidad===null||precio>1000000){revisar.push(x.name+": escribí el monto y la cantidad con números mayores que cero");continue}
       const r=razonContraCategoria(x.name,precio,cantidad,v.uni==="paquete"?"g":v.uni);
-      if(r&&(r.razon>3||r.razon<1/3)){revisar.push(x.name+": el monto se aleja mucho del precio típico de "+r.categoria);continue}
+      if(r&&(r.razon>3||r.razon<1/3)){revisar.push(x.name+": el monto se aleja mucho del precio típico de "+r.categoria+" (cargalo desde su ficha si está bien)");continue}
       try{guardarMiPrecio(x.name,precio,cantidad,v.uni);guardados.push(x.key)}catch(err){revisar.push(x.name+": "+err.message)}
     }
     if(!guardados.length&&!revisar.length){
@@ -1003,7 +1007,9 @@ function abrirCompletarPrecios(){
       return
     }
     if(!lista.length){abrir([ce("p","screen__hint",texto+" Revisá: "+revisar.join(" · "))]);return}
-    i=Math.min(i,lista.length-1);
+    // Se vuelve al mismo producto si sigue faltando; si no, al que ocupa ese lugar.
+    const actual=previos[i]?lista.findIndex(y=>y.key===previos[i].key):-1;
+    i=actual>=0?actual:Math.min(i,lista.length-1);
     mostrar();
     aviso.textContent=texto+" Faltan "+lista.length+"."+(revisar.length?" Revisá: "+revisar.join(" · "):"")
   });
