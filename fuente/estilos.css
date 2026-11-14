@@ -3595,14 +3595,23 @@ select{max-width:100%;min-width:0}
 .semana-aviso__detalle>summary{display:inline-flex;align-items:center;min-height:40px;padding:0 4px;cursor:pointer;color:var(--green);font-weight:600;list-style:none;text-decoration:underline}
 .semana-aviso__detalle>summary::-webkit-details-marker{display:none}
 .semana-aviso__detalle>p{margin:0 0 4px;color:var(--muted)}
-#plan .semana-dia-chip{min-height:52px;padding:3px 0 4px;gap:0;line-height:1.05}
+#plan .semana-dia-chip{min-height:52px;padding:3px 0 4px;gap:0;line-height:1.05;align-content:center}
 #plan .semana-dia-chip>*{line-height:1.05}
 #plan .semana-cabeza .screen__title{line-height:1.1}
 /* A 320 px el título de la semana entra en dos líneas aun con tipografías más anchas (Chrome en Linux sin Inter). */
 @media(max-width:340px){#plan .semana-cabeza .screen__title{font-size:17px}}
 #plan .armame-boton{min-height:44px}
 #plan .semana-dia__titulo{line-height:1.2}
-@media(min-width:380px){#plan .semana-dias{gap:2px;margin:16px -6px}}
+/* v19.1 (S-17): chips de los días sin la barra ni el "4/4", con 8 px entre uno y otro; el día completo lleva un punto verde. */
+#plan .semana-dias{gap:8px}
+@media(min-width:380px){#plan .semana-dias{margin:16px -6px}}
+.semana-dia-chip.es-completo .semana-dia-chip__num::after{content:"";display:block;width:6px;height:6px;margin:1px auto 0;border-radius:50%;background:var(--green)}
+.semana-dia-chip[aria-pressed="true"].es-completo .semana-dia-chip__num::after{background:currentColor}
+/* v19.1 (S-15): "Armame la semana" y "Planes guardados" en una fila. */
+.armame-fila{display:flex;gap:8px;margin:0 0 16px}
+.armame-fila .button{margin:0;width:auto;flex:1 1 0;min-width:0}
+.armame-fila .armame-boton{flex:1.4 1 0}
+.armame-fila [hidden]{display:none}
 /* "Con precio: 35 de 37 productos · Completar 2 precios" en una sola línea: el enlace mide 44 px de alto al tocarlo, pero no agranda la línea. */
 #planPreciosEstado{font-size:12.5px;gap:0 4px;margin-bottom:16px}
 #planPreciosEstado .precios-aviso--inline{min-height:0;padding:15px 4px;margin:-15px 0;font-size:12.5px}

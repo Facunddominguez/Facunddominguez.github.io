@@ -23,7 +23,7 @@
     recetaEditar: ["recipeAmountsPanel"],
     preferencias: ["ingredientAliasPanel"],
     ideas: [], comida: [], backupScreen: [],
-    plan: ["varSelect", "monthlyPlanPanel", "datedWeeksPanel", "datedEditPanel", "planHistoryPanel"]
+    plan: ["varSelect", "monthlyPlanPanel", "datedWeeksPanel", "datedEditPanel"]
   };
   const visibleAdvanced = [];
   for (const [screen, ids] of Object.entries(expected)) {
@@ -77,23 +77,23 @@
     b.click(); await wait(80); const faltan = sels.filter(s => !shown(document.querySelector(s))); essentials.push(...faltan); return !faltan.length
   };
   // Las herramientas de la Semana (variaciones, semanas por fecha y mes, historial) se alcanzan desde el menú ⋯.
-  const herramientasPlan = async () => { const r = []; r.push(await porMenu("variaciones", ["#varSelect", "#planHerramientas [data-del-var]"])); r.push(await porMenu("semanas", ["#monthlyPlanPanel", "#datedWeeksPanel"])); r.push(await porMenu("historial", ["#planHistoryPanel", "#planHistoryList"])); go("plan"); await wait(20); return r.every(Boolean) };
+  const herramientasPlan = async () => { const r = []; r.push(await porMenu("variaciones", ["#varSelect", "#planHerramientas [data-del-var]"])); r.push(await porMenu("semanas", ["#monthlyPlanPanel", "#datedWeeksPanel"])); r.push(await porMenu("consumo", ["#consumptionPanel"])); go("plan"); await wait(20); return r.every(Boolean) };
   await menuSemana(); if (!shown(document.querySelector(".hoja [data-clear-plan]"))) essentials.push("[data-clear-plan]"); hoja.cerrar();
-  // Buscar en mis recetas: busca por nombre y encuentra la receta.
-  await porMenu("recetas", ["#planRecipeReference", "#planRecipeSelect", "#planRecipeSearch"]);
-  $("planRecipeSearch").value = "Papas"; $("planRecipeSearch").dispatchEvent(new Event("input", { bubbles: true })); await wait(20);
-  if ($("planRecipeSelect").value !== recipeId) essentials.push("Buscar en mis recetas no encontró la receta");
-  $("planRecipeSearch").value = ""; $("planRecipeSearch").dispatchEvent(new Event("input", { bubbles: true }));
+  // Desde la v19.1 (R5-S-18 y S-19) no hay "Buscar en mis recetas": la receta se encuentra en la sección "Mis recetas" del selector de comida.
+  abrirSelector("lunes", "almuerzo"); await wait(60);
+  const buscarR = document.getElementById("selectorBuscar"); buscarR.value = "Papas"; buscarR.dispatchEvent(new Event("input", { bubbles: true })); await wait(30);
+  if (!/Papas al horno/.test((document.querySelector('.hoja [data-selector-seccion="recetas"]') || { textContent: "" }).textContent)) essentials.push("Mis recetas del selector no encontró la receta");
+  hoja.cerrar();
   // Lo que comí: registra una comida escrita a mano.
   await porMenu("consumo", ["#consumptionPanel", "#consumptionSave", "#consumptionView"]);
   const registrosAntes = loadConsumption().length;
   $("consumptionMeal").value = "merienda"; $("consumptionPlate").value = ""; $("consumptionText").value = "Prueba de modo simple"; $("consumptionSave").click(); await wait(20);
   if (loadConsumption().length !== registrosAntes + 1 || !/1 comida registrada|comidas registradas/.test($("consumptionView").textContent)) essentials.push("Lo que comí no registró");
-  // Descargar: pide la descarga del plan (sin bajar nada de verdad).
-  await porMenu("descargar", ["[data-download-week]"]);
+  // Descargar HTML (desde la v19.1 está en Compartir la semana): pide la descarga del plan (sin bajar nada de verdad).
+  await menuSemana(); document.querySelector(".hoja [data-compartir-semana-menu]").click(); await wait(30);
   const blobs = [], crear = URL.createObjectURL, clic = HTMLAnchorElement.prototype.click;
   URL.createObjectURL = b => { blobs.push(b); return crear.call(URL, b) }; HTMLAnchorElement.prototype.click = function () { };
-  try { document.querySelector("[data-download-week]").click(); await wait(20) } finally { URL.createObjectURL = crear; HTMLAnchorElement.prototype.click = clic }
+  try { document.querySelector('.hoja [data-compartir-semana="html"]').click(); await wait(20) } finally { URL.createObjectURL = crear; HTMLAnchorElement.prototype.click = clic }
   if (blobs.length !== 1 || !(await blobs[0].text()).includes("Papas al horno")) essentials.push("Descargar no generó el plan");
   // Las herramientas de la Semana también se alcanzan en modo simple.
   if (!(await herramientasPlan())) essentials.push("herramientas de la Semana en modo simple");
@@ -106,7 +106,7 @@
   // Desde la v16.6 no hay carteles por pantalla: el único interruptor está en Preferencias (C17-2).
   const notes = document.querySelectorAll("[data-mode-note]");
   await menuSemana(); const itemsMenu = [...document.querySelectorAll(".hoja .menu-semana button")].filter(shown).map(b => b.textContent); hoja.cerrar();
-  const menuCompleto = ["Repetir semana anterior", "Copiar un día", "Empezar de nuevo", "Planes guardados", "Semanas anteriores y mes", "Historial de cambios", "Descargar", "Buscar en mis recetas", "Registro y objetivos"].every(t => itemsMenu.includes(t));
+  const menuCompleto = ["Repetir semana anterior", "Copiar un día", "Empezar de nuevo", "Planes guardados", "Semanas anteriores y mes", "Compartir la semana", "Registro y objetivos"].every(t => itemsMenu.includes(t));
   T.ok("M4 sin carteles de herramientas ocultas en las pantallas (el interruptor único está en Preferencias); Semana no oculta nada y su menú lo lista todo", notes.length === 0 && menuCompleto, itemsMenu.join(", "));
   // M5 Tarjeta en Configuración: cambia el modo y lo recuerda
   const card = $("uiModeToggle");
@@ -160,9 +160,8 @@
   ModoSimple.setUiMode("simple");
   // M12 Los mensajes no mandan a herramientas ocultas
   setRecipes([{ id: "recipe_sinIng1", title: "Receta sin ingredientes", amountsTitle: null }]);
-  go("plan"); await R.openPanel("planRecipeReference");
-  $("planRecipeSelect").value = "recipe_sinIng1"; $("planRecipeAssign").click(); await wait(20);
-  const assignMsg = $("planRecipeAssignStatus").textContent;
+  go("plan"); let assignMsg = "";
+  try { asignarRecetaAlPlan("recipe_sinIng1", "lunes", "almuerzo", true) } catch (err) { assignMsg = err.message }
   go("ingredientes"); showRecipeView("browse"); showRecipeRead("recipe_sinIng1"); await wait(20);
   const readMsg = $("recipeReadIngredients").textContent;
   T.ok("M12 los mensajes indican Editar receta, no paneles ocultos", /Editar receta/.test(assignMsg) && !/Mis cantidades/.test(assignMsg) && /Editar receta/.test(readMsg) && !/Mis cantidades/.test(readMsg), assignMsg + " | " + readMsg);

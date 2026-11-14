@@ -78,7 +78,7 @@
   for (const p of Object.values(J(PRECIOS))) exigir("Mis precios", seVe($("priceList"), p.name + (p.pack ? " · " + p.pack : "")), p.name);
   // Semana: plan, porciones, planes guardados, semanas con fecha, historial, Lo que comí y objetivos.
   await irA("semana");
-  const semana = qa("#planDias [data-plan-dia]").reduce((t, c) => t + Number((c.querySelector(".semana-dia-chip__cuenta").textContent.match(/^(\d)\/4$/) || [0, NaN])[1]), 0);
+  const semana = qa("#planDias [data-plan-dia]").reduce((t, c) => t + Number((c.getAttribute("aria-label").match(/: (\d) de 4 comidas$/) || [0, NaN])[1]), 0);
   exigir("plan", semana === 28, semana + " de 28");
   for (const [clave, n] of Object.entries(J("miPlatoFacil_planPortions_v1"))) {
     const [dia, comida] = clave.split("|");
@@ -92,8 +92,8 @@
   for (const nombre of Object.keys(J("miPlatoFacil_planVars"))) exigir("plan guardado", visible($("varSelect")) && [...$("varSelect").options].some(o => o.textContent.includes(nombre)), nombre);
   await irA("semana"); await menuSemana("semanas");
   for (const fecha of Object.keys(J("miPlatoFacil_datedWeeks_v1"))) exigir("semana con fecha", seVe($("datedWeekList"), fecha), fecha);
-  await irA("semana"); await menuSemana("historial");
-  for (const h of J("miPlatoFacil_planHistory_v1")) exigir("historial del plan", seVe($("planHistoryList"), h.text), h.text);
+  // Desde la v19.1 (R5-S-16) el historial del plan ya no se muestra: lo guardado sigue y lo lee la propia app.
+  exigir("historial del plan", J("miPlatoFacil_planHistory_v1").length > 0 && ev("Semana.loadPlanHistory().length") === J("miPlatoFacil_planHistory_v1").length);
   await irA("semana"); await menuSemana("consumo");
   const consumo = J("miPlatoFacil_consumption_v1"), primera = consumo.map(c => c.date).sort()[0];
   let registrados = 0;

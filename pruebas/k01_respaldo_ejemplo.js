@@ -65,7 +65,7 @@
   const doc = w.document, tab = t => doc.querySelector('#sectionNav [data-section-tab="' + t + '"]');
   tab("semana").click(); await espera(80);
   // v15.1: la Semana muestra los chips de lunes a domingo con "N/4"; se suman los que se ven.
-  const semana = [...doc.querySelectorAll("#planDias [data-plan-dia]")].reduce((t, c) => t + Number((c.querySelector(".semana-dia-chip__cuenta").textContent.match(/^(\d)\/4$/) || [0, NaN])[1]), 0) + " de 28";
+  const semana = [...doc.querySelectorAll("#planDias [data-plan-dia]")].reduce((t, c) => t + Number((c.getAttribute("aria-label").match(/: (\d) de 4 comidas$/) || [0, NaN])[1]), 0) + " de 28";
   tab("miscomidas").click(); await espera(80);
   // v15.3: tarjeta única; se cuentan las tarjetas que se ven por tipo (las copias del plan van aparte, plegadas).
   const tarjetas = t => [...doc.querySelectorAll('#savedList > .comida-card[data-comida-tipo="' + t + '"]')].filter(c => c.getClientRects().length).length;

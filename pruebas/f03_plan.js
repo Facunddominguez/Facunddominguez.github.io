@@ -10,8 +10,7 @@
   setAmounts({ [IDEA1]: { yield: 4, rows: [{ name: "Papa", quantity: 400, unit: "g" }] } });
   setRecipes([{ id: "recipe_test0001", title: "Papas al horno", amountsTitle: IDEA1 }]);
   setSaved([tradPlate("tp1", ["Arroz"], ["Tomate"], ["Merluza"]), tradPlate("tp2", ["Fideos y pastas (de trigo, maíz o arroz)"], ["Zanahoria"], ["Pollo (pechuga, muslo, pata-muslo)"])]);
-  $("planRecipeReference").open = true; renderPlanRecipeReference();
-  $("planRecipeSelect").value = "recipe_test0001"; $("planRecipeDay").value = "lunes"; $("planRecipeSlot").value = "almuerzo"; assignSavedRecipeToPlan();
+  asignarRecetaAlPlan("recipe_test0001", "lunes", "almuerzo", true);
   go("compras"); await wait(30);
   T.ok("P1a sin porciones, Compras usa la receta completa", R.renderedRows().includes("Papa: 400 g"));
   setSlot("martes", "cena", "tp1");
@@ -41,8 +40,8 @@
   // Variation load keeps nothing for changed slot, history logs
   const vs = $("varSelect"); vs.value = "Con porciones"; vs.dispatchEvent(new Event("change", { bubbles: true })); await wait(20);
   T.ok("P6 cargar una variación no arrastra porciones de otra comida", Object.keys(Semana.loadPlanPortions()).length === 0 && loadPlan().lunes.almuerzo !== "tp1");
-  await R.openPanel("planHistoryPanel");
-  const hist = $("planHistoryList").textContent;
+  // Desde la v19.1 (R5-S-16) el historial ya no se muestra, pero se sigue guardando: se lee lo guardado.
+  const hist = Semana.loadPlanHistory().map(x => x.text).join("\n");
   T.ok("P7 el historial registra asignaciones, porciones y variaciones", /Lunes · Almuerzo: asignado Papas al horno/.test(hist) && /porciones 2/.test(hist) && /porciones según la receta/.test(hist) && /Variación "Con porciones" cargada/.test(hist) && hist.includes("Lunes · Almuerzo: asignado " + mealName(MisPlatos.loadSaved().find(x => x.id === "tp1"))), hist.slice(0, 300));
   // Reuse a dated week whose plate was deleted afterwards
   setSlot("martes", "cena", "tp2");

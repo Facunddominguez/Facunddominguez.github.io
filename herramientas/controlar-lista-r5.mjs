@@ -19,10 +19,14 @@ const seccionAdvertencias = (texto.split(/\n## Ítems en ⚠️[^\n]*\n/)[1] || 
 const archivos = celda => celda.split(/[ ,]+/).filter(x => /\.png$/.test(x));
 for (const f of filas.filter(f => f.etapa <= N)) {
   if (f.estado === '✅') {
-    for (const [nombre, celda] of [['antes', f.antes], ['después', f.despues]]) {
+    if (f.prueba !== 'R5-' + f.id) fallas.push(`${f.id}: la columna Prueba dice "${f.prueba}" y tiene que decir R5-${f.id}`);
+    for (const [nombre, celda, marca] of [['antes', f.antes, 'antes'], ['después', f.despues, 'despues']]) {
       const lista = archivos(celda);
       if (!lista.length) fallas.push(`${f.id}: sin captura del ${nombre}`);
-      for (const a of lista) if (!existsSync(join(RAIZ, 'docs', 'capturas-ronda-5', a))) fallas.push(`${f.id}: no existe docs/capturas-ronda-5/${a}`);
+      for (const a of lista) {
+        if (!new RegExp('-' + marca + '(-oscuro)?(-\\d+)?\\.png$').test(a)) fallas.push(`${f.id}: la captura "${a}" no es del ${nombre} (tiene que terminar en -${marca}.png)`);
+        if (!existsSync(join(RAIZ, 'docs', 'capturas-ronda-5', a))) fallas.push(`${f.id}: no existe docs/capturas-ronda-5/${a}`);
+      }
     }
   } else if (f.estado === '⚠️') {
     const m = new RegExp('### ' + f.id + '\\b([\\s\\S]*?)(?=\\n### |$)').exec(seccionAdvertencias);
@@ -32,7 +36,9 @@ for (const f of filas.filter(f => f.etapa <= N)) {
 if (N === 44) {
   const faltan = filas.filter(f => f.estado !== '✅' && f.estado !== '⚠️');
   if (faltan.length) fallas.push('sin cerrar: ' + faltan.map(f => f.id).join(', '));
-  if (!/\n## Resumen \(Etapa 44\)\n[\s\S]*✅[\s\S]*⚠️/.test(texto) || /Se completa al cerrar la ronda/.test(texto)) fallas.push('falta el resumen final (cuántos ✅ y cuántos ⚠️)');
+  const resumen = (texto.split('\n## Resumen (Etapa 44)\n')[1] || '');
+  const dice = new RegExp(`${filas.filter(f => f.estado === '✅').length} (ítems )?(en |quedaron en )?✅`).test(resumen) && new RegExp(`${filas.filter(f => f.estado === '⚠️').length} (ítems )?(en |quedaron en )?⚠️`).test(resumen);
+  if (!dice || /Se completa al cerrar la ronda/.test(texto)) fallas.push('falta el resumen final con los números reales (cuántos ✅ y cuántos ⚠️, por ejemplo "79 ítems en ✅ y 0 en ⚠️")');
 }
 const hechos = filas.filter(f => f.estado === '✅').length, avisos = filas.filter(f => f.estado === '⚠️').length;
 if (fallas.length) { console.error(`Lista de la Ronda 5 (Etapa ${N}): ${fallas.length} falla(s)\n  - ` + fallas.slice(0, 40).join('\n  - ')); process.exit(1) }

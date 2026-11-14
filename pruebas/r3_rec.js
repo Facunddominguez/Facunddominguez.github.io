@@ -25,9 +25,7 @@
   T.ok("E2a el editor de la receta muestra 'Mi receta: …' seleccionado", am.value === "receta:" + id && am.selectedOptions[0].textContent === "Mi receta: Guiso de la abuela");
   document.getElementById("recipeDetailsSave").click(); await wait(20);
   T.ok("E2b volver a guardar la receta no pierde el vínculo", loadRecipeDetails()[id].amountsTitle === "receta:" + id);
-  document.getElementById("planRecipeReference").open = true; renderPlanRecipeReference();
-  document.getElementById("planRecipeSelect").value = id; document.getElementById("planRecipeDay").value = "lunes"; document.getElementById("planRecipeSlot").value = "almuerzo";
-  assignSavedRecipeToPlan();
+  asignarRecetaAlPlan(id, "lunes", "almuerzo", true);
   go("compras"); await wait(50);
   T.ok("E3 receta propia asignada aparece en Compras con cantidades", R.renderedRows().includes("Papa: 300 g") && R.renderedRows().includes("Cebolla: 1 unidad"), R.renderedRows().join(" | "));
   go("ingredientes"); await reopen();

@@ -156,6 +156,3 @@ document.addEventListener("click",e=>{
     SemanasFechadas.datedWeekMessage(err.message)
   }
 });
-document.getElementById("planHistoryPanel").addEventListener("toggle",e=>{
-  if(e.target.open)Semana.renderPlanHistory()
-});

@@ -208,7 +208,7 @@
   cargar(conPlan([[hoy(), "cena", null]])); await abrir(); await irA("hoy");
   await tocar(q('#todayRows [data-today-slot="cena"] [data-today-choose]')); await tocar(q('.hoja [data-selector-id="plato_p5"]'));
   await irA("semana");
-  const cuenta = q('#planDias [data-plan-dia="' + hoy() + '"] .semana-dia-chip__cuenta').textContent;
+  const cuenta = (q('#planDias [data-plan-dia="' + hoy() + '"]').getAttribute("aria-label").match(/: (\d) de 4 comidas$/) || [])[1] + "/4";
   await tocar(q('#planDias [data-plan-dia="' + hoy() + '"]')); await tocar(q('[data-hueco="' + hoy() + '|cena"]'));
   await tocar(q(".hoja [data-hueco-cambiar]")); await tocar(q('.hoja [data-selector-id="plato_p2"]'));
   await irA("hoy");

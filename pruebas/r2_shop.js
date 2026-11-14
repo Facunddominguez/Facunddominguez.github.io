@@ -109,10 +109,9 @@
   // S12 MSG-01: assignment message and hint
   reset();
   setAmounts({ [IDEA1]: { yield: 1, rows: [{ name: "Papa", quantity: 200, unit: "g" }] } }); setRecipes([{ id: "recipe_test0001", title: "Papas al horno", amountsTitle: IDEA1 }]);
-  window.confirm = () => true; document.getElementById("planRecipeReference").open = true; renderPlanRecipeReference();
-  document.getElementById("planRecipeSelect").value = "recipe_test0001"; document.getElementById("planRecipeDay").value = "jueves"; document.getElementById("planRecipeSlot").value = "cena";
-  assignSavedRecipeToPlan(); go("compras"); await wait(40);
-  T.ok("S12 mensajes actualizados (asignación e indicación de Compras)", /cantidades registradas en la receta/.test(document.getElementById("planRecipeAssignStatus").textContent) && /Ya tenés/.test(document.getElementById("comprasHint").textContent) && item("Papa").label === "Papa: 200 g");
+  window.confirm = () => true;
+  const asignada = asignarRecetaAlPlan("recipe_test0001", "jueves", "cena", true); go("compras"); await wait(40);
+  T.ok("S12 mensajes actualizados (asignación e indicación de Compras)", asignada === true && /Ya tenés/.test(document.getElementById("comprasHint").textContent) && item("Papa").label === "Papa: 200 g");
   // Prepare S7 for a real click (left for the next step)
   reset();
   setAmounts({ [IDEA3]: { yield: 1, rows: [{ name: 'Queso "cremoso"', quantity: 100, unit: "g" }] } });

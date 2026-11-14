@@ -23,13 +23,13 @@ buildWeeklyPlanExport(plan,saved,start){
     assigned,html:"<!doctype html><html lang='es'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>Mi plato fácil · Plan semanal</title><style>body{font-family:system-ui,sans-serif;max-width:900px;margin:auto;padding:24px;color:#10201b;background:#f4f8f6}h1,h2{color:#0b6b57}section{background:white;border:1px solid #dfe9e5;border-radius:16px;padding:16px;margin:16px 0;break-inside:avoid}table{width:100%;border-collapse:collapse}th,td{text-align:left;vertical-align:top;padding:10px;border-bottom:1px solid #dfe9e5}th{width:25%}p{margin:6px 0}ul{padding-left:20px}@media print{body{background:white;padding:0}section{border-radius:0}}</style></head><body><h1>Mi plato fácil</h1><p>Plan semanal · "+(date?"Fechas elegidas para esta copia":"Sin fechas asignadas")+"</p><p>"+assigned+" comidas asignadas. Copia de consulta, no es un respaldo importable.</p>"+sections+"</body></html>"
   }
 },
+// v19.1: "Compartir la semana → Descargar HTML" baja la semana que se está viendo (esta o la que viene), con su lunes en el nombre.
 downloadWeeklyPlan(){
-  const status=document.getElementById("planExportStatus");
   let url;
   try{
-    const start=document.getElementById("planExportStart").value,result=SemanasFechadas.buildWeeklyPlanExport(loadPlan(),MisPlatos.loadSaved(),start);
+    const start=Semana.viendoProxima()?Semana.lunesSiguiente():Semana.semanaActual(),result=SemanasFechadas.buildWeeklyPlanExport(loadPlan(),MisPlatos.loadSaved(),start);
     if(!result.assigned){
-      status.textContent="Asigná al menos un plato antes de descargar el plan.";
+      planStatus("Asigná al menos un plato antes de descargar el plan.");
       return
     }
     url=URL.createObjectURL(new Blob([result.html],{
@@ -37,15 +37,15 @@ downloadWeeklyPlan(){
     }));
     const a=document.createElement("a");
     a.href=url;
-    a.download="mi-plan-semanal"+(start?"-"+start:"")+".html";
+    a.download="mi-plan-semanal-"+start+".html";
     document.body.appendChild(a);
     a.click();
     a.remove();
     setTimeout(()=>URL.revokeObjectURL(url),1000);
-    status.textContent="Descarga solicitada. La copia refleja el plan actual y no cambia tus datos."
+    planStatus("Descargamos la semana del "+typedAppDateLabel(start).slice(0,5)+" en HTML.")
   }catch(e){
     if(url)URL.revokeObjectURL(url);
-    status.textContent=e.message||"No se pudo descargar el plan."
+    planStatus(e.message||"No se pudo descargar el plan.")
   }
 },
 datedWeekMessage(text){
@@ -218,9 +218,6 @@ function planExportDate(value){
   if(d.getDay()!==1)throw new Error("La fecha debe ser un lunes, para respetar el orden del plan.");
   return d
 }
-document.addEventListener("click",e=>{
-  const b=e.target.closest("[data-download-week]");if(b)SemanasFechadas.downloadWeeklyPlan()
-});
 const DATED_WEEKS_KEY="miPlatoFacil_datedWeeks_v1";
 function loadDatedWeeks(){
   try{
@@ -318,18 +315,18 @@ function syncTypedAppDate(id){
   const hidden=document.getElementById(id),text=document.getElementById(id+"Text");
   if(document.activeElement!==text)text.value=typedAppDateLabel(hidden.value)
 }
-const typedDateIds=["trainingExceptionDate","datedWeekStart","planExportStart"];
+const typedDateIds=["trainingExceptionDate","datedWeekStart"];
 typedDateIds.forEach(id=>{
   const text=document.getElementById(id+"Text");syncTypedAppDate(id);text.addEventListener("input",()=>{
     const digits=text.value.replace(/\D/g,"").slice(0,8);if(!text.value.includes("-"))text.value=digits.slice(0,2)+(digits.length>2?"/"+digits.slice(2,4):"")+(digits.length>4?"/"+digits.slice(4):"")
   });text.addEventListener("change",()=>SemanasFechadas.commitTypedAppDate(id,false));text.addEventListener("keydown",e=>{
     if(e.key==="Enter"){
-      e.preventDefault();SemanasFechadas.commitTypedAppDate(id,id!=="planExportStart");text.blur()
+      e.preventDefault();SemanasFechadas.commitTypedAppDate(id,true);text.blur()
     }
   });document.getElementById(id).addEventListener("change",()=>syncTypedAppDate(id))
 });
 document.addEventListener("click",e=>{
-  const b=e.target.closest("button");if(!b)return;let id=null;if(b.dataset.trainingExceptionSave!==undefined)id="trainingExceptionDate";if(b.dataset.datedSave!==undefined||b.dataset.datedDownload!==undefined||b.dataset.datedDelete!==undefined||b.dataset.datedEditSave!==undefined)id="datedWeekStart";if(b.dataset.downloadWeek!==undefined)id="planExportStart";if(id&&!SemanasFechadas.commitTypedAppDate(id,id!=="planExportStart")){
+  const b=e.target.closest("button");if(!b)return;let id=null;if(b.dataset.trainingExceptionSave!==undefined)id="trainingExceptionDate";if(b.dataset.datedSave!==undefined||b.dataset.datedDownload!==undefined||b.dataset.datedDelete!==undefined||b.dataset.datedEditSave!==undefined)id="datedWeekStart";if(id&&!SemanasFechadas.commitTypedAppDate(id,true)){
     e.preventDefault();e.stopImmediatePropagation();document.getElementById(id+"Text").focus()
   }
 },true);
