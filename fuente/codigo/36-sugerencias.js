@@ -33,6 +33,23 @@ function sugerenciasPara(comida,dia){
   const enDespensa=n=>tengo.has(n)||stock.includes(ingredientKey(n));
   const evitada=texto=>!textoPermitido(texto);
   const out=[];
+  // v19.4 (R5-C-02): desayuno y merienda sugieren una idea (del catálogo de desayunos o de tus desayunos guardados), igual que almuerzo y cena.
+  if(comida==="desayuno"||comida==="merienda"){
+    const ya=new Set();
+    for(const idea of data.desayunoCatalog||[]){
+      if(!idea||!idea.text||ya.has(normalizeSearchText(idea.text))||evitada(textoDeIdea(idea)))continue;
+      ya.add(normalizeSearchText(idea.text));
+      out.push({tipo:"idea",idea,peso:1})
+    }
+    for(const item of MisPlatos.loadSaved()){
+      if(!item||item.type!=="desayuno"||item.recipeSourceId||ya.has(normalizeSearchText(mealName(item))))continue;
+      let ings=[];
+      try{ings=Semana.extractIngredients(item)}catch(e){}
+      if(evitada(mealName(item)+" "+ings.join(" ")))continue;
+      out.push({tipo:"mia",item,peso:1})
+    }
+    return out
+  }
   if(comida!=="almuerzo"&&comida!=="cena"&&comida!=="plato")return out;
   for(const idea of data.menuCatalog){
     const ings=ideaIngredientes(idea);

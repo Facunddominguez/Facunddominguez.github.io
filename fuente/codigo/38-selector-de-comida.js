@@ -22,8 +22,8 @@ elegirEnSelector(asignar){
 sugerirEnSelector(){
   const h=huecoAbierto;
   if(!h||h.modo!=="selector")return;
-  if(slotPool(h.slot)==="desayuno"){
-    // Desayuno o merienda: arma una combinación al azar; al guardarla se asigna a este hueco.
+  if(h.sugerime&&slotPool(h.slot)==="desayuno"){
+    // "Sugerime algo" de Hoy, en desayuno o merienda: arma una combinación al azar (esto cambia en la Etapa 38, H-04); al guardarla se asigna a este hueco.
     huecoAbierto=null;
     hoja.cerrar();
     AlAzar.randomMeal("desayuno");
@@ -32,6 +32,7 @@ sugerirEnSelector(){
     };
     return
   }
+  // v19.4 (R5-C-02): en el selector de comida, desayuno y merienda sugieren una idea, igual que almuerzo y cena (para armar una comida está "＋ Armar nueva").
   const s=elegirSugerencia(h.slot,Math.random,diaDelHueco(h));
   h.sug.hidden=false;
   h.sug.replaceChildren();
@@ -293,8 +294,13 @@ function recetasSinCopia(items){
 function seccionesSelector(h,q){
   const pool=slotPool(h.slot),items=MisPlatos.loadSaved().filter(p=>p&&p.type===pool),labels=mealLabels(items),n=normalizeSearchText(String(q||"").trim());
   const nombre=it=>labels.get(it.id)||nombreCortoDeComida(it),coincide=t=>!n||normalizeSearchText(t).includes(n);
+  // v19.4 (R5-C-04): una comida guardada que no cumple la dieta (o lo que evitás) se ve apagada y dice por qué; sigue a un toque por si querés usarla igual.
+  const motivoDe=it=>{
+    try{return dietaMotivo(mealName(it)+" "+Semana.extractIngredients(it).join(" "))}catch(e){return ""}
+  };
   const fila=it=>{
-    const b=ce("button","selector-item"+(it.id===h.id?" is-actual":""));b.type="button";b.dataset.selectorId=it.id;b.append(ce("span","selector-item__nombre",Semana.planPlateLabel(it,nombre(it))));const d=savedItemLines(it).join(" · ");if(d)b.append(ce("span","selector-item__detalle",d));if(it.id===h.id)b.setAttribute("aria-current","true");return b
+    const motivo=motivoDe(it),b=ce("button","selector-item"+(it.id===h.id?" is-actual":"")+(motivo?" is-apagado":""));b.type="button";b.dataset.selectorId=it.id;b.append(ce("span","selector-item__nombre",Semana.planPlateLabel(it,nombre(it))));
+    if(motivo){b.append(ce("span","selector-item__motivo",motivo));b.setAttribute("aria-label",nombre(it)+". "+motivo)}const d=savedItemLines(it).join(" · ");if(d)b.append(ce("span","selector-item__detalle",d));if(it.id===h.id)b.setAttribute("aria-current","true");return b
   };
   const seccion=(titulo,clave,filas,vacio)=>{
     const s=ce("section","selector-seccion");s.dataset.selectorSeccion=clave;s.append(ce("h3","selector-seccion__titulo",titulo));if(filas.length)s.append(...filas);else s.append(ce("p","screen__hint",vacio));return s
@@ -306,7 +312,11 @@ function seccionesSelector(h,q){
     mias=items.filter(it=>!it.recipeSourceId&&coincideItem(it)).sort(orden),
     conCopia=items.filter(it=>it.recipeSourceId&&coincideItem(it)).sort(orden),
     recetasNuevas=recetasSinCopia(items).filter(r=>coincide(r.title)).map(r=>{
-      const b=ce("button","selector-item");b.type="button";b.dataset.selectorReceta=r.id;b.append(ce("span","selector-item__nombre","📖 "+r.title));return b
+      let motivo="";
+      try{motivo=dietaMotivo(r.title+" "+loadRecipeAmounts()[r.amountsTitle].rows.map(x=>x.name).join(" "))}catch(e){}
+      const b=ce("button","selector-item"+(motivo?" is-apagado":""));b.type="button";b.dataset.selectorReceta=r.id;b.append(ce("span","selector-item__nombre","📖 "+r.title));
+      if(motivo)b.append(ce("span","selector-item__motivo",motivo));
+      return b
     });
   out.push(seccion("Mis comidas","mias",mias.map(fila),n?"Ninguna de tus comidas coincide.":"Todavía no guardaste comidas de este tipo: armá una nueva."));
   if(conCopia.length||recetasNuevas.length)out.push(seccion("Mis recetas","recetas",[...conCopia.map(fila),...recetasNuevas],""));
@@ -348,7 +358,7 @@ function abrirSelector(dia,slot){
   if(!semanaFechada)acciones.append(botonHoja("＋ Armar nueva","button--soft",{
     start:pool,startDay:dia,startSlot:slot
   }));
-  if(!semanaFechada||pool!=="desayuno")acciones.append(botonHoja("🎲 Sugerime","button--soft",{
+  acciones.append(botonHoja("🎲 Sugerime","button--soft",{
     selectorSugerir:""
   }));
   sug.hidden=true;

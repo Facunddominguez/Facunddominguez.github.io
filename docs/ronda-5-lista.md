@@ -24,10 +24,10 @@ Cada ítem tiene un control `R5-<ID>` en `docs/validacion/criterios.json`. Las c
 | S-08 | Botones "Anterior" y "Siguiente" para pasar de producto, con "2 de 5" a la vista. | 36 | R5-S-08 | completar-precios-antes.png | completar-precios-despues.png | ✅ |
 | S-09 | "Guardar precios" guarda de una vez todos los que completaste y dice cuántos guardó. | 36 | R5-S-09 | completar-precios-guardado-antes.png | completar-precios-guardado-despues.png | ✅ |
 | S-10 | Error: los frutos secos siguen apareciendo en "Completar precios" después de cargarles el precio. Reproducilo y arreglalo para todos los productos con el mismo problema. | 36 | R5-S-10 | completar-precios-antes.png | completar-precios-despues.png | ✅ |
-| C-01 | Error: al cambiar una comida y armar una nueva con "+ Armar nueva", la comida armada no queda en el hueco. Que quede. | 37 | R5-C-01 | — | — | ⬜ |
-| C-02 | "Sugerirme" funciona igual en desayuno y merienda que en almuerzo y cena: sugiere una idea (no te pide armar una comida; para eso está "+ Armar nueva"). | 37 | R5-C-02 | — | — | ⬜ |
-| C-03 | Al ver una comida que tiene receta, botón "Editar receta"; si no tiene, "Añadir receta". | 37 | R5-C-03 | — | — | ⬜ |
-| C-04 | Con una dieta elegida (por ejemplo, vegetariano), al cambiar una comida no aparecen ideas que no la cumplen; tus comidas guardadas que no la cumplen se ven apagadas, con el motivo. | 37 | R5-C-04 | — | — | ⬜ |
+| C-01 | Error: al cambiar una comida y armar una nueva con "+ Armar nueva", la comida armada no queda en el hueco. Que quede. | 37 | R5-C-01 | cambiar-armar-nueva-antes.png | cambiar-armar-nueva-despues.png | ✅ |
+| C-02 | "Sugerirme" funciona igual en desayuno y merienda que en almuerzo y cena: sugiere una idea (no te pide armar una comida; para eso está "+ Armar nueva"). | 37 | R5-C-02 | sugerime-desayuno-antes.png | sugerime-desayuno-despues.png | ✅ |
+| C-03 | Al ver una comida que tiene receta, botón "Editar receta"; si no tiene, "Añadir receta". | 37 | R5-C-03 | comida-receta-antes.png | comida-receta-despues.png | ✅ |
+| C-04 | Con una dieta elegida (por ejemplo, vegetariano), al cambiar una comida no aparecen ideas que no la cumplen; tus comidas guardadas que no la cumplen se ven apagadas, con el motivo. | 37 | R5-C-04 | selector-dieta-antes.png | selector-dieta-despues.png | ✅ |
 | H-01 | Se elimina el botón Deshacer que aparece debajo de las 4 comidas del día. | 38 | R5-H-01 | — | — | ⬜ |
 | H-02 | "Ver tu registro de hoy" sin la flecha y con el mismo formato que "Desayuno o merienda" y "Almuerzo o cena". | 38 | R5-H-02 | — | — | ⬜ |
 | H-03 | En "Sugerirme algo" se elimina el botón interno "Al azar" (hace lo mismo). | 38 | R5-H-03 | — | — | ⬜ |

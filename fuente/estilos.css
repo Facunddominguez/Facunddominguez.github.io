@@ -3511,7 +3511,6 @@ body.con-hoja{
 .precios-aviso[hidden]{display:none}
 .hoja__cuerpo a{color:var(--primary,var(--accent))}
 .completar-precios{display:grid;gap:8px}
-.completar-precios__fila{width:100%}
 .ficha-precio{margin-top:12px;display:grid;gap:8px}
 .ficha-precio__titulo{margin:0;font-size:16px}
 .ficha-precio__linea{margin:0;font-weight:600}
@@ -3634,3 +3633,7 @@ select{max-width:100%;min-width:0}
 .completar-precios__nav{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .completar-precios__nav .button,.completar-precios>.button{margin:0}
 .completar-precios>.portion-field{margin:0}
+
+/* v19.4 (Etapa 37): comidas que no cumplen la dieta, apagadas y con el motivo. */
+.selector-item.is-apagado{opacity:.72}
+.selector-item__motivo{display:block;font-size:12.5px;font-weight:700;color:var(--muted)}
