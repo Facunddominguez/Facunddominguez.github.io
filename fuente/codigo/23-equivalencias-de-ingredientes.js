@@ -137,9 +137,6 @@ document.getElementById("recipeDetailsAmounts").addEventListener("change",e=>{
     }).amountsTitle)||"";return
   }renderRecipeIngredientRows(key)
 });
-document.getElementById("recipeCatalogTime").addEventListener("change",()=>{
-  recipeCatalogPage=0;renderRecipeCatalog()
-});
 document.addEventListener("change",e=>{
   const t=e.target;if(!t||!t.dataset||t.dataset.planPortions===undefined)return;const key=t.dataset.planPortions,raw=t.value.trim();if(Semana.viendoProxima()){planStatus("Las porciones se cargan cuando empieza esa semana.");return}try{
     const p=Semana.loadPlanPortions();if(!raw)delete p[key];else{

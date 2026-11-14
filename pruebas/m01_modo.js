@@ -35,7 +35,6 @@
   go("plan"); await wait(20);
   if (shown(document.querySelector("#planHerramientas [data-plan-guardar]"))) visibleAdvanced.push("Guardar plan con nombre");
   go("ingredientes"); showRecipeView("browse"); await wait(20);
-  for (const id of ["recipeRecommendPantry", "recipeRecommendMode", "recipeCatalogSort", "recipeCatalogPageSize"]) if (shown($(id))) visibleAdvanced.push(id);
   showRecipeRead(recipeId); await wait(30);
   const readOpen = shown($("recipeReadView"));
   if (shown($("recipeReadCooked"))) visibleAdvanced.push("recipeReadCooked");
@@ -62,7 +61,7 @@
   };
   await herramientasCompras();
   // v15.3: los mismos elementos, cada uno en su pantalla (despensa, Ideas, Preferencias y Fuentes de datos).
-  for (const [pant, sels] of [["ingredientes", ["#pantryChips"]], ["ideas", ["#recipeCatalogSearch", "#recipeCatalogTime", "#aiIdeasPanel", "#recipeCatalogResults", "#recipeViewCreate"]], ["preferencias", ["#recipeAvoidWords"]], ["fuentes", ["#nutritionLookupPanel"]]]) {
+  for (const [pant, sels] of [["ingredientes", ["#pantryChips"]], ["ideas", ["#ideasConLoQueTengoChip", "#recipeBuscarAbrir", "#recipeCatalogTime", "#recipeRecommendPantry", "#recipeCatalogResults"]], ["preferencias", ["#recipeAvoidWords"]], ["fuentes", ["#nutritionLookupPanel"]]]) {
     go(pant); if (pant === "ideas") showRecipeView("browse"); openAll(pant); await wait(30);
     for (const sel of sels) if (!shown(document.querySelector(sel))) essentials.push(sel)
   }
@@ -127,7 +126,7 @@
   const planShown = planHerrSimple && await herramientasPlan();
   let ingShown = true;
   for (const [pant, id] of [["ingredientes", "pantryReviewPanel"], ["recetaEditar", "recipeAmountsPanel"], ["preferencias", "ingredientAliasPanel"], ["ideas", "recipeRecommendPantry"]]) {
-    go(pant); if (pant === "ideas") showRecipeView("browse"); openAll(pant); await wait(20);
+    go(pant); if (pant === "ideas") showRecipeView("browse"); if (pant === "recetaEditar") alternarPanel($("amountsAbrir"), true); openAll(pant); await wait(20);
     if (!shown($(id))) ingShown = false
   }
   T.ok("M6 en modo completo vuelven a verse todas las herramientas", toolsShown && planShown && ingShown && document.querySelectorAll("[data-mode-note]").length === 0);
@@ -146,11 +145,14 @@
   go("compras"); await wait(30);
   const papa = shoppingDisplayItems().find(x => x.name === "Papa");
   T.ok("M9 las existencias guardadas siguen sugiriendo en Compras aunque estén ocultas", Interfaz.getUiMode() === "simple" && !!papa && !!papa.suggestion && /1 kg/.test(papa.suggestion.text) && /💡/.test($("comprasList").textContent), papa && papa.suggestion && papa.suggestion.text);
-  // M10 Al volver al modo simple, los controles ocultos de la sesión vuelven a su valor inicial
+  // M10 (Ronda 5, M-08) Las recomendaciones por despensa son un solo interruptor de la búsqueda, igual en los dos modos:
+  // ya no hay selectores de prioridad, orden ni cantidad por página que se escondan y sigan cambiando lo que se ve.
   ModoSimple.setUiMode("completo");
-  $("recipeRecommendMode").value = "budget"; $("recipeRecommendPantry").checked = true; $("recipeRecommendCosts").checked = true; $("recipeCatalogSort").value = "reverse"; $("recipeCatalogPageSize").value = "60";
+  go("ideas"); showRecipeView("browse"); await wait(20);
+  const iguales = ["recipeRecommendPantry", "recipeCatalogTime"].map(id => shown($(id)));
   ModoSimple.setUiMode("simple");
-  T.ok("M10 los controles ocultos no siguen cambiando el orden de las recetas", $("recipeRecommendMode").value === "normal" && !$("recipeRecommendPantry").checked && !$("recipeRecommendCosts").checked && $("recipeCatalogSort").value === "name" && $("recipeCatalogPageSize").value === "20");
+  go("ideas"); showRecipeView("browse"); await wait(20);
+  T.ok("M10 la búsqueda de Ideas se ve igual en modo simple y completo y no tiene controles de orden ni de prioridad ocultos", iguales.every(Boolean) && ["recipeRecommendPantry", "recipeCatalogTime"].every(id => shown($(id))) && !["recipeRecommendMode", "recipeRecommendCosts", "recipeCatalogSort", "recipeCatalogPageSize"].some(id => $(id)));
   // M11 El modo no va en los respaldos y restaurar no lo cambia
   ModoSimple.setUiMode("completo");
   const snap = completeBackupSnapshot(localStorage);

@@ -3627,3 +3627,57 @@ select{max-width:100%;min-width:0}
 .grafico__vacio{margin:0}
 .grafico-gasto .portion-field{margin:10px 0 8px}
 .grafico-gasto .button{margin:0 8px 8px 0}
+
+/* v19.7 (Etapa 40, M-01 a M-10 y A-01): Ideas con botones en lugar de desplegables, búsqueda compacta y receta por pasos. */
+.button--bloque{display:flex;align-items:center;justify-content:center;width:100%;margin:0;min-height:48px}
+.ideas-bloque{display:grid;gap:12px;margin:12px 0}
+#ideas>.home-group{margin:12px 0}
+#ideas>.context-advice,#ideas>.advice-tabs,#ideas>.advice-section{margin-top:12px}
+#ideas .ideas-bloque+.home-group,#ideas .home-group+.home-group{margin-top:12px}
+.ideas-busqueda{display:grid;gap:12px}
+.ideas-busqueda>*{margin:0}
+.ideas-filtro{display:grid;gap:6px}
+.ideas-filtro__titulo{font-size:13px;font-weight:800;color:var(--muted)}
+.ideas-filtro .filter-row{margin:0}
+.ideas-interruptor{display:flex;align-items:center;gap:10px;min-height:44px;font-weight:700}
+.ideas-interruptor input{width:22px;height:22px;flex:none;margin:0}
+#recipeBrowseView .recipe-catalog-results{display:grid;gap:8px;max-height:none;overflow:visible;padding:0}
+.recipe-catalog-card{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:10px;padding:8px 10px}
+.recipe-catalog-card__info{display:grid;gap:2px;min-width:0}
+.recipe-catalog-card__info strong{margin:0;font-size:15px;line-height:1.25;overflow-wrap:anywhere}
+.recipe-catalog-card__meta{font-size:12.5px;font-weight:700;color:var(--muted)}
+.recipe-catalog-card>button{margin:0;min-width:64px;min-height:44px}
+.ideas-ia{display:grid;gap:10px}
+.ideas-ia>*{margin:0}
+/* La receta se completa en pasos, con lo obligatorio y lo opcional a la vista. */
+.receta-paso{margin:16px 0 0;padding:14px;border:1px solid var(--line);border-radius:14px;background:var(--surface)}
+.receta-paso__titulo{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0 0 10px;font-size:17px}
+.receta-paso__n{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--green);color:var(--on-green);font-size:14px;font-weight:800}
+.receta-marca{display:inline-block;padding:2px 8px;border-radius:999px;font-size:12px;font-weight:800;border:1px solid var(--line);color:var(--muted)}
+.receta-marca--obligatorio{border-color:var(--green);color:var(--green)}
+.receta-paso>.portion-field:first-of-type{margin-top:0}
+#recetaEditar .recipe-ingredients{margin:0;border:0;padding:0}
+#recetaEditar>.button--bloque{margin-top:16px}
+.button--bloque[hidden],.ideas-busqueda[hidden],.ideas-ia[hidden]{display:none!important}
+/* Búsqueda compacta: cada grupo de filtros en una sola línea (con desplazamiento si no entra) para que los resultados queden a la vista. */
+.ideas-busqueda{gap:8px;scroll-margin-top:76px}
+.ideas-filtro{gap:4px}
+.ideas-filtro__titulo{font-size:12.5px;line-height:1.2}
+.ideas-filtro .filter-row{display:flex;flex-wrap:nowrap;gap:6px;overflow-x:auto;padding:0 0 2px;scrollbar-width:none}
+.ideas-filtro .filter-row::-webkit-scrollbar{display:none}
+.ideas-filtro .filter-chip{flex:1 0 auto;min-height:44px;margin:0;padding:6px 10px;white-space:nowrap}
+@media (max-width:359px){.ideas-filtro .filter-row{flex-wrap:wrap}}
+.ideas-interruptor{min-height:44px;line-height:1.25}
+.ideas-busqueda>.screen__hint{min-height:0}
+#recipeBrowseView .recipe-catalog-results{gap:6px}
+.recipe-catalog-card{padding:6px 10px}
+.recipe-catalog-card__info strong{font-size:14.5px}
+.ideas-busqueda{padding:8px 10px;scroll-margin-top:66px}
+.ideas-filtro .filter-chip{padding:6px 8px}
+.ideas-interruptor-fila{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.ideas-interruptor-fila .ideas-interruptor{flex:1 1 auto;font-size:13.5px}
+.ideas-interruptor-fila .screen__hint{flex:none;margin:0;white-space:nowrap;font-size:12.5px}
+.recipe-catalog-card__info strong{font-size:14px;line-height:1.2}
+.recipe-catalog-card__info{gap:1px}
+.recipe-catalog-card{padding:4px 8px}
+.receta-paso[hidden]{display:none!important}

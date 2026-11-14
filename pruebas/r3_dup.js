@@ -11,7 +11,7 @@
   const amounts = loadRecipeAmounts();
   T.ok("F1a la copia tiene sus propias cantidades, iguales a las originales", !!copy && copy.amountsTitle === "receta:" + copy.id && JSON.stringify(amounts[copy.amountsTitle]) === JSON.stringify(amounts[IDEA1]) && /propias cantidades/.test(document.getElementById("recipeDetailsStatus").textContent));
   const panel = document.getElementById("recipeAmountsPanel"), sel = document.getElementById("amountRecipe");
-  panel.open = false; await wait(15); panel.open = true; await wait(50);
+  alternarPanel(document.getElementById("amountsAbrir"), false); await wait(15); alternarPanel(document.getElementById("amountsAbrir"), true); CantidadesCostos.abrirPanelDeCantidades(); await wait(50);
   sel.value = copy.amountsTitle; sel.dispatchEvent(new Event("change", { bubbles: true })); await wait(30);
   document.querySelector("#amountRows [data-amount-quantity]").value = "500";
   document.getElementById("amountSave").click(); await wait(20);
