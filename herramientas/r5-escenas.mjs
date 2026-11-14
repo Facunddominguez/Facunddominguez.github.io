@@ -11,8 +11,11 @@ const esperar = 'await new Promise(r => setTimeout(r, 200)); ';
 export const ESCENAS = [
   // Etapa 34 · Semana
   { id: 'semana', items: ['S-15', 'S-17'], ir: 'openTab("semana")', oscuro: true },
-  { id: 'semana-menu', items: ['S-13', 'S-16', 'S-18'], ir: 'openTab("semana"); Selector.abrirMenuSemana()', medir: '.hoja' },
+  { id: 'semana-menu', items: ['S-13', 'S-14', 'S-16', 'S-18'], ir: 'openTab("semana"); Selector.abrirMenuSemana()', medir: '.hoja' },
   { id: 'semana-compartir', items: ['S-11', 'S-12'], ir: 'openTab("semana"); Selector.abrirMenuSemana(); ' + esperar + 'document.querySelector("[data-compartir-semana-menu]").click()', medir: '.hoja' },
   { id: 'semana-planes', items: ['S-15'], ir: 'openTab("semana"); if (Selector.abrirPlanesGuardados) Selector.abrirPlanesGuardados(); else Selector.abrirMenuSemana()', medir: '.hoja' },
   { id: 'semana-selector', items: ['S-19'], ir: 'openTab("semana"); abrirSelector("lunes", "almuerzo")', medir: '.hoja' },
+  // Etapa 35 · Semanas anteriores y mes
+  { id: 'semanas', items: ['S-01', 'S-02', 'S-03', 'S-04', 'S-06', 'S-14'], ir: 'openTab("semana"); abrirHerramientaPlan("semanas")' },
+  { id: 'semanas-hoja', items: ['S-05'], ir: 'openTab("semana"); abrirHerramientaPlan("semanas"); ' + esperar + 'const h = document.querySelector("#datedWeekView [data-hueco]"); if (h) h.click()', medir: '.hoja' },
 ];

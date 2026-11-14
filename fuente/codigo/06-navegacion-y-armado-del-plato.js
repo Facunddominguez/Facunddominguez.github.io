@@ -451,6 +451,9 @@ function go(id){
   n.removeAttribute("aria-hidden");
   if(stack.at(-1)!==id)stack.push(id);
   nav();
+  // v19.2: la copia fechada solo vale mientras "Semanas anteriores y mes" está abierta.
+  if(id!=="planHerramientas")semanaFechada=null;
+  else if(typeof renderDatedWeek==="function")renderDatedWeek();
   if(id==="resumen")summary();
   if(id==="misplatos")renderSaved();
   if(id==="plan")renderPlan();
@@ -573,6 +576,7 @@ function back(){
 }
 // Deja el armado vacío (sin tocar pestañas ni pantallas).
 function restart(){
+  semanaFechada=null;
   Armado.limpiarArmado();
   // El Deshacer de la Semana no se pierde por volver al inicio: vale hasta el próximo cambio del plan.
   armadoDestino=null;

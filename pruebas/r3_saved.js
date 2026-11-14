@@ -36,7 +36,7 @@
   const found = document.querySelector("#savedList .comida-card[data-recipe-id]");
   T.ok("G5 buscar por ingrediente encuentra la receta", !!found && found.dataset.recipeId === "recipe_test0001" && !document.querySelector("#savedList .comida-card[data-comida-tipo=\"plato\"]"));
   savedQuery = ""; renderSaved();
-  document.getElementById("datedWeeksPanel").open = true; go("plan"); await wait(20);
+  go("plan"); await wait(20);
   document.querySelector("[data-dated-save]").click(); await wait(30);
   T.ok("G6 la semana fechada muestra los ingredientes de la receta", document.getElementById("datedWeekView").textContent.includes("Ingredientes: Papa, Romero"));
   go("ingredientes"); recipeDetailsEditing = "recipe_test0001"; renderRecipeDetails(); document.getElementById("recipeDetailsDelete").click(); await wait(20);

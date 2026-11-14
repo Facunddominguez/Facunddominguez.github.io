@@ -23,7 +23,7 @@
     recetaEditar: ["recipeAmountsPanel"],
     preferencias: ["ingredientAliasPanel"],
     ideas: [], comida: [], backupScreen: [],
-    plan: ["varSelect", "monthlyPlanPanel", "datedWeeksPanel", "datedEditPanel"]
+    plan: ["monthlyPlanGrid", "datedWeekView"]
   };
   const visibleAdvanced = [];
   for (const [screen, ids] of Object.entries(expected)) {
@@ -33,7 +33,7 @@
     for (const e of advancedIn(screen)) if (shown(e)) visibleAdvanced.push(screen + ":" + (e.id || e.className));
   }
   go("plan"); await wait(20);
-  if (shown(document.querySelector("#plan [data-del-var]"))) visibleAdvanced.push("Borrar variación");
+  if (shown(document.querySelector("#planHerramientas [data-plan-guardar]"))) visibleAdvanced.push("Guardar plan con nombre");
   go("ingredientes"); showRecipeView("browse"); await wait(20);
   for (const id of ["recipeRecommendPantry", "recipeRecommendMode", "recipeCatalogSort", "recipeCatalogPageSize"]) if (shown($(id))) visibleAdvanced.push(id);
   showRecipeRead(recipeId); await wait(30);
@@ -77,7 +77,7 @@
     b.click(); await wait(80); const faltan = sels.filter(s => !shown(document.querySelector(s))); essentials.push(...faltan); return !faltan.length
   };
   // Las herramientas de la Semana (variaciones, semanas por fecha y mes, historial) se alcanzan desde el menú ⋯.
-  const herramientasPlan = async () => { const r = []; r.push(await porMenu("variaciones", ["#varSelect", "#planHerramientas [data-del-var]"])); r.push(await porMenu("semanas", ["#monthlyPlanPanel", "#datedWeeksPanel"])); r.push(await porMenu("consumo", ["#consumptionPanel"])); go("plan"); await wait(20); return r.every(Boolean) };
+  const herramientasPlan = async () => { const r = []; r.push(await porMenu("semanas", ["#monthlyPlanGrid", "#planHerramientas [data-plan-guardar]"])); r.push(await porMenu("semanas", ["#datedWeekView"])); r.push(await porMenu("consumo", ["#consumptionPanel"])); go("plan"); await wait(20); return r.every(Boolean) };
   await menuSemana(); if (!shown(document.querySelector(".hoja [data-clear-plan]"))) essentials.push("[data-clear-plan]"); hoja.cerrar();
   // Desde la v19.1 (R5-S-18 y S-19) no hay "Buscar en mis recetas": la receta se encuentra en la sección "Mis recetas" del selector de comida.
   abrirSelector("lunes", "almuerzo"); await wait(60);
@@ -106,7 +106,7 @@
   // Desde la v16.6 no hay carteles por pantalla: el único interruptor está en Preferencias (C17-2).
   const notes = document.querySelectorAll("[data-mode-note]");
   await menuSemana(); const itemsMenu = [...document.querySelectorAll(".hoja .menu-semana button")].filter(shown).map(b => b.textContent); hoja.cerrar();
-  const menuCompleto = ["Repetir semana anterior", "Copiar un día", "Empezar de nuevo", "Planes guardados", "Semanas anteriores y mes", "Compartir la semana", "Registro y objetivos"].every(t => itemsMenu.includes(t));
+  const menuCompleto = ["Repetir semana anterior", "Copiar un día", "Empezar de nuevo", "Semanas anteriores y mes", "Compartir la semana", "Registro y objetivos"].every(t => itemsMenu.includes(t));
   T.ok("M4 sin carteles de herramientas ocultas en las pantallas (el interruptor único está en Preferencias); Semana no oculta nada y su menú lo lista todo", notes.length === 0 && menuCompleto, itemsMenu.join(", "));
   // M5 Tarjeta en Configuración: cambia el modo y lo recuerda
   const card = $("uiModeToggle");

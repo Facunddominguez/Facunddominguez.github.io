@@ -13,13 +13,13 @@ Cada ítem tiene un control `R5-<ID>` en `docs/validacion/criterios.json`. Las c
 | S-17 | Los chips de los días no se ven apretados: mejor espaciado, y si hace falta se quita la barra verde con "4/4". Mínimo 8 px entre chips y nada encimado a 320 px. | 34 | R5-S-17 | semana-antes.png, semana-antes-oscuro.png | semana-despues.png, semana-despues-oscuro.png | ✅ |
 | S-18 | Se eliminan "Buscar en mis recetas" y "Consultar mis recetas mientras planifico". | 34 | R5-S-18 | semana-menu-antes.png | semana-menu-despues.png | ✅ |
 | S-19 | Al elegir o cambiar una comida, "Mis recetas" es una sección más, junto a Recientes, Mis comidas e Ideas. | 34 | R5-S-19 | semana-selector-antes.png | semana-selector-despues.png | ✅ |
-| S-01 | Botones en lugar de listas desplegables, como en el resto de la app. | 35 | R5-S-01 | — | — | ⬜ |
-| S-02 | Al entrar a "Semanas anteriores y mes" el contenido se ve enseguida: sin el botón "Ver mis semanas en el mes" y sin ese título. | 35 | R5-S-02 | — | — | ⬜ |
-| S-03 | Sin contenido repetido: queda el calendario; debajo, "Semana anterior", "Semana siguiente" y "Guardar una copia del plan en esta semana", y el indicador del lunes. | 35 | R5-S-03 | — | — | ⬜ |
-| S-04 | Debajo, la lista de comidas igual a la de la Semana principal (tarjetas por día), no botones que abren desplegables. | 35 | R5-S-04 | — | — | ⬜ |
-| S-05 | Al tocar una comida ahí, la misma hoja que en Semana: Ver ingredientes o Ver receta, Cambiar, Cambiar por otra parecida, Cambiar por una más barata, Quitar y Cerrar. Los cambios se guardan en esa semana con fecha. | 35 | R5-S-05 | — | — | ⬜ |
-| S-06 | Se elimina el botón "Cambiar comidas de una semana guardada". | 35 | R5-S-06 | — | — | ⬜ |
-| S-14 | "Planes guardados" se usa desde acá: guardar el plan de la semana vista y aplicar uno guardado. Sale del menú ⋯ como botón propio y queda dentro de esta sección. | 35 | R5-S-14 | — | — | ⬜ |
+| S-01 | Botones en lugar de listas desplegables, como en el resto de la app. | 35 | R5-S-01 | semanas-antes.png | semanas-despues.png | ✅ |
+| S-02 | Al entrar a "Semanas anteriores y mes" el contenido se ve enseguida: sin el botón "Ver mis semanas en el mes" y sin ese título. | 35 | R5-S-02 | semanas-antes.png | semanas-despues.png | ✅ |
+| S-03 | Sin contenido repetido: queda el calendario; debajo, "Semana anterior", "Semana siguiente" y "Guardar una copia del plan en esta semana", y el indicador del lunes. | 35 | R5-S-03 | semanas-antes.png | semanas-despues.png | ✅ |
+| S-04 | Debajo, la lista de comidas igual a la de la Semana principal (tarjetas por día), no botones que abren desplegables. | 35 | R5-S-04 | semanas-antes.png | semanas-despues.png | ✅ |
+| S-05 | Al tocar una comida ahí, la misma hoja que en Semana: Ver ingredientes o Ver receta, Cambiar, Cambiar por otra parecida, Cambiar por una más barata, Quitar y Cerrar. Los cambios se guardan en esa semana con fecha. | 35 | R5-S-05 | semanas-hoja-antes.png | semanas-hoja-despues.png | ✅ |
+| S-06 | Se elimina el botón "Cambiar comidas de una semana guardada". | 35 | R5-S-06 | semanas-antes.png | semanas-despues.png | ✅ |
+| S-14 | "Planes guardados" se usa desde acá: guardar el plan de la semana vista y aplicar uno guardado. Sale del menú ⋯ como botón propio y queda dentro de esta sección. | 35 | R5-S-14 | semana-menu-antes.png, semanas-antes.png | semana-menu-despues.png, semanas-despues.png | ✅ |
 | S-07 | "Completar N precios" abre directo el primer producto con su formulario de precio, sin una lista intermedia para tocar el producto. | 36 | R5-S-07 | — | — | ⬜ |
 | S-08 | Botones "Anterior" y "Siguiente" para pasar de producto, con "2 de 5" a la vista. | 36 | R5-S-08 | — | — | ⬜ |
 | S-09 | "Guardar precios" guarda de una vez todos los que completaste y dice cuántos guardó. | 36 | R5-S-09 | — | — | ⬜ |

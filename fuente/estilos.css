@@ -1439,27 +1439,6 @@ input[aria-invalid="true"]{
   cursor:not-allowed
 }
 
-/* Separate current-plan and dated-copy editing without removing controls. */#plan:has(#datedEditPanel[open]) #datedWeekView{
-  display:none
-}
-
-#datedEditPanel[open]{
-  border-color:var(--green)
-}
-
-#datedEditPanel[open]>summary{
-  border:1px solid var(--green)
-}
-
-#plan #currentPlanPanel>summary{
-  cursor:pointer;
-  padding:12px;
-  border-radius:14px;
-  background:var(--green2);
-  color:var(--green);
-  font-weight:850
-}
-
 :root{
   --section-nav-h:76px;
   --step-nav-h:0px
@@ -3640,3 +3619,11 @@ select{max-width:100%;min-width:0}
 .respaldo-aviso[hidden]{display:none}
 .respaldo-aviso__texto{flex:1 1 100%}
 .recordatorio{display:grid;gap:8px}
+
+/* v19.2 (Etapa 35): Semanas anteriores y mes, todo a la vista. */
+#planHerramientas [hidden]{display:none!important}
+#planHerramientas .summary-actions{margin:0 0 12px}
+#planHerramientas .portion-field{margin-top:12px}
+#planHerramientas .planes-guardados{margin:16px 0 0}
+.plan-guardado-fila{display:grid;grid-template-columns:1fr auto;gap:8px}
+.plan-guardado-fila .button{margin:0}
