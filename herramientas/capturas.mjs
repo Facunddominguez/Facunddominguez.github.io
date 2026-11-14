@@ -32,10 +32,10 @@ const ANCHO = Number(arg('--ancho') || 390) || 390, ALTO = 844;
 const RELOJ = '2026-10-26T12:00:00-03:00';
 // El respaldo de ejemplo es siempre el de esta copia de las herramientas (no el de --raiz), para medir igual antes y después.
 const RESPALDO = fileURLToPath(new URL('../pruebas/fixtures/respaldo-v14.9.94.json', import.meta.url));
-const salida = resolve(arg('--salida') || join(RAIZ, 'capturas', 'actual'));
+const salida = resolve(arg('--salida') || (arg('--r5') ? join(RAIZ, 'docs', 'capturas-ronda-5') : join(RAIZ, 'capturas', 'actual')));
 const conImagenes = !args.includes('--sin-imagenes');
-const temas = (arg('--temas') || 'claro,oscuro').split(',');
-const estados = (arg('--estados') || 'vacio,normal,todo').split(',');
+const temas = (arg('--temas') || (arg('--r5') ? 'claro,oscuro' : 'claro,oscuro')).split(',');
+const estados = (arg('--estados') || (arg('--r5') ? 'vacio,normal' : 'vacio,normal,todo')).split(',');
 const version = JSON.parse(await readFile(join(RAIZ, 'fuente', 'version.json'), 'utf8')).version;
 
 // Vistas: cómo llegar a cada una desde el inicio. Cuando la interfaz cambia se actualiza el camino, no el significado
@@ -85,6 +85,17 @@ const VISTAS = [
   { id: 'semana-armada', ir: 'openTab("semana"); ArmameSemana.correr("todo")' },
   { id: 'comida', ir: 'openTab("miscomidas"); const g = MisPlatos.loadSaved()[0] || IdeasHoja.guardarIdea(data.menuCatalog[0]).item; Comidas.abrirComida("plato", g.id)' }
 ].filter(v => !arg('--vistas') || arg('--vistas').split(',').includes(v.id));
+
+// Ronda 5: --r5 antes|despues toma las escenas de herramientas/r5-escenas.mjs (una captura por escena, a 390 px o al --ancho)
+// y las guarda en docs/capturas-ronda-5/<escena>-<antes|despues>[-oscuro].png. --ids S-11,S-12 limita a las escenas de esos ítems.
+const R5 = arg('--r5');
+if (R5 && !/^(antes|despues)$/.test(R5)) { console.error('--r5 va con antes o despues'); process.exit(2) }
+if (R5) {
+  const { ESCENAS } = await import('./r5-escenas.mjs');
+  const ids = arg('--ids') ? arg('--ids').split(',') : null;
+  VISTAS.length = 0;
+  for (const e of ESCENAS) if (!ids || e.items.some(i => ids.includes(i))) VISTAS.push({ id: e.id, ir: e.ir, medir: e.medir, escena: e });
+}
 
 const navegador = [arg('--navegador'), process.env.CHROME_PATH, '/usr/bin/google-chrome', '/usr/bin/google-chrome-stable', '/usr/bin/chromium', '/usr/bin/chromium-browser',
   '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
@@ -283,6 +294,8 @@ try {
       await cargar();
       const erroresCarga = errores(desdeCarga);
       for (const vista of VISTAS) {
+        // Ronda 5: cada escena va en su estado (normal por omisión) y en oscuro solo si lo pide.
+        if (vista.escena && ((vista.escena.estado || 'normal') !== estado || (tema === 'oscuro' && !vista.escena.oscuro))) continue;
         const desde = eventos.length;
         let m;
         try {
@@ -301,13 +314,13 @@ try {
           const foto = await enviar('Page.captureScreenshot', { format: 'png', clip: { x: 0, y: 0, width: ANCHO, height: altoFoto, scale: 1 } }, S);
           await enviar('Emulation.setDeviceMetricsOverride', { width: ANCHO, height: ALTO, deviceScaleFactor: 1, mobile: true }, S);
           await espera(100);
-          await writeFile(join(salida, `${vista.id}-${estado}-${tema}.png`), Buffer.from(foto.data, 'base64'));
+          await writeFile(join(salida, vista.escena ? `${vista.id}-${R5}${tema === 'oscuro' ? '-oscuro' : ''}${ANCHO !== 390 ? '-' + ANCHO : ''}.png` : `${vista.id}-${estado}-${tema}.png`), Buffer.from(foto.data, 'base64'));
         }
         console.log(`${vista.id.padEnd(16)} ${estado.padEnd(6)} ${tema.padEnd(6)} alto ${String(m.alto ?? '—').padStart(5)} px · ${String(m.palabras ?? '—').padStart(4)} palabras${m.errores.length ? ' · ERRORES: ' + m.errores.join(' | ') : ''}${m.scrollHorizontal ? ' · SCROLL HORIZONTAL' : ''}`);
       }
     }
   }
-  await writeFile(join(salida, 'medidas.json'), JSON.stringify(medidas, null, 2) + '\n');
+  if (!R5) await writeFile(join(salida, 'medidas.json'), JSON.stringify(medidas, null, 2) + '\n');
   console.log(`Medidas en ${join(salida, 'medidas.json')}`);
   codigo = 0;
   if (args.includes('--archivo')) {
