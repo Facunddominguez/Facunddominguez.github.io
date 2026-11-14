@@ -26,12 +26,24 @@ El plan del rediseño y el Registro están en docs/plan-rediseno.md.
 
 1. Nunca trabajar, hacer push ni merge en `main`. Cada etapa va en su rama y entra a `rediseno` solo con la compuerta en verde. Sin force push, `reset --hard` ni reescribir historia.
 2. Datos: no renombrar ni borrar claves `miPlatoFacil_*` ni cambiar su formato de forma incompatible. Lo nuevo va en claves `miPlatoFacil_<nombre>_v1`; una migración lee lo viejo, escribe lo nuevo, se puede correr dos veces y no borra lo viejo. Todo dato nuevo entra al respaldo (como opcional) y los respaldos viejos se siguen restaurando.
-3. Ninguna función avanzada se elimina: se integra.
+3. Ninguna función avanzada se elimina: se integra (salvo las que nombra la lista de la Ronda 5, ver abajo).
 4. Al cerrar cada etapa: construir, todas las pruebas en verde y subir `fuente/version.json` (15.0.0 en la Etapa 1, después 15.1.0, 15.2.0…).
 5. Pruebas: si una prueba protege datos o lógica, el código nuevo la cumple; si solo mira la interfaz vieja, se adapta en el mismo commit y se explica en el Registro. Nunca se borra una sin reemplazo ni baja la cantidad.
 6. Sin dependencias nuevas ni llamadas a internet en la app (salvo la IA que ya existe). Los datos externos se bajan en GitHub Actions y se incrustan al construir.
 7. Sistema de diseño (final de `fuente/estilos.css` y `pruebas/d01_diseno.js`): verde para acciones, rojo para borrar, objetivos de 44 px, tema claro y oscuro.
 8. Reproducir antes de arreglar. Lo que el plan no decide: la opción más simple para el usuario y más fácil de revertir, anotada en el Registro.
+
+## Ronda 5 (Etapas 33 a 44): cambios de reglas
+
+El plan y la lista de 79 pedidos están en la sección "Ronda 5" de `docs/plan-rediseno.md`; el control ítem por ítem, en `docs/ronda-5-lista.md`. Durante esta ronda valen estas reglas, que pisan a las de arriba donde chocan:
+
+- **Se pueden eliminar funciones, pero solo las que nombra la lista:** Historial de cambios, Buscar en mis recetas, Todas las preparaciones, Calcular para otras recetas, Cambiar comidas de una semana guardada, Con tu app de IA y los Deshacer de H-01, R-05, K-01 y K-16. Lo que esas funciones tenían guardado **no se borra**: sus claves `miPlatoFacil_*` quedan, entran al respaldo y se restauran igual. Solo se deja de mostrar.
+- **Sin listas desplegables** (`<details>` o equivalentes) en toda la app, salvo cuatro excepciones: "Consultar nutrientes" (Fuentes de datos), "Publicación e instalación" (Cómo funciona), "Comparar alternativas de precio" (dentro de Presupuesto) y el "Ver detalle" del aviso de la semana armada. Un control lo verifica en todas las pantallas.
+- **"Lo comí" reemplaza a "Lo cociné"** en toda la app. Los registros viejos de cocinado se siguen leyendo y cuentan como "Lo comí".
+- **IA solo con clave:** sin clave de Gemini guardada no aparece ningún botón ni sección de IA, salvo Más → Asistente de IA para cargarla.
+- Ramas: integración `rediseno-5` desde `main`; cada etapa en `rediseno-5-etapa-N-tema`; sin tags. Versión 19.0.0 en la Etapa 33, después 19.1.0, 19.2.0… Registro en la sección "Registro de la Ronda 5" del plan.
+- Cada ítem tiene un control `R5-<ID>` en `docs/validacion/criterios.json` y una prueba cuyo nombre empieza con `R5-<ID> `; `validar-etapa.mjs N` exige que los ítems de la etapa N estén en ✅ en `docs/ronda-5-lista.md`. Capturas por ítem: `node herramientas/capturas.mjs --r5 antes|despues [--ids S-11,S-12]` (van a `docs/capturas-ronda-5/`).
+- Antes de cerrar cada etapa, la batería completa también se corre con DejaVu como única tipografía (la del runner de GitHub): `FONTCONFIG_FILE=$PWD/herramientas/fuentes-dejavu.conf node herramientas/probar.mjs`.
 
 ## Ciclo de cada etapa (modo autónomo)
 

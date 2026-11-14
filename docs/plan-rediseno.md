@@ -2964,6 +2964,16 @@ Los mismos ítems, con su estado, están en `docs/ronda-5-lista.md`; esa tabla e
 ### Registro de la Ronda 5
 (Se completa etapa por etapa. Cada entrada lleva: ítems cerrados, archivos, pruebas nuevas y adaptadas, decisiones, veredicto de los revisores y la compuerta.)
 
+#### Etapa 33 · Reglas, lista de control y base (v19.0.0)
+Rama `rediseno-5-etapa-33-base`. Esta etapa no cambia la app: deja armada la maquinaria de la ronda.
+- Plan corto: archivos `CLAUDE.md` (reglas de la ronda), `herramientas/validar-etapa.mjs` (acepta 33 a 44, compara contra `rediseno-5` y no exige la prueba de un ítem que quedó en ⚠️), `herramientas/controlar-lista-r5.mjs` (nuevo: controla `docs/ronda-5-lista.md`), `herramientas/capturas.mjs` y `herramientas/r5-escenas.mjs` (capturas por ítem), `herramientas/fuentes-dejavu.conf` (tipografía del runner de GitHub), `docs/validacion/criterios.json` (302 controles: 200 + 79 `R5-<ID>` + 11 `R5-<N>-revisor` + 12 `R5-<N>-lista`) y `fuente/version.json` (19.0.0). Riesgo para los datos: ninguno (no se toca `fuente/codigo/`). Pruebas que cambian: ninguna.
+- ✅ R5-33-reglas: las reglas de la ronda están en `CLAUDE.md` (funciones que se pueden eliminar, sin desplegables salvo 4 excepciones, "Lo comí", IA solo con clave, ramas y versiones, DejaVu).
+- ✅ R5-33-lista: `docs/ronda-5-lista.md` tiene los 79 ítems con Etapa, Prueba, Captura antes, Captura después y Estado; `controlar-lista-r5.mjs N` falla si un ítem de la etapa N (o de las anteriores) no está en ✅ con sus capturas, o en ⚠️ con motivo y 2 opciones; en la 44, si queda alguno en ⬜ o falta el resumen.
+- ✅ R5-33-capturas: `node herramientas/capturas.mjs --r5 antes|despues [--ids S-11] [--ancho 360]` guarda en `docs/capturas-ronda-5/<escena>-<antes|despues>[-oscuro].png`; las escenas están en `herramientas/r5-escenas.mjs` (varios ítems pueden compartir una escena y una captura).
+- (Decisión) Una captura por escena y no por ítem: dos ítems que se ven en la misma pantalla comparten archivo (la columna de la lista nombra el archivo). Ahorra tamaño del repositorio y no pierde información.
+- (Decisión) Un ítem en ⚠️ deja de exigir su control `R5-<ID>`, pero la lista lo obliga a tener "Motivo" y "Opción 1" y "Opción 2" en la sección "Ítems en ⚠️".
+- Referencia de tiempos de este entorno: la batería completa (673 pruebas, tipografía Inter) tarda 7 min 15 s; `FONTCONFIG_FILE=$PWD/herramientas/fuentes-dejavu.conf` deja a DejaVu Sans como tipografía.
+
 **Sugerencias de gráficos extra (R-10):** ninguna todavía; si surge una, va acá y no se implementa.
 
 **Pendientes para vos:** ninguno todavía.
