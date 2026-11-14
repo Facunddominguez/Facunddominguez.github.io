@@ -51,9 +51,9 @@
   // Las otras pantallas no muestran registros ni Quitar de registros.
   const fuera = () => qa(SELS).filter(e => !e.closest("#registro"));
   exigir("todo dentro de #registro", fuera().length === 0, fuera().map(e => e.id || e.className).join(","));
-  for (const [tab, extra] of [["hoy"], ["semana"], ["semana", "historial"], ["miscomidas"], ["miscomidas", "card"], ["compras"], ["mas"]]) {
+  for (const [tab, extra] of [["hoy"], ["semana"], ["semana", "compartir"], ["miscomidas"], ["miscomidas", "card"], ["compras"], ["mas"]]) {
     await irA(tab);
-    if (extra === "historial") { await tocar(q("#plan [data-plan-menu]")); await tocar(q('.hoja [data-plan-herr="historial"]')) }
+    if (extra === "compartir") { await tocar(q("#plan [data-plan-menu]")); await tocar(q(".hoja [data-compartir-semana-menu]")) }
     if (extra === "card") await tocar(q('#savedList .comida-card[data-comida-id="plato_p1"]'));
     exigir("sin registros en " + pantalla(), qa(SELS).filter(visible).length === 0, qa(SELS).filter(visible).map(e => e.id || e.dataset.registroQuitar).join(","));
   }

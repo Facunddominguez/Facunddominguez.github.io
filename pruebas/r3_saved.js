@@ -7,9 +7,7 @@
   R.setRecipes([{ id: "recipe_test0001", title: "Papas al horno", amountsTitle: IDEA1 }]);
   R.setSaved([R.tradPlate("tp1", ["Arroz"], ["Tomate"], ["Merluza"])]);
   R.setPlan([["lunes", "cena", "tp1"]]);
-  document.getElementById("planRecipeReference").open = true; renderPlanRecipeReference();
-  document.getElementById("planRecipeSelect").value = "recipe_test0001"; document.getElementById("planRecipeDay").value = "lunes"; document.getElementById("planRecipeSlot").value = "almuerzo";
-  assignSavedRecipeToPlan();
+  asignarRecetaAlPlan("recipe_test0001", "lunes", "almuerzo", true);
   // v14.9.92: Mis comidas muestra platos y recetas propias en secciones; la copia que crea el plan
   // no se repite como receta (queda en "Copias de recetas usadas en el plan", visible en el modo completo).
   go("misplatos"); await wait(40);
@@ -32,7 +30,7 @@
   const html = SemanasFechadas.buildWeeklyPlanExport(loadPlan(), MisPlatos.loadSaved(), "").html;
   T.ok("G4b la descarga del plan incluye los ingredientes", html.includes("<li>Ingredientes: Papa, Romero</li>"));
   abrirSelector("lunes", "cena"); await wait(20);
-  const opts = [...hoja.elemento.querySelectorAll('[data-selector-seccion="mias"] .selector-item__nombre')].map(o => o.textContent); hoja.cerrar();
+  const opts = [...hoja.elemento.querySelectorAll('[data-selector-seccion="recetas"] .selector-item__nombre')].map(o => o.textContent); hoja.cerrar();
   T.ok("G4c los selectores del plan marcan las recetas con 📖", opts.some(t => t.startsWith("📖 Papas rústicas")));
   savedQuery = "romero"; go("misplatos"); renderSaved(); await wait(20);
   const found = document.querySelector("#savedList .comida-card[data-recipe-id]");

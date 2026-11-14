@@ -74,7 +74,7 @@
   const agregadaOk = !!asignada && asignada.recipeSourceId === "recipe_lib0002" && asignada.recipeIngredients.join() === "Zapallito,Huevo" && loadPlan()[dia].almuerzo === "c1";
   hoja.cerrar(); $("recipeReadBack").click(); await wait(60);
   planSavedRecipe("recipe_lib0002"); await wait(300);
-  T.ok("L8 Agregar a la semana asigna la receta y Planificar abre la Semana con la receta elegida", agregadaOk && scr() === "planHerramientas" && !$("planRecipeReference").closest("[data-herr]").hidden && tab("semana").getAttribute("aria-current") === "page" && $("planRecipeReference").open && $("planRecipeSelect").value === "recipe_lib0002" && $("planRecipeDay").value === todayPlanDay() && $("planRecipeSlot").value === "almuerzo", $("planRecipeSelect").value);
+  T.ok("L8 Agregar a la semana asigna la receta y Planificar abre la Semana con la receta elegida", agregadaOk && scr() === "plan" && tab("semana").getAttribute("aria-current") === "page" && !!document.querySelector('.hoja [data-selector-seccion="recetas"]') && $("selectorBuscar").value === "Tarta de zapallitos", $("selectorBuscar") && $("selectorBuscar").value);
   // L9 En modo completo se ven las copias del plan (Mis comidas) y las herramientas de platos (Mis datos)
   ModoSimple.setUiMode("completo"); await openLibrary();
   const copies2 = $("savedList").querySelector("details.saved-recipes");

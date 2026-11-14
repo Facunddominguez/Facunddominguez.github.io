@@ -125,6 +125,21 @@ loadVariationByName(nm){
   renderPlan();
   planStatus('Variación "'+nm+'" cargada.')
 },
+// v19.1: aplica un plan guardado a la semana que se ve, con Deshacer (el plan de antes y sus porciones vuelven).
+usarPlanGuardado(nm){
+  const vars=Semana.loadVars();
+  if(!nm||!vars[nm])return;
+  const antes={plan:loadPlan(),porciones:Semana.loadPlanPortions()};
+  if(Semana.persistPlan(Semana.migratePlan(vars[nm]))===false){
+    planStatus(errorDelPlan);
+    return
+  }
+  if(!Semana.viendoProxima())Semana.prunePlanPortions(antes.plan,loadPlan());
+  Semana.logPlanChange('Plan guardado "'+nm+'" aplicado');
+  deshacerPlan={texto:'Aplicaste el plan "'+nm+'"',...antes};
+  renderPlan();
+  planStatus('Listo: aplicaste el plan "'+nm+'".')
+},
 deleteVariation(){
   const sel=document.getElementById("varSelect");
   const nm=sel?sel.value:"";
@@ -162,17 +177,6 @@ savedRecipeTitle(it){
 },
 planPlateLabel(it,label){
   return (it.fav?"⭐ ":"")+(it.recipeSourceId?"📖":Compartir.typeEmoji(it.type))+" "+(label||mealName(it))
-},
-initializePlanRecipeAssignment(){
-  for(const [id,items] of [["planRecipeDay",DAYS],["planRecipeSlot",SLOTS]]){
-    const sel=document.getElementById(id);
-    sel.replaceChildren();
-    for(const [value,label] of items){
-      const option=ce("option",null,label);
-      option.value=value;
-      sel.append(option)
-    }
-  }
 },
 fechaCorta(d){
   return d.getDate()+" "+["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"][d.getMonth()]
@@ -475,11 +479,6 @@ prunePlanPortions(oldPlan,newPlan){
   }catch(e){
   }
 },
-renderPlanHistory(){
-  const box=document.getElementById("planHistoryList"),a=Semana.loadPlanHistory();
-  box.replaceChildren(...a.map(x=>ce("p","screen__hint",MisPlatos.fmtWhen(x.at)+" · "+x.text)));
-  if(!a.length)box.append(ce("p","screen__hint","Todavía no hay cambios registrados."))
-},
 reuseDatedWeek(key){
   const week=loadDatedWeeks()[key];
   if(!week)throw Error("La copia ya no está disponible.");
@@ -660,77 +659,6 @@ function savedItemLines(it){
   return ["Ingredientes: "+it.recipeIngredients.join(", ")]
 }
 // Nombre de una comida en el plan y en los selectores (desde la v15, con mealName y sin repetir con mealLabels).
-function renderPlanRecipeReference(){
-  const select=document.getElementById("planRecipeSelect"),box=document.getElementById("planRecipePreview"),search=document.getElementById("planRecipeSearch");
-  if(!select||!box)return;
-  let own;
-  try{
-    own=loadRecipeDetails()
-  }catch(err){
-    box.textContent=err.message;
-    return
-  }
-  const previous=select.value,q=normalizeSearchText(search.value.trim());
-  let matches=Object.values(own).filter(r=>!q||normalizeSearchText([r.title,r.notes,...r.steps].join(" ")).includes(q));
-  let excluded=0;
-  if(document.getElementById("planRecipeApplyAvoid").checked){
-    const terms=recipeAvoidTerms();
-    if(terms.length){
-      const amounts=loadRecipeAmounts(),before=matches.length;
-      matches=matches.filter(r=>!recipeAvoidMatch({
-        kind:"propia",key:r.id,title:r.title
-      },own,amounts,terms));
-      excluded=before-matches.length
-    }
-  }
-  document.getElementById("planRecipePreferenceStatus").textContent=excluded?excluded+" recetas ocultas por preferencias. El filtro no verifica alérgenos.":"Las preferencias solo filtran esta búsqueda; no modifican el plan guardado.";
-  matches.sort((a,b)=>a.title.localeCompare(b.title,"es"));
-  select.replaceChildren();
-  if(!matches.length){
-    const option=ce("option",null,"No hay recetas coincidentes");
-    option.value="";
-    select.append(option);
-    box.replaceChildren();
-    return
-  }
-  for(const r of matches){
-    const option=ce("option",null,r.title);
-    option.value=r.id;
-    select.append(option)
-  }
-  select.value=matches.some(r=>r.id===previous)?previous:matches[0].id;
-  renderPlanRecipePreview()
-}
-function renderPlanRecipePreview(){
-  const box=document.getElementById("planRecipePreview"),id=document.getElementById("planRecipeSelect").value;
-  box.replaceChildren();
-  if(!id)return;
-  let r;
-  try{
-    r=loadRecipeDetails()[id]
-  }catch(err){
-    box.textContent=err.message;
-    return
-  }
-  if(!r)return;
-  box.append(ce("h4",null,r.title));
-  const amounts=loadRecipeAmounts(),amount=r.amountsTitle&&amounts[r.amountsTitle];
-  if(amount){
-    box.append(ce("p","screen__hint","Rinde "+amount.yield+" porciones"));
-    const ul=ce("ul");
-    for(const x of amount.rows)ul.append(ce("li",null,x.name+": "+(x.quantity===null?"cantidad no registrada":x.quantity+" "+x.unit)));
-    box.append(ul)
-  }else box.append(ce("p","screen__hint","Sin cantidades vinculadas."));
-  if(r.steps.length){
-    box.append(ce("h4",null,"Preparación"));
-    const ol=ce("ol");
-    for(const step of r.steps)ol.append(ce("li",null,step));
-    box.append(ol)
-  }
-  if(r.notes)box.append(ce("p","screen__hint","Notas: "+r.notes))
-}
-// Asigna una receta propia a un hueco: usa (o crea) su copia en los platos del plan, como siempre.
-// La usan "Buscar en mis recetas" (con confirmación si reemplaza) y el Selector de comida (con Deshacer).
 function asignarRecetaAlPlan(id,day,slot,confirmar){
   if(!DAYS.some(d=>d[0]===day)||!SLOTS.some(d=>d[0]===slot))throw Error("Seleccioná un día y una comida válidos.");
   const recipe=loadRecipeDetails()[id];
@@ -758,32 +686,6 @@ function asignarRecetaAlPlan(id,day,slot,confirmar){
   renderCompras();
   return true
 }
-function assignSavedRecipeToPlan(){
-  const status=document.getElementById("planRecipeAssignStatus");
-  try{
-    if(!asignarRecetaAlPlan(document.getElementById("planRecipeSelect").value,document.getElementById("planRecipeDay").value,document.getElementById("planRecipeSlot").value,true))return;
-    status.textContent="Receta asignada. Compras suma sus ingredientes con las cantidades registradas en la receta."
-  }catch(err){
-    status.textContent=err.message
-  }
-}
-Semana.initializePlanRecipeAssignment();
-document.getElementById("planRecipeAssign").addEventListener("click",assignSavedRecipeToPlan);
-document.getElementById("planRecipeApplyAvoid").addEventListener("change",renderPlanRecipeReference);
-document.getElementById("planRecipeSearch").addEventListener("input",renderPlanRecipeReference);
-document.getElementById("planRecipeSelect").addEventListener("change",renderPlanRecipePreview);
-document.getElementById("planRecipeReference").addEventListener("toggle",e=>{
-  if(e.currentTarget.open){
-    let pref={
-    };try{
-      pref=JSON.parse(localStorage.getItem(RECIPE_PREF_KEY)||"{}")||{
-      }
-    }catch(err){
-    }if(!e.currentTarget.dataset.preferencesInitialized){
-      document.getElementById("planRecipeApplyAvoid").checked=pref.enabled===true;e.currentTarget.dataset.preferencesInitialized="true"
-    }renderPlanRecipeReference()
-  }
-});
 // Semana (desde la v15.1): un día a la vez. Chips de lunes a domingo con cuántas comidas tiene cada uno y, debajo,
 // las 4 comidas del día elegido. Tocar una comida abre el Selector (si está vacía) o sus opciones (si está llena).
 // El plan sigue guardado por día de la semana: las fechas son solo de presentación. Son var (y funciones) porque
@@ -808,15 +710,17 @@ function renderPlan(){
   Semana.pintarNavSemana(prox);
   let total=0;
   const chips=DAYS.map(([key,label],i)=>{
-    const n=SLOTS.filter(([s])=>plan[key]&&plan[key][s]&&byId.has(plan[key][s])).length,f=new Date(lunes+"T12:00:00"),b=ce("button","semana-dia-chip"+(key===hoy?" es-hoy":"")),barra=ce("span","semana-dia-chip__barra");
+    const n=SLOTS.filter(([s])=>plan[key]&&plan[key][s]&&byId.has(plan[key][s])).length,f=new Date(lunes+"T12:00:00"),b=ce("button","semana-dia-chip"+(key===hoy?" es-hoy":""));
     total+=n;
     f.setDate(f.getDate()+i);
     b.type="button";
     b.dataset.planDia=key;
     b.setAttribute("aria-pressed",String(key===dia));
     b.setAttribute("aria-label",label+" "+f.getDate()+(key===hoy?" (hoy)":"")+": "+n+" de 4 comidas");
-    barra.style.setProperty("--completo",String(n/4));
-    b.append(ce("span","semana-dia-chip__letra",label.charAt(0)),ce("span","semana-dia-chip__num",String(f.getDate())),ce("span","semana-dia-chip__cuenta",n+"/4"),barra);
+    // v19.1: la letra y el número del día, sin la barra ni el "4/4" (la cuenta queda en el aria-label); un punto marca el día completo.
+    b.dataset.comidas=String(n);
+    b.append(ce("span","semana-dia-chip__letra",label.charAt(0)),ce("span","semana-dia-chip__num",String(f.getDate())));
+    if(n>=4)b.classList.add("es-completo");
     return b
   });
   document.getElementById("planDias").replaceChildren(...chips);
@@ -854,6 +758,8 @@ function renderPlan(){
   const hint=document.getElementById("planHint");
   if(hint){hint.textContent=total?total+" de 28 comidas en la semana.":prox?"Todavía no elegiste nada para la semana que viene.":"Todavía no elegiste nada para esta semana.";hint.hidden=total>=28}
   // Etapa 24: "Armame la semana" es la única acción principal; con la semana completa pasa a ser secundaria ("Rehacer semana").
+  const planes=document.querySelector("#plan [data-planes-guardados]");
+  if(planes)planes.hidden=!Object.keys(Semana.loadVars()).length;
   const armame=document.querySelector("#plan [data-armame]");
   if(armame){
     const llena=total>=28;

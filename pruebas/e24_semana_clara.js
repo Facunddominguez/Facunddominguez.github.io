@@ -30,7 +30,7 @@
   ev(`(() => { const sin = new Set(["Frutilla","Kiwi","Arándanos","Mandarina","Pera","Durazno","Uva","Ananá","Ciruela","Melón","Sandía","Mango","Pomelo","Granola","Champiñones","Semillas de chía","Banana","Naranja"]); const q = PRECIOS_SNAPSHOT.items.filter(i => sin.has(i.n)); preciosDataset.data = { ...PRECIOS_SNAPSHOT, items: PRECIOS_SNAPSHOT.items.filter(i => !sin.has(i.n)), categorias: { ...PRECIOS_SNAPSHOT.categorias, ...Object.fromEntries(q.map(i => [i.n, [i.k, i.b]])) } }; preciosDataset.cache = null; refrescarPrecios() })()`);
   ev('openTab("semana")'); await espera(250);
   const vacioOk = !doc().getElementById("planVacioElegir") && ![...doc().querySelectorAll("#plan button")].some(b => /Elegir el almuerzo de hoy/.test(b.textContent)) && armame().classList.contains("button--primary") && armame().textContent === "Armame la semana";
-  const principales = [...doc().querySelectorAll("#plan > button.button--primary, #plan > .semana-cabeza ~ button.button--primary")].filter(b => b.getClientRects().length);
+  const principales = [...doc().querySelectorAll("#plan > button.button--primary, #plan > .semana-cabeza ~ button.button--primary, #plan .armame-fila > button.button--primary")].filter(b => b.getClientRects().length);
   ok("E24-sin-elegir no hay botón 'Elegir el almuerzo de hoy' y Armame la semana es la única acción principal de arriba", vacioOk && principales.length === 1, JSON.stringify({ vacioOk, principales: principales.map(b => b.textContent) }));
 
   // Armar con el botón: el aviso queda con Deshacer y el mismo total que Semana y Compras, pasados más de 10 segundos.

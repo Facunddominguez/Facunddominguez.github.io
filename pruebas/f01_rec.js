@@ -61,9 +61,9 @@
   $("recipeDetailsSave").click(); await wait(20);
   const bowl = Object.values(loadRecipeDetails()).find(x => x.title === "Bowl de quinoa + pollo grillado + brócoli y zanahoria");
   // Assign to plan: Compras uses the inline ingredients
-  document.getElementById("planRecipeReference").open = true; renderPlanRecipeReference();
-  $("planRecipeSelect").value = r.id; $("planRecipeDay").value = "lunes"; $("planRecipeSlot").value = "almuerzo"; assignSavedRecipeToPlan();
-  $("planRecipeSelect").value = bowl.id; $("planRecipeDay").value = "martes"; $("planRecipeSlot").value = "almuerzo"; assignSavedRecipeToPlan();
+  // Desde la v19.1 no existe "Asignar receta al plan actual" (R5-S-18): se asigna con la misma función que usa el selector de comida.
+  asignarRecetaAlPlan(r.id, "lunes", "almuerzo", true);
+  asignarRecetaAlPlan(bowl.id, "martes", "almuerzo", true);
   go("compras"); await wait(30);
   T.ok("E10 el plan usa los ingredientes cargados en la receta", R.renderedRows().includes("Papa: 400 g") && R.renderedRows().includes("Perejil") && R.renderedRows().includes("Quinoa"), R.renderedRows().join(" | "));
   // Backup validity and rejection of invalid new fields

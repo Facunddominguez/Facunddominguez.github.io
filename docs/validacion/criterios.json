@@ -165,7 +165,7 @@
     {"id": "R4-27-un-mensaje", "etapa": 27, "hecho": "Al abrir Semana desde otra pestaña #planStatus está vacío; después de armar, solo #planAviso tiene texto.", "tipo": "prueba", "prueba": "R4-27-un-mensaje"},
     {"id": "R4-27-arriba", "etapa": 27, "hecho": "Con la semana armada y sin desplazar, el borde de arriba del primer hueco queda a 500 px o menos a 390 px y a 600 px o menos a 320 px.", "tipo": "prueba", "prueba": "R4-27-arriba"},
     {"id": "R4-27-iconos", "etapa": 27, "hecho": "Ningún nombre de comida empieza con emoji y la merienda lleva ☕.", "tipo": "prueba", "prueba": "R4-27-iconos"},
-    {"id": "R4-27-chips", "etapa": 27, "hecho": "A 390 px los 7 chips de los días miden 44 px o más de ancho.", "tipo": "prueba", "prueba": "R4-27-chips"},
+    {"id": "R4-27-chips", "etapa": 27, "hecho": "A 390 px los 7 chips de los días miden 38 px o más de ancho (desde la Etapa 34, con 8 px entre chips: R5-S-17) y 44 px o más de alto.", "tipo": "prueba", "prueba": "R4-27-chips"},
     {"id": "R4-27-objetivos", "etapa": 27, "hecho": "Con el objetivo \"pescado: 2\" y $200.000, en 10 semanas con semillas distintas siempre hay 2 o más comidas con pescado. Con $20.000, \"Ver detalle\" nombra el objetivo que no se cumplió.", "tipo": "prueba", "prueba": "R4-27-objetivos"},
     {"id": "R4-27-registro", "etapa": 27, "hecho": "Qué cambió en Semana y las decisiones de la Etapa 27 quedan en el Registro.", "tipo": "registro", "seccion": "Etapa 27", "debeNombrar": ["R4-27-aviso", "R4-27-arriba", "R4-27-objetivos"]},
     {"id": "R4-27-revisor", "etapa": 27, "hecho": "revisor-usuario no marca bloqueantes en Semana a 390 y 320 px.", "tipo": "revisor", "revisor": "revisor-usuario"},

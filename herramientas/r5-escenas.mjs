@@ -11,6 +11,8 @@ const esperar = 'await new Promise(r => setTimeout(r, 200)); ';
 export const ESCENAS = [
   // Etapa 34 · Semana
   { id: 'semana', items: ['S-15', 'S-17'], ir: 'openTab("semana")', oscuro: true },
-  { id: 'semana-menu', items: ['S-13', 'S-14', 'S-16', 'S-18'], ir: 'openTab("semana"); Selector.abrirMenuSemana()', medir: '.hoja' },
+  { id: 'semana-menu', items: ['S-13', 'S-16', 'S-18'], ir: 'openTab("semana"); Selector.abrirMenuSemana()', medir: '.hoja' },
   { id: 'semana-compartir', items: ['S-11', 'S-12'], ir: 'openTab("semana"); Selector.abrirMenuSemana(); ' + esperar + 'document.querySelector("[data-compartir-semana-menu]").click()', medir: '.hoja' },
+  { id: 'semana-planes', items: ['S-15'], ir: 'openTab("semana"); if (Selector.abrirPlanesGuardados) Selector.abrirPlanesGuardados(); else Selector.abrirMenuSemana()', medir: '.hoja' },
+  { id: 'semana-selector', items: ['S-19'], ir: 'openTab("semana"); abrirSelector("lunes", "almuerzo")', medir: '.hoja' },
 ];

@@ -453,27 +453,20 @@ document.addEventListener("click",e=>{
     savedStatus(err.message)
   }
 });
-// "Planificar": abre Semana → Buscar en mis recetas con la receta elegida.
+// "Planificar": abre Semana con el selector del almuerzo de hoy, ya buscando la receta elegida (desde la v19.1; antes iba a "Buscar en mis recetas").
 function planSavedRecipe(id){
-  abrirHerramientaPlan("recetas");
-  document.getElementById("planRecipeSearch").value="";
-  const ref=document.getElementById("planRecipeReference");
-  ref.open=true;
-  setTimeout(()=>{
-    const select=document.getElementById("planRecipeSelect");
-    renderPlanRecipeReference();
-    if(![...select.options].some(o=>o.value===id)){
-      document.getElementById("planRecipeApplyAvoid").checked=false;
-      renderPlanRecipeReference()
-    }
-    select.value=id;
-    renderPlanRecipePreview();
-    document.getElementById("planRecipeDay").value=todayPlanDay();
-    document.getElementById("planRecipeSlot").value="almuerzo";
-    document.getElementById("planRecipeAssignStatus").textContent="Elegí el día y la comida, y tocá Asignar receta al plan actual.";
-    ref.scrollIntoView({
-      block:"start",behavior:"smooth"
-    })
-  },80)
+  let titulo="";
+  try{
+    titulo=(loadRecipeDetails()[id]||{}).title||""
+  }catch(e){
+  }
+  if(activeTab!=="semana")openTab("semana");
+  go("plan");
+  abrirSelector(todayPlanDay(),"almuerzo");
+  const buscar=document.getElementById("selectorBuscar");
+  if(buscar&&titulo){
+    buscar.value=titulo;
+    buscar.dispatchEvent(new Event("input",{bubbles:true}))
+  }
 }
 const IMPORT_PLATE_TYPES=["desayuno","plato","snack","pre"];

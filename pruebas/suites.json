@@ -64,6 +64,7 @@
     "r4e30_precios.js",
     "r4e31_hoy.js",
     "r4e32_respaldo.js",
-    "v188_arreglos.js"
+    "v188_arreglos.js",
+    "r5e34_semana.js"
   ]
 }

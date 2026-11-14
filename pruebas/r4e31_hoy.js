@@ -59,7 +59,7 @@
   const comidas = lineas.filter(l => /^(🍳 Desayuno|🥗 Almuerzo|☕ Merienda|🌙 Cena): .+/.test(l) && !/: —$/.test(l)).length, dias = lineas.filter(l => /^\*(Lunes|Martes|Miércoles|Jueves|Viernes|Sábado|Domingo) \d+\*$/.test(l)).length;
   const lunes = ev("Semana.semanaActual()"), totalTexto = pesos((lineas.find(l => /^\*Total /.test(l)) || ""));
   ok("R4-31-texto 'Compartir la semana' (menú ⋯) ofrece texto e imagen; el texto tiene el título con las fechas, los 7 días, las 28 comidas y el mismo total que Semana",
-    opciones.join() === "Como texto,Como imagen" && lineas[0] === "🍽️ Mi semana · " + ev(`Compartir.rangoCorto(${JSON.stringify(lunes)})`) && dias === 7 && comidas === 28 && totalTexto > 0 && totalTexto === totalSemana && compartido && compartido.title === "Mi semana",
+    opciones.join() === "Como texto,Como imagen,Descargar HTML" && lineas[0] === "🍽️ Mi semana · " + ev(`Compartir.rangoCorto(${JSON.stringify(lunes)})`) && dias === 7 && comidas === 28 && totalTexto > 0 && totalTexto === totalSemana && compartido && compartido.title === "Mi semana",
     JSON.stringify({ opciones, titulo: lineas[0], dias, comidas, totalTexto, totalSemana }));
 
   // R4-31-imagen: PNG de 1080×1350, de más de 20 KB, que se comparte como archivo image/png; sin navigator.share, se descarga.

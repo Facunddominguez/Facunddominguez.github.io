@@ -1,18 +1,18 @@
 # Ronda 5: lista de control de los 79 pedidos
 
 Estado: ⬜ pendiente · ✅ hecho (prueba en verde y captura del después) · ⚠️ no hecho (con motivo y 2 opciones, abajo).
-Cada ítem tiene un control `R5-<ID>` en `docs/validacion/criterios.json`. Las capturas van en `docs/capturas-ronda-5/` (`<ID>-antes.png` y `<ID>-despues.png`; los de modo oscuro, también `-oscuro`). El plan y las reglas de la ronda están en la sección "Ronda 5" de `docs/plan-rediseno.md`.
+Cada ítem tiene un control `R5-<ID>` en `docs/validacion/criterios.json`. Las capturas van en `docs/capturas-ronda-5/` (`<escena>-antes.png` y `<escena>-despues.png`, con `-oscuro` en las de modo oscuro; varios ítems pueden compartir la captura de su pantalla). El plan y las reglas de la ronda están en la sección "Ronda 5" de `docs/plan-rediseno.md`.
 
 | ID | Pedido | Etapa | Prueba | Captura antes | Captura después | Estado |
 |---|---|---|---|---|---|---|
-| S-11 | "Compartir la semana" y "Descargar" se unifican en "Compartir la semana", con 3 opciones: Como texto, Como imagen y Descargar HTML. | 34 | R5-S-11 | — | — | ⬜ |
-| S-12 | Descargar HTML baja la semana que se está viendo (esta o la que viene). | 34 | R5-S-12 | — | — | ⬜ |
-| S-13 | En el menú ⋯, "Compartir la semana" va anteúltimo y "Empezar de nuevo", último. | 34 | R5-S-13 | — | — | ⬜ |
-| S-15 | Desde la Semana principal se puede elegir un plan guardado y aplicarlo a la semana que se ve (con Deshacer en el aviso de Semana). | 34 | R5-S-15 | — | — | ⬜ |
-| S-16 | Se elimina el botón y la sección "Historial de cambios" (los datos guardados quedan). | 34 | R5-S-16 | — | — | ⬜ |
-| S-17 | Los chips de los días no se ven apretados: mejor espaciado, y si hace falta se quita la barra verde con "4/4". Mínimo 8 px entre chips y nada encimado a 320 px. | 34 | R5-S-17 | — | — | ⬜ |
-| S-18 | Se eliminan "Buscar en mis recetas" y "Consultar mis recetas mientras planifico". | 34 | R5-S-18 | — | — | ⬜ |
-| S-19 | Al elegir o cambiar una comida, "Mis recetas" es una sección más, junto a Recientes, Mis comidas e Ideas. | 34 | R5-S-19 | — | — | ⬜ |
+| S-11 | "Compartir la semana" y "Descargar" se unifican en "Compartir la semana", con 3 opciones: Como texto, Como imagen y Descargar HTML. | 34 | R5-S-11 | semana-compartir-antes.png | semana-compartir-despues.png | ✅ |
+| S-12 | Descargar HTML baja la semana que se está viendo (esta o la que viene). | 34 | R5-S-12 | semana-compartir-antes.png | semana-compartir-despues.png | ✅ |
+| S-13 | En el menú ⋯, "Compartir la semana" va anteúltimo y "Empezar de nuevo", último. | 34 | R5-S-13 | semana-menu-antes.png | semana-menu-despues.png | ✅ |
+| S-15 | Desde la Semana principal se puede elegir un plan guardado y aplicarlo a la semana que se ve (con Deshacer en el aviso de Semana). | 34 | R5-S-15 | semana-antes.png, semana-antes-oscuro.png, semana-planes-antes.png | semana-despues.png, semana-despues-oscuro.png, semana-planes-despues.png | ✅ |
+| S-16 | Se elimina el botón y la sección "Historial de cambios" (los datos guardados quedan). | 34 | R5-S-16 | semana-menu-antes.png | semana-menu-despues.png | ✅ |
+| S-17 | Los chips de los días no se ven apretados: mejor espaciado, y si hace falta se quita la barra verde con "4/4". Mínimo 8 px entre chips y nada encimado a 320 px. | 34 | R5-S-17 | semana-antes.png, semana-antes-oscuro.png | semana-despues.png, semana-despues-oscuro.png | ✅ |
+| S-18 | Se eliminan "Buscar en mis recetas" y "Consultar mis recetas mientras planifico". | 34 | R5-S-18 | semana-menu-antes.png | semana-menu-despues.png | ✅ |
+| S-19 | Al elegir o cambiar una comida, "Mis recetas" es una sección más, junto a Recientes, Mis comidas e Ideas. | 34 | R5-S-19 | semana-selector-antes.png | semana-selector-despues.png | ✅ |
 | S-01 | Botones en lugar de listas desplegables, como en el resto de la app. | 35 | R5-S-01 | — | — | ⬜ |
 | S-02 | Al entrar a "Semanas anteriores y mes" el contenido se ve enseguida: sin el botón "Ver mis semanas en el mes" y sin ese título. | 35 | R5-S-02 | — | — | ⬜ |
 | S-03 | Sin contenido repetido: queda el calendario; debajo, "Semana anterior", "Semana siguiente" y "Guardar una copia del plan en esta semana", y el indicador del lunes. | 35 | R5-S-03 | — | — | ⬜ |

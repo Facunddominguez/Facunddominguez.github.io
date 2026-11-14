@@ -197,10 +197,12 @@
   ver("Calcular nutrientes", !!doc().querySelector("#comida .nutrition-box") && visible(doc().querySelector("#comida .nutrition-box")));
   await tocar($("recipeReadEdit"));
   ver("Mis cantidades por receta", visible($("recipeAmountsPanel")));
-  await irA("semana"); await tocar(q("#plan [data-plan-menu]")); await tocar(q('.hoja [data-plan-herr="recetas"]'));
-  ver("Asignar receta al plan actual", visible($("planRecipeAssign")));
+  // Desde la v19.1 (R5-S-18 y S-19) las recetas se eligen en la sección "Mis recetas" del selector de comida.
+  await irA("semana"); ev('abrirSelector("lunes", "almuerzo")'); await espera(250);
+  ver("Asignar receta al plan actual", !!q('.hoja [data-selector-seccion="recetas"] [data-selector-receta="recipe_e4test1"]'));
+  ev("hoja.cerrar()"); await espera(100);
   ev("planSavedRecipe('recipe_e4test1')"); await espera(300);
-  ver("planSavedRecipe", pantalla() === "planHerramientas" && $("planRecipeSelect").value === "recipe_e4test1");
+  ver("planSavedRecipe", pantalla() === "plan" && !!q('.hoja [data-selector-receta="recipe_e4test1"]') && q("#selectorBuscar").value === "Guiso de lentejas");
   ok("C4-8 cada herramienta movida se abre desde su lugar nuevo", faltan.length === 0, faltan.join(", "));
 
   // C4-9 Con lo que tengo: Ideas filtrada por la despensa (cambia al marcar un ingrediente) y las ideas se tocan
