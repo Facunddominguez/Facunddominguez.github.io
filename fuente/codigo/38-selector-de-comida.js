@@ -22,7 +22,17 @@ elegirEnSelector(asignar){
 sugerirEnSelector(){
   const h=huecoAbierto;
   if(!h||h.modo!=="selector")return;
-  // v19.4 (R5-C-02): desayuno y merienda sugieren una idea, igual que almuerzo y cena (para armar una comida está "＋ Armar nueva").
+  if(h.sugerime&&slotPool(h.slot)==="desayuno"){
+    // "Sugerime algo" de Hoy, en desayuno o merienda: arma una combinación al azar (esto cambia en la Etapa 38, H-04); al guardarla se asigna a este hueco.
+    huecoAbierto=null;
+    hoja.cerrar();
+    AlAzar.randomMeal("desayuno");
+    armadoDestino={
+      dia:h.dia,slot:h.slot,tab:activeTab
+    };
+    return
+  }
+  // v19.4 (R5-C-02): en el selector de comida, desayuno y merienda sugieren una idea, igual que almuerzo y cena (para armar una comida está "＋ Armar nueva").
   const s=elegirSugerencia(h.slot,Math.random,diaDelHueco(h));
   h.sug.hidden=false;
   h.sug.replaceChildren();
