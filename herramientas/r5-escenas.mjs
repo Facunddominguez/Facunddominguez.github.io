@@ -18,4 +18,7 @@ export const ESCENAS = [
   // Etapa 35 · Semanas anteriores y mes
   { id: 'semanas', items: ['S-01', 'S-02', 'S-03', 'S-04', 'S-06', 'S-14'], ir: 'openTab("semana"); abrirHerramientaPlan("semanas")' },
   { id: 'semanas-hoja', items: ['S-05'], ir: 'openTab("semana"); abrirHerramientaPlan("semanas"); ' + esperar + 'const h = document.querySelector("#datedWeekView [data-hueco]"); if (h) h.click()', medir: '.hoja' },
+  // Etapa 36 · Completar precios
+  { id: 'completar-precios', items: ['S-07', 'S-08', 'S-10'], ir: 'localStorage.removeItem("miPlatoFacil_referencePrices_v1"); refrescarPrecios(); openTab("semana"); renderPlan(); ' + esperar + 'document.querySelector("[data-completar-precios]").click()', medir: '.hoja' },
+  { id: 'completar-precios-guardado', items: ['S-09'], ir: 'localStorage.removeItem("miPlatoFacil_referencePrices_v1"); refrescarPrecios(); openTab("semana"); renderPlan(); ' + esperar + 'document.querySelector("[data-completar-precios]").click(); ' + esperar + 'const m = document.getElementById("completarMonto"); if (m) { const n = document.querySelector(".completar-precios__nombre").textContent; m.value = String(Math.max(1, Math.round((costoDeIngrediente(n, 1, unidadSugeridaFicha(n)) || { costo: 2000 }).costo))); [...document.querySelectorAll(".hoja button")].find(b => /^Guardar precios$/.test(b.textContent)).click() }', medir: '.hoja' },
 ];

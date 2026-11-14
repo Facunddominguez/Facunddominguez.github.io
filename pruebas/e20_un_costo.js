@@ -62,8 +62,8 @@
   const K = boton ? Number(/Completar (\d+)/.exec(boton.textContent)[1]) : -1;
   const botonVisible = !!boton && boton.getClientRects().length > 0 && boton.getBoundingClientRect().height >= 44;
   if (boton) boton.click(); await espera(250);
-  const filas = [...doc().querySelectorAll(".completar-precios__fila")].map(b => b.textContent);
-  const hojaAbierta = filas.length;
+  // v19.3 (R5-S-07 y S-08): se abre directo el primer producto y la hoja dice "1 de K".
+  const hojaAbierta = Number((/^1 de (\d+)$/.exec((doc().querySelector(".completar-precios__pos") || { textContent: "" }).textContent) || [0, 0])[1]);
   ev("hoja.cerrar()"); await espera(100);
   ok("E20-frase Semana muestra 'Semana ≈ $X · hoy ≈ $Y' y 'Con precio: N de M productos · Completar K precios'; faltan cuenta productos distintos y el botón abre la lista de lo que no tiene precio real",
     /^Semana (al menos )?≈ \$[\d.]+ · hoy ≈ \$[\d.]+$/.test(linea) && m && Number(m[2]) === distintos && Number(m[2]) === prods.length && Number(m[1]) + K === Number(m[2]) && K === faltanDistintos && K > 0 && botonVisible && hojaAbierta === K && K < apariciones,

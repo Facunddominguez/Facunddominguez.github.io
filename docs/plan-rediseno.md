@@ -3003,6 +3003,16 @@ Rama `rediseno-5-etapa-35-semanas-anteriores`. Ítems: S-01, S-02, S-03, S-04, S
 
 **Pruebas adaptadas:** `m01_modo.js` (M3, M4, M6), `e2_semana.js` (C2-6), `e5_compras.js`, `f03_plan.js` (P5b a P8: se usa `Semana.usarPlanGuardado` y la copia sin panel), `r3_saved.js`, `bkp02.js`, `regression.js` (R11 y R12 con el flujo nuevo). Las cantidades no bajan.
 
+#### Etapa 36 · Completar precios (v19.3.0)
+Rama `rediseno-5-etapa-36-completar-precios`. Ítems: S-07, S-08, S-09 y S-10. Antes de empezar, el cierre de la Etapa 35 se corrió también con DejaVu.
+- Plan corto: `fuente/codigo/43-precios.js` (`abrirCompletarPrecios` nueva, `unidadSugeridaFicha` que mira lo que usa la semana, `gramosAproxDeMedida` dentro de `miPrecioDe`), `estilos.css`. Riesgo para los datos: se guardan "Mis precios" con `guardarMiPrecio` (misma clave `miPlatoFacil_referencePrices_v1`, mismo formato); no hay claves nuevas. Pruebas nuevas: `pruebas/r5e36_completar.js` (4).
+- ✅ R5-S-07: "Completar N precios" abre directo el primer producto con su formulario (monto, cantidad y unidad); no hay lista intermedia.
+- ✅ R5-S-08: "Anterior" y "Siguiente" pasan de producto y se ve "2 de 5" (Anterior apagado en el primero y Siguiente en el último). Lo que se escribió en un producto se recuerda al ir y volver.
+- ✅ R5-S-09: "Guardar precios" guarda de una vez todos los que tienen monto y dice "Guardé N precios." (con "Faltan M." si quedan, o cierra diciendo "Ya no falta ninguno."). Un monto que no es un número o que se aleja más de 3 veces del precio típico de su categoría no se guarda y se nombra en "Revisá: …" (misma regla que la ficha, sin el botón "Guardar igual").
+- ✅ R5-S-10 (error, reproducido primero con una prueba): después de cargarles el precio, "Fruta de estación" (que la semana cuenta en unidades) y "Frutos secos" (que un desayuno armado cuenta en 1/4 taza) seguían en "Completar precios" porque el precio por kilo no se podía pasar a unidades ni a tazas: no hay peso por unidad ni nutrición de esos productos, así que `miPrecioDe` devolvía nada y el costo seguía siendo un estimado. Arreglo en dos partes: (1) `unidadSugeridaFicha` sugiere "unidad" cuando la semana usa el producto en unidades y no se sabe cuánto pesa una; (2) `miPrecioDe` usa un peso aproximado por taza, cucharada y cucharadita (Frutos secos 140/9/3 g, Semillas 160/10/3, Queso 100/7/2, el resto 150/10/3 g) solo cuando la nutrición no trae el dato. La prueba recorre todos los productos de las ideas y de las comidas armadas con un precio por kilo y exige costo real en taza, cucharada y cucharadita. (Decisión) Si aun así un precio guardado no alcanza para lo que usa la semana, "Guardar precios" lo dice ("guardé tu precio, pero no alcanza… cargalo por unidad").
+
+**Pruebas adaptadas:** `e20_un_costo.js` (E20-frase: la hoja dice "1 de K"), `e21_ficha_precio.js` (E21-un-toque), `e24_semana_clara.js` (recorrido final con "Guardar precios"), `e25_arreglos.js` (E25-ficha: el formulario se ve directo, sin botón para abrirlo).
+
 **Sugerencias de gráficos extra (R-10):** ninguna todavía; si surge una, va acá y no se implementa.
 
 **Pendientes para vos:** ninguno todavía.

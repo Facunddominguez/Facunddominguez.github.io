@@ -3627,3 +3627,10 @@ select{max-width:100%;min-width:0}
 #planHerramientas .planes-guardados{margin:16px 0 0}
 .plan-guardado-fila{display:grid;grid-template-columns:1fr auto;gap:8px}
 .plan-guardado-fila .button{margin:0}
+
+/* v19.3 (Etapa 36): Completar precios, un producto a la vez. */
+.completar-precios__pos{margin:0;font-size:13px;font-weight:800;color:var(--muted)}
+.completar-precios__nombre{margin:0;font-size:20px}
+.completar-precios__nav{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.completar-precios__nav .button,.completar-precios>.button{margin:0}
+.completar-precios>.portion-field{margin:0}

@@ -20,10 +20,10 @@ Cada ítem tiene un control `R5-<ID>` en `docs/validacion/criterios.json`. Las c
 | S-05 | Al tocar una comida ahí, la misma hoja que en Semana: Ver ingredientes o Ver receta, Cambiar, Cambiar por otra parecida, Cambiar por una más barata, Quitar y Cerrar. Los cambios se guardan en esa semana con fecha. | 35 | R5-S-05 | semanas-hoja-antes.png | semanas-hoja-despues.png | ✅ |
 | S-06 | Se elimina el botón "Cambiar comidas de una semana guardada". | 35 | R5-S-06 | semanas-antes.png | semanas-despues.png | ✅ |
 | S-14 | "Planes guardados" se usa desde acá: guardar el plan de la semana vista y aplicar uno guardado. Sale del menú ⋯ como botón propio y queda dentro de esta sección. | 35 | R5-S-14 | semana-menu-antes.png, semanas-antes.png | semana-menu-despues.png, semanas-despues.png | ✅ |
-| S-07 | "Completar N precios" abre directo el primer producto con su formulario de precio, sin una lista intermedia para tocar el producto. | 36 | R5-S-07 | — | — | ⬜ |
-| S-08 | Botones "Anterior" y "Siguiente" para pasar de producto, con "2 de 5" a la vista. | 36 | R5-S-08 | — | — | ⬜ |
-| S-09 | "Guardar precios" guarda de una vez todos los que completaste y dice cuántos guardó. | 36 | R5-S-09 | — | — | ⬜ |
-| S-10 | Error: los frutos secos siguen apareciendo en "Completar precios" después de cargarles el precio. Reproducilo y arreglalo para todos los productos con el mismo problema. | 36 | R5-S-10 | — | — | ⬜ |
+| S-07 | "Completar N precios" abre directo el primer producto con su formulario de precio, sin una lista intermedia para tocar el producto. | 36 | R5-S-07 | completar-precios-antes.png | completar-precios-despues.png | ✅ |
+| S-08 | Botones "Anterior" y "Siguiente" para pasar de producto, con "2 de 5" a la vista. | 36 | R5-S-08 | completar-precios-antes.png | completar-precios-despues.png | ✅ |
+| S-09 | "Guardar precios" guarda de una vez todos los que completaste y dice cuántos guardó. | 36 | R5-S-09 | completar-precios-guardado-antes.png | completar-precios-guardado-despues.png | ✅ |
+| S-10 | Error: los frutos secos siguen apareciendo en "Completar precios" después de cargarles el precio. Reproducilo y arreglalo para todos los productos con el mismo problema. | 36 | R5-S-10 | completar-precios-antes.png | completar-precios-despues.png | ✅ |
 | C-01 | Error: al cambiar una comida y armar una nueva con "+ Armar nueva", la comida armada no queda en el hueco. Que quede. | 37 | R5-C-01 | — | — | ⬜ |
 | C-02 | "Sugerirme" funciona igual en desayuno y merienda que en almuerzo y cena: sugiere una idea (no te pide armar una comida; para eso está "+ Armar nueva"). | 37 | R5-C-02 | — | — | ⬜ |
 | C-03 | Al ver una comida que tiene receta, botón "Editar receta"; si no tiene, "Añadir receta". | 37 | R5-C-03 | — | — | ⬜ |
