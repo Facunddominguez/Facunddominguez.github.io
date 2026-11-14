@@ -97,7 +97,7 @@ saveVariation(plan){
     return
   }
   renderDatedWeek();
-  SemanasFechadas.datedWeekMessage('Plan "'+nm+'" guardado.')
+  SemanasFechadas.datedWeekMessage('Plan "'+nm+'" guardado'+(plan?".":" (el plan de esta semana: esta semana no tiene copia)."))
 },
 // v19.1: aplica un plan guardado a la semana que se ve, con Deshacer (el plan de antes y sus porciones vuelven).
 usarPlanGuardado(nm){
@@ -105,7 +105,7 @@ usarPlanGuardado(nm){
   if(!nm||!vars[nm])return;
   const antes={plan:loadPlan(),porciones:Semana.loadPlanPortions()};
   if(Semana.persistPlan(Semana.migratePlan(vars[nm]))===false){
-    planStatus(errorDelPlan);
+    if(semanaFechada)SemanasFechadas.datedWeekMessage(errorDelPlan);else planStatus(errorDelPlan);
     return
   }
   if(!Semana.viendoProxima())Semana.prunePlanPortions(antes.plan,loadPlan());
@@ -259,8 +259,10 @@ nombreDelHueco(dia,slot){
 },
 // Guarda un plan en la copia fechada que se está viendo. Las comidas nuevas entran con su detalle (la copia no depende del plato original).
 persistirEnCopia(o){
-  const key=semanaFechada,weeks=loadDatedWeeks(),w=weeks[key];
-  if(!w){
+  const key=semanaFechada,w=loadDatedWeeks()[key];
+  let weeks=null;
+  try{weeks=JSON.parse(localStorage.getItem(DATED_WEEKS_KEY)||"{}")}catch(e){}
+  if(!w||!weeks||typeof weeks!=="object"||Array.isArray(weeks)){
     errorDelPlan="La copia de esta semana ya no está.";
     return false
   }
@@ -487,7 +489,19 @@ prunePlanPortions(oldPlan,newPlan){
   }catch(e){
   }
 },
+// Reemplaza el plan de esta semana por una copia. Con la copia abierta (semanaFechada), loadPlan/persistPlan apuntarían a la copia:
+// se apagan mientras se lee y escribe el plan real y se vuelven a poner al terminar.
 reuseDatedWeek(key){
+  const viendo=semanaFechada;
+  semanaFechada=null;
+  try{
+    return Semana.reuseDatedWeekReal(key)
+  }finally{
+    semanaFechada=viendo;
+    if(viendo)renderPlan()
+  }
+},
+reuseDatedWeekReal(key){
   const week=loadDatedWeeks()[key];
   if(!week)throw Error("La copia ya no está disponible.");
   if(!window.confirm("¿Reemplazar el plan actual por las comidas de esta semana? Si querés conservar el plan actual, guardalo antes como variación."))return false;

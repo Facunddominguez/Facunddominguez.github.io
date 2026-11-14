@@ -576,6 +576,7 @@ function back(){
 }
 // Deja el armado vacío (sin tocar pestañas ni pantallas).
 function restart(){
+  semanaFechada=null;
   Armado.limpiarArmado();
   // El Deshacer de la Semana no se pierde por volver al inicio: vale hasta el próximo cambio del plan.
   armadoDestino=null;

@@ -70,5 +70,17 @@
   ok("R5-S-14 'Planes guardados' ya no está en el menú ⋯; desde esta pantalla se guarda el plan de la semana vista con un nombre y se aplica uno guardado a esa copia",
     !menu.includes("Planes guardados") && !sinUsar && igualCopia && roto && !!usar && nombres.includes("Semana prueba") && restaurado, JSON.stringify({ menu, sinUsar: !!sinUsar, igualCopia, roto, nombres, restaurado }));
 
+  // R5-S-05 (revisión de código): con la copia abierta, "Armar nueva" no se ofrece (escribiría en el plan de esta semana) y
+  // "Usar esta semana como plan actual" sigue reemplazando el plan real, no la copia.
+  await tocar(hueco("jueves|cena")); await tocar(H.boton(/^Cambiar$/, H.hoja()), 300);
+  const sinArmar = !H.boton(/Armar nueva/, H.hoja()), sugerime = !!H.boton(/Sugerime/, H.hoja());
+  await H.cerrarHoja();
+  const planCopia = JSON.stringify(copia().plan), planReal0 = JSON.stringify(leer("miPlatoFacil_plan"));
+  await tocar(H.boton(/^Usar esta semana como plan actual$/, pantalla()), 400);
+  const real1 = leer("miPlatoFacil_plan"), c = copia().plan;
+  const igual = ["lunes", "martes", "miercoles", "jueves", "viernes", "sabado", "domingo"].every(d => ["desayuno", "almuerzo", "merienda", "cena"].every(sl => ((real1[d] || {})[sl] || null) === ((c[d] || {})[sl] || null)));
+  ok("R5-S-05 desde una copia abierta no se ofrece 'Armar nueva' (sí 'Sugerime' de almuerzo o cena) y 'Usar esta semana como plan actual' reemplaza el plan de esta semana con la copia sin tocarla",
+    sinArmar && sugerime && igual && planReal0 !== JSON.stringify(real1) && JSON.stringify(copia().plan) === planCopia, JSON.stringify({ sinArmar, sugerime, igual }));
+
   return H.terminar();
 })()

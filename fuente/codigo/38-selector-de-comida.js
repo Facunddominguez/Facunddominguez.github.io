@@ -344,9 +344,11 @@ function abrirSelector(dia,slot){
   buscar.placeholder="Buscar en tus comidas e ideas";
   buscar.autocomplete="off";
   buscar.setAttribute("aria-label","Buscar comida");
-  acciones.append(botonHoja("＋ Armar nueva","button--soft",{
+  // Con una copia fechada abierta, "Armar nueva" y el Sugerime de desayuno terminarían escribiendo en el plan de esta semana: no se ofrecen.
+  if(!semanaFechada)acciones.append(botonHoja("＋ Armar nueva","button--soft",{
     start:pool,startDay:dia,startSlot:slot
-  }),botonHoja("🎲 Sugerime","button--soft",{
+  }));
+  if(!semanaFechada||pool!=="desayuno")acciones.append(botonHoja("🎲 Sugerime","button--soft",{
     selectorSugerir:""
   }));
   sug.hidden=true;

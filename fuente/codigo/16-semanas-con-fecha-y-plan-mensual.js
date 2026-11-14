@@ -314,7 +314,7 @@ typedDateIds.forEach(id=>{
   });document.getElementById(id).addEventListener("change",()=>syncTypedAppDate(id))
 });
 document.addEventListener("click",e=>{
-  const b=e.target.closest("button");if(!b)return;let id=null;if(b.dataset.trainingExceptionSave!==undefined)id="trainingExceptionDate";if(b.dataset.datedSave!==undefined||b.dataset.datedDownload!==undefined||b.dataset.datedDelete!==undefined||b.dataset.datedEditSave!==undefined)id="datedWeekStart";if(id&&!SemanasFechadas.commitTypedAppDate(id,true)){
+  const b=e.target.closest("button");if(!b)return;let id=null;if(b.dataset.trainingExceptionSave!==undefined)id="trainingExceptionDate";if(b.dataset.datedSave!==undefined||b.dataset.datedDownload!==undefined||b.dataset.datedDelete!==undefined)id="datedWeekStart";if(id&&!SemanasFechadas.commitTypedAppDate(id,true)){
     e.preventDefault();e.stopImmediatePropagation();document.getElementById(id+"Text").focus()
   }
 },true);
