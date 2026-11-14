@@ -9,7 +9,7 @@ deductRecipeFromPantry(recipeId){
     name:x.name,unit:x.unit,delta:-x.quantity
   }));
   if(!changes.length)throw Error("La receta no tiene cantidades para descontar.");
-  return applyStockChanges(changes,("Cocinaste "+r.title).slice(0,80))
+  return applyStockChanges(changes,("Comiste "+r.title).slice(0,80))
 }
 };
 function validPantryMoves(a){
@@ -40,7 +40,7 @@ function renderPantryMoves(){
   const a=loadPantryMoves().slice(-30).reverse(),fmt=n=>(n>0?"+":"−")+Math.abs(n).toLocaleString("es-AR",{
     maximumFractionDigits:6
   });
-  box.replaceChildren(...a.map(m=>ce("p","screen__hint",MisPlatos.fmtWhen(m.at)+" · "+m.name+" "+(m.delta>0?"+":"−")+cantidadLegible(Math.abs(m.delta),m.unit)+" · "+m.reason)));
+  box.replaceChildren(...a.map(m=>ce("p","screen__hint",MisPlatos.fmtWhen(m.at)+" · "+m.name+" "+(m.delta>0?"+":"−")+cantidadLegible(Math.abs(m.delta),m.unit)+" · "+motivoDeMovimiento(m.reason))));
   if(!a.length)box.append(ce("p","screen__hint","Todavía no hay movimientos."))
 }
 // Movimientos de un ingrediente (v15.4, historial por ítem de la Despensa): del más nuevo al más viejo. Solo lee.
@@ -49,7 +49,7 @@ function movimientosDe(nombre,max){
   return loadPantryMoves().filter(m=>ingredientKey(m.name)===k).reverse().slice(0,max||10)
 }
 function textoMovimiento(m){
-  return MisPlatos.fmtWhen(m.at)+" · "+(m.delta>0?"+":"−")+cantidadLegible(Math.abs(m.delta),m.unit)+" · "+m.reason
+  return MisPlatos.fmtWhen(m.at)+" · "+(m.delta>0?"+":"−")+cantidadLegible(Math.abs(m.delta),m.unit)+" · "+motivoDeMovimiento(m.reason)
 }
 function applyStockChanges(changes,reason){
   const stock=loadStockQuantities(),moves=[],short=[];
@@ -104,3 +104,7 @@ document.getElementById("recipeReadCooked").addEventListener("click",()=>{
     st.textContent=err.message
   }
 });
+// v19.6 (R5-R-01): los movimientos viejos que dicen "Cocinaste X" se muestran como "Comiste X" (lo guardado no cambia).
+function motivoDeMovimiento(texto){
+  return String(texto||"").replace(/^Cocinaste /,"Comiste ")
+}

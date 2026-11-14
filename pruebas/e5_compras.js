@@ -100,12 +100,13 @@
   const consumo = J("miPlatoFacil_consumption_v1"), primera = consumo.map(c => c.date).sort()[0];
   let registrados = 0;
   for (let i = 0; i < 80 && ev("consumptionWeek") >= w.mondayOf(primera); i++) {
-    registrados += Number((($("consumptionView").innerText.match(/(\d+) comidas? registradas?/) || [0, 0])[1]));
+    registrados += Number(q("#graficoSemanaComidas .grafico__fila").dataset.valor);
     await tocar(q('[data-consumption-week="-7"]'))
   }
+  await tocar(q('[data-consumption-week="7"]'));
   exigir("Lo que comí", registrados === consumo.length, registrados + " de " + consumo.length);
   const metas = J("miPlatoFacil_habitGoals_v1");
-  for (const [g, n] of Object.entries(metas)) exigir("objetivo " + g, seVe($("consumptionView"), "de " + n + " (objetivo)"), g);
+  for (const [g, n] of Object.entries(metas)) exigir("objetivo " + g, seVe($("consumptionView"), "de " + n), g);
   // Comidas: platos y recetas, preparaciones, cantidades de las recetas e ideas favoritas.
   await irA("miscomidas");
   const tarjetas = t => qa('#savedList > .comida-card[data-comida-tipo="' + t + '"]').filter(visible).length;
@@ -113,9 +114,10 @@
   // v15.5: las preparaciones están en el Registro (Más → Registro → Todas las preparaciones).
   await irA("mas"); await tocar(q('#sectionSettings [data-open-registro]'));
   exigir("pantalla Registro", pantalla() === "registro");
-  await tocar(q("#cookingHistoryPanel summary"));
-  const preparaciones = J("miPlatoFacil_cookingHistory_v1");
-  exigir("preparaciones", qa("#cookingHistoryList > *").filter(visible).length >= preparaciones.length && preparaciones.every(p => seVe($("cookingHistoryList"), w.typedAppDateLabel(p.date))), qa("#cookingHistoryList > *").length + " de " + preparaciones.length);
+  // Desde la v19.6 (R5-R04) "Todas las preparaciones" no está: cada preparación se ve en el Registro, en su día, como "Lo comí".
+  const preparaciones = J("miPlatoFacil_cookingHistory_v1"), faltanPrep = [];
+  for (const p of preparaciones) { ev("abrirRegistro({ fecha: " + JSON.stringify(p.date) + " })"); await espera(80); if (!q('#registroLista [data-registro-id="' + p.id + '"]')) faltanPrep.push(p.id) }
+  exigir("preparaciones", !faltanPrep.length, faltanPrep.join(","));
   await irA("miscomidas");
   const recetas = J("miPlatoFacil_recipeDetails_v1"), cantidades = J("miPlatoFacil_recipeAmounts_v1");
   const conCantidades = Object.values(recetas).filter(r => r.amountsTitle && cantidades[r.amountsTitle]);

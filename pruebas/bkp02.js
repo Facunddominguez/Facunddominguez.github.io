@@ -36,8 +36,8 @@
   planDiaElegido = "lunes"; go("plan"); renderPlan(); document.getElementById("datedWeekStart").value = monday; renderDatedWeek();
   renderMonthlyPlan(); await wait(50);
   ok("C5 plan y semanas fechadas muestran el título como texto", document.getElementById("planList").textContent.includes("pollo > 200 g " + XSS) && document.getElementById("datedWeekView").textContent.includes("pollo > 200 g"));
-  abrirRegistro({ fecha: today }); document.getElementById("cookingHistoryPanel").open = true; renderCookingHistory(); await wait(50);
-  ok("C6 historial muestra el título como texto (en el Registro, también en la fila del día)", document.getElementById("cookingHistoryList").textContent.includes("Cena " + XSS) && document.getElementById("registroLista").textContent.includes("Cena " + XSS) && !document.querySelector("#registroLista i, #cookingHistoryList i"));
+  abrirRegistro({ fecha: today }); await wait(50);
+  ok("C6 historial muestra el título como texto (en el Registro, también en la fila del día)", document.getElementById("registroLista").textContent.includes("Cena " + XSS) && !document.querySelector("#registroLista i, #cookingHistoryList i"));
   go("ingredientes"); showRecipeView("browse"); showRecipeRead("recipe_test0003"); await wait(50);
   ok("C7 lectura de receta muestra pasos y notas como texto", document.getElementById("recipeReadSteps").textContent.includes("Hornear a >180°") && document.getElementById("recipeReadNotes").textContent.includes("<script>"));
   go("compras"); document.getElementById("pricePanel").open = true; CantidadesCostos.renderReferencePrices(); await wait(50);

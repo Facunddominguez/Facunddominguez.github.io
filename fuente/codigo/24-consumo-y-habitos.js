@@ -138,14 +138,15 @@ function renderConsumption(){
     verduras:"Con verduras",legumbres:"Con legumbres",pescado:"Con pescado",fruta:"Con fruta"
   };
   document.getElementById("consumptionWeekLabel").textContent="Semana del "+typedAppDateLabel(days[0])+" al "+typedAppDateLabel(days[6]);
-  const planned=records.filter(x=>x.planned).length,nodes=[ce("p","shop-item",records.length+" comida"+(records.length===1?"":"s")+" registrada"+(records.length===1?"":"s")+" · "+planned+" del plan · "+(records.length-planned)+" fuera del plan")];
-  for(const g of HABIT_GROUPS){
-    const n=records.filter(x=>x.groups.includes(g)).length,goal=goals[g]||0;
-    nodes.push(ce("p","screen__hint",labels[g]+": "+n+(goal?" de "+goal+" (objetivo)"+(n>=goal?" ✓":""):"")))
-  }
+  // v19.6 (R5-R07, R08, R09, R10): gráficos de barras de la semana, sin librerías (barras de HTML con su número).
+  const planned=records.filter(x=>x.planned).length,nodes=[];
+  nodes.push(graficoBarras("Comidas registradas",[
+    {rotulo:"Registradas",valor:records.length,clase:"total"},{rotulo:"Del plan",valor:planned},{rotulo:"Fuera del plan",valor:records.length-planned,clase:"fuera"}
+  ],{id:"graficoSemanaComidas",vacio:null}));
+  nodes.push(records.length?graficoBarras("Qué comiste",HABIT_GROUPS.map(g=>({rotulo:labels[g],valor:records.filter(x=>x.groups.includes(g)).length,meta:goals[g]||0})),{id:"graficoSemanaGrupos"}):graficoBarras("Qué comiste",[],{id:"graficoSemanaGrupos",vacio:"Sin registros esta semana"}));
   const unknown=records.filter(x=>!x.groups.length).length;
   if(unknown)nodes.push(ce("p","screen__hint",unknown+" registro"+(unknown===1?"":"s")+" sin grupos identificados (texto libre o sin ingredientes registrados)."));
-  if(!records.length)nodes.push(ce("p","screen__hint","Sin registros esta semana."));
+  try{nodes.push(Registro.graficoGastoSemanal(consumptionWeek))}catch(e){}
   for(const x of records){
     const row=ce("div","shop-item");
     row.append(ce("span",null,typedAppDateLabel(x.date)+" · "+x.meal+" · "+x.title+(x.planned?" (del plan)":"")));
@@ -170,11 +171,11 @@ function renderConsumption(){
     if(document.activeElement!==i)i.value=goals[g]?String(goals[g]):""
   }
 }
-document.getElementById("consumptionPanel").addEventListener("toggle",e=>{
-  if(e.target.open){
-    const d=document.getElementById("consumptionDate");if(!d.value)d.value=typedAppDateLabel(Rutina.localTrainingDate(new Date()));renderConsumption()
-  }
-});
+// v19.6 (R5-R03): el panel está siempre a la vista; la fecha arranca en hoy.
+{
+  const d=document.getElementById("consumptionDate");
+  if(d&&!d.value)d.value=typedAppDateLabel(Rutina.localTrainingDate(new Date()))
+}
 document.getElementById("consumptionDate").addEventListener("input",e=>{
   const d=e.target.value.replace(/\D/g,"").slice(0,8);e.target.value=d.slice(0,2)+(d.length>2?"/"+d.slice(2,4):"")+(d.length>4?"/"+d.slice(4):"")
 });
@@ -182,7 +183,7 @@ document.getElementById("consumptionSave").addEventListener("click",()=>{
   const st=document.getElementById("consumptionStatus");try{
     const date=SemanasFechadas.parseTypedAppDate(document.getElementById("consumptionDate").value);if(!date)throw Error("Ingresá una fecha.");const meal=document.getElementById("consumptionMeal").value,id=document.getElementById("consumptionPlate").value,item=id?MisPlatos.loadSaved().find(p=>p.id===id):null,wd=DAYS[(new Date(date+"T12:00:00").getDay()+6)%7][0],plan=loadPlan(),planned=!!item&&!!plan[wd]&&plan[wd][meal]===item.id&&mondayOf(date)===mondayOf(Rutina.localTrainingDate(new Date())),antes=registroFoto();Consumo.recordConsumption({
       date,meal,item,title:document.getElementById("consumptionText").value,planned
-    });document.getElementById("consumptionText").value="";consumptionWeek=mondayOf(date);renderConsumption();registroRepintar();registroAviso(st,"Registrado.",antes)
+    });document.getElementById("consumptionText").value="";consumptionWeek=mondayOf(date);renderConsumption();registroRepintar();st.textContent="Registrado."
   }catch(err){
     st.textContent=err.message
   }
@@ -216,9 +217,9 @@ document.addEventListener("click",e=>{
   const b=e.target.closest("button");if(!b)return;if(b.dataset.consumptionWeek){
     const d=new Date((consumptionWeek||mondayOf(Rutina.localTrainingDate(new Date())))+"T12:00:00");d.setDate(d.getDate()+Number(b.dataset.consumptionWeek));consumptionWeek=Rutina.localTrainingDate(d);renderConsumption()
   }if(b.dataset.consumptionRemove){
-    // Sin confirmación: Quitar ofrece Deshacer (v15.5).
+    // Sin confirmación y, desde la v19.6 (R5-R05), sin Deshacer en el Registro.
     try{
-      const antes=quitarRegistro("comi",b.dataset.consumptionRemove);renderConsumption();registroRepintar();registroAviso(document.getElementById("consumptionStatus"),"Registro quitado.",antes)
+      quitarRegistro("comi",b.dataset.consumptionRemove);renderConsumption();registroRepintar();document.getElementById("consumptionStatus").textContent="Registro quitado."
     }catch(err){
       document.getElementById("consumptionStatus").textContent=err.message
     }
@@ -226,7 +227,7 @@ document.addEventListener("click",e=>{
     const [day,slot]=b.dataset.planEaten.split("|"),plan=loadPlan(),id=plan[day]&&plan[day][slot],item=id?MisPlatos.loadSaved().find(p=>p.id===id):null;if(!item)return;try{
       Consumo.recordConsumption({
         date:Rutina.localTrainingDate(new Date()),meal:slot,item,planned:true
-      });renderPlan();planStatus("Registrado como comido hoy. El plan no cambió.");if(document.getElementById("consumptionPanel").open)renderConsumption()
+      });renderPlan();planStatus("Registrado como comido hoy. El plan no cambió.");renderConsumption()
     }catch(err){
       planStatus(err.message)
     }

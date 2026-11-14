@@ -69,6 +69,7 @@
     "r5e35_semanas.js",
     "r5e36_completar.js",
     "r5e37_comida.js",
-    "r5e38_hoy.js"
+    "r5e38_hoy.js",
+    "r5e39_registro.js"
   ]
 }

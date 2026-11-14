@@ -190,7 +190,7 @@ function comidaTipoDeComida(type){
 function comidaDesdePlato(item){
   const c=item.cooked||0,componentes=[...new Set(Semana.extractIngredients(item).map(x=>String(x).trim()).filter(Boolean))];
   return {
-    tipo:"plato",origen:"plato",id:item.id,nombre:mealName(item),componentes,etiquetas:[comidaTipoDeComida(item.type),c>0?"Cocinado "+c+" ve"+(c===1?"z":"ces"):""].filter(Boolean),fav:!!item.fav,cocinado:c,enPlan:false,fecha:item.savedAt||"",aviso:""
+    tipo:"plato",origen:"plato",id:item.id,nombre:mealName(item),componentes,etiquetas:[comidaTipoDeComida(item.type),c>0?"Comido "+c+" ve"+(c===1?"z":"ces"):""].filter(Boolean),fav:!!item.fav,cocinado:c,enPlan:false,fecha:item.savedAt||"",aviso:""
   }
 }
 // Una copia del plan (plato con recipeSourceId) cuya receta ya no está: se muestra como receta, con aviso.
@@ -291,7 +291,7 @@ function pintarDetallePlato(it,conservarAviso){
     const b=ce("button","button "+(clase||"button--soft"),texto);b.type="button";b.dataset[clave]=valor;return b
   };
   // v19.4 (R5-C-03): "Editar receta" si la comida tiene receta; si no, "Añadir receta".
-  acts.replaceChildren(boton("🍳 Lo cociné","cookSaved",it.id),boton("Editar nombre","renameSaved",it.id),boton(comidaTieneReceta(it)?"Editar receta":"Añadir receta","comidaRecetaDe",it.id))
+  acts.replaceChildren(boton("🍽️ Lo comí","cookSaved",it.id),boton("Editar nombre","renameSaved",it.id),boton(comidaTieneReceta(it)?"Editar receta":"Añadir receta","comidaRecetaDe",it.id))
 }
 // La receta propia que corresponde a una comida (su copia de receta, la que se armó desde su idea o la que tiene su mismo nombre), o null.
 function recetaDeComida(it){
