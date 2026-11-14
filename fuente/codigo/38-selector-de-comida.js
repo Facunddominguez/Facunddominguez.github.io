@@ -22,16 +22,6 @@ elegirEnSelector(asignar){
 sugerirEnSelector(){
   const h=huecoAbierto;
   if(!h||h.modo!=="selector")return;
-  if(h.sugerime&&slotPool(h.slot)==="desayuno"){
-    // "Sugerime algo" de Hoy, en desayuno o merienda: arma una combinación al azar (esto cambia en la Etapa 38, H-04); al guardarla se asigna a este hueco.
-    huecoAbierto=null;
-    hoja.cerrar();
-    AlAzar.randomMeal("desayuno");
-    armadoDestino={
-      dia:h.dia,slot:h.slot,tab:activeTab
-    };
-    return
-  }
   // v19.4 (R5-C-02): en el selector de comida, desayuno y merienda sugieren una idea, igual que almuerzo y cena (para armar una comida está "＋ Armar nueva").
   const s=elegirSugerencia(h.slot,Math.random,diaDelHueco(h));
   h.sug.hidden=false;
@@ -422,10 +412,8 @@ function abrirSugerime(slot){
     const b=ce("button","filter-chip",Semana.planSlotName(c));b.type="button";b.dataset.sugerimeComida=c;b.setAttribute("aria-pressed",String(c===slot));chips.append(b)
   }
   sug.setAttribute("aria-live","polite");
-  otras.append(botonHoja("🎲 Al azar","button--soft",{
-    openAzar:""
-  }));
-  caja.append(chips,sug,otras);
+  // v19.5 (R5-H-03): sin el botón interno "Al azar" (hacía lo mismo que "Otra").
+  caja.append(chips,sug);
   const h={
     dia,slot,modo:"selector",caja,sug,id:(loadPlan()[dia]||{})[slot]||null,sugerime:true
   };
@@ -438,15 +426,7 @@ function abrirSugerime(slot){
 function proponerEnSugerime(h,primera){
   h.sug.replaceChildren();
   const fila=ce("div","selector__acciones");
-  if(slotPool(h.slot)==="desayuno"){
-    h.sugerencia=null;
-    h.sug.append(ce("p","selector__propuesta","Te armo "+(h.slot==="merienda"?"una merienda":"un desayuno")+" con fruta, proteína y cereal."));
-    fila.append(botonHoja("Armalo","button--primary",{
-      selectorSugerir:""
-    }));
-    h.sug.append(fila);
-    return
-  }
+  // v19.5 (R5-H-04): desayuno y merienda sugieren directo un plato, con las mismas 3 opciones que almuerzo y cena.
   const s=primera?AlAzar.sugerenciaDelDia(h.slot):elegirSugerencia(h.slot,Math.random,diaDelHueco(h));
   h.sugerencia=s;
   if(!s){

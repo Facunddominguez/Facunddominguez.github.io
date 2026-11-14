@@ -240,7 +240,8 @@
   cargar({ [SAVED]: JSON.stringify([plato("t1", "Pollo con arroz", 0)]), miPlatoFacil_plan: planDe([[DIAS[(new Date().getDay() + 6) % 7], "almuerzo", "t1"]]) });
   await abrir(); await irA("hoy");
   await tocar(q('#todayRows [data-today-slot="almuerzo"] [data-plan-eaten]'));
-  const chipHoy = q("#todayStatus [data-today-undo]");
+  // Desde la v19.5 (R5-H-01) Hoy no tiene Deshacer: solo queda el de "Lo cociné".
+  const sinChipHoy = !doc().querySelector("#todayStatus [data-today-undo]");
   await irA("miscomidas"); await tocar(q('#savedList .comida-card[data-comida-id="t1"]'));
   await tocar(q('#comidaPlatoAcciones [data-cook-saved="t1"]'));
   const chipViejo = q("#comidaEstado [data-registro-deshacer]");
@@ -249,11 +250,10 @@
   const despuesQuitar = tres();
   chipViejo.click(); await espera(80);
   const viejoNoHace = tres() === despuesQuitar && /No se puede deshacer/.test(q("#comidaEstado").textContent);
-  chipHoy.click(); await espera(80);
-  const hoyNoHace = tres() === despuesQuitar && /ya no está/.test(q("#todayStatus").textContent);
+  const hoyNoHace = sinChipHoy;
   const nuevoHace = await deshacer();
   const vuelveComi = JSON.parse(localStorage.getItem(CONS) || "[]").length === 1 && JSON.parse(localStorage.getItem(SAVED))[0].cooked === 1;
-  ok("C6-10 cada Deshacer es de su propia acción: un chip viejo (Lo cociné, o Lo comí de Hoy) no toca nada y avisa; el más nuevo deshace lo suyo", viejoNoHace && hoyNoHace && nuevoHace && vuelveComi && !pidioConfirmar, JSON.stringify({ viejoNoHace, hoyNoHace, nuevoHace, vuelveComi }));
+  ok("C6-10 cada Deshacer es de su propia acción: un chip viejo (Lo cociné) no toca nada y avisa, Hoy ya no ofrece Deshacer y el más nuevo deshace lo suyo", viejoNoHace && hoyNoHace && nuevoHace && vuelveComi && !pidioConfirmar, JSON.stringify({ viejoNoHace, hoyNoHace, nuevoHace, vuelveComi }));
 
   if (marco) marco.remove();
   localStorage.clear();

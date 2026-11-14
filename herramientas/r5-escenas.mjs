@@ -26,4 +26,8 @@ export const ESCENAS = [
   { id: 'sugerime-desayuno', items: ['C-02'], ir: 'openTab("semana"); abrirSelector("lunes", "desayuno"); ' + esperar + '[...document.querySelectorAll(".hoja button")].find(b => /Sugerime/.test(b.textContent)).click()', medir: '.hoja' },
   { id: 'comida-receta', items: ['C-03'], ir: 'openTab("miscomidas"); const g = MisPlatos.loadSaved()[0] || IdeasHoja.guardarIdea(data.menuCatalog[0]).item; Comidas.abrirComida("plato", g.id)' },
   { id: 'selector-dieta', items: ['C-04'], ir: 'localStorage.setItem("miPlatoFacil_dieta_v1", JSON.stringify({ filtros: ["vegetariano"] })); openTab("semana"); abrirSelector("lunes", "almuerzo")', medir: '.hoja' },
+  // Etapa 38 · Hoy
+  { id: 'hoy', items: ['H-02', 'H-05'], ir: 'openTab("hoy")', oscuro: true },
+  { id: 'hoy-lo-comi', items: ['H-01'], ir: 'openTab("hoy"); ' + esperar + 'const b = document.querySelector("#todayRows [data-today-eaten]"); if (b) b.click(); ' + esperar },
+  { id: 'hoy-sugerime', items: ['H-03', 'H-04'], ir: 'openTab("hoy"); abrirSugerime("desayuno")', medir: '.hoja' },
 ];

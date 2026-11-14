@@ -86,6 +86,14 @@ function elegirSugerencia(comida,azar,dia){
 }
 // Carga la sugerencia en el armado para verla en el resumen (se puede cambiar o guardar con su nombre).
 function cargarSugerencia(s,dia){
+  // v19.5 (R5-H-04): "Ver y cambiar" de una sugerencia de desayuno o merienda: la idea (o tu desayuno) pasa al armado.
+  if((s.tipo==="idea"&&s.idea.desayuno)||(s.tipo==="mia"&&s.item.type==="desayuno")){
+    AlAzar.resetForRandom("desayuno");
+    Object.assign(state,s.tipo==="idea"?IdeasHoja.ideaComoComida(s.idea):JSON.parse(JSON.stringify(s.item.state)));
+    state.nombreSugerido=s.tipo==="idea"?s.idea.text:mealName(s.item);
+    Armado.updatePlate();
+    return
+  }
   AlAzar.resetForRandom("plato");
   const st=s.tipo==="idea"?{
     ...s.idea.ingredientes

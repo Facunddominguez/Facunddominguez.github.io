@@ -108,7 +108,9 @@ semillaDelDia(comida){
   return AlAzar.mulberry32(AlAzar.hashStr("plato_"+Rutina.localTrainingDate(new Date())+(comida==="cena"?"_cena":"")))
 },
 sugerenciaDelDia(comida){
-  return elegirSugerencia(comida==="cena"?"cena":"plato",AlAzar.semillaDelDia(comida),diaDeRutina(new Date()))
+  // v19.5 (R5-H-04): desayuno y merienda también salen de una idea (con la semilla del día y de la comida).
+  const tipo=comida==="cena"?"cena":comida==="desayuno"||comida==="merienda"?comida:"plato";
+  return elegirSugerencia(tipo,tipo==="desayuno"||tipo==="merienda"?AlAzar.mulberry32(AlAzar.hashStr(tipo+"_"+Rutina.localTrainingDate(new Date()))):AlAzar.semillaDelDia(comida),diaDeRutina(new Date()))
 },
 platoDelDia(){
   lastRandomType=null;

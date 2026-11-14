@@ -189,21 +189,22 @@ function renderToday(){
   }
   // En el orden del día (el plan las guarda como desayuno, merienda, almuerzo, cena).
   box.replaceChildren(...HOY_COMIDAS.map(slot=>filaHoy(day,slot,plan,byId,true,primera)));
-  const manana=diaSiguienteDelPlan(day),mt=document.getElementById("todayMananaTitulo"),mr=document.getElementById("todayMananaRows");
-  if(mt)mt.textContent="Mañana · "+Semana.planDayName(manana).toLowerCase();
-  if(mr)mr.replaceChildren(...HOY_COMIDAS.map(slot=>filaHoy(manana,slot,plan,byId,false,false)));
-  // Deshacer de un cambio del plan hecho desde Hoy (asignar, cambiar o quitar): se muestra una vez por cambio y se va
-  // cuando el Deshacer deja de valer (otra escritura del plan).
+  // v19.5 (R5-H-01): sin Deshacer debajo de las comidas. El cambio hecho desde Hoy se cuenta en una línea y se va con el siguiente.
   const st=document.getElementById("todayStatus");
   if(!st)return;
   const vale=deshacerPlan&&deshacerPlan.tab==="hoy"?deshacerPlan:null;
   if(vale&&vale!==hoyAvisoPlan){
     hoyAvisoPlan=vale;
-    const u=ce("button","filter-chip","Deshacer");
-    u.type="button";
-    u.dataset.planDeshacer="";
-    st.replaceChildren(document.createTextNode(vale.texto+". "),u)
-  }else if(!vale&&st.querySelector("[data-plan-deshacer]"))st.replaceChildren()
+    st.textContent=vale.texto+"."
+  }else if(!vale&&hoyAvisoPlan&&st.textContent===hoyAvisoPlan.texto+".")st.textContent=""
+}
+// v19.5 (R5-H-05): "Mañana" es un botón que abre las comidas de mañana en una hoja (antes era un desplegable).
+function abrirMananaHoy(){
+  const day=todayPlanDay(),plan=loadPlan(),byId=new Map(MisPlatos.loadSaved().map(p=>[p.id,p])),manana=diaSiguienteDelPlan(day),filas=ce("div","today__rows");
+  filas.append(...HOY_COMIDAS.map(slot=>filaHoy(manana,slot,plan,byId,false,false)));
+  hoja.abrir({
+    titulo:"Mañana · "+Semana.planDayName(manana).toLowerCase(),contenido:[filas],botones:[],foco:false
+  })
 }
 // El chip cambia el tipo de día solo por hoy: escribe la excepción de hoy en miPlatoFacil_trainingExceptions (el
 // mismo formato que Días de entrenamiento) partiendo del texto guardado, así no se pierde ninguna otra entrada. Si el
@@ -222,42 +223,9 @@ document.addEventListener("click",e=>{
       status.textContent="No se pudo registrar. Probá desde Más → Registro.";
       return
     }
-    todayUndoId=rec.id;
-    const undo=ce("button","filter-chip","Deshacer");
-    undo.type="button";
-    undo.dataset.todayUndo="";
-    status.replaceChildren(document.createTextNode("Anotado en tu registro ("+Semana.planSlotName(slot)+"). El plan no cambió. "),undo);
-    return
-  }
-  if(b.dataset.todayUndo!==undefined&&todayUndoId){
-    const status=document.getElementById("todayStatus");
-    try{
-      // Si ese registro ya no está (por ejemplo, se quitó en el Registro), no se reescribe nada.
-      const a=loadConsumption();
-      if(!a.some(x=>x.id===todayUndoId)){
-        todayUndoId=null;
-        status.textContent="No se puede deshacer: ese registro ya no está.";
-        return
-      }
-      saveConsumption(a.filter(x=>x.id!==todayUndoId));
-      todayUndoId=null;
-      renderToday();
-      renderPlan();
-      if(document.getElementById("consumptionPanel").open)renderConsumption();
-      if(stack.at(-1)==="registro")renderRegistro();
-      status.textContent="Listo, se deshizo."
-    }catch(err){
-      status.textContent=err.message
-    }
-    return
-  }
-  if(b.dataset.planDeshacer!==undefined&&b.closest("#todayStatus")){
-    // Deshacer un cambio del plan hecho desde Hoy: el mismo de la Semana, con el aviso acá.
-    e.stopImmediatePropagation();
-    const st=document.getElementById("todayStatus");
-    st.replaceChildren();
-    Semana.deshacerCambioDelPlan();
-    st.textContent=deshacerPlan===null&&!errorDelPlan?"Listo, se deshizo.":errorDelPlan||"No se pudo deshacer.";
+    todayUndoId=null;
+    // v19.5 (R5-H-01): sin botón Deshacer debajo de las comidas; el registro se corrige o se quita desde Registro.
+    status.textContent="Anotado en tu registro ("+Semana.planSlotName(slot)+"). El plan no cambió.";
     return
   }
   if(b.dataset.todayChoose){
@@ -302,5 +270,6 @@ document.addEventListener("click",e=>{
     }
     return
   }
-  if(b.dataset.sugerime!==undefined)return abrirSugerime()
+  if(b.dataset.sugerime!==undefined)return abrirSugerime();
+  if(b.dataset.hoyManana!==undefined)return abrirMananaHoy()
 });
