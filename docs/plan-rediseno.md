@@ -2829,3 +2829,141 @@ Pedidos por Facundo después de revisar la v18.7.1. Hechos fuera del modo autón
 - **Versión:** 18.8.0.
 
 **Pruebas:** nueva `pruebas/v188_arreglos.js` (V188-tarjetas, V188-ajustar, V188-leche, V188-receta, V188-precio y V188-coherentes, que revisa las 100 ideas: lo que dice la tarjeta y lo que nombran los pasos tiene que estar en las cantidades). Ninguna prueba vieja se adaptó. Total: 673.
+
+
+## Ronda 5: 79 pedidos ítem por ítem
+
+Plan pedido por Facundo después de revisar la v18.8.0. Las rondas 1 a 4 y los arreglos v17.6 y v18.8 están en `main` (v18.8.0). La compuerta (`herramientas/validar-etapa.mjs`), los criterios, las capturas, los precios congelados de las pruebas y los revisores siguen vigentes: se extienden, no se reescriben.
+
+Esta ronda aplica una lista cerrada de 79 pedidos. **Todos se aplican y nada queda afuera.** Un ítem cuenta como hecho solo si su prueba lo comprueba en la pantalla y su captura del después lo muestra. Si uno resulta imposible o choca con otro, no se da por hecho: se anota como "⚠️ no hecho" en `docs/ronda-5-lista.md` con el motivo y 2 opciones, y se sigue con el resto. No se cambia nada que no esté en la lista, salvo lo mínimo para que funcione. Se trabaja solo, de la Etapa 33 a la 44, sin esperar entre etapas; la única intervención de Facundo es el merge final.
+
+### Cambios de reglas para esta ronda (se anotan en CLAUDE.md en la Etapa 33)
+- **Se pueden eliminar funciones, pero solo las que nombra esta lista:** Historial de cambios, Buscar en mis recetas, Todas las preparaciones, Calcular para otras recetas, Cambiar comidas de una semana guardada, Con tu app de IA y los Deshacer de H-01, R-05, K-01 y K-16. Lo que esas funciones tenían guardado **no se borra**: sus claves `miPlatoFacil_*` quedan, entran al respaldo y se restauran igual. Solo se deja de mostrar.
+- **Sin listas desplegables** (`<details>` o equivalentes) en toda la app, salvo cuatro excepciones: "Consultar nutrientes" (Fuentes de datos), "Publicación e instalación" (Cómo funciona), "Comparar alternativas de precio" (dentro de Presupuesto) y el "Ver detalle" del aviso de la semana armada. Un control lo verifica en todas las pantallas.
+- **"Lo comí" reemplaza a "Lo cociné"** en toda la app. Los registros viejos de cocinado se siguen leyendo y cuentan como "Lo comí".
+- **IA solo con clave:** sin clave de Gemini guardada no aparece ningún botón ni sección de IA, salvo Más → Asistente de IA para cargarla.
+- Lo demás de CLAUDE.md sigue igual: datos, respaldo, 44 px, verde para acciones, rojo para borrar, tema claro y oscuro, voseo.
+
+### Cómo se controla cada ítem
+- En la Etapa 33 se crea `docs/ronda-5-lista.md` con la tabla de abajo y cuatro columnas más: Etapa, Prueba, Captura antes y Captura después, y Estado (⬜, ✅ o ⚠️).
+- Cada ítem tiene un control `R5-<ID>` en `docs/validacion/criterios.json` y una prueba que mira el resultado en la pantalla (texto visible, que exista o no exista un botón, que haya cero `<details>`, que un dato se guarde), no el código. Los errores (los ítems que dicen "Error:") se reproducen primero con una prueba que falla, y después se arreglan.
+- `validar-etapa.mjs N` falla si un ítem de la etapa N no está en ✅ con su prueba en verde. En la Etapa 44 falla si algún ítem de los 79 no está en ✅ o en ⚠️ con motivo.
+- El antes de cada ítem se captura al empezar su etapa (390 px, tema claro; los de modo oscuro, también en oscuro) y el después al cerrarla, en `docs/capturas-ronda-5/`.
+- `revisor-usuario` mira, en cada etapa, el antes y el después de cada ítem, y responde por ítem: HECHO o NO HECHO. Un NO HECHO es bloqueante.
+- `revisor-codigo` revisa las etapas que tocan datos guardados: 33, 35, 36, 39 y 41.
+- Antes de cerrar cada etapa, se corre la batería completa con la tipografía de este entorno y con DejaVu (la del runner de GitHub, ver el Registro de la v18.7.1).
+
+### Modo de trabajo
+- Ramas: integración `rediseno-5` desde `main`; cada etapa en `rediseno-5-etapa-N-tema`. Sin tags. Commit y push por parte.
+- Versión: 19.0.0 en la Etapa 33, después 19.1.0, 19.2.0…
+- Registro: sección "Registro de la Ronda 5", más abajo.
+- Las pruebas viejas que miraban algo que esta lista elimina o cambia se adaptan en el mismo commit, con el ítem que lo pide anotado en el Registro. La cantidad total de pruebas no baja.
+- Al terminar: (1) si `main` cambió, traerlo a `rediseno-5` con merge, reconstruir y volver a pasar la compuerta; (2) escribir `docs/informe-ronda-5.md` (tabla de los 79 ítems con estado, prueba y capturas; decisiones tomadas sin Facundo; pendientes); (3) abrir el PR `rediseno-5` → `main` con `gh api`, listo para revisar y con el informe como descripción, sin mergearlo.
+
+### Etapas
+| Etapa | Tema | Ítems |
+|---|---|---|
+| 33 | Reglas, lista de control y base (versión 19.0.0) | CLAUDE.md, `docs/ronda-5-lista.md`, controles `R5-*`, capturas |
+| 34 | Semana | S-11 a S-13, S-15 a S-19 |
+| 35 | Semanas anteriores y mes | S-01 a S-06, S-14 |
+| 36 | Completar precios | S-07 a S-10 |
+| 37 | Elegir o cambiar una comida | C-01 a C-04 |
+| 38 | Hoy | H-01 a H-05 |
+| 39 | Registro y "Lo comí" | R-01 a R-10 |
+| 40 | Comidas e IA | M-01 a M-10, A-01 |
+| 41 | Compras y Despensa | K-01 a K-17 |
+| 42 | Más | X-01 a X-10, G-01 |
+| 43 | Bienvenida | O-01, O-02 |
+| 44 | Cierre | recorrido final con `revisor-usuario` a 390, 360 y 320 px, claro y oscuro, con los 79 ítems; resumen al final de `docs/ronda-5-lista.md` |
+
+### La lista (79 ítems)
+Los mismos ítems, con su estado, están en `docs/ronda-5-lista.md`; esa tabla es la que se actualiza.
+
+| ID | Pedido |
+|---|---|
+| S-11 | "Compartir la semana" y "Descargar" se unifican en "Compartir la semana", con 3 opciones: Como texto, Como imagen y Descargar HTML. |
+| S-12 | Descargar HTML baja la semana que se está viendo (esta o la que viene). |
+| S-13 | En el menú ⋯, "Compartir la semana" va anteúltimo y "Empezar de nuevo", último. |
+| S-15 | Desde la Semana principal se puede elegir un plan guardado y aplicarlo a la semana que se ve (con Deshacer en el aviso de Semana). |
+| S-16 | Se elimina el botón y la sección "Historial de cambios" (los datos guardados quedan). |
+| S-17 | Los chips de los días no se ven apretados: mejor espaciado, y si hace falta se quita la barra verde con "4/4". Mínimo 8 px entre chips y nada encimado a 320 px. |
+| S-18 | Se eliminan "Buscar en mis recetas" y "Consultar mis recetas mientras planifico". |
+| S-19 | Al elegir o cambiar una comida, "Mis recetas" es una sección más, junto a Recientes, Mis comidas e Ideas. |
+| S-01 | Botones en lugar de listas desplegables, como en el resto de la app. |
+| S-02 | Al entrar a "Semanas anteriores y mes" el contenido se ve enseguida: sin el botón "Ver mis semanas en el mes" y sin ese título. |
+| S-03 | Sin contenido repetido: queda el calendario; debajo, "Semana anterior", "Semana siguiente" y "Guardar una copia del plan en esta semana", y el indicador del lunes. |
+| S-04 | Debajo, la lista de comidas igual a la de la Semana principal (tarjetas por día), no botones que abren desplegables. |
+| S-05 | Al tocar una comida ahí, la misma hoja que en Semana: Ver ingredientes o Ver receta, Cambiar, Cambiar por otra parecida, Cambiar por una más barata, Quitar y Cerrar. Los cambios se guardan en esa semana con fecha. |
+| S-06 | Se elimina el botón "Cambiar comidas de una semana guardada". |
+| S-14 | "Planes guardados" se usa desde acá: guardar el plan de la semana vista y aplicar uno guardado. Sale del menú ⋯ como botón propio y queda dentro de esta sección. |
+| S-07 | "Completar N precios" abre directo el primer producto con su formulario de precio, sin una lista intermedia para tocar el producto. |
+| S-08 | Botones "Anterior" y "Siguiente" para pasar de producto, con "2 de 5" a la vista. |
+| S-09 | "Guardar precios" guarda de una vez todos los que completaste y dice cuántos guardó. |
+| S-10 | Error: los frutos secos siguen apareciendo en "Completar precios" después de cargarles el precio. Reproducilo y arreglalo para todos los productos con el mismo problema. |
+| C-01 | Error: al cambiar una comida y armar una nueva con "+ Armar nueva", la comida armada no queda en el hueco. Que quede. |
+| C-02 | "Sugerirme" funciona igual en desayuno y merienda que en almuerzo y cena: sugiere una idea (no te pide armar una comida; para eso está "+ Armar nueva"). |
+| C-03 | Al ver una comida que tiene receta, botón "Editar receta"; si no tiene, "Añadir receta". |
+| C-04 | Con una dieta elegida (por ejemplo, vegetariano), al cambiar una comida no aparecen ideas que no la cumplen; tus comidas guardadas que no la cumplen se ven apagadas, con el motivo. |
+| H-01 | Se elimina el botón Deshacer que aparece debajo de las 4 comidas del día. |
+| H-02 | "Ver tu registro de hoy" sin la flecha y con el mismo formato que "Desayuno o merienda" y "Almuerzo o cena". |
+| H-03 | En "Sugerirme algo" se elimina el botón interno "Al azar" (hace lo mismo). |
+| H-04 | "Sugerirme algo" sugiere directo un plato con 3 opciones (Usar esta, Otra, Ver y cambiar), igual en desayuno y merienda que en almuerzo y cena. |
+| H-05 | Debajo del plan del día, se redistribuyen Ver tu registro de hoy, Mañana, Desayuno o merienda, Almuerzo o cena, Sugerirme algo y Con lo que tengo: un mismo formato de botón, agrupados por para qué sirven y en un orden claro. Proponé la distribución en el Registro con captura. |
+| R-01 | En toda la app, "Lo cociné" pasa a "Lo comí" (botones, hojas, textos y avisos). Los registros viejos de cocinado se muestran como "Lo comí". |
+| R-02 | En Registro se eliminan los botones "+ Lo comí" y "+ Lo cociné". |
+| R-03 | Se ve directo, sin desplegables, el contenido de "Anotar otra comida y ver la semana" y "Veces que comiste cada comida" (antes "cocinaste"; suma lo viejo de los dos registros). |
+| R-04 | Se elimina "Todas las preparaciones" con todo su contenido. |
+| R-05 | Se elimina el botón Deshacer del Registro. |
+| R-06 | Se mantiene pasar de una semana a otra (‹ ›). |
+| R-07 | Gráfico de barras de la semana: comidas registradas, del plan y fuera del plan. |
+| R-08 | Gráfico de barras de la semana: con verduras, con legumbres, con pescado y con fruta. Sin registros, el gráfico dice "Sin registros esta semana". |
+| R-09 | Gráfico de las últimas 4 semanas: presupuesto contra gasto real. El gasto sale de Compras realizadas y se puede corregir por semana (clave nueva `miPlatoFacil_gastoSemanal_v1`, opcional en el respaldo). |
+| R-10 | Los gráficos se dibujan sin librerías, se leen en claro y en oscuro, y cada barra dice su número. Si proponés un gráfico más, va al Registro como sugerencia, no se implementa. |
+| M-01 | Crear una receta nueva, reestructurado: pasos en orden, lo obligatorio marcado como obligatorio, lo opcional como opcional y sin desplegables. |
+| M-02 | "Con lo que tengo" en Ideas es un botón más grande (botón principal de ancho completo). |
+| M-03 | "Buscar con filtros" deja de ser desplegable: pasa a ser un botón, "Buscar por tiempo y método" o un nombre parecido, que abre la búsqueda. |
+| M-04 | En esa búsqueda se eliminan: los botones "Recetas" y "Crear receta"; el texto "Explorá ideas y recetas guardadas…" con su campo; "Ver solo mis recetas"; "Limpiar búsqueda"; "Ordenar resultados" y "Resultados por página". |
+| M-05 | Error: el filtro de tiempo da 0 resultados. Que filtre de verdad (por ejemplo, "hasta 20 min" muestra todas las ideas de 20 minutos o menos). |
+| M-06 | La lista de resultados muestra al menos 6 ideas en pantalla a 390×844 (tarjetas compactas) y se puede recorrer completa. |
+| M-07 | Filtros nuevos: método de preparación (horno, sartén, olla, sin cocción…) y precio por porción (hasta $1.500, hasta $2.500, más). |
+| M-08 | La búsqueda se fusiona con "Recomendaciones según mi despensa": un interruptor "Priorizar lo que tengo en la despensa". Se eliminan los textos largos de esa sección ("Ordena recetas guardadas…", "El modo combinado…", "Las preferencias existentes…", "Recomendaciones desactivadas" y los selectores de prioridad). |
+| M-09 | "Pedir ideas a la IA" es un botón, no un desplegable, y aparece solo con clave de Gemini. |
+| M-10 | Espaciado de la sección Ideas: al menos 12 px entre bloques y nada encimado a 320 px. |
+| A-01 | Sin clave de Gemini guardada no aparece ningún botón ni sección de IA en ninguna pantalla (incluido crear receta), salvo Más → Asistente de IA. "Con tu app de IA" se elimina. |
+| K-01 | Se elimina el botón Deshacer de Compras. |
+| K-02 | "Agregar producto" (y los formularios parecidos de Compras y Despensa) es un recuadro con los campos a la vista, con al menos 8 px entre el botón y el rótulo "Producto". |
+| K-03 | "Ya tenés" no es un desplegable: se ve directo. |
+| K-04 | Se puede sacar un producto de "Ya tenés" para que vuelva a la lista (con un botón en cada fila). |
+| K-05 | En ⋯, "Compras realizadas" abre su contenido directo, sin otro desplegable. |
+| K-06 | Se eliminan los botones "Compartir", "Copiar lista" y "Ver la semana" del pie de todas las subsecciones del menú ⋯ de Compras. |
+| K-07 | En Compras realizadas, cada producto muestra claro cantidad, unidad y precio, en una fila prolija; en tema oscuro el selector de unidad no tiene fondo blanco. |
+| K-08 | Compras realizadas muestra el total de la suma de los precios cargados, para compararlo con el ticket. |
+| K-09 | "Actualizar Mis precios" y "Sumar a la despensa" van en renglones separados. |
+| K-10 | Se elimina "Presupuesto" del menú ⋯ (ya está en la lista). |
+| K-11 | Se elimina "Compartir o copiar lista" del menú ⋯. |
+| K-12 | "Porciones, existencias y costos" sale del menú ⋯. Lo útil que no esté ya en la pestaña Despensa (cargar existencias con cantidad) pasa a Despensa sin desplegables; anotá en el Registro qué pasó y qué ya existía. |
+| K-13 | Se elimina "Calcular para otras recetas". |
+| K-14 | "Mis precios" y "Costo de una receta" abren su contenido directo, sin desplegables. |
+| K-15 | "Mis precios" avisa qué ingredientes no tienen precio (los de la semana primero) y deja elegir uno de una lista o escribir uno propio. |
+| K-16 | En Despensa se eliminan el botón Deshacer y "Todos los movimientos" (los datos quedan). |
+| K-17 | "Revisar qué tengo y qué falta" es un botón, no un desplegable. |
+| X-01 | En Preferencias, "Objetivos semanales" es un botón con el mismo estilo que el de Presupuesto, no un desplegable. |
+| X-02 | Al editar el presupuesto el contenido se ve directo, sin el desplegable "Presupuesto". La única excepción adentro es "Comparar alternativas de precio". |
+| X-03 | Error: en Comparar alternativas de precio, "Probá otro precio guardado" no cambia nada. Que cambie el precio usado y el total. |
+| X-04 | "Otros, separados por coma" pasa a "Otros" con un ⓘ al lado que, al tocarlo, explica "Escribí ingredientes separados por coma". |
+| X-05 | Espaciado en Ingredientes a evitar: al menos 8 px entre el título y su campo, y al menos 12 px entre "Ocultar diferencias", "Guardar preferencias" y "Limpiar preferencias". |
+| X-06 | "Ingredientes equivalentes" es una caja con título y contenido a la vista, como Ingredientes a evitar, sin desplegable, y con el texto espaciado. |
+| X-07 | Error: "Limpiar preferencias" no funciona. Que limpie (con Deshacer o confirmación en la página). |
+| X-08 | Error: en Asistente de IA, al pegar la clave y tocar "Guardar y probar" no pasa nada. Que guarde, pruebe y diga si funcionó o por qué no. |
+| X-09 | En Fuentes de datos, "Consultar nutrientes" sigue siendo desplegable, con al menos 8 px entre el rótulo "Ingrediente" y su campo. |
+| X-10 | En Cómo funciona, "Publicación e instalación" sigue siendo desplegable y se elimina el texto "Medio plato de verduras, un cuarto de almidones y un cuarto de proteínas." |
+| G-01 | Control global: en ninguna pantalla ni hoja hay listas desplegables, salvo las cuatro excepciones. |
+| O-01 | Antes de los 4 pasos, una presentación breve y atractiva de la app: qué hace y lo mejor que tiene (armar la semana en un toque, la lista con precios reales, recetas con pasos, Lo comí), mostrada de forma creativa (por ejemplo, 3 tarjetas que se pasan con ilustraciones hechas en la app). Se puede saltear. |
+| O-02 | Los 4 pasos se mantienen y se suma "Ingredientes a evitar" (con la dieta), dentro de un paso existente o en uno propio y opcional. |
+
+### Registro de la Ronda 5
+(Se completa etapa por etapa. Cada entrada lleva: ítems cerrados, archivos, pruebas nuevas y adaptadas, decisiones, veredicto de los revisores y la compuerta.)
+
+**Sugerencias de gráficos extra (R-10):** ninguna todavía; si surge una, va acá y no se implementa.
+
+**Pendientes para vos:** ninguno todavía.
