@@ -32,11 +32,13 @@
   T.ok("C3c no acepta fechas futuras", /no futura/.test($("consumptionStatus").textContent) && loadConsumption().length === 3);
   $("consumptionDate").value = typedAppDateLabel(today);
   const view = $("consumptionView").textContent;
-  T.ok("C4 resumen semanal: total, del plan y grupos", /3 comidas registradas · 2 del plan · 1 fuera del plan/.test(view) && /Con verduras: 2/.test(view) && /Con legumbres: 1/.test(view) && /Con pescado: 1/.test(view) && /1 registro sin grupos identificados/.test(view), view.slice(0, 260));
+  // Desde la v19.6 (R5-R07 y R08) el resumen semanal son gráficos de barras con su número.
+  const barras = () => [...document.querySelectorAll("#consumptionView .grafico__fila")].map(f => f.querySelector(".grafico__rotulo").textContent + "=" + f.querySelector(".grafico__valor").textContent);
+  T.ok("C4 resumen semanal: total, del plan y grupos", barras().includes("Registradas=3") && barras().includes("Del plan=2") && barras().includes("Fuera del plan=1") && barras().includes("Con verduras=2") && barras().includes("Con legumbres=1") && barras().includes("Con pescado=1") && /1 registro sin grupos identificados/.test(view), barras().join(" | "));
   $("goal_legumbres").value = "3"; $("goal_pescado").value = "1"; $("goal_verduras").value = "x"; $("habitGoalsSave").click(); await wait(10);
   const badGoal = $("habitGoalsStatus").textContent;
   $("goal_verduras").value = ""; $("habitGoalsSave").click(); await wait(10);
-  T.ok("C5 objetivos: valida y muestra el progreso", /entre 0 y 21/.test(badGoal) && JSON.stringify(loadHabitGoals()) === '{"legumbres":3,"pescado":1}' && /Con legumbres: 1 de 3 \(objetivo\)/.test($("consumptionView").textContent) && /Con pescado: 1 de 1 \(objetivo\) ✓/.test($("consumptionView").textContent), badGoal + " | " + JSON.stringify(loadHabitGoals()));
+  T.ok("C5 objetivos: valida y muestra el progreso", /entre 0 y 21/.test(badGoal) && JSON.stringify(loadHabitGoals()) === '{"legumbres":3,"pescado":1}' && barras().includes("Con legumbres=1 de 3") && barras().includes("Con pescado=1 de 1 ✓"), badGoal + " | " + JSON.stringify(loadHabitGoals()));
   document.querySelector('[data-consumption-week="-7"]').click(); await wait(10);
   T.ok("C6a navegar a la semana anterior", /Sin registros esta semana/.test($("consumptionView").textContent));
   document.querySelector('[data-consumption-week="7"]').click(); await wait(10);
@@ -45,11 +47,8 @@
   const antesDeQuitar = localStorage.getItem("miPlatoFacil_consumption_v1");
   document.querySelector("[data-consumption-remove]").click(); await wait(10);
   const quitado = loadConsumption().length === 2 && /Registro quitado/.test($("consumptionStatus").textContent), deshacerQuitar = $("consumptionStatus").querySelector("[data-registro-deshacer]");
-  if (deshacerQuitar) { deshacerQuitar.click(); await wait(10) }
-  const vuelto = localStorage.getItem("miPlatoFacil_consumption_v1") === antesDeQuitar;
-  document.querySelector("[data-consumption-remove]").click(); await wait(10);
   window.confirm = () => true;
-  T.ok("C6b quitar un registro, sin confirmación y con Deshacer", !pidioConfirmar && quitado && !!deshacerQuitar && vuelto && loadConsumption().length === 2 && /Registro quitado/.test($("consumptionStatus").textContent));
+  T.ok("C6b quitar un registro, sin confirmación y sin Deshacer en el Registro (R5-R05)", !pidioConfirmar && quitado && !deshacerQuitar && loadConsumption().length === 2 && /Registro quitado/.test($("consumptionStatus").textContent));
   T.ok("C7 las preparaciones (Cociné) no cambian", MisPlatos.loadSaved().every(p => (p.cooked || 0) === 0) && !localStorage.getItem("miPlatoFacil_cookingHistory_v1"));
   let err = null; const snap = completeBackupSnapshot(localStorage); try { Respaldo.validateCompleteBackup(snap) } catch (e) { err = e.message }
   const bad = JSON.parse(JSON.stringify(snap)); bad.data["miPlatoFacil_consumption_v1"] = JSON.stringify([{ id: "x", date: "2026-13-40", meal: "cena", title: "x", groups: [], sourceId: null, planned: false }]);

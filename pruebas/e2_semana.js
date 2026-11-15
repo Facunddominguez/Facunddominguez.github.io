@@ -186,7 +186,7 @@
   ev("hoja.cerrar()"); await espera(100);
   // v15.5: "Registro y objetivos" abre el Registro (un solo lugar para lo registrado) con Lo que comí abierto.
   await abrirHerr("consumo"); await espera(80);
-  herr.consumo = pantalla() === "registro" && visible($("consumptionPanel")) && $("consumptionPanel").open && $("consumptionView").textContent.trim().length > 0;
+  herr.consumo = pantalla() === "registro" && visible($("consumptionPanel")) && $("consumptionView").textContent.trim().length > 0;
   ok("C2-6 el menú ⋯ lista lo del plan y cada herramienta abre con sus datos", esperados.every(t => items.includes(t)) && Object.values(herr).every(Boolean), JSON.stringify(herr));
   await tocar(q("#homeTop"));
   ok("C2-6b desde una herramienta se vuelve a la Semana", pantalla() === "plan");

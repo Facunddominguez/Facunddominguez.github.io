@@ -1,6 +1,6 @@
 // Mi Plato Fácil · Registro (v15.5): un solo lugar para ver y corregir lo registrado, día por día.
 // Parte 43: los archivos se unen en orden según su número, que define el orden de arranque.
-// Junta "Lo comí" (miPlatoFacil_consumption_v1) y "Lo cociné" (miPlatoFacil_cookingHistory_v1) sin cambiar su formato,
+// Junta "Lo comí" (miPlatoFacil_consumption_v1) y lo que antes se llamaba "Lo cociné" (miPlatoFacil_cookingHistory_v1; desde la v19.6 también se muestra como "Lo comí") sin cambiar su formato,
 // y muestra aparte el contador "cooked" de cada plato, que no tiene fecha. Nada se combina ni se borra solo.
 // init() corre antes de este archivo: todo lo que se llama al pintar es una declaración function y el estado va en var.
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como Registro.nombre().
@@ -24,38 +24,61 @@ deshacerRegistro(n,el){
   registroRepintar();
   u.el.textContent="Listo, se deshizo."
 },
-anotarDesdeRegistro(tipo){
-  const fecha=typedAppDateLabel(registroFecha||registroHoy());
-  if(tipo==="comi"){
-    const p=document.getElementById("consumptionPanel");
-    document.getElementById("consumptionDate").value=fecha;
-    consumptionWeek=mondayOf(registroFecha||registroHoy());
-    if(!p.open)p.open=true;else renderConsumption();
-    p.scrollIntoView({
-      block:"start"
-    });
-    document.getElementById("consumptionPlate").focus()
-  }else{
-    const p=document.getElementById("cookingHistoryPanel");
-    document.getElementById("cookingHistoryDate").value=fecha;
-    if(!p.open)p.open=true;else renderCookingHistory();
-    p.scrollIntoView({
-      block:"start"
-    });
-    document.getElementById("cookingHistoryPlate").focus()
+// v19.6 (R5-R07 a R10): gráficos de barras sin librerías y gasto semanal corregible.
+guardarGastoSemanal(lunes,monto){
+  const todos=loadGastoSemanal();
+  todos[lunes]=monto;
+  localStorage.setItem(GASTO_SEMANAL_KEY,JSON.stringify(todos))
+},
+quitarGastoSemanal(lunes){
+  const todos=loadGastoSemanal();
+  delete todos[lunes];
+  if(Object.keys(todos).length)localStorage.setItem(GASTO_SEMANAL_KEY,JSON.stringify(todos));else localStorage.removeItem(GASTO_SEMANAL_KEY)
+},
+// Presupuesto contra gasto real de las 4 semanas que terminan en la que se ve. El gasto sale de Compras realizadas (compras de esa semana
+// en la moneda del presupuesto) y se puede corregir por semana (miPlatoFacil_gastoSemanal_v1).
+graficoGastoSemanal(lunes){
+  const budget=typeof shoppingBudgetRead==="function"?shoppingBudgetRead():null,moneda=budget?budget.currency:"ARS",corr=loadGastoSemanal(),
+    fmt=n=>(moneda==="USD"?"US$":"$")+Math.round(n).toLocaleString("es-AR"),
+    semanal=budget?(budget.period==="mes"?budget.limit*7/30:budget.limit):null,
+    semanas=[3,2,1,0].map(i=>{const d=new Date(lunes+"T12:00:00");d.setDate(d.getDate()-7*i);return Rutina.localTrainingDate(d)}),filas=[];
+  let hayGasto=false;
+  for(const w of semanas){
+    const g=gastoDeLaSemana(w,moneda),corregido=Object.prototype.hasOwnProperty.call(corr,w),monto=corregido?corr[w]:g,etiqueta=typedAppDateLabel(w).slice(0,5);
+    if(monto>0)hayGasto=true;
+    if(semanal!==null)filas.push({rotulo:etiqueta+" · Presupuesto",valor:semanal,clase:"presupuesto"});
+    filas.push({rotulo:etiqueta+" · Gasto"+(corregido?" ✎":""),valor:monto,clase:semanal!==null&&monto>semanal?"fuera":"total"})
   }
+  const caja=ce("div","grafico-gasto"),grafico=graficoBarras("Presupuesto y gasto · últimas 4 semanas",filas,{id:"graficoGasto",formato:fmt});
+  caja.append(grafico);
+  if(semanal===null)caja.append(ce("p","screen__hint","Sin presupuesto cargado: poné uno en Preferencias para compararlo con el gasto."));
+  else if(!hayGasto)caja.append(ce("p","screen__hint","Todavía no hay compras registradas en estas semanas. Cargalas en Compras realizadas o escribí el gasto acá abajo."));
+  const actual=corr[lunes]!==undefined?corr[lunes]:gastoDeLaSemana(lunes,moneda),campo=ce("div","portion-field"),etiqueta=ce("label",null,"Gasto de la semana del "+typedAppDateLabel(lunes).slice(0,5)+" ("+(moneda==="USD"?"US$":"$")+")"),inp=ce("input"),
+    guardar=ce("button","button button--soft","Guardar gasto"),estado=ce("p","screen__hint");
+  inp.id="gastoSemanaMonto";inp.type="text";inp.inputMode="decimal";inp.value=actual?String(Math.round(actual*100)/100).replace(".",","):"";
+  etiqueta.htmlFor="gastoSemanaMonto";
+  guardar.type="button";guardar.dataset.gastoGuardar=lunes;
+  estado.id="gastoSemanaEstado";estado.setAttribute("aria-live","polite");
+  campo.append(etiqueta,inp);
+  caja.append(campo,guardar);
+  if(corr[lunes]!==undefined){
+    const quitar=ce("button","button button--soft","Usar lo de Compras");
+    quitar.type="button";quitar.dataset.gastoQuitar=lunes;
+    caja.append(quitar)
+  }
+  caja.append(estado);
+  return caja
 },
 restarContador(id){
   const a=MisPlatos.loadSaved(),it=a.find(x=>x.id===id),st=document.getElementById("registroEstado");
   if(!it||!((it.cooked||0)>0))return;
-  const antes=registroFoto();
   it.cooked=it.cooked-1;
   if(!MisPlatos.persistSaved(a)){
     st.textContent="No se pudo guardar el cambio.";
     return
   }
   registroRepintar();
-  registroAviso(st,"Restaste una vez a "+mealName(it)+".",antes)
+  st.textContent="Restaste una vez a "+mealName(it)+"."
 }
 };
 var registroFecha=null;
@@ -88,11 +111,7 @@ function registroAviso(el,texto,antes){
 // Solo deshace si los datos siguen exactamente como los dejó esa acción; si no, no toca nada y avisa.
 // Después de cambiar un registro, se actualiza todo lo que lo muestra.
 function registroRepintar(){
-  for(const f of [()=>renderToday(),()=>renderPlan(),()=>renderSaved(),()=>{
-    if(document.getElementById("consumptionPanel").open)renderConsumption()
-  },()=>{
-    if(document.getElementById("cookingHistoryPanel").open)renderCookingHistory()
-  },()=>refrescarDetalleComida(),()=>{
+  for(const f of [()=>renderToday(),()=>renderPlan(),()=>renderSaved(),()=>renderConsumption(),()=>refrescarDetalleComida(),()=>{
     if(stack.at(-1)==="registro")renderRegistro()
   }]){
     try{
@@ -168,7 +187,7 @@ function registroFila(r){
   const fila=ce("div","registro-fila");
   fila.dataset.registroTipo=r.tipo;
   fila.dataset.registroId=r.id;
-  const texto=(r.tipo==="comi"?"🍽️ Lo comí · ":"🍳 Lo cociné · ")+registroNombreComida(r.meal)+" · "+r.title+(r.tipo==="comi"&&r.planned?" (del plan)":"");
+  const texto="🍽️ Lo comí · "+registroNombreComida(r.meal)+" · "+r.title+(r.tipo==="comi"&&r.planned?" (del plan)":"");
   fila.append(ce("span","registro-fila__texto",texto));
   const b=ce("button","button button--danger registro-fila__quitar","Quitar");
   b.type="button";
@@ -177,22 +196,30 @@ function registroFila(r){
   fila.append(b);
   return fila
 }
+// "Veces que comiste cada comida": el contador de siempre (lo anotado antes de que hubiera fecha y lo que antes se llamaba "Lo cociné") más
+// los "Lo comí" con fecha de cada comida.
 function renderRegistroContadores(){
   const box=document.getElementById("registroContadoresLista");
   if(!box)return;
-  const hist=loadCookingHistory(),platos=MisPlatos.loadSaved().filter(p=>(p.cooked||0)>0);
-  box.replaceChildren(...platos.map(p=>{
-    const conFecha=hist.filter(h=>h.sourceId===p.id).length,fila=ce("div","registro-fila");
+  const consumo=loadConsumption(),filas=[];
+  for(const p of MisPlatos.loadSaved()){
+    const hechas=consumo.filter(x=>x.sourceId===p.id).length,veces=(p.cooked||0)+hechas;
+    if(!veces)continue;
+    const fila=ce("div","registro-fila");
     fila.dataset.registroContador=p.id;
-    fila.append(ce("span","registro-fila__texto",mealName(p)+" · "+p.cooked+" ve"+(p.cooked===1?"z":"ces")+" ("+conFecha+" con fecha)"));
-    const b=ce("button","button button--soft registro-fila__quitar","−1");
-    b.type="button";
-    b.dataset.registroRestar=p.id;
-    b.setAttribute("aria-label","Restar una vez a "+mealName(p));
-    fila.append(b);
-    return fila
-  }));
-  if(!platos.length)box.append(ce("p","screen__hint","Todavía no hay contadores."))
+    fila.dataset.veces=String(veces);
+    fila.append(ce("span","registro-fila__texto",mealName(p)+" · "+veces+" ve"+(veces===1?"z":"ces")));
+    if((p.cooked||0)>0){
+      const b=ce("button","button button--soft registro-fila__quitar","−1");
+      b.type="button";
+      b.dataset.registroRestar=p.id;
+      b.setAttribute("aria-label","Restar una vez a "+mealName(p));
+      fila.append(b)
+    }
+    filas.push(fila)
+  }
+  box.replaceChildren(...filas);
+  if(!filas.length)box.append(ce("p","screen__hint","Todavía no anotaste ninguna comida."))
 }
 function renderRegistro(){
   const hoy=registroHoy();
@@ -218,7 +245,8 @@ function renderRegistro(){
     b.setAttribute("aria-label",registroEtiquetaDia(f)+": "+n+" registro"+(n===1?"":"s"));
     return b
   }));
-  renderRegistroContadores()
+  renderRegistroContadores();
+  try{renderConsumption()}catch(e){}
 }
 // La única entrada: Más, Hoy, Semana ⋯ y el detalle de una comida.
 function abrirRegistro(op){
@@ -230,11 +258,12 @@ function abrirRegistro(op){
     if(hoja.abierta())hoja.cerrar()
   }catch(e){
   }
+  go("registro");
   if(op.abrir==="comi"){
+    renderConsumption();
     const p=document.getElementById("consumptionPanel");
-    if(!p.open)p.open=true;else renderConsumption()
+    if(p&&p.scrollIntoView)p.scrollIntoView({block:"start"})
   }
-  go("registro")
 }
 // El último día con un registro de esa comida (y, en las recetas, de sus copias del plan).
 function registroUltimaFecha(ids){
@@ -286,16 +315,88 @@ document.addEventListener("click",e=>{
     renderRegistro();
     return
   }
-  if(d.registroAnotar)return Registro.anotarDesdeRegistro(d.registroAnotar);
+  if(d.gastoGuardar){
+    const est=document.getElementById("gastoSemanaEstado"),t=document.getElementById("gastoSemanaMonto").value.trim(),n=Number(t.replace(/\./g,"").replace(",","."));
+    if(!t||!Number.isFinite(n)||n<0||n>100000000000){est.textContent="Escribí el gasto con números (por ejemplo, 45000).";return}
+    try{
+      Registro.guardarGastoSemanal(d.gastoGuardar,n);
+      consumptionWeek=d.gastoGuardar;renderConsumption();
+      document.getElementById("gastoSemanaEstado").textContent="Guardé el gasto de esa semana."
+    }catch(err){
+      est.textContent="No se pudo guardar (falta de espacio u otro error)."
+    }
+    return
+  }
+  if(d.gastoQuitar){
+    try{
+      Registro.quitarGastoSemanal(d.gastoQuitar);
+      consumptionWeek=d.gastoQuitar;renderConsumption();
+      document.getElementById("gastoSemanaEstado").textContent="Volvió al total de Compras realizadas."
+    }catch(err){
+      document.getElementById("gastoSemanaEstado").textContent="No se pudo guardar el cambio."
+    }
+    return
+  }
   if(d.registroRestar)return Registro.restarContador(d.registroRestar);
   if(d.registroQuitar){
     const [tipo,id]=d.registroQuitar.split("|"),fila=b.closest(".registro-fila"),texto=fila?fila.querySelector(".registro-fila__texto").textContent:"";
     try{
-      const antes=quitarRegistro(tipo,id);
+      quitarRegistro(tipo,id);
       registroRepintar();
-      registroAviso(st,"Quitaste: "+texto+"."+(tipo==="cocine"?" La despensa no cambia.":""),antes)
+      // Desde la v19.6 (R5-R05) el Registro no ofrece Deshacer.
+      st.textContent="Quitaste: "+texto+"."+(tipo==="cocine"?" La despensa no cambia.":"")
     }catch(err){
       st.textContent=err.message
     }
   }
 });
+
+// Gráfico de barras horizontales sin librerías: cada barra lleva su rótulo y su número. filas: [{rotulo,valor,clase,meta}];
+// opciones: id, vacio (texto en lugar de barras), formato (número → texto).
+function graficoBarras(titulo,filas,op){
+  op=op||{};
+  const caja=ce("div","grafico");
+  if(op.id)caja.id=op.id;
+  caja.append(ce("h4","grafico__titulo",titulo));
+  if(op.vacio){
+    caja.append(ce("p","screen__hint grafico__vacio",op.vacio));
+    return caja
+  }
+  const fmt=op.formato||(n=>String(n)),max=Math.max(1,...filas.map(f=>Math.max(f.valor||0,f.meta||0)));
+  caja.setAttribute("role","img");
+  caja.setAttribute("aria-label",titulo+": "+filas.map(f=>f.rotulo+" "+fmt(f.valor||0)+(f.meta?" de "+f.meta:"")).join(", "));
+  for(const f of filas){
+    const fila=ce("div","grafico__fila"),barra=ce("span","grafico__barra"),relleno=ce("span","grafico__relleno"+(f.clase?" grafico__relleno--"+f.clase:""));
+    relleno.style.width=Math.round((f.valor||0)/max*1000)/10+"%";
+    barra.append(relleno);
+    if(f.meta){
+      const marca=ce("span","grafico__meta");
+      marca.style.left=Math.round(f.meta/max*1000)/10+"%";
+      barra.append(marca)
+    }
+    fila.dataset.valor=String(f.valor||0);
+    fila.append(ce("span","grafico__rotulo",f.rotulo),barra,ce("strong","grafico__valor",fmt(f.valor||0)+(f.meta?" de "+f.meta+((f.valor||0)>=f.meta?" ✓":""):"")));
+    caja.append(fila)
+  }
+  return caja
+}
+// Gasto semanal corregido a mano (miPlatoFacil_gastoSemanal_v1): {"2026-10-19": 45000}. Opcional en el respaldo.
+var GASTO_SEMANAL_KEY="miPlatoFacil_gastoSemanal_v1";
+function validGastoSemanal(o){
+  return !!o&&typeof o==="object"&&!Array.isArray(o)&&Object.keys(o).length<=260&&Object.entries(o).every(([k,v])=>/^\d{4}-\d{2}-\d{2}$/.test(k)&&Rutina.validTrainingDate(k)&&Number.isFinite(v)&&v>=0&&v<=100000000000)
+}
+function loadGastoSemanal(){
+  try{
+    const o=JSON.parse(localStorage.getItem(GASTO_SEMANAL_KEY)||"{}");
+    return validGastoSemanal(o)?o:{}
+  }catch(e){
+    return {}
+  }
+}
+// Lo que suman las compras registradas en la semana que empieza ese lunes, en esa moneda.
+function gastoDeLaSemana(lunes,moneda){
+  const fin=new Date(lunes+"T12:00:00");
+  fin.setDate(fin.getDate()+6);
+  const hasta=Rutina.localTrainingDate(fin);
+  return loadPurchases().filter(p=>p.date>=lunes&&p.date<=hasta&&p.currency===moneda).reduce((t,p)=>t+(Number(p.total)||0),0)
+}

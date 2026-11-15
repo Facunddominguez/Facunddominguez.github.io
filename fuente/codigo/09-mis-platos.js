@@ -88,7 +88,7 @@ cookedPlate(id){
     return
   }
   renderSaved();
-  const msg="¡Registrado! Cocinaste este plato "+it.cooked+" ve"+(it.cooked===1?"z":"ces")+".";
+  const msg="¡Registrado! Comiste este plato "+it.cooked+" ve"+(it.cooked===1?"z":"ces")+".";
   savedStatus(msg);
   const det=document.getElementById("comidaEstado");
   registroAviso(stack.at(-1)==="comida"&&det?det:document.getElementById("savedStatus"),msg,antes);
@@ -158,7 +158,7 @@ savedRecipeCard(r,amounts,inPlan){
   const meta=[r.minutes?"⏱ "+r.minutes+" min":"",a&&a.yield?"Rinde "+String(a.yield).replace(".",",")+" porci"+(a.yield===1?"ón":"ones"):"",r.steps.length?r.steps.length+" paso"+(r.steps.length===1?"":"s"):"",inPlan?"📅 En el plan":""].filter(Boolean).join(" · ");
   if(meta)card.append(ce("div","recipe-lib-card__meta",meta));
   const acts=ce("div","recipe-lib-card__actions");
-  for(const [text,key] of [["Ver receta","savedRecipeView"],["🍳 Lo cociné","savedRecipeCook"],["Planificar","savedRecipePlan"],["Editar","savedRecipeEdit"]]){
+  for(const [text,key] of [["Ver receta","savedRecipeView"],["🍽️ Lo comí","savedRecipeCook"],["Planificar","savedRecipePlan"],["Editar","savedRecipeEdit"]]){
     const b=ce("button","button button--soft",text);
     b.type="button";
     b.dataset[key]=r.id;
@@ -329,7 +329,7 @@ function savedCard(item){
   ul.style.fontSize="13px";
   lines.forEach(t=>ul.append(ce("li",null,t)));
   const c=item.cooked||0;
-  const meta=ce("div",null,MisPlatos.fmtWhen(item.savedAt)+(c>0?" · 👨‍🍳 Cocinado "+c+" ve"+(c===1?"z":"ces"):""));
+  const meta=ce("div",null,MisPlatos.fmtWhen(item.savedAt)+(c>0?" · 🍽️ Comido "+c+" ve"+(c===1?"z":"ces"):""));
   meta.style.color="var(--muted)";
   meta.style.fontSize="12px";
   meta.style.marginTop="6px";
@@ -339,7 +339,7 @@ function savedCard(item){
   tog.dataset.toggleActions=item.id;
   tog.setAttribute("aria-expanded",String(open));
   const acts=ce("div","summary-actions"+(open?"":" is-hidden"));
-  const bCook=ce("button","button button--soft","🍳 Lo cociné");
+  const bCook=ce("button","button button--soft","🍽️ Lo comí");
   bCook.type="button";
   bCook.dataset.cookSaved=item.id;
   const bFav=ce("button","button button--soft",item.fav?"⭐ Favorito":"☆ Favorito");

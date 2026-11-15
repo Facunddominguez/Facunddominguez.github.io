@@ -29,7 +29,6 @@ afterOneTap(){
     Existencias.renderStockQuantities()
   }catch(e){
   }
-  if(document.getElementById("cookingHistoryPanel").open)renderCookingHistory();
   if(stack.at(-1)==="registro")renderRegistro();
   if(stack.at(-1)==="compras")renderCompras()
 },
@@ -55,7 +54,7 @@ cookRecipeNow(id){
       throw err
     }
   }
-  let text="Anotado: cocinaste "+r.title+" hoy.";
+  let text="Anotado: comiste "+r.title+" hoy.";
   if(res.moves.length)text+=" Se descontó de tu despensa: "+res.moves.map(oneTapQty).join(", ")+".";
   else text+=hasQty?" No había nada registrado en tu despensa para descontar.":" La receta no tiene cantidades: la despensa no cambió.";
   if(res.short.length)text+=" No alcanzó: "+res.short.join("; ")+".";

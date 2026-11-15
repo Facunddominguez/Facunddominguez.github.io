@@ -75,37 +75,40 @@
   await tocar(q('#registroDias [data-registro-ir="2026-10-21"]')); await tocar(q('#registro [data-registro-dia="-1"]'));
   exigir("‹ un día", ev("registroFecha") === "2026-10-20" && filas().length === J(CONS).filter(x => x.date === "2026-10-20").length + J(HIST).filter(x => x.date === "2026-10-20").length);
   // Veces que cocinaste: los platos con contador, con cuántas veces tienen fecha.
-  await tocar(q("#registroContadores summary"));
-  const conContador = J(SAVED).filter(p => (p.cooked || 0) > 0);
+  // Desde la v19.6 (R5-R03) "Veces que comiste cada comida" está a la vista y suma el contador y los Lo comí con fecha.
+  const veces = p => (p.cooked || 0) + J(CONS).filter(x => x.sourceId === p.id).length;
+  const conContador = J(SAVED).filter(p => veces(p) > 0);
   const contadores = qa("#registroContadoresLista [data-registro-contador]").filter(visible);
-  exigir("contadores", contadores.length === conContador.length && conContador.every(p => { const f = contadores.find(c => c.dataset.registroContador === p.id), n = J(HIST).filter(h => h.sourceId === p.id).length; return f && f.innerText.includes(p.cooked + " ve") && f.innerText.includes("(" + n + " con fecha)") }), contadores.map(c => c.innerText).join(" | "));
+  exigir("contadores", contadores.length === conContador.length && conContador.every(p => { const f = contadores.find(c => c.dataset.registroContador === p.id); return f && Number(f.dataset.veces) === veces(p) && f.innerText.includes(veces(p) + " ve") }), contadores.map(c => c.innerText).join(" | "));
   exigir("recorrer no escribe", todo() === antes1);
-  // Quitar uno de cada tipo y deshacer deja todo como estaba.
+  // Quitar uno de cada tipo borra solo ese registro; desde la v19.6 (R5-R05) el Registro no ofrece Deshacer.
   await tocar(q('#registroDias [data-registro-ir="2026-10-21"]'));
   const comi21 = filas().find(f => f.tipo === "comi"), cocine21 = filas().find(f => f.tipo === "cocine");
   await tocar(comi21.quitar);
   const sinComi = !JSON.parse(localStorage.getItem(CONS)).some(x => x.id === comi21.id) && !fila(comi21.id);
-  const d1 = await deshacer();
   await tocar(fila(cocine21.id).quitar);
   const sinCocine = !JSON.parse(localStorage.getItem(HIST)).some(x => x.id === cocine21.id) && /La despensa no cambia/.test($("registroEstado").textContent);
-  const d2 = await deshacer();
-  exigir("quitar y deshacer", sinComi && sinCocine && d1 && d2 && todo() === antes1 && !!fila(comi21.id) && !!fila(cocine21.id));
+  exigir("quitar sin deshacer", sinComi && sinCocine && !doc().querySelector("#registro [data-registro-deshacer]") && !fila(comi21.id) && !fila(cocine21.id)
+    && JSON.stringify(JSON.parse(localStorage.getItem(CONS)).map(x => x.id)) === JSON.stringify(J(CONS).filter(x => x.id !== comi21.id).map(x => x.id)) && JSON.stringify(JSON.parse(localStorage.getItem(HIST)).map(x => x.id)) === JSON.stringify(J(HIST).filter(x => x.id !== cocine21.id).map(x => x.id)) && localStorage.getItem(SAVED) === R.data[SAVED]);
   exigir("sin confirmaciones", !pidioConfirmar);
-  ok("C6-1 hay un solo lugar para ver y corregir lo registrado: el Registro muestra cada Lo comí y Lo cociné en su día, los contadores aparte, Quitar con Deshacer, y ninguna otra pantalla muestra registros", !faltan.length, faltan.join("; "));
+  ok("C6-1 hay un solo lugar para ver y corregir lo registrado: el Registro muestra cada Lo comí y Lo cociné en su día, los contadores aparte, Quitar sin Deshacer, y ninguna otra pantalla muestra registros", !faltan.length, faltan.join("; "));
 
   // C6-2 Las cuatro entradas llegan al Registro en 2 toques o menos
+  // Desde la v19.6 el Registro no deshace los Quitar de arriba: se vuelve a cargar el respaldo de ejemplo.
+  localStorage.clear(); w.Respaldo.restoreCompleteBackup(JSON.parse(JSON.stringify(R)), w.localStorage); localStorage.setItem("miPlatoFacil_uiMode_v1", "completo"); await abrir();
+  const antes2 = todo();
   const llega = [];
   await irA("mas"); toques = 0; await tocar(q("#sectionNav [data-section-tab=\"mas\"]")); await tocar(q("#sectionSettings [data-open-registro]"));
   llega.push(["Más", pantalla() === "registro" && toques <= 2]);
   await irA("hoy"); toques = 0; await tocar(q("#sectionNav [data-section-tab=\"hoy\"]")); await tocar($("todayRegistro"));
   llega.push(["Hoy", pantalla() === "registro" && toques <= 2 && ev("registroFecha") === hoyF() && ev("activeTab") === "hoy"]);
   await irA("semana"); toques = 0; await tocar(q("#plan [data-plan-menu]")); await tocar(q('.hoja [data-plan-herr="consumo"]')); await espera(80);
-  llega.push(["Semana", pantalla() === "registro" && toques <= 2 && $("consumptionPanel").open && visible($("consumptionSave"))]);
+  llega.push(["Semana", pantalla() === "registro" && toques <= 2 && visible($("consumptionPanel")) && visible($("consumptionSave"))]);
   await irA("miscomidas"); await tocar(q('#savedList .comida-card[data-comida-id="plato_p3"]')); toques = 0; await tocar(q("#comidaRegistro [data-open-registro]"));
-  llega.push(["comida plato_p3", pantalla() === "registro" && toques <= 1 && ev("registroFecha") === "2026-10-21"]);
+  llega.push(["comida plato_p3 " + pantalla() + " " + toques + " " + ev("registroFecha"), pantalla() === "registro" && toques <= 1 && ev("registroFecha") === "2026-10-21"]);
   await irA("miscomidas"); await tocar(q('#savedList .comida-card[data-recipe-id="recipe_guiso001"]')); await tocar(q("#comidaRegistro [data-open-registro]"));
   llega.push(["receta guiso", pantalla() === "registro" && ev("registroFecha") === "2026-10-20"]);
-  ok("C6-2 Más, Hoy, Semana ⋯ y el detalle de una comida llevan al Registro en 2 toques o menos (la comida, a su último día)", llega.every(x => x[1]) && todo() === antes1, llega.filter(x => !x[1]).map(x => x[0]).join(", "));
+  ok("C6-2 Más, Hoy, Semana ⋯ y el detalle de una comida llevan al Registro en 2 toques o menos (la comida, a su último día)", llega.every(x => x[1]) && todo() === antes2, llega.filter(x => !x[1]).map(x => x[0]).join(", "));
 
   // C6-3 Lo comí en Hoy: se ve en el Registro; Quitar (la clave queda vacía y se borra) y Deshacer la vuelven a crear igual
   cargar({ [SAVED]: JSON.stringify([plato("t1", "Pollo con arroz")]), miPlatoFacil_plan: "" });
@@ -117,8 +120,8 @@
   const r3 = filas().find(f => f.tipo === "comi");
   await tocar(r3.quitar);
   const borrada = localStorage.getItem(CONS) === null && !!doc().querySelector('#todayRows [data-today-slot="almuerzo"] [data-plan-eaten]');
-  const d3 = await deshacer();
-  ok("C6-3 Lo comí de Hoy aparece en el Registro; Quitar vuelve a 'Lo comí' en Hoy y Deshacer restituye la clave byte a byte", marca && !!r3 && /Pollo con arroz/.test(r3.texto) && borrada && d3 && localStorage.getItem(CONS) === conUno && /✓ Lo comí/.test(q('#todayRows [data-today-slot="almuerzo"]').textContent) && localStorage.getItem("miPlatoFacil_plan") === plan3 && !pidioConfirmar, JSON.stringify({ marca, r3: !!r3, borrada, d3, igual: localStorage.getItem(CONS) === conUno, conf: pidioConfirmar, texto: r3 && r3.texto }));
+  const sinChip3 = !doc().querySelector("#registro [data-registro-deshacer]");
+  ok("C6-3 Lo comí de Hoy aparece en el Registro; Quitar vuelve a 'Lo comí' en Hoy (la clave queda vacía y no hay Deshacer en el Registro)", marca && !!r3 && /Pollo con arroz/.test(r3.texto) && borrada && sinChip3 && !/✓ Lo comí/.test(q('#todayRows [data-today-slot="almuerzo"]').textContent) && localStorage.getItem("miPlatoFacil_plan") === plan3 && !pidioConfirmar, JSON.stringify({ marca, r3: !!r3, borrada, sinChip3, conf: pidioConfirmar, texto: r3 && r3.texto }));
 
   // C6-4 Lo cociné de un plato: contador +1 y preparación de hoy; Deshacer; respaldo; Quitar no toca el contador; −1
   cargar({ [SAVED]: JSON.stringify([plato("t1", "Pollo con arroz", 0)]) });
@@ -127,7 +130,7 @@
   const antes4 = tres();
   await tocar(q('#comidaPlatoAcciones [data-cook-saved="t1"]'));
   const h4 = JSON.parse(localStorage.getItem(HIST) || "[]"), c4 = JSON.parse(localStorage.getItem(SAVED))[0].cooked;
-  const anota = c4 === 1 && h4.length === 1 && h4[0].sourceId === "t1" && h4[0].date === hoyF() && w.validCookingHistoryRecord(h4[0]) && /Cocinaste/.test($("comidaEstado").textContent);
+  const anota = c4 === 1 && h4.length === 1 && h4[0].sourceId === "t1" && h4[0].date === hoyF() && w.validCookingHistoryRecord(h4[0]) && /Comiste/.test($("comidaEstado").textContent);
   const d4 = await deshacer("#comidaEstado");
   const deshecho4 = d4 && tres() === antes4 && localStorage.getItem(HIST) === null;
   await tocar(q('#comidaPlatoAcciones [data-cook-saved="t1"]'));
@@ -139,12 +142,9 @@
   const r4 = filas().find(f => f.tipo === "cocine");
   await tocar(r4.quitar);
   const contadorQueda = JSON.parse(localStorage.getItem(SAVED))[0].cooked === 1 && JSON.parse(localStorage.getItem(HIST)).length === 0;
-  await tocar(q("#registroContadores summary"));
   await tocar(q('[data-registro-restar="t1"]'));
-  const bajo = JSON.parse(localStorage.getItem(SAVED))[0].cooked === 0 && !doc().querySelector('[data-registro-restar="t1"]');
-  const d4b = await deshacer();
-  const vuelve = d4b && JSON.parse(localStorage.getItem(SAVED))[0].cooked === 1 && !!doc().querySelector('[data-registro-restar="t1"]');
-  ok("C6-4 Lo cociné de un plato suma el contador y anota la preparación de hoy (válida para el respaldo); Deshacer, Quitar sin tocar el contador y −1 con Deshacer", anota && deshecho4 && err4 === null && restaurado && !!r4 && contadorQueda && bajo && vuelve && !pidioConfirmar, JSON.stringify({ anota, deshecho4, err4, restaurado, contadorQueda, bajo, vuelve }));
+  const bajo = JSON.parse(localStorage.getItem(SAVED))[0].cooked === 0 && !doc().querySelector('[data-registro-restar="t1"]') && !doc().querySelector("#registro [data-registro-deshacer]");
+  ok("C6-4 Lo comí de un plato (antes Lo cociné) suma el contador y anota la preparación de hoy (válida para el respaldo); Deshacer en el detalle, Quitar sin tocar el contador y −1 sin Deshacer en el Registro", anota && deshecho4 && err4 === null && restaurado && !!r4 && contadorQueda && bajo && !pidioConfirmar, JSON.stringify({ anota, deshecho4, err4, restaurado, contadorQueda, bajo }));
 
   // C6-5 Lo cociné de una receta aparece en el día; quitarla en el Registro no toca la despensa
   const RID = "recipe_e6prue01";
@@ -162,30 +162,23 @@
   if (r5) await tocar(r5.quitar);
   ok("C6-5 Lo cociné de una receta aparece en el Registro; quitarlo no cambia la despensa ni los movimientos", descontado && !!r5 && localStorage.getItem(HIST) === "[]" && localStorage.getItem(STOCK) === stock5 && localStorage.getItem(MOVES) === moves5 && /La despensa no cambia/.test($("registroEstado").textContent));
 
-  // C6-6 "+ Lo comí" y "+ Lo cociné" desde un día pasado; fecha futura; preparación repetida sin confirmación; › no pasa de hoy
+  // C6-6 Anotar una comida en un día pasado desde el formulario del Registro (ya no hay "+ Lo comí" ni "+ Lo cociné"); fecha futura; › no pasa de hoy
   cargar({ [SAVED]: JSON.stringify([plato("t1", "Pollo con arroz", 0)]) });
   await abrir(); await irA("mas"); await tocar(q("#sectionSettings [data-open-registro]"));
   await tocar(q('#registro [data-registro-dia="-1"]'));
   const ayer = ev("registroFecha"), ayerL = w.typedAppDateLabel(ayer);
-  await tocar(q('[data-registro-anotar="comi"]'));
-  const fechaComi = $("consumptionDate").value === ayerL && $("consumptionPanel").open;
+  const sinMas = !doc().querySelector("[data-registro-anotar]");
+  $("consumptionDate").value = ayerL;
   $("consumptionMeal").value = "cena"; $("consumptionPlate").value = ""; $("consumptionText").value = "Empanadas";
   await tocar($("consumptionSave"));
-  const comiAyer = JSON.parse(localStorage.getItem(CONS) || "[]").filter(x => x.date === ayer && x.title === "Empanadas").length === 1 && filas().some(f => /Empanadas/.test(f.texto)) && !!$("consumptionStatus").querySelector("[data-registro-deshacer]");
+  const comiAyer = JSON.parse(localStorage.getItem(CONS) || "[]").filter(x => x.date === ayer && x.title === "Empanadas").length === 1 && filas().some(f => /Empanadas/.test(f.texto)) && /Registrado/.test($("consumptionStatus").textContent) && !$("consumptionStatus").querySelector("[data-registro-deshacer]");
   const antesFut = localStorage.getItem(CONS);
   $("consumptionDate").value = "01/01/2099"; $("consumptionText").value = "Algo"; await tocar($("consumptionSave"));
   const futura = localStorage.getItem(CONS) === antesFut && /no futura/.test($("consumptionStatus").textContent);
-  await tocar(q('[data-registro-anotar="cocine"]'));
-  const fechaCocine = $("cookingHistoryDate").value === ayerL && $("cookingHistoryPanel").open;
-  $("cookingHistoryPlate").value = "t1"; $("cookingHistoryMeal").value = "Cena";
-  await tocar(q('#cookingHistoryForm [type="submit"]')); await tocar(q('#cookingHistoryForm [type="submit"]'));
-  const dos = JSON.parse(localStorage.getItem(HIST) || "[]").filter(x => x.date === ayer).length === 2 && /Ya había una igual/.test($("cookingHistoryStatus").textContent);
-  const d6 = await deshacer("#cookingHistoryStatus");
-  const uno = d6 && JSON.parse(localStorage.getItem(HIST)).length === 1 && filas().filter(f => f.tipo === "cocine").length === 1;
   await tocar(q('#registro [data-registro-dia="1"]'));
   const enHoy = ev("registroFecha") === hoyF() && q('#registro [data-registro-dia="1"]').disabled;
   q('#registro [data-registro-dia="1"]').disabled = false; await tocar(q('#registro [data-registro-dia="1"]'));
-  ok("C6-6 '+ Lo comí' y '+ Lo cociné' anotan en el día elegido con Deshacer; una fecha futura no se anota; › no pasa de hoy", fechaComi && comiAyer && futura && fechaCocine && dos && uno && enHoy && ev("registroFecha") === hoyF() && !pidioConfirmar, JSON.stringify({ fechaComi, comiAyer, futura, fechaCocine, dos, uno, enHoy }));
+  ok("C6-6 el formulario del Registro anota en el día elegido (sin '+' ni Deshacer); una fecha futura no se anota; › no pasa de hoy", sinMas && comiAyer && futura && enHoy && ev("registroFecha") === hoyF() && !pidioConfirmar, JSON.stringify({ sinMas, comiAyer, futura, enHoy }));
 
   // C6-7 Datos raros: lo que no se puede leer no se pisa ni se descarta
   const raro = { id: "raro", date: "no es fecha", meal: 3 };
@@ -199,7 +192,7 @@
   await tocar(fila("h_c").quitar);
   const crudo = JSON.parse(localStorage.getItem(HIST));
   const raroQueda = JSON.stringify(crudo[0]) === JSON.stringify(raro) && crudo.length === 3;
-  await tocar(q('[data-registro-anotar="cocine"]')); $("cookingHistoryPlate").value = "t1"; await tocar(q('#cookingHistoryForm [type="submit"]'));
+  await irA("miscomidas"); await tocar(q('#savedList .comida-card[data-comida-id="t1"]')); await tocar(q('#comidaPlatoAcciones [data-cook-saved="t1"]'));
   const raroSigue = JSON.stringify(JSON.parse(localStorage.getItem(HIST))[0]) === JSON.stringify(raro) && JSON.parse(localStorage.getItem(HIST)).length === 4;
   // Historial que no es un arreglo: Lo cociné de un plato no escribe nada y avisa.
   localStorage.setItem(HIST, '{"no":"es un arreglo"}');
@@ -211,36 +204,34 @@
   localStorage.setItem(CONS, consMalo); localStorage.setItem(HIST, "[]");
   await irA("mas"); await tocar(q("#sectionSettings [data-open-registro]"));
   const nadaComi = !filas().some(f => f.tipo === "comi");
-  await tocar(q('[data-registro-anotar="comi"]')); $("consumptionText").value = "Algo"; $("consumptionDate").value = w.typedAppDateLabel(hoyF()); await tocar($("consumptionSave"));
+  $("consumptionText").value = "Algo"; $("consumptionDate").value = w.typedAppDateLabel(hoyF()); await tocar($("consumptionSave"));
   const noPisa = localStorage.getItem(CONS) === consMalo && /No se pudo leer/.test($("consumptionStatus").textContent);
   ok("C6-7 datos raros: orden por comida, títulos como texto; un registro inválido no se descarta al quitar ni al agregar; lo que no se puede leer no se pisa", orden && comoTexto && raroQueda && raroSigue && noEscribe && nadaComi && noPisa, JSON.stringify({ orden, comoTexto, raroQueda, raroSigue, noEscribe, nadaComi, noPisa }));
 
-  // C6-8 Sin confirmaciones: los Quitar del Registro y de sus plegables ofrecen Deshacer
+  // C6-8 Sin confirmaciones: los Quitar del Registro y de su semana no piden confirmación ni ofrecen Deshacer (R5-R05)
   localStorage.clear(); w.Respaldo.restoreCompleteBackup(JSON.parse(JSON.stringify(R)), w.localStorage);
   await abrir(); await irA("mas"); await tocar(q("#sectionSettings [data-open-registro]"));
-  const antes8 = todo(), con = [];
+  const con = [];
   await tocar(q('#registroDias [data-registro-ir="2026-10-22"]'));
-  await tocar(filas()[0].quitar); con.push(["fila", await deshacer()]);
-  await tocar(q('[data-registro-anotar="comi"]'));
+  const idFila = filas()[0].id, nCons = JSON.parse(localStorage.getItem(CONS)).length, nHist = JSON.parse(localStorage.getItem(HIST)).length;
+  await tocar(filas()[0].quitar); con.push(["fila", !fila(idFila) && !doc().querySelector("#registro [data-registro-deshacer]")]);
   ev('consumptionWeek = mondayOf("2026-10-22"); renderConsumption()'); await espera(60);
-  await tocar(q("#consumptionView [data-consumption-remove]")); con.push(["Lo que comí", await deshacer("#consumptionStatus")]);
-  await tocar(q('[data-registro-anotar="cocine"]'));
-  await tocar(q("#cookingHistoryList [data-cooking-history-delete]")); con.push(["preparaciones", await deshacer("#cookingHistoryStatus")]);
-  ok("C6-8 ningún Quitar pide confirmación: todos ofrecen Deshacer y dejan los datos como estaban", !pidioConfirmar && con.every(x => x[1]) && todo() === antes8, con.filter(x => !x[1]).map(x => x[0]).join(", "));
+  const antesSemana = JSON.parse(localStorage.getItem(CONS)).length;
+  await tocar(q("#consumptionView [data-consumption-remove]")); con.push(["Lo que comí", JSON.parse(localStorage.getItem(CONS)).length === antesSemana - 1 && !doc().querySelector("#registro [data-registro-deshacer]") && /Registro quitado/.test($("consumptionStatus").textContent)]);
+  ok("C6-8 ningún Quitar del Registro pide confirmación ni ofrece Deshacer: cada uno borra solo su registro", !pidioConfirmar && con.every(x => x[1]) && JSON.parse(localStorage.getItem(CONS)).length + JSON.parse(localStorage.getItem(HIST)).length === nCons + nHist - 2, con.filter(x => !x[1]).map(x => x[0]).join(", "));
 
   // C6-9 Primera vez: el Registro abre en hoy, vacío, con los dos "+", y mirar no escribe nada
   localStorage.clear(); await abrir();
   const antes9 = todo();
   await irA("mas"); await tocar(q("#sectionSettings [data-open-registro]"));
   await tocar(q('#registro [data-registro-dia="-1"]')); await tocar(q('#registro [data-registro-dia="1"]'));
-  await tocar(q("#registroContadores summary"));
-  ok("C6-9 primera vez: el Registro abre en hoy con 'Nada registrado este día' y los dos '+', sin chips, y mirarlo no escribe nada", pantalla() === "registro" && ev("registroFecha") === hoyF() && /Nada registrado este día/.test($("registroLista").textContent) && visible(q('[data-registro-anotar="comi"]')) && visible(q('[data-registro-anotar="cocine"]')) && !qa("#registroDias [data-registro-ir]").length && todo() === antes9);
+  ok("C6-9 primera vez: el Registro abre en hoy con 'Nada registrado este día', el formulario a la vista y sin '+', sin chips, y mirarlo no escribe nada", pantalla() === "registro" && ev("registroFecha") === hoyF() && /Nada registrado este día/.test($("registroLista").textContent) && visible($("consumptionSave")) && !doc().querySelector("[data-registro-anotar]") && !qa("#registroDias [data-registro-ir]").length && todo() === antes9);
 
   // C6-10 Cada Deshacer es de su acción: un chip viejo que sigue a la vista no deshace una acción más nueva
   cargar({ [SAVED]: JSON.stringify([plato("t1", "Pollo con arroz", 0)]), miPlatoFacil_plan: planDe([[DIAS[(new Date().getDay() + 6) % 7], "almuerzo", "t1"]]) });
   await abrir(); await irA("hoy");
   await tocar(q('#todayRows [data-today-slot="almuerzo"] [data-plan-eaten]'));
-  // Desde la v19.5 (R5-H-01) Hoy no tiene Deshacer: solo queda el de "Lo cociné".
+  // Desde la v19.5 (R5-H-01) Hoy no tiene Deshacer: solo queda el del detalle de la comida.
   const sinChipHoy = !doc().querySelector("#todayStatus [data-today-undo]");
   await irA("miscomidas"); await tocar(q('#savedList .comida-card[data-comida-id="t1"]'));
   await tocar(q('#comidaPlatoAcciones [data-cook-saved="t1"]'));
@@ -251,9 +242,9 @@
   chipViejo.click(); await espera(80);
   const viejoNoHace = tres() === despuesQuitar && /No se puede deshacer/.test(q("#comidaEstado").textContent);
   const hoyNoHace = sinChipHoy;
-  const nuevoHace = await deshacer();
-  const vuelveComi = JSON.parse(localStorage.getItem(CONS) || "[]").length === 1 && JSON.parse(localStorage.getItem(SAVED))[0].cooked === 1;
-  ok("C6-10 cada Deshacer es de su propia acción: un chip viejo (Lo cociné) no toca nada y avisa, Hoy ya no ofrece Deshacer y el más nuevo deshace lo suyo", viejoNoHace && hoyNoHace && nuevoHace && vuelveComi && !pidioConfirmar, JSON.stringify({ viejoNoHace, hoyNoHace, nuevoHace, vuelveComi }));
+  const nuevoHace = !doc().querySelector("#registro [data-registro-deshacer]");
+  const vuelveComi = JSON.parse(localStorage.getItem(CONS) || "[]").length === 0 && JSON.parse(localStorage.getItem(SAVED))[0].cooked === 1;
+  ok("C6-10 cada Deshacer es de su propia acción: un chip viejo (Lo comí del detalle) no toca nada y avisa, Hoy y el Registro ya no ofrecen Deshacer y Quitar no toca el contador", viejoNoHace && hoyNoHace && nuevoHace && vuelveComi && !pidioConfirmar, JSON.stringify({ viejoNoHace, hoyNoHace, nuevoHace, vuelveComi }));
 
   if (marco) marco.remove();
   localStorage.clear();

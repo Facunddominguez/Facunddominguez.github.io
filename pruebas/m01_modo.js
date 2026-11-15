@@ -88,7 +88,7 @@
   await porMenu("consumo", ["#consumptionPanel", "#consumptionSave", "#consumptionView"]);
   const registrosAntes = loadConsumption().length;
   $("consumptionMeal").value = "merienda"; $("consumptionPlate").value = ""; $("consumptionText").value = "Prueba de modo simple"; $("consumptionSave").click(); await wait(20);
-  if (loadConsumption().length !== registrosAntes + 1 || !/1 comida registrada|comidas registradas/.test($("consumptionView").textContent)) essentials.push("Lo que comí no registró");
+  if (loadConsumption().length !== registrosAntes + 1 || !/Registradas\s*[1-9]/.test($("consumptionView").textContent)) essentials.push("Lo que comí no registró");
   // Descargar HTML (desde la v19.1 está en Compartir la semana): pide la descarga del plan (sin bajar nada de verdad).
   await menuSemana(); document.querySelector(".hoja [data-compartir-semana-menu]").click(); await wait(30);
   const blobs = [], crear = URL.createObjectURL, clic = HTMLAnchorElement.prototype.click;

@@ -95,11 +95,11 @@
   const cocinadoAntes = guardados().find(x => x.id === idPlato).cooked || 0;
   await tocar(q('#comidaPlatoAcciones [data-cook-saved="' + idPlato + '"]'));
   const prepHoy = JSON.parse(localStorage.getItem("miPlatoFacil_cookingHistory_v1") || "[]").filter(x => x.sourceId === idPlato && x.date === w.Rutina.localTrainingDate(new w.Date())).length === 1;
-  const cocinado = (guardados().find(x => x.id === idPlato).cooked || 0) === cocinadoAntes + 1 && /Cocinaste/.test($("comidaEstado").textContent) && prepHoy;
+  const cocinado = (guardados().find(x => x.id === idPlato).cooked || 0) === cocinadoAntes + 1 && /Comiste/.test($("comidaEstado").textContent) && prepHoy;
   const antesCompartir = todo(); let compartido = "";
   w.navigator.share = d => { compartido = d.text; return Promise.resolve() };
   await tocar(q("#comida [data-comida-compartir]"));
-  ok("C4-4b Lo cociné cuenta como antes y Compartir manda el texto sin escribir nada", cocinado && compartido.startsWith(ev("mealName(MisPlatos.loadSaved().find(x => x.id === " + JSON.stringify(idPlato) + "))")) && todo() === antesCompartir, compartido.slice(0, 40));
+  ok("C4-4b Lo comí (antes Lo cociné) cuenta como antes y Compartir manda el texto sin escribir nada", cocinado && compartido.startsWith(ev("mealName(MisPlatos.loadSaved().find(x => x.id === " + JSON.stringify(idPlato) + "))")) && todo() === antesCompartir, compartido.slice(0, 40));
   await tocar(q("#comida [data-comida-menu]")); await tocar(q('.hoja [data-del-saved="' + idPlato + '"]')); await espera(60);
   ok("C4-4c Eliminar (menú ⋯) borra solo ese plato y vuelve a Mis comidas", !guardados().some(x => x.id === idPlato) && pantalla() === "misplatos" && !hojaAbierta());
   cargar(conReceta()); await abrir(); await irA("miscomidas");
