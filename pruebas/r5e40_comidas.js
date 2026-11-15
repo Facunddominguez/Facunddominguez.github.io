@@ -198,7 +198,7 @@
   // R5-M-01: crear una receta nueva, en pasos ordenados, con lo obligatorio y lo opcional marcados y sin desplegables.
   await H.abrir({ ...H.MARCA, ...PRECIOS });
   ev('openTab("miscomidas")'); await espera(250); await tocar(q("#misplatos [data-comida-nueva]"), 300); await tocar(q(".hoja [data-nueva-receta]"), 400);
-  const ed = $("recetaEditar"), pasos = [...ed.querySelectorAll(".receta-paso")];
+  const ed = $("recetaEditar"), pasos = [...ed.querySelectorAll(".receta-paso")].filter(H.visible);
   const titulos = pasos.map(p => norm(p.querySelector(".receta-paso__titulo").textContent));
   const enOrden = pasos.every((p, i) => i === 0 || (pasos[i - 1].compareDocumentPosition(p) & 4) && p.getBoundingClientRect().top > pasos[i - 1].getBoundingClientRect().top);
   const campos = ["recipeDetailsTitle", "recipeIngredientAdd", "recipeDetailsSteps", "recipeTags", "recipeMinutes", "recipeDetailsNotes", "recipeDetailsSave"].map(id => H.visible($(id)));

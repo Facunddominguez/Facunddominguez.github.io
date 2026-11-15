@@ -26,7 +26,7 @@
   T.ok("E4 datos inválidos avisan y no guardan", /entre 1 y 1440/.test(m1) && /Ingrediente = Reemplazo/.test(m2) && localStorage.getItem("miPlatoFacil_recipeDetails_v1") === before, m1 + " / " + m2);
   $("recipeSubstitutions").value = "Papa = Batata";
   // Búsqueda (Ronda 5): el método sale de los pasos y las etiquetas, el tiempo filtra ideas y recetas propias
-  const filtro = (grupo, v) => { document.querySelector('#recipeDetailsPanel [data-buscar="' + grupo + '"][data-valor="' + v + '"]').click() };
+  const filtro = (grupo, v) => { const b = v === "" ? document.querySelector('#recipeDetailsPanel [data-buscar="' + grupo + '"].is-selected') : document.querySelector('#recipeDetailsPanel [data-buscar="' + grupo + '"][data-valor="' + v + '"]'); if (b) b.click() };
   const tarjetas = () => [...document.querySelectorAll("#recipeCatalogResults .recipe-catalog-card")];
   const nombres = () => tarjetas().map(c => c.querySelector("strong").textContent);
   showRecipeView("browse"); filtro("metodo", "horno"); await wait(10);
