@@ -46,8 +46,8 @@
   delete pr.old; localStorage.setItem("miPlatoFacil_referencePrices_v1", JSON.stringify(pr));
   go("ingredientes"); showRecipeView("browse"); showRecipeRead("recipe_test0001");
   T.ok("G10a la receta muestra costo total y por porción", /Costo estimado con tus precios: 1\.500,00 ARS \(375,00 por porción\) · 1 ingrediente sin precio o sin cantidad/.test($("recipeReadIngredients").textContent), $("recipeReadIngredients").textContent);
-  closeRecipeRead(false); $("recipeRecommendPantry").checked = true; recipeCatalogPage = 0; renderRecipeCatalog();
-  T.ok("G10b la tarjeta permite comparar el costo entre recetas", /Costo estimado con tus precios: 1\.500,00 ARS \(375,00 por porción\)/.test($("recipeCatalogResults").textContent));
+  closeRecipeRead(false); $("recipeRecommendPantry").checked = true; const todasLasPaginas = () => { let t = ""; recipeCatalogPage = 0; renderRecipeCatalog(); for (let i = 0; i < 12; i++) { t += document.getElementById("recipeCatalogResults").textContent; if (document.getElementById("recipeCatalogNext").disabled) break; recipeCatalogPage++; renderRecipeCatalog() } recipeCatalogPage = 0; return t };
+  T.ok("G10b la tarjeta permite comparar el costo entre recetas", /Costo estimado con tus precios: 1\.500,00 ARS \(375,00 por porción\)/.test(todasLasPaginas()));
   $("recipeRecommendPantry").checked = false; renderRecipeCatalog();
   // Remove purchase and backup
   go("compras"); await R.openPanel("shoppingToolsPanel"); await R.openPanel("purchasesPanel");
