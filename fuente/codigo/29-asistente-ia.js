@@ -1,4 +1,4 @@
-// Mi Plato Fácil · Asistente de IA: con tu app de IA o con Gemini directo.
+// Mi Plato Fácil · Asistente de IA: solo con una clave de Gemini guardada (sin clave no aparece ningún botón de IA).
 // Parte 30: los archivos se unen en orden según su número, que define el orden de arranque.
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como AsistenteIA.nombre().
 var AsistenteIA={
@@ -51,7 +51,7 @@ geminiError(status,msg){
   if(status===400&&/api key/i.test(msg))return "La clave de Gemini no es válida.";
   if(status===401||status===403)return "La clave no tiene permiso para usar Gemini (revisala en Google AI Studio).";
   if(status===404)return "El modelo de Gemini ya no está disponible. Volvé a guardar la clave para elegir otro.";
-  if(status===429)return "Se alcanzó el límite gratuito de Gemini por ahora. Probá más tarde o usá tu app de IA.";
+  if(status===429)return "Se alcanzó el límite gratuito de Gemini por ahora. Probá más tarde.";
   if(status>=500)return "Gemini no está respondiendo ahora. Probá más tarde.";
   return "Gemini respondió con un error ("+status+")."
 },
@@ -103,7 +103,7 @@ async geminiGenerate(prompt){
       }
     })
   }),c=j&&Array.isArray(j.candidates)&&j.candidates[0],text=c&&c.content&&Array.isArray(c.content.parts)?c.content.parts.map(p=>typeof p.text==="string"?p.text:"").join(""):"";
-  if(!text)throw Error("Gemini no devolvió una respuesta. Probá de nuevo o usá tu app de IA.");
+  if(!text)throw Error("Gemini no devolvió una respuesta. Probá de nuevo.");
   return text
 },
 recipeEditorHasContent(){
@@ -146,27 +146,25 @@ handleAiAnswer(kind,text){
   AsistenteIA.renderAiIdeas(ideas);
   return ideas.length+" idea"+(ideas.length===1?"":"s")+" lista"+(ideas.length===1?"":"s")+": elegí una para verla como receta."
 },
-async aiCopy(prompt,box){
-  try{
-    if(navigator.clipboard&&window.isSecureContext){
-      await navigator.clipboard.writeText(prompt);
-      return true
-    }
-  }catch(e){
-  }
-  const ta=box.querySelector("[data-ai-prompt]");
-  ta.value=prompt;
-  ta.closest("details").open=true;
-  ta.focus();
-  ta.select();
-  try{
-    return document.execCommand("copy")
-  }catch(e){
-    return false
-  }
-},
 renderAllAiRunners(){
-  document.querySelectorAll(".ai-runner").forEach(renderAiRunner)
+  document.querySelectorAll(".ai-runner").forEach(renderAiRunner);
+  AsistenteIA.pintarVisibilidadIA()
+},
+// Sin clave de Gemini guardada no se ve ningún botón ni sección de IA (A-01); con clave, se ven los que llevan data-solo-con-clave.
+pintarVisibilidadIA(){
+  const hay=!!loadAiSettings().key;
+  document.querySelectorAll("[data-solo-con-clave]").forEach(e=>{
+    e.hidden=!hay;
+    if(!hay&&e.dataset.abrePanel){
+      e.setAttribute("aria-expanded","false");
+      const panel=document.getElementById(e.dataset.abrePanel);
+      if(panel)panel.hidden=true
+    }
+  })
+},
+pintarIdeasConLoQueTengo(){
+  const have=AsistenteIA.aiAvailableIngredients();
+  document.getElementById("aiIdeasHave").textContent=have.length?"Vas a usar: "+have.join(", ")+".":"Todavía no marcaste ingredientes en tu despensa ni cargaste existencias."
 },
 renderAiSettings(){
   const s=loadAiSettings(),inp=document.getElementById("aiKeyInput");
@@ -208,54 +206,24 @@ function aiRecipeFromJson(o){
 }
 var AI_FORMAT_RULES="Reglas: \"unidad\" debe ser una de g, kg, ml, l, unidad, cucharada, cucharadita, taza; si no corresponde ninguna o no se sabe, usá null. \"cantidad\" es un número (1/2 → 0.5) o null si no se sabe. No inventes ingredientes ni cantidades. Usá nombres de ingredientes en español de Argentina (papa, palta, morrón, choclo, zapallo, porotos), en singular cuando se pueda. Un paso por elemento de \"pasos\", en orden. \"etiquetas\": hasta 5 palabras cortas (por ejemplo vegetariana, horno, rápida).";
 function renderAiRunner(box){
-  const kind=box.dataset.ai,s=loadAiSettings(),actions=ce("div","summary-actions"),mk=(cls,txt,attr)=>{
-    const b=ce("button","button "+cls,txt);
-    b.type="button";
-    b.setAttribute(attr,"");
-    return b
-  };
+  const s=loadAiSettings(),actions=ce("div","summary-actions"),st=ce("p","screen__hint");
   box.replaceChildren();
-  if(s.key)actions.append(mk("button--primary","✨ Pedir a Gemini","data-ai-gemini"));
-  actions.append(mk("button--soft","Copiar pedido para tu IA","data-ai-copy"));
-  if(navigator.share)actions.append(mk("button--soft","Compartir pedido","data-ai-share"));
-  box.append(actions);
-  if(!s.key)box.append(ce("p","screen__hint","Copiá el pedido, pegalo en tu app de IA (ChatGPT, Gemini u otra) y después pegá acá la respuesta. Para que la app consulte sola, configurá Gemini en Más → Asistente de IA."));
-  const det=ce("details"),pr=ce("textarea");
-  pr.readOnly=true;
-  pr.rows=5;
-  pr.setAttribute("data-ai-prompt","");
-  pr.setAttribute("aria-label","Pedido para la IA");
-  det.append(ce("summary",null,"Ver el pedido"),pr);
-  const id="aiAnswer_"+kind,lab=ce("label",null,"Respuesta de tu app de IA"),ans=ce("textarea"),st=ce("p","screen__hint");
-  lab.htmlFor=id;
-  ans.id=id;
-  ans.rows=4;
-  ans.maxLength=100000;
-  ans.placeholder="Pegá acá la respuesta completa";
+  if(!s.key)return;
+  const b=ce("button","button button--primary","✨ Pedir a Gemini");
+  b.type="button";
+  b.setAttribute("data-ai-gemini","");
+  actions.append(b);
   st.setAttribute("aria-live","polite");
   st.setAttribute("data-ai-status","");
-  box.append(det,lab,ans,mk("button--soft","Usar respuesta","data-ai-use"),st)
+  box.append(actions,st)
 }
 document.addEventListener("click",async e=>{
-  const btn=e.target.closest&&e.target.closest(".ai-runner button");if(!btn)return;const box=btn.closest(".ai-runner"),kind=box.dataset.ai,status=box.querySelector("[data-ai-status]");try{
-    if(btn.hasAttribute("data-ai-use")){
-      status.textContent=AsistenteIA.handleAiAnswer(kind,box.querySelector("#aiAnswer_"+kind).value);return
-    }const prompt=AsistenteIA.aiPrompt(kind);box.querySelector("[data-ai-prompt]").value=prompt;if(btn.hasAttribute("data-ai-copy")){
-      status.textContent=await AsistenteIA.aiCopy(prompt,box)?"Pedido copiado. Pegalo en tu app de IA y después pegá acá la respuesta.":"Seleccioná el pedido de arriba y copialo a mano.";return
-    }if(btn.hasAttribute("data-ai-share")){
-      try{
-        await navigator.share({
-          title:"Pedido para tu IA",text:prompt
-        })
-      }catch(err){
-        if(err&&err.name==="AbortError")return;throw Error("No se pudo compartir. Usá Copiar pedido.")
-      }status.textContent="Cuando tengas la respuesta, pegala acá abajo.";return
-    }if(btn.hasAttribute("data-ai-gemini")){
-      btn.disabled=true;status.textContent="Consultando a Gemini…";try{
-        const answer=await AsistenteIA.geminiGenerate(prompt);status.textContent=AsistenteIA.handleAiAnswer(kind,answer)
-      }finally{
-        btn.disabled=false
-      }
+  const btn=e.target.closest&&e.target.closest(".ai-runner button[data-ai-gemini]");if(!btn)return;const box=btn.closest(".ai-runner"),kind=box.dataset.ai,status=box.querySelector("[data-ai-status]");try{
+    const prompt=AsistenteIA.aiPrompt(kind);
+    btn.disabled=true;status.textContent="Consultando a Gemini…";try{
+      const answer=await AsistenteIA.geminiGenerate(prompt);status.textContent=AsistenteIA.handleAiAnswer(kind,answer)
+    }finally{
+      btn.disabled=false
     }
   }catch(err){
     status.textContent=err.message
@@ -277,9 +245,6 @@ document.getElementById("aiKeyDelete").addEventListener("click",()=>{
     localStorage.removeItem("miPlatoFacil_aiSettings_v1")
   }catch(e){
   }AsistenteIA.renderAiSettings();AsistenteIA.renderAllAiRunners();document.getElementById("aiKeyStatus").textContent="Clave borrada de este dispositivo."
-});
-document.getElementById("aiIdeasPanel").addEventListener("toggle",e=>{
-  if(!e.target.open)return;const have=AsistenteIA.aiAvailableIngredients();document.getElementById("aiIdeasHave").textContent=have.length?"Vas a usar: "+have.join(", ")+".":"Todavía no marcaste ingredientes en tu despensa ni cargaste existencias."
 });
 AsistenteIA.renderAllAiRunners();
 AsistenteIA.renderAiSettings();

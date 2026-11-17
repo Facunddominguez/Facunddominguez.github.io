@@ -20,9 +20,13 @@
   const PRES = l => ({ miPlatoFacil_shoppingBudget_v1: JSON.stringify({ currency: "ARS", limit: l, period: "semana" }) });
   const pesos = t => { const m = /\$([\d.]+)/.exec(t || ""); return m ? Number(m[1].replace(/\./g, "")) : null };
 
+  // Las semillas de "Armame la semana" dependen de la semana actual: se arma con la de la semana del 9/11/2026
+  // (la que tiene productos sin precio real con los precios congelados) para que el resultado no cambie según el día en que se corre.
+  const armarFijo = modo => `(() => { const o = Semana.semanaActual; Semana.semanaActual = () => "2026-11-09"; let a; try { a = ArmameSemana.armar({ modo: "${modo}" }) } finally { Semana.semanaActual = o } return ArmameSemana.aplicar(a) })()`;
+
   // E20-mismo-total: el total de la semana es el mismo en el aviso, Semana, Compras y la barra de presupuesto.
   cargar({ ...MARCA, ...PRES(70000) }); await abrir();
-  const res = ev(`(() => { const r = ArmameSemana.aplicar(ArmameSemana.armar({ modo: "todo" })); return JSON.stringify({ costo: r.costo, txt: ArmameSemana.resumen(r), faltan: r.faltan }) })()`);
+  const res = ev(`(() => { const r = ${armarFijo("todo")}; return JSON.stringify({ costo: r.costo, txt: ArmameSemana.resumen(r), faltan: r.faltan }) })()`);
   const r = JSON.parse(res); await espera(200);
   const delAviso = pesos(/≈ \$[\d.]+ la semana/.exec(r.txt) && /≈ \$[\d.]+ la semana/.exec(r.txt)[0]);
   ev('openTab("semana")'); await espera(250);

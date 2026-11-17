@@ -158,15 +158,15 @@ abrirNuevaComida(){
   }),opcion("🥗","Almuerzo o cena","Armala con el método del plato",()=>{
   },{
     start:"plato"
-  }),opcion("📝","Escribir receta","Ingredientes y preparación",()=>document.getElementById("recipeViewCreate").click(),{
+  }),opcion("📝","Escribir receta","Ingredientes y preparación",()=>nuevaRecetaEnBlanco(),{
     nuevaReceta:""
-  }),opcion("✨","Pegar receta con IA","La IA la ordena y vos la revisás",()=>{
-    document.getElementById("recipeViewCreate").click();const p=document.getElementById("aiRecipePanel");p.open=true;p.scrollIntoView({
+  }),...(loadAiSettings().key?[opcion("✨","Pegar receta con IA","La IA la ordena y vos la revisás",()=>{
+    nuevaRecetaEnBlanco();alternarPanel(document.getElementById("aiRecipeBoton"),true);document.getElementById("aiRecipePanel").scrollIntoView({
       block:"start"
     })
   },{
     pegarReceta:""
-  }));
+  })]:[]));
   hoja.abrir({
     titulo:"Nueva comida",contenido:[grilla],botones:[],foco:false
   })

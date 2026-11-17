@@ -4,9 +4,9 @@
   window.confirm = () => true;
   reset();
   const fillRow = (row, name, q, u) => { row.querySelector("[data-amount-name]").value = name; row.querySelector("[data-amount-quantity]").value = q; row.querySelector("[data-amount-unit]").value = u };
-  const createRecipe = async title => { go("ingredientes"); await wait(30); document.getElementById("recipeViewCreate").click(); await wait(20); document.getElementById("recipeDetailsTitle").value = title; document.getElementById("recipeDetailsSteps").value = "Picar\nCocinar"; document.getElementById("recipeDetailsSave").click(); await wait(20); return Object.values(loadRecipeDetails()).find(r => r.title === title).id };
+  const createRecipe = async title => { go("ingredientes"); await wait(30); nuevaRecetaEnBlanco(); await wait(20); document.getElementById("recipeDetailsTitle").value = title; document.getElementById("recipeDetailsSteps").value = "Picar\nCocinar"; document.getElementById("recipeDetailsSave").click(); await wait(20); return Object.values(loadRecipeDetails()).find(r => r.title === title).id };
   const panel = document.getElementById("recipeAmountsPanel"), sel = document.getElementById("amountRecipe");
-  const reopen = async () => { panel.open = false; await wait(15); panel.open = true; await wait(60) };
+  const reopen = async () => { alternarPanel(document.getElementById("amountsAbrir"), false); await wait(15); alternarPanel(document.getElementById("amountsAbrir"), true); CantidadesCostos.abrirPanelDeCantidades(); await wait(60) };
   const choose = async value => { sel.value = value; sel.dispatchEvent(new Event("change", { bubbles: true })); await wait(30) };
   const id = await createRecipe("Guiso de la abuela");
   await reopen();

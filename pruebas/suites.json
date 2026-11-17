@@ -70,6 +70,7 @@
     "r5e36_completar.js",
     "r5e37_comida.js",
     "r5e38_hoy.js",
-    "r5e39_registro.js"
+    "r5e39_registro.js",
+    "r5e40_comidas.js"
   ]
 }

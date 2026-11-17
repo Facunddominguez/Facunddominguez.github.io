@@ -18,8 +18,9 @@
   go("compras"); await wait(60);
   document.getElementById("shoppingQuantCostPanel").open = true; document.getElementById("shoppingMarkPantry").checked = true; shoppingQuantityAndCost(); await wait(30);
   T.ok("P4 'Ajustar porciones' marca Papa como marcada en despensa", /Papa \(marcado en despensa; cantidad disponible desconocida\)/.test(document.getElementById("shoppingQuantCostResult").textContent));
-  go("ingredientes"); document.getElementById("recipeRecommendPantry").checked = true; recipeCatalogPage = 0; renderRecipeCatalog(); await wait(30);
-  T.ok("P5 recomendaciones indican 'marcado, sin cantidad medida'", /Papa \(marcado, sin cantidad medida\)/.test(document.getElementById("recipeCatalogResults").textContent));
+  go("ingredientes"); document.getElementById("recipeRecommendPantry").checked = true; await wait(30);
+  const todasLasPaginas = () => { let t = ""; recipeCatalogPage = 0; renderRecipeCatalog(); for (let i = 0; i < 12; i++) { t += document.getElementById("recipeCatalogResults").textContent; if (document.getElementById("recipeCatalogNext").disabled) break; recipeCatalogPage++; renderRecipeCatalog() } recipeCatalogPage = 0; return t };
+  T.ok("P5 recomendaciones indican 'marcado, sin cantidad medida'", /Papa \(marcado, sin cantidad medida\)/.test(todasLasPaginas()));
   document.getElementById("recipeRecommendPantry").checked = false; document.getElementById("shoppingMarkPantry").checked = false;
   reset(); pantrySel = []; renderPantry();
   return T;

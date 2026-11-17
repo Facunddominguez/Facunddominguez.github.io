@@ -24,8 +24,12 @@
   const cerrar = async () => { ev("hoja.cerrar()"); await espera(100) };
   const PRECIOS = "miPlatoFacil_referencePrices_v1";
 
+  // Las semillas de "Armame la semana" dependen de la semana actual: se arma con la de la semana del 9/11/2026
+  // (la que tiene productos sin precio real con los precios congelados) para que el resultado no cambie según el día en que se corre.
+  const armarFijo = modo => `(() => { const o = Semana.semanaActual; Semana.semanaActual = () => "2026-11-09"; let a; try { a = ArmameSemana.armar({ modo: "${modo}" }) } finally { Semana.semanaActual = o } return ArmameSemana.aplicar(a) })()`;
+
   cargar({ ...MARCA, ...PRES(70000) }); await abrir();
-  ev(`ArmameSemana.aplicar(ArmameSemana.armar({ modo: "todo" }))`); await espera(300);
+  ev(armarFijo("todo")); await espera(300);
 
   // E21-un-toque: desde la lista, desde Completar precios y desde una comida se llega a la ficha en un toque.
   ev('openTab("compras")'); await espera(250);

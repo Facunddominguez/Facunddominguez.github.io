@@ -87,7 +87,7 @@
   await click("#recipeDetailsSave");
   const own = loadRecipeDetails(), rid = Object.keys(own)[0];
   ok("R18 crear receta propia", !!rid && own[rid].steps.length === 2);
-  await click("#recipeViewBrowse"); showRecipeRead(rid); await click("#recipeReadDuplicate");
+  showRecipeView("browse"); await wait(20); showRecipeRead(rid); await click("#recipeReadDuplicate");
   ok("R19 duplicar receta", Object.keys(loadRecipeDetails()).length === 2);
   // Theme + advice modal
   await click('[data-section-tab="mas"]');

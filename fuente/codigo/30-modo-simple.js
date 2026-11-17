@@ -15,31 +15,8 @@ setUiMode(mode){
     uiModeMemory=next
   }
   applyUiMode();
-  if(next==="simple")ModoSimple.resetHiddenSessionControls();
   ModoSimple.renderUiModeControls();
   if(typeof refrescarPrecios==="function")refrescarPrecios()
-},
-resetHiddenSessionControls(){
-  let changed=false;
-  const set=(id,prop,value)=>{
-    const e=document.getElementById(id);
-    if(e&&e[prop]!==value){
-      e[prop]=value;
-      changed=true
-    }
-  };
-  set("recipeRecommendMode","value","normal");
-  set("recipeRecommendPantry","checked",false);
-  set("recipeRecommendCosts","checked",false);
-  set("recipeCatalogSort","value","name");
-  set("recipeCatalogPageSize","value","20");
-  if(changed){
-    recipeCatalogPage=0;
-    try{
-      renderRecipeCatalog()
-    }catch(e){
-    }
-  }
 },
 renderUiModeControls(){
   const simple=Interfaz.isSimpleMode();
@@ -66,12 +43,8 @@ const ADVANCED_TOOLS={
     items:()=>[document.getElementById("pantryReviewPanel")]
   },
   ideas:{
-    list:"recomendaciones por despensa o costo y el orden de las recetas",
-    items:()=>[
-      document.getElementById("recipeRecommendPantry").closest("details"),
-      document.getElementById("recipeCatalogSort").closest(".portion-field"),
-      document.getElementById("recipeCatalogPageSize").closest(".portion-field")
-    ]
+    list:"",
+    items:()=>[]
   },
   comida:{
     list:"descontar de la despensa al cocinar",
@@ -81,7 +54,7 @@ const ADVANCED_TOOLS={
     list:"cantidades vinculadas y mis cantidades por receta",
     items:()=>[
       document.getElementById("recipeDetailsAmounts").closest(".portion-field"),
-      document.getElementById("recipeAmountsPanel")
+      document.getElementById("amountsAbrir")
     ]
   },
   preferencias:{

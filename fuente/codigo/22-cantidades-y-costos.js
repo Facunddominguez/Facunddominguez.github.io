@@ -10,6 +10,17 @@ safeRecipeDetails(){
     }
   }
 },
+// "Mis cantidades por receta" ahora es un botón (data-abre-panel) que muestra el bloque; al abrirlo se prepara el formulario.
+abrirPanelDeCantidades(){
+  const sel=document.getElementById("amountRecipe");
+  CantidadesCostos.refreshAmountRecipeOptions();
+  if(sel.dataset.loadedTitle!==undefined&&sel.value!==sel.dataset.loadedTitle){
+    CantidadesCostos.renderRecipeAmountForm();sel.dataset.loadedTitle=sel.value
+  }
+  if(!document.getElementById("amountRows").children.length){
+    CantidadesCostos.renderRecipeAmountForm();sel.dataset.loadedTitle=sel.value
+  }
+},
 refreshAmountRecipeOptions(){
   const select=document.getElementById("amountRecipe"),previous=select.value,own=CantidadesCostos.safeRecipeDetails(),mine=ce("optgroup"),ideas=ce("optgroup");
   mine.label="Mis recetas";
@@ -321,15 +332,6 @@ document.getElementById("amountRecipe").addEventListener("change",()=>{
   if(document.getElementById("amountRows").children.length&&!window.confirm("¿Cambiar de receta? Los cambios sin guardar se perderán.")){
     document.getElementById("amountRecipe").value=document.getElementById("amountRecipe").dataset.loadedTitle;return
   }CantidadesCostos.renderRecipeAmountForm();document.getElementById("amountRecipe").dataset.loadedTitle=document.getElementById("amountRecipe").value
-});
-document.getElementById("recipeAmountsPanel").addEventListener("toggle",e=>{
-  if(e.target.open){
-    const sel=document.getElementById("amountRecipe");CantidadesCostos.refreshAmountRecipeOptions();if(sel.dataset.loadedTitle!==undefined&&sel.value!==sel.dataset.loadedTitle){
-      CantidadesCostos.renderRecipeAmountForm();sel.dataset.loadedTitle=sel.value
-    }
-  }if(e.target.open&&!document.getElementById("amountRows").children.length){
-    CantidadesCostos.renderRecipeAmountForm();document.getElementById("amountRecipe").dataset.loadedTitle=document.getElementById("amountRecipe").value
-  }
 });
 document.getElementById("amountAdd").addEventListener("click",()=>appendRecipeAmountRow({
 }));
