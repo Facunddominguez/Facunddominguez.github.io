@@ -416,13 +416,10 @@ function renderSaved(){
   if(comidas.length)nodes.push(...ordenarComidas(comidas).map(tarjetaComida));
   else nodes.push(ce("p","screen__hint",q?"Ninguna comida coincide con tu búsqueda.":savedKind==="recetas"?"Todavía no tenés recetas. Tocá + Nueva → Escribir receta.":savedKind==="platos"?"Todavía no guardaste platos. Armá una comida y tocá Guardar.":"Todavía no guardaste comidas."));
   if(savedKind!=="platos"&&savedKind!=="semana"&&!storeError&&copiesF.length){
-    const box=ce("details","home-group saved-recipes");
+    // v19.9 (R5-G-01): a la vista, sin desplegable.
+    const box=ce("div","home-group saved-recipes");
     box.setAttribute("data-avanzado","misplatos");
-    box.open=savedRecipesOpen;
-    box.addEventListener("toggle",()=>{
-      savedRecipesOpen=box.open
-    });
-    box.append(ce("summary",null,"🗂️ Copias de recetas usadas en el plan ("+copiesF.length+")"),ce("p","screen__hint","Se crean al asignar una receta al plan y guardan su nombre e ingredientes por si la receta se borra."),...copiesF.map(savedCard));
+    box.append(ce("h3","plan-day__title","🗂️ Copias de recetas usadas en el plan ("+copiesF.length+")"),ce("p","screen__hint","Se crean al asignar una receta al plan y guardan su nombre e ingredientes por si la receta se borra."),...copiesF.map(savedCard));
     nodes.push(box)
   }
   list.replaceChildren(...nodes)

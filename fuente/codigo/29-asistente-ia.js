@@ -229,15 +229,45 @@ document.addEventListener("click",async e=>{
     status.textContent=err.message
   }
 });
-document.getElementById("aiKeySave").addEventListener("click",async()=>{
-  const st=document.getElementById("aiKeyStatus"),inp=document.getElementById("aiKeyInput"),key=inp.value.trim();if(!/^[A-Za-z0-9_\-]{20,200}$/.test(key)){
-    st.textContent="La clave no parece válida: copiala completa desde Google AI Studio.";return
-  }st.textContent="Probando la conexión con Gemini…";try{
-    const model=await AsistenteIA.geminiChooseModel(key);AsistenteIA.saveAiSettings({
+// v19.9 (R5-X-08): "Guardar y probar" tiene que contestar siempre. Antes, al pegar la clave con comillas, espacios o saltos de línea (como la
+// copia Google AI Studio) la regla la rechazaba con un mensaje al pie que se podía no ver, y mientras probaba no cambiaba nada en el botón.
+// Ahora se limpia lo que se pega, el botón dice "Probando…" y el resultado (funcionó o por qué no) aparece arriba del botón, a la vista.
+document.getElementById("aiKeySave").addEventListener("click",async e=>{
+  const btn=e.currentTarget,st=document.getElementById("aiKeyStatus"),inp=document.getElementById("aiKeyInput");
+  const decir=(texto,bien)=>{
+    st.textContent=texto;
+    st.classList.toggle("is-ok",!!bien);
+    st.classList.toggle("is-error",bien===false);
+    try{st.scrollIntoView({block:"nearest"})}catch(err){}
+  };
+  const key=inp.value.replace(/^\s*(?:key\s*[=:]\s*|bearer\s+)/i,"").replace(/[\s"'“”‘’`<>]/g,"");
+  if(!key){
+    decir("Pegá primero la clave de Gemini en el campo de arriba.",false);
+    inp.focus();
+    return
+  }
+  if(!/^[A-Za-z0-9_\-]{20,200}$/.test(key)){
+    decir("La clave no parece válida: copiala completa desde Google AI Studio (tiene solo letras, números, guiones y guiones bajos).",false);
+    return
+  }
+  const textoBoton=btn.textContent;
+  btn.disabled=true;
+  btn.textContent="Probando…";
+  decir("Probando la conexión con Gemini…");
+  try{
+    const model=await AsistenteIA.geminiChooseModel(key);
+    AsistenteIA.saveAiSettings({
       key,model
-    });inp.value="";AsistenteIA.renderAiSettings();AsistenteIA.renderAllAiRunners();st.textContent="Listo: la conexión con Gemini funciona (modelo "+model+"). La clave quedó guardada solo en este dispositivo."
+    });
+    inp.value="";
+    AsistenteIA.renderAiSettings();
+    AsistenteIA.renderAllAiRunners();
+    decir("Listo: la conexión con Gemini funciona (modelo "+model+"). La clave quedó guardada solo en este dispositivo.",true)
   }catch(err){
-    st.textContent=err.message+" No se guardó la clave."
+    decir(err.message+" No se guardó la clave.",false)
+  }finally{
+    btn.disabled=false;
+    btn.textContent=textoBoton
   }
 });
 document.getElementById("aiKeyDelete").addEventListener("click",()=>{

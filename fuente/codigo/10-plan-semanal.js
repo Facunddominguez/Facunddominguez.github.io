@@ -668,7 +668,7 @@ function clearPlan(){
 let savedRecipeTitleCache={
   raw:undefined,map:{
   }
-},savedRecipesOpen=false;
+};
 function savedItemTitle(it){
   return Semana.savedRecipeTitle(it)||it.title||"Plato"
 }

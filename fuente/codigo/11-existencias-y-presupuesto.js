@@ -183,21 +183,27 @@ function budgetCompareRender(){
   const model=Existencias.budgetCompareData(missingRows,Object.values(loadReferencePrices()),budget.currency),fmt=n=>n.toLocaleString("es-AR",{
     minimumFractionDigits:2,maximumFractionDigits:2
   }),controls=[];
+  // v19.9 (R5-X-03): además de tus precios guardados, el promedio de tu región es otra opción (en pesos).
+  if(budget.currency==="ARS"&&typeof opcionPrecioAutomatico==="function")for(const entry of model.entries){
+    const auto=opcionPrecioAutomatico(entry.row.name,entry.row.unit);
+    if(auto)entry.options.push(auto)
+  }
   for(const entry of model.entries){
     const wrap=ce("div","portion-field"),label=ce("label",null,entry.row.name+" · "+entry.row.missing.toLocaleString("es-AR")+" "+entry.row.unit),select=ce("select"),blank=ce("option",null,"Elegí una referencia");
     blank.value="";
     select.append(blank);
     entry.options.forEach((p,i)=>{
-      const total=fmt(entry.row.missing*p.price/p.amount),option=ce("option",null,p.price+"/"+p.amount+" "+p.unit+" · "+total);option.title=total+" "+budget.currency+" · "+p.price+" por "+p.amount+" "+p.unit+" · precio de "+(p.date||"fecha desconocida");option.value=String(i);select.append(option)
+      const total=fmt(entry.row.missing*p.price/p.amount),option=ce("option",null,p.auto?"Promedio de tu región: "+fmt(p.price)+"/"+p.unit+" · "+total:p.price+"/"+p.amount+" "+p.unit+" · "+total);option.title=total+" "+budget.currency+" · "+(p.auto?fmt(p.price)+" por "+p.unit+" · promedio de tu región":p.price+" por "+p.amount+" "+p.unit+" · precio de "+(p.date||"fecha desconocida"));option.value=String(i);select.append(option)
     });
     select.value=entry.base?String(entry.options.indexOf(entry.base)):"";
     label.htmlFor=select.id="budgetAlternative_"+controls.length;
-    wrap.append(label,select);
+    const usado=ce("p","screen__hint presupuesto-usado");
+    wrap.append(label,select,usado);
     const rango=typeof textoRangoPrecios==="function"?textoRangoPrecios(entry.row.name,entry.row.unit):"";
     if(rango)wrap.append(ce("p","screen__hint",rango));
     box.append(wrap);
     controls.push({
-      entry,select,baseline:entry.base
+      entry,select,usado,baseline:entry.base
     })
   }
   const result=ce("div");
@@ -208,6 +214,8 @@ function budgetCompareRender(){
       const {
         entry,select
       }=control;
+      // R5-X-03: se ve qué precio se está usando para ese ingrediente.
+      control.usado.textContent=select.value===""?"Precio usado: ninguno elegido.":"Precio usado: "+select.selectedOptions[0].textContent+".";
       if(select.value===""){
         unselected++;
         continue
@@ -261,11 +269,6 @@ function shoppingBudgetInit(){
       localStorage.setItem(SHOP_BUDGET_KEY,JSON.stringify(budget));shoppingBudgetRender();budgetCompareRender();renderPresupuestoCompras()
     }catch(e){
       document.getElementById("shoppingBudgetResult").textContent="No se pudo guardar el presupuesto."
-    }
-  });
-  document.getElementById("shoppingBudgetPanel").addEventListener("toggle",e=>{
-    if(e.currentTarget.open){
-      shoppingBudgetRender();budgetCompareRender()
     }
   });
   setTimeout(shoppingBudgetRender,0)

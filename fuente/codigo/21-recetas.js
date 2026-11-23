@@ -287,11 +287,62 @@ function initRecipePreferences(){
       document.getElementById("recipePreferencesStatus").textContent="No se pudieron guardar."
     }
   });
+  // v19.9 (R5-X-07): "Limpiar preferencias" no hacía nada visible cuando lo que había eran los filtros de dieta (Vegetariano, Sin cerdo…),
+  // que quedaban marcados, y no avisaba. Ahora limpia los filtros de dieta y lo de "Otros", dice qué limpió y ofrece Deshacer.
   document.getElementById("recipeClearPreferences").addEventListener("click",()=>{
-    document.getElementById("recipeAvoidWords").value="";document.getElementById("recipeApplyAvoid").checked=false;try{
-      localStorage.removeItem(RECIPE_PREF_KEY)
+    const st=document.getElementById("recipePreferencesStatus"),palabras=document.getElementById("recipeAvoidWords"),ocultar=document.getElementById("recipeApplyAvoid");
+    const antes={
+      pref:localStorage.getItem(RECIPE_PREF_KEY),dieta:localStorage.getItem(DIETA_KEY),palabras:palabras.value,ocultar:ocultar.checked
+    },habia=antes.pref!==null||antes.dieta!==null||!!antes.palabras.trim()||antes.ocultar;
+    palabras.value="";
+    ocultar.checked=false;
+    try{
+      localStorage.removeItem(RECIPE_PREF_KEY);
+      localStorage.removeItem(DIETA_KEY)
     }catch(e){
-    }recipeCatalogPage=0;renderRecipeCatalog()
+      st.textContent="No se pudieron limpiar las preferencias.";
+      return
+    }
+    recipeCatalogPage=0;
+    Dieta.renderDieta();
+    try{
+      renderRecipeCatalog();
+      Ideas.renderMenuIdeas()
+    }catch(e){
+    }
+    if(!habia){
+      st.textContent="No había nada para limpiar.";
+      return
+    }
+    const u=ce("button","filter-chip","Deshacer");
+    u.type="button";
+    u.addEventListener("click",()=>{
+      try{
+        for(const [k,v] of [[RECIPE_PREF_KEY,antes.pref],[DIETA_KEY,antes.dieta]]){
+          if(v===null)localStorage.removeItem(k);else localStorage.setItem(k,v)
+        }
+      }catch(e){
+        st.textContent="No se pudo deshacer.";
+        return
+      }
+      palabras.value=antes.palabras;
+      ocultar.checked=antes.ocultar;
+      recipeCatalogPage=0;
+      Dieta.renderDieta();
+      try{
+        renderRecipeCatalog();
+        Ideas.renderMenuIdeas()
+      }catch(e){
+      }
+      st.textContent="Listo, se recuperaron tus preferencias."
+    });
+    st.replaceChildren(document.createTextNode("Preferencias limpiadas: dieta, Otros y Ocultar coincidencias. "),u)
+  });
+  // R5-X-04: el ⓘ junto a "Otros" explica qué escribir.
+  document.getElementById("recipeAvoidInfo").addEventListener("click",e=>{
+    const ayuda=document.getElementById("recipeAvoidAyuda"),on=ayuda.hidden;
+    ayuda.hidden=!on;
+    e.currentTarget.setAttribute("aria-expanded",String(on))
   });
   document.getElementById("recipeApplyAvoid").addEventListener("change",()=>{
     recipeCatalogPage=0;renderRecipeCatalog()
@@ -674,7 +725,7 @@ function nuevaRecetaEnBlanco(){
     recipeDetailsStatus(err.message)
   }
 }
-// Un botón que muestra o esconde un bloque en el mismo lugar (reemplaza a los <details> de Ideas y de la receta).
+// Un botón que muestra o esconde un bloque en el mismo lugar (reemplaza a los desplegables de Ideas y de la receta).
 function alternarPanel(boton,abrir){
   const panel=document.getElementById(boton.dataset.abrePanel);
   if(!panel)return;

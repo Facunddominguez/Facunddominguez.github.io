@@ -114,13 +114,13 @@ function recipeNutritionBox(amount){
     return box
   }
   box.append(ce("p","nutrition-box__main","≈ "+nutritionNumber(p[0],"kcal")),ce("p","screen__hint","Proteínas "+nutritionNumber(p[1],"g")+" · Carbohidratos "+nutritionNumber(p[3],"g")+" · Grasas "+nutritionNumber(p[2],"g")+" · Fibra "+nutritionNumber(p[4],"g")),ce("p","screen__hint","Calculada con "+r.used.length+" de "+r.count+" ingrediente"+(r.count===1?"":"s")+(r.missing.length?". Sin calcular: "+r.missing.join("; ")+".":".")+(r.partial[4].length?" Sin dato de fibra: "+r.partial[4].join(", ")+".":"")));
-  const det=ce("details"),ul=ce("ul");
+  const det=ce("div","nutrition-box__detalle"),ul=ce("ul");
   for(const u of r.used){
     const li=ce("li",null,u.name+": "+nutritionNumber(u.g,"g")+" ≈ "+nutritionNumber(u.item.v[0]*u.g/100,"kcal")+" · ");
     li.append(nutritionLink(u.item));
     ul.append(li)
   }
-  det.append(ce("summary",null,"Detalle por ingrediente y fuentes"),ul,ce("p","screen__hint",nutritionSourceText()+" Valores aproximados: no reemplazan el consejo de un profesional."));
+  det.append(ce("p","nutrition-box__subtitulo","Detalle por ingrediente y fuentes"),ul,ce("p","screen__hint",nutritionSourceText()+" Valores aproximados: no reemplazan el consejo de un profesional."));
   box.append(det);
   return box
 }
