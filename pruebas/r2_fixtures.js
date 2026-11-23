@@ -29,7 +29,9 @@ window.R2 = (() => {
   const item = name => items().find(x => x.name === name);
   const renderedRows = () => [...document.querySelectorAll("#comprasList .shop-item label")].map(l => l.textContent);
   // Close then open a <details> panel in separate tasks so its "toggle" handler always runs.
-  const openPanel = async id => { const p = document.getElementById(id); p.open = false; await wait(15); p.open = true; await wait(50); return p };
+  // v19.8: Compras realizadas, Mis precios y Costo de una receta ya no son <details>: se abren con la herramienta de Compras.
+  const HERRAMIENTAS = { purchasesPanel: "realizadas", pricePanel: "precios", recipeCostPanel: "costoReceta" };
+  const openPanel = async id => { const p = document.getElementById(id); if (p.tagName !== "DETAILS") { if (HERRAMIENTAS[id]) ComprasDespensa.abrirHerramientaCompras(HERRAMIENTAS[id]); await wait(50); return p } p.open = false; await wait(15); p.open = true; await wait(50); return p };
   return { IDEA1, IDEA2, IDEA3, wait, results, reset, setAmounts, setRecipes, recipePlate, tradPlate, tradPlateTexto, setSaved, setPlan, setStock, criticalCase, items, item, renderedRows, openPanel };
 })();
 "fixtures listos";

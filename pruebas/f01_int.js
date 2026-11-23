@@ -22,9 +22,9 @@
   await R.openPanel("shoppingToolsPanel"); await R.openPanel("shoppingBudgetPanel");
   const budget = document.getElementById("shoppingBudgetResult").textContent;
   T.ok("M3 presupuesto usa precios de nombres equivalentes", /Costo parcial estimado: 500,00 ARS/.test(budget) && /2 ingredientes valorizados/.test(budget), budget.slice(0, 120));
-  await R.openPanel("shoppingQuantCostPanel");
-  const qc = document.getElementById("shoppingQuantCostResult").textContent;
-  T.ok("M4 'Ajustar porciones' usa precios equivalentes", /Subtotal estimado con referencias inequívocas: 500,00 ARS/.test(qc), qc.slice(0, 160));
+  // R5-K-12: "Porciones, existencias y costos" salió de Compras; lo que falta comprar se valoriza igual con los precios equivalentes.
+  const qc = Existencias.estimadoDeLaLista(shoppingMissingRows(), "ARS");
+  T.ok("M4 lo que falta comprar usa precios equivalentes", Math.abs(qc.estimated - 500) < 1e-6 && qc.covered === 2, JSON.stringify(qc));
   await R.openPanel("recipeCostPanel");
   document.getElementById("recipeCostTitle").value = IDEA1; document.getElementById("recipeCostPortions").value = "1";
   document.getElementById("recipeCostPrepare").click(); await wait(30);

@@ -4,16 +4,16 @@
   window.confirm = () => true;
   const $ = id => document.getElementById(id);
   reset();
-  go("compras"); await R.openPanel("shoppingToolsPanel"); await R.openPanel("shoppingQuantCostPanel");
-  $("stockIngredient").value = "Papa"; $("stockQuantity").value = "300"; $("stockUnit").value = "g"; $("stockSave").click(); await wait(10);
-  $("stockIngredient").value = "Papa"; $("stockQuantity").value = "200"; $("stockUnit").value = "g"; $("stockSave").click(); await wait(10);
+  // R5-K-12 y K-16: las existencias se cargan en Despensa; "Todos los movimientos" ya no se muestra (queda el historial de cada ingrediente).
+  go("ingredientes");
+  const cargarPapa = async q => { $("pantryItemName").value = "Papa"; $("pantryItemQty").value = q; $("pantryItemUnit").value = "g"; $("pantryItemForm").requestSubmit(); await wait(20) };
+  await cargarPapa("300"); await cargarPapa("200");
   let moves = loadPantryMoves();
   T.ok("D1 ajustes manuales registran movimientos", moves.length === 2 && moves[0].delta === 300 && moves[1].delta === -100 && moves[1].reason === "Ajuste manual");
-  [...$("stockList").querySelectorAll("button")].find(b => b.textContent === "Quitar").click(); await wait(10);
+  document.querySelector("#pantryItemList [data-pantry-item-remove-stock]").click(); await wait(20);
   moves = loadPantryMoves();
   T.ok("D2 quitar una existencia registra la salida", moves.length === 3 && moves[2].delta === -200 && /Quitada/.test(moves[2].reason));
-  $("stockMovesPanel").open = true; await wait(10);
-  T.ok("D3 'Movimientos recientes' muestra lo último primero", /Papa −200 g · Quitada de la despensa/.test($("stockMoves").querySelector("p").textContent), $("stockMoves").textContent.slice(0, 120));
+  T.ok("D3 el historial del ingrediente muestra lo último primero (y ya no hay 'Todos los movimientos')", /−200 g · Quitada de la despensa/.test(textoMovimiento(movimientosDe("Papa")[0])) && !$("stockMoves") && !$("stockMovesPanel"), textoMovimiento(movimientosDe("Papa")[0]));
   // Cooking deducts across forms and units, never below zero
   setAmounts({ [IDEA1]: { yield: 2, rows: [{ name: "Papa", quantity: 300, unit: "g" }, { name: "Sal", quantity: 5, unit: "g" }, { name: "Romero", quantity: null, unit: "g" }] } });
   setRecipes([{ id: "recipe_test0001", title: "Papas al horno", amountsTitle: IDEA1 }]);

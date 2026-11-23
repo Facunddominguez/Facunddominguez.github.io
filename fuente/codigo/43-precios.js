@@ -905,6 +905,29 @@ function productosSinPrecioReal(){
   const c=costoSemanaPlan();
   return c?c.productos.filter(x=>x.tipo!=="real"):[]
 }
+// v19.8 (R5-K-15): ingredientes sin precio real para "Mis precios": {semana:[nombres de la semana], otros:[el resto del catálogo]}.
+// "Sin precio real" es lo mismo que en "Completar precios": ni Mi precio ni el dato de SEPA/INDEC (un estimado no cuenta).
+function ingredientesSinPrecio(){
+  const semana=[],vistos=new Set();
+  for(const x of productosSinPrecioReal()){
+    const k=ingredientKey(x.name);
+    if(vistos.has(k))continue;
+    vistos.add(k);
+    semana.push(x.name)
+  }
+  const otros=[];
+  try{
+    for(const n of nutritionDataset().names){
+      const k=ingredientKey(n);
+      if(!k||vistos.has(k)||fueraDeLaLista(n))continue;
+      vistos.add(k);
+      const u=unidadSugeridaFicha(n,new Map());
+      if(!precioDe(n,1,u))otros.push(n)
+    }
+  }catch(e){
+  }
+  return {semana:semana.sort((a,b)=>a.localeCompare(b,"es")),otros}
+}
 // v19.3 (R5-S-07 a S-09): "Completar N precios" abre directo el primer producto con su formulario; Anterior y Siguiente pasan de
 // producto ("2 de 5"); "Guardar precios" guarda de una vez todos los que se completaron y dice cuántos guardó.
 // La unidad en la que la semana usa un producto (para decirle a la persona en qué unidad cargar el precio).

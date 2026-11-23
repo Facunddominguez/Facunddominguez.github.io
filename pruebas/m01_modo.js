@@ -19,7 +19,7 @@
   // v15.3: la misma lista de ids, repartida por la pantalla de su tema (antes las tres estaban en "ingredientes").
   const expected = {
     compras: ["comprasPresupuesto"],
-    ingredientes: ["pantryReviewPanel"],
+    ingredientes: ["pantryReviewAbrir"],
     recetaEditar: ["recipeAmountsPanel"],
     preferencias: ["ingredientAliasPanel"],
     ideas: [], comida: [], backupScreen: [],
@@ -50,11 +50,16 @@
   for (const sel of ["#comprasList", "#manualShoppingPanel", "#comprasDescontar", "#comprasBought"]) if (!shown(document.querySelector(sel))) essentials.push(sel);
   const herramientasCompras = async () => {
     let ok = true;
-    for (const [herr, sels] of [["compartir", ["[data-share-compras]", "[data-copy-compras]"]], ["realizadas", ["#purchasesPanel", "#purchaseSave", "#purchaseFromList"]], ["presupuesto", ["#shoppingBudgetPanel", "#shoppingBudgetSave"]], ["precios", ["#pricePanel", "#priceForm"]], ["costoReceta", ["#recipeCostPanel", "#recipeCostPrepare"]], ["otrasRecetas", ["#quantShoppingPanel", "#quantShoppingCalculate", "#stockDeductionPanel", "#stockPrepare"]], ["existencias", ["#shoppingQuantCostPanel", "#shoppingPortionMultiplier", "#stockSave"]]]) {
+    for (const [herr, sels] of [["realizadas", ["#purchasesPanel", "#purchaseSave", "#purchaseFromList"]], ["presupuesto", ["#shoppingBudgetPanel", "#shoppingBudgetSave"]], ["precios", ["#pricePanel", "#priceForm"]], ["costoReceta", ["#recipeCostPanel", "#recipeCostPrepare"]]]) {
       go("compras"); await wait(20); document.querySelector("#compras [data-compras-menu]").click(); await wait(30);
+      // R5-K-10: "Presupuesto" no está en el menú ⋯ (se abre desde la barra de la lista); las otras tres, sí.
       const b = document.querySelector('.hoja [data-compras-herr="' + herr + '"]');
-      if (!shown(b)) { essentials.push("menú ⋯ de Compras sin " + herr); ok = false; hoja.cerrar(); continue }
-      b.click(); await wait(60);
+      if (herr === "presupuesto") { if (b) { essentials.push("menú ⋯ de Compras con presupuesto"); ok = false } hoja.cerrar(); ComprasDespensa.abrirHerramientaCompras("presupuesto") }
+      else {
+        if (!shown(b)) { essentials.push("menú ⋯ de Compras sin " + herr); ok = false; hoja.cerrar(); continue }
+        b.click()
+      }
+      await wait(60);
       const faltan = sels.filter(s => !shown(document.querySelector(s))); if (faltan.length) { essentials.push(...faltan); ok = false }
     }
     go("compras"); await wait(20); return ok
@@ -125,7 +130,7 @@
   // Semana: las mismas herramientas desde el menú ⋯, en modo completo y (ya comprobado en M3) en modo simple.
   const planShown = planHerrSimple && await herramientasPlan();
   let ingShown = true;
-  for (const [pant, id] of [["ingredientes", "pantryReviewPanel"], ["recetaEditar", "recipeAmountsPanel"], ["preferencias", "ingredientAliasPanel"], ["ideas", "recipeRecommendPantry"]]) {
+  for (const [pant, id] of [["ingredientes", "pantryReviewAbrir"], ["recetaEditar", "recipeAmountsPanel"], ["preferencias", "ingredientAliasPanel"], ["ideas", "recipeRecommendPantry"]]) {
     go(pant); if (pant === "ideas") showRecipeView("browse"); if (pant === "recetaEditar") alternarPanel($("amountsAbrir"), true); openAll(pant); await wait(20);
     if (!shown($(id))) ingShown = false
   }
@@ -144,7 +149,7 @@
   // M9 Lo guardado en herramientas ocultas sigue en uso: las existencias generan la sugerencia en Compras
   go("compras"); await wait(30);
   const papa = shoppingDisplayItems().find(x => x.name === "Papa");
-  T.ok("M9 las existencias guardadas siguen sugiriendo en Compras aunque estén ocultas", Interfaz.getUiMode() === "simple" && !!papa && !!papa.suggestion && /1 kg/.test(papa.suggestion.text) && /💡/.test($("comprasList").textContent), papa && papa.suggestion && papa.suggestion.text);
+  T.ok("M9 las existencias guardadas siguen sugiriendo en Compras aunque estén ocultas", Interfaz.getUiMode() === "simple" && !!papa && !!papa.suggestion && /1 kg/.test(papa.suggestion.text) && ([...document.querySelectorAll("#comprasList .shop-item")].some(r => /1 kg/.test(r.title)) || /💡/.test($("comprasList").textContent)), papa && papa.suggestion && papa.suggestion.text);
   // M10 (Ronda 5, M-08) Las recomendaciones por despensa son un solo interruptor de la búsqueda, igual en los dos modos:
   // ya no hay selectores de prioridad, orden ni cantidad por página que se escondan y sigan cambiando lo que se ve.
   ModoSimple.setUiMode("completo");

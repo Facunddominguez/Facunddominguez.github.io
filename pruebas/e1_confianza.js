@@ -149,7 +149,7 @@
   localStorage.setItem("miPlatoFacil_pantry", "[]"); ev("pantrySel = loadPantry()"); ev("renderCompras()");
   const sigue = grupo("Tomate") === "comprado" && /Ya en tu despensa \(1\)/.test($("comprasList").textContent);
   const pantryAntes = localStorage.getItem("miPlatoFacil_pantry");
-  await tocar(q('#comprasList details.shop-group [data-shop-key="tomate"]'));
+  await tocar(q('#comprasList .shop-group [data-shop-key="tomate"]'));
   ok("E1-6 'Lo compré' pasa a Ya en tu despensa y ahí queda; destachar lo devuelve sin tocar la despensa", enDespensa && sigue && grupo("Tomate") === "pendiente" && localStorage.getItem("miPlatoFacil_pantry") === pantryAntes && JSON.parse(localStorage.getItem(CHECKS) || "{}")[semana()] === undefined);
   // E1-6b Si la despensa ya alcanzaba ("Ya tenés"), "Lo compré" no suma nada: no infla las existencias
   cargar({}); await abrir();

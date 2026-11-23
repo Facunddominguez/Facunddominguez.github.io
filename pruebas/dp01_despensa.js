@@ -36,17 +36,19 @@
   const editing = $("pantryItemSubmit").textContent === "Guardar cambios" && $("pantryItemQty").value === "500";
   await add("Arroz yamaní", "1", "kg");
   T.ok("DP6 editar reemplaza la existencia y registra los movimientos", editing && !stock()[Existencias.stockKey("Arroz yamaní", "g")] && stock()[Existencias.stockKey("Arroz yamaní", "kg")].quantity === 1 && moves().some(m => m.name === "Arroz yamaní" && m.delta === -500) && rowText().includes("Arroz yamaní · 1 kg") && $("pantryItemSubmit").textContent === "Agregar a la despensa");
-  // DP7 Quitar una existencia y deshacer
+  // DP7 Quitar una existencia: sin Deshacer (R5-K-16); se puede volver a cargar
   btn("data-pantry-item-remove-stock", Existencias.stockKey("Arroz yamaní", "kg")).click(); await wait(30);
   const removed = !stock()[Existencias.stockKey("Arroz yamaní", "kg")] && moves().some(m => m.reason === "Quitada de la despensa" && m.delta === -1);
-  $("pantryItemStatus").querySelector("[data-pantry-undo]").click(); await wait(30);
-  T.ok("DP7 quitar una existencia se puede deshacer", removed && stock()[Existencias.stockKey("Arroz yamaní", "kg")].quantity === 1 && rowText().includes("Arroz yamaní · 1 kg"));
-  // DP8 Quitar un ingrediente sin cantidad y deshacer
+  const sinDeshacer7 = !$("pantryItemStatus").querySelector("[data-pantry-undo]") && !/Deshacer/.test($("ingredientes").textContent) && /Quitado: Arroz yamaní\./.test($("pantryItemStatus").textContent);
+  await add("Arroz yamaní", "1", "kg");
+  T.ok("DP7 quitar una existencia no ofrece Deshacer y se puede volver a cargar", removed && sinDeshacer7 && stock()[Existencias.stockKey("Arroz yamaní", "kg")].quantity === 1 && rowText().includes("Arroz yamaní · 1 kg"));
+  // DP8 Quitar un ingrediente sin cantidad: sin Deshacer; se puede volver a agregar
   await add("Cebolla");
   btn("data-pantry-item-remove-free", "Cebolla").click(); await wait(30);
   const removedFree = !pantry().includes("Cebolla");
-  $("pantryItemStatus").querySelector("[data-pantry-undo]").click(); await wait(30);
-  T.ok("DP8 quitar un ingrediente sin cantidad se puede deshacer", removedFree && pantry().includes("Cebolla") && rowText().includes("Cebolla · sin cantidad"));
+  const sinDeshacer8 = !$("pantryItemStatus").querySelector("[data-pantry-undo]") && !/Deshacer/.test($("ingredientes").textContent);
+  await add("Cebolla");
+  T.ok("DP8 quitar un ingrediente sin cantidad no ofrece Deshacer y se puede volver a agregar", removedFree && sinDeshacer8 && pantry().includes("Cebolla") && rowText().includes("Cebolla · sin cantidad"));
   // DP9 Limpiar selección limpia Lo básico y deja lo demás
   document.querySelector("[data-pantry-clear]").click(); await wait(30);
   T.ok("DP9 'Limpiar selección' desmarca Lo básico y conserva lo demás", !pantry().includes("arroz") && pantry().includes("Cebolla") && !!stock()[Existencias.stockKey("Quinoa roja", "g")]);

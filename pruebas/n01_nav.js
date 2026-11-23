@@ -75,8 +75,10 @@
   await clickTab("hoy");
   T.ok("N13 Hoy muestra el día y los atajos para armar, sin ideas ni ajustes", shown($("todayPanel")) && shown(document.querySelector('#home [data-start="plato"]')) && !shown($("sectionSettings")) && shown(document.querySelector("#home [data-sugerime]")));
   // N14 En Compras, "Ver el plan de la semana" abre la pestaña Semana
-  await clickTab("compras"); document.querySelector("[data-back-plan]").click(); await wait(60);
-  T.ok("N14 en Compras, 'Ver el plan de la semana' abre la pestaña Semana", scr() === "plan" && tab("semana").getAttribute("aria-current") === "page");
+  // R5-K-06: el pie de las herramientas de Compras ya no tiene "Ver la semana"; la pestaña Semana abre el plan.
+  await clickTab("compras"); const sinVerLaSemana = !document.querySelector("[data-back-plan]");
+  await clickTab("semana"); await wait(60);
+  T.ok("N14 en Compras no hay 'Ver la semana' (R5-K-06) y la pestaña Semana abre el plan", sinVerLaSemana && scr() === "plan" && tab("semana").getAttribute("aria-current") === "page");
   // N15 Moverse entre pestañas no cambia ningún dato
   const snap = appData();
   for (const n of ["hoy", "semana", "compras", "miscomidas", "mas", "hoy"]) await clickTab(n);

@@ -1977,12 +1977,6 @@ body:has(#home.is-active) .app-shell{
   font:inherit
 }
 
-#pantryReviewPanel>summary{
-  cursor:pointer;
-  color:var(--green);
-  font-weight:800
-}
-
 #pantryReviewItems .shop-item{
   cursor:pointer
 }
@@ -2189,45 +2183,6 @@ body:has(#home.is-active) .app-shell{
 
 }
 
-#quantShoppingPanel input[type="text"]{
-  width:100%;
-  min-height:44px;
-  padding:10px;
-  border:1px solid var(--line);
-  border-radius:12px;
-  background:var(--surface);
-  color:var(--text);
-  font:inherit
-}
-
-#quantShoppingPanel>summary{
-  font-weight:800;
-  color:var(--green);
-  cursor:pointer
-}
-
-#stockRows input{
-  width:100%;
-  min-height:44px;
-  padding:10px;
-  border:1px solid var(--line);
-  border-radius:12px;
-  background:var(--surface);
-  color:var(--text);
-  font:inherit
-}
-
-#stockRows label{
-  display:block;
-  margin:6px 0
-}
-
-#stockDeductionPanel>summary{
-  font-weight:800;
-  color:var(--green);
-  cursor:pointer
-}
-
 #pricePanel input,#pricePanel select{
   width:100%;
   min-height:44px;
@@ -2237,12 +2192,6 @@ body:has(#home.is-active) .app-shell{
   background:var(--surface);
   color:var(--text);
   font:inherit
-}
-
-#pricePanel>summary{
-  color:var(--green);
-  font-weight:800;
-  cursor:pointer
 }
 
 #recipeCostPanel input,#recipeCostPanel select{
@@ -2260,12 +2209,6 @@ body:has(#home.is-active) .app-shell{
 #recipeCostPanel label{
   display:block;
   margin:6px 0
-}
-
-#recipeCostPanel>summary{
-  font-weight:800;
-  color:var(--green);
-  cursor:pointer
 }
 
 .amount-row{
@@ -2367,30 +2310,59 @@ body:has(#home.is-active) .app-shell{
 .purchase-row{
   display:grid;
   grid-template-columns:repeat(6,minmax(0,1fr));
-  gap:6px;
-  padding:8px 0;
+  gap:8px;
+  padding:12px 0;
   border-bottom:1px solid var(--line)
 }
 
 .purchase-row [data-purchase-name]{
-  grid-column:1 / -1
+  grid-column:1 / 6
 }
 
-.purchase-row [data-purchase-qty]{
-  grid-column:span 2
+.purchase-row>button{
+  grid-column:6;
+  grid-row:1;
+  min-width:0;
+  min-height:var(--tap);
+  padding:0
 }
 
-.purchase-row [data-purchase-unit]{
-  grid-column:span 2
+.purchase-campo{
+  grid-column:span 2;
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+  min-width:0;
+  font-size:13px;
+  font-weight:700;
+  color:var(--muted)
 }
 
-.purchase-row [data-purchase-price]{
-  grid-column:span 2
+#purchasesPanel input:not([type="checkbox"]),#purchasesPanel select{
+  width:100%;
+  min-width:0;
+  min-height:var(--tap);
+  padding:10px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:var(--surface);
+  color:var(--text);
+  font:inherit
 }
 
-.purchase-row button{
-  grid-column:span 6;
-  min-height:36px
+#purchasesPanel .portion-field{
+  margin-top:12px
+}
+
+.purchase-suma{
+  margin:8px 0;
+  font-weight:700
+}
+
+.purchase-opcion{
+  display:flex;
+  width:100%;
+  margin:4px 0
 }
 
 .plan-portions{
@@ -2630,14 +2602,14 @@ input[type=file]{
 }
 
 /* Botones sueltos dentro de una pantalla o de un panel: ancho completo, como el resto */
-.screen>.button,details.home-group>.button{
+.screen>.button,details.home-group>.button,#purchasesPanel>.button,#pricePanel>.button,#recipeCostPanel>.button,#pantryReviewPanel>.button{
   display:block;
   width:100%;
   margin-top:10px
 }
 
 /* Casillas: tamaño normal y en la misma línea que su texto (reglas de campos de algunos paneles las agrandaban) */
-#recipeDetailsPanel input[type="checkbox"],#recipeDetailsPanel input[type="radio"],#cookingHistoryForm input[type="checkbox"],#recipeAmountsPanel input[type="checkbox"],#stockRows input[type="checkbox"],#pricePanel input[type="checkbox"],#recipeCostPanel input[type="checkbox"],.train-direct input[type="checkbox"]{
+#recipeDetailsPanel input[type="checkbox"],#recipeDetailsPanel input[type="radio"],#cookingHistoryForm input[type="checkbox"],#recipeAmountsPanel input[type="checkbox"],#pricePanel input[type="checkbox"],#recipeCostPanel input[type="checkbox"],.train-direct input[type="checkbox"]{
   width:20px;
   height:20px;
   min-height:0;
@@ -3448,8 +3420,8 @@ body.con-hoja{
 .interruptor input:checked::after{left:21px}
 .interruptor input:focus-visible{outline:3px solid var(--green);outline-offset:2px}
 .compras-agregar{margin:4px 0}
-.compras-agregar>summary{display:inline-flex;align-items:center;min-height:var(--tap);padding:0 16px;border:1px solid var(--green);border-radius:999px;color:var(--green);font-weight:700;cursor:pointer;list-style:none}
-.compras-agregar>summary::-webkit-details-marker{display:none}
+.compras-agregar>.plan-day__title{margin:0 0 12px}
+.compras-agregar .portion-field+.portion-field{margin-top:12px}
 .compras-seccion{margin:10px 0 4px}
 .compras-seccion__titulo{margin:12px 0 2px;font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
 .compras-seccion .shop-item{min-height:var(--tap)}
@@ -3459,7 +3431,6 @@ body.con-hoja{
 #manualShopList .manual-shop-row .filter-chip{min-height:var(--tap)}
 .pantry-item__historial{flex:1 1 100%;margin:2px 0 4px}
 .pantry-item__historial>summary{min-height:var(--tap);display:flex;align-items:center;cursor:pointer;color:var(--muted);font-size:14px}
-.herr-contenedor>summary{list-style:none}
 /* v15.5 · Registro: un día con lo que comiste y cocinaste, Quitar con Deshacer y los contadores. */
 .registro-dia{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:8px 0}
 .registro-dia strong{flex:1;text-align:center}
@@ -3681,3 +3652,16 @@ select{max-width:100%;min-width:0}
 .recipe-catalog-card__info{gap:1px}
 .recipe-catalog-card{padding:4px 8px}
 .receta-paso[hidden]{display:none!important}
+
+/* v19.8 · Etapa 41 (Compras y Despensa) */
+.shop-item__volver{flex:0 0 auto;min-height:var(--tap);padding:0 12px}
+.shop-group .shop-item{flex-wrap:nowrap}
+.shop-group .shop-item>label{flex:1 1 0;min-width:0}
+#manualShoppingForm{display:grid;grid-template-columns:1fr 1fr;gap:0 10px;align-items:start}
+#manualShoppingForm .portion-field+.portion-field{margin-top:0}
+#manualShoppingForm .summary-actions{grid-column:1 / -1}
+#manualShopList .manual-shop-row .shop-item{flex:1 1 150px;min-width:0}
+#manualShopList .manual-shop-row .shop-item>span{min-width:0;overflow-wrap:anywhere}
+#manualShopList .manual-shop-row .filter-chip{flex:0 0 auto}
+.despensa-revisar{margin:12px 0}
+.despensa-revisar .button{width:100%}

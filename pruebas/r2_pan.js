@@ -16,12 +16,12 @@
   T.ok("P3 no confunde Batata ni Pan rallado (coincidencia exacta)", !m.has("Batata") && !m.has("Pan rallado"));
   criticalCase(); localStorage.setItem("miPlatoFacil_pantry", JSON.stringify(["papa"]));
   go("compras"); await wait(60);
-  document.getElementById("shoppingQuantCostPanel").open = true; document.getElementById("shoppingMarkPantry").checked = true; shoppingQuantityAndCost(); await wait(30);
-  T.ok("P4 'Ajustar porciones' marca Papa como marcada en despensa", /Papa \(marcado en despensa; cantidad disponible desconocida\)/.test(document.getElementById("shoppingQuantCostResult").textContent));
+  const papaItem = shoppingDisplayItems().find(x => x.name === "Papa");
+  T.ok("P4 la lista marca Papa como marcada en la despensa (sin cantidad)", !!papaItem && !!papaItem.suggestion && /Lo marcaste en tu Despensa/.test(papaItem.suggestion.text), papaItem && papaItem.suggestion && papaItem.suggestion.text);
   go("ingredientes"); document.getElementById("recipeRecommendPantry").checked = true; await wait(30);
   const todasLasPaginas = () => { let t = ""; recipeCatalogPage = 0; renderRecipeCatalog(); for (let i = 0; i < 12; i++) { t += document.getElementById("recipeCatalogResults").textContent; if (document.getElementById("recipeCatalogNext").disabled) break; recipeCatalogPage++; renderRecipeCatalog() } recipeCatalogPage = 0; return t };
   T.ok("P5 recomendaciones indican 'marcado, sin cantidad medida'", /Papa \(marcado, sin cantidad medida\)/.test(todasLasPaginas()));
-  document.getElementById("recipeRecommendPantry").checked = false; document.getElementById("shoppingMarkPantry").checked = false;
+  document.getElementById("recipeRecommendPantry").checked = false;
   reset(); pantrySel = []; renderPantry();
   return T;
 })()

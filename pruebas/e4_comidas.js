@@ -185,7 +185,8 @@
   ver("Con lo que tengo", pantalla() === "ideas" && visible($("pantryResults")));
   await irA("compras"); await tocar(q("#compras [data-open-pantry]"));
   ver("Despensa", pantalla() === "ingredientes" && visible($("pantryChips")));
-  ver("Revisar qué tengo y qué falta", visible($("pantryReviewPanel")));
+  await tocar($("pantryReviewAbrir")); // R5-K-17: es un botón que muestra la revisión
+  ver("Revisar qué tengo y qué falta", visible($("pantryReviewAbrir")) && visible($("pantryReviewPanel")));
   await irA("mas"); await tocar(q("#backupOpen"));
   ver("Respaldo", pantalla() === "backupScreen" && visible($("backupExport")));
   ver("Exportar e importar comidas", visible(q("[data-export-plates]")) && visible(q("[data-import-plates]")));
