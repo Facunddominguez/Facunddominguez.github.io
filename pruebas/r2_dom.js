@@ -12,9 +12,10 @@
   T.ok("D2 los paneles eliminados ya no están en la página", sobran.length === 0, sobran.join(","));
   const est = id => document.getElementById(id).textContent;
   go("ingredientes"); await wait(50);
+  const otros = () => ["purchaseStatus", "priceStatus", "recipeCostStatus"].map(est).join("|"), otrosAntes = otros();
   document.getElementById("pantryItemName").value = "Arroz"; document.getElementById("pantryItemQty").value = "300"; document.getElementById("pantryItemUnit").value = "g";
   document.getElementById("pantryItemSubmit").click(); await wait(50);
-  T.ok("D3 guardar una existencia escribe en el estado de la despensa", /Guardado: Arroz/.test(est("pantryItemStatus")) && est("purchaseStatus") === "" && est("priceStatus") === "" && est("recipeCostStatus") === "", est("pantryItemStatus"));
+  T.ok("D3 guardar una existencia escribe en el estado de la despensa", /Guardado: Arroz/.test(est("pantryItemStatus")) && otros() === otrosAntes, est("pantryItemStatus"));
   const antesDespensa = est("pantryItemStatus");
   await window.R2.openPanel("purchasesPanel");
   document.getElementById("purchaseFromList").click(); await wait(50);

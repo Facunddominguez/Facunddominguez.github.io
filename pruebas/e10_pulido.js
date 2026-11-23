@@ -73,7 +73,7 @@
 
   // C10-4 Los selects largos tienen opciones que entran: etiqueta corta y el nombre completo debajo.
   ev('openTab("compras"); go("ingredientes")'); await espera(100);
-  const panel = doc().getElementById("pantryReviewPanel"); if (panel) { panel.open = true; await espera(150) }
+  ev("RevisionDespensa.renderPantryReview(true)"); await espera(150); // R5-K-17: la revisión es un bloque que abre un botón
   const sel = doc().getElementById("pantryReviewRecipe"), opts = [...sel.options];
   const largo = Math.max(...opts.map(o => o.text.length));
   const completo = doc().getElementById("pantryReviewFull");

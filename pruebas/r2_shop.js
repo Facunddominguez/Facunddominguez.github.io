@@ -24,7 +24,6 @@
   // presupuesto; multiplicador, precios y presupuesto no mueven nada entre grupos.
   setStock([["Papa", 50, "g"]]); renderCompras();
   const base = JSON.stringify(R.items().map(x => x.label)), baseKeys = keysEnPantalla(), baseGroups = grupos();
-  document.getElementById("shoppingPortionMultiplier").value = "3"; document.getElementById("shoppingPortionMultiplier").dispatchEvent(new Event("change", { bubbles: true }));
   localStorage.setItem("miPlatoFacil_referencePrices_v1", JSON.stringify({ pr1: { id: "pr1", name: "Papa", pack: "bolsa", amount: 1000, price: 1500, unit: "g", currency: "ARS", date: "2026-10-20" } }));
   localStorage.setItem("miPlatoFacil_shoppingBudget_v1", JSON.stringify({ currency: "ARS", limit: 30000 }));
   renderCompras(); await wait(30);
@@ -32,12 +31,11 @@
   setStock([["Papa", 1000, "g"], ["Merluza", 2, "unidad"]]);
   localStorage.setItem("miPlatoFacil_pantry", JSON.stringify(["tomate"]));
   renderCompras(); await wait(30);
-  T.ok("S3 la lista es idéntica aunque cambien despensa, multiplicador, precios y presupuesto", JSON.stringify(R.items().map(x => x.label)) === base && keysEnPantalla() === baseKeys && sameGroups && grupos() !== baseGroups, baseGroups);
+  T.ok("S3 la lista es idéntica aunque cambien despensa, precios y presupuesto", JSON.stringify(R.items().map(x => x.label)) === base && keysEnPantalla() === baseKeys && sameGroups && grupos() !== baseGroups, baseGroups);
   // S3b budget estimate still uses pantry + multiplier (estimation panel, unchanged behaviour)
   document.getElementById("shoppingBudgetPanel").open = true; shoppingBudgetRender(); await wait(20);
   const budgetTxt = document.getElementById("shoppingBudgetResult").textContent;
-  T.ok("S3b el presupuesto sigue estimando con despensa y multiplicador (sin cambios)", /Costo parcial estimado: 0,00 ARS/.test(budgetTxt), budgetTxt.slice(0, 80));
-  document.getElementById("shoppingPortionMultiplier").value = "1"; document.getElementById("shoppingPortionMultiplier").dispatchEvent(new Event("change", { bubbles: true }));
+  T.ok("S3b el presupuesto sigue estimando con despensa (sin cambios)", /Costo parcial estimado: 0,00 ARS/.test(budgetTxt), budgetTxt.slice(0, 80));
   // S4 covered + Tachar; recipe-only ingredient
   reset();
   setAmounts({ [IDEA2]: { yield: 1, rows: [{ name: "Arroz", quantity: 300, unit: "g" }, { name: "Merluza", quantity: 2, unit: "unidad" }] } });
@@ -47,9 +45,9 @@
   const arroz = item("Arroz");
   // v15.4: Pendientes van por secciones del súper; "Ya tenés" se busca por su título.
   const pendientesVisibles = () => [...document.querySelectorAll("#comprasList .compras-seccion .shop-item label")].map(l => l.textContent);
-  const grupoPorTitulo = t => [...document.querySelectorAll("#comprasList details.shop-group")].find(d => d.querySelector("summary").textContent.startsWith(t + " ("));
+  const grupoPorTitulo = t => [...document.querySelectorAll("#comprasList .shop-group")].find(d => d.querySelector("h3").textContent.startsWith(t + " ("));
   T.ok("S4a despensa suficiente va a Ya tenés, sin tachar sola", arroz.label === "Arroz: 300 g" && arroz.suggestion.kind === "covered" && arroz.group === "tenes" && !comprasDone[arroz.key]);
-  T.ok("S4b lo que ya tenés no cuenta como pendiente y está en el grupo plegado", /1 pendientes · 0 tachados/.test(document.getElementById("comprasSummary").textContent) && pendientesVisibles().includes("Merluza: 2 unidades") && !pendientesVisibles().some(t => t.startsWith("Arroz")) && !!grupoPorTitulo("Ya tenés") && !grupoPorTitulo("Ya tenés").open && grupoPorTitulo("Ya tenés").textContent.includes("Arroz: 1 paquete de 1.000 g"), document.getElementById("comprasSummary").textContent);
+  T.ok("S4b lo que ya tenés no cuenta como pendiente y está en su grupo, a la vista", /1 pendientes · 0 tachados/.test(document.getElementById("comprasSummary").textContent) && pendientesVisibles().includes("Merluza: 2 unidades") && !pendientesVisibles().some(t => t.startsWith("Arroz")) && !!grupoPorTitulo("Ya tenés") && grupoPorTitulo("Ya tenés").tagName === "DIV" && grupoPorTitulo("Ya tenés").textContent.includes("Arroz: 1 paquete de 1.000 g"), document.getElementById("comprasSummary").textContent);
   const merluza = item("Merluza");
   [...document.querySelectorAll("#comprasList [data-shop-key]")].find(x => x.dataset.shopKey === merluza.key).click(); await wait(40);
   const ticked = /0 pendientes · 1 tachados/.test(document.getElementById("comprasSummary").textContent);

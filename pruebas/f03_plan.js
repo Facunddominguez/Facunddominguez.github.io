@@ -26,8 +26,8 @@
   localStorage.setItem("miPlatoFacil_shoppingBudget_v1", JSON.stringify({ currency: "ARS", limit: 5000 }));
   await R.openPanel("shoppingToolsPanel"); await R.openPanel("shoppingBudgetPanel");
   T.ok("P2b presupuesto usa las porciones", /Costo parcial estimado: 200,00 ARS/.test($("shoppingBudgetResult").textContent));
-  await R.openPanel("shoppingQuantCostPanel");
-  T.ok("P2c 'Ajustar porciones' parte de las porciones del plan", /Papa: 200 g/.test($("shoppingQuantCostResult").textContent));
+  const p2c = shoppingMissingRows().find(r => r.name === "Papa");
+  T.ok("P2c lo que falta comprar parte de las porciones del plan", !!p2c && p2c.quantity === 200, JSON.stringify(p2c));
   let p = await abrirHueco(); p.value = "0"; p.dispatchEvent(new Event("change", { bubbles: true })); await wait(20);
   T.ok("P3 porciones inválidas se rechazan", /entre 0,25 y 100/.test($("planStatus").textContent) && Semana.loadPlanPortions()["lunes|almuerzo"] === 2);
   p = document.querySelector('[data-plan-portions="lunes|almuerzo"]'); p.value = ""; p.dispatchEvent(new Event("change", { bubbles: true })); await wait(20);
