@@ -54,23 +54,23 @@ Cada ítem tiene un control `R5-<ID>` en `docs/validacion/criterios.json`. Las c
 | M-09 | "Pedir ideas a la IA" es un botón, no un desplegable, y aparece solo con clave de Gemini. | 40 | R5-M-09 | ideas-ia-antes.png | ideas-ia-despues.png | ✅ |
 | M-10 | Espaciado de la sección Ideas: al menos 12 px entre bloques y nada encimado a 320 px. | 40 | R5-M-10 | ideas-antes.png, ideas-antes-oscuro.png | ideas-despues.png, ideas-despues-oscuro.png | ✅ |
 | A-01 | Sin clave de Gemini guardada no aparece ningún botón ni sección de IA en ninguna pantalla (incluido crear receta), salvo Más → Asistente de IA. "Con tu app de IA" se elimina. | 40 | R5-A-01 | ideas-ia-antes.png, receta-nueva-antes.png | ideas-ia-despues.png, receta-nueva-despues.png | ✅ |
-| K-01 | Se elimina el botón Deshacer de Compras. | 41 | R5-K-01 | — | — | ⬜ |
-| K-02 | "Agregar producto" (y los formularios parecidos de Compras y Despensa) es un recuadro con los campos a la vista, con al menos 8 px entre el botón y el rótulo "Producto". | 41 | R5-K-02 | — | — | ⬜ |
-| K-03 | "Ya tenés" no es un desplegable: se ve directo. | 41 | R5-K-03 | — | — | ⬜ |
-| K-04 | Se puede sacar un producto de "Ya tenés" para que vuelva a la lista (con un botón en cada fila). | 41 | R5-K-04 | — | — | ⬜ |
-| K-05 | En ⋯, "Compras realizadas" abre su contenido directo, sin otro desplegable. | 41 | R5-K-05 | — | — | ⬜ |
-| K-06 | Se eliminan los botones "Compartir", "Copiar lista" y "Ver la semana" del pie de todas las subsecciones del menú ⋯ de Compras. | 41 | R5-K-06 | — | — | ⬜ |
-| K-07 | En Compras realizadas, cada producto muestra claro cantidad, unidad y precio, en una fila prolija; en tema oscuro el selector de unidad no tiene fondo blanco. | 41 | R5-K-07 | — | — | ⬜ |
-| K-08 | Compras realizadas muestra el total de la suma de los precios cargados, para compararlo con el ticket. | 41 | R5-K-08 | — | — | ⬜ |
-| K-09 | "Actualizar Mis precios" y "Sumar a la despensa" van en renglones separados. | 41 | R5-K-09 | — | — | ⬜ |
-| K-10 | Se elimina "Presupuesto" del menú ⋯ (ya está en la lista). | 41 | R5-K-10 | — | — | ⬜ |
-| K-11 | Se elimina "Compartir o copiar lista" del menú ⋯. | 41 | R5-K-11 | — | — | ⬜ |
-| K-12 | "Porciones, existencias y costos" sale del menú ⋯. Lo útil que no esté ya en la pestaña Despensa (cargar existencias con cantidad) pasa a Despensa sin desplegables; anotá en el Registro qué pasó y qué ya existía. | 41 | R5-K-12 | — | — | ⬜ |
-| K-13 | Se elimina "Calcular para otras recetas". | 41 | R5-K-13 | — | — | ⬜ |
-| K-14 | "Mis precios" y "Costo de una receta" abren su contenido directo, sin desplegables. | 41 | R5-K-14 | — | — | ⬜ |
-| K-15 | "Mis precios" avisa qué ingredientes no tienen precio (los de la semana primero) y deja elegir uno de una lista o escribir uno propio. | 41 | R5-K-15 | — | — | ⬜ |
-| K-16 | En Despensa se eliminan el botón Deshacer y "Todos los movimientos" (los datos quedan). | 41 | R5-K-16 | — | — | ⬜ |
-| K-17 | "Revisar qué tengo y qué falta" es un botón, no un desplegable. | 41 | R5-K-17 | — | — | ⬜ |
+| K-01 | Se elimina el botón Deshacer de Compras. | 41 | R5-K-01 | compras-comprado-antes.png | compras-comprado-despues.png | ✅ |
+| K-02 | "Agregar producto" (y los formularios parecidos de Compras y Despensa) es un recuadro con los campos a la vista, con al menos 8 px entre el botón y el rótulo "Producto". | 41 | R5-K-02 | compras-antes.png, despensa-antes.png | compras-despues.png, despensa-despues.png | ✅ |
+| K-03 | "Ya tenés" no es un desplegable: se ve directo. | 41 | R5-K-03 | compras-antes.png | compras-despues.png | ✅ |
+| K-04 | Se puede sacar un producto de "Ya tenés" para que vuelva a la lista (con un botón en cada fila). | 41 | R5-K-04 | compras-antes.png | compras-despues.png | ✅ |
+| K-05 | En ⋯, "Compras realizadas" abre su contenido directo, sin otro desplegable. | 41 | R5-K-05 | compras-realizadas-antes.png | compras-realizadas-despues.png | ✅ |
+| K-06 | Se eliminan los botones "Compartir", "Copiar lista" y "Ver la semana" del pie de todas las subsecciones del menú ⋯ de Compras. | 41 | R5-K-06 | compras-realizadas-antes.png, compras-realizadas-antes-oscuro.png | compras-realizadas-despues.png, compras-realizadas-despues-oscuro.png | ✅ |
+| K-07 | En Compras realizadas, cada producto muestra claro cantidad, unidad y precio, en una fila prolija; en tema oscuro el selector de unidad no tiene fondo blanco. | 41 | R5-K-07 | compras-realizadas-antes.png, compras-realizadas-antes-oscuro.png | compras-realizadas-despues.png, compras-realizadas-despues-oscuro.png | ✅ |
+| K-08 | Compras realizadas muestra el total de la suma de los precios cargados, para compararlo con el ticket. | 41 | R5-K-08 | compras-realizadas-antes.png, compras-realizadas-antes-oscuro.png | compras-realizadas-despues.png, compras-realizadas-despues-oscuro.png | ✅ |
+| K-09 | "Actualizar Mis precios" y "Sumar a la despensa" van en renglones separados. | 41 | R5-K-09 | compras-realizadas-antes.png, compras-realizadas-antes-oscuro.png | compras-realizadas-despues.png, compras-realizadas-despues-oscuro.png | ✅ |
+| K-10 | Se elimina "Presupuesto" del menú ⋯ (ya está en la lista). | 41 | R5-K-10 | compras-menu-antes.png | compras-menu-despues.png | ✅ |
+| K-11 | Se elimina "Compartir o copiar lista" del menú ⋯. | 41 | R5-K-11 | compras-menu-antes.png | compras-menu-despues.png | ✅ |
+| K-12 | "Porciones, existencias y costos" sale del menú ⋯. Lo útil que no esté ya en la pestaña Despensa (cargar existencias con cantidad) pasa a Despensa sin desplegables; anotá en el Registro qué pasó y qué ya existía. | 41 | R5-K-12 | compras-menu-antes.png, despensa-antes.png | compras-menu-despues.png, despensa-despues.png | ✅ |
+| K-13 | Se elimina "Calcular para otras recetas". | 41 | R5-K-13 | compras-menu-antes.png | compras-menu-despues.png | ✅ |
+| K-14 | "Mis precios" y "Costo de una receta" abren su contenido directo, sin desplegables. | 41 | R5-K-14 | compras-precios-antes.png, compras-costo-receta-antes.png | compras-precios-despues.png, compras-costo-receta-despues.png | ✅ |
+| K-15 | "Mis precios" avisa qué ingredientes no tienen precio (los de la semana primero) y deja elegir uno de una lista o escribir uno propio. | 41 | R5-K-15 | compras-precios-antes.png | compras-precios-despues.png | ✅ |
+| K-16 | En Despensa se eliminan el botón Deshacer y "Todos los movimientos" (los datos quedan). | 41 | R5-K-16 | despensa-antes.png | despensa-despues.png | ✅ |
+| K-17 | "Revisar qué tengo y qué falta" es un botón, no un desplegable. | 41 | R5-K-17 | despensa-antes.png | despensa-despues.png | ✅ |
 | X-01 | En Preferencias, "Objetivos semanales" es un botón con el mismo estilo que el de Presupuesto, no un desplegable. | 42 | R5-X-01 | — | — | ⬜ |
 | X-02 | Al editar el presupuesto el contenido se ve directo, sin el desplegable "Presupuesto". La única excepción adentro es "Comparar alternativas de precio". | 42 | R5-X-02 | — | — | ⬜ |
 | X-03 | Error: en Comparar alternativas de precio, "Probá otro precio guardado" no cambia nada. Que cambie el precio usado y el total. | 42 | R5-X-03 | — | — | ⬜ |
