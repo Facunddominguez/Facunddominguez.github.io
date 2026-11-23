@@ -184,7 +184,6 @@ document.addEventListener("click",e=>{
       }
       if(u.keys)u.keys.forEach(k=>comprasTransferred.delete(k));
       RegistroRapido.afterOneTap();
-      if(key==="bought")renderCompras();
       RegistroRapido.oneTapStatus(u.status,"Listo, se deshizo.")
     }
   }catch(err){

@@ -2183,17 +2183,6 @@ body:has(#home.is-active) .app-shell{
 
 }
 
-#quantShoppingPanel input[type="text"]{
-  width:100%;
-  min-height:44px;
-  padding:10px;
-  border:1px solid var(--line);
-  border-radius:12px;
-  background:var(--surface);
-  color:var(--text);
-  font:inherit
-}
-
 #pricePanel input,#pricePanel select{
   width:100%;
   min-height:44px;
@@ -3671,8 +3660,8 @@ select{max-width:100%;min-width:0}
 #manualShoppingForm{display:grid;grid-template-columns:1fr 1fr;gap:0 10px;align-items:start}
 #manualShoppingForm .portion-field+.portion-field{margin-top:0}
 #manualShoppingForm .summary-actions{grid-column:1 / -1}
-#manualShopList .manual-shop-row{flex-wrap:nowrap}
-#manualShopList .manual-shop-row .shop-item{flex:1 1 0;min-width:0}
+#manualShopList .manual-shop-row .shop-item{flex:1 1 150px;min-width:0}
+#manualShopList .manual-shop-row .shop-item>span{min-width:0;overflow-wrap:anywhere}
 #manualShopList .manual-shop-row .filter-chip{flex:0 0 auto}
 .despensa-revisar{margin:12px 0}
 .despensa-revisar .button{width:100%}
