@@ -52,7 +52,11 @@
   // Caso común: 1 persona y un presupuesto que alcanza (aviso de una línea corta). Caso más largo: 2 personas y $90.000 (aviso con "Te pasás…").
   const arriba = {}, largo = {};
   for (const ancho of [390, 320]) for (const [dest, extra] of [[arriba, { ...PRES(100000) }], [largo, { ...PRES(90000), ...HOGAR(2) }]]) {
-    cargar({ ...MARCA, ...extra, ...metas }); await abrir(ancho); await armar();
+    cargar({ ...MARCA, ...extra, ...metas }); await abrir(ancho);
+    // Las semillas de "Armame la semana" dependen de la semana actual y el largo del aviso ("Lo que más pesa …") depende de lo que arme:
+    // se arma con la semana del 9/11/2026 para que el resultado no cambie según el día en que se corre (con DejaVu, 611 px en otras semanas).
+    ev('openTab("semana")'); await espera(200);
+    ev('(() => { const o = Semana.semanaActual; Semana.semanaActual = () => "2026-11-09"; let a; try { a = ArmameSemana.armar({ modo: "todo" }) } finally { Semana.semanaActual = o } return ArmameSemana.aplicar(a) })()'); await espera(500);
     ev("window.scrollTo(0, 0)"); await espera(100);
     const h = doc().querySelector("#planList .hueco");
     dest[ancho] = { top: Math.round(h.getBoundingClientRect().top), chips: [...doc().querySelectorAll("#planDias .semana-dia-chip")].map(c => Math.round(c.getBoundingClientRect().width * 10) / 10), aviso: texto("planAviso").length };
