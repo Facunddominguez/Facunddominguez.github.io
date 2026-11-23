@@ -91,7 +91,7 @@ function applyStockChanges(changes,reason){
 }
 document.getElementById("recipeReadCooked").addEventListener("click",()=>{
   const st=document.getElementById("recipeCatalogCount");try{
-    const id=recipeReadId;if(!id)throw Error("Abrí una receta guardada primero.");const r=loadRecipeDetails()[id],a=r&&r.amountsTitle&&loadRecipeAmounts()[r.amountsTitle];if(!a)throw Error("Esta receta no tiene ingredientes con cantidades.");if(!window.confirm("¿Descontar de la despensa los ingredientes de la receta completa (rinde "+String(a.yield).replace(".",",")+" porciones)? No se descuenta nada que no tengas registrado."))return;const res=MovimientosDespensa.deductRecipeFromPantry(id);st.textContent=(res.moves.length?"Despensa actualizada: "+res.moves.length+" movimiento"+(res.moves.length===1?"":"s")+".":"No había existencias registradas para descontar.")+(res.short.length?" No alcanzó: "+res.short.join("; ")+".":"");Existencias.renderStockQuantities();renderCompras()
+    const id=recipeReadId;if(!id)throw Error("Abrí una receta guardada primero.");const r=loadRecipeDetails()[id],a=r&&r.amountsTitle&&loadRecipeAmounts()[r.amountsTitle];if(!a)throw Error("Esta receta no tiene ingredientes con cantidades.");if(!window.confirm("¿Descontar de la despensa los ingredientes de la receta completa (rinde "+String(a.yield).replace(".",",")+" porciones)? No se descuenta nada que no tengas registrado."))return;const res=MovimientosDespensa.deductRecipeFromPantry(id);st.textContent=(res.moves.length?"Despensa actualizada: "+res.moves.length+" movimiento"+(res.moves.length===1?"":"s")+".":"No había existencias registradas para descontar.")+(res.short.length?" No alcanzó: "+res.short.join("; ")+".":"");renderCompras()
   }catch(err){
     st.textContent=err.message
   }

@@ -334,7 +334,7 @@ document.getElementById("purchaseFromList").addEventListener("click",()=>{
 });
 document.getElementById("purchaseSave").addEventListener("click",()=>{
   const st=document.getElementById("purchaseStatus");try{
-    const r=ComprasHechas.savePurchase();document.getElementById("purchaseItems").replaceChildren();document.getElementById("purchaseTotal").value="";ComprasHechas.renderPurchaseSum();document.getElementById("purchaseStore").value="";st.textContent="Compra registrada."+(r.count?" Se guardaron "+r.count+" precios de referencia.":"")+(r.priceError?" No se pudieron guardar los precios.":"")+(r.stockAdded?" Se sumaron "+r.stockAdded+" productos a la despensa.":"")+(r.stockError?" "+r.stockError:"");Existencias.renderStockQuantities();ComprasHechas.renderPurchases();if(document.getElementById("shoppingBudgetPanel").open)shoppingBudgetRender();if(document.getElementById("pricePanel").open)CantidadesCostos.renderReferencePrices()
+    const r=ComprasHechas.savePurchase();document.getElementById("purchaseItems").replaceChildren();document.getElementById("purchaseTotal").value="";ComprasHechas.renderPurchaseSum();document.getElementById("purchaseStore").value="";st.textContent="Compra registrada."+(r.count?" Se guardaron "+r.count+" precios de referencia.":"")+(r.priceError?" No se pudieron guardar los precios.":"")+(r.stockAdded?" Se sumaron "+r.stockAdded+" productos a la despensa.":"")+(r.stockError?" "+r.stockError:"");ComprasHechas.renderPurchases();if(document.getElementById("shoppingBudgetPanel").open)shoppingBudgetRender();if(document.getElementById("pricePanel").open)CantidadesCostos.renderReferencePrices()
   }catch(err){
     st.textContent=err.message
   }
