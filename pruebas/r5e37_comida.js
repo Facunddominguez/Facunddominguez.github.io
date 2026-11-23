@@ -8,12 +8,15 @@
   // R5-C-01: cambiar una comida (hueco lleno) y armar una nueva deja la armada en el hueco, desde Semana (almuerzo, merienda y semana que viene) y desde Hoy.
   // No se pudo reproducir el error con estos caminos (ver el Registro de la Etapa 37): la prueba exige el resultado pedido en todos.
   const planProx = () => (JSON.parse(localStorage.getItem("miPlatoFacil_planProxima_v1") || "{}").plan) || {};
-  const armarPlato = async () => {
+  // `otro`: arma un plato distinto del de Tomate, Papa y Merluza (guardar el mismo plato reusa la misma comida: si hoy es lunes,
+  // el almuerzo de Hoy ya tiene ese plato por el primer flujo y el cambio no se notaría).
+  const armarPlato = async (otro) => {
     if (pantalla() === "day") await tocar(q('#day [data-day="Día libre"]'));
     if (pantalla() === "plate_static") await tocar(q('#plate_static [data-go="lunch_veg"]'));
-    await tocar(q('#boxv [data-name="Tomate"]')); await tocar(doc().getElementById("nextBottom"));
-    await tocar(q('#boxa [data-name="Papa"]')); await tocar(doc().getElementById("nextBottom"));
-    await tocar(q('#boxp [data-name="Merluza"]')); await tocar(doc().getElementById("nextBottom"));
+    const elegir = (caja, nombre) => otro ? doc().querySelector(`${caja} [data-name]:not([data-name="${nombre}"])`) : q(`${caja} [data-name="${nombre}"]`);
+    await tocar(elegir("#boxv", "Tomate")); await tocar(doc().getElementById("nextBottom"));
+    await tocar(elegir("#boxa", "Papa")); await tocar(doc().getElementById("nextBottom"));
+    await tocar(elegir("#boxp", "Merluza")); await tocar(doc().getElementById("nextBottom"));
   };
   const armarDesayuno = async () => {
     for (let i = 0; i < 8 && pantalla() !== "resumen"; i++) {
@@ -21,12 +24,12 @@
       const nb = doc().getElementById("nextBottom"); if (nb && nb.getClientRects().length) { nb.click(); await espera(250) }
     }
   };
-  const flujo = async (nombre, tab, dia, slot, tipo, leer) => {
+  const flujo = async (nombre, tab, dia, slot, tipo, leer, otro) => {
     const antes = leer(dia, slot);
     await tocar(q(tab === "hoy" ? `#home [data-hueco-hoy="${dia}|${slot}"]` : `#planList [data-hueco="${dia}|${slot}"]`));
     await tocar(q(".hoja [data-hueco-cambiar]"));
     await tocar(q(`.hoja [data-start="${tipo}"][data-start-day="${dia}"][data-start-slot="${slot}"]`));
-    if (tipo === "plato") await armarPlato(); else await armarDesayuno();
+    if (tipo === "plato") await armarPlato(otro); else await armarDesayuno();
     await tocar(q("#resumen [data-save-plate]")); await tocar(q(".hoja .button--primary"), 400);
     const despues = leer(dia, slot);
     return { nombre, antes, despues, ok: !!despues && despues !== antes && !!ev(`MisPlatos.loadSaved().find(x => x.id === ${JSON.stringify(despues)})`) && pantalla() === (tab === "hoy" ? "home" : "plan") };
@@ -43,7 +46,7 @@
   ev("Semana.verSemana(0)"); await espera(200);
   ev('openTab("hoy")'); await espera(300);
   const hoyDia = ev("todayPlanDay()");
-  const f4 = await flujo("hoy almuerzo", "hoy", hoyDia, "almuerzo", "plato", (d, s) => plan()[d][s]);
+  const f4 = await flujo("hoy almuerzo", "hoy", hoyDia, "almuerzo", "plato", (d, s) => plan()[d][s], true);
   ok("R5-C-01 al cambiar una comida y armar una nueva con '+ Armar nueva', la comida armada queda en el hueco y se vuelve a la pantalla de donde se empezó (Semana: almuerzo, merienda y semana que viene; Hoy)",
     f1.ok && f2.ok && f3.ok && f4.ok && /Tomate/.test(nuevaSemana || ""), JSON.stringify({ f1, f2, f3, f4 }));
 

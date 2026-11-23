@@ -34,10 +34,9 @@
   document.getElementById("amountSave").click(); await wait(20);
   go("compras"); await wait(40);
   T.ok("E4b editar cambia la misma clave, sin duplicados", Object.keys(loadRecipeAmounts()).length === 1 && R.renderedRows().includes("Papa: 400 g"));
-  await R.openPanel("quantShoppingPanel");
-  const qlabel = document.querySelector("#quantShoppingChoices .shop-item span").textContent;
-  document.querySelector("[data-quant-recipe]").checked = true; document.getElementById("quantShoppingCalculate").click(); await wait(20);
-  T.ok("E5a 'Calcular compras por recetas' muestra el nombre y calcula", qlabel === "Mi receta: Guiso de la abuela" && /Papa: 400 g/.test(document.getElementById("quantShoppingResult").textContent), qlabel);
+  // R5-K-13: "Calcular para otras recetas" se eliminó; la receta propia se nombra igual donde todavía se elige.
+  const qlabel = amountsLabel("receta:" + id, CantidadesCostos.safeRecipeDetails());
+  T.ok("E5a la receta con cantidades se nombra 'Mi receta: …' y 'Calcular para otras recetas' ya no existe", qlabel === "Mi receta: Guiso de la abuela" && !document.getElementById("quantShoppingPanel") && !document.getElementById("quantShoppingCalculate") && !document.getElementById("stockDeductionPanel"), qlabel);
   await R.openPanel("recipeCostPanel");
   const costOpt = document.getElementById("recipeCostTitle").selectedOptions[0];
   T.ok("E5b 'Estimar costo' lista la receta por su nombre", !!costOpt && costOpt.textContent === "Mi receta: Guiso de la abuela" && costOpt.value === "receta:" + id);

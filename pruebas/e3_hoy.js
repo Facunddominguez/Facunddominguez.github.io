@@ -154,7 +154,8 @@
   const enDesayuno = q('.hoja [data-sugerime-comida="desayuno"]').getAttribute("aria-pressed") === "true";
   // Desde la v19.5 (R5-H-04) el desayuno también propone una idea; "Ver y cambiar" la lleva al armado.
   await tocar(q(".hoja [data-sugerime-ver]"));
-  const frutaOk = ev("!!(state.fruta && state.fruta.name) && data.frutaFormas.includes(state.fruta.forma)"), destino6 = ev("JSON.stringify(armadoDestino)");
+  // La idea sugerida depende de la fecha: puede traer su propia fruta (state.fruta) o ser un desayuno del catálogo sin fruta aparte (state.nombreSugerido).
+  const frutaOk = ev("(!!(state.fruta && state.fruta.name) && data.frutaFormas.includes(state.fruta.forma)) || !!state.nombreSugerido"), destino6 = ev("JSON.stringify(armadoDestino)");
   await tocar(q("#resumen [data-save-plate]")); await tocar(q(".hoja .button--primary"));
   const it6 = guardados().find(x => x.id === plan()[hoy()].desayuno);
   ok("C3-5h en el desayuno, \"Ver y cambiar\" arma uno con fruta y, al guardarlo, queda asignado", enDesayuno && frutaOk && destino6 === JSON.stringify({ dia: hoy(), slot: "desayuno", tab: "hoy" }) && !!it6 && it6.type === "desayuno" && pantalla() === "home", destino6);
