@@ -697,6 +697,7 @@ document.addEventListener("click",e=>{
     if(panel.id==="recipeDetailsPanel")renderRecipeCatalog();
     if(panel.id==="aiIdeasPanel")AsistenteIA.pintarIdeasConLoQueTengo();
     if(panel.id==="recipeAmountsPanel")CantidadesCostos.abrirPanelDeCantidades();
+    if(panel.id==="pantryReviewPanel")RevisionDespensa.renderPantryReview(true);
     panel.scrollIntoView({block:"start"})
   }
 });

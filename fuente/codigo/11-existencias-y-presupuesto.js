@@ -5,35 +5,6 @@ var Existencias={
 stockKey(name,unit){
   return JSON.stringify([normalizeSearchText(name),unit])
 },
-renderStockQuantities(){
-  const box=document.getElementById("stockList");
-  box.replaceChildren();
-  const values=Object.entries(loadStockQuantities()).sort((a,b)=>a[1].name.localeCompare(b[1].name,"es"));
-  if(!values.length){
-    box.append(ce("p","screen__hint","Todavía no registraste cantidades disponibles."));
-    renderPantryMoves();
-    return
-  }
-  for(const [key,item] of values){
-    const row=ce("div","shop-item"),label=ce("span",null,item.name+": "+cantidadLegible(item.quantity,item.unit)),edit=ce("button","button button--soft","Editar"),remove=ce("button","button button--danger","Quitar");
-    edit.type=remove.type="button";
-    edit.addEventListener("click",()=>{
-      document.getElementById("stockIngredient").value=item.name;document.getElementById("stockQuantity").value=item.quantity;document.getElementById("stockUnit").value=item.unit;document.getElementById("stockIngredient").focus()
-    });
-    remove.addEventListener("click",()=>{
-      const stock=loadStockQuantities(),old=stock[key];delete stock[key];try{
-        localStorage.setItem(STOCK_QUANT_KEY,JSON.stringify(stock));if(old&&old.quantity)logPantryMoves([{
-          name:old.name,unit:old.unit,delta:-old.quantity,reason:"Quitada de la despensa"
-        }]);Existencias.renderStockQuantities();shoppingQuantityAndCost();renderCompras()
-      }catch(e){
-        document.getElementById("stockStatus").textContent="No se pudo actualizar la despensa."
-      }
-    });
-    row.append(label,edit,remove);
-    box.append(row)
-  }
-  renderPantryMoves()
-},
 startupGuard(label,fn){
   try{
     fn()
@@ -125,49 +96,7 @@ function loadStockQuantities(){
     }
   }
 }
-function saveStockQuantity(){
-  const status=document.getElementById("stockStatus"),name=document.getElementById("stockIngredient").value.trim(),raw=document.getElementById("stockQuantity").value,quantity=Number(raw),unit=document.getElementById("stockUnit").value;
-  if(!name||!raw.trim()||!Number.isFinite(quantity)||quantity<0||quantity>100000000||!unit){
-    status.textContent="Completá ingrediente, cantidad no negativa y unidad.";
-    return
-  }
-  const stock=loadStockQuantities(),key=Existencias.stockKey(name,unit);
-  if(!stock[key]&&Object.keys(stock).length>=500){
-    status.textContent="Máximo 500 existencias registradas.";
-    return
-  }
-  const oldQty=stock[key]?stock[key].quantity:0;
-  stock[key]={
-    name,quantity,unit
-  };
-  try{
-    localStorage.setItem(STOCK_QUANT_KEY,JSON.stringify(stock));
-    if(quantity!==oldQty)logPantryMoves([{
-      name,unit,delta:quantity-oldQty,reason:"Ajuste manual"
-    }]);
-    status.textContent="Existencia guardada. Las cantidades de recetas no se modificaron.";
-    Existencias.renderStockQuantities();
-    shoppingQuantityAndCost();
-    renderCompras()
-  }catch(e){
-    status.textContent="No se pudo guardar. Revisá el espacio disponible."
-  }
-}
-function initStockQuantities(){
-  const select=document.getElementById("stockUnit");
-  const fill=units=>{
-    const current=select.value;
-    select.replaceChildren(...units.map(unit=>{
-      const opt=ce("option",null,unit);opt.value=unit;return opt
-    }));
-    if(units.includes(current))select.value=current
-  };
-  fill(["g","kg","ml","l","unidad"]);
-  setTimeout(()=>fill(RECIPE_AMOUNT_UNITS),0);
-  document.getElementById("stockSave").addEventListener("click",saveStockQuantity);
-  Existencias.renderStockQuantities()
-}
-Existencias.startupGuard("Existencias de despensa",initStockQuantities);
+// v19.8 (R5-K-12): el formulario "Existencias" de Compras se fue; cargar existencias con cantidad se hace en Despensa (33-despensa-unica.js).
 const SHOP_BUDGET_KEY="miPlatoFacil_shoppingBudget_v1";
 function shoppingBudgetRead(){
   try{

@@ -232,13 +232,37 @@ shoppingRow(x,i,checked,detail){
   if(detail)row.append(ce("span","shop-item__detail",Ingredientes.textoLegible(detail)));
   return row
 },
-shoppingGroup(title,list,open,onToggle){
-  const box=ce("details","home-group shop-group");
-  box.open=open;
+// v19.8 (R5-K-03): los grupos de abajo ("Ya tenés", "Ya en tu despensa") se ven directo, sin desplegable.
+shoppingGroup(title,list){
+  const box=ce("div","home-group shop-group");
   box.dataset.grupo=title;
-  box.addEventListener("toggle",()=>onToggle(box.open));
-  box.append(ce("summary",null,title+" ("+list.length+")"));
+  box.append(ce("h3","plan-day__title",title+" ("+list.length+")"));
   return box
+},
+// v19.8 (R5-K-04): lo que sacás de "Ya tenés" vuelve a la lista de esa semana. Se guarda en miPlatoFacil_comprasVueltas_v1
+// ({"2026-11-23": ["clave", …]}, una entrada por semana; se conservan las últimas 12).
+validVueltas(o){
+  return !!o&&typeof o==="object"&&!Array.isArray(o)&&Object.keys(o).length<=520&&Object.entries(o).every(([k,v])=>Rutina.validTrainingDate(k)&&Array.isArray(v)&&v.length<=1000&&v.every(x=>typeof x==="string"&&x.length>0&&x.length<=200))
+},
+loadVueltas(){
+  try{
+    const o=JSON.parse(localStorage.getItem(COMPRAS_VUELTAS_KEY)||"{}");
+    return Compras.validVueltas(o)?o:{}
+  }catch(e){
+    return {}
+  }
+},
+vueltasDeLaSemana(){
+  const v=Compras.loadVueltas()[Compras.shoppingChecksWeek()];
+  return new Set(v||[])
+},
+devolverALaLista(key){
+  const all=Compras.loadVueltas(),wk=Compras.shoppingChecksWeek(),set=new Set(all[wk]||[]);
+  set.add(key);
+  all[wk]=[...set].sort();
+  const keep=Object.keys(all).sort().reverse().slice(0,12),out=Object.fromEntries(keep.sort().map(k=>[k,all[k]]));
+  if(!Compras.validVueltas(out))throw Error("No se pudo guardar el cambio.");
+  localStorage.setItem(COMPRAS_VUELTAS_KEY,JSON.stringify(out))
 },
 equivalenciaSugerida(items){
   try{
@@ -291,22 +315,6 @@ comprasText(){
   const total=precios&&precios.total>0?NL+NL+"*Total "+formatoPesos(precios.total)+"*"+(precios.sinEstimar?" (al menos)":"")+(precios.estimados?" · incluye "+precios.estimados+(precios.estimados===1?" precio estimado":" precios estimados"):""):"";
   return "🛒 Lista de compras — Mi plato fácil"+NL+lines.join(NL)+(extras?(lines.length?NL+NL:"")+"Productos extra"+NL+extras:"")+total
 },
-copyCompras(){
-  let t;
-  try{
-    t=Compras.comprasText()
-  }catch(err){
-    comprasStatus(err.message);
-    return
-  }
-  if(!t){
-    comprasStatus("No hay ingredientes para copiar (¿tachaste todos?).");
-    return
-  }
-  doCopy(t).then(function(ok){
-    comprasStatus(ok?"¡Lista copiada!":"No se pudo copiar.")
-  })
-},
 shareCompras(){
   let t;
   try{
@@ -336,107 +344,9 @@ shareCompras(){
   }
 }
 };
-function shoppingQuantityAndCost(){
-  const box=document.getElementById("shoppingQuantCostResult");
-  if(!box)return;
-  box.replaceChildren();
-  const multiplier=Number(document.getElementById("shoppingPortionMultiplier").value);
-  if(!Number.isFinite(multiplier)||multiplier<0.25||multiplier>20){
-    box.textContent="Ingresá un multiplicador entre 0,25 y 20.";
-    return
-  }
-  const pantryNames=MarcasDespensa.pantryMarkedMatcher();
-  const markPantry=document.getElementById("shoppingMarkPantry").checked,stock=loadStockQuantities();
-  let recipes;
-  try{
-    recipes=loadRecipeDetails()
-  }catch(err){
-    box.textContent=err.message;
-    return
-  }
-  const planned=Semana.planEntriesFlat().filter(x=>x.item&&x.item.recipeSourceId),amounts=loadRecipeAmounts(),prices=Object.values(loadReferencePrices()),totals=new Map(),issues=[];
-  for(const {
-    item,portions
-  } of planned){
-    const recipe=recipes[item.recipeSourceId],amount=recipe&&recipe.amountsTitle&&amounts[recipe.amountsTitle];
-    if(!amount){
-      issues.push((item.title||"Receta")+": cantidades no disponibles");
-      continue
-    }
-    for(const row of amount.rows){
-      if(!row.name||!row.name.trim())continue;
-      const key=JSON.stringify([ingredientKey(row.name),Ingredientes.unitInfo(row.unit).dim]);
-      if(!totals.has(key))totals.set(key,{
-        name:row.name,unit:row.unit,quantity:0,unknown:false,uses:0
-      });
-      const entry=totals.get(key);
-      entry.uses++;
-      if(row.quantity===null)entry.unknown=true;
-      else entry.quantity+=convertQuantity(row.quantity,row.unit,entry.unit)*multiplier*Semana.portionFactor(portions,amount)
-    }
-  }
-  const summary=ce("p","screen__hint",planned.length+" recetas de la semana con cantidades.");
-  box.append(summary);
-  if(!planned.length){
-    box.append(ce("p","screen__hint","Asigná recetas con cantidades al plan para ver el detalle."));
-    return
-  }
-  const ul=ce("ul"),currencyTotals={
-  },missing=[];
-  for(const item of [...totals.values()].sort((a,b)=>a.name.localeCompare(b.name,"es"))){
-    const li=ce("li"),quantity=Number(item.quantity.toFixed(6)),available=Ingredientes.stockQuantityFor(stock,item.name,item.unit),known=Number.isFinite(available),needed=known?Math.max(0,item.quantity-available):item.quantity;
-    let label=item.name+(markPantry&&pantryNames.has(normalizeSearchText(item.name))?" (marcado en despensa; cantidad disponible desconocida)":"")+": "+quantity.toLocaleString("es-AR",{
-      maximumFractionDigits:6
-    })+" "+item.unit+(item.unknown?" (más cantidades desconocidas)":"")+(known?" · Disponible: "+available.toLocaleString("es-AR")+" "+item.unit+" · Falta comprar: "+Number(needed.toFixed(6)).toLocaleString("es-AR")+" "+item.unit:"");
-    const matches=Ingredientes.pricesFor(prices,item.name,item.unit).filter(p=>true);
-    if(item.unknown||!item.quantity){
-      missing.push(item.name+": cantidad incompleta")
-    }else if(matches.length!==1){
-      missing.push(item.name+": "+(matches.length?"varios precios posibles":"sin precio compatible"))
-    }else{
-      const price=matches[0],cost=needed*price.price/price.amount;
-      if(Number.isFinite(cost)){
-        currencyTotals[price.currency]=(currencyTotals[price.currency]||0)+cost;
-        label+=" · "+cost.toLocaleString("es-AR",{
-          minimumFractionDigits:2,maximumFractionDigits:2
-        })+" "+price.currency+" (referencia: "+typedAppDateLabel(price.date)+")"
-      }else missing.push(item.name+": costo fuera de rango")
-    }
-    li.textContent=Ingredientes.textoLegible(label);
-    ul.append(li)
-  }
-  box.append(ul);
-  for(const [currency,total] of Object.entries(currencyTotals))box.append(ce("p","shop-item","Subtotal estimado con referencias inequívocas: "+total.toLocaleString("es-AR",{
-    minimumFractionDigits:2,maximumFractionDigits:2
-  })+" "+currency));
-  // Lo que falta estimar, agrupado por motivo (v15.4: una línea por motivo en vez de una por ingrediente).
-  if(missing.length||issues.length){
-    box.append(ce("strong",null,"Pendiente de estimar:"));
-    const list=ce("ul"),porMotivo=new Map();
-    for(const m of missing){
-      const i=m.lastIndexOf(": "),motivo=m.slice(i+2);
-      if(!porMotivo.has(motivo))porMotivo.set(motivo,[]);
-      porMotivo.get(motivo).push(m.slice(0,i))
-    }
-    for(const issue of issues)list.append(ce("li",null,issue));
-    for(const [motivo,nombres] of porMotivo)list.append(ce("li",null,motivo.charAt(0).toUpperCase()+motivo.slice(1)+": "+nombres.join(", ")));
-    box.append(list)
-  }
-  box.append(ce("p","screen__hint","Multiplicador "+multiplier+"."))
-}
-document.getElementById("shoppingPortionMultiplier").addEventListener("change",()=>{
-  shoppingQuantityAndCost();renderCompras()
-});
-document.getElementById("shoppingMarkPantry").addEventListener("change",shoppingQuantityAndCost);
-document.getElementById("shoppingQuantCostRefresh").addEventListener("click",()=>{
-  shoppingQuantityAndCost();renderCompras()
-});
-document.getElementById("shoppingQuantCostPanel").addEventListener("toggle",e=>{
-  if(e.currentTarget.open)shoppingQuantityAndCost()
-});
+// v19.8 (R5-K-12): "Porciones, existencias y costos" salió de Compras; el presupuesto compara el plan tal cual está (multiplicador 1).
 function shoppingMissingRows(){
-  const totals=new Map(),unknown=new Set(),recipes=loadRecipeDetails(),amounts=loadRecipeAmounts(),stock=loadStockQuantities(),multiplier=Number(document.getElementById("shoppingPortionMultiplier").value);
-  if(!Number.isFinite(multiplier)||multiplier<0.25||multiplier>20)return [];
+  const totals=new Map(),unknown=new Set(),recipes=loadRecipeDetails(),amounts=loadRecipeAmounts(),stock=loadStockQuantities(),multiplier=1;
   for(const {
     item,portions
   } of Semana.planEntriesFlat()){
@@ -460,11 +370,12 @@ function shoppingMissingRows(){
     }
   }).sort((a,b)=>a.name.localeCompare(b.name,"es"))
 }
-let comprasShowAll=false,comprasTenesOpen=false,comprasCompradosOpen=false;
+let comprasShowAll=false;
 // Tachados y comprados por semana (desde la v15), en miPlatoFacil_shoppingChecks_v1:
 // {"2026-10-26": {"t": [tachados], "c": [comprados con "Lo compré"]}}. La semana empieza el lunes (mondayOf).
 // Se escribe solo cuando el usuario actúa (nunca al mostrar) y al escribir se conservan las últimas 12 semanas.
 const SHOPPING_CHECKS_KEY="miPlatoFacil_shoppingChecks_v1";
+var COMPRAS_VUELTAS_KEY="miPlatoFacil_comprasVueltas_v1";
 // Lectura tolerante: lo que no tiene el formato esperado se ignora (semana por semana).
 let comprasWeek=null;
 // Trae los tachados de la semana actual (al abrir la app o si empezó otra semana: cada lunes arranca sin tachados).
@@ -490,9 +401,9 @@ var PALABRAS_SUPER=null;
 // Desde la v15.4: si la despensa tiene otra unidad ("la unidad no coincide"), queda pendiente con "revisá"; con el
 // interruptor "Descontar lo que tengo" apagado, nada va a "Ya tenés" y no se muestra "faltan".
 function shoppingDisplayItems(){
-  const stock=loadStockQuantities(),marked=MarcasDespensa.pantryMarkedMatcher(),bought=Compras.shoppingBoughtSet(),descontar=comprasDescontar();
+  const stock=loadStockQuantities(),marked=MarcasDespensa.pantryMarkedMatcher(),bought=Compras.shoppingBoughtSet(),vueltas=Compras.vueltasDeLaSemana(),descontar=comprasDescontar();
   return Compras.shoppingPlanItems().map(e=>{
-    const label=Compras.shoppingItemLabel(e),suggestion=Compras.shoppingSuggestion(e,stock,marked),partial=!!suggestion&&suggestion.kind==="partial",revisar=!!suggestion&&suggestion.kind==="info"&&/la unidad no coincide/.test(suggestion.text),group=bought.has(e.key)?"comprado":descontar&&suggestion&&!partial&&!revisar?"tenes":"pendiente";const faltaEnvase=descontar&&partial&&suggestion.missing?envasar(e.name,suggestion.missing):null,compra=faltaEnvase||envasar(e.name,e.units),visible=compra&&!faltaEnvase?e.name+": "+compra.texto:label;return {
+    const label=Compras.shoppingItemLabel(e),suggestion=Compras.shoppingSuggestion(e,stock,marked),partial=!!suggestion&&suggestion.kind==="partial",revisar=!!suggestion&&suggestion.kind==="info"&&/la unidad no coincide/.test(suggestion.text),group=bought.has(e.key)?"comprado":descontar&&suggestion&&!partial&&!revisar&&!vueltas.has(e.key)?"tenes":"pendiente";const faltaEnvase=descontar&&partial&&suggestion.missing?envasar(e.name,suggestion.missing):null,compra=faltaEnvase||envasar(e.name,e.units),visible=compra&&!faltaEnvase?e.name+": "+compra.texto:label;return {
       key:e.key,name:e.name,units:e.units,unknown:e.unknown,label,suggestion,group,seccion:Compras.seccionDelSuper(e.name),compraUnits:compra?compra.units:null,text:descontar&&group==="pendiente"&&partial?(faltaEnvase?e.name+": "+faltaEnvase.texto:label+" · faltan "+suggestion.buy):descontar&&group==="pendiente"&&revisar?visible+" · revisá":visible
     }
   }).sort((a,b)=>a.label.localeCompare(b.label,"es"))
@@ -557,16 +468,19 @@ function renderCompras(){
   const terminar=document.getElementById("comprasBought");
   if(terminar){terminar.classList.toggle("button--primary",!!pending.length);terminar.classList.toggle("button--soft",!pending.length)}
   if(tenes.length){
-    const g=Compras.shoppingGroup("Ya tenés",tenes,comprasTenesOpen,v=>{
-      comprasTenesOpen=v
-    });
-    for(const x of tenes)g.append(Compras.shoppingRow(x,i++,!!comprasDone[x.key],x.suggestion?"💡 "+x.suggestion.text:""));
+    const g=Compras.shoppingGroup("Ya tenés",tenes);
+    for(const x of tenes){
+      const fila=Compras.shoppingRow(x,i++,!!comprasDone[x.key],x.suggestion?"💡 "+x.suggestion.text:""),volver=ce("button","filter-chip shop-item__volver","Volver a la lista");
+      volver.type="button";
+      volver.dataset.volverALista=x.key;
+      volver.setAttribute("aria-label","Volver a la lista: "+Ingredientes.textoLegible(x.cortar?Compras.nombreCorto(x.name):x.name));
+      fila.append(volver);
+      g.append(fila)
+    }
     nodes.push(g)
   }
   if(comprados.length){
-    const g=Compras.shoppingGroup("Ya en tu despensa",comprados,comprasCompradosOpen,v=>{
-      comprasCompradosOpen=v
-    });
+    const g=Compras.shoppingGroup("Ya en tu despensa",comprados);
     for(const x of comprados)g.append(Compras.shoppingRow(x,i++,true));
     nodes.push(g)
   }

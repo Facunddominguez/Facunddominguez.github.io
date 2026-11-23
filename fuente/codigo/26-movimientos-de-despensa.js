@@ -34,15 +34,7 @@ function logPantryMoves(moves){
   }catch(e){
   }
 }
-function renderPantryMoves(){
-  const box=document.getElementById("stockMoves");
-  if(!box)return;
-  const a=loadPantryMoves().slice(-30).reverse(),fmt=n=>(n>0?"+":"−")+Math.abs(n).toLocaleString("es-AR",{
-    maximumFractionDigits:6
-  });
-  box.replaceChildren(...a.map(m=>ce("p","screen__hint",MisPlatos.fmtWhen(m.at)+" · "+m.name+" "+(m.delta>0?"+":"−")+cantidadLegible(Math.abs(m.delta),m.unit)+" · "+motivoDeMovimiento(m.reason))));
-  if(!a.length)box.append(ce("p","screen__hint","Todavía no hay movimientos."))
-}
+// v19.8 (R5-K-16): "Todos los movimientos" ya no se muestra; miPlatoFacil_pantryMoves_v1 sigue guardándose, entra al respaldo y se ve por ingrediente.
 // Movimientos de un ingrediente (v15.4, historial por ítem de la Despensa): del más nuevo al más viejo. Solo lee.
 function movimientosDe(nombre,max){
   const k=ingredientKey(nombre);

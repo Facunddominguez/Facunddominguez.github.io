@@ -25,10 +25,6 @@ oneTapStatus(el,text,undoKey){
 },
 afterOneTap(){
   renderPantry();
-  try{
-    Existencias.renderStockQuantities()
-  }catch(e){
-  }
   if(stack.at(-1)==="registro")renderRegistro();
   if(stack.at(-1)==="compras")renderCompras()
 },
@@ -161,14 +157,12 @@ document.addEventListener("click",e=>{
       RegistroRapido.oneTapStatus(st,r.text,"cook")
     }else if(b.id==="comprasBought"){
       const st=document.getElementById("comprasBoughtStatus"),r=RegistroRapido.boughtNow();
+      // v19.8 (R5-K-01): sin Deshacer en Compras.
       if(r.before){
-        oneTapUndo.bought={
-          before:r.before,after:r.after,status:st,keys:r.keys,keysList:r.keysList
-        };
         RegistroRapido.afterOneTap();
         renderCompras()
       }
-      RegistroRapido.oneTapStatus(st,r.text,r.before?"bought":null);
+      RegistroRapido.oneTapStatus(st,r.text);
       // "Terminé de comprar" (v15.4): después, opcional, anotar el gasto y los precios del ticket.
       if(r.before){
         ultimaCompraClaves=r.keys;

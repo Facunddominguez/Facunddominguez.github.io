@@ -14,7 +14,7 @@ parseMoneyText(text,optional,label){
   return n
 },
 appendPurchaseItem(item){
-  const box=document.getElementById("purchaseItems"),row=ce("div","purchase-row"),name=ce("input"),qty=ce("input"),unit=ce("select"),price=ce("input"),rm=ce("button","button button--soft","×");
+  const box=document.getElementById("purchaseItems"),row=ce("div","purchase-row"),name=ce("input"),qty=ce("input"),unit=ce("select"),price=ce("input"),rm=ce("button","button button--danger","×");
   name.type="text";
   name.maxLength=100;
   name.placeholder="Producto";
@@ -44,9 +44,56 @@ appendPurchaseItem(item){
   price.setAttribute("aria-label","Precio pagado, opcional");
   rm.type="button";
   rm.setAttribute("aria-label","Quitar producto");
-  rm.addEventListener("click",()=>row.remove());
-  row.append(name,qty,unit,price,rm);
-  box.append(row)
+  rm.addEventListener("click",()=>{
+    row.remove();
+    ComprasHechas.renderPurchaseSum()
+  });
+  // v19.8 (R5-K-07): cada producto es un renglón prolijo: el nombre con su ×, y debajo Cantidad, Unidad y Precio con su rótulo a la vista.
+  const campo=(texto,el)=>{
+    const l=ce("label","purchase-campo");
+    l.append(document.createTextNode(texto),el);
+    return l
+  };
+  row.append(name,rm,campo("Cantidad",qty),campo("Unidad",unit),campo("Precio",price));
+  box.append(row);
+  ComprasHechas.renderPurchaseSum()
+},
+// v19.8 (R5-K-08): la suma de los precios cargados en el detalle, para compararla con el total del ticket.
+renderPurchaseSum(){
+  const el=document.getElementById("purchaseItemsSum");
+  if(!el)return;
+  const filas=[...document.querySelectorAll("#purchaseItems .purchase-row")];
+  if(!filas.length){
+    el.textContent="";
+    return
+  }
+  const cur=(document.getElementById("purchaseCurrency").value.trim().toUpperCase()||"ARS"),fmt=n=>n.toLocaleString("es-AR",{
+    minimumFractionDigits:2,maximumFractionDigits:2
+  });
+  let suma=0,con=0;
+  for(const f of filas){
+    const t=f.querySelector("[data-purchase-price]").value.trim();
+    if(!t)continue;
+    try{
+      suma+=ComprasHechas.parseMoneyText(t,true,"Precio")||0;
+      con++
+    }catch(e){
+    }
+  }
+  if(!con){
+    el.textContent="Todavía no cargaste precios en el detalle.";
+    return
+  }
+  let texto="Suma de los precios cargados: "+fmt(suma)+" "+cur+" ("+con+" de "+filas.length+" con precio)";
+  try{
+    const total=ComprasHechas.parseMoneyText(document.getElementById("purchaseTotal").value,true,"Total");
+    if(total!==null){
+      const dif=Math.round((total-suma)*100)/100;
+      texto+=dif===0?" · coincide con el total pagado.":" · el total pagado es "+fmt(total)+" "+cur+" ("+(dif>0?"faltan ":"sobran ")+fmt(Math.abs(dif))+" "+cur+").";
+    }
+  }catch(e){
+  }
+  el.textContent=texto
 },
 readPurchaseForm(){
   const date=SemanasFechadas.parseTypedAppDate(document.getElementById("purchaseDate").value);
@@ -261,11 +308,8 @@ function renderPriceHistory(){
   }
   box.replaceChildren(...(lines.length?[ce("p","home-section-label","📈 Evolución de precios"),...lines.map(t=>ce("p","screen__hint",t))]:[]))
 }
-document.getElementById("purchasesPanel").addEventListener("toggle",e=>{
-  if(e.target.open){
-    const d=document.getElementById("purchaseDate");if(!d.value)d.value=typedAppDateLabel(Rutina.localTrainingDate(new Date()));ComprasHechas.renderPurchases()
-  }
-});
+// v19.8 (R5-K-05): Compras realizadas se ve directo; ComprasDespensa.abrirHerramientaCompras (41) prepara la fecha y la lista al abrirla.
+for(const id of ["purchaseItems","purchaseTotal","purchaseCurrency"])document.getElementById(id).addEventListener("input",()=>ComprasHechas.renderPurchaseSum());
 document.getElementById("purchaseDate").addEventListener("input",e=>{
   const d=e.target.value.replace(/\D/g,"").slice(0,8);e.target.value=d.slice(0,2)+(d.length>2?"/"+d.slice(2,4):"")+(d.length>4?"/"+d.slice(4):"")
 });
@@ -290,7 +334,7 @@ document.getElementById("purchaseFromList").addEventListener("click",()=>{
 });
 document.getElementById("purchaseSave").addEventListener("click",()=>{
   const st=document.getElementById("purchaseStatus");try{
-    const r=ComprasHechas.savePurchase();document.getElementById("purchaseItems").replaceChildren();document.getElementById("purchaseTotal").value="";document.getElementById("purchaseStore").value="";st.textContent="Compra registrada."+(r.count?" Se guardaron "+r.count+" precios de referencia.":"")+(r.priceError?" No se pudieron guardar los precios.":"")+(r.stockAdded?" Se sumaron "+r.stockAdded+" productos a la despensa.":"")+(r.stockError?" "+r.stockError:"");Existencias.renderStockQuantities();ComprasHechas.renderPurchases();if(document.getElementById("shoppingBudgetPanel").open)shoppingBudgetRender();if(document.getElementById("pricePanel").open)CantidadesCostos.renderReferencePrices()
+    const r=ComprasHechas.savePurchase();document.getElementById("purchaseItems").replaceChildren();document.getElementById("purchaseTotal").value="";ComprasHechas.renderPurchaseSum();document.getElementById("purchaseStore").value="";st.textContent="Compra registrada."+(r.count?" Se guardaron "+r.count+" precios de referencia.":"")+(r.priceError?" No se pudieron guardar los precios.":"")+(r.stockAdded?" Se sumaron "+r.stockAdded+" productos a la despensa.":"")+(r.stockError?" "+r.stockError:"");Existencias.renderStockQuantities();ComprasHechas.renderPurchases();if(document.getElementById("shoppingBudgetPanel").open)shoppingBudgetRender();if(document.getElementById("pricePanel").open)CantidadesCostos.renderReferencePrices()
   }catch(err){
     st.textContent=err.message
   }

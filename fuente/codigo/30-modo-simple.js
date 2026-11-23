@@ -40,7 +40,7 @@ const ADVANCED_TOOLS={
   // Desde la v15.3 cada herramienta vive en la pantalla de su tema; la lista de elementos es la misma de antes.
   ingredientes:{
     list:"revisar una idea con tu despensa",
-    items:()=>[document.getElementById("pantryReviewPanel")]
+    items:()=>[document.querySelector(".despensa-revisar"),document.getElementById("pantryReviewPanel")]
   },
   ideas:{
     list:"",
