@@ -3665,6 +3665,14 @@ select{max-width:100%;min-width:0}
 .receta-paso[hidden]{display:none!important}
 
 /* v19.8 · Etapa 41 (Compras y Despensa) */
-.shop-item__volver{flex:0 0 auto;margin-left:34px;min-height:var(--tap)}
+.shop-item__volver{flex:0 0 auto;min-height:var(--tap);padding:0 12px}
+.shop-group .shop-item{flex-wrap:nowrap}
+.shop-group .shop-item>label{flex:1 1 0;min-width:0}
+#manualShoppingForm{display:grid;grid-template-columns:1fr 1fr;gap:0 10px;align-items:start}
+#manualShoppingForm .portion-field+.portion-field{margin-top:0}
+#manualShoppingForm .summary-actions{grid-column:1 / -1}
+#manualShopList .manual-shop-row{flex-wrap:nowrap}
+#manualShopList .manual-shop-row .shop-item{flex:1 1 0;min-width:0}
+#manualShopList .manual-shop-row .filter-chip{flex:0 0 auto}
 .despensa-revisar{margin:12px 0}
 .despensa-revisar .button{width:100%}

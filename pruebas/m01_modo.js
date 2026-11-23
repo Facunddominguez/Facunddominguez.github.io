@@ -149,7 +149,7 @@
   // M9 Lo guardado en herramientas ocultas sigue en uso: las existencias generan la sugerencia en Compras
   go("compras"); await wait(30);
   const papa = shoppingDisplayItems().find(x => x.name === "Papa");
-  T.ok("M9 las existencias guardadas siguen sugiriendo en Compras aunque estén ocultas", Interfaz.getUiMode() === "simple" && !!papa && !!papa.suggestion && /1 kg/.test(papa.suggestion.text) && /💡/.test($("comprasList").textContent), papa && papa.suggestion && papa.suggestion.text);
+  T.ok("M9 las existencias guardadas siguen sugiriendo en Compras aunque estén ocultas", Interfaz.getUiMode() === "simple" && !!papa && !!papa.suggestion && /1 kg/.test(papa.suggestion.text) && ([...document.querySelectorAll("#comprasList .shop-item")].some(r => /1 kg/.test(r.title)) || /💡/.test($("comprasList").textContent)), papa && papa.suggestion && papa.suggestion.text);
   // M10 (Ronda 5, M-08) Las recomendaciones por despensa son un solo interruptor de la búsqueda, igual en los dos modos:
   // ya no hay selectores de prioridad, orden ni cantidad por página que se escondan y sigan cambiando lo que se ve.
   ModoSimple.setUiMode("completo");

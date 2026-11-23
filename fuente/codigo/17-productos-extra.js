@@ -5,7 +5,7 @@ var ProductosExtra={
 resetManualShoppingForm(){
   manualShopEditing=null;
   document.getElementById("manualShoppingForm").reset();
-  document.getElementById("manualShopSubmit").textContent="Agregar producto";
+  document.getElementById("manualShopSubmit").textContent="Agregar";
   document.querySelector("[data-manual-cancel]").classList.add("is-hidden")
 }
 };
