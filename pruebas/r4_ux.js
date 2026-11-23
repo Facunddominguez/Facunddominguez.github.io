@@ -17,8 +17,8 @@
   const PANELES = ["shoppingBudgetPanel", "purchasesPanel", "recipeCostPanel", "pricePanel"];
   const inside = PANELES.every(id => tools.contains(document.getElementById(id)));
   const source = await (await fetch(location.href, { cache: "no-store" })).text();
-  // R5-K-05, K-13, K-14: quedan 4 herramientas; Presupuesto sigue plegado (lo cambia la Etapa 42) y las otras se ven directo, sin <details>.
-  T.ok("X5 las 4 herramientas están dentro del bloque de herramientas: Presupuesto plegado y las demás a la vista", inside && source.includes('<details class="home-group" id="shoppingBudgetPanel"><summary>') && ["purchasesPanel", "recipeCostPanel", "pricePanel"].every(id => source.includes('<div class="home-group" id="' + id + '">')) && !document.getElementById("quantShoppingPanel") && !document.getElementById("stockDeductionPanel") && !document.getElementById("shoppingQuantCostPanel"));
+  // R5-K-05, K-13, K-14 y X-02: quedan 4 herramientas, todas a la vista (sin <details>); solo "Comparar alternativas de precio" sigue plegado.
+  T.ok("X5 las 4 herramientas están dentro del bloque de herramientas, todas a la vista", inside && source.includes('<details id="budgetComparePanel"><summary>') && ["shoppingBudgetPanel", "purchasesPanel", "recipeCostPanel", "pricePanel"].every(id => source.includes('<div class="home-group" id="' + id + '">')) && !document.getElementById("quantShoppingPanel") && !document.getElementById("stockDeductionPanel") && !document.getElementById("shoppingQuantCostPanel"));
   await R.openPanel("shoppingToolsPanel"); await R.openPanel("shoppingBudgetPanel");
   T.ok("X6 las herramientas siguen funcionando dentro del bloque", /Guardá un presupuesto/.test(document.getElementById("shoppingBudgetResult").textContent));
   tools.open = false;

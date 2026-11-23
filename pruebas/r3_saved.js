@@ -12,7 +12,7 @@
   // no se repite como receta (queda en "Copias de recetas usadas en el plan", visible en el modo completo).
   go("misplatos"); await wait(40);
   // v15.3: una sola tarjeta (data-comida-tipo) para platos y recetas; las recetas conservan data-recipe-id.
-  const list = document.getElementById("savedList"), box = list.querySelector("details.saved-recipes");
+  const list = document.getElementById("savedList"), box = list.querySelector(".saved-recipes");
   const plateCards = [...list.querySelectorAll('.comida-card[data-comida-tipo="plato"]')];
   const recipeCards = [...list.querySelectorAll('.comida-card[data-comida-tipo="receta"]')];
   T.ok("G1a Mis comidas separa platos y recetas, sin repetir la copia del plan", plateCards.length === 1 && recipeCards.length === 1 && recipeCards[0].dataset.recipeId === "recipe_test0001" && !!box && box.querySelectorAll(".summary__line").length === 1 && box.getClientRects().length === 0);
@@ -25,7 +25,7 @@
   const planText = document.getElementById("planList").textContent;
   T.ok("G3a el plan muestra el nombre actual de la receta (desde la Etapa 27, sin el emoji adelante)", planText.includes("Papas rústicas") && !planText.includes("Papas al horno"));
   go("misplatos"); await wait(30);
-  T.ok("G3b Mis comidas también (receta y copia del plan), sin reescribir lo guardado", document.querySelector("#savedList .comida-card[data-recipe-id] .comida-card__nombre").textContent === "Papas rústicas" && document.querySelector("#savedList details.saved-recipes strong").textContent === "📖 Papas rústicas" && MisPlatos.loadSaved().find(p => p.recipeSourceId).title === "Papas al horno");
+  T.ok("G3b Mis comidas también (receta y copia del plan), sin reescribir lo guardado", document.querySelector("#savedList .comida-card[data-recipe-id] .comida-card__nombre").textContent === "Papas rústicas" && document.querySelector("#savedList .saved-recipes strong").textContent === "📖 Papas rústicas" && MisPlatos.loadSaved().find(p => p.recipeSourceId).title === "Papas al horno");
   T.ok("G4a el plan muestra los ingredientes de la receta", planText.includes("Ingredientes: Papa, Romero"));
   const html = SemanasFechadas.buildWeeklyPlanExport(loadPlan(), MisPlatos.loadSaved(), "").html;
   T.ok("G4b la descarga del plan incluye los ingredientes", html.includes("<li>Ingredientes: Papa, Romero</li>"));

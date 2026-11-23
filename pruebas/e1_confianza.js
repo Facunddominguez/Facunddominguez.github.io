@@ -205,8 +205,10 @@
   ok("E1-10 campos con el estilo del sistema en claro y oscuro, y sin barra de pasos fuera del armado", estilos.every(x => x[2] && !x[3]) && !$("backupScreen").contains($("aiKeyInput")), JSON.stringify(estilos.filter(x => !x[2] || x[3])));
 
   // E1-11 En Almidones, harinas, féculas y pan rallado están en "Más opciones" (plegado)
-  const mas = q("#boxa details.almidones-mas"), enMas = [...mas.querySelectorAll("[data-multi]")].map(b => b.dataset.name), afuera = [...doc().querySelectorAll("#boxa > [data-multi]")].map(b => b.dataset.name);
-  ok("E1-11 en Almidones, harinas, féculas y pan rallado pasan a Más opciones", !mas.open && enMas.length === 7 && enMas.every(n => /^(Harina|Fécula|Pan rallado)/.test(n)) && !afuera.some(n => /^(Harina|Fécula|Pan rallado)/.test(n)) && afuera.includes("Papa"));
+  // R5-G-01: "Más opciones" ya no es un desplegable: sus opciones se ven directo, después de su rótulo.
+  const titulo = q("#boxa > .home-section-label"), hijos = [...doc().querySelectorAll("#boxa > *")], pos = hijos.indexOf(titulo);
+  const enMas = hijos.slice(pos + 1).filter(b => b.dataset.multi).map(b => b.dataset.name), afuera = hijos.slice(0, pos).filter(b => b.dataset.multi).map(b => b.dataset.name);
+  ok("E1-11 en Almidones, harinas, féculas y pan rallado pasan a Más opciones", /Más opciones/.test(titulo.textContent) && !doc().querySelector("#boxa details") && enMas.length === 7 && enMas.every(n => /^(Harina|Fécula|Pan rallado)/.test(n)) && !afuera.some(n => /^(Harina|Fécula|Pan rallado)/.test(n)) && afuera.includes("Papa"));
 
   marco.remove();
   localStorage.clear();
