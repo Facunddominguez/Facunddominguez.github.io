@@ -488,7 +488,7 @@ var ArmameSemana=(function(){
   }
   // Cambiar un solo hueco: "parecida" (más ingredientes en común) o "barata" (cuesta menos). No toca los demás.
   function cambiarHueco(dia,slot,como,simular){
-    const plan=loadPlan(),items=new Map(MisPlatos.loadSaved().map(x=>[x.id,x])),actual=items.get((plan[dia]||{})[slot]);
+    const plan=loadPlan(),items=new Map(Semana.guardadosActivos().map(x=>[x.id,x])),actual=items.get((plan[dia]||{})[slot]);
     if(!actual)return {ok:false,texto:"Ese hueco está vacío."};
     const memo=new Map(),sem=leerSemana(plan,new Set([dia+"|"+slot])),kActual=clave(mealName(actual));
     let ingsActual=[];

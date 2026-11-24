@@ -2,6 +2,7 @@
 (async () => {
   const load = async f => (0, eval)(await (await fetch("/tests/" + f, { cache: "no-store" })).text());
   await load("r2_fixtures.js");
+  await load("r5_base.js");
   const suites = window.__suites || ["f02_units.js", "f01_key.js", "f01_int.js", "f01_alias.js", "r4_ux.js", "r3_rec.js", "r3_dup.js", "r3_saved.js", "r2_dom.js", "r2_uni.js", "r2_pan.js", "r2_shop.js", "bkp01.js", "bkp02.js", "imp01.js", "regression.js"];
   const out = {}; let total = 0, pass = 0;
   for (const f of suites) {

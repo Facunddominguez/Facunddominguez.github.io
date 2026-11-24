@@ -66,7 +66,7 @@ persistRecipeDetailsForm(){
   renderRecipeCatalog()
 },
 startRecipeFromIdea(title){
-  if(!data.menuCatalog.some(x=>x.text===title))throw Error("La idea ya no está disponible.");
+  if(!data.menuCatalog.some(x=>x.text===title)&&!(data.desayunoCatalog||[]).some(x=>x.text===title))throw Error("La idea ya no está disponible.");
   resetRecipeDetailsForm();
   document.getElementById("recipeDetailsTitle").value=title;
   document.getElementById("recipeDetailsSource").value=title;
@@ -76,6 +76,28 @@ startRecipeFromIdea(title){
   recipeDetailsStatus("Idea seleccionada. Revisá los ingredientes propuestos y cargá cantidades solo si las conocés.");
   showRecipeView("editor");
   document.getElementById("recipeDetailsTitle").focus()
+},
+// v19.4 (R5-C-03): abre el editor con una receta nueva armada desde una comida: con los pasos y cantidades de su idea ("Editar receta") o
+// con sus ingredientes y sin pasos ("Añadir receta"). No guarda nada hasta que se toca "Guardar receta".
+startRecipeFromComida(it,idea){
+  resetRecipeDetailsForm();
+  const box=document.getElementById("recipeIngredientRows");
+  document.getElementById("recipeDetailsTitle").value=(idea?idea.text:mealName(it)).slice(0,100);
+  if(idea){
+    const fuente=document.getElementById("recipeDetailsSource");
+    if([...fuente.options].some(o=>o.value===idea.text))fuente.value=idea.text;
+    if(Array.isArray(idea.pasos))document.getElementById("recipeDetailsSteps").value=idea.pasos.join("\n");
+    if(idea.minutos)document.getElementById("recipeMinutes").value=String(idea.minutos);
+    (idea.cantidades||[]).forEach(([name,quantity,unit])=>appendRecipeAmountRow({name,quantity,unit},box));
+    document.getElementById("recipeYield").value="1"
+  }else{
+    let nombres=[];
+    try{nombres=Semana.extractIngredients(it)}catch(e){}
+    nombres.forEach(name=>appendRecipeAmountRow({name,quantity:null,unit:"g"},box))
+  }
+  recipeDetailsStatus(idea?"Receta armada con los pasos y las cantidades de esta comida (por persona). Revisala y guardala.":"Receta nueva con los ingredientes de esta comida. Sumá los pasos y guardala.");
+  showRecipeView("editor");
+  document.getElementById("recipeDetailsTitle").focus({preventScroll:true})
 },
 duplicateRecipeDetails(id){
   const all=loadRecipeDetails(),original=all[id];
@@ -210,7 +232,6 @@ function renderRecipeDetails(){
   recipeDetailsStatus("Editando receta. El nombre puede cambiar sin modificar su identidad.")
 }
 /* I04-B: explorador de ideas existentes y recetas propias. */
-let recipeCatalogMineOnly=false;
 let recipeCatalogPage=0;
 function recipeCatalogEntries(menu,own,query,mineOnly){
   const q=normalizeSearchText(query.trim());
@@ -219,12 +240,12 @@ function recipeCatalogEntries(menu,own,query,mineOnly){
   if(!mineOnly)for(const item of menu){
     const tags=Array.isArray(item.tags)?item.tags:[];
     if(matches(item.text)||tags.some(matches))items.push({
-      kind:"idea",key:item.text,title:item.text,tags:tags.slice(0,4)
+      kind:"idea",key:item.text,title:item.text,tags:tags.slice(0,4),minutes:Number(item.minutos)||0,item
     })
   }
   for(const r of Object.values(own)){
     if(matches(r.title)||(r.sourceTitle&&matches(r.sourceTitle))||matches(r.notes)||r.steps.some(matches)||(r.tags||[]).some(matches)||(r.amountsTitle&&matches(r.amountsTitle)))items.push({
-      kind:"propia",key:r.id,title:r.title,tags:(r.tags||[]).slice(0,4)
+      kind:"propia",key:r.id,title:r.title,tags:(r.tags||[]).slice(0,4),minutes:Number(r.minutes)||0
     })
   }
   return items.sort((a,b)=>a.kind===b.kind?a.title.localeCompare(b.title,"es"):(a.kind==="propia"?-1:1))
@@ -266,11 +287,62 @@ function initRecipePreferences(){
       document.getElementById("recipePreferencesStatus").textContent="No se pudieron guardar."
     }
   });
+  // v19.9 (R5-X-07): "Limpiar preferencias" no hacía nada visible cuando lo que había eran los filtros de dieta (Vegetariano, Sin cerdo…),
+  // que quedaban marcados, y no avisaba. Ahora limpia los filtros de dieta y lo de "Otros", dice qué limpió y ofrece Deshacer.
   document.getElementById("recipeClearPreferences").addEventListener("click",()=>{
-    document.getElementById("recipeAvoidWords").value="";document.getElementById("recipeApplyAvoid").checked=false;try{
-      localStorage.removeItem(RECIPE_PREF_KEY)
+    const st=document.getElementById("recipePreferencesStatus"),palabras=document.getElementById("recipeAvoidWords"),ocultar=document.getElementById("recipeApplyAvoid");
+    const antes={
+      pref:localStorage.getItem(RECIPE_PREF_KEY),dieta:localStorage.getItem(DIETA_KEY),palabras:palabras.value,ocultar:ocultar.checked
+    },habia=antes.pref!==null||antes.dieta!==null||!!antes.palabras.trim()||antes.ocultar;
+    palabras.value="";
+    ocultar.checked=false;
+    try{
+      localStorage.removeItem(RECIPE_PREF_KEY);
+      localStorage.removeItem(DIETA_KEY)
     }catch(e){
-    }recipeCatalogPage=0;renderRecipeCatalog()
+      st.textContent="No se pudieron limpiar las preferencias.";
+      return
+    }
+    recipeCatalogPage=0;
+    Dieta.renderDieta();
+    try{
+      renderRecipeCatalog();
+      Ideas.renderMenuIdeas()
+    }catch(e){
+    }
+    if(!habia){
+      st.textContent="No había nada para limpiar.";
+      return
+    }
+    const u=ce("button","filter-chip","Deshacer");
+    u.type="button";
+    u.addEventListener("click",()=>{
+      try{
+        for(const [k,v] of [[RECIPE_PREF_KEY,antes.pref],[DIETA_KEY,antes.dieta]]){
+          if(v===null)localStorage.removeItem(k);else localStorage.setItem(k,v)
+        }
+      }catch(e){
+        st.textContent="No se pudo deshacer.";
+        return
+      }
+      palabras.value=antes.palabras;
+      ocultar.checked=antes.ocultar;
+      recipeCatalogPage=0;
+      Dieta.renderDieta();
+      try{
+        renderRecipeCatalog();
+        Ideas.renderMenuIdeas()
+      }catch(e){
+      }
+      st.textContent="Listo, se recuperaron tus preferencias."
+    });
+    st.replaceChildren(document.createTextNode("Preferencias limpiadas: dieta, Otros y Ocultar coincidencias. "),u)
+  });
+  // R5-X-04: el ⓘ junto a "Otros" explica qué escribir.
+  document.getElementById("recipeAvoidInfo").addEventListener("click",e=>{
+    const ayuda=document.getElementById("recipeAvoidAyuda"),on=ayuda.hidden;
+    ayuda.hidden=!on;
+    e.currentTarget.setAttribute("aria-expanded",String(on))
   });
   document.getElementById("recipeApplyAvoid").addEventListener("change",()=>{
     recipeCatalogPage=0;renderRecipeCatalog()
@@ -322,6 +394,19 @@ function recipePantryScore(entry,own,amounts,pantry,stock){
     known:true,have,total:grouped.size,complete:have===grouped.size,missing,unknown,subs
   }
 }
+// Una idea del catálogo cuenta como disponible lo que tenés marcado en la despensa o con cantidad suficiente en las existencias.
+function ideaPantryScore(entry,pantry,stock){
+  const filas=((entry.item&&entry.item.cantidades)||[]).filter(f=>Array.isArray(f)&&f[0]);
+  if(!filas.length)return {known:false,have:0,total:0,complete:false,missing:[],unknown:[]};
+  let have=0;
+  const faltan=[];
+  for(const [name,quantity,unit] of filas){
+    const medida=Ingredientes.stockQuantityFor(stock,name,unit);
+    if((medida!==null&&Number.isFinite(medida)&&medida>=quantity)||pantry.has(ingredientKey(name)))have++;
+    else faltan.push(name)
+  }
+  return {known:true,have,total:filas.length,complete:have===filas.length,missing:[],unknown:[],faltan}
+}
 function recipeMissingCost(entry,own,amounts,stock,prices){
   if(entry.kind!=="propia")return null;
   const r=own[entry.key],amount=r&&r.amountsTitle&&amounts[r.amountsTitle];
@@ -362,8 +447,45 @@ function recipeMissingCost(entry,own,amounts,stock,prices){
     totals,pending
   }
 }
+// Búsqueda por tiempo, método y precio por porción (Ronda 5, M-03 a M-08). El método sale de lo que dicen los pasos, el
+// título y las etiquetas: "Sin cocción" es lo que no usa horno, sartén ni olla. El precio por porción de una idea sale de
+// sus cantidades (Bienvenida.costoPorPorcionDeIdea); el de una receta propia, de sus cantidades vinculadas y su rendimiento.
+// Una receta sin tiempo, método claro o precio calculable no pasa el filtro que lo pide.
+var buscarEstado={tiempo:0,metodo:"",precio:""};
+function metodosDeEntrada(entry,own){
+  let text=entry.title+" "+entry.tags.join(" ");
+  if(entry.kind==="idea")text+=" "+((entry.item&&entry.item.pasos)||[]).join(" ");
+  else{
+    const r=own[entry.key];
+    if(r)text+=" "+r.steps.join(" ")+" "+(r.tags||[]).join(" ")+" "+(r.notes||"")
+  }
+  const t=normalizeSearchText(text),m=new Set();
+  if(/\bhorn(o|e)|gratin/.test(t))m.add("horno");
+  if(/sarten|plancha|saltea|\bdora|\bfrei|\bfrit|freir|rehog|grill/.test(t))m.add("sarten");
+  if(/\bolla\b|herv|guis|sopa|cacerola|estof|puchero|caldo|calent|\bcocina\b|coccion lenta/.test(t))m.add("olla");
+  if(!m.size)m.add("sin-coccion");
+  return m
+}
+function precioPorPorcionDeEntrada(entry,own){
+  try{
+    if(entry.kind==="idea")return entry.item?Bienvenida.costoPorPorcionDeIdea(entry.item):null;
+    const r=own[entry.key],c=recipeFullCost(r),amounts=r&&r.amountsTitle&&loadRecipeAmounts()[r.amountsTitle],cur=c&&Object.keys(c.totals);
+    if(!c||!amounts||c.missing||!cur||cur.length!==1)return null;
+    return c.totals[cur[0]]/(Number(amounts.yield)||1)
+  }catch(e){
+    return null
+  }
+}
+function pintarBuscar(){
+  for(const [grupo,valor] of [["tiempo",String(buscarEstado.tiempo||"")],["metodo",buscarEstado.metodo],["precio",buscarEstado.precio]])
+    document.querySelectorAll('#recipeDetailsPanel [data-buscar="'+grupo+'"]').forEach(b=>{
+      const on=b.dataset.valor===valor;
+      b.classList.toggle("is-selected",on);
+      b.setAttribute("aria-pressed",String(on))
+    })
+}
 function renderRecipeCatalog(){
-  const box=document.getElementById("recipeCatalogResults"),count=document.getElementById("recipeCatalogCount"),query=document.getElementById("recipeCatalogSearch").value;
+  const box=document.getElementById("recipeCatalogResults"),count=document.getElementById("recipeCatalogCount");
   let own;
   try{
     own=loadRecipeDetails()
@@ -372,9 +494,23 @@ function renderRecipeCatalog(){
     count.textContent=err.message;
     return
   }
-  let entries=recipeCatalogEntries(data.menuCatalog,own,query,recipeCatalogMineOnly);
-  const maxMinutes=Number(document.getElementById("recipeCatalogTime").value)||0;
-  if(maxMinutes)entries=entries.filter(e=>e.kind==="propia"&&own[e.key].minutes&&own[e.key].minutes<=maxMinutes);
+  pintarBuscar();
+  // Las ideas son los platos y los desayunos y meriendas: así "hasta 15 min" también muestra las de 5 a 12 minutos.
+  let entries=recipeCatalogEntries([...data.menuCatalog,...(data.desayunoCatalog||[])],own,"",false);
+  if(buscarEstado.tiempo)entries=entries.filter(e=>e.minutes&&e.minutes<=buscarEstado.tiempo);
+  if(buscarEstado.metodo)entries=entries.filter(e=>metodosDeEntrada(e,own).has(buscarEstado.metodo));
+  const precios=new Map(),precioDe=e=>{
+    const k=e.kind+":"+e.key;
+    if(!precios.has(k))precios.set(k,precioPorPorcionDeEntrada(e,own));
+    return precios.get(k)
+  };
+  if(buscarEstado.precio){
+    const tope=buscarEstado.precio==="mas"?0:Number(buscarEstado.precio);
+    entries=entries.filter(e=>{
+      const v=precioDe(e);
+      return v!==null&&(tope?v<=tope:v>2500)
+    })
+  }
   let excluded=0;
   const terms=recipeAvoidTerms();
   if(document.getElementById("recipeApplyAvoid").checked&&terms.length){
@@ -382,37 +518,19 @@ function renderRecipeCatalog(){
     entries=entries.filter(e=>!recipeAvoidMatch(e,own,amounts,terms));
     excluded=before-entries.length
   }
-  const mode=document.getElementById("recipeRecommendMode").value,recommend=document.getElementById("recipeRecommendPantry").checked||mode==="available"||mode==="combined",costsOn=document.getElementById("recipeRecommendCosts").checked||mode==="budget"||mode==="combined";
+  const recommend=document.getElementById("recipeRecommendPantry").checked;
   let scores=new Map(),costs=new Map();
-  if(costsOn){
-    const amounts=loadRecipeAmounts(),stock=loadStockQuantities(),prices=Object.values(loadReferencePrices());
-    costs=new Map(entries.map(e=>[e.kind+":"+e.key,recipeMissingCost(e,own,amounts,stock,prices)]))
-  }
   if(recommend){
-    const pantry=MarcasDespensa.pantryMarkedMatcher(),amounts=loadRecipeAmounts(),stock=loadStockQuantities();
-    scores=new Map(entries.map(e=>[e.kind+":"+e.key,recipePantryScore(e,own,amounts,pantry,stock)]));
+    const pantry=MarcasDespensa.pantryMarkedMatcher(),amounts=loadRecipeAmounts(),stock=loadStockQuantities(),prices=Object.values(loadReferencePrices());
+    costs=new Map(entries.filter(e=>e.kind==="propia").map(e=>[e.kind+":"+e.key,recipeMissingCost(e,own,amounts,stock,prices)]));
+    scores=new Map(entries.map(e=>[e.kind+":"+e.key,e.kind==="idea"?ideaPantryScore(e,pantry,stock):recipePantryScore(e,own,amounts,pantry,stock)]));
     entries.sort((a,b)=>{
       const x=scores.get(a.kind+":"+a.key),y=scores.get(b.kind+":"+b.key);if(x.known!==y.known)return x.known?-1:1;if(x.known&&y.known){
         if(x.complete!==y.complete)return x.complete?-1:1;const difference=y.have/y.total-x.have/x.total;if(difference)return difference;const count=y.have-x.have;if(count)return count
       }return a.title.localeCompare(b.title,"es")
     })
   }
-  if(mode==="budget"||mode==="combined"){
-    const value=c=>{
-      if(!c||c.pending.length||Object.keys(c.totals).length!==1)return Infinity;
-      const currency=Object.keys(c.totals)[0],budget=shoppingBudgetRead();
-      return budget&&budget.currency===currency?c.totals[currency]:Infinity
-    };
-    entries.sort((a,b)=>{
-      const x=scores.get(a.kind+":"+a.key),y=scores.get(b.kind+":"+b.key);if(mode==="combined"){
-        const xa=x&&x.known?x.have/x.total:-1,ya=y&&y.known?y.have/y.total:-1;if(xa!==ya)return ya-xa
-      }const ca=value(costs.get(a.kind+":"+a.key)),cb=value(costs.get(b.kind+":"+b.key));if(ca!==cb)return ca-cb;return a.title.localeCompare(b.title,"es")
-    })
-  }
-  document.getElementById("recipeRecommendStatus").textContent=recommend?"Prioridad según cantidades medidas de la despensa. Las marcas sin cantidad no prueban disponibilidad suficiente.":"Recomendaciones desactivadas.";
-  const sort=document.getElementById("recipeCatalogSort").value;
-  if(!recommend&&mode==="normal")entries.sort((a,b)=>sort==="type"?(a.kind===b.kind?a.title.localeCompare(b.title,"es"):(a.kind==="propia"?-1:1)):sort==="reverse"?b.title.localeCompare(a.title,"es"):a.title.localeCompare(b.title,"es"));
-  const pageSize=Number(document.getElementById("recipeCatalogPageSize").value);
+  const pageSize=20;
   const pageCount=Math.max(1,Math.ceil(entries.length/pageSize));
   recipeCatalogPage=Math.min(recipeCatalogPage,pageCount-1);
   const pager=document.getElementById("recipeCatalogPager");
@@ -420,86 +538,47 @@ function renderRecipeCatalog(){
   document.getElementById("recipeCatalogPageLabel").textContent="Página "+(recipeCatalogPage+1)+" de "+pageCount;
   document.getElementById("recipeCatalogPrev").disabled=recipeCatalogPage===0;
   document.getElementById("recipeCatalogNext").disabled=recipeCatalogPage>=pageCount-1;
-  count.textContent=entries.length+" resultados. "+Object.keys(own).length+" recetas propias guardadas."+(excluded?" "+excluded+" coincidencias ocultas.":"");
+  count.textContent=entries.length===1?"1 resultado.":entries.length+" resultados."+(excluded?" "+excluded+" coincidencias ocultas.":"");
   box.replaceChildren();
   if(recipeReadId&&(!Object.prototype.hasOwnProperty.call(own,recipeReadId)))closeRecipeRead();
   for(const entry of entries.slice(recipeCatalogPage*pageSize,(recipeCatalogPage+1)*pageSize)){
-    const card=ce("div","recipe-catalog-card");
-    card.append(ce("strong",null,entry.title));
-    if(mode!=="normal"){
-      const compact=ce("div","recipe-recommend-badges"),score=scores.get(entry.kind+":"+entry.key),cost=costs.get(entry.kind+":"+entry.key);
-      if(score&&score.known)compact.append(ce("span","tag-chip",score.complete?"✓ Disponible":score.have+"/"+score.total+" disponibles"));
-      else compact.append(ce("span","tag-chip","Disponibilidad sin verificar"));
-      if(cost){
-        const totals=Object.entries(cost.totals);
-        if(totals.length)compact.append(ce("span","tag-chip","Costo parcial: "+totals.map(([c,v])=>v.toLocaleString("es-AR",{
-          maximumFractionDigits:2
-        })+" "+c).join(" · ")));
-        if(cost.pending.length)compact.append(ce("span","tag-chip","Precio incompleto"))
-      }
-      if(document.getElementById("recipeApplyAvoid").checked&&terms.length)compact.append(ce("span","tag-chip","Preferencias filtradas"));
-      card.append(compact)
-    }
-    if(recommend&&mode==="normal"){
+    // Tarjeta compacta: una fila con el nombre y "⏱ N min · ≈ $precio · método", y el botón al lado.
+    const card=ce("div","recipe-catalog-card"),info=ce("div","recipe-catalog-card__info"),precio=precioDe(entry),partes=[];
+    info.append(ce("strong",null,entry.kind==="idea"&&entry.item&&entry.item.corto?entry.item.corto:entry.title));
+    if(entry.minutes)partes.push("⏱ "+entry.minutes+" min");
+    if(precio)partes.push("≈ $"+Math.round(precio).toLocaleString("es-AR"));
+    if(entry.kind==="propia")partes.push("Mi receta");
+    if(recommend){
       const score=scores.get(entry.kind+":"+entry.key);
-      if(score&&score.known){
-        card.append(ce("p","screen__hint",score.complete?"✅ Cantidades suficientes registradas":"Cantidades suficientes: "+score.have+" de "+score.total));
-        if(score.missing.length)card.append(ce("p","screen__hint","Faltantes: "+score.missing.join("; ")));
-        if(score.subs&&score.subs.length)card.append(ce("p","screen__hint","Reemplazos disponibles: "+score.subs.join("; ")));
-        if(score.unknown.length)card.append(ce("p","screen__hint","Sin datos suficientes: "+score.unknown.join("; ")))
-      }else card.append(ce("p","screen__hint","Sin ingredientes registrados para evaluar"))
+      partes.push(score&&score.known?(score.complete?"✓ Tenés todo":score.have+" de "+score.total+" ingredientes"):"Sin ingredientes para comparar");
+      if(score&&score.faltan&&score.faltan.length&&score.faltan.length<=3)partes.push("Te falta: "+score.faltan.join(", "))
     }
-    if(costsOn&&mode==="normal"){
-      const cost=costs.get(entry.kind+":"+entry.key);
-      if(cost){
-        const currencies=Object.entries(cost.totals);
-        card.append(ce("p","screen__hint",currencies.length?"Costo parcial de faltantes: "+currencies.map(([currency,total])=>total.toLocaleString("es-AR",{
-          minimumFractionDigits:2,maximumFractionDigits:2
-        })+" "+currency).join(" · "):"Sin costos calculables para faltantes"));
-        if(cost.pending.length)card.append(ce("p","screen__hint","Pendiente: "+cost.pending.join("; ")));
-        if(entry.kind==="propia"){
-          const full=recipeCostText(recipeFullCost(own[entry.key]));
-          if(full)card.append(ce("p","screen__hint",full))
-        }
-      }else card.append(ce("p","screen__hint","Sin cantidades vinculadas para estimar costos"))
-    }
-    if(mode!=="normal"){
-      const reason=ce("details","recipe-recommend-details"),parts=[],score=scores.get(entry.kind+":"+entry.key),cost=costs.get(entry.kind+":"+entry.key),prefOn=document.getElementById("recipeApplyAvoid").checked&&terms.length>0;
-      if(entry.kind==="idea")parts.push("Idea del catálogo: faltan cantidades para verificar disponibilidad y costo.");
-      else{
-        if(score&&score.known){
-          parts.push(score.complete?"Disponibilidad: todos los ingredientes tienen cantidad suficiente registrada.":"Disponibilidad: "+score.have+" de "+score.total+" ingredientes con cantidad suficiente.");
-          if(score.missing.length)parts.push("Faltantes medidos: "+score.missing.join("; "));
-          if(score.subs&&score.subs.length)parts.push("Reemplazos disponibles: "+score.subs.join("; "));
-          if(score.unknown.length)parts.push("Datos sin verificar: "+score.unknown.join("; "))
-        }else parts.push("Disponibilidad: no evaluable por falta de cantidades vinculadas.");
-        if(cost){
-          const values=Object.entries(cost.totals);
-          parts.push(values.length?"Costo parcial de faltantes: "+values.map(([currency,value])=>value.toLocaleString("es-AR",{
-            minimumFractionDigits:2,maximumFractionDigits:2
-          })+" "+currency).join("; "):"Costo: sin importe verificable.");
-          if(cost.pending.length)parts.push("Precios pendientes: "+cost.pending.join("; "))
-        }
-      }
-      parts.push(prefOn?"Preferencias: no se encontraron coincidencias en los campos analizados; no garantiza aptitud alimentaria.":"Preferencias: filtro no aplicado.");
-      const title=ce("summary",null,"Ver por qué se recomienda");
-      reason.append(title);
-      const ul=ce("ul");
-      parts.forEach(p=>ul.append(ce("li",null,p)));
-      reason.append(ul);
-      card.append(reason)
-    }
-    if(entry.kind==="idea")entry.tags.forEach(t=>card.append(ce("span","tag-chip",t)));
-    else{
-      const r=own[entry.key];
-      card.append(ce("p","screen__hint",(r.minutes?"⏱ "+r.minutes+" min · ":"")+r.steps.length+" pasos registrados"+(r.amountsTitle?" · cantidades vinculadas":" · sin cantidades vinculadas")+(r.variantOf&&own[r.variantOf]?" · variante de "+own[r.variantOf].title:"")));
-      (r.tags||[]).slice(0,4).forEach(t=>card.append(ce("span","tag-chip",t)))
-    }
-    const b=ce("button","button button--soft",entry.kind==="idea"?"Usar idea como base":"Ver receta");
+    if(partes.length)info.append(ce("span","recipe-catalog-card__meta",partes.join(" · ")));
+    const b=ce("button","button button--soft",entry.kind==="idea"?"Usar":"Ver");
     b.type="button";
+    b.setAttribute("aria-label",(entry.kind==="idea"?"Usar idea como base: ":"Ver receta: ")+entry.title);
     b.dataset.recipeCatalogKind=entry.kind;
     b.dataset.recipeCatalogKey=entry.key;
-    card.append(b);
+    // Con "Priorizar lo que tengo en la despensa" cada tarjeta explica qué alcanza, qué falta y cuánto costaría lo que falta.
+    if(recommend){
+      const score=scores.get(entry.kind+":"+entry.key),cost=costs.get(entry.kind+":"+entry.key);
+      if(score&&score.known&&entry.kind==="propia"){
+        info.append(ce("span","screen__hint",score.complete?"✅ Cantidades suficientes registradas":"Cantidades suficientes: "+score.have+" de "+score.total));
+        if(score.missing.length)info.append(ce("span","screen__hint","Faltantes: "+score.missing.join("; ")));
+        if(score.subs&&score.subs.length)info.append(ce("span","screen__hint","Reemplazos disponibles: "+score.subs.join("; ")));
+        if(score.unknown.length)info.append(ce("span","screen__hint","Sin datos suficientes: "+score.unknown.join("; ")))
+      }
+      if(cost){
+        const currencies=Object.entries(cost.totals);
+        info.append(ce("span","screen__hint",currencies.length?"Costo parcial de faltantes: "+currencies.map(([currency,total])=>total.toLocaleString("es-AR",{
+          minimumFractionDigits:2,maximumFractionDigits:2
+        })+" "+currency).join(" · "):"Sin costos calculables para faltantes"));
+        if(cost.pending.length)info.append(ce("span","screen__hint","Pendiente: "+cost.pending.join("; ")));
+        const full=recipeCostText(recipeFullCost(own[entry.key]));
+        if(full)info.append(ce("span","screen__hint",full))
+      }
+    }
+    card.append(info,b);
     box.append(card)
   }
 }
@@ -626,28 +705,62 @@ document.getElementById("recipeReadEdit").addEventListener("click",()=>{
 // Desde la v15.3 cada vista tiene su lugar: explorar está en Comidas → Ideas ("Buscar con filtros", plegado)
 // y el formulario, en su pantalla propia. Abrir una vista lleva a su pantalla.
 function showRecipeView(view){
-  const browse=view==="browse",panel=document.getElementById("recipeDetailsPanel");
+  const browse=view==="browse";
   if(browse){
     if(stack.at(-1)!=="ideas")go("ideas");
-    if(panel&&"open" in panel)panel.open=true
+    abrirPanelBusqueda(true)
   }else if(stack.at(-1)!=="recetaEditar")go("recetaEditar");
-  document.getElementById("recipeBrowseView").hidden=false;
   document.getElementById("recipeEditorView").hidden=false;
   if(!browse)abrirSeccionesReceta();
-  document.getElementById("recipeViewBrowse").setAttribute("aria-pressed",String(browse));
-  document.getElementById("recipeViewCreate").setAttribute("aria-pressed",String(!browse));
   if(browse){
     closeRecipeRead(false);
     renderRecipeCatalog()
   }else closeRecipeRead(false)
 }
-document.getElementById("recipeViewBrowse").addEventListener("click",()=>showRecipeView("browse"));
-document.getElementById("recipeViewCreate").addEventListener("click",()=>{
+// Receta nueva y vacía (la hoja "+ Nueva" de Comidas y "Pegar receta con IA").
+function nuevaRecetaEnBlanco(){
   try{
     resetRecipeDetailsForm();showRecipeView("editor")
   }catch(err){
     recipeDetailsStatus(err.message)
   }
+}
+// Un botón que muestra o esconde un bloque en el mismo lugar (reemplaza a los desplegables de Ideas y de la receta).
+function alternarPanel(boton,abrir){
+  const panel=document.getElementById(boton.dataset.abrePanel);
+  if(!panel)return;
+  const on=abrir===undefined?panel.hidden:!!abrir;
+  panel.hidden=!on;
+  boton.setAttribute("aria-expanded",String(on));
+  return on
+}
+function abrirPanelBusqueda(abrir){
+  const boton=document.getElementById("recipeBuscarAbrir");
+  if(boton)alternarPanel(boton,abrir)
+}
+document.addEventListener("click",e=>{
+  const b=e.target.closest&&e.target.closest("[data-abre-panel]");
+  if(!b)return;
+  const on=alternarPanel(b);
+  if(on===undefined)return;
+  const panel=document.getElementById(b.dataset.abrePanel);
+  if(on){
+    if(panel.id==="recipeDetailsPanel")renderRecipeCatalog();
+    if(panel.id==="aiIdeasPanel")AsistenteIA.pintarIdeasConLoQueTengo();
+    if(panel.id==="recipeAmountsPanel")CantidadesCostos.abrirPanelDeCantidades();
+    if(panel.id==="pantryReviewPanel")RevisionDespensa.renderPantryReview(true);
+    panel.scrollIntoView({block:"start"})
+  }
+});
+document.getElementById("recipeDetailsPanel").addEventListener("click",e=>{
+  const b=e.target.closest&&e.target.closest("[data-buscar]");
+  if(!b)return;
+  const grupo=b.dataset.buscar,v=b.dataset.valor;
+  // Tocar otra vez el filtro elegido lo saca.
+  const nuevo=grupo==="tiempo"?Number(v)||0:v;
+  buscarEstado[grupo]=buscarEstado[grupo]===nuevo?(grupo==="tiempo"?0:""):nuevo;
+  recipeCatalogPage=0;
+  renderRecipeCatalog()
 });
 setTimeout(()=>{
   try{
@@ -656,25 +769,7 @@ setTimeout(()=>{
     document.getElementById("recipeCatalogCount").textContent=err.message
   }
 },0);
-document.getElementById("recipeRecommendMode").addEventListener("change",()=>{
-  recipeCatalogPage=0;renderRecipeCatalog()
-});
-document.getElementById("recipeRecommendCosts").addEventListener("change",()=>{
-  recipeCatalogPage=0;renderRecipeCatalog()
-});
 document.getElementById("recipeRecommendPantry").addEventListener("change",()=>{
-  recipeCatalogPage=0;renderRecipeCatalog()
-});
-document.getElementById("recipeCatalogSearch").addEventListener("input",()=>{
-  recipeCatalogPage=0;renderRecipeCatalog()
-});
-document.getElementById("recipeCatalogOnlyMine").addEventListener("click",e=>{
-  recipeCatalogMineOnly=!recipeCatalogMineOnly;recipeCatalogPage=0;e.currentTarget.setAttribute("aria-pressed",String(recipeCatalogMineOnly));e.currentTarget.textContent=recipeCatalogMineOnly?"Mostrar también ideas":"Ver solo mis recetas";renderRecipeCatalog()
-});
-document.getElementById("recipeCatalogClear").addEventListener("click",()=>{
-  document.getElementById("recipeCatalogSearch").value="";recipeCatalogPage=0;renderRecipeCatalog();document.getElementById("recipeCatalogSearch").focus()
-});
-for(const id of ["recipeCatalogSort","recipeCatalogPageSize"])document.getElementById(id).addEventListener("change",()=>{
   recipeCatalogPage=0;renderRecipeCatalog()
 });
 document.getElementById("recipeCatalogPrev").addEventListener("click",()=>{
@@ -736,14 +831,9 @@ document.getElementById("recipeDetailsDelete").addEventListener("click",()=>{
   }
 });
 
-// Formulario de receta (v15.3): Ingredientes, Preparación y Más detalles son plegables. Al abrirlo se
-// despliegan las secciones que ya tienen algo; el título dice si es una receta nueva o una que se edita.
+// Formulario de receta: sus pasos están a la vista (Ronda 5, M-01); el título dice si es una receta nueva o una que se edita.
 function abrirSeccionesReceta(){
-  const v=id=>String(document.getElementById(id).value||"").trim(),abrir=(id,on)=>{
-    const d=document.getElementById(id);if(d&&on)d.open=true
-  };
-  abrir("recetaSeccionIngredientes",true);
-  abrir("recetaSeccionPreparacion",!!v("recipeDetailsSteps"));
-  abrir("recetaSeccionMas",["recipeDetailsSource","recipeDetailsAmounts","recipeDetailsNotes","recipeTags","recipeMinutes","recipeSubstitutions"].some(v));
-  document.getElementById("recetaEditarTitulo").textContent=recipeDetailsEditing?"Editar receta":"Nueva receta"
+  document.getElementById("recetaEditarTitulo").textContent=recipeDetailsEditing?"Editar receta":"Nueva receta";
+  // Duplicar y eliminar solo tienen sentido con una receta guardada.
+  document.getElementById("recetaSeccionOtras").hidden=!recipeDetailsEditing
 }

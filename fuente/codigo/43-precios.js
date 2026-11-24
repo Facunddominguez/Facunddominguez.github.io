@@ -279,6 +279,16 @@ function misPreciosDe(nombre){
   return todos.filter(p=>nombres.some(n=>Ingredientes.sameIngredient(p.name,n))).sort((a,b)=>String(b.date).localeCompare(String(a.date))||(String(b.id).startsWith("ficha_")?1:0)-(String(a.id).startsWith("ficha_")?1:0))
 }
 // Costo con Mi precio (el más nuevo): en la misma unidad o, si no, pasando las dos cantidades a gramos.
+// v19.3 (R5-S-10): medidas de cocina de productos sin dato de nutrición ("Frutos secos", "Queso para gratinar"): el precio por kilo
+// que cargó la persona tiene que alcanzar para costear "1/4 taza" o "1 cucharada". Pesos aproximados por medida (g).
+// (Las tablas van dentro de la función: el arranque pinta Hoy antes de que corra este archivo y una constante de nivel superior no existiría todavía.)
+function gramosAproxDeMedida(nombre,q,unit){
+  const g=gramosDe(nombre,q,unit);
+  const medida={taza:150,cucharada:10,cucharadita:3,ml:1,l:1000},producto={"frutos secos":{taza:140,cucharada:9,cucharadita:3},"semillas":{taza:160,cucharada:10,cucharadita:3},"queso":{taza:100,cucharada:7,cucharadita:2}};
+  if(g!==null||!(q>0)||medida[unit]===undefined)return g;
+  const k=ingredientKey(nombre),especifico=Object.entries(producto).find(([n])=>k.startsWith(n)||k.includes(" "+n));
+  return q*((especifico&&especifico[1][unit])||medida[unit])
+}
 function miPrecioDe(nombre,q,unit){
   const lista=misPreciosDe(nombre);
   if(!lista.length)return null;
@@ -287,9 +297,9 @@ function miPrecioDe(nombre,q,unit){
     const p=mismo[0],amount=p.unit===unit?p.amount:convertQuantity(p.amount,p.unit,unit);
     return {costo:q*p.price/amount,propio:true,fuente:"Mi precio",aprox:false}
   }
-  const gq=gramosDe(nombre,q,unit);
+  const gq=gramosAproxDeMedida(nombre,q,unit);
   for(const p of lista){
-    const gp=gramosDe(nombre,p.amount,p.unit);
+    const gp=gramosAproxDeMedida(nombre,p.amount,p.unit);
     if(gq!==null&&gp)return {costo:gq*p.price/gp,propio:true,fuente:"Mi precio",aprox:false}
   }
   return null
@@ -665,8 +675,17 @@ function guardarMiPrecio(nombre,precio,cantidad,unidad){
   return antes
 }
 // Unidad con la que se suele comprar: por unidad lo que se vende así o pesa más de 300 g (ananá, melón, pomelo), si no por kg.
-function unidadSugeridaFicha(nombre){
+// Unidad con la que se sugiere cargar el precio. v19.3 (R5-S-10): si la semana usa el producto en unidades y no se sabe cuánto pesa una
+// ("Fruta de estación", "Frutos secos"), un precio por kilo no se podría convertir y el producto seguiría sin precio real: se sugiere "unidad".
+// `unidades` (Map unidad→cantidad) es lo que usa la semana; si no se pasa, se busca en la lista de la semana.
+function unidadSugeridaFicha(nombre,unidades){
   try{
+    let us=unidades;
+    if(!us&&typeof shoppingDisplayItems==="function"){
+      const k=ingredientKey(nombre),it=shoppingDisplayItems().find(x=>ingredientKey(x.name)===k);
+      us=it&&it.units
+    }
+    if(us&&us.has&&us.has("unidad")&&gramosDe(nombre,1,"unidad")===null)return "unidad";
     const p=precioAuto(nombre);
     if(p&&p.it&&p.it.b==="unidad")return "unidad";
     if(p&&p.it&&p.it.b==="l")return "kg";
@@ -886,20 +905,152 @@ function productosSinPrecioReal(){
   const c=costoSemanaPlan();
   return c?c.productos.filter(x=>x.tipo!=="real"):[]
 }
-function abrirCompletarPrecios(){
-  const lista=productosSinPrecioReal(),caja=ce("div","completar-precios");
-  caja.append(ce("p","screen__hint",lista.length?"Tocá un producto para ver su ficha y poner tu precio.":"Todos los productos tienen precio."));
-  for(const x of lista){
-    const b=ce("button","tool-button completar-precios__fila");
-    b.type="button";
-    b.dataset.nutrienteIngrediente=x.name;
-    b.dataset.completarPreciosFila=x.key;
-    b.append(ce("span","tool-button__label",x.name),ce("span","tool-button__desc",x.tipo==="estimado"?"estimado ≈ $"+Math.round(x.costo).toLocaleString("es-AR"):"sin precio"));
-    caja.append(b)
+// v19.9 (R5-X-03): el promedio de la región (SEPA/INDEC) como otra opción para "Comparar alternativas de precio": un precio por 1 de la
+// unidad con que se calcula ({id:"auto", price, amount:1, unit, currency:"ARS", auto:true}) o null si no hay dato.
+function opcionPrecioAutomatico(nombre,unidad){
+  try{
+    const p=precioAuto(nombre);
+    if(!p||!p.it||!(p.precio>0))return null;
+    const base=cantidadBasePrecio({b:p.it.b,d:p.it.d},nombre,1,unidad);
+    if(base===null||!(base>0))return null;
+    return {id:"auto",name:nombre,pack:"",amount:1,unit:unidad,price:base*p.precio,currency:"ARS",date:null,auto:true}
+  }catch(e){
+    return null
   }
-  hoja.abrir({
-    titulo:"Completar precios",contenido:[caja],botones:[],foco:false
-  })
+}
+// v19.8 (R5-K-15): ingredientes sin precio real para "Mis precios": {semana:[nombres de la semana], otros:[el resto del catálogo]}.
+// "Sin precio real" es lo mismo que en "Completar precios": ni Mi precio ni el dato de SEPA/INDEC (un estimado no cuenta).
+function ingredientesSinPrecio(){
+  const semana=[],vistos=new Set();
+  for(const x of productosSinPrecioReal()){
+    const k=ingredientKey(x.name);
+    if(vistos.has(k))continue;
+    vistos.add(k);
+    semana.push(x.name)
+  }
+  const otros=[];
+  try{
+    for(const n of nutritionDataset().names){
+      const k=ingredientKey(n);
+      if(!k||vistos.has(k)||fueraDeLaLista(n))continue;
+      vistos.add(k);
+      const u=unidadSugeridaFicha(n,new Map());
+      if(!precioDe(n,1,u))otros.push(n)
+    }
+  }catch(e){
+  }
+  return {semana:semana.sort((a,b)=>a.localeCompare(b,"es")),otros}
+}
+// v19.3 (R5-S-07 a S-09): "Completar N precios" abre directo el primer producto con su formulario; Anterior y Siguiente pasan de
+// producto ("2 de 5"); "Guardar precios" guarda de una vez todos los que se completaron y dice cuántos guardó.
+// La unidad en la que la semana usa un producto (para decirle a la persona en qué unidad cargar el precio).
+function unidadQueUsaLaSemana(nombre){
+  try{
+    const k=ingredientKey(nombre),it=shoppingDisplayItems().find(x=>ingredientKey(x.name)===k);
+    if(it&&it.units&&it.units.size)return [...it.units.keys()][0]
+  }catch(e){
+  }
+  return "unidad"
+}
+function abrirCompletarPrecios(){
+  let lista=productosSinPrecioReal();
+  const abrir=nodos=>hoja.abrir({
+    titulo:"Completar precios",contenido:nodos,botones:[],foco:false
+  });
+  if(!lista.length){
+    abrir([ce("p","screen__hint","Todos los productos tienen precio.")]);
+    return
+  }
+  const caja=ce("div","completar-precios"),valores=new Map(),
+    numero=t=>{const n=Number(String(t).trim().replace(/\./g,"").replace(",","."));return Number.isFinite(n)&&n>0?n:null},
+    boton=(texto,clase,attr)=>{const b=ce("button","button "+clase,texto);b.type="button";if(attr)b.dataset[attr]="";return b},
+    campo=(texto,el)=>{const f=ce("div","portion-field"),l=ce("label",null,texto);l.htmlFor=el.id;f.append(l,el);return f};
+  let i=0;
+  const pos=ce("p","completar-precios__pos"),nombre=ce("h3","completar-precios__nombre"),info=ce("p","screen__hint"),
+    monto=ce("input"),cant=ce("input"),uni=ce("select"),aviso=ce("p","screen__hint"),
+    ant=boton("Anterior","button--soft","completarAnterior"),sig=boton("Siguiente","button--soft","completarSiguiente"),
+    guardar=boton("Guardar precios","button--primary","completarGuardar"),cuenta=ce("p","screen__hint");
+  aviso.setAttribute("aria-live","polite");
+  pos.setAttribute("aria-live","polite");
+  const cantLabel=ce("label",null,"Cantidad"),fCant=ce("div","portion-field");
+  cantLabel.htmlFor="completarCantidad";
+  monto.type="text";monto.inputMode="decimal";monto.id="completarMonto";
+  cant.type="text";cant.inputMode="decimal";cant.id="completarCantidad";
+  uni.id="completarUnidad";
+  fCant.append(cantLabel,cant);
+  for(const [v,t] of FICHA_UNIDADES)uni.append(new Option(t,v));
+  const fila=ce("div","completar-precios__nav");
+  fila.append(ant,sig);
+  caja.append(pos,nombre,info,campo("Monto ($)",monto),fCant,campo("Unidad",uni),fila,guardar,cuenta,aviso);
+  const recordar=()=>{
+    const x=lista[i];
+    if(x)valores.set(x.key,{monto:monto.value,cant:cant.value,uni:uni.value})
+  };
+  const llenos=()=>lista.filter(x=>{const v=valores.get(x.key);return v&&String(v.monto).trim()}).length;
+  const mostrar=()=>{
+    const x=lista[i],v=valores.get(x.key)||{monto:"",cant:"1",uni:unidadSugeridaFicha(x.name)};
+    pos.textContent=(i+1)+" de "+lista.length;
+    nombre.textContent=x.name;
+    let ref="";
+    try{ref=textoPrecioFicha(x.name)}catch(e){}
+    info.textContent=(x.tipo==="estimado"?"Hoy cuenta un estimado de ≈ $"+Math.round(x.costo).toLocaleString("es-AR")+" para tu semana. ":"Todavía no tiene precio. ")+(ref||"");
+    monto.value=v.monto;cant.value=v.cant;uni.value=v.uni;
+    ant.disabled=i===0;
+    sig.disabled=i===lista.length-1;
+    cuenta.textContent=llenos()?"Completaste "+llenos()+" de "+lista.length+".":""
+  };
+  uni.addEventListener("change",()=>{
+    if(uni.value==="paquete"&&cant.value==="1")cant.value="";
+    cantLabel.textContent=uni.value==="paquete"?"Gramos del paquete":"Cantidad";
+    recordar()
+  });
+  monto.addEventListener("input",()=>{recordar();cuenta.textContent=llenos()?"Completaste "+llenos()+" de "+lista.length+".":""});
+  cant.addEventListener("input",recordar);
+  ant.addEventListener("click",()=>{recordar();if(i>0){i--;mostrar()}});
+  sig.addEventListener("click",()=>{recordar();if(i<lista.length-1){i++;mostrar()}});
+  guardar.addEventListener("click",()=>{
+    recordar();
+    const guardados=[],revisar=[];
+    for(const x of lista){
+      const v=valores.get(x.key);
+      if(!v||!String(v.monto).trim())continue;
+      const precio=numero(v.monto),cantidad=numero(v.cant);
+      if(precio===null||cantidad===null||precio>1000000){revisar.push(x.name+": escribí el monto y la cantidad con números mayores que cero");continue}
+      const r=razonContraCategoria(x.name,precio,cantidad,v.uni==="paquete"?"g":v.uni);
+      if(r&&(r.razon>3||r.razon<1/3)){revisar.push(x.name+": el monto se aleja mucho del precio típico de "+r.categoria+" (cargalo desde su ficha si está bien)");continue}
+      try{guardarMiPrecio(x.name,precio,cantidad,v.uni);guardados.push(x.key)}catch(err){revisar.push(x.name+": "+err.message)}
+    }
+    if(!guardados.length&&!revisar.length){
+      aviso.textContent="Escribí el monto de al menos un producto para guardar.";
+      return
+    }
+    if(guardados.length){
+      try{refrescarPrecios()}catch(e){}
+      for(const k of guardados)valores.delete(k);
+      try{renderPlan()}catch(e){}
+      try{renderCompras()}catch(e){}
+    }
+    const texto=guardados.length?"Guardé "+guardados.length+" precio"+(guardados.length===1?"":"s")+".":"No guardé ningún precio.";
+    const previos=lista;
+    lista=productosSinPrecioReal();
+    // Un precio guardado que no alcanza para costear lo que usa la semana (por ejemplo, por kilo para algo que se cuenta en unidades).
+    for(const x of previos){
+      if(guardados.includes(x.key)&&lista.some(y=>y.key===x.key))revisar.push(x.name+": guardé tu precio, pero no alcanza para lo que usa la semana; cargalo por "+unidadQueUsaLaSemana(x.name))
+    }
+    if(!lista.length&&!revisar.length){
+      hoja.cerrar();
+      try{planStatus(texto+" Ya no falta ninguno.")}catch(e){}
+      return
+    }
+    if(!lista.length){abrir([ce("p","screen__hint",texto+" Revisá: "+revisar.join(" · "))]);return}
+    // Se vuelve al mismo producto si sigue faltando; si no, al que ocupa ese lugar.
+    const actual=previos[i]?lista.findIndex(y=>y.key===previos[i].key):-1;
+    i=actual>=0?actual:Math.min(i,lista.length-1);
+    mostrar();
+    aviso.textContent=texto+" Faltan "+lista.length+"."+(revisar.length?" Revisá: "+revisar.join(" · "):"")
+  });
+  mostrar();
+  abrir([caja])
 }
 document.addEventListener("click",e=>{
   if(e.target.closest&&e.target.closest("[data-completar-precios]"))abrirCompletarPrecios()

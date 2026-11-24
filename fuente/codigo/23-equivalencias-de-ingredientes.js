@@ -96,11 +96,6 @@ function ingredientAliasSuggestions(names){
   }
   return out.slice(0,8)
 }
-document.getElementById("ingredientAliasPanel").addEventListener("toggle",e=>{
-  if(e.target.open){
-    document.getElementById("ingredientAliasStatus").textContent="";Equivalencias.renderIngredientAliases()
-  }
-});
 document.getElementById("ingredientAliasSave").addEventListener("click",()=>{
   const status=document.getElementById("ingredientAliasStatus");try{
     Equivalencias.saveIngredientAlias(document.getElementById("ingredientAliasFrom").value,document.getElementById("ingredientAliasTo").value);document.getElementById("ingredientAliasFrom").value="";document.getElementById("ingredientAliasTo").value="";status.textContent="Equivalencia guardada. Compras, despensa y precios ya la usan.";Equivalencias.renderIngredientAliases()
@@ -137,9 +132,6 @@ document.getElementById("recipeDetailsAmounts").addEventListener("change",e=>{
     }).amountsTitle)||"";return
   }renderRecipeIngredientRows(key)
 });
-document.getElementById("recipeCatalogTime").addEventListener("change",()=>{
-  recipeCatalogPage=0;renderRecipeCatalog()
-});
 document.addEventListener("change",e=>{
   const t=e.target;if(!t||!t.dataset||t.dataset.planPortions===undefined)return;const key=t.dataset.planPortions,raw=t.value.trim();if(Semana.viendoProxima()){planStatus("Las porciones se cargan cuando empieza esa semana.");return}try{
     const p=Semana.loadPlanPortions();if(!raw)delete p[key];else{
@@ -155,7 +147,4 @@ document.addEventListener("click",e=>{
   }catch(err){
     SemanasFechadas.datedWeekMessage(err.message)
   }
-});
-document.getElementById("planHistoryPanel").addEventListener("toggle",e=>{
-  if(e.target.open)Semana.renderPlanHistory()
 });

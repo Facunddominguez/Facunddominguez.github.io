@@ -230,9 +230,7 @@ document.getElementById("pantryReviewRecipe").replaceChildren(...data.menuCatalo
   const option=ce("option",null,(t=>{for(const re of [/ con /,/[,:]/])if(t.length>26)t=t.split(re)[0];return t.length>26?t.slice(0,24).replace(/ S*$/,""):t})(rec.text.split(" + ")[0]));option.title=rec.text;option.value=rec.text;return option
 }));
 document.getElementById("pantryReviewRecipe").addEventListener("change",()=>RevisionDespensa.renderPantryReview(true));
-document.getElementById("pantryReviewPanel").addEventListener("toggle",e=>{
-  if(e.target.open)RevisionDespensa.renderPantryReview(true)
-});
+// v19.8 (R5-K-17): "Revisar qué tengo y qué falta" es un botón (data-abre-panel, en 21-recetas.js) que muestra el bloque y arma la revisión.
 document.getElementById("pantryReviewReset").addEventListener("click",()=>RevisionDespensa.renderPantryReview(true));
 document.getElementById("pantryReviewItems").addEventListener("change",e=>{
   if(e.target.dataset.pantryReviewIndex===undefined)return;const i=Number(e.target.dataset.pantryReviewIndex);if(e.target.checked)pantryReviewConfirmed.add(i);else pantryReviewConfirmed.delete(i);RevisionDespensa.renderPantryReview(false)

@@ -61,24 +61,24 @@
   for (const m of libres) exigir("despensa sin cantidad", seVe($("pantryItemList"), m), m);
   const existencias = Object.values(J(STOCK));
   for (const s of existencias) exigir("existencia", seVe($("pantryItemList"), s.name + " · " + w.cantidadLegible(s.quantity, s.unit)), s.name);
-  for (const h of qa("#pantryItemList .pantry-item__historial")) await tocar(h.querySelector("summary"));
-  const historiales = qa("#pantryItemList .pantry-item__historial p").filter(visible).length;
+  // R5-G-01: el historial de cada ingrediente se ve directo (sus 3 últimos movimientos).
+  const historiales = qa("#pantryItemList .pantry-item__historial .screen__hint").filter(visible).length;
   const filas = existencias.map(s => s.name).concat(libres), movs = J(MOVES);
   const esperados = movs.filter(m => filas.some(n => w.ingredientKey(n) === w.ingredientKey(m.name))).length;
-  exigir("historial por ítem", historiales === Math.min(esperados, filas.length * 10) && esperados > 0, historiales + " de " + esperados);
-  await tocar(q("#stockMovesPanel summary"));
-  exigir("todos los movimientos", qa("#stockMoves p").filter(visible).length === Math.min(movs.length, 30), qa("#stockMoves p").length + " de " + movs.length);
+  exigir("historial por ítem", historiales === Math.min(esperados, filas.length * 3) && esperados > 0, historiales + " de " + esperados);
+  // R5-K-16: "Todos los movimientos" ya no se muestra (los movimientos siguen guardados y se ven por ingrediente).
+  exigir("sin 'Todos los movimientos'", !doc().getElementById("stockMoves") && !doc().getElementById("stockMovesPanel") && !/Todos los movimientos/.test($("ingredientes").textContent) && movs.length > 0);
   // Menú ⋯ de Compras: compras realizadas, presupuesto y Mis precios.
   await tocar(q('#ingredientes [data-compras-vista="lista"]'));
   await menuCompras("realizadas");
   for (const p of J(COMPRAS)) exigir("compra realizada", seVe($("purchaseList"), w.typedAppDateLabel(p.date) + (p.store ? " · " + p.store : "")), p.store);
-  await irA("compras"); await menuCompras("presupuesto");
+  await irA("compras"); ev('ComprasDespensa.abrirHerramientaCompras("presupuesto")'); await espera(150);
   exigir("presupuesto", visible($("shoppingBudgetLimit")) && Number($("shoppingBudgetLimit").value) === J("miPlatoFacil_shoppingBudget_v1").limit && seVe($("shoppingBudgetResult"), "60.000,00"));
   await irA("compras"); await menuCompras("precios");
   for (const p of Object.values(J(PRECIOS))) exigir("Mis precios", seVe($("priceList"), p.name + (p.pack ? " · " + p.pack : "")), p.name);
   // Semana: plan, porciones, planes guardados, semanas con fecha, historial, Lo que comí y objetivos.
   await irA("semana");
-  const semana = qa("#planDias [data-plan-dia]").reduce((t, c) => t + Number((c.querySelector(".semana-dia-chip__cuenta").textContent.match(/^(\d)\/4$/) || [0, NaN])[1]), 0);
+  const semana = qa("#planDias [data-plan-dia]").reduce((t, c) => t + Number((c.getAttribute("aria-label").match(/: (\d) de 4 comidas$/) || [0, NaN])[1]), 0);
   exigir("plan", semana === 28, semana + " de 28");
   for (const [clave, n] of Object.entries(J("miPlatoFacil_planPortions_v1"))) {
     const [dia, comida] = clave.split("|");
@@ -88,22 +88,25 @@
     ev("hoja.cerrar()"); await espera(60)
   }
   const menuSemana = async herr => { await tocar(q("#plan [data-plan-menu]")); await tocar(q('.hoja [data-plan-herr="' + herr + '"]')) };
-  await menuSemana("variaciones");
-  for (const nombre of Object.keys(J("miPlatoFacil_planVars"))) exigir("plan guardado", visible($("varSelect")) && [...$("varSelect").options].some(o => o.textContent.includes(nombre)), nombre);
+  // Desde la v19.2 los planes guardados se eligen con "Mis planes" en Semana y las semanas con fecha se ven por tarjetas.
+  await irA("semana"); await tocar(q("#plan [data-planes-guardados]"));
+  for (const nombre of Object.keys(J("miPlatoFacil_planVars"))) exigir("plan guardado", visible(q(".hoja")) && q(".hoja").textContent.includes(nombre), nombre);
+  ev("hoja.cerrar()"); await espera(100);
   await irA("semana"); await menuSemana("semanas");
-  for (const fecha of Object.keys(J("miPlatoFacil_datedWeeks_v1"))) exigir("semana con fecha", seVe($("datedWeekList"), fecha), fecha);
-  await irA("semana"); await menuSemana("historial");
-  for (const h of J("miPlatoFacil_planHistory_v1")) exigir("historial del plan", seVe($("planHistoryList"), h.text), h.text);
+  for (const fecha of Object.keys(J("miPlatoFacil_datedWeeks_v1"))) { ev("elegirSemanaFechada(" + JSON.stringify(fecha) + ")"); await espera(100); exigir("semana con fecha", qa("#datedWeekView .hueco").length === 28 && qa("#datedWeekView .hueco__plato").length > 0, fecha) }
+  // Desde la v19.1 (R5-S-16) el historial del plan ya no se muestra: lo guardado sigue y lo lee la propia app.
+  exigir("historial del plan", J("miPlatoFacil_planHistory_v1").length > 0 && ev("Semana.loadPlanHistory().length") === J("miPlatoFacil_planHistory_v1").length);
   await irA("semana"); await menuSemana("consumo");
   const consumo = J("miPlatoFacil_consumption_v1"), primera = consumo.map(c => c.date).sort()[0];
   let registrados = 0;
   for (let i = 0; i < 80 && ev("consumptionWeek") >= w.mondayOf(primera); i++) {
-    registrados += Number((($("consumptionView").innerText.match(/(\d+) comidas? registradas?/) || [0, 0])[1]));
+    registrados += Number(q("#graficoSemanaComidas .grafico__fila").dataset.valor);
     await tocar(q('[data-consumption-week="-7"]'))
   }
+  await tocar(q('[data-consumption-week="7"]'));
   exigir("Lo que comí", registrados === consumo.length, registrados + " de " + consumo.length);
   const metas = J("miPlatoFacil_habitGoals_v1");
-  for (const [g, n] of Object.entries(metas)) exigir("objetivo " + g, seVe($("consumptionView"), "de " + n + " (objetivo)"), g);
+  for (const [g, n] of Object.entries(metas)) exigir("objetivo " + g, seVe($("consumptionView"), "de " + n), g);
   // Comidas: platos y recetas, preparaciones, cantidades de las recetas e ideas favoritas.
   await irA("miscomidas");
   const tarjetas = t => qa('#savedList > .comida-card[data-comida-tipo="' + t + '"]').filter(visible).length;
@@ -111,9 +114,10 @@
   // v15.5: las preparaciones están en el Registro (Más → Registro → Todas las preparaciones).
   await irA("mas"); await tocar(q('#sectionSettings [data-open-registro]'));
   exigir("pantalla Registro", pantalla() === "registro");
-  await tocar(q("#cookingHistoryPanel summary"));
-  const preparaciones = J("miPlatoFacil_cookingHistory_v1");
-  exigir("preparaciones", qa("#cookingHistoryList > *").filter(visible).length >= preparaciones.length && preparaciones.every(p => seVe($("cookingHistoryList"), w.typedAppDateLabel(p.date))), qa("#cookingHistoryList > *").length + " de " + preparaciones.length);
+  // Desde la v19.6 (R5-R04) "Todas las preparaciones" no está: cada preparación se ve en el Registro, en su día, como "Lo comí".
+  const preparaciones = J("miPlatoFacil_cookingHistory_v1"), faltanPrep = [];
+  for (const p of preparaciones) { ev("abrirRegistro({ fecha: " + JSON.stringify(p.date) + " })"); await espera(80); if (!q('#registroLista [data-registro-id="' + p.id + '"]')) faltanPrep.push(p.id) }
+  exigir("preparaciones", !faltanPrep.length, faltanPrep.join(","));
   await irA("miscomidas");
   const recetas = J("miPlatoFacil_recipeDetails_v1"), cantidades = J("miPlatoFacil_recipeAmounts_v1");
   const conCantidades = Object.values(recetas).filter(r => r.amountsTitle && cantidades[r.amountsTitle]);
@@ -157,7 +161,7 @@
   const sw = $("comprasDescontar"); const encendidoPorDefecto = sw.checked && localStorage.getItem(OPC) === null;
   await tocar(sw);
   const apagado = ev("shoppingDisplayItems()");
-  const sinTenes = apagado.every(x => x.group !== "tenes") && apagado.every(x => !/ · (faltan|revisá)/.test(x.text) || x.group !== "pendiente") && !qa("#comprasList details.shop-group").some(d => d.querySelector("summary").textContent.startsWith("Ya tenés"));
+  const sinTenes = apagado.every(x => x.group !== "tenes") && apagado.every(x => !/ · (faltan|revisá)/.test(x.text) || x.group !== "pendiente") && !qa("#comprasList .shop-group").some(d => d.querySelector("h3").textContent.startsWith("Ya tenés"));
   const soloSuClave = JSON.stringify(JSON.parse(todo()).filter(([k]) => k !== OPC)) === datosSinOpc && localStorage.getItem(OPC) === '{"descontar":false}';
   await tocar(sw);
   ok("C5-3 'Descontar lo que tengo': encendido por defecto; apagado no hay 'Ya tenés' ni 'faltan'; escribe solo su clave al tocarlo",
@@ -173,7 +177,7 @@
 
   // C5-4 Productos extra: "+ Agregar producto" arriba, en la lista; tachar escribe done; Editar; Quitar con Deshacer
   cargar({}); await abrir(); await irA("compras");
-  const agregar = q("#manualShoppingPanel summary"), arriba = agregar.compareDocumentPosition($("comprasList")) & 4;
+  const agregar = q("#manualShoppingPanel h3"), arriba = agregar.compareDocumentPosition($("comprasList")) & 4;
   await tocar(agregar);
   $("manualShopName").value = "Detergente"; $("manualShopAmount").value = "1 botella"; await tocar($("manualShopSubmit"));
   let extras = JSON.parse(localStorage.getItem(EXTRAS) || "[]");
@@ -183,11 +187,11 @@
   await tocar(q("#manualShopList [data-manual-edit]"));
   $("manualShopName").value = "Lavandina"; await tocar($("manualShopSubmit"));
   const editado = JSON.parse(localStorage.getItem(EXTRAS))[0].name === "Lavandina";
-  const antesDeQuitar = localStorage.getItem(EXTRAS);
   await tocar(q("#manualShopList [data-manual-delete]"));
   const quitado = JSON.parse(localStorage.getItem(EXTRAS)).length === 0;
-  await tocar(q("#manualShopStatus [data-manual-undo]"));
-  ok("C5-4 productos extra: se agregan arriba, se ven en la lista, se tachan, se editan y Quitar tiene Deshacer", !!arriba && enLista && tachado && editado && quitado && localStorage.getItem(EXTRAS) === antesDeQuitar);
+  // R5-K-01: Quitar ya no ofrece Deshacer.
+  const sinDeshacer = !qa("#manualShopStatus [data-manual-undo]").length && !/Deshacer/.test($("compras").textContent) && /Quitado: Lavandina\./.test($("manualShopStatus").textContent);
+  ok("C5-4 productos extra: se agregan arriba, se ven en la lista, se tachan, se editan y Quitar no tiene Deshacer (R5-K-01)", !!arriba && enLista && tachado && editado && quitado && sinDeshacer);
 
   // C5-5 "Terminé de comprar" (como Lo compré) y "Anotar gasto": compra y Mis precios con el formulario de siempre
   cargar(conReceta("recipe_e5prue04", "Merluza con papa", [{ name: "Papa", quantity: 500, unit: "g" }, { name: "Merluza", quantity: 2, unit: "unidad" }]));
@@ -216,8 +220,7 @@
   await abrir(); await irA("compras"); await tocar($("comprasDespensa"));
   const filaQueso = q('#pantryItemList [data-pantry-item]');
   const legible = filaQueso.innerText.includes("Queso rallado · 167 g");
-  await tocar(filaQueso.querySelector(".pantry-item__historial summary"));
-  const hist = [...filaQueso.querySelectorAll(".pantry-item__historial p")].map(p => p.textContent);
+  const hist = [...filaQueso.querySelectorAll(".pantry-item__historial .screen__hint")].map(p => p.textContent);
   const historialOk = hist.length === 1 && /\+167 g · Lo compré/.test(hist[0]);
   const stock0 = localStorage.getItem(STOCK), moves0 = localStorage.getItem(MOVES);
   await tocar(q("#pantryItemList [data-pantry-item-edit]"));
@@ -227,13 +230,13 @@
   await tocar(q("#pantryItemList [data-pantry-item-edit]"));
   $("pantryItemQty").value = "50"; await tocar($("pantryItemSubmit"));
   const editado6 = JSON.parse(localStorage.getItem(STOCK))['["queso rallado","g"]'].quantity === 50;
-  await tocar(q("#pantryItemStatus [data-pantry-undo]"));
-  const vuelto = localStorage.getItem(STOCK) === stock0 && JSON.parse(localStorage.getItem(MOVES)).length === 4;
+  // R5-K-16: editar y quitar en la Despensa ya no ofrecen Deshacer.
+  const sinDeshacerEditar = !qa("#pantryItemStatus [data-pantry-undo]").length && !/Deshacer/.test($("ingredientes").textContent);
   await tocar(q("#pantryItemList [data-pantry-item-remove-stock]"));
   const sinQueso = !JSON.parse(localStorage.getItem(STOCK) || "{}")['["queso rallado","g"]'];
-  await tocar(q("#pantryItemStatus [data-pantry-undo]"));
-  ok("C5-6 Despensa: cantidad legible, historial del ítem, editar sin cambios no toca nada, Editar y Quitar con Deshacer",
-    legible && historialOk && exacto && sinCambios && editado6 && vuelto && sinQueso && localStorage.getItem(STOCK) === stock0, hist.join(" | "));
+  const sinDeshacerQuitar = !qa("#pantryItemStatus [data-pantry-undo]").length && !/Deshacer/.test($("ingredientes").textContent) && /Quitado: Queso rallado\./.test($("pantryItemStatus").textContent);
+  ok("C5-6 Despensa: cantidad legible, historial del ítem, editar sin cambios no toca nada, Editar y Quitar sin Deshacer (R5-K-16)",
+    legible && historialOk && exacto && sinCambios && editado6 && sinDeshacerEditar && sinQueso && sinDeshacerQuitar, hist.join(" | "));
 
   // C5-7 Cantidades legibles: redondeo y plural solo al mostrar; los textos internos de la lista no cambian
   const casos = [[166.666667, "g", "167 g"], [5, "unidad", "5 unidades"], [1, "unidad", "1 unidad"], [0.5, "taza", "0,5 taza"], [1.25, "kg", "1,25 kg"], [2, "cucharadita", "2 cucharaditas"], [3.333333, "unidad", "3,33 unidades"], [2.5, "ml", "2,5 ml"]];
@@ -246,7 +249,8 @@
     malos.map(m => m.join(" ")).join(", ") + " | " + filas7.join(" | "));
 
   // C5-8 Menú ⋯: cada herramienta se abre en 2 toques desde Compras, en los dos modos, y funciona
-  const herramientas = [["realizadas", "#purchaseFromList"], ["presupuesto", "#shoppingBudgetSave"], ["precios", "#priceForm"], ["costoReceta", "#recipeCostPrepare"], ["otrasRecetas", "#quantShoppingCalculate"], ["otrasRecetas", "#stockPrepare"], ["existencias", "#stockSave"], ["existencias", "#shoppingPortionMultiplier"], ["compartir", "[data-copy-compras]"]];
+  // R5-K-10 a K-13: el menú ⋯ tiene tres herramientas; el presupuesto se abre desde la barra de la lista (acá, directo).
+  const herramientas = [["realizadas", "#purchaseFromList"], ["precios", "#priceForm"], ["costoReceta", "#recipeCostPrepare"]];
   const fallas8 = [];
   for (const modo of ["simple", "completo"]) {
     ev('ModoSimple.setUiMode("' + modo + '")');
@@ -254,26 +258,29 @@
       await irA("compras"); toques = 0; await menuCompras(herr);
       if (!(toques <= 2 && pantalla() === "comprasHerramientas" && visible(q(sel)))) fallas8.push(modo + ":" + herr + ":" + sel)
     }
-    await irA("compras"); toques = 0; await menuCompras("presupuesto");
+    await irA("compras"); await tocar(q("#compras [data-compras-menu]"));
+    const entradas = qa(".hoja [data-compras-herr]").map(b => b.dataset.comprasHerr).join(",");
+    if (entradas !== "realizadas,precios,costoReceta") fallas8.push(modo + ": el menú ⋯ tiene " + entradas);
+    ev("hoja.cerrar()"); toques = 0; ev('ComprasDespensa.abrirHerramientaCompras("presupuesto")'); await espera(150);
+    if (!visible(q("#shoppingBudgetSave"))) fallas8.push(modo + ": presupuesto");
     await tocar(q("#budgetComparePanel summary"));
     if (!visible($("budgetCompareResult"))) fallas8.push(modo + ": Comparar alternativas");
     await irA("compras"); await tocar($("comprasDespensa"));
-    if (!visible(q("#stockMovesPanel summary"))) fallas8.push(modo + ": movimientos en la Despensa")
+    if (!visible($("pantryItemForm")) || doc().getElementById("stockMovesPanel")) fallas8.push(modo + ": la Despensa carga existencias y no muestra todos los movimientos")
   }
-  // Funciona: Guardar existencia desde la herramienta escribe la despensa con su formato.
-  await irA("compras"); await menuCompras("existencias");
-  $("stockIngredient").value = "Azúcar"; $("stockQuantity").value = "2"; $("stockUnit").value = "cucharada"; await tocar($("stockSave"));
+  // Funciona: cargar una existencia con cantidad desde la Despensa (R5-K-12) escribe la despensa con su formato.
+  await irA("compras"); await tocar($("comprasDespensa"));
+  $("pantryItemName").value = "Azúcar"; $("pantryItemQty").value = "2"; $("pantryItemUnit").value = "cucharada"; await tocar($("pantryItemSubmit"));
   const azucar = JSON.parse(localStorage.getItem(STOCK) || "{}")['["azucar","cucharada"]'];
   ev('ModoSimple.setUiMode("simple")');
-  ok("C5-8 cada herramienta de Compras se abre en 2 toques desde el menú ⋯, en los dos modos, y funciona", !fallas8.length && !!azucar && azucar.quantity === 2 && seVe($("stockList"), "Azúcar: 2 cucharadas"), fallas8.join(", "));
+  ok("C5-8 cada herramienta de Compras se abre en 2 toques desde el menú ⋯, en los dos modos, y funciona", !fallas8.length && !!azucar && azucar.quantity === 2 && seVe($("pantryItemList"), "Azúcar · 2 cucharadas"), fallas8.join(", "));
 
   // C5-9 Una "info" de unidad distinta queda en Pendientes con "revisá"; el contador cuenta lo tachado en "Ya tenés"
   cargar({ ...conReceta("recipe_e5prue03", "Licuado", [{ name: "Leche", quantity: 250, unit: "ml" }, { name: "Banana", quantity: 1, unit: "unidad" }, { name: "Avena", quantity: 30, unit: "g" }]), [STOCK]: JSON.stringify({ '["leche","taza"]': { name: "Leche", quantity: 1, unit: "taza" }, '["banana","unidad"]': { name: "Banana", quantity: 3, unit: "unidad" } }) });
   await abrir(); await irA("compras");
   const leche = ev("shoppingDisplayItems()").find(x => x.name === "Leche"), banana = ev("shoppingDisplayItems()").find(x => x.name === "Banana");
   const revisa = leche.group === "pendiente" && /unidad no coincide/.test(leche.suggestion.text) && seVe($("comprasList"), "Leche: 1 sachet de 1.000 ml · revisá") && banana.group === "tenes";
-  await tocar(q('#comprasList details.shop-group summary'));
-  await tocar(q('#comprasList details.shop-group [data-shop-key="banana"]'));
+  await tocar(q('#comprasList .shop-group [data-shop-key="banana"]'));
   ok("C5-9 una 'info' de unidad distinta no se esconde en 'Ya tenés' y el contador cuenta lo tachado en 'Ya tenés'", revisa && /2 pendientes · 1 tachados/.test($("comprasSummary").textContent), $("comprasSummary").textContent);
 
   // C5-10 La clave nueva va al respaldo (opcional); un respaldo viejo la deja como está; uno inválido se rechaza

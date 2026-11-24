@@ -14,8 +14,10 @@
   const s0 = keys();
   document.querySelector('#todayRows [data-today-slot="almuerzo"] button').click(); await wait(60);
   const eaten = loadConsumption().length === 1 && /✓ Lo comí/.test(document.querySelector('#todayRows [data-today-slot="almuerzo"]').textContent);
-  $("todayStatus").querySelector("[data-today-undo]").click(); await wait(40);
-  T.ok("U1 'Lo comí' en Hoy se puede deshacer", eaten && loadConsumption().length === 0 && keys() === s0 && document.querySelector('#todayRows [data-today-slot="almuerzo"] button').textContent === "Lo comí" && /se deshizo/.test($("todayStatus").textContent));
+  // Desde la v19.5 (R5-H-01) Hoy no tiene Deshacer: el Lo comí se quita desde el Registro.
+  const sinDeshacer = !$("todayStatus").querySelector("[data-today-undo]");
+  go("registro"); await wait(60); document.querySelector("#registroLista [data-registro-quitar]").click(); await wait(60); tab("hoy").click(); await wait(60);
+  T.ok("U1 'Lo comí' en Hoy no ofrece Deshacer y se quita desde Registro", eaten && sinDeshacer && loadConsumption().length === 0 && document.querySelector('#todayRows [data-today-slot="almuerzo"] button').textContent === "Lo comí");
   // U2 "Lo cociné" desde Mis comidas: anota la preparación de hoy y descuenta lo que tenés
   reset();
   setAmounts({ [IDEA1]: { yield: 2, rows: [{ name: "Lentejas", quantity: 300, unit: "g" }, { name: "Cebolla", quantity: 1, unit: "unidad" }, { name: "Sal", quantity: null, unit: "g" }] } });
@@ -54,9 +56,8 @@
   $("comprasBought").click(); await wait(40);
   const papa6 = loadStockQuantities()[Existencias.stockKey("Papa", "g")], msg6 = $("comprasBoughtStatus").textContent;
   T.ok("U6 'Lo compré' pasa lo tachado a la despensa (con y sin cantidad)", !!papa6 && papa6.quantity === 200 && JSON.parse(localStorage.getItem("miPlatoFacil_pantry")).includes("tomate") && loadPantryMoves().some(m => /^Lo compré/.test(m.reason) && m.delta === 200) && /Pasó a tu despensa: Papa 200 g, Tomate \(sin cantidad\)/.test(msg6) && grupos() === "Arroz:pendiente|Merluza:pendiente|Papa:comprado|Tomate:comprado" && /Ya en tu despensa \(2\)/.test($("comprasList").textContent), msg6);
-  // U7 Deshacer "Lo compré" deja todo como estaba
-  $("comprasBoughtStatus").querySelector("[data-one-tap-undo]").click(); await wait(30);
-  T.ok("U7 deshacer 'Lo compré' deja todo como estaba (también tachados y comprados)", keys() === s5 && localStorage.getItem("miPlatoFacil_shoppingChecks_v1") === checks6 && grupos() === "Arroz:pendiente|Merluza:pendiente|Papa:pendiente|Tomate:pendiente" && comprasDone[ingredientKey("Papa")] === true && /se deshizo/.test($("comprasBoughtStatus").textContent));
+  // U7 "Lo compré" ya no ofrece Deshacer (R5-K-01): lo que pasó a la despensa queda ahí
+  T.ok("U7 'Lo compré' no ofrece Deshacer y lo pasado a la despensa queda", !$("comprasBoughtStatus").querySelector("[data-one-tap-undo]") && !/Deshacer/.test($("compras").textContent) && loadStockQuantities()[Existencias.stockKey("Papa", "g")].quantity === 200 && JSON.parse(localStorage.getItem("miPlatoFacil_pantry")).includes("tomate") && /Pasó a tu despensa/.test($("comprasBoughtStatus").textContent));
   // U8 La lista no cambia (Compras no cambia sola) y tocar de nuevo no suma dos veces
   $("comprasBought").click(); await wait(30); $("comprasBought").click(); await wait(30);
   T.ok("U8 la lista no cambia y tocar de nuevo no suma dos veces", labels === shoppingDisplayItems().map(x => x.label).join("|") && loadStockQuantities()[Existencias.stockKey("Papa", "g")].quantity === 200 && /ya está en tu despensa/.test($("comprasBoughtStatus").textContent));

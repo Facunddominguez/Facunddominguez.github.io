@@ -1439,27 +1439,6 @@ input[aria-invalid="true"]{
   cursor:not-allowed
 }
 
-/* Separate current-plan and dated-copy editing without removing controls. */#plan:has(#datedEditPanel[open]) #datedWeekView{
-  display:none
-}
-
-#datedEditPanel[open]{
-  border-color:var(--green)
-}
-
-#datedEditPanel[open]>summary{
-  border:1px solid var(--green)
-}
-
-#plan #currentPlanPanel>summary{
-  cursor:pointer;
-  padding:12px;
-  border-radius:14px;
-  background:var(--green2);
-  color:var(--green);
-  font-weight:850
-}
-
 :root{
   --section-nav-h:76px;
   --step-nav-h:0px
@@ -1998,12 +1977,6 @@ body:has(#home.is-active) .app-shell{
   font:inherit
 }
 
-#pantryReviewPanel>summary{
-  cursor:pointer;
-  color:var(--green);
-  font-weight:800
-}
-
 #pantryReviewItems .shop-item{
   cursor:pointer
 }
@@ -2210,45 +2183,6 @@ body:has(#home.is-active) .app-shell{
 
 }
 
-#quantShoppingPanel input[type="text"]{
-  width:100%;
-  min-height:44px;
-  padding:10px;
-  border:1px solid var(--line);
-  border-radius:12px;
-  background:var(--surface);
-  color:var(--text);
-  font:inherit
-}
-
-#quantShoppingPanel>summary{
-  font-weight:800;
-  color:var(--green);
-  cursor:pointer
-}
-
-#stockRows input{
-  width:100%;
-  min-height:44px;
-  padding:10px;
-  border:1px solid var(--line);
-  border-radius:12px;
-  background:var(--surface);
-  color:var(--text);
-  font:inherit
-}
-
-#stockRows label{
-  display:block;
-  margin:6px 0
-}
-
-#stockDeductionPanel>summary{
-  font-weight:800;
-  color:var(--green);
-  cursor:pointer
-}
-
 #pricePanel input,#pricePanel select{
   width:100%;
   min-height:44px;
@@ -2258,12 +2192,6 @@ body:has(#home.is-active) .app-shell{
   background:var(--surface);
   color:var(--text);
   font:inherit
-}
-
-#pricePanel>summary{
-  color:var(--green);
-  font-weight:800;
-  cursor:pointer
 }
 
 #recipeCostPanel input,#recipeCostPanel select{
@@ -2281,12 +2209,6 @@ body:has(#home.is-active) .app-shell{
 #recipeCostPanel label{
   display:block;
   margin:6px 0
-}
-
-#recipeCostPanel>summary{
-  font-weight:800;
-  color:var(--green);
-  cursor:pointer
 }
 
 .amount-row{
@@ -2388,30 +2310,59 @@ body:has(#home.is-active) .app-shell{
 .purchase-row{
   display:grid;
   grid-template-columns:repeat(6,minmax(0,1fr));
-  gap:6px;
-  padding:8px 0;
+  gap:8px;
+  padding:12px 0;
   border-bottom:1px solid var(--line)
 }
 
 .purchase-row [data-purchase-name]{
-  grid-column:1 / -1
+  grid-column:1 / 6
 }
 
-.purchase-row [data-purchase-qty]{
-  grid-column:span 2
+.purchase-row>button{
+  grid-column:6;
+  grid-row:1;
+  min-width:0;
+  min-height:var(--tap);
+  padding:0
 }
 
-.purchase-row [data-purchase-unit]{
-  grid-column:span 2
+.purchase-campo{
+  grid-column:span 2;
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+  min-width:0;
+  font-size:13px;
+  font-weight:700;
+  color:var(--muted)
 }
 
-.purchase-row [data-purchase-price]{
-  grid-column:span 2
+#purchasesPanel input:not([type="checkbox"]),#purchasesPanel select{
+  width:100%;
+  min-width:0;
+  min-height:var(--tap);
+  padding:10px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:var(--surface);
+  color:var(--text);
+  font:inherit
 }
 
-.purchase-row button{
-  grid-column:span 6;
-  min-height:36px
+#purchasesPanel .portion-field{
+  margin-top:12px
+}
+
+.purchase-suma{
+  margin:8px 0;
+  font-weight:700
+}
+
+.purchase-opcion{
+  display:flex;
+  width:100%;
+  margin:4px 0
 }
 
 .plan-portions{
@@ -2651,14 +2602,14 @@ input[type=file]{
 }
 
 /* Botones sueltos dentro de una pantalla o de un panel: ancho completo, como el resto */
-.screen>.button,details.home-group>.button{
+.screen>.button,details.home-group>.button,#purchasesPanel>.button,#pricePanel>.button,#recipeCostPanel>.button,#pantryReviewPanel>.button{
   display:block;
   width:100%;
   margin-top:10px
 }
 
 /* Casillas: tamaño normal y en la misma línea que su texto (reglas de campos de algunos paneles las agrandaban) */
-#recipeDetailsPanel input[type="checkbox"],#recipeDetailsPanel input[type="radio"],#cookingHistoryForm input[type="checkbox"],#recipeAmountsPanel input[type="checkbox"],#stockRows input[type="checkbox"],#pricePanel input[type="checkbox"],#recipeCostPanel input[type="checkbox"],.train-direct input[type="checkbox"]{
+#recipeDetailsPanel input[type="checkbox"],#recipeDetailsPanel input[type="radio"],#cookingHistoryForm input[type="checkbox"],#recipeAmountsPanel input[type="checkbox"],#pricePanel input[type="checkbox"],#recipeCostPanel input[type="checkbox"],.train-direct input[type="checkbox"]{
   width:20px;
   height:20px;
   min-height:0;
@@ -3421,30 +3372,6 @@ body.con-hoja{
   -webkit-line-clamp:4;
   overflow:hidden
 }
-.today__manana{
-  border:1px solid var(--category-border,var(--line));
-  border-radius:16px;
-  background:var(--surface);
-  padding:0 10px
-}
-.today__manana>summary{
-  display:flex;
-  align-items:center;
-  min-height:44px;
-  font-size:14px;
-  font-weight:800;
-  color:var(--muted);
-  cursor:pointer
-}
-.today__manana[open]>summary{
-  margin-bottom:6px
-}
-.today__manana .today__rows{
-  padding-bottom:10px
-}
-.today__manana .today-row{
-  box-shadow:none
-}
 .sugerime__comidas{
   margin-bottom:10px
 }
@@ -3481,9 +3408,6 @@ body.con-hoja{
 .plato-dibujo__verduras,.plato-dibujo__almidones,.plato-dibujo__proteinas{stroke:var(--surface);stroke-width:2}
 .bienvenida__ideas .filter-chip{text-align:left}
 #bienvenida .filter-chip[aria-pressed="true"],#preferencias .filter-chip[aria-pressed="true"],#ideasFiltros .filter-chip[aria-pressed="true"]{border-color:var(--green);background:var(--green);color:var(--on-green)}
-.armar-comida{cursor:default;grid-column:1/-1}
-.armar-comida__opciones{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;margin-top:8px}
-.armar-comida__opciones .button{width:100%}
 /* v15.4 · Compras y Despensa: barra de presupuesto, interruptor, secciones del súper, agregar producto e historial. */
 .compras-presupuesto{display:block;width:100%;min-height:var(--tap);margin:4px 0 8px;padding:10px 14px;border:1px solid var(--line);border-radius:14px;background:var(--soft);color:var(--text);font:inherit;font-weight:600;text-align:left;cursor:pointer}
 .compras-presupuesto[hidden],#preferenciasRegion[hidden]{display:none}
@@ -3496,8 +3420,8 @@ body.con-hoja{
 .interruptor input:checked::after{left:21px}
 .interruptor input:focus-visible{outline:3px solid var(--green);outline-offset:2px}
 .compras-agregar{margin:4px 0}
-.compras-agregar>summary{display:inline-flex;align-items:center;min-height:var(--tap);padding:0 16px;border:1px solid var(--green);border-radius:999px;color:var(--green);font-weight:700;cursor:pointer;list-style:none}
-.compras-agregar>summary::-webkit-details-marker{display:none}
+.compras-agregar>.plan-day__title{margin:0 0 12px}
+.compras-agregar .portion-field+.portion-field{margin-top:12px}
 .compras-seccion{margin:10px 0 4px}
 .compras-seccion__titulo{margin:12px 0 2px;font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
 .compras-seccion .shop-item{min-height:var(--tap)}
@@ -3506,8 +3430,6 @@ body.con-hoja{
 #manualShopList .manual-shop-row .shop-item{flex:1 1 60%}
 #manualShopList .manual-shop-row .filter-chip{min-height:var(--tap)}
 .pantry-item__historial{flex:1 1 100%;margin:2px 0 4px}
-.pantry-item__historial>summary{min-height:var(--tap);display:flex;align-items:center;cursor:pointer;color:var(--muted);font-size:14px}
-.herr-contenedor>summary{list-style:none}
 /* v15.5 · Registro: un día con lo que comiste y cocinaste, Quitar con Deshacer y los contadores. */
 .registro-dia{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:8px 0}
 .registro-dia strong{flex:1;text-align:center}
@@ -3517,12 +3439,9 @@ body.con-hoja{
 .registro-fila{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--line)}
 .registro-fila__texto{flex:1;min-width:0;overflow-wrap:anywhere}
 .registro-fila__quitar{min-height:var(--tap);flex:0 0 auto}
-.registro-anotar .button{flex:1 1 40%}
 .registro-dias{margin:6px 0 10px}
 .registro-dias .filter-chip{min-height:var(--tap)}
 .registro-dias .filter-chip[aria-pressed="true"]{border-color:var(--green);background:var(--green);color:var(--on-green)}
-.today__registro{margin:4px 0 0}
-.today__registro .button{min-height:var(--tap)}
 .comida-registro:empty{display:none}
 .comida-registro .button{min-height:var(--tap)}
 #registro [data-registro-deshacer]{min-height:var(--tap)}
@@ -3532,7 +3451,6 @@ body.con-hoja{
 .precios-aviso[hidden]{display:none}
 .hoja__cuerpo a{color:var(--primary,var(--accent))}
 .completar-precios{display:grid;gap:8px}
-.completar-precios__fila{width:100%}
 .ficha-precio{margin-top:12px;display:grid;gap:8px}
 .ficha-precio__titulo{margin:0;font-size:16px}
 .ficha-precio__linea{margin:0;font-weight:600}
@@ -3560,13 +3478,10 @@ body.con-hoja{
 body:has(#bottom.is-visible) #sectionNav{display:none}
 body:has(#bottom.is-visible) #bottom{bottom:0}
 body:has(#bottom.is-visible){padding-bottom:calc(var(--step-nav-h) + 24px)}
-.armar-comida__opciones{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr));gap:8px}
-.armar-comida__opciones .button{min-height:44px;overflow-wrap:anywhere}
 @media (max-width:340px){
   select,.portion-field select{font-size:14px!important;padding-left:8px!important;padding-right:4px!important}
 }
 /* Etapa 17: nada sobresale de su tarjeta a 320 px. */
-.armar-comida__opciones{grid-column:1/-1}
 select{max-width:100%;min-width:0}
 .portion-field select,.portion-field input{max-width:100%;min-width:0}
 @media (max-width:380px){
@@ -3595,14 +3510,23 @@ select{max-width:100%;min-width:0}
 .semana-aviso__detalle>summary{display:inline-flex;align-items:center;min-height:40px;padding:0 4px;cursor:pointer;color:var(--green);font-weight:600;list-style:none;text-decoration:underline}
 .semana-aviso__detalle>summary::-webkit-details-marker{display:none}
 .semana-aviso__detalle>p{margin:0 0 4px;color:var(--muted)}
-#plan .semana-dia-chip{min-height:52px;padding:3px 0 4px;gap:0;line-height:1.05}
+#plan .semana-dia-chip{min-height:52px;padding:3px 0 4px;gap:0;line-height:1.05;align-content:center}
 #plan .semana-dia-chip>*{line-height:1.05}
 #plan .semana-cabeza .screen__title{line-height:1.1}
 /* A 320 px el título de la semana entra en dos líneas aun con tipografías más anchas (Chrome en Linux sin Inter). */
 @media(max-width:340px){#plan .semana-cabeza .screen__title{font-size:17px}}
 #plan .armame-boton{min-height:44px}
 #plan .semana-dia__titulo{line-height:1.2}
-@media(min-width:380px){#plan .semana-dias{gap:2px;margin:16px -6px}}
+/* v19.1 (S-17): chips de los días sin la barra ni el "4/4", con 8 px entre uno y otro; el día completo lleva un punto verde. */
+#plan .semana-dias{gap:8px}
+@media(min-width:380px){#plan .semana-dias{margin:16px -6px}}
+.semana-dia-chip.es-completo .semana-dia-chip__num::after{content:"";display:block;width:6px;height:6px;margin:1px auto 0;border-radius:50%;background:var(--green)}
+.semana-dia-chip[aria-pressed="true"].es-completo .semana-dia-chip__num::after{background:currentColor}
+/* v19.1 (S-15): "Armame la semana" y "Planes guardados" en una fila. */
+.armame-fila{display:flex;gap:8px;margin:0 0 16px}
+.armame-fila .button{margin:0;width:auto;flex:1 1 0;min-width:0}
+.armame-fila .armame-boton{flex:1.4 1 0}
+.armame-fila [hidden]{display:none}
 /* "Con precio: 35 de 37 productos · Completar 2 precios" en una sola línea: el enlace mide 44 px de alto al tocarlo, pero no agranda la línea. */
 #planPreciosEstado{font-size:12.5px;gap:0 4px;margin-bottom:16px}
 #planPreciosEstado .precios-aviso--inline{min-height:0;padding:15px 4px;margin:-15px 0;font-size:12.5px}
@@ -3631,3 +3555,169 @@ select{max-width:100%;min-width:0}
 .respaldo-aviso[hidden]{display:none}
 .respaldo-aviso__texto{flex:1 1 100%}
 .recordatorio{display:grid;gap:8px}
+
+/* v19.2 (Etapa 35): Semanas anteriores y mes, todo a la vista. */
+#planHerramientas [hidden]{display:none!important}
+#planHerramientas .summary-actions{margin:0 0 12px}
+#planHerramientas .portion-field{margin-top:12px}
+#planHerramientas .planes-guardados{margin:16px 0 0}
+.plan-guardado-fila{display:grid;grid-template-columns:1fr auto;gap:8px}
+.plan-guardado-fila .button{margin:0}
+
+/* v19.3 (Etapa 36): Completar precios, un producto a la vez. */
+.completar-precios__pos{margin:0;font-size:13px;font-weight:800;color:var(--muted)}
+.completar-precios__nombre{margin:0;font-size:20px}
+.completar-precios__nav{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.completar-precios__nav .button,.completar-precios>.button{margin:0}
+.completar-precios>.portion-field{margin:0}
+
+/* v19.4 (Etapa 37): comidas que no cumplen la dieta, apagadas y con el motivo. */
+.selector-item.is-apagado{opacity:.72}
+.selector-item__motivo{display:block;font-size:12.5px;font-weight:700;color:var(--muted)}
+
+/* v19.5 (Etapa 38, H-02 y H-05): debajo del plan del día, tres grupos de botones del mismo formato (dos por fila). */
+.hoy-acciones{display:grid;gap:14px}
+.hoy-grupo .settings-label{margin:0 0 6px}
+.hoy-botones{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr));gap:8px}
+.hoy-botones .button{width:100%;min-height:48px;margin:0;overflow-wrap:anywhere}
+
+/* v19.6 (Etapa 39): Registro con todo a la vista y gráficos de barras sin librerías. */
+.registro-bloque{margin-top:18px}
+.registro-bloque__titulo{margin:0 0 6px;font-size:16px}
+.grafico{margin:14px 0}
+.grafico__titulo{margin:0 0 8px;font-size:14px}
+.grafico__fila{display:grid;grid-template-columns:minmax(96px,36%) minmax(0,1fr) auto;align-items:center;gap:8px;min-height:28px;margin:2px 0}
+.grafico__rotulo{font-size:13px;color:var(--text);overflow-wrap:anywhere}
+.grafico__barra{position:relative;display:block;height:14px;border-radius:7px;background:var(--line);overflow:hidden}
+.grafico__relleno{display:block;height:100%;min-width:2px;border-radius:7px;background:var(--green)}
+.grafico__relleno--presupuesto{background:var(--muted)}
+.grafico__relleno--fuera{background:var(--orange)}
+.grafico__meta{position:absolute;top:0;bottom:0;width:2px;background:var(--text)}
+.grafico__valor{font-size:13px;min-width:2ch;text-align:right;white-space:nowrap}
+.grafico__vacio{margin:0}
+.grafico-gasto .portion-field{margin:10px 0 8px}
+.grafico-gasto .button{margin:0 8px 8px 0}
+
+/* v19.7 (Etapa 40, M-01 a M-10 y A-01): Ideas con botones en lugar de desplegables, búsqueda compacta y receta por pasos. */
+.button--bloque{display:flex;align-items:center;justify-content:center;width:100%;margin:0;min-height:48px}
+.ideas-bloque{display:grid;gap:12px;margin:12px 0}
+#ideas>.home-group{margin:12px 0}
+#ideas>.context-advice,#ideas>.advice-tabs,#ideas>.advice-section{margin-top:12px}
+#ideas .ideas-bloque+.home-group,#ideas .home-group+.home-group{margin-top:12px}
+.ideas-busqueda{display:grid;gap:12px}
+.ideas-busqueda>*{margin:0}
+.ideas-filtro{display:grid;gap:6px}
+.ideas-filtro__titulo{font-size:13px;font-weight:800;color:var(--muted)}
+.ideas-filtro .filter-row{margin:0}
+.ideas-interruptor{display:flex;align-items:center;gap:10px;min-height:44px;font-weight:700}
+.ideas-interruptor input{width:22px;height:22px;flex:none;margin:0}
+#recipeBrowseView .recipe-catalog-results{display:grid;gap:8px;max-height:none;overflow:visible;padding:0}
+.recipe-catalog-card{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:10px;padding:8px 10px}
+.recipe-catalog-card__info{display:grid;gap:2px;min-width:0}
+.recipe-catalog-card__info strong{margin:0;font-size:15px;line-height:1.25;overflow-wrap:anywhere}
+.recipe-catalog-card__meta{font-size:12.5px;font-weight:700;color:var(--muted)}
+.recipe-catalog-card>button{margin:0;min-width:64px;min-height:44px}
+.ideas-ia{display:grid;gap:10px}
+.ideas-ia>*{margin:0}
+/* La receta se completa en pasos, con lo obligatorio y lo opcional a la vista. */
+.receta-paso{margin:16px 0 0;padding:14px;border:1px solid var(--line);border-radius:14px;background:var(--surface)}
+.receta-paso__titulo{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0 0 10px;font-size:17px}
+.receta-paso__n{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--green);color:var(--on-green);font-size:14px;font-weight:800}
+.receta-marca{display:inline-block;padding:2px 8px;border-radius:999px;font-size:12px;font-weight:800;border:1px solid var(--line);color:var(--muted)}
+.receta-marca--obligatorio{border-color:var(--green);color:var(--green)}
+.receta-paso>.portion-field:first-of-type{margin-top:0}
+#recetaEditar .recipe-ingredients{margin:0;border:0;padding:0}
+#recetaEditar>.button--bloque{margin-top:16px}
+.button--bloque[hidden],.ideas-busqueda[hidden],.ideas-ia[hidden]{display:none!important}
+/* Búsqueda compacta: cada grupo de filtros en una sola línea (con desplazamiento si no entra) para que los resultados queden a la vista. */
+.ideas-busqueda{gap:8px;scroll-margin-top:76px}
+.ideas-filtro{gap:4px}
+.ideas-filtro__titulo{font-size:12.5px;line-height:1.2}
+.ideas-filtro .filter-row{display:flex;flex-wrap:nowrap;gap:6px;overflow-x:auto;padding:0 0 2px;scrollbar-width:none}
+.ideas-filtro .filter-row::-webkit-scrollbar{display:none}
+.ideas-filtro .filter-chip{flex:1 0 auto;min-height:44px;margin:0;padding:6px 10px;white-space:nowrap}
+@media (max-width:359px){.ideas-filtro .filter-row{flex-wrap:wrap}}
+.ideas-interruptor{min-height:44px;line-height:1.25}
+.ideas-busqueda>.screen__hint{min-height:0}
+#recipeBrowseView .recipe-catalog-results{gap:6px}
+.recipe-catalog-card{padding:6px 10px}
+.recipe-catalog-card__info strong{font-size:14.5px}
+.ideas-busqueda{padding:8px 10px;scroll-margin-top:66px}
+.ideas-filtro .filter-chip{padding:6px 8px}
+.ideas-interruptor-fila{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.ideas-interruptor-fila .ideas-interruptor{flex:1 1 auto;font-size:13.5px}
+.ideas-interruptor-fila .screen__hint{flex:none;margin:0;white-space:nowrap;font-size:12.5px}
+.recipe-catalog-card__info strong{font-size:14px;line-height:1.2}
+.recipe-catalog-card__info{gap:1px}
+.recipe-catalog-card{padding:4px 8px}
+.receta-paso[hidden]{display:none!important}
+
+/* v19.8 · Etapa 41 (Compras y Despensa) */
+.shop-item__volver{flex:0 0 auto;min-height:var(--tap);padding:0 12px}
+.shop-group .shop-item{flex-wrap:nowrap}
+.shop-group .shop-item>label{flex:1 1 0;min-width:0}
+#manualShoppingForm{display:grid;grid-template-columns:1fr 1fr;gap:0 10px;align-items:start}
+#manualShoppingForm .portion-field+.portion-field{margin-top:0}
+#manualShoppingForm .summary-actions{grid-column:1 / -1}
+#manualShopList .manual-shop-row .shop-item{flex:1 1 150px;min-width:0}
+#manualShopList .manual-shop-row .shop-item>span{min-width:0;overflow-wrap:anywhere}
+#manualShopList .manual-shop-row .filter-chip{flex:0 0 auto}
+.despensa-revisar{margin:12px 0}
+.despensa-revisar .button{width:100%}
+
+/* v19.9 · Etapa 42 (Más) */
+#aiKeyStatus.is-ok{color:var(--green);font-weight:700}
+#aiKeyStatus.is-error{color:var(--danger,#c0392b);font-weight:700}
+.otros-fila{display:flex;align-items:center;gap:8px;margin:12px 0 8px}
+.otros-fila label{margin:0;font-weight:700}
+.info-boton{flex:0 0 auto;min-width:var(--tap);min-height:var(--tap);padding:0;border:0;border-radius:50%;background:none;color:var(--green);font:inherit;font-size:20px;line-height:1;cursor:pointer}
+#recipePreferencesPanel>h3{margin:0 0 12px}
+#recipePreferencesPanel .filter-row{margin:0 0 8px}
+#recipePreferencesPanel #recipeAvoidAyuda{margin:0 0 8px}
+#recipePreferencesPanel #recipeAvoidWords{width:100%;margin:0}
+#recipePreferencesPanel .preferencias-ocultar{display:flex;width:100%;margin:12px 0}
+#recipePreferencesPanel>.button{display:block;width:100%;margin-top:12px}
+#recipePreferencesStatus{margin:12px 0 0}
+#ingredientAliasPanel>h3{margin:0 0 12px}
+#ingredientAliasPanel>.screen__hint{margin:0 0 12px;line-height:1.5}
+#ingredientAliasPanel .portion-field{margin-top:12px}
+#ingredientAliasPanel>.button{display:block;width:100%;margin-top:12px}
+#ingredientAliasPanel #ingredientAliasStatus{margin:12px 0 0}
+#habitGoalsPanel .portion-field{margin-top:12px}
+#habitGoalsPanel>.button{display:block;width:100%;margin-top:12px}
+#habitGoalsAbrir{margin:12px 0}
+#nutritionLookupPanel label[for="nutritionLookupInput"]{display:block;margin:12px 0 8px;font-weight:700}
+#shoppingBudgetPanel>.button{display:block;width:100%;margin-top:12px}
+.presupuesto-usado{margin:4px 0 0}
+.pantry-item__historial-titulo{margin:0;color:var(--muted);font-size:13px;font-weight:700}
+.nutrition-box__subtitulo{margin:12px 0 4px;font-weight:700}
+.train-direct>h3{margin:0 0 8px}
+
+/* v19.10 · Etapa 43 (Bienvenida): presentación de tres tarjetas e "Ingredientes a evitar" en el paso 3 */
+.bienvenida__tarjetas{margin:12px 0 8px}
+.bienvenida__tarjeta{padding:16px;border:1px solid var(--line);border-radius:20px;background:var(--green2,#e8f5ef);text-align:center}
+.bienvenida__tarjeta[hidden]{display:none}
+.bienvenida__tarjeta h3{margin:12px 0 6px;font-size:19px}
+.bienvenida__tarjeta p{margin:0;line-height:1.45}
+.bienvenida__ilustracion{display:block;width:100%;max-width:300px;height:auto;margin:0 auto}
+.ilu__fondo{fill:var(--surface);stroke:var(--line);stroke-width:1.5}
+.ilu__dias rect{fill:var(--green);opacity:.18}
+.ilu__comidas circle{fill:var(--green)}
+.ilu__boton{fill:var(--green)}
+.ilu__texto{fill:#fff;font:700 12px system-ui,sans-serif}
+.ilu__lineas rect{fill:var(--line)}
+.ilu__casilla{fill:none!important;stroke:var(--green);stroke-width:2}
+.ilu__precios rect{fill:var(--green);opacity:.18}
+.ilu__precio{fill:var(--text);font:700 10px system-ui,sans-serif}
+.ilu__pasos circle{fill:var(--green)}
+.ilu__num{fill:#fff;font:700 12px system-ui,sans-serif}
+.ilu__check{fill:var(--green)}
+.ilu__tilde{fill:none;stroke:#fff;stroke-width:6;stroke-linecap:round;stroke-linejoin:round}
+.bienvenida__puntos{display:flex;justify-content:center;gap:8px;margin:8px 0}
+.bienvenida__puntos span{width:10px;height:10px;border-radius:50%;background:var(--line)}
+.bienvenida__puntos span.is-activo{background:var(--green)}
+#bienvenidaTarjetaPos{text-align:center;margin:0 0 8px}
+.bienvenida__evitar{margin:16px 0 12px}
+.bienvenida__evitar>h3{margin:0 0 12px}
+.bienvenida__evitar .filter-row{margin:0 0 8px}
+.bienvenida__evitar input{width:100%;min-height:var(--tap);padding:10px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--text);font:inherit}

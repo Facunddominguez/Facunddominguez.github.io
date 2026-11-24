@@ -1,4 +1,4 @@
-// AI battery: prompts, parsing, editor draft, Gemini (mocked fetch), key storage, ideas, copy, privacy.
+// AI battery: prompts, parsing, editor draft, Gemini (mocked fetch), key storage, ideas, privacy. Desde la Ronda 5 (A-01) la IA solo existe con clave de Gemini.
 (async () => {
   const R = window.R2, { wait, results, reset, setStock } = R; const T = results();
   const $ = id => document.getElementById(id);
@@ -7,9 +7,11 @@
   const resp = (status, body) => ({ ok: status >= 200 && status < 300, status, json: async () => body });
   const stored = () => [localStorage.getItem("miPlatoFacil_recipeDetails_v1"), localStorage.getItem("miPlatoFacil_recipeAmounts_v1")].join("|");
   reset(); window.confirm = () => true;
+  AsistenteIA.renderAllAiRunners();
   go("ingredientes"); showRecipeView("editor");
   const runner = document.querySelector("#aiRecipePanel .ai-runner");
-  T.ok("A1 sin clave: se usa con tu app de IA y no aparece Gemini", !runner.querySelector("[data-ai-gemini]") && !!runner.querySelector("[data-ai-copy]") && /configurá Gemini/.test(runner.textContent));
+  const hayIA = () => [...document.querySelectorAll("[data-solo-con-clave]")].some(e => e.getClientRects().length > 0) || !!document.querySelector("[data-ai-gemini], [data-ai-copy], [data-ai-use]");
+  T.ok("A1 sin clave: no aparece ningún botón ni sección de IA en el editor ni en Ideas (ni Gemini ni 'Con tu app de IA')", !hayIA() && $("aiRecipeBoton").hidden && $("aiRecipePanel").hidden && $("aiIdeasBoton").hidden && $("aiIdeasPanel").hidden && runner.children.length === 0 && !/app de IA|Copiar pedido/.test($("recetaEditar").textContent + $("ideas").textContent));
   $("aiRecipeText").value = "Tarta de zapallitos para 4 personas. 3 zapallitos, 1 cebolla, 3 huevos, 100 g de queso rallado. Rehogar, mezclar y hornear 30 minutos.";
   const p = AsistenteIA.aiPrompt("recipe");
   T.ok("A2 el pedido incluye el texto, el formato y las reglas", p.includes("Tarta de zapallitos para 4") && p.includes('"ingredientes":[{"nombre"') && /No inventes ingredientes ni cantidades/.test(p) && /g, kg, ml, l, unidad, cucharada, cucharadita, taza/.test(p));
@@ -20,14 +22,14 @@
   const r = aiRecipeFromJson({ titulo: " Guiso\u0007 de lentejas ", porciones: 99, minutos: 45.5, etiquetas: ["a", "b", "c", "d", "e", "f"], ingredientes: [{ nombre: "Lentejas", cantidad: 300, unidad: "g" }, { nombre: "Sal", cantidad: 1, unidad: "pizca" }, { nombre: "", cantidad: 1, unidad: "g" }, { nombre: "Agua", cantidad: "1/2", unidad: "l" }], pasos: ["Cocinar", 5, ""] });
   T.ok("A5 limpia la respuesta y no inventa cantidades, unidades ni porciones", r.titulo === "Guiso de lentejas" && r.porciones === null && r.minutos === null && r.etiquetas.length === 5 && r.ingredientes.length === 3 && r.ingredientes[1].cantidad === null && r.ingredientes[1].unidad === null && r.ingredientes[2].cantidad === null && r.pasos.length === 1 && aiRecipeFromJson({ titulo: "" }) === null && aiRecipeFromJson({ titulo: "X" }) === null, JSON.stringify(r));
   const before = stored(); resetRecipeDetailsForm();
-  $("aiAnswer_recipe").value = "```json\n" + JSON.stringify({ titulo: "Tarta de zapallitos", porciones: 4, minutos: 50, etiquetas: ["horno", "vegetariana"], ingredientes: [{ nombre: "Zapallito", cantidad: 3, unidad: "unidad" }, { nombre: "Huevo", cantidad: 3, unidad: "unidad" }, { nombre: "Queso rallado", cantidad: 100, unidad: "g" }, { nombre: "Sal", cantidad: null, unidad: null }], pasos: ["Rehogar la cebolla", "Mezclar con los huevos", "Hornear 30 minutos"] }) + "\n```";
-  runner.querySelector("[data-ai-use]").click(); await wait(20);
+  const respuestaReceta = "```json\n" + JSON.stringify({ titulo: "Tarta de zapallitos", porciones: 4, minutos: 50, etiquetas: ["horno", "vegetariana"], ingredientes: [{ nombre: "Zapallito", cantidad: 3, unidad: "unidad" }, { nombre: "Huevo", cantidad: 3, unidad: "unidad" }, { nombre: "Queso rallado", cantidad: 100, unidad: "g" }, { nombre: "Sal", cantidad: null, unidad: null }], pasos: ["Rehogar la cebolla", "Mezclar con los huevos", "Hornear 30 minutos"] }) + "\n```";
+  AsistenteIA.handleAiAnswer("recipe", respuestaReceta); await wait(20);
   const rows = [...document.querySelectorAll("#recipeIngredientRows .amount-row")].map(row => [row.querySelector("[data-amount-name]").value, row.querySelector("[data-amount-quantity]").value, row.querySelector("[data-amount-unit]").value]);
   T.ok("A6 pegar la respuesta arma el borrador en el editor", $("recipeDetailsTitle").value === "Tarta de zapallitos" && $("recipeYield").value === "4" && $("recipeMinutes").value === "50" && $("recipeTags").value === "horno, vegetariana" && $("recipeDetailsSteps").value.split("\n").length === 3 && JSON.stringify(rows) === JSON.stringify([["Zapallito", "3", "unidad"], ["Huevo", "3", "unidad"], ["Queso rallado", "100", "g"], ["Sal", "", "g"]]), JSON.stringify(rows));
   T.ok("A7 no se guarda nada hasta que tocás Guardar", stored() === before && /Todavía no se guardó nada/.test($("recipeDetailsStatus").textContent));
   window.confirm = () => false; $("recipeDetailsTitle").value = "Mi receta a medio hacer";
-  runner.querySelector("[data-ai-use]").click(); await wait(20);
-  T.ok("A8 si estás editando y decís que no, no pisa nada", $("recipeDetailsTitle").value === "Mi receta a medio hacer" && /No se cambió nada/.test(runner.querySelector("[data-ai-status]").textContent));
+  const msg8 = AsistenteIA.handleAiAnswer("recipe", respuestaReceta); await wait(20);
+  T.ok("A8 si estás editando y decís que no, no pisa nada", $("recipeDetailsTitle").value === "Mi receta a medio hacer" && /No se cambió nada/.test(msg8));
   window.confirm = () => true;
   go("backupScreen"); calls.length = 0;
   mock(url => /models\?/.test(url) ? resp(200, { models: [{ name: "models/gemini-2.5-flash", supportedGenerationMethods: ["generateContent"] }, { name: "models/gemini-3.5-flash", supportedGenerationMethods: ["generateContent"] }, { name: "models/gemini-3.5-flash-image", supportedGenerationMethods: ["generateContent"] }, { name: "models/text-embedding-004", supportedGenerationMethods: ["embedContent"] }] }) : resp(500, {}));
@@ -42,7 +44,7 @@
   Respaldo.restoreCompleteBackup(JSON.parse(JSON.stringify(snap)), localStorage);
   T.ok("A11 la clave no viaja en los respaldos y restaurar no la borra", !JSON.stringify(snap).includes("AIzaSyTEST") && !("miPlatoFacil_aiSettings_v1" in snap.data) && JSON.parse(localStorage.getItem("miPlatoFacil_aiSettings_v1")).key === KEY);
   go("ingredientes"); showRecipeView("editor"); resetRecipeDetailsForm();
-  T.ok("A12 con clave aparece 'Pedir a Gemini'", !!runner.querySelector("[data-ai-gemini]"));
+  T.ok("A12 con clave aparece 'Pedir a Gemini' y los botones de IA", !!runner.querySelector("[data-ai-gemini]") && !$("aiRecipeBoton").hidden && !$("aiIdeasBoton").hidden && !runner.querySelector("[data-ai-copy]"));
   $("aiRecipeText").value = "Ensalada de lentejas para 2: 200 g de lentejas cocidas, 1 tomate, media cebolla morada, aceite y sal.";
   calls.length = 0;
   mock(() => resp(200, { candidates: [{ content: { parts: [{ text: JSON.stringify({ titulo: "Ensalada de lentejas", porciones: 2, minutos: 10, etiquetas: ["fría"], ingredientes: [{ nombre: "Lentejas", cantidad: 200, unidad: "g" }, { nombre: "Tomate", cantidad: 1, unidad: "unidad" }], pasos: ["Mezclar todo"] }) }] } }] }));
@@ -56,7 +58,7 @@
   T.ok("A15 los errores de Gemini se explican y no cambian el editor", /límite gratuito/.test(msgs[0]) && /no está respondiendo/.test(msgs[1]) && /ya no está disponible/.test(msgs[2]) && /No se pudo conectar/.test(msgs[3]) && $("recipeDetailsTitle").value === "", msgs.join(" | "));
   localStorage.setItem(PANKEY, JSON.stringify(["pollo", "huevo"]));
   setStock([["Papa", 2, "kg"], ["Arroz", 0, "g"]]);
-  showRecipeView("browse"); await R.openPanel("aiIdeasPanel");
+  showRecipeView("browse"); $("aiIdeasBoton").click(); await wait(20);
   const have = $("aiIdeasHave").textContent; $("aiIdeasExtra").value = "sin horno";
   const ip = AsistenteIA.aiPrompt("ideas");
   T.ok("A16 '¿Qué cocino?' usa lo marcado y las existencias con cantidad", /Pollo/.test(have) && /Huevos/.test(have) && /Papa \(2 kg\)/.test(have) && !/Arroz/.test(have) && ip.includes("Papa (2 kg)") && ip.includes("sin horno") && /método del plato/.test(ip), have);
@@ -66,16 +68,11 @@
   T.ok("A17 muestra solo ideas válidas, como texto y nunca como HTML", cards.length === 2 && cards[0].querySelector("h4").textContent === "Pollo al horno con papas <b>" && !cards[0].querySelector("h4 b"));
   cards[1].querySelector("button").click(); await wait(20);
   T.ok("A18 'Usar como receta' abre el editor con la idea y pide revisar porciones", !$("recipeEditorView").hidden && $("recipeDetailsTitle").value === "Tortilla" && $("recipeYield").value === "1" && /porciones/.test($("recipeDetailsStatus").textContent));
-  let copied = null; const realClip = Object.getOwnPropertyDescriptor(Navigator.prototype, "clipboard");
-  Object.defineProperty(navigator, "clipboard", { configurable: true, value: { writeText: async t => { copied = t } } });
-  $("aiRecipeText").value = "Receta de prueba con varios ingredientes: 2 papas, 1 cebolla y sal.";
-  runner.querySelector("[data-ai-copy]").click(); await wait(20);
-  T.ok("A19 'Copiar pedido' copia el pedido completo", copied === AsistenteIA.aiPrompt("recipe") && /copiado/.test(runner.querySelector("[data-ai-status]").textContent));
-  delete navigator.clipboard; if (realClip && !("clipboard" in navigator)) Object.defineProperty(Navigator.prototype, "clipboard", realClip);
+  T.ok("A19 con clave tampoco existe 'Con tu app de IA': ni copiar el pedido, ni pegar la respuesta, ni compartirlo", !document.querySelector("[data-ai-copy], [data-ai-share], [data-ai-use], [data-ai-prompt], #aiAnswer_recipe, #aiAnswer_ideas") && !/app de IA|Copiar pedido|Respuesta de tu app/.test(document.body.textContent));
   go("backupScreen"); $("aiKeyDelete").click(); await wait(10);
-  T.ok("A20 'Borrar clave' la quita y vuelve el modo sin clave", localStorage.getItem("miPlatoFacil_aiSettings_v1") === null && !document.querySelector("#aiRecipePanel [data-ai-gemini]") && $("aiKeyDelete").hidden);
+  T.ok("A20 'Borrar clave' la quita y vuelve el modo sin clave", localStorage.getItem("miPlatoFacil_aiSettings_v1") === null && !document.querySelector("#aiRecipePanel [data-ai-gemini]") && $("aiKeyDelete").hidden && $("aiRecipeBoton").hidden && $("aiIdeasBoton").hidden && $("aiRecipePanel").hidden && $("aiIdeasPanel").hidden);
   calls.length = 0; mock(() => resp(200, {}));
-  go("ingredientes"); showRecipeView("browse"); await R.openPanel("aiIdeasPanel"); showRecipeView("editor"); await wait(20);
+  go("ingredientes"); showRecipeView("browse"); renderRecipeCatalog(); showRecipeView("editor"); await wait(20);
   T.ok("A21 abrir pantallas y paneles no hace consultas externas", calls.length === 0);
   window.fetch = realFetch;
   return T;

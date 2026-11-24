@@ -19,11 +19,11 @@
   // v15.3: la misma lista de ids, repartida por la pantalla de su tema (antes las tres estaban en "ingredientes").
   const expected = {
     compras: ["comprasPresupuesto"],
-    ingredientes: ["pantryReviewPanel"],
+    ingredientes: ["pantryReviewAbrir"],
     recetaEditar: ["recipeAmountsPanel"],
     preferencias: ["ingredientAliasPanel"],
     ideas: [], comida: [], backupScreen: [],
-    plan: ["varSelect", "monthlyPlanPanel", "datedWeeksPanel", "datedEditPanel", "planHistoryPanel"]
+    plan: ["monthlyPlanGrid", "datedWeekView"]
   };
   const visibleAdvanced = [];
   for (const [screen, ids] of Object.entries(expected)) {
@@ -33,9 +33,8 @@
     for (const e of advancedIn(screen)) if (shown(e)) visibleAdvanced.push(screen + ":" + (e.id || e.className));
   }
   go("plan"); await wait(20);
-  if (shown(document.querySelector("#plan [data-del-var]"))) visibleAdvanced.push("Borrar variación");
+  if (shown(document.querySelector("#planHerramientas [data-plan-guardar]"))) visibleAdvanced.push("Guardar plan con nombre");
   go("ingredientes"); showRecipeView("browse"); await wait(20);
-  for (const id of ["recipeRecommendPantry", "recipeRecommendMode", "recipeCatalogSort", "recipeCatalogPageSize"]) if (shown($(id))) visibleAdvanced.push(id);
   showRecipeRead(recipeId); await wait(30);
   const readOpen = shown($("recipeReadView"));
   if (shown($("recipeReadCooked"))) visibleAdvanced.push("recipeReadCooked");
@@ -51,18 +50,23 @@
   for (const sel of ["#comprasList", "#manualShoppingPanel", "#comprasDescontar", "#comprasBought"]) if (!shown(document.querySelector(sel))) essentials.push(sel);
   const herramientasCompras = async () => {
     let ok = true;
-    for (const [herr, sels] of [["compartir", ["[data-share-compras]", "[data-copy-compras]"]], ["realizadas", ["#purchasesPanel", "#purchaseSave", "#purchaseFromList"]], ["presupuesto", ["#shoppingBudgetPanel", "#shoppingBudgetSave"]], ["precios", ["#pricePanel", "#priceForm"]], ["costoReceta", ["#recipeCostPanel", "#recipeCostPrepare"]], ["otrasRecetas", ["#quantShoppingPanel", "#quantShoppingCalculate", "#stockDeductionPanel", "#stockPrepare"]], ["existencias", ["#shoppingQuantCostPanel", "#shoppingPortionMultiplier", "#stockSave"]]]) {
+    for (const [herr, sels] of [["realizadas", ["#purchasesPanel", "#purchaseSave", "#purchaseFromList"]], ["presupuesto", ["#shoppingBudgetPanel", "#shoppingBudgetSave"]], ["precios", ["#pricePanel", "#priceForm"]], ["costoReceta", ["#recipeCostPanel", "#recipeCostPrepare"]]]) {
       go("compras"); await wait(20); document.querySelector("#compras [data-compras-menu]").click(); await wait(30);
+      // R5-K-10: "Presupuesto" no está en el menú ⋯ (se abre desde la barra de la lista); las otras tres, sí.
       const b = document.querySelector('.hoja [data-compras-herr="' + herr + '"]');
-      if (!shown(b)) { essentials.push("menú ⋯ de Compras sin " + herr); ok = false; hoja.cerrar(); continue }
-      b.click(); await wait(60);
+      if (herr === "presupuesto") { if (b) { essentials.push("menú ⋯ de Compras con presupuesto"); ok = false } hoja.cerrar(); ComprasDespensa.abrirHerramientaCompras("presupuesto") }
+      else {
+        if (!shown(b)) { essentials.push("menú ⋯ de Compras sin " + herr); ok = false; hoja.cerrar(); continue }
+        b.click()
+      }
+      await wait(60);
       const faltan = sels.filter(s => !shown(document.querySelector(s))); if (faltan.length) { essentials.push(...faltan); ok = false }
     }
     go("compras"); await wait(20); return ok
   };
   await herramientasCompras();
   // v15.3: los mismos elementos, cada uno en su pantalla (despensa, Ideas, Preferencias y Fuentes de datos).
-  for (const [pant, sels] of [["ingredientes", ["#pantryChips"]], ["ideas", ["#recipeCatalogSearch", "#recipeCatalogTime", "#aiIdeasPanel", "#recipeCatalogResults", "#recipeViewCreate"]], ["preferencias", ["#recipeAvoidWords"]], ["fuentes", ["#nutritionLookupPanel"]]]) {
+  for (const [pant, sels] of [["ingredientes", ["#pantryChips"]], ["ideas", ["#ideasConLoQueTengoChip", "#recipeBuscarAbrir", "#recipeCatalogTime", "#recipeRecommendPantry", "#recipeCatalogResults"]], ["preferencias", ["#recipeAvoidWords"]], ["fuentes", ["#nutritionLookupPanel"]]]) {
     go(pant); if (pant === "ideas") showRecipeView("browse"); openAll(pant); await wait(30);
     for (const sel of sels) if (!shown(document.querySelector(sel))) essentials.push(sel)
   }
@@ -77,23 +81,23 @@
     b.click(); await wait(80); const faltan = sels.filter(s => !shown(document.querySelector(s))); essentials.push(...faltan); return !faltan.length
   };
   // Las herramientas de la Semana (variaciones, semanas por fecha y mes, historial) se alcanzan desde el menú ⋯.
-  const herramientasPlan = async () => { const r = []; r.push(await porMenu("variaciones", ["#varSelect", "#planHerramientas [data-del-var]"])); r.push(await porMenu("semanas", ["#monthlyPlanPanel", "#datedWeeksPanel"])); r.push(await porMenu("historial", ["#planHistoryPanel", "#planHistoryList"])); go("plan"); await wait(20); return r.every(Boolean) };
+  const herramientasPlan = async () => { const r = []; r.push(await porMenu("semanas", ["#monthlyPlanGrid", "#planHerramientas [data-plan-guardar]"])); r.push(await porMenu("semanas", ["#datedWeekView"])); r.push(await porMenu("consumo", ["#consumptionPanel"])); go("plan"); await wait(20); return r.every(Boolean) };
   await menuSemana(); if (!shown(document.querySelector(".hoja [data-clear-plan]"))) essentials.push("[data-clear-plan]"); hoja.cerrar();
-  // Buscar en mis recetas: busca por nombre y encuentra la receta.
-  await porMenu("recetas", ["#planRecipeReference", "#planRecipeSelect", "#planRecipeSearch"]);
-  $("planRecipeSearch").value = "Papas"; $("planRecipeSearch").dispatchEvent(new Event("input", { bubbles: true })); await wait(20);
-  if ($("planRecipeSelect").value !== recipeId) essentials.push("Buscar en mis recetas no encontró la receta");
-  $("planRecipeSearch").value = ""; $("planRecipeSearch").dispatchEvent(new Event("input", { bubbles: true }));
+  // Desde la v19.1 (R5-S-18 y S-19) no hay "Buscar en mis recetas": la receta se encuentra en la sección "Mis recetas" del selector de comida.
+  abrirSelector("lunes", "almuerzo"); await wait(60);
+  const buscarR = document.getElementById("selectorBuscar"); buscarR.value = "Papas"; buscarR.dispatchEvent(new Event("input", { bubbles: true })); await wait(30);
+  if (!/Papas al horno/.test((document.querySelector('.hoja [data-selector-seccion="recetas"]') || { textContent: "" }).textContent)) essentials.push("Mis recetas del selector no encontró la receta");
+  hoja.cerrar();
   // Lo que comí: registra una comida escrita a mano.
   await porMenu("consumo", ["#consumptionPanel", "#consumptionSave", "#consumptionView"]);
   const registrosAntes = loadConsumption().length;
   $("consumptionMeal").value = "merienda"; $("consumptionPlate").value = ""; $("consumptionText").value = "Prueba de modo simple"; $("consumptionSave").click(); await wait(20);
-  if (loadConsumption().length !== registrosAntes + 1 || !/1 comida registrada|comidas registradas/.test($("consumptionView").textContent)) essentials.push("Lo que comí no registró");
-  // Descargar: pide la descarga del plan (sin bajar nada de verdad).
-  await porMenu("descargar", ["[data-download-week]"]);
+  if (loadConsumption().length !== registrosAntes + 1 || !/Registradas\s*[1-9]/.test($("consumptionView").textContent)) essentials.push("Lo que comí no registró");
+  // Descargar HTML (desde la v19.1 está en Compartir la semana): pide la descarga del plan (sin bajar nada de verdad).
+  await menuSemana(); document.querySelector(".hoja [data-compartir-semana-menu]").click(); await wait(30);
   const blobs = [], crear = URL.createObjectURL, clic = HTMLAnchorElement.prototype.click;
   URL.createObjectURL = b => { blobs.push(b); return crear.call(URL, b) }; HTMLAnchorElement.prototype.click = function () { };
-  try { document.querySelector("[data-download-week]").click(); await wait(20) } finally { URL.createObjectURL = crear; HTMLAnchorElement.prototype.click = clic }
+  try { document.querySelector('.hoja [data-compartir-semana="html"]').click(); await wait(20) } finally { URL.createObjectURL = crear; HTMLAnchorElement.prototype.click = clic }
   if (blobs.length !== 1 || !(await blobs[0].text()).includes("Papas al horno")) essentials.push("Descargar no generó el plan");
   // Las herramientas de la Semana también se alcanzan en modo simple.
   if (!(await herramientasPlan())) essentials.push("herramientas de la Semana en modo simple");
@@ -106,7 +110,7 @@
   // Desde la v16.6 no hay carteles por pantalla: el único interruptor está en Preferencias (C17-2).
   const notes = document.querySelectorAll("[data-mode-note]");
   await menuSemana(); const itemsMenu = [...document.querySelectorAll(".hoja .menu-semana button")].filter(shown).map(b => b.textContent); hoja.cerrar();
-  const menuCompleto = ["Repetir semana anterior", "Copiar un día", "Empezar de nuevo", "Planes guardados", "Semanas anteriores y mes", "Historial de cambios", "Descargar", "Buscar en mis recetas", "Registro y objetivos"].every(t => itemsMenu.includes(t));
+  const menuCompleto = ["Repetir semana anterior", "Copiar un día", "Empezar de nuevo", "Semanas anteriores y mes", "Compartir la semana", "Registro y objetivos"].every(t => itemsMenu.includes(t));
   T.ok("M4 sin carteles de herramientas ocultas en las pantallas (el interruptor único está en Preferencias); Semana no oculta nada y su menú lo lista todo", notes.length === 0 && menuCompleto, itemsMenu.join(", "));
   // M5 Tarjeta en Configuración: cambia el modo y lo recuerda
   const card = $("uiModeToggle");
@@ -126,8 +130,8 @@
   // Semana: las mismas herramientas desde el menú ⋯, en modo completo y (ya comprobado en M3) en modo simple.
   const planShown = planHerrSimple && await herramientasPlan();
   let ingShown = true;
-  for (const [pant, id] of [["ingredientes", "pantryReviewPanel"], ["recetaEditar", "recipeAmountsPanel"], ["preferencias", "ingredientAliasPanel"], ["ideas", "recipeRecommendPantry"]]) {
-    go(pant); if (pant === "ideas") showRecipeView("browse"); openAll(pant); await wait(20);
+  for (const [pant, id] of [["ingredientes", "pantryReviewAbrir"], ["recetaEditar", "recipeAmountsPanel"], ["preferencias", "ingredientAliasPanel"], ["ideas", "recipeRecommendPantry"]]) {
+    go(pant); if (pant === "ideas") showRecipeView("browse"); if (pant === "recetaEditar") alternarPanel($("amountsAbrir"), true); openAll(pant); await wait(20);
     if (!shown($(id))) ingShown = false
   }
   T.ok("M6 en modo completo vuelven a verse todas las herramientas", toolsShown && planShown && ingShown && document.querySelectorAll("[data-mode-note]").length === 0);
@@ -145,12 +149,15 @@
   // M9 Lo guardado en herramientas ocultas sigue en uso: las existencias generan la sugerencia en Compras
   go("compras"); await wait(30);
   const papa = shoppingDisplayItems().find(x => x.name === "Papa");
-  T.ok("M9 las existencias guardadas siguen sugiriendo en Compras aunque estén ocultas", Interfaz.getUiMode() === "simple" && !!papa && !!papa.suggestion && /1 kg/.test(papa.suggestion.text) && /💡/.test($("comprasList").textContent), papa && papa.suggestion && papa.suggestion.text);
-  // M10 Al volver al modo simple, los controles ocultos de la sesión vuelven a su valor inicial
+  T.ok("M9 las existencias guardadas siguen sugiriendo en Compras aunque estén ocultas", Interfaz.getUiMode() === "simple" && !!papa && !!papa.suggestion && /1 kg/.test(papa.suggestion.text) && ([...document.querySelectorAll("#comprasList .shop-item")].some(r => /1 kg/.test(r.title)) || /💡/.test($("comprasList").textContent)), papa && papa.suggestion && papa.suggestion.text);
+  // M10 (Ronda 5, M-08) Las recomendaciones por despensa son un solo interruptor de la búsqueda, igual en los dos modos:
+  // ya no hay selectores de prioridad, orden ni cantidad por página que se escondan y sigan cambiando lo que se ve.
   ModoSimple.setUiMode("completo");
-  $("recipeRecommendMode").value = "budget"; $("recipeRecommendPantry").checked = true; $("recipeRecommendCosts").checked = true; $("recipeCatalogSort").value = "reverse"; $("recipeCatalogPageSize").value = "60";
+  go("ideas"); showRecipeView("browse"); await wait(20);
+  const iguales = ["recipeRecommendPantry", "recipeCatalogTime"].map(id => shown($(id)));
   ModoSimple.setUiMode("simple");
-  T.ok("M10 los controles ocultos no siguen cambiando el orden de las recetas", $("recipeRecommendMode").value === "normal" && !$("recipeRecommendPantry").checked && !$("recipeRecommendCosts").checked && $("recipeCatalogSort").value === "name" && $("recipeCatalogPageSize").value === "20");
+  go("ideas"); showRecipeView("browse"); await wait(20);
+  T.ok("M10 la búsqueda de Ideas se ve igual en modo simple y completo y no tiene controles de orden ni de prioridad ocultos", iguales.every(Boolean) && ["recipeRecommendPantry", "recipeCatalogTime"].every(id => shown($(id))) && !["recipeRecommendMode", "recipeRecommendCosts", "recipeCatalogSort", "recipeCatalogPageSize"].some(id => $(id)));
   // M11 El modo no va en los respaldos y restaurar no lo cambia
   ModoSimple.setUiMode("completo");
   const snap = completeBackupSnapshot(localStorage);
@@ -160,9 +167,8 @@
   ModoSimple.setUiMode("simple");
   // M12 Los mensajes no mandan a herramientas ocultas
   setRecipes([{ id: "recipe_sinIng1", title: "Receta sin ingredientes", amountsTitle: null }]);
-  go("plan"); await R.openPanel("planRecipeReference");
-  $("planRecipeSelect").value = "recipe_sinIng1"; $("planRecipeAssign").click(); await wait(20);
-  const assignMsg = $("planRecipeAssignStatus").textContent;
+  go("plan"); let assignMsg = "";
+  try { asignarRecetaAlPlan("recipe_sinIng1", "lunes", "almuerzo", true) } catch (err) { assignMsg = err.message }
   go("ingredientes"); showRecipeView("browse"); showRecipeRead("recipe_sinIng1"); await wait(20);
   const readMsg = $("recipeReadIngredients").textContent;
   T.ok("M12 los mensajes indican Editar receta, no paneles ocultos", /Editar receta/.test(assignMsg) && !/Mis cantidades/.test(assignMsg) && /Editar receta/.test(readMsg) && !/Mis cantidades/.test(readMsg), assignMsg + " | " + readMsg);

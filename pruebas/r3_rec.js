@@ -4,9 +4,9 @@
   window.confirm = () => true;
   reset();
   const fillRow = (row, name, q, u) => { row.querySelector("[data-amount-name]").value = name; row.querySelector("[data-amount-quantity]").value = q; row.querySelector("[data-amount-unit]").value = u };
-  const createRecipe = async title => { go("ingredientes"); await wait(30); document.getElementById("recipeViewCreate").click(); await wait(20); document.getElementById("recipeDetailsTitle").value = title; document.getElementById("recipeDetailsSteps").value = "Picar\nCocinar"; document.getElementById("recipeDetailsSave").click(); await wait(20); return Object.values(loadRecipeDetails()).find(r => r.title === title).id };
+  const createRecipe = async title => { go("ingredientes"); await wait(30); nuevaRecetaEnBlanco(); await wait(20); document.getElementById("recipeDetailsTitle").value = title; document.getElementById("recipeDetailsSteps").value = "Picar\nCocinar"; document.getElementById("recipeDetailsSave").click(); await wait(20); return Object.values(loadRecipeDetails()).find(r => r.title === title).id };
   const panel = document.getElementById("recipeAmountsPanel"), sel = document.getElementById("amountRecipe");
-  const reopen = async () => { panel.open = false; await wait(15); panel.open = true; await wait(60) };
+  const reopen = async () => { alternarPanel(document.getElementById("amountsAbrir"), false); await wait(15); alternarPanel(document.getElementById("amountsAbrir"), true); CantidadesCostos.abrirPanelDeCantidades(); await wait(60) };
   const choose = async value => { sel.value = value; sel.dispatchEvent(new Event("change", { bubbles: true })); await wait(30) };
   const id = await createRecipe("Guiso de la abuela");
   await reopen();
@@ -25,9 +25,7 @@
   T.ok("E2a el editor de la receta muestra 'Mi receta: …' seleccionado", am.value === "receta:" + id && am.selectedOptions[0].textContent === "Mi receta: Guiso de la abuela");
   document.getElementById("recipeDetailsSave").click(); await wait(20);
   T.ok("E2b volver a guardar la receta no pierde el vínculo", loadRecipeDetails()[id].amountsTitle === "receta:" + id);
-  document.getElementById("planRecipeReference").open = true; renderPlanRecipeReference();
-  document.getElementById("planRecipeSelect").value = id; document.getElementById("planRecipeDay").value = "lunes"; document.getElementById("planRecipeSlot").value = "almuerzo";
-  assignSavedRecipeToPlan();
+  asignarRecetaAlPlan(id, "lunes", "almuerzo", true);
   go("compras"); await wait(50);
   T.ok("E3 receta propia asignada aparece en Compras con cantidades", R.renderedRows().includes("Papa: 300 g") && R.renderedRows().includes("Cebolla: 1 unidad"), R.renderedRows().join(" | "));
   go("ingredientes"); await reopen();
@@ -36,10 +34,9 @@
   document.getElementById("amountSave").click(); await wait(20);
   go("compras"); await wait(40);
   T.ok("E4b editar cambia la misma clave, sin duplicados", Object.keys(loadRecipeAmounts()).length === 1 && R.renderedRows().includes("Papa: 400 g"));
-  await R.openPanel("quantShoppingPanel");
-  const qlabel = document.querySelector("#quantShoppingChoices .shop-item span").textContent;
-  document.querySelector("[data-quant-recipe]").checked = true; document.getElementById("quantShoppingCalculate").click(); await wait(20);
-  T.ok("E5a 'Calcular compras por recetas' muestra el nombre y calcula", qlabel === "Mi receta: Guiso de la abuela" && /Papa: 400 g/.test(document.getElementById("quantShoppingResult").textContent), qlabel);
+  // R5-K-13: "Calcular para otras recetas" se eliminó; la receta propia se nombra igual donde todavía se elige.
+  const qlabel = amountsLabel("receta:" + id, CantidadesCostos.safeRecipeDetails());
+  T.ok("E5a la receta con cantidades se nombra 'Mi receta: …' y 'Calcular para otras recetas' ya no existe", qlabel === "Mi receta: Guiso de la abuela" && !document.getElementById("quantShoppingPanel") && !document.getElementById("quantShoppingCalculate") && !document.getElementById("stockDeductionPanel"), qlabel);
   await R.openPanel("recipeCostPanel");
   const costOpt = document.getElementById("recipeCostTitle").selectedOptions[0];
   T.ok("E5b 'Estimar costo' lista la receta por su nombre", !!costOpt && costOpt.textContent === "Mi receta: Guiso de la abuela" && costOpt.value === "receta:" + id);

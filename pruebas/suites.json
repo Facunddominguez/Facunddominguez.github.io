@@ -64,6 +64,16 @@
     "r4e30_precios.js",
     "r4e31_hoy.js",
     "r4e32_respaldo.js",
-    "v188_arreglos.js"
+    "v188_arreglos.js",
+    "r5e34_semana.js",
+    "r5e35_semanas.js",
+    "r5e36_completar.js",
+    "r5e37_comida.js",
+    "r5e38_hoy.js",
+    "r5e39_registro.js",
+    "r5e40_comidas.js",
+    "r5e41_compras.js",
+    "r5e42_mas.js",
+    "r5e43_bienvenida.js"
   ]
 }

@@ -14,7 +14,7 @@ document.addEventListener("pointercancel",()=>{
   passive:true
 });
 document.addEventListener("change",e=>{
-  const t=e.target;if(t&&t.dataset&&t.dataset.shopKey!==undefined)Compras.toggleShop(t.dataset.shopKey,t.checked);if(t&&t.id==="varSelect")Semana.loadVariationByName(t.value)
+  const t=e.target;if(t&&t.dataset&&t.dataset.shopKey!==undefined)Compras.toggleShop(t.dataset.shopKey,t.checked)
 });
 document.addEventListener("click",e=>{
   const b=e.target.closest("button");if(!b)return;if(pMoved&&b.classList.contains("choice")){
@@ -27,11 +27,11 @@ document.addEventListener("click",e=>{
     renderPlan();return go("plan")
   }if(b.dataset.openCompras!==undefined){
     renderCompras();return go("compras")
-  }if(b.dataset.backPlan!==undefined)return openTab("semana");if(b.dataset.planSet){
+  }if(b.dataset.planSet){
     const parts=b.dataset.planSet.split("|");const sel=document.querySelector('[data-plan-select="'+b.dataset.planSet+'"]');if(sel&&sel.value)setSlot(parts[0],parts[1],sel.value);else planStatus("Elegí un plato del menú.");return
   }if(b.dataset.planClear){
     const parts=b.dataset.planClear.split("|");return Semana.clearSlot(parts[0],parts[1])
-  }if(b.dataset.saveVar!==undefined)return Semana.saveVariation();if(b.dataset.delVar!==undefined)return Semana.deleteVariation();if(b.dataset.clearPlan!==undefined)return clearPlan();if(b.dataset.shareCompras!==undefined)return Compras.shareCompras();if(b.dataset.copyCompras!==undefined)return Compras.copyCompras();if(b.dataset.randomType)return AlAzar.randomMeal(b.dataset.randomType);if(b.dataset.platoDia!==undefined)return AlAzar.platoDelDia();if(b.dataset.regenRandom!==undefined){
+  }if(b.dataset.clearPlan!==undefined)return clearPlan();if(b.dataset.randomType)return AlAzar.randomMeal(b.dataset.randomType);if(b.dataset.platoDia!==undefined)return AlAzar.platoDelDia();if(b.dataset.regenRandom!==undefined){
     if(lastRandomType)return AlAzar.randomMeal(lastRandomType);return
   }if(b.dataset.go)return Armado.continueFromMulti(b.dataset.go);if(b.dataset.nextBottom!==undefined)return Armado.continueFromMulti(b.dataset.go);if(b.dataset.day)return Armado.setDay(b.dataset.day);if(b.dataset.frutaSel)return Armado.toggleFruta(b);if(b.dataset.basicoFalta!==undefined)return alternarBasicoFaltante(b.dataset.basicoFalta);if(b.dataset.frutaPrep!==undefined)return Armado.abrirPreparacionesDeFruta();if(b.dataset.pick)return Armado.pickAnim(b,b.dataset.pick,b.dataset.name,b.dataset.quantity||"",b.dataset.next);if(b.dataset.multi)return Armado.toggleMulti(b,b.dataset.multi,b.dataset.name);if(b.dataset.replace)return Armado.setReplace(b.dataset.replace,b.dataset.value==="true");if(b.dataset.edit)return edit(b.dataset.edit);if(b.dataset.toggleActions)return MisPlatos.toggleSavedActions(b.dataset.toggleActions);if(b.dataset.toggleDay!==undefined)return Armado.toggleDay();if(b.dataset.togglePortions!==undefined){
     portionEditReturn=false;Armado.syncPortionEditor();return el.portionEditor.classList.toggle("is-visible")

@@ -5,35 +5,6 @@ var Existencias={
 stockKey(name,unit){
   return JSON.stringify([normalizeSearchText(name),unit])
 },
-renderStockQuantities(){
-  const box=document.getElementById("stockList");
-  box.replaceChildren();
-  const values=Object.entries(loadStockQuantities()).sort((a,b)=>a[1].name.localeCompare(b[1].name,"es"));
-  if(!values.length){
-    box.append(ce("p","screen__hint","Todavía no registraste cantidades disponibles."));
-    renderPantryMoves();
-    return
-  }
-  for(const [key,item] of values){
-    const row=ce("div","shop-item"),label=ce("span",null,item.name+": "+cantidadLegible(item.quantity,item.unit)),edit=ce("button","button button--soft","Editar"),remove=ce("button","button button--danger","Quitar");
-    edit.type=remove.type="button";
-    edit.addEventListener("click",()=>{
-      document.getElementById("stockIngredient").value=item.name;document.getElementById("stockQuantity").value=item.quantity;document.getElementById("stockUnit").value=item.unit;document.getElementById("stockIngredient").focus()
-    });
-    remove.addEventListener("click",()=>{
-      const stock=loadStockQuantities(),old=stock[key];delete stock[key];try{
-        localStorage.setItem(STOCK_QUANT_KEY,JSON.stringify(stock));if(old&&old.quantity)logPantryMoves([{
-          name:old.name,unit:old.unit,delta:-old.quantity,reason:"Quitada de la despensa"
-        }]);Existencias.renderStockQuantities();shoppingQuantityAndCost();renderCompras()
-      }catch(e){
-        document.getElementById("stockStatus").textContent="No se pudo actualizar la despensa."
-      }
-    });
-    row.append(label,edit,remove);
-    box.append(row)
-  }
-  renderPantryMoves()
-},
 startupGuard(label,fn){
   try{
     fn()
@@ -125,49 +96,7 @@ function loadStockQuantities(){
     }
   }
 }
-function saveStockQuantity(){
-  const status=document.getElementById("stockStatus"),name=document.getElementById("stockIngredient").value.trim(),raw=document.getElementById("stockQuantity").value,quantity=Number(raw),unit=document.getElementById("stockUnit").value;
-  if(!name||!raw.trim()||!Number.isFinite(quantity)||quantity<0||quantity>100000000||!unit){
-    status.textContent="Completá ingrediente, cantidad no negativa y unidad.";
-    return
-  }
-  const stock=loadStockQuantities(),key=Existencias.stockKey(name,unit);
-  if(!stock[key]&&Object.keys(stock).length>=500){
-    status.textContent="Máximo 500 existencias registradas.";
-    return
-  }
-  const oldQty=stock[key]?stock[key].quantity:0;
-  stock[key]={
-    name,quantity,unit
-  };
-  try{
-    localStorage.setItem(STOCK_QUANT_KEY,JSON.stringify(stock));
-    if(quantity!==oldQty)logPantryMoves([{
-      name,unit,delta:quantity-oldQty,reason:"Ajuste manual"
-    }]);
-    status.textContent="Existencia guardada. Las cantidades de recetas no se modificaron.";
-    Existencias.renderStockQuantities();
-    shoppingQuantityAndCost();
-    renderCompras()
-  }catch(e){
-    status.textContent="No se pudo guardar. Revisá el espacio disponible."
-  }
-}
-function initStockQuantities(){
-  const select=document.getElementById("stockUnit");
-  const fill=units=>{
-    const current=select.value;
-    select.replaceChildren(...units.map(unit=>{
-      const opt=ce("option",null,unit);opt.value=unit;return opt
-    }));
-    if(units.includes(current))select.value=current
-  };
-  fill(["g","kg","ml","l","unidad"]);
-  setTimeout(()=>fill(RECIPE_AMOUNT_UNITS),0);
-  document.getElementById("stockSave").addEventListener("click",saveStockQuantity);
-  Existencias.renderStockQuantities()
-}
-Existencias.startupGuard("Existencias de despensa",initStockQuantities);
+// v19.8 (R5-K-12): el formulario "Existencias" de Compras se fue; cargar existencias con cantidad se hace en Despensa (33-despensa-unica.js).
 const SHOP_BUDGET_KEY="miPlatoFacil_shoppingBudget_v1";
 function shoppingBudgetRead(){
   try{
@@ -254,21 +183,27 @@ function budgetCompareRender(){
   const model=Existencias.budgetCompareData(missingRows,Object.values(loadReferencePrices()),budget.currency),fmt=n=>n.toLocaleString("es-AR",{
     minimumFractionDigits:2,maximumFractionDigits:2
   }),controls=[];
+  // v19.9 (R5-X-03): además de tus precios guardados, el promedio de tu región es otra opción (en pesos).
+  if(budget.currency==="ARS"&&typeof opcionPrecioAutomatico==="function")for(const entry of model.entries){
+    const auto=opcionPrecioAutomatico(entry.row.name,entry.row.unit);
+    if(auto)entry.options.push(auto)
+  }
   for(const entry of model.entries){
     const wrap=ce("div","portion-field"),label=ce("label",null,entry.row.name+" · "+entry.row.missing.toLocaleString("es-AR")+" "+entry.row.unit),select=ce("select"),blank=ce("option",null,"Elegí una referencia");
     blank.value="";
     select.append(blank);
     entry.options.forEach((p,i)=>{
-      const total=fmt(entry.row.missing*p.price/p.amount),option=ce("option",null,p.price+"/"+p.amount+" "+p.unit+" · "+total);option.title=total+" "+budget.currency+" · "+p.price+" por "+p.amount+" "+p.unit+" · precio de "+(p.date||"fecha desconocida");option.value=String(i);select.append(option)
+      const total=fmt(entry.row.missing*p.price/p.amount),option=ce("option",null,p.auto?"Promedio de tu región: "+fmt(p.price)+"/"+p.unit+" · "+total:p.price+"/"+p.amount+" "+p.unit+" · "+total);option.title=total+" "+budget.currency+" · "+(p.auto?fmt(p.price)+" por "+p.unit+" · promedio de tu región":p.price+" por "+p.amount+" "+p.unit+" · precio de "+(p.date||"fecha desconocida"));option.value=String(i);select.append(option)
     });
     select.value=entry.base?String(entry.options.indexOf(entry.base)):"";
     label.htmlFor=select.id="budgetAlternative_"+controls.length;
-    wrap.append(label,select);
+    const usado=ce("p","screen__hint presupuesto-usado");
+    wrap.append(label,select,usado);
     const rango=typeof textoRangoPrecios==="function"?textoRangoPrecios(entry.row.name,entry.row.unit):"";
     if(rango)wrap.append(ce("p","screen__hint",rango));
     box.append(wrap);
     controls.push({
-      entry,select,baseline:entry.base
+      entry,select,usado,baseline:entry.base
     })
   }
   const result=ce("div");
@@ -279,6 +214,8 @@ function budgetCompareRender(){
       const {
         entry,select
       }=control;
+      // R5-X-03: se ve qué precio se está usando para ese ingrediente.
+      control.usado.textContent=select.value===""?"Precio usado: ninguno elegido.":"Precio usado: "+select.selectedOptions[0].textContent+".";
       if(select.value===""){
         unselected++;
         continue
@@ -332,11 +269,6 @@ function shoppingBudgetInit(){
       localStorage.setItem(SHOP_BUDGET_KEY,JSON.stringify(budget));shoppingBudgetRender();budgetCompareRender();renderPresupuestoCompras()
     }catch(e){
       document.getElementById("shoppingBudgetResult").textContent="No se pudo guardar el presupuesto."
-    }
-  });
-  document.getElementById("shoppingBudgetPanel").addEventListener("toggle",e=>{
-    if(e.currentTarget.open){
-      shoppingBudgetRender();budgetCompareRender()
     }
   });
   setTimeout(shoppingBudgetRender,0)

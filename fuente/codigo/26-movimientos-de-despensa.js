@@ -9,7 +9,7 @@ deductRecipeFromPantry(recipeId){
     name:x.name,unit:x.unit,delta:-x.quantity
   }));
   if(!changes.length)throw Error("La receta no tiene cantidades para descontar.");
-  return applyStockChanges(changes,("Cocinaste "+r.title).slice(0,80))
+  return applyStockChanges(changes,("Comiste "+r.title).slice(0,80))
 }
 };
 function validPantryMoves(a){
@@ -34,22 +34,14 @@ function logPantryMoves(moves){
   }catch(e){
   }
 }
-function renderPantryMoves(){
-  const box=document.getElementById("stockMoves");
-  if(!box)return;
-  const a=loadPantryMoves().slice(-30).reverse(),fmt=n=>(n>0?"+":"−")+Math.abs(n).toLocaleString("es-AR",{
-    maximumFractionDigits:6
-  });
-  box.replaceChildren(...a.map(m=>ce("p","screen__hint",MisPlatos.fmtWhen(m.at)+" · "+m.name+" "+(m.delta>0?"+":"−")+cantidadLegible(Math.abs(m.delta),m.unit)+" · "+m.reason)));
-  if(!a.length)box.append(ce("p","screen__hint","Todavía no hay movimientos."))
-}
+// v19.8 (R5-K-16): "Todos los movimientos" ya no se muestra; miPlatoFacil_pantryMoves_v1 sigue guardándose, entra al respaldo y se ve por ingrediente.
 // Movimientos de un ingrediente (v15.4, historial por ítem de la Despensa): del más nuevo al más viejo. Solo lee.
 function movimientosDe(nombre,max){
   const k=ingredientKey(nombre);
   return loadPantryMoves().filter(m=>ingredientKey(m.name)===k).reverse().slice(0,max||10)
 }
 function textoMovimiento(m){
-  return MisPlatos.fmtWhen(m.at)+" · "+(m.delta>0?"+":"−")+cantidadLegible(Math.abs(m.delta),m.unit)+" · "+m.reason
+  return MisPlatos.fmtWhen(m.at)+" · "+(m.delta>0?"+":"−")+cantidadLegible(Math.abs(m.delta),m.unit)+" · "+motivoDeMovimiento(m.reason)
 }
 function applyStockChanges(changes,reason){
   const stock=loadStockQuantities(),moves=[],short=[];
@@ -99,8 +91,12 @@ function applyStockChanges(changes,reason){
 }
 document.getElementById("recipeReadCooked").addEventListener("click",()=>{
   const st=document.getElementById("recipeCatalogCount");try{
-    const id=recipeReadId;if(!id)throw Error("Abrí una receta guardada primero.");const r=loadRecipeDetails()[id],a=r&&r.amountsTitle&&loadRecipeAmounts()[r.amountsTitle];if(!a)throw Error("Esta receta no tiene ingredientes con cantidades.");if(!window.confirm("¿Descontar de la despensa los ingredientes de la receta completa (rinde "+String(a.yield).replace(".",",")+" porciones)? No se descuenta nada que no tengas registrado."))return;const res=MovimientosDespensa.deductRecipeFromPantry(id);st.textContent=(res.moves.length?"Despensa actualizada: "+res.moves.length+" movimiento"+(res.moves.length===1?"":"s")+".":"No había existencias registradas para descontar.")+(res.short.length?" No alcanzó: "+res.short.join("; ")+".":"");Existencias.renderStockQuantities();renderCompras()
+    const id=recipeReadId;if(!id)throw Error("Abrí una receta guardada primero.");const r=loadRecipeDetails()[id],a=r&&r.amountsTitle&&loadRecipeAmounts()[r.amountsTitle];if(!a)throw Error("Esta receta no tiene ingredientes con cantidades.");if(!window.confirm("¿Descontar de la despensa los ingredientes de la receta completa (rinde "+String(a.yield).replace(".",",")+" porciones)? No se descuenta nada que no tengas registrado."))return;const res=MovimientosDespensa.deductRecipeFromPantry(id);st.textContent=(res.moves.length?"Despensa actualizada: "+res.moves.length+" movimiento"+(res.moves.length===1?"":"s")+".":"No había existencias registradas para descontar.")+(res.short.length?" No alcanzó: "+res.short.join("; ")+".":"");renderCompras()
   }catch(err){
     st.textContent=err.message
   }
 });
+// v19.6 (R5-R-01): los movimientos viejos que dicen "Cocinaste X" se muestran como "Comiste X" (lo guardado no cambia).
+function motivoDeMovimiento(texto){
+  return String(texto||"").replace(/^Cocinaste /,"Comiste ")
+}

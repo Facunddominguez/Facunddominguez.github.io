@@ -23,13 +23,13 @@ buildWeeklyPlanExport(plan,saved,start){
     assigned,html:"<!doctype html><html lang='es'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>Mi plato fácil · Plan semanal</title><style>body{font-family:system-ui,sans-serif;max-width:900px;margin:auto;padding:24px;color:#10201b;background:#f4f8f6}h1,h2{color:#0b6b57}section{background:white;border:1px solid #dfe9e5;border-radius:16px;padding:16px;margin:16px 0;break-inside:avoid}table{width:100%;border-collapse:collapse}th,td{text-align:left;vertical-align:top;padding:10px;border-bottom:1px solid #dfe9e5}th{width:25%}p{margin:6px 0}ul{padding-left:20px}@media print{body{background:white;padding:0}section{border-radius:0}}</style></head><body><h1>Mi plato fácil</h1><p>Plan semanal · "+(date?"Fechas elegidas para esta copia":"Sin fechas asignadas")+"</p><p>"+assigned+" comidas asignadas. Copia de consulta, no es un respaldo importable.</p>"+sections+"</body></html>"
   }
 },
+// v19.1: "Compartir la semana → Descargar HTML" baja la semana que se está viendo (esta o la que viene), con su lunes en el nombre.
 downloadWeeklyPlan(){
-  const status=document.getElementById("planExportStatus");
   let url;
   try{
-    const start=document.getElementById("planExportStart").value,result=SemanasFechadas.buildWeeklyPlanExport(loadPlan(),MisPlatos.loadSaved(),start);
+    const start=Semana.viendoProxima()?Semana.lunesSiguiente():Semana.semanaActual(),result=SemanasFechadas.buildWeeklyPlanExport(loadPlan(),MisPlatos.loadSaved(),start);
     if(!result.assigned){
-      status.textContent="Asigná al menos un plato antes de descargar el plan.";
+      planStatus("Asigná al menos un plato antes de descargar el plan.");
       return
     }
     url=URL.createObjectURL(new Blob([result.html],{
@@ -37,15 +37,15 @@ downloadWeeklyPlan(){
     }));
     const a=document.createElement("a");
     a.href=url;
-    a.download="mi-plan-semanal"+(start?"-"+start:"")+".html";
+    a.download="mi-plan-semanal-"+start+".html";
     document.body.appendChild(a);
     a.click();
     a.remove();
     setTimeout(()=>URL.revokeObjectURL(url),1000);
-    status.textContent="Descarga solicitada. La copia refleja el plan actual y no cambia tus datos."
+    planStatus("Descargamos la semana del "+typedAppDateLabel(start).slice(0,5)+" en HTML.")
   }catch(e){
     if(url)URL.revokeObjectURL(url);
-    status.textContent=e.message||"No se pudo descargar el plan."
+    planStatus(e.message||"No se pudo descargar el plan.")
   }
 },
 datedWeekMessage(text){
@@ -53,7 +53,12 @@ datedWeekMessage(text){
 },
 saveDatedWeek(){
   try{
-    const key=datedWeekKey(),plan=loadPlan(),saved=MisPlatos.loadSaved(),result=SemanasFechadas.buildWeeklyPlanExport(plan,saved,key);
+    // La copia sale del plan de esta semana (no de otra copia que se esté viendo).
+    const key=datedWeekKey(),viendo=semanaFechada;
+    semanaFechada=null;
+    let plan;
+    try{plan=loadPlan()}finally{semanaFechada=viendo}
+    const saved=MisPlatos.loadSaved(),result=SemanasFechadas.buildWeeklyPlanExport(plan,saved,key);
     if(!result.assigned)throw new Error("Asigná al menos un plato en el plan actual antes de copiarlo.");
     const weeks=loadDatedWeeks();
     if(weeks[key]&&!window.confirm("Ya hay una copia para esta semana. ¿Reemplazar solo esa copia?"))return;
@@ -129,46 +134,6 @@ buildDatedWeekEdit(week,changes,currentSaved){
   }
   return copy
 },
-renderDatedWeekEditor(){
-  const box=document.getElementById("datedEditFields"),status=document.getElementById("datedEditStatus");
-  box.replaceChildren();
-  status.textContent="";
-  try{
-    const key=datedWeekKey(),week=loadDatedWeeks()[key];
-    if(!week)throw new Error("Guardá o seleccioná primero una semana fechada.");
-    box.dataset.weekKey=key;
-    const saved=MisPlatos.loadSaved(),byId=new Map(week.saved.map(p=>[p.id,p]));
-    DAYS.forEach(([day,label])=>{
-      const card=ce("div","plan-day");card.append(ce("h3","plan-day__title",label));SLOTS.forEach(([slot,title])=>{
-        const row=ce("div","portion-field"),id="datedEdit_"+day+"_"+slot,lab=ce("label",null,title);lab.htmlFor=id;const select=ce("select");select.id=id;select.dataset.datedEditDay=day;select.dataset.datedEditSlot=slot;const currentId=week.plan[day]&&week.plan[day][slot],item=byId.get(currentId);const keep=ce("option",null,"Sin cambios: "+(item?(item.note||item.title||"Plato"):currentId?"Plato no disponible":"Sin asignar"));keep.value="keep";select.append(keep);const clear=ce("option",null,"Dejar sin asignar");clear.value="clear";select.append(clear);saved.filter(p=>p.type===slotPool(slot)).forEach(p=>{
-          const o=ce("option",null,p.note||p.title||"Plato");o.value="id:"+p.id;select.append(o)
-        });row.append(lab,select);card.append(row)
-      });box.append(card)
-    })
-  }catch(e){
-    delete box.dataset.weekKey;
-    status.textContent=e.message
-  }
-},
-saveDatedWeekEdits(){
-  const status=document.getElementById("datedEditStatus");
-  try{
-    const key=datedWeekKey(),box=document.getElementById("datedEditFields");
-    if(box.dataset.weekKey!==key)throw new Error("La semana cambió. Cerrá y abrí el editor para actualizarlo.");
-    const weeks=loadDatedWeeks();
-    if(!weeks[key])throw new Error("La copia ya no está disponible.");
-    const changes=Array.from(box.querySelectorAll("[data-dated-edit-day]")).map(s=>({
-      day:s.dataset.datedEditDay,slot:s.dataset.datedEditSlot,value:s.value
-    }));
-    weeks[key]=SemanasFechadas.buildDatedWeekEdit(weeks[key],changes,MisPlatos.loadSaved());
-    localStorage.setItem(DATED_WEEKS_KEY,JSON.stringify(weeks));
-    renderDatedWeek();
-    SemanasFechadas.renderDatedWeekEditor();
-    status.textContent="Cambios guardados solo en esta semana fechada."
-  }catch(e){
-    status.textContent=e.message||"No se pudieron guardar los cambios."
-  }
-},
 parseTypedAppDate(value){
   const t=String(value||"").trim();
   if(!t)return "";
@@ -199,15 +164,6 @@ commitTypedAppDate(id,required){
     hidden.value="";
     return false
   }
-},
-syncPlanEditingFocus(source){
-  const current=document.getElementById("currentPlanPanel"),editor=document.getElementById("datedEditPanel"),monthly=document.getElementById("monthlyPlanPanel");
-  if(source==="dated"&&editor.open){
-    current.open=false;
-    monthly.open=false
-  }else if(source==="current"&&current.open){
-    editor.open=false
-  }
 }
 };
 function planExportDate(value){
@@ -218,9 +174,6 @@ function planExportDate(value){
   if(d.getDay()!==1)throw new Error("La fecha debe ser un lunes, para respetar el orden del plan.");
   return d
 }
-document.addEventListener("click",e=>{
-  const b=e.target.closest("[data-download-week]");if(b)SemanasFechadas.downloadWeeklyPlan()
-});
 const DATED_WEEKS_KEY="miPlatoFacil_datedWeeks_v1";
 function loadDatedWeeks(){
   try{
@@ -249,50 +202,93 @@ function datedWeekKey(){
   if(!key||!planExportDate(key))throw new Error("Elegí el lunes de la semana.");
   return key
 }
+// v19.2: la semana elegida se ve como en Semana (tarjetas por día) y se cambia con la misma hoja; sin copia, solo el aviso.
 function renderDatedWeek(){
-  const box=document.getElementById("datedWeekView"),list=document.getElementById("datedWeekList"),weeks=loadDatedWeeks();
-  list.replaceChildren(...Object.keys(weeks).sort().map(key=>{
-    const b=ce("button","filter-chip",key);b.type="button";b.dataset.datedOpen=key;return b
-  }));
+  const box=document.getElementById("datedWeekView"),acciones=document.getElementById("datedWeekAcciones"),weeks=loadDatedWeeks();
+  if(!box)return;
   let key;
   try{
     key=datedWeekKey()
   }catch(e){
+    semanaFechada=null;
     box.replaceChildren(ce("p","screen__hint",e.message));
+    if(acciones)acciones.hidden=true;
     return
   }
   const week=weeks[key];
+  const usar=document.querySelector("#planHerramientas [data-planes-guardados]");
   if(!week){
-    box.replaceChildren(ce("p","screen__hint","Esta semana no tiene una copia guardada."));
+    semanaFechada=null;
+    box.replaceChildren(ce("p","screen__hint","Esta semana no tiene copia guardada. Guardá una con el botón de arriba."));
+    if(acciones)acciones.hidden=true;
+    if(usar)usar.hidden=true;
+    pintarCalendarioDeSemanas();
     return
   }
-  const byId=new Map(week.saved.map(p=>[p.id,p]));
+  // Solo cuenta como "copia abierta" (y cambia lo que lee loadPlan) mientras esta pantalla está a la vista.
+  semanaFechada=document.getElementById("planHerramientas").classList.contains("is-active")?key:null;
+  if(acciones){
+    acciones.hidden=false;
+    const r=acciones.querySelector("[data-dated-reuse]");
+    if(r)r.dataset.datedReuse=key
+  }
+  if(usar)usar.hidden=!Object.keys(Semana.loadVars()).length;
+  const byId=new Map(week.saved.map(p=>[p.id,p])),plan=Semana.migratePlan(week.plan);
   box.replaceChildren(...DAYS.map(([day,label],i)=>{
-    const date=planExportDate(key);date.setDate(date.getDate()+i);const card=ce("div","plan-day");card.append(ce("h3","plan-day__title",label+" · "+date.toLocaleDateString("es-AR")));SLOTS.forEach(([slot,title])=>{
-      const id=week.plan[day]&&week.plan[day][slot],item=byId.get(id),row=ce("div","plan-slot");row.append(ce("div","plan-slot__label",title));row.append(ce("div","plan-slot__plate",item?(item.note||item.title||"Plato"):id?"Plato no disponible":"Sin asignar"));if(item&&savedItemLines(item).length)row.append(ce("p","plan-slot__lines",savedItemLines(item).join(" · ")));card.append(row)
-    });return card
+    const date=planExportDate(key);
+    date.setDate(date.getDate()+i);
+    const dia=ce("div","semana-dia"),cont=ce("div","semana-huecos");
+    dia.dataset.fechadaDia=day;
+    dia.append(ce("h3","semana-dia__titulo",label+" "+date.getDate()+"/"+(date.getMonth()+1)),cont);
+    cont.append(...SLOTS.map(([slot])=>{
+      const id=plan[day]&&plan[day][slot];
+      return crearHueco(day,slot,id?byId.get(id)||null:null,{})
+    }));
+    return dia
   }));
-  const reuse=ce("button","button button--soft","Usar esta semana como plan actual");
-  reuse.type="button";
-  reuse.dataset.datedReuse=key;
-  box.append(reuse)
+  pintarCalendarioDeSemanas()
+}
+// El lunes de una fecha (clave AAAA-MM-DD).
+function lunesDe(iso){
+  const d=new Date(iso+"T12:00:00");
+  d.setDate(d.getDate()-((d.getDay()+6)%7));
+  return Rutina.localTrainingDate(d)
+}
+// Elige la semana (por su lunes): escribe el lunes, sigue al calendario y pinta la semana.
+function elegirSemanaFechada(lunes){
+  document.getElementById("datedWeekStart").value=lunes;
+  document.getElementById("datedWeekStartText").value=typedAppDateLabel(lunes);
+  document.getElementById("datedWeekStartError").textContent="";
+  document.getElementById("datedWeekStartText").setAttribute("aria-invalid","false");
+  SemanasFechadas.datedWeekMessage("");
+  const d=new Date(lunes+"T12:00:00");
+  if(d.getMonth()!==monthlyPlanCursor.getMonth()||d.getFullYear()!==monthlyPlanCursor.getFullYear())monthlyPlanCursor=new Date(d.getFullYear(),d.getMonth(),1);
+  monthlyPlanSelected=lunes;
+  renderDatedWeek()
 }
 document.addEventListener("click",e=>{
-  const b=e.target.closest("button");if(!b)return;if(b.dataset.datedSave!==undefined)return SemanasFechadas.saveDatedWeek();if(b.dataset.datedDelete!==undefined)return SemanasFechadas.deleteDatedWeek();if(b.dataset.datedDownload!==undefined)return SemanasFechadas.downloadDatedWeek();if(b.dataset.datedOpen){
-    document.getElementById("datedWeekStart").value=b.dataset.datedOpen;SemanasFechadas.datedWeekMessage("");renderDatedWeek()
-  }if(b.dataset.datedShift){
+  const b=e.target.closest("button");if(!b)return;
+  if(b.dataset.datedSave!==undefined)return SemanasFechadas.saveDatedWeek();
+  if(b.dataset.datedDelete!==undefined)return SemanasFechadas.deleteDatedWeek();
+  if(b.dataset.datedDownload!==undefined)return SemanasFechadas.downloadDatedWeek();
+  if(b.dataset.datedShift){
     try{
-      const d=planExportDate(datedWeekKey());d.setDate(d.getDate()+Number(b.dataset.datedShift));document.getElementById("datedWeekStart").value=Rutina.localTrainingDate(d);SemanasFechadas.datedWeekMessage("");renderDatedWeek()
-    }catch(e){
-      SemanasFechadas.datedWeekMessage(e.message)
+      const d=planExportDate(datedWeekKey());d.setDate(d.getDate()+Number(b.dataset.datedShift));elegirSemanaFechada(Rutina.localTrainingDate(d))
+    }catch(err){
+      SemanasFechadas.datedWeekMessage(err.message)
     }
+    return
+  }
+  if(b.dataset.planGuardar!==undefined){
+    let plan=null;
+    try{plan=loadPlan()}catch(err){}
+    return Semana.saveVariation(semanaFechada?plan:null)
   }
 });
 document.getElementById("datedWeekStart").addEventListener("change",()=>{
-  SemanasFechadas.datedWeekMessage("");renderDatedWeek()
-});
-document.getElementById("datedWeeksPanel").addEventListener("toggle",e=>{
-  if(e.target.open)renderDatedWeek()
+  const k=document.getElementById("datedWeekStart").value;
+  SemanasFechadas.datedWeekMessage("");
+  if(k)elegirSemanaFechada(k);else renderDatedWeek()
 });
 {
   const d=new Date();
@@ -300,17 +296,6 @@ document.getElementById("datedWeeksPanel").addEventListener("toggle",e=>{
   document.getElementById("datedWeekStart").value=Rutina.localTrainingDate(d)
 }
 Existencias.startupGuard("Semanas fechadas",renderDatedWeek);
-document.getElementById("datedEditPanel").addEventListener("toggle",e=>{
-  if(e.target.open)SemanasFechadas.renderDatedWeekEditor()
-});
-document.addEventListener("click",e=>{
-  const b=e.target.closest("button");if(!b)return;if(b.dataset.datedEditSave!==undefined)return SemanasFechadas.saveDatedWeekEdits();if(b.dataset.datedOpen||b.dataset.datedShift||b.dataset.datedSave!==undefined||b.dataset.datedDelete!==undefined){
-    if(document.getElementById("datedEditPanel").open)SemanasFechadas.renderDatedWeekEditor()
-  }
-});
-document.getElementById("datedWeekStart").addEventListener("change",()=>{
-  if(document.getElementById("datedEditPanel").open)SemanasFechadas.renderDatedWeekEditor()
-});
 function typedAppDateLabel(iso){
   return iso?iso.slice(8,10)+"/"+iso.slice(5,7)+"/"+iso.slice(0,4):""
 }
@@ -318,25 +303,26 @@ function syncTypedAppDate(id){
   const hidden=document.getElementById(id),text=document.getElementById(id+"Text");
   if(document.activeElement!==text)text.value=typedAppDateLabel(hidden.value)
 }
-const typedDateIds=["trainingExceptionDate","datedWeekStart","planExportStart"];
+const typedDateIds=["trainingExceptionDate","datedWeekStart"];
 typedDateIds.forEach(id=>{
   const text=document.getElementById(id+"Text");syncTypedAppDate(id);text.addEventListener("input",()=>{
     const digits=text.value.replace(/\D/g,"").slice(0,8);if(!text.value.includes("-"))text.value=digits.slice(0,2)+(digits.length>2?"/"+digits.slice(2,4):"")+(digits.length>4?"/"+digits.slice(4):"")
   });text.addEventListener("change",()=>SemanasFechadas.commitTypedAppDate(id,false));text.addEventListener("keydown",e=>{
     if(e.key==="Enter"){
-      e.preventDefault();SemanasFechadas.commitTypedAppDate(id,id!=="planExportStart");text.blur()
+      e.preventDefault();SemanasFechadas.commitTypedAppDate(id,true);text.blur()
     }
   });document.getElementById(id).addEventListener("change",()=>syncTypedAppDate(id))
 });
 document.addEventListener("click",e=>{
-  const b=e.target.closest("button");if(!b)return;let id=null;if(b.dataset.trainingExceptionSave!==undefined)id="trainingExceptionDate";if(b.dataset.datedSave!==undefined||b.dataset.datedDownload!==undefined||b.dataset.datedDelete!==undefined||b.dataset.datedEditSave!==undefined)id="datedWeekStart";if(b.dataset.downloadWeek!==undefined)id="planExportStart";if(id&&!SemanasFechadas.commitTypedAppDate(id,id!=="planExportStart")){
+  const b=e.target.closest("button");if(!b)return;let id=null;if(b.dataset.trainingExceptionSave!==undefined)id="trainingExceptionDate";if(b.dataset.datedSave!==undefined||b.dataset.datedDownload!==undefined||b.dataset.datedDelete!==undefined)id="datedWeekStart";if(id&&!SemanasFechadas.commitTypedAppDate(id,true)){
     e.preventDefault();e.stopImmediatePropagation();document.getElementById(id+"Text").focus()
   }
 },true);
 document.addEventListener("click",e=>{
   if(e.target.closest("[data-train-date],[data-train-quick],[data-dated-open],[data-dated-shift]"))typedDateIds.forEach(syncTypedAppDate)
 });
-let monthlyPlanCursor=new Date(new Date().getFullYear(),new Date().getMonth(),1),monthlyPlanSelected=Rutina.localTrainingDate(new Date());
+var monthlyPlanCursor=null,monthlyPlanSelected=null;
+monthlyPlanCursor=new Date(new Date().getFullYear(),new Date().getMonth(),1);monthlyPlanSelected=Rutina.localTrainingDate(new Date());
 function monthlyPlanDayData(date,weeks){
   const monday=new Date(date.getFullYear(),date.getMonth(),date.getDate()-((date.getDay()+6)%7),12),weekKey=Rutina.localTrainingDate(monday),week=weeks[weekKey],dayKey=DAYS[(date.getDay()+6)%7][0];
   return {
@@ -347,59 +333,46 @@ function monthlyPlanDayData(date,weeks){
     })
   }
 }
+// v19.2: el calendario es lo primero de "Semanas anteriores y mes": marca los días con comidas de una copia y la semana elegida;
+// tocar un día elige su semana (la lista de comidas está debajo, igual que en Semana).
+function pintarCalendarioDeSemanas(){
+  renderMonthlyPlan()
+}
 function renderMonthlyPlan(){
-  const grid=document.getElementById("monthlyPlanGrid"),title=document.getElementById("monthlyPlanTitle"),detail=document.getElementById("monthlyPlanDay");
-  if(!grid)return;
+  const grid=document.getElementById("monthlyPlanGrid"),title=document.getElementById("monthlyPlanTitle");
+  if(!grid||!monthlyPlanCursor)return;
   const weeks=loadDatedWeeks(),y=monthlyPlanCursor.getFullYear(),m=monthlyPlanCursor.getMonth(),today=Rutina.localTrainingDate(new Date());
+  let elegida="";
+  try{elegida=document.getElementById("datedWeekStart").value}catch(e){}
   title.textContent=monthlyPlanCursor.toLocaleDateString("es-AR",{
     month:"long",year:"numeric"
   });
   const nodes=["L","M","M","J","V","S","D"].map(x=>ce("span",null,x));
   for(let i=0;i<(new Date(y,m,1).getDay()+6)%7;i++)nodes.push(ce("span"));
   for(let n=1;n<=new Date(y,m+1,0).getDate();n++){
-    const date=new Date(y,m,n,12),key=Rutina.localTrainingDate(date),data=monthlyPlanDayData(date,weeks),count=data.rows.filter(r=>r.item).length,b=ce("button","train-date"+(key===today?" is-today":"")+(key===monthlyPlanSelected?" is-selected":""),String(n));
+    const date=new Date(y,m,n,12),key=Rutina.localTrainingDate(date),data=monthlyPlanDayData(date,weeks),count=data.rows.filter(r=>r.item).length,enSemana=!!elegida&&data.weekKey===elegida,
+      b=ce("button","train-date"+(key===today?" is-today":"")+(enSemana?" is-selected":""),String(n));
     b.type="button";
     b.dataset.monthlyPlanDate=key;
     if(count)b.dataset.mark="●";
-    b.setAttribute("aria-pressed",String(key===monthlyPlanSelected));
+    b.setAttribute("aria-pressed",String(enSemana));
     b.setAttribute("aria-label",date.toLocaleDateString("es-AR",{
       day:"numeric",month:"long",year:"numeric"
     })+", "+count+" comidas asignadas");
     if(key===today)b.setAttribute("aria-current","date");
     nodes.push(b)
   }
-  grid.replaceChildren(...nodes);
-  const date=new Date(monthlyPlanSelected+"T12:00:00"),data=monthlyPlanDayData(date,weeks);
-  detail.replaceChildren(ce("h3","plan-day__title",date.toLocaleDateString("es-AR",{
-    weekday:"long",day:"numeric",month:"long",year:"numeric"
-  })));
-  if(!data.week){
-    detail.append(ce("p","screen__hint","No hay una semana guardada para esta fecha. Usá Guardar y ver semanas para crear una copia."));
+  grid.replaceChildren(...nodes)
+}
+document.addEventListener("click",e=>{
+  const b=e.target.closest("button");if(!b)return;
+  if(b.dataset.planMonth){
+    monthlyPlanCursor=new Date(monthlyPlanCursor.getFullYear(),monthlyPlanCursor.getMonth()+Number(b.dataset.planMonth),1);
+    renderMonthlyPlan();
     return
   }
-  data.rows.forEach(r=>{
-    const row=ce("div","plan-slot");row.append(ce("div","plan-slot__label",r.label),ce("div","plan-slot__plate",r.item?(r.item.note||r.item.title||"Plato"):r.id?"Plato no disponible":"Sin asignar"));if(r.item&&savedItemLines(r.item).length)row.append(ce("p","plan-slot__lines",savedItemLines(r.item).join(" · ")));detail.append(row)
-  });
-  const open=ce("button","button button--soft","Ver o editar esta semana");
-  open.type="button";
-  open.dataset.monthlyPlanOpen=data.weekKey;
-  detail.append(open)
-}
-document.getElementById("monthlyPlanPanel").addEventListener("toggle",e=>{
-  if(e.target.open)renderMonthlyPlan()
-});
-document.addEventListener("click",e=>{
-  const b=e.target.closest("button");if(!b)return;if(b.dataset.planMonth){
-    monthlyPlanCursor=new Date(monthlyPlanCursor.getFullYear(),monthlyPlanCursor.getMonth()+Number(b.dataset.planMonth),1);monthlyPlanSelected=Rutina.localTrainingDate(monthlyPlanCursor);renderMonthlyPlan()
-  }if(b.dataset.monthlyPlanDate){
-    monthlyPlanSelected=b.dataset.monthlyPlanDate;renderMonthlyPlan()
-  }if(b.dataset.monthlyPlanOpen){
-    const key=b.dataset.monthlyPlanOpen;document.getElementById("datedWeekStart").value=key;document.getElementById("datedWeekStartText").value=typedAppDateLabel(key);document.getElementById("datedWeekStartError").textContent="";document.getElementById("datedWeekStartText").setAttribute("aria-invalid","false");document.getElementById("datedWeeksPanel").open=true;renderDatedWeek();if(document.getElementById("datedEditPanel").open)SemanasFechadas.renderDatedWeekEditor();document.getElementById("datedWeeksPanel").scrollIntoView({
-      behavior:"smooth",block:"start"
-    })
-  }if(b.dataset.datedSave!==undefined||b.dataset.datedDelete!==undefined||b.dataset.datedEditSave!==undefined){
-    if(document.getElementById("monthlyPlanPanel").open)renderMonthlyPlan()
+  if(b.dataset.monthlyPlanDate){
+    monthlyPlanSelected=b.dataset.monthlyPlanDate;
+    elegirSemanaFechada(lunesDe(b.dataset.monthlyPlanDate))
   }
 });
-document.getElementById("datedEditPanel").addEventListener("toggle",()=>SemanasFechadas.syncPlanEditingFocus("dated"));
-document.getElementById("currentPlanPanel").addEventListener("toggle",()=>SemanasFechadas.syncPlanEditingFocus("current"));

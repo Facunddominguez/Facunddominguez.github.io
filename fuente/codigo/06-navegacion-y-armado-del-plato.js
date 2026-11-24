@@ -90,13 +90,13 @@ abrirPreparacionesDeFruta(){
   Armado.setFrutaForma(data.frutaPreparaciones.includes(frutaForma)?frutaForma:data.frutaPreparaciones[0])
 },
 renderAlmidones(){
-  const box=document.getElementById("boxa"),mas=data.almidonesMas,det=ce("details","home-group almidones-mas");
-  det.append(ce("summary",null,"Más opciones: harinas, féculas y pan rallado"),...mas.map(label=>choice({
-    label,key:"almidones",multi:true
-  })));
+  // v19.9 (R5-G-01): sin desplegables: las opciones de "más" se ven directo, con su rótulo.
+  const box=document.getElementById("boxa"),mas=data.almidonesMas;
   box.replaceChildren(...data.almidones.filter(x=>!mas.includes(x)).map(label=>choice({
     label,key:"almidones",multi:true
-  })),det)
+  })),ce("p","home-section-label","Más opciones: harinas, féculas y pan rallado"),...mas.map(label=>choice({
+    label,key:"almidones",multi:true
+  })))
 },
 nextFor(id){
   return {
@@ -451,6 +451,9 @@ function go(id){
   n.removeAttribute("aria-hidden");
   if(stack.at(-1)!==id)stack.push(id);
   nav();
+  // v19.2: la copia fechada solo vale mientras "Semanas anteriores y mes" está abierta.
+  if(id!=="planHerramientas")semanaFechada=null;
+  else if(typeof renderDatedWeek==="function")renderDatedWeek();
   if(id==="resumen")summary();
   if(id==="misplatos")renderSaved();
   if(id==="plan")renderPlan();
@@ -460,6 +463,14 @@ function go(id){
   if(id==="registro"&&typeof renderRegistro==="function")renderRegistro();
   if(id==="backupScreen"&&typeof RespaldoAviso!=="undefined")RespaldoAviso.pintar();
   if(id==="preferencias"&&typeof renderObjetivosPreferencias==="function")renderObjetivosPreferencias();
+  if(id==="preferencias"&&typeof Equivalencias!=="undefined"){
+    // v19.9 (R5-X-06): "Ingredientes equivalentes" está a la vista: se dibuja al entrar.
+    try{
+      document.getElementById("ingredientAliasStatus").textContent="";
+      Equivalencias.renderIngredientAliases()
+    }catch(e){
+    }
+  }
   if(id==="bf_fruit"){
     frutaForma=state.fruta&&state.fruta.forma&&Armado.formaDeFrutaValida(state.fruta.forma)?state.fruta.forma:"Entera";
     Armado.renderFrutaFormas();Armado.marcarFrutas()
@@ -573,6 +584,7 @@ function back(){
 }
 // Deja el armado vacío (sin tocar pestañas ni pantallas).
 function restart(){
+  semanaFechada=null;
   Armado.limpiarArmado();
   // El Deshacer de la Semana no se pierde por volver al inicio: vale hasta el próximo cambio del plan.
   armadoDestino=null;

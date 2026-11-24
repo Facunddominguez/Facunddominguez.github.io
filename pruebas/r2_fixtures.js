@@ -29,7 +29,10 @@ window.R2 = (() => {
   const item = name => items().find(x => x.name === name);
   const renderedRows = () => [...document.querySelectorAll("#comprasList .shop-item label")].map(l => l.textContent);
   // Close then open a <details> panel in separate tasks so its "toggle" handler always runs.
-  const openPanel = async id => { const p = document.getElementById(id); p.open = false; await wait(15); p.open = true; await wait(50); return p };
+  // v19.8: Compras realizadas, Mis precios y Costo de una receta ya no son <details>: se abren con la herramienta de Compras.
+  // v19.9: también Presupuesto (R5-X-02) y "Ingredientes equivalentes" (R5-X-06) se ven directo; se dibujan al abrirlos.
+  const HERRAMIENTAS = { purchasesPanel: "realizadas", pricePanel: "precios", recipeCostPanel: "costoReceta", shoppingBudgetPanel: "presupuesto" };
+  const openPanel = async id => { const p = document.getElementById(id); if (p.tagName !== "DETAILS") { if (HERRAMIENTAS[id]) ComprasDespensa.abrirHerramientaCompras(HERRAMIENTAS[id]); else if (id === "ingredientAliasPanel") { document.getElementById("ingredientAliasStatus").textContent = ""; Equivalencias.renderIngredientAliases() } await wait(50); return p } p.open = false; await wait(15); p.open = true; await wait(50); return p };
   return { IDEA1, IDEA2, IDEA3, wait, results, reset, setAmounts, setRecipes, recipePlate, tradPlate, tradPlateTexto, setSaved, setPlan, setStock, criticalCase, items, item, renderedRows, openPanel };
 })();
 "fixtures listos";

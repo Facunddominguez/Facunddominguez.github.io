@@ -27,8 +27,9 @@
   T.ok("U5a presupuesto: 500 g a 2000 ARS/kg = 1000 ARS", /Costo parcial estimado: 1\.000,00 ARS/.test(document.getElementById("shoppingBudgetResult").textContent), document.getElementById("shoppingBudgetResult").textContent.slice(0, 90));
   const opt = document.querySelector("#budgetCompareResult select option:nth-child(2)");
   T.ok("U5b comparar alternativas muestra el precio convertido", !!opt && /2000\/1000 g · 1\.000,00/.test(opt.textContent) && /1\.000,00 ARS · 2000 por 1000 g/.test(opt.title), opt && opt.textContent);
-  await R.openPanel("shoppingQuantCostPanel");
-  T.ok("U5c 'Ajustar porciones' calcula el costo con precio en kg", /Subtotal estimado con referencias inequívocas: 1\.000,00 ARS/.test(document.getElementById("shoppingQuantCostResult").textContent));
+  // R5-K-12: lo que falta comprar se valoriza con el precio en kg (antes lo mostraba "Ajustar porciones").
+  const u5c = Existencias.estimadoDeLaLista(shoppingMissingRows(), "ARS");
+  T.ok("U5c lo que falta comprar se valoriza con el precio en kg", Math.abs(u5c.estimated - 1000) < 1e-6, JSON.stringify(u5c));
   await R.openPanel("recipeCostPanel");
   document.getElementById("recipeCostTitle").value = IDEA1; document.getElementById("recipeCostPortions").value = "1";
   document.getElementById("recipeCostPrepare").click(); await wait(20);
@@ -40,8 +41,9 @@
   T.ok("U7 recomendaciones: 1 kg cubre 500 g", score.complete, JSON.stringify(score));
   const agg = CantidadesCostos.aggregateQuantifiedRecipes([{ title: IDEA1, portions: 1 }], { [IDEA1]: { yield: 1, rows: [{ name: "Papa", quantity: 200, unit: "g" }, { name: "Papa", quantity: 1, unit: "kg" }] } });
   T.ok("U8 'Calcular compras por recetas' suma g y kg", agg.length === 1 && agg[0].unit === "g" && agg[0].quantity === 1200, JSON.stringify(agg));
-  setStock([["Papa", 300, "g"]]); go("compras"); await R.openPanel("shoppingQuantCostPanel");
-  T.ok("U9 'Ajustar porciones' descuenta despensa compatible", /Papa: 500 g · Disponible: 300 g · Falta comprar: 200 g/.test(document.getElementById("shoppingQuantCostResult").textContent), document.getElementById("shoppingQuantCostResult").textContent.slice(0, 200));
+  setStock([["Papa", 300, "g"]]); go("compras");
+  const filaPapa = shoppingMissingRows().find(r => r.name === "Papa");
+  T.ok("U9 lo que falta comprar descuenta despensa compatible (500 g, disponible 300 g, faltan 200 g)", !!filaPapa && filaPapa.quantity === 500 && filaPapa.available === 300 && filaPapa.missing === 200, JSON.stringify(filaPapa));
   T.ok("U10 los textos ya no prometen 'no convierte unidades'", !/No convierte unidades|Usá exactamente la misma unidad|Solo admite la misma unidad|sin convertir unidades ni/.test(document.getElementById("appMain").textContent));
   reset();
   return T;

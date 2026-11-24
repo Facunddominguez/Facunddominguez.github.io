@@ -55,8 +55,9 @@
   ok("R9 asignar platos al plan", loadPlan().lunes.almuerzo === plate.id && loadPlan().lunes.desayuno === bf.id);
   await asignar("lunes", "almuerzo", plate.id);
   ok("R10 Reemplazar sigue operativo", loadPlan().lunes.almuerzo === plate.id);
-  await herramienta("variaciones"); await click('[data-save-var]'); await quitar("lunes", "almuerzo"); await herramienta("variaciones");
-  const vs = document.getElementById("varSelect"); vs.value = "Var A"; vs.dispatchEvent(new Event("change", { bubbles: true })); await wait(100);
+  // Desde la v19.2 "Planes guardados" se guarda desde Semanas anteriores y mes y se usa con "Mis planes" en Semana.
+  await herramienta("semanas"); await click('[data-plan-guardar]'); await quitar("lunes", "almuerzo");
+  await click('#plan [data-planes-guardados]'); await click('.hoja [data-plan-usar="Var A"]'); await wait(100);
   ok("R11 variaciones independientes del plan actual", !!Semana.loadVars()["Var A"].lunes.almuerzo && loadPlan().lunes.almuerzo === plate.id);
   await herramienta("semanas"); await wait(50); await click('[data-dated-save]');
   await quitar("lunes", "almuerzo");
@@ -86,7 +87,7 @@
   await click("#recipeDetailsSave");
   const own = loadRecipeDetails(), rid = Object.keys(own)[0];
   ok("R18 crear receta propia", !!rid && own[rid].steps.length === 2);
-  await click("#recipeViewBrowse"); showRecipeRead(rid); await click("#recipeReadDuplicate");
+  showRecipeView("browse"); await wait(20); showRecipeRead(rid); await click("#recipeReadDuplicate");
   ok("R19 duplicar receta", Object.keys(loadRecipeDetails()).length === 2);
   // Theme + advice modal
   await click('[data-section-tab="mas"]');

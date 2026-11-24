@@ -1,5 +1,5 @@
 // Compuerta del modo autónomo del rediseño (docs/plan-rediseno.md, "Modo autónomo").
-// Uso: node herramientas/validar-etapa.mjs <N de 0 a 32> [--navegador <ruta>] [--actualizar-linea-base]
+// Uso: node herramientas/validar-etapa.mjs <N de 0 a 44> [--navegador <ruta>] [--actualizar-linea-base]
 // Controla, para la etapa N:
 //   1. index.html y sw.js al día con fuente/ (construir.mjs --verificar).
 //   2. Todas las pruebas en verde (probar.mjs, siempre todas las baterías) y su cantidad, total y por batería, no menor
@@ -25,7 +25,7 @@ import { fileURLToPath } from 'node:url';
 
 const RAIZ = resolve(fileURLToPath(new URL('../', import.meta.url)));
 const args = process.argv.slice(2), arg = n => { const i = args.indexOf(n); return i >= 0 ? args[i + 1] : null };
-if (!/^(3[0-2]|2[0-9]|1[0-9]|[0-9])$/.test(args[0] || '')) { console.error('Uso: node herramientas/validar-etapa.mjs <N de 0 a 32> [--navegador <ruta>] [--actualizar-linea-base]'); process.exit(2) }
+if (!/^(4[0-4]|3[0-9]|2[0-9]|1[0-9]|[0-9])$/.test(args[0] || '')) { console.error('Uso: node herramientas/validar-etapa.mjs <N de 0 a 44> [--navegador <ruta>] [--actualizar-linea-base]'); process.exit(2) }
 const N = Number(args[0]);
 const navegador = arg('--navegador') ? ['--navegador', arg('--navegador')] : [];
 const actualizar = args.includes('--actualizar-linea-base');
@@ -60,8 +60,8 @@ if (hayTag) {
   else control(!publicado || publicado === local, `El tag ${TAG} local es el publicado`, `local ${local.slice(0, 10)}, publicado ${publicado.slice(0, 10)}`);
 }
 // Rama rediseno: la local o, si no está, la publicada. Sin ninguna de las dos no se puede comparar.
-// Desde la Etapa 11 (Ronda 2) la rama de integración es rediseno-2; desde la 19 (Ronda 3), rediseno-3; desde la 25 (Ronda 4), rediseno-4.
-const candidatas = (N >= 25 ? ['rediseno-4', 'origin/rediseno-4'] : []).concat(N >= 19 ? ['rediseno-3', 'origin/rediseno-3'] : []).concat(N >= 11 ? ['rediseno-2', 'origin/rediseno-2'] : []).concat(['rediseno', 'origin/rediseno']);
+// Desde la Etapa 11 (Ronda 2) la rama de integración es rediseno-2; desde la 19 (Ronda 3), rediseno-3; desde la 25 (Ronda 4), rediseno-4; desde la 33 (Ronda 5), rediseno-5.
+const candidatas = (N >= 33 ? ['rediseno-5', 'origin/rediseno-5'] : []).concat(N >= 25 ? ['rediseno-4', 'origin/rediseno-4'] : []).concat(N >= 19 ? ['rediseno-3', 'origin/rediseno-3'] : []).concat(N >= 11 ? ['rediseno-2', 'origin/rediseno-2'] : []).concat(['rediseno', 'origin/rediseno']);
 const REDISENO = candidatas.find(r => existe(r.startsWith('origin/') ? 'refs/remotes/' + r : 'refs/heads/' + r)) || null;
 control(REDISENO, `Existe la rama de integración (${REDISENO})`, 'la compuerta compara contra rediseno: traela con git fetch');
 const criterios = JSON.parse(leer('docs/validacion/criterios.json'));
@@ -161,7 +161,10 @@ const seccionDelRegistro = nombre => {
 };
 const aplican = criterios.controles.filter(c => c.etapa <= N), despues = criterios.controles.filter(c => c.etapa > N);
 nota(`Controles de criterios.json para la Etapa ${N}: ${aplican.length} (${despues.length} aplican en etapas siguientes)`);
+// Ronda 5: un ítem que quedó en ⚠️ (con motivo y 2 opciones, lo controla controlar-lista-r5.mjs) no exige su prueba.
+const avisosR5 = new Set(existsSync(join(RAIZ, 'docs', 'ronda-5-lista.md')) ? leer('docs/ronda-5-lista.md').split('\n').filter(l => /^\| [A-Z]-\d+ \|.*\| ⚠️ \|$/.test(l)).map(l => 'R5-' + l.split('|')[1].trim()) : []);
 for (const c of aplican) {
+  if (c.tipo === 'prueba' && avisosR5.has(c.id)) { nota(`${c.id} (etapa ${c.etapa}): ⚠️ no hecho, con motivo en docs/ronda-5-lista.md`); continue }
   const titulo = `${c.id} (etapa ${c.etapa}): ${c.hecho}`;
   if (c.tipo === 'medida') {
     const partes = temas.map(t => { const x = valor(medidas && medidas.vistas[c.vista] && medidas.vistas[c.vista][c.estado] && medidas.vistas[c.vista][c.estado][t], c.metrica), u = umbral(c, c.vista, c.estado, t); return { t, x, u, ok: x !== null && u !== null && OPERADORES[c.operador] && OPERADORES[c.operador](x, u) } });

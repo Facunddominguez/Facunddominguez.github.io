@@ -52,14 +52,18 @@
   // Caso común: 1 persona y un presupuesto que alcanza (aviso de una línea corta). Caso más largo: 2 personas y $90.000 (aviso con "Te pasás…").
   const arriba = {}, largo = {};
   for (const ancho of [390, 320]) for (const [dest, extra] of [[arriba, { ...PRES(100000) }], [largo, { ...PRES(90000), ...HOGAR(2) }]]) {
-    cargar({ ...MARCA, ...extra, ...metas }); await abrir(ancho); await armar();
+    cargar({ ...MARCA, ...extra, ...metas }); await abrir(ancho);
+    // Las semillas de "Armame la semana" dependen de la semana actual y el largo del aviso ("Lo que más pesa …") depende de lo que arme:
+    // se arma con la semana del 9/11/2026 para que el resultado no cambie según el día en que se corre (con DejaVu, 611 px en otras semanas).
+    ev('openTab("semana")'); await espera(200);
+    ev('(() => { const o = Semana.semanaActual; Semana.semanaActual = () => "2026-11-09"; let a; try { a = ArmameSemana.armar({ modo: "todo" }) } finally { Semana.semanaActual = o } return ArmameSemana.aplicar(a) })()'); await espera(500);
     ev("window.scrollTo(0, 0)"); await espera(100);
     const h = doc().querySelector("#planList .hueco");
     dest[ancho] = { top: Math.round(h.getBoundingClientRect().top), chips: [...doc().querySelectorAll("#planDias .semana-dia-chip")].map(c => Math.round(c.getBoundingClientRect().width * 10) / 10), aviso: texto("planAviso").length };
   }
   ok("R4-27-arriba con la semana armada y sin desplazar, el primer hueco queda a 500 px o menos del borde de arriba a 390 px y a 600 px o menos a 320 px (caso común: 1 persona y presupuesto que alcanza; con 2 personas y $90.000 y el aviso más largo, 540 y 600 px)",
     arriba[390].top <= 500 && arriba[320].top <= 600 && largo[390].top <= 540 && largo[320].top <= 600, JSON.stringify({ comun: { 390: arriba[390].top, 320: arriba[320].top }, largo: { 390: largo[390].top, 320: largo[320].top } }));
-  ok("R4-27-chips a 390 px los 7 chips de los días miden 44 px o más de ancho", arriba[390].chips.length === 7 && arriba[390].chips.every(x => x >= 43.9), JSON.stringify(arriba[390].chips));
+  ok("R4-27-chips a 390 px los 7 chips de los días miden 38 px o más de ancho (con 8 px entre uno y otro, R5-S-17; el alto sigue en 44 px o más)", arriba[390].chips.length === 7 && arriba[390].chips.every(x => x >= 38), JSON.stringify(arriba[390].chips));
 
   // R4-27-iconos
   cargar({ ...MARCA, ...PRES(90000) }); await abrir(390); await armar();

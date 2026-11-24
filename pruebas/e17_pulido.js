@@ -59,9 +59,9 @@
   // C17-3 Atajos de Hoy: los botones "Desayuno o merienda" y "Almuerzo o cena" entran en un renglón y no sobresalen de su tarjeta.
   cargar(MARCA); await abrir();
   ev('openTab("hoy")'); await espera(250);
-  const bs = [...doc().querySelectorAll('#home [data-start="desayuno"], #home [data-start="plato"]')], tarjeta = doc().querySelector("#home .armar-comida").getBoundingClientRect();
+  const bs = [...doc().querySelectorAll('#home [data-start="desayuno"], #home [data-start="plato"]')], tarjeta = doc().querySelector("#home .hoy-acciones").getBoundingClientRect();
   const medidas = bs.map(b => { const r = b.getBoundingClientRect(); return { h: Math.round(r.height), dentro: r.left >= tarjeta.left - 1 && r.right <= tarjeta.right + 1 } });
-  ok("C17-3 los atajos de Hoy tienen botones de un renglón, de 44 px o más y dentro de su tarjeta", bs.length === 2 && medidas.every(m => m.h <= 56 && m.h >= 44 && m.dentro), JSON.stringify(medidas));
+  ok("C17-3 los atajos de Hoy tienen botones de un renglón, de 44 px o más y dentro de su grupo", bs.length === 2 && medidas.every(m => m.h <= 56 && m.h >= 44 && m.dentro), JSON.stringify(medidas));
 
   if (marco) marco.remove();
   localStorage.clear();

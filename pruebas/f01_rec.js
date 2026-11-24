@@ -7,7 +7,7 @@
   const rowsBox = () => $("recipeIngredientRows");
   const fill = (row, name, q, u) => { row.querySelector("[data-amount-name]").value = name; row.querySelector("[data-amount-quantity]").value = q; row.querySelector("[data-amount-unit]").value = u };
   go("ingredientes"); await wait(30);
-  $("recipeViewCreate").click(); await wait(20);
+  nuevaRecetaEnBlanco(); await wait(20);
   T.ok("E0 el formulario nuevo trae ingredientes, etiquetas, tiempo y reemplazos vacíos", rowsBox().children.length === 0 && $("recipeTags").value === "" && $("recipeMinutes").value === "" && $("recipeSubstitutions").value === "" && $("recipeYield").value === "1");
   $("recipeDetailsTitle").value = "Papas rústicas"; $("recipeDetailsSteps").value = "Cortar\nHornear";
   $("recipeIngredientAdd").click(); $("recipeIngredientAdd").click(); await wait(10);
@@ -25,16 +25,19 @@
   $("recipeMinutes").value = "30"; $("recipeSubstitutions").value = "Papa Batata"; $("recipeDetailsSave").click(); await wait(10); const m2 = $("recipeDetailsStatus").textContent;
   T.ok("E4 datos inválidos avisan y no guardan", /entre 1 y 1440/.test(m1) && /Ingrediente = Reemplazo/.test(m2) && localStorage.getItem("miPlatoFacil_recipeDetails_v1") === before, m1 + " / " + m2);
   $("recipeSubstitutions").value = "Papa = Batata";
-  // Catalog: tags searchable, time shown, time filter
-  showRecipeView("browse"); $("recipeCatalogSearch").value = "horno"; recipeCatalogPage = 0; renderRecipeCatalog();
-  const card = [...document.querySelectorAll("#recipeCatalogResults .recipe-catalog-card")].find(c => c.querySelector("strong").textContent === "Papas rústicas");
-  T.ok("E5a buscar por etiqueta encuentra la receta y muestra tiempo y etiquetas", !!card && /⏱ 30 min/.test(card.textContent) && [...card.querySelectorAll(".tag-chip")].map(x => x.textContent).join(",") === "rápido,horno");
-  $("recipeCatalogSearch").value = ""; $("recipeCatalogTime").value = "15"; $("recipeCatalogTime").dispatchEvent(new Event("change")); await wait(10);
-  const c15 = $("recipeCatalogCount").textContent;
-  $("recipeCatalogTime").value = "30"; $("recipeCatalogTime").dispatchEvent(new Event("change")); await wait(10);
-  const titles30 = [...document.querySelectorAll("#recipeCatalogResults strong")].map(s => s.textContent);
-  T.ok("E5b filtro por tiempo: 15 min la excluye, 30 min la incluye (las ideas sin tiempo no entran)", /^0 resultados/.test(c15) && titles30.length === 1 && titles30[0] === "Papas rústicas", c15 + " / " + titles30.join(","));
-  $("recipeCatalogTime").value = ""; renderRecipeCatalog();
+  // Búsqueda (Ronda 5): el método sale de los pasos y las etiquetas, el tiempo filtra ideas y recetas propias
+  const filtro = (grupo, v) => { const b = v === "" ? document.querySelector('#recipeDetailsPanel [data-buscar="' + grupo + '"].is-selected') : document.querySelector('#recipeDetailsPanel [data-buscar="' + grupo + '"][data-valor="' + v + '"]'); if (b) b.click() };
+  const tarjetas = () => [...document.querySelectorAll("#recipeCatalogResults .recipe-catalog-card")];
+  const nombres = () => tarjetas().map(c => c.querySelector("strong").textContent);
+  showRecipeView("browse"); filtro("metodo", "horno"); await wait(10);
+  const card = tarjetas().find(c => c.querySelector("strong").textContent === "Papas rústicas");
+  T.ok("E5a el filtro de método 'Horno' encuentra la receta (por sus pasos y etiquetas) y muestra el tiempo", !!card && /⏱ 30 min/.test(card.textContent) && /Mi receta/.test(card.textContent));
+  filtro("metodo", ""); filtro("tiempo", "15"); await wait(10);
+  const n15 = nombres(), min15 = tarjetas().map(c => (c.textContent.match(/⏱ (\d+) min/) || [])[1]).map(Number);
+  filtro("tiempo", "30"); await wait(10);
+  const n30 = nombres(), min30 = tarjetas().map(c => (c.textContent.match(/⏱ (\d+) min/) || [])[1]).map(Number);
+  T.ok("E5b filtro por tiempo: 15 min excluye la receta de 30 y solo deja ideas de hasta 15; 30 min la incluye", !n15.includes("Papas rústicas") && min15.length > 0 && min15.every(m => m > 0 && m <= 15) && n30.includes("Papas rústicas") && min30.every(m => m > 0 && m <= 30), n15.length + " / " + n30.length);
+  filtro("tiempo", ""); renderRecipeCatalog();
   // Read view with substitutions and pantry note
   R.setStock([["Batata", 500, "g"]]);
   showRecipeRead(r.id);
@@ -61,9 +64,9 @@
   $("recipeDetailsSave").click(); await wait(20);
   const bowl = Object.values(loadRecipeDetails()).find(x => x.title === "Bowl de quinoa + pollo grillado + brócoli y zanahoria");
   // Assign to plan: Compras uses the inline ingredients
-  document.getElementById("planRecipeReference").open = true; renderPlanRecipeReference();
-  $("planRecipeSelect").value = r.id; $("planRecipeDay").value = "lunes"; $("planRecipeSlot").value = "almuerzo"; assignSavedRecipeToPlan();
-  $("planRecipeSelect").value = bowl.id; $("planRecipeDay").value = "martes"; $("planRecipeSlot").value = "almuerzo"; assignSavedRecipeToPlan();
+  // Desde la v19.1 no existe "Asignar receta al plan actual" (R5-S-18): se asigna con la misma función que usa el selector de comida.
+  asignarRecetaAlPlan(r.id, "lunes", "almuerzo", true);
+  asignarRecetaAlPlan(bowl.id, "martes", "almuerzo", true);
   go("compras"); await wait(30);
   T.ok("E10 el plan usa los ingredientes cargados en la receta", R.renderedRows().includes("Papa: 400 g") && R.renderedRows().includes("Perejil") && R.renderedRows().includes("Quinoa"), R.renderedRows().join(" | "));
   // Backup validity and rejection of invalid new fields
@@ -81,7 +84,7 @@
   const BOWL = "Bowl de quinoa + pollo grillado + brócoli y zanahoria";
   const stored = loadRecipeAmounts(); stored[BOWL] = { yield: 2, rows: [{ name: "Quinoa", quantity: 100, unit: "g" }, { name: "Pollo", quantity: 200, unit: "g" }, { name: "Brócoli", quantity: 1, unit: "unidad" }, { name: "Zanahoria", quantity: 2, unit: "unidad" }] };
   localStorage.setItem("miPlatoFacil_recipeAmounts_v1", JSON.stringify(stored));
-  await R.openPanel("recipeAmountsPanel"); const sel = $("amountRecipe"); sel.value = BOWL; sel.dispatchEvent(new Event("change", { bubbles: true })); await wait(20);
+  alternarPanel($("amountsAbrir"), true); CantidadesCostos.abrirPanelDeCantidades(); await wait(50); const sel = $("amountRecipe"); sel.value = BOWL; sel.dispatchEvent(new Event("change", { bubbles: true })); await wait(20);
   T.ok("E14 'Mis cantidades por receta' carga todas las filas guardadas", document.querySelectorAll("#amountRows .amount-row").length === 4 && [...document.querySelectorAll("#amountRows [data-amount-name]")].map(i => i.value).join(",") === "Quinoa,Pollo,Brócoli,Zanahoria");
   window.__f01rec_storage = JSON.stringify(Object.fromEntries(Object.keys(localStorage).map(k => [k, localStorage.getItem(k)])));
   return T;

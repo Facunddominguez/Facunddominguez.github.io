@@ -95,11 +95,11 @@
   const cocinadoAntes = guardados().find(x => x.id === idPlato).cooked || 0;
   await tocar(q('#comidaPlatoAcciones [data-cook-saved="' + idPlato + '"]'));
   const prepHoy = JSON.parse(localStorage.getItem("miPlatoFacil_cookingHistory_v1") || "[]").filter(x => x.sourceId === idPlato && x.date === w.Rutina.localTrainingDate(new w.Date())).length === 1;
-  const cocinado = (guardados().find(x => x.id === idPlato).cooked || 0) === cocinadoAntes + 1 && /Cocinaste/.test($("comidaEstado").textContent) && prepHoy;
+  const cocinado = (guardados().find(x => x.id === idPlato).cooked || 0) === cocinadoAntes + 1 && /Comiste/.test($("comidaEstado").textContent) && prepHoy;
   const antesCompartir = todo(); let compartido = "";
   w.navigator.share = d => { compartido = d.text; return Promise.resolve() };
   await tocar(q("#comida [data-comida-compartir]"));
-  ok("C4-4b Lo cociné cuenta como antes y Compartir manda el texto sin escribir nada", cocinado && compartido.startsWith(ev("mealName(MisPlatos.loadSaved().find(x => x.id === " + JSON.stringify(idPlato) + "))")) && todo() === antesCompartir, compartido.slice(0, 40));
+  ok("C4-4b Lo comí (antes Lo cociné) cuenta como antes y Compartir manda el texto sin escribir nada", cocinado && compartido.startsWith(ev("mealName(MisPlatos.loadSaved().find(x => x.id === " + JSON.stringify(idPlato) + "))")) && todo() === antesCompartir, compartido.slice(0, 40));
   await tocar(q("#comida [data-comida-menu]")); await tocar(q('.hoja [data-del-saved="' + idPlato + '"]')); await espera(60);
   ok("C4-4c Eliminar (menú ⋯) borra solo ese plato y vuelve a Mis comidas", !guardados().some(x => x.id === idPlato) && pantalla() === "misplatos" && !hojaAbierta());
   cargar(conReceta()); await abrir(); await irA("miscomidas");
@@ -111,12 +111,12 @@
   ok("C4-4d una receta se agrega como 'Asignar receta al plan actual' (copia con sus ingredientes)", pantalla() === "comida" && !!copia && copia.recipeSourceId === "recipe_e4test1" && copia.recipeIngredients.join() === "Lentejas,Zanahoria" && copia.type === "plato");
   ev("hoja.cerrar()");
 
-  // C4-5 Formulario de receta en pantalla propia, con Ingredientes, Preparación y Más detalles plegables
+  // C4-5 Formulario de receta en pantalla propia, en pasos a la vista (Ronda 5, M-01): nombre obligatorio; ingredientes, preparación y más detalles opcionales
   cargar({ [MARCA]: '{"vista":true}' }); await abrir(); await irA("miscomidas");
   await tocar(q("#misplatos [data-comida-nueva]")); await tocar(q(".hoja [data-nueva-receta]"));
   const secciones = ["recetaSeccionIngredientes", "recetaSeccionPreparacion", "recetaSeccionMas"].map(id => doc().getElementById(id));
-  const formOk = pantalla() === "recetaEditar" && $("recetaEditarTitulo").textContent === "Nueva receta" && secciones.every(s => s && s.tagName === "DETAILS") && secciones[0].open && !secciones[1].open && !secciones[2].open && $("recetaEditar").contains($("recipeDetailsSave"));
-  $("recipeDetailsTitle").value = "Tarta de acelga"; secciones[1].open = true; $("recipeDetailsSteps").value = "Rehogar\nHornear";
+  const formOk = pantalla() === "recetaEditar" && $("recetaEditarTitulo").textContent === "Nueva receta" && secciones.every(s => s && s.tagName === "SECTION" && visible(s) && /Opcional/.test(s.textContent)) && /Obligatorio/.test($("recetaSeccionNombre").textContent) && $("recetaEditar").querySelectorAll("details").length === 0 && $("recetaEditar").contains($("recipeDetailsSave"));
+  $("recipeDetailsTitle").value = "Tarta de acelga"; $("recipeDetailsSteps").value = "Rehogar\nHornear";
   await tocar($("recipeDetailsSave"));
   const nueva = Object.values(recetas()).find(r => r.title === "Tarta de acelga");
   ok("C4-5 Escribir receta abre el formulario propio y guarda con el formato de siempre", formOk && !!nueva && nueva.steps.join("|") === "Rehogar|Hornear" && /^recipe_/.test(nueva.id), JSON.stringify(nueva || {}).slice(0, 80));
@@ -125,8 +125,13 @@
   const dos = Object.keys(recetas()).length === 2;
   ev("recipeDetailsEditing = " + JSON.stringify(nueva.id) + "; renderRecipeDetails()"); await tocar($("recipeDetailsDelete"));
   ok("C4-5b duplicar y eliminar funcionan igual desde Otras acciones", dos && Object.keys(recetas()).length === 1 && !recetas()[nueva.id]);
-  await irA("miscomidas"); await tocar(q("#misplatos [data-comida-nueva]")); await tocar(q(".hoja [data-pegar-receta]"));
-  ok("C4-5c Pegar receta con IA abre el formulario con el panel de IA abierto", pantalla() === "recetaEditar" && $("aiRecipePanel").open && visible($("aiRecipeText")));
+  await irA("miscomidas"); await tocar(q("#misplatos [data-comida-nueva]"));
+  const sinClave = !doc().querySelector(".hoja [data-pegar-receta]");
+  ev("hoja.cerrar()");
+  ev('localStorage.setItem("miPlatoFacil_aiSettings_v1", JSON.stringify({ key: "AIzaSyTEST_clave_de_prueba_1234567890", model: "gemini-3.5-flash" })); AsistenteIA.renderAllAiRunners()');
+  await tocar(q("#misplatos [data-comida-nueva]")); await tocar(q(".hoja [data-pegar-receta]"));
+  ok("C4-5c Pegar receta con IA solo existe con clave de Gemini y abre el formulario con el panel de IA a la vista", sinClave && pantalla() === "recetaEditar" && !$("aiRecipePanel").hidden && visible($("aiRecipeText")));
+  ev('localStorage.removeItem("miPlatoFacil_aiSettings_v1"); AsistenteIA.renderAllAiRunners()');
 
   // C4-6 Nutrientes: el detalle de la receta (por porción) y de cada ingrediente al tocarlo; Consultar nutrientes sigue
   cargar(conReceta({ [MARCA]: '{"vista":true}' })); await abrir(); await irA("miscomidas");
@@ -172,16 +177,16 @@
   const ver = (nombre, cond) => { if (!cond) faltan.push(nombre) };
   await irA("miscomidas"); await tocar(q('#misplatos [data-comidas-vista="ideas"]'));
   ver("Ideas", pantalla() === "ideas" && visible($("menuIdeas")));
-  $("recipeDetailsPanel").open = true; await espera(30);
-  ver("Buscar con filtros", visible($("recipeCatalogSearch")));
-  ver("Ver solo mis recetas", visible($("recipeCatalogOnlyMine")));
-  ver("Tamaño de página del catálogo", visible($("recipeCatalogPageSize")));
-  ver("Pedir ideas a la IA", visible($("aiIdeasPanel")));
+  await tocar(q("#recipeBuscarAbrir")); await espera(30);
+  ver("Buscar por tiempo y método", visible($("recipeCatalogTime")) && visible($("recipeCatalogMetodo")) && visible($("recipeCatalogPrecio")));
+  ver("Priorizar lo que tengo en la despensa", visible($("recipeRecommendPantry")));
+  ver("Pedir ideas a la IA solo con clave (sin clave no se ve)", !visible($("aiIdeasBoton")) && !visible($("aiIdeasPanel")));
   await irA("hoy"); await tocar(q("#home [data-con-lo-que-tengo]"));
   ver("Con lo que tengo", pantalla() === "ideas" && visible($("pantryResults")));
   await irA("compras"); await tocar(q("#compras [data-open-pantry]"));
   ver("Despensa", pantalla() === "ingredientes" && visible($("pantryChips")));
-  ver("Revisar qué tengo y qué falta", visible($("pantryReviewPanel")));
+  await tocar($("pantryReviewAbrir")); // R5-K-17: es un botón que muestra la revisión
+  ver("Revisar qué tengo y qué falta", visible($("pantryReviewAbrir")) && visible($("pantryReviewPanel")));
   await irA("mas"); await tocar(q("#backupOpen"));
   ver("Respaldo", pantalla() === "backupScreen" && visible($("backupExport")));
   ver("Exportar e importar comidas", visible(q("[data-export-plates]")) && visible(q("[data-import-plates]")));
@@ -195,12 +200,14 @@
   ver("Consultar nutrientes", visible($("nutritionLookupPanel")));
   await irA("miscomidas"); await tocar(q('.comida-card[data-recipe-id="recipe_e4test1"]'));
   ver("Calcular nutrientes", !!doc().querySelector("#comida .nutrition-box") && visible(doc().querySelector("#comida .nutrition-box")));
-  await tocar($("recipeReadEdit"));
+  await tocar($("recipeReadEdit")); await tocar($("amountsAbrir"));
   ver("Mis cantidades por receta", visible($("recipeAmountsPanel")));
-  await irA("semana"); await tocar(q("#plan [data-plan-menu]")); await tocar(q('.hoja [data-plan-herr="recetas"]'));
-  ver("Asignar receta al plan actual", visible($("planRecipeAssign")));
+  // Desde la v19.1 (R5-S-18 y S-19) las recetas se eligen en la sección "Mis recetas" del selector de comida.
+  await irA("semana"); ev('abrirSelector("lunes", "almuerzo")'); await espera(250);
+  ver("Asignar receta al plan actual", !!q('.hoja [data-selector-seccion="recetas"] [data-selector-receta="recipe_e4test1"]'));
+  ev("hoja.cerrar()"); await espera(100);
   ev("planSavedRecipe('recipe_e4test1')"); await espera(300);
-  ver("planSavedRecipe", pantalla() === "planHerramientas" && $("planRecipeSelect").value === "recipe_e4test1");
+  ver("planSavedRecipe", pantalla() === "plan" && !!q('.hoja [data-selector-receta="recipe_e4test1"]') && q("#selectorBuscar").value === "Guiso de lentejas");
   ok("C4-8 cada herramienta movida se abre desde su lugar nuevo", faltan.length === 0, faltan.join(", "));
 
   // C4-9 Con lo que tengo: Ideas filtrada por la despensa (cambia al marcar un ingrediente) y las ideas se tocan

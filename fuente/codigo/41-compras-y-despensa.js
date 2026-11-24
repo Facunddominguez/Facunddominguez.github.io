@@ -6,30 +6,35 @@
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como ComprasDespensa.nombre().
 var ComprasDespensa={
 abrirHerramientaCompras(nombre){
-  if(nombre!=="todas"&&!COMPRAS_HERRAMIENTAS[nombre])return;
+  if(!COMPRAS_HERRAMIENTAS[nombre])return;
   try{
     if(hoja.abierta())hoja.cerrar()
   }catch(e){
   }
   document.querySelectorAll("#comprasHerramientas [data-herr]").forEach(g=>{
-    g.hidden=nombre!=="todas"&&g.dataset.herr!==nombre
+    g.hidden=g.dataset.herr!==nombre
   });
-  document.getElementById("shoppingToolsPanel").open=true;
-  document.getElementById("comprasHerrTitulo").textContent=nombre==="todas"?"Herramientas de compras":COMPRAS_HERRAMIENTAS[nombre];
+  document.getElementById("comprasHerrTitulo").textContent=COMPRAS_HERRAMIENTAS[nombre];
   if(activeTab!=="compras")openTab("compras");
-  const paneles={
-    realizadas:["purchasesPanel"],presupuesto:["shoppingBudgetPanel"],precios:["pricePanel"],costoReceta:["recipeCostPanel"],otrasRecetas:["quantShoppingPanel","stockDeductionPanel"],existencias:["shoppingQuantCostPanel"]
-  };
-  const ids=nombre==="todas"?Object.values(paneles).flat():paneles[nombre]||[];
-  for(const id of ids){
-    const p=document.getElementById(id);
-    if(p&&!p.open)p.open=true
+  // v19.8 (R5-K-05, K-14): las herramientas se ven directo (sin desplegables); al abrirlas se dibuja su contenido.
+  if(nombre==="realizadas"){
+    const d=document.getElementById("purchaseDate");
+    if(!d.value)d.value=typedAppDateLabel(Rutina.localTrainingDate(new Date()));
+    ComprasHechas.renderPurchases();
+    ComprasHechas.renderPurchaseSum()
   }
+  if(nombre==="presupuesto"){
+    // v19.9 (R5-X-02): el presupuesto se ve directo; solo "Comparar alternativas de precio" sigue plegado.
+    shoppingBudgetRender();
+    budgetCompareRender()
+  }
+  if(nombre==="precios")CantidadesCostos.abrirPrecios();
+  if(nombre==="costoReceta")CantidadesCostos.refreshRecipeCostChoices();
   go("comprasHerramientas")
 },
 abrirMenuCompras(){
   const lista=ce("div","menu-semana");
-  for(const [nombre,texto] of Object.entries(COMPRAS_HERRAMIENTAS))lista.append(botonHoja(texto,"button--soft",{
+  for(const nombre of COMPRAS_MENU)lista.append(botonHoja(COMPRAS_HERRAMIENTAS[nombre],"button--soft",{
     comprasHerr:nombre
   }));
   hoja.abrir({
@@ -60,10 +65,13 @@ anotarGasto(){
   })
 }
 };
+// v19.8: el menú ⋯ de Compras tiene tres herramientas (K-10, K-11, K-12, K-13). "Presupuesto" no está en el menú: se abre
+// desde el renglón de arriba de la lista (comprasPresupuesto), que es donde ya se ve.
 var COMPRAS_HERRAMIENTAS={
-  realizadas:"Compras realizadas",presupuesto:"Presupuesto",precios:"Mis precios",costoReceta:"Costo de una receta",otrasRecetas:"Calcular para otras recetas",existencias:"Porciones, existencias y costos",compartir:"Compartir o copiar la lista"
+  realizadas:"Compras realizadas",presupuesto:"Presupuesto",precios:"Mis precios",costoReceta:"Costo de una receta"
 };
-// Abre una herramienta (o "todas", que usan las capturas para medir) en la pantalla comprasHerramientas.
+var COMPRAS_MENU=["realizadas","precios","costoReceta"];
+// Abre una herramienta en la pantalla comprasHerramientas.
 // "Anotar gasto" después de "Terminé de comprar": abre el formulario de siempre de Compras realizadas, ya cargado con
 // lo que acaba de pasar a la despensa. Los precios se guardan en Mis precios; la despensa no se vuelve a sumar.
 var ultimaCompraClaves=[],ultimaCompraCambios=[],ultimaCompraSinCantidad=[];
@@ -73,6 +81,14 @@ document.addEventListener("click",e=>{
   const d=b.dataset;
   if(d.comprasMenu!==undefined)return ComprasDespensa.abrirMenuCompras();
   if(d.comprasCompartir!==undefined)return Compras.shareCompras();
+  if(d.volverALista){
+    try{
+      Compras.devolverALaLista(d.volverALista)
+    }catch(err){
+      comprasStatus(err.message)
+    }
+    return renderCompras()
+  }
   if(d.comprasHerr)return ComprasDespensa.abrirHerramientaCompras(d.comprasHerr);
   if(d.comprasVista==="lista")return openTab("compras");
   if(d.comprasVista==="despensa"&&stack.at(-1)!=="ingredientes"){

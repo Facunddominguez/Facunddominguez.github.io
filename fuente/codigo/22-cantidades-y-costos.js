@@ -10,6 +10,17 @@ safeRecipeDetails(){
     }
   }
 },
+// "Mis cantidades por receta" ahora es un botón (data-abre-panel) que muestra el bloque; al abrirlo se prepara el formulario.
+abrirPanelDeCantidades(){
+  const sel=document.getElementById("amountRecipe");
+  CantidadesCostos.refreshAmountRecipeOptions();
+  if(sel.dataset.loadedTitle!==undefined&&sel.value!==sel.dataset.loadedTitle){
+    CantidadesCostos.renderRecipeAmountForm();sel.dataset.loadedTitle=sel.value
+  }
+  if(!document.getElementById("amountRows").children.length){
+    CantidadesCostos.renderRecipeAmountForm();sel.dataset.loadedTitle=sel.value
+  }
+},
 refreshAmountRecipeOptions(){
   const select=document.getElementById("amountRecipe"),previous=select.value,own=CantidadesCostos.safeRecipeDetails(),mine=ce("optgroup"),ideas=ce("optgroup");
   mine.label="Mis recetas";
@@ -110,41 +121,6 @@ aggregateQuantifiedRecipes(selections,recipes){
   }
   return Array.from(map.values()).sort((a,b)=>a.name.localeCompare(b.name)||a.unit.localeCompare(b.unit))
 },
-renderQuantifiedChoices(){
-  const box=document.getElementById("quantShoppingChoices"),recipes=loadRecipeAmounts(),ownRecipes=CantidadesCostos.safeRecipeDetails();
-  box.replaceChildren(...Object.keys(recipes).map((title,i)=>{
-    const row=ce("div","summary__line"),label=ce("label","shop-item"),check=ce("input");check.type="checkbox";check.dataset.quantRecipe=title;label.append(check,ce("span",null,amountsLabel(title,ownRecipes)));const qtyLabel=ce("label",null,"Porciones a preparar"),qty=ce("input");qty.type="text";qty.inputMode="decimal";qty.value=String(recipes[title].yield);qty.id="quantPortions_"+i;qty.dataset.quantPortions="";qtyLabel.htmlFor=qty.id;row.append(label,qtyLabel,qty);return row
-  }));
-  if(!Object.keys(recipes).length)box.append(ce("p","screen__hint","Primero cargá los ingredientes con cantidades de tus recetas (Comidas → tu receta → Editar receta)."));
-  document.getElementById("quantShoppingResult").replaceChildren();
-  document.getElementById("quantShoppingStatus").textContent=""
-},
-stockSelections(){
-  return Array.from(document.querySelectorAll("[data-quant-recipe]")).filter(x=>x.checked).map(x=>({
-    title:x.dataset.quantRecipe,portions:recipeAmountNumber(x.closest(".summary__line").querySelector("[data-quant-portions]").value,false)
-  }))
-},
-stockDeductionSignature(selections,recipes){
-  return JSON.stringify(selections.map(x=>({
-    title:x.title,portions:x.portions,recipe:recipes[x.title]
-  })))
-},
-parseAvailableStock(value){
-  const t=String(value).trim();
-  if(!t)return null;
-  if(!/^\d+(?:[.,]\d+)?$/.test(t))throw new Error("Ingresá existencias de cero o más, con coma o punto decimal.");
-  const n=Number(t.replace(",","."));
-  if(!Number.isFinite(n)||n<0||n>1000000)throw new Error("Existencia fuera de rango: usá entre 0 y 1.000.000.");
-  return n
-},
-deductStockRows(totals,available){
-  if(totals.length!==available.length)throw new Error("Reiniciá la revisión.");
-  return totals.map((row,i)=>{
-    const stock=available[i];if(stock!==null&&(!Number.isFinite(stock)||stock<0))throw new Error("Existencia inválida.");return {
-      ...row,stock,remaining:stock===null?null:Math.max(0,row.quantity-stock)
-    }
-  })
-},
 renderReferencePrices(){
   document.getElementById("priceList").replaceChildren(...Object.values(loadReferencePrices()).sort((a,b)=>b.date.localeCompare(a.date)).map(item=>{
     const row=ce("div","summary__line");row.append(ce("strong",null,item.name+(item.pack?" · "+item.pack:"")),ce("p","screen__hint",item.price.toLocaleString("es-AR",{
@@ -177,6 +153,59 @@ estimateRecipeCosts(rows,priceIds,prices,portions){
   return {
     totals,perPortion:Object.fromEntries(Object.entries(totals).map(([c,v])=>[c,v/portions])),missing,details,partial:missing.length>0
   }
+},
+// v19.8 (R5-K-14): "Mis precios" se ve directo; al abrirlo se dibujan el aviso de lo que falta, el historial y la lista.
+abrirPrecios(){
+  CantidadesCostos.renderReferencePrices();
+  CantidadesCostos.renderPriceMissing()
+},
+// v19.8 (R5-K-15): avisa qué ingredientes no tienen precio (los de la semana primero) y deja elegir uno de la lista o escribir uno propio.
+renderPriceMissing(){
+  const box=document.getElementById("priceMissing");
+  if(!box)return;
+  let faltan;
+  try{
+    faltan=ingredientesSinPrecio()
+  }catch(e){
+    faltan={semana:[],otros:[]}
+  }
+  const nodos=[];
+  const nombresTxt=l=>l.slice(0,6).join(", ")+(l.length>6?" y "+(l.length-6)+" más":"");
+  nodos.push(ce("p","screen__hint precios-faltan",faltan.semana.length?"Te faltan precios de "+faltan.semana.length+(faltan.semana.length===1?" ingrediente":" ingredientes")+" de tu semana: "+nombresTxt(faltan.semana)+".":"Todos los ingredientes de tu semana tienen precio."));
+  if(faltan.semana.length||faltan.otros.length){
+    const campo=ce("div","portion-field"),lab=ce("label",null,"Elegí un ingrediente sin precio"),sel=ce("select");
+    sel.id="priceMissingSelect";
+    lab.htmlFor=sel.id;
+    const vacio=ce("option",null,"Elegí uno de la lista…");
+    vacio.value="";
+    sel.append(vacio);
+    for(const [titulo,lista] of [["De tu semana",faltan.semana],["Otros ingredientes",faltan.otros]]){
+      if(!lista.length)continue;
+      const g=ce("optgroup");
+      g.label=titulo;
+      for(const n of lista){
+        const o=ce("option",null,n);
+        o.value=n;
+        g.append(o)
+      }
+      sel.append(g)
+    }
+    campo.append(lab,sel);
+    nodos.push(campo,ce("p","screen__hint","O escribí uno propio en el formulario de abajo."))
+  }
+  box.replaceChildren(...nodos)
+},
+// Al elegir un ingrediente de la lista, el formulario queda listo para su precio (con la unidad en que conviene cargarlo).
+elegirIngredienteSinPrecio(nombre){
+  if(!nombre)return;
+  const n=document.getElementById("priceName");
+  n.value=nombre;
+  try{
+    document.getElementById("priceUnit").value=unidadSugeridaFicha(nombre)
+  }catch(e){
+  }
+  document.getElementById("priceStatus").textContent="Cargá el contenido y el precio de "+nombre+".";
+  document.getElementById("priceAmount").focus()
 },
 refreshRecipeCostChoices(){
   const select=document.getElementById("recipeCostTitle");
@@ -322,15 +351,6 @@ document.getElementById("amountRecipe").addEventListener("change",()=>{
     document.getElementById("amountRecipe").value=document.getElementById("amountRecipe").dataset.loadedTitle;return
   }CantidadesCostos.renderRecipeAmountForm();document.getElementById("amountRecipe").dataset.loadedTitle=document.getElementById("amountRecipe").value
 });
-document.getElementById("recipeAmountsPanel").addEventListener("toggle",e=>{
-  if(e.target.open){
-    const sel=document.getElementById("amountRecipe");CantidadesCostos.refreshAmountRecipeOptions();if(sel.dataset.loadedTitle!==undefined&&sel.value!==sel.dataset.loadedTitle){
-      CantidadesCostos.renderRecipeAmountForm();sel.dataset.loadedTitle=sel.value
-    }
-  }if(e.target.open&&!document.getElementById("amountRows").children.length){
-    CantidadesCostos.renderRecipeAmountForm();document.getElementById("amountRecipe").dataset.loadedTitle=document.getElementById("amountRecipe").value
-  }
-});
 document.getElementById("amountAdd").addEventListener("click",()=>appendRecipeAmountRow({
 }));
 document.getElementById("amountSave").addEventListener("click",()=>{
@@ -349,69 +369,7 @@ document.getElementById("amountCalculate").addEventListener("click",()=>{
     document.getElementById("amountResult").replaceChildren();document.getElementById("amountStatus").textContent=e.message
   }
 });
-document.getElementById("quantShoppingPanel").addEventListener("toggle",e=>{
-  if(e.target.open)CantidadesCostos.renderQuantifiedChoices()
-});
-document.getElementById("quantShoppingCalculate").addEventListener("click",()=>{
-  const result=document.getElementById("quantShoppingResult"),status=document.getElementById("quantShoppingStatus");result.replaceChildren();try{
-    const selections=Array.from(document.querySelectorAll("[data-quant-recipe]")).filter(x=>x.checked).map(x=>({
-      title:x.dataset.quantRecipe,portions:recipeAmountNumber(x.closest(".summary__line").querySelector("[data-quant-portions]").value,false)
-    }));if(!selections.length)throw new Error("Seleccioná al menos una receta.");const totals=CantidadesCostos.aggregateQuantifiedRecipes(selections,loadRecipeAmounts());result.replaceChildren(...totals.map(x=>ce("p","shop-item",x.name+": "+(x.quantity>0?x.quantity.toLocaleString("es-AR",{
-      maximumSignificantDigits:12
-    })+" "+x.unit:"")+(x.unknown?(x.quantity>0?" + ":"")+"cantidad desconocida en "+x.unknown+" componente(s)":""))));status.textContent="Calculado con las cantidades guardadas. Los totales con cantidades desconocidas son parciales. Revisá posibles redondeos; no incluye productos extra ni la lista del plan."
-  }catch(e){
-    status.textContent=e.message||"No se pudo calcular."
-  }
-});
-document.getElementById("quantShoppingChoices").addEventListener("input",()=>{
-  document.getElementById("quantShoppingResult").replaceChildren();document.getElementById("quantShoppingStatus").textContent="Selección modificada. Volvé a calcular."
-});
-document.getElementById("quantShoppingChoices").addEventListener("change",()=>{
-  document.getElementById("quantShoppingResult").replaceChildren();document.getElementById("quantShoppingStatus").textContent="Selección modificada. Volvé a calcular."
-});
-let stockDeductionSnapshot=null;
-function invalidateStockDeduction(){
-  stockDeductionSnapshot=null;
-  document.getElementById("stockRows").replaceChildren();
-  document.getElementById("stockResult").replaceChildren();
-  document.getElementById("stockCalculate").disabled=true;
-  document.getElementById("stockDeductionStatus").textContent="La selección cambió. Prepará nuevamente la revisión de existencias."
-}
-document.getElementById("stockPrepare").addEventListener("click",()=>{
-  try{
-    const selections=CantidadesCostos.stockSelections(),recipes=loadRecipeAmounts();if(!selections.length)throw new Error("Marcá al menos una receta y sus porciones en Calcular compras por recetas.");const totals=CantidadesCostos.aggregateQuantifiedRecipes(selections,recipes);stockDeductionSnapshot={
-      totals,signature:CantidadesCostos.stockDeductionSignature(selections,recipes)
-    };document.getElementById("stockRows").replaceChildren(...totals.map((row,i)=>{
-      const block=ce("div","summary__line"),label=ce("label",null,row.name+" · "+row.unit),input=ce("input");input.id="stockAvailable_"+i;label.htmlFor=input.id;input.type="text";input.inputMode="decimal";input.placeholder="Sin confirmar";input.dataset.stockAvailable=String(i);block.append(ce("p","screen__hint","Necesario conocido: "+row.quantity.toLocaleString("es-AR",{
-        maximumSignificantDigits:12
-      })+" "+row.unit+(row.unknown?" + cantidades desconocidas":"")),label,input);return block
-    }));document.getElementById("stockResult").replaceChildren();document.getElementById("stockCalculate").disabled=false;document.getElementById("stockDeductionStatus").textContent="Escribí 0 si no tenés existencias. Vacío significa sin confirmar."
-  }catch(e){
-    invalidateStockDeduction();document.getElementById("stockDeductionStatus").textContent=e.message
-  }
-});
-document.getElementById("stockCalculate").addEventListener("click",()=>{
-  const result=document.getElementById("stockResult");result.replaceChildren();try{
-    if(!stockDeductionSnapshot)throw new Error("Prepará primero la revisión.");if(stockDeductionSnapshot.signature!==CantidadesCostos.stockDeductionSignature(CantidadesCostos.stockSelections(),loadRecipeAmounts())){
-      invalidateStockDeduction();throw new Error("Las recetas o porciones cambiaron. Prepará nuevamente la revisión.")
-    }const available=Array.from(document.querySelectorAll("[data-stock-available]")).map(x=>CantidadesCostos.parseAvailableStock(x.value)),rows=CantidadesCostos.deductStockRows(stockDeductionSnapshot.totals,available);result.replaceChildren(...rows.map(row=>{
-      let text=row.name+": ";if(row.remaining===null)text+="existencias sin confirmar";else if(row.unknown)text+="faltante mínimo conocido: "+row.remaining.toLocaleString("es-AR",{
-        maximumSignificantDigits:12
-      })+" "+row.unit+"; total pendiente de cantidades desconocidas";else text+=row.remaining===0?"cubierto para la cantidad calculada":"falta "+row.remaining.toLocaleString("es-AR",{
-        maximumSignificantDigits:12
-      })+" "+row.unit;if(row.remaining===null&&row.unknown)text+="; también hay cantidades necesarias desconocidas";return ce("p","shop-item",text)
-    }));document.getElementById("stockDeductionStatus").textContent="Simulación calculada. No se descontaron existencias guardadas ni se modificaron otras listas."
-  }catch(e){
-    document.getElementById("stockDeductionStatus").textContent=e.message
-  }
-});
-document.getElementById("stockRows").addEventListener("input",()=>{
-  document.getElementById("stockResult").replaceChildren();document.getElementById("stockDeductionStatus").textContent="Existencias modificadas. Volvé a calcular."
-});
-for(const type of ["input","change"])document.getElementById("quantShoppingChoices").addEventListener(type,invalidateStockDeduction);
-document.getElementById("quantShoppingPanel").addEventListener("toggle",e=>{
-  if(e.target.open)invalidateStockDeduction()
-});
+// v19.8 (R5-K-13): "Calcular para otras recetas" y "Descontar lo que ya tengo" (que dependía de su selección) se eliminaron.
 const REFERENCE_PRICES_KEY="miPlatoFacil_referencePrices_v1";
 let referencePriceEditing=null;
 function validReferencePrices(o){
@@ -437,17 +395,17 @@ document.getElementById("priceUnit").replaceChildren(...RECIPE_AMOUNT_UNITS.map(
   const op=ce("option",null,u);op.value=u;return op
 }));
 resetReferencePriceForm();
-document.getElementById("pricePanel").addEventListener("toggle",e=>{
-  if(e.target.open)CantidadesCostos.renderReferencePrices()
-});
 document.getElementById("priceCancel").addEventListener("click",resetReferencePriceForm);
+document.getElementById("priceMissing").addEventListener("change",e=>{
+  if(e.target.id==="priceMissingSelect")CantidadesCostos.elegirIngredienteSinPrecio(e.target.value)
+});
 document.getElementById("priceForm").addEventListener("submit",e=>{
   e.preventDefault();try{
     const id=referencePriceEditing||Date.now().toString(36)+"_"+Math.random().toString(36).slice(2),item={
       id,name:document.getElementById("priceName").value.trim(),pack:document.getElementById("pricePack").value.trim(),amount:recipeAmountNumber(document.getElementById("priceAmount").value,false),price:recipeAmountNumber(document.getElementById("priceValue").value,false),currency:document.getElementById("priceCurrency").value.trim().toUpperCase(),unit:document.getElementById("priceUnit").value,date:SemanasFechadas.parseTypedAppDate(document.getElementById("priceDate").value)
     };if(!validReferencePrices({
       [id]:item
-    })||item.date>Rutina.localTrainingDate(new Date()))throw new Error("Revisá nombre, moneda de 3 letras y fecha no futura.");const all=loadReferencePrices();if(referencePriceEditing&&!all[id])throw new Error("La referencia ya no existe. Limpiá el formulario.");all[id]=item;localStorage.setItem(REFERENCE_PRICES_KEY,JSON.stringify(all));resetReferencePriceForm();CantidadesCostos.renderReferencePrices();document.getElementById("priceStatus").textContent="Referencia guardada. No se modificaron recetas, compras ni planes."
+    })||item.date>Rutina.localTrainingDate(new Date()))throw new Error("Revisá nombre, moneda de 3 letras y fecha no futura.");const all=loadReferencePrices();if(referencePriceEditing&&!all[id])throw new Error("La referencia ya no existe. Limpiá el formulario.");all[id]=item;localStorage.setItem(REFERENCE_PRICES_KEY,JSON.stringify(all));resetReferencePriceForm();CantidadesCostos.abrirPrecios();document.getElementById("priceStatus").textContent="Referencia guardada. No se modificaron recetas, compras ni planes."
   }catch(err){
     document.getElementById("priceStatus").textContent=err.message||"No se pudo guardar."
   }
@@ -457,7 +415,7 @@ document.getElementById("priceList").addEventListener("click",e=>{
     const x=all[b.dataset.referencePriceEdit];if(!x)return;referencePriceEditing=x.id;for(const [id,value] of [["priceName",x.name],["pricePack",x.pack],["priceAmount",x.amount],["priceValue",x.price],["priceCurrency",x.currency],["priceDate",typedAppDateLabel(x.date)],["priceUnit",x.unit]])document.getElementById(id).value=value;document.getElementById("priceName").focus();document.getElementById("priceStatus").textContent="Editando referencia. Guardá los cambios o limpiá el formulario."
   }if(b.dataset.referencePriceDelete&&window.confirm("¿Eliminar solo esta referencia de precio?")){
     try{
-      delete all[b.dataset.referencePriceDelete];localStorage.setItem(REFERENCE_PRICES_KEY,JSON.stringify(all));if(referencePriceEditing===b.dataset.referencePriceDelete)resetReferencePriceForm();CantidadesCostos.renderReferencePrices()
+      delete all[b.dataset.referencePriceDelete];localStorage.setItem(REFERENCE_PRICES_KEY,JSON.stringify(all));if(referencePriceEditing===b.dataset.referencePriceDelete)resetReferencePriceForm();CantidadesCostos.abrirPrecios()
     }catch(err){
       document.getElementById("priceStatus").textContent="No se pudo eliminar."
     }
@@ -471,9 +429,6 @@ function invalidateRecipeCost(){
   document.getElementById("recipeCostCalculate").disabled=true;
   document.getElementById("recipeCostStatus").textContent="Elegí nuevamente los precios si cambiaste receta o porciones."
 }
-document.getElementById("recipeCostPanel").addEventListener("toggle",e=>{
-  if(e.target.open)CantidadesCostos.refreshRecipeCostChoices()
-});
 document.getElementById("recipeCostTitle").addEventListener("change",invalidateRecipeCost);
 document.getElementById("recipeCostPortions").addEventListener("input",invalidateRecipeCost);
 document.getElementById("recipeCostPrepare").addEventListener("click",()=>{

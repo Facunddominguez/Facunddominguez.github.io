@@ -22,16 +22,7 @@ elegirEnSelector(asignar){
 sugerirEnSelector(){
   const h=huecoAbierto;
   if(!h||h.modo!=="selector")return;
-  if(slotPool(h.slot)==="desayuno"){
-    // Desayuno o merienda: arma una combinación al azar; al guardarla se asigna a este hueco.
-    huecoAbierto=null;
-    hoja.cerrar();
-    AlAzar.randomMeal("desayuno");
-    armadoDestino={
-      dia:h.dia,slot:h.slot,tab:activeTab
-    };
-    return
-  }
+  // v19.4 (R5-C-02): en el selector de comida, desayuno y merienda sugieren una idea, igual que almuerzo y cena (para armar una comida está "＋ Armar nueva").
   const s=elegirSugerencia(h.slot,Math.random,diaDelHueco(h));
   h.sug.hidden=false;
   h.sug.replaceChildren();
@@ -72,24 +63,45 @@ verSugerencia(){
   shareStatus("¿Qué tal esta? Podés cambiarla o guardarla.")
 },
 abrirMenuSemana(){
+  // v19.1: "Compartir la semana" (texto, imagen y HTML) va anteúltimo y "Empezar de nuevo", último; sin Historial, Descargar ni Buscar en mis recetas.
   const lista=ce("div","menu-semana");
   lista.append(botonHoja(Semana.viendoProxima()?"Repetir esta semana":"Repetir semana anterior","button--soft",{
     planRepetirAnterior:""
   }),botonHoja("Copiar un día","button--soft",{
     planCopiarDia:""
+  }));
+  for(const [nombre,texto] of [["semanas","Semanas anteriores y mes"],["consumo","Registro y objetivos"]])lista.append(botonHoja(texto,"button--soft",{
+    planHerr:nombre
+  }));
+  lista.append(botonHoja("Recordarme armar la semana","button--soft",{
+    recordatorioMenu:""
   }),botonHoja("Compartir la semana","button--soft",{
     compartirSemanaMenu:""
-  }),botonHoja("Recordarme armar la semana","button--soft",{
-    recordatorioMenu:""
   }),botonHoja("Empezar de nuevo","button--danger",{
     clearPlan:""
-  }));
-  for(const [nombre,texto] of [["variaciones","Planes guardados"],["semanas","Semanas anteriores y mes"],["historial","Historial de cambios"],["descargar","Descargar"],["recetas","Buscar en mis recetas"],["consumo","Registro y objetivos"]])lista.append(botonHoja(texto,"button--soft",{
-    planHerr:nombre
   }));
   huecoAbierto=null;
   hoja.abrir({
     titulo:"Más opciones de la semana",contenido:[lista],botones:[],foco:false
+  })
+},
+// v19.1: elegir un plan guardado desde la Semana y aplicarlo a la semana que se ve (con Deshacer en el aviso de Semana).
+abrirPlanesGuardados(){
+  const nombres=Object.keys(Semana.loadVars()).sort((x,y)=>x.localeCompare(y,"es")),lista=ce("div","menu-semana");
+  if(!nombres.length)lista.append(ce("p","screen__hint","Todavía no guardaste planes. Guardalos desde Semanas anteriores y mes."));
+  for(const n of nombres){
+    const fila=ce("div","plan-guardado-fila");
+    fila.append(botonHoja(n,"button--soft",{
+      planUsar:n
+    }),botonHoja("Borrar","button--danger",{
+      planBorrar:n
+    }));
+    lista.append(fila)
+  }
+  huecoAbierto=null;
+  const destino=semanaFechada?"la copia de la semana del "+typedAppDateLabel(semanaFechada).slice(0,5):Semana.viendoProxima()?"la semana que viene":"esta semana";
+  hoja.abrir({
+    titulo:"Usar un plan guardado",contenido:[ce("p","screen__hint","Se aplica a "+destino+(semanaFechada?".":". Si no te gusta, lo deshacés.")),lista],botones:[],foco:false
   })
 },
 lunesAnterior(){
@@ -162,7 +174,7 @@ function rendimientoDeReceta(rid){
 }
 // Hueco lleno: Cambiar, Quitar, Porciones (recetas) y Lo comí (solo hoy).
 function abrirHueco(dia,slot){
-  const id=(loadPlan()[dia]||{})[slot]||null,it=id?MisPlatos.loadSaved().find(p=>p.id===id):null;
+  const id=(loadPlan()[dia]||{})[slot]||null,it=id?Semana.guardadosActivos().find(p=>p.id===id):null;
   if(!it)return abrirSelector(dia,slot);
   const pk=dia+"|"+slot,caja=ce("div","hueco-hoja"),h={
     dia,slot,id,modo:"lleno",caja,item:it
@@ -171,7 +183,7 @@ function abrirHueco(dia,slot){
   const lineas=savedItemLines(it).join(" · ");
   if(lineas)caja.append(ce("p","screen__hint",lineas));
   // Las porciones se cargan para esta semana (Compras las usa); en la semana que viene no se muestran.
-  if(it.recipeSourceId&&!Semana.viendoProxima()){
+  if(it.recipeSourceId&&!Semana.viendoProxima()&&!semanaFechada){
     const campo=ce("div","portion-field"),label=ce("label",null,"Porciones"),inp=ce("input"),map=Semana.loadPlanPortions(),rinde=rendimientoDeReceta(it.recipeSourceId);
     inp.type="text";
     inp.inputMode="decimal";
@@ -186,7 +198,7 @@ function abrirHueco(dia,slot){
     caja.append(campo,h.porciones)
   }
   const acciones=ce("div","hueco-hoja__acciones");
-  if(dia===todayPlanDay()&&!Semana.viendoProxima()){
+  if(dia===todayPlanDay()&&!Semana.viendoProxima()&&!semanaFechada){
     h.loComi=botonHoja("Lo comí hoy","button--primary",{
       planEaten:pk
     });
@@ -197,7 +209,7 @@ function abrirHueco(dia,slot){
     let idea=null;
     try{idea=IdeasHoja.ideaDeComida(it)}catch(e){}
     const hayPasos=!!(idea&&Array.isArray(idea.pasos)&&idea.pasos.length);
-    acciones.append(botonHoja(hayPasos?"Ver receta"+(idea.minutos?" · "+idea.minutos+" min":""):"Ver ingredientes","button--soft",{
+    if(MisPlatos.loadSaved().some(p=>p.id===it.id))acciones.append(botonHoja(hayPasos?"Ver receta"+(idea.minutos?" · "+idea.minutos+" min":""):"Ver ingredientes","button--soft",{
       huecoReceta:it.id
     }))
   }
@@ -272,18 +284,32 @@ function recetasSinCopia(items){
 function seccionesSelector(h,q){
   const pool=slotPool(h.slot),items=MisPlatos.loadSaved().filter(p=>p&&p.type===pool),labels=mealLabels(items),n=normalizeSearchText(String(q||"").trim());
   const nombre=it=>labels.get(it.id)||nombreCortoDeComida(it),coincide=t=>!n||normalizeSearchText(t).includes(n);
+  // v19.4 (R5-C-04): una comida guardada que no cumple la dieta (o lo que evitás) se ve apagada y dice por qué; sigue a un toque por si querés usarla igual.
+  const motivoDe=it=>{
+    try{return dietaMotivo(mealName(it)+" "+Semana.extractIngredients(it).join(" "))}catch(e){return ""}
+  };
   const fila=it=>{
-    const b=ce("button","selector-item"+(it.id===h.id?" is-actual":""));b.type="button";b.dataset.selectorId=it.id;b.append(ce("span","selector-item__nombre",Semana.planPlateLabel(it,nombre(it))));const d=savedItemLines(it).join(" · ");if(d)b.append(ce("span","selector-item__detalle",d));if(it.id===h.id)b.setAttribute("aria-current","true");return b
+    const motivo=motivoDe(it),b=ce("button","selector-item"+(it.id===h.id?" is-actual":"")+(motivo?" is-apagado":""));b.type="button";b.dataset.selectorId=it.id;b.append(ce("span","selector-item__nombre",Semana.planPlateLabel(it,nombre(it))));
+    if(motivo){b.append(ce("span","selector-item__motivo",motivo));b.setAttribute("aria-label",nombre(it)+". "+motivo)}const d=savedItemLines(it).join(" · ");if(d)b.append(ce("span","selector-item__detalle",d));if(it.id===h.id)b.setAttribute("aria-current","true");return b
   };
   const seccion=(titulo,clave,filas,vacio)=>{
     const s=ce("section","selector-seccion");s.dataset.selectorSeccion=clave;s.append(ce("h3","selector-seccion__titulo",titulo));if(filas.length)s.append(...filas);else s.append(ce("p","screen__hint",vacio));return s
   };
   const out=[];
   if(!n&&items.length>4)out.push(seccion("Recientes","recientes",recientesDelTipo(items).map(fila),""));
-  const mias=items.filter(it=>coincide(nombre(it)+" "+savedItemLines(it).join(" "))).sort((a,b)=>(b.fav?1:0)-(a.fav?1:0)),recetas=recetasSinCopia(items).filter(r=>coincide(r.title)).map(r=>{
-    const b=ce("button","selector-item");b.type="button";b.dataset.selectorReceta=r.id;b.append(ce("span","selector-item__nombre","📖 "+r.title));return b
-  });
-  out.push(seccion("Mis comidas","mias",[...mias.map(fila),...recetas],n?"Ninguna de tus comidas coincide.":"Todavía no guardaste comidas de este tipo: armá una nueva."));
+  // v19.1 (S-19): "Mis recetas" es una sección más (junto a Recientes, Mis comidas e Ideas): las recetas que ya tienen copia para este tipo de comida y las que todavía no.
+  const orden=(a,b)=>(b.fav?1:0)-(a.fav?1:0),coincideItem=it=>coincide(nombre(it)+" "+savedItemLines(it).join(" ")),
+    mias=items.filter(it=>!it.recipeSourceId&&coincideItem(it)).sort(orden),
+    conCopia=items.filter(it=>it.recipeSourceId&&coincideItem(it)).sort(orden),
+    recetasNuevas=recetasSinCopia(items).filter(r=>coincide(r.title)).map(r=>{
+      let motivo="";
+      try{motivo=dietaMotivo(r.title+" "+loadRecipeAmounts()[r.amountsTitle].rows.map(x=>x.name).join(" "))}catch(e){}
+      const b=ce("button","selector-item"+(motivo?" is-apagado":""));b.type="button";b.dataset.selectorReceta=r.id;b.append(ce("span","selector-item__nombre","📖 "+r.title));
+      if(motivo)b.append(ce("span","selector-item__motivo",motivo));
+      return b
+    });
+  out.push(seccion("Mis comidas","mias",mias.map(fila),n?"Ninguna de tus comidas coincide.":"Todavía no guardaste comidas de este tipo: armá una nueva."));
+  if(conCopia.length||recetasNuevas.length)out.push(seccion("Mis recetas","recetas",[...conCopia.map(fila),...recetasNuevas],""));
   // Etapa 29: al elegir desayuno o merienda, también las ideas de desayuno (con sus cantidades y pasos).
   if(pool==="desayuno"){
     const yaEstan=new Set(items.map(it=>normalizeSearchText(mealName(it))));
@@ -318,9 +344,11 @@ function abrirSelector(dia,slot){
   buscar.placeholder="Buscar en tus comidas e ideas";
   buscar.autocomplete="off";
   buscar.setAttribute("aria-label","Buscar comida");
-  acciones.append(botonHoja("＋ Armar nueva","button--soft",{
+  // Con una copia fechada abierta, "Armar nueva" y el Sugerime de desayuno terminarían escribiendo en el plan de esta semana: no se ofrecen.
+  if(!semanaFechada)acciones.append(botonHoja("＋ Armar nueva","button--soft",{
     start:pool,startDay:dia,startSlot:slot
-  }),botonHoja("🎲 Sugerime","button--soft",{
+  }));
+  acciones.append(botonHoja("🎲 Sugerime","button--soft",{
     selectorSugerir:""
   }));
   sug.hidden=true;
@@ -384,10 +412,8 @@ function abrirSugerime(slot){
     const b=ce("button","filter-chip",Semana.planSlotName(c));b.type="button";b.dataset.sugerimeComida=c;b.setAttribute("aria-pressed",String(c===slot));chips.append(b)
   }
   sug.setAttribute("aria-live","polite");
-  otras.append(botonHoja("🎲 Al azar","button--soft",{
-    openAzar:""
-  }));
-  caja.append(chips,sug,otras);
+  // v19.5 (R5-H-03): sin el botón interno "Al azar" (hacía lo mismo que "Otra").
+  caja.append(chips,sug);
   const h={
     dia,slot,modo:"selector",caja,sug,id:(loadPlan()[dia]||{})[slot]||null,sugerime:true
   };
@@ -400,15 +426,7 @@ function abrirSugerime(slot){
 function proponerEnSugerime(h,primera){
   h.sug.replaceChildren();
   const fila=ce("div","selector__acciones");
-  if(slotPool(h.slot)==="desayuno"){
-    h.sugerencia=null;
-    h.sug.append(ce("p","selector__propuesta","Te armo "+(h.slot==="merienda"?"una merienda":"un desayuno")+" con fruta, proteína y cereal."));
-    fila.append(botonHoja("Armalo","button--primary",{
-      selectorSugerir:""
-    }));
-    h.sug.append(fila);
-    return
-  }
+  // v19.5 (R5-H-04): desayuno y merienda sugieren directo un plato, con las mismas 3 opciones que almuerzo y cena.
   const s=primera?AlAzar.sugerenciaDelDia(h.slot):elegirSugerencia(h.slot,Math.random,diaDelHueco(h));
   h.sugerencia=s;
   if(!s){
@@ -429,7 +447,7 @@ function proponerEnSugerime(h,primera){
 // Herramientas de la Semana: una pantalla que muestra solo la elegida (los paneles de siempre, con sus datos).
 function abrirHerramientaPlan(nombre){
   const titulos={
-    variaciones:"Planes guardados",semanas:"Semanas anteriores y mes",historial:"Historial de cambios",descargar:"Descargar",recetas:"Buscar en mis recetas",consumo:"Registro y objetivos"
+    semanas:"Semanas anteriores y mes",consumo:"Registro y objetivos"
   };
   if(!titulos[nombre])return;
   // v15.5: "Lo que comí" vive en el Registro (un solo lugar para lo registrado).
@@ -446,21 +464,10 @@ function abrirHerramientaPlan(nombre){
   });
   document.getElementById("planHerrTitulo").textContent=titulos[nombre];
   if(activeTab!=="semana")openTab("semana");
-  const abrirPanel=id=>{
-    const p=document.getElementById(id);if(p&&!p.open){
-      p.open=true;return true
-    }return false
-  };
-  if(nombre==="variaciones")Semana.refreshVarSelect();
   if(nombre==="semanas"){
-    abrirPanel("monthlyPlanPanel");abrirPanel("datedWeeksPanel");renderMonthlyPlan();renderDatedWeek()
-  }
-  if(nombre==="historial"){
-    abrirPanel("planHistoryPanel");Semana.renderPlanHistory()
-  }
-  if(nombre==="descargar")document.querySelector('#planHerramientas [data-herr="descargar"] details').open=true;
-  if(nombre==="recetas"){
-    abrirPanel("planRecipeReference");renderPlanRecipeReference()
+    // v19.2: todo a la vista; arranca en la última semana con copia (hasta esta) o, si no hay, en esta.
+    const hoyLunes=lunesDe(Rutina.localTrainingDate(new Date())),conCopia=Object.keys(loadDatedWeeks()).filter(k=>k<=hoyLunes).sort();
+    elegirSemanaFechada(conCopia.length?conCopia.at(-1):hoyLunes)
   }
   go("planHerramientas")
 }
@@ -502,11 +509,14 @@ document.addEventListener("click",e=>{
   if(d.planMenu!==undefined)return Selector.abrirMenuSemana();
   if(d.compartirSemanaMenu!==undefined){
     const l=ce("div","menu-semana");
-    l.append(botonHoja("Como texto","button--soft",{compartirSemana:"texto"}),botonHoja("Como imagen","button--soft",{compartirSemana:"imagen"}));
+    l.append(botonHoja("Como texto","button--soft",{compartirSemana:"texto"}),botonHoja("Como imagen","button--soft",{compartirSemana:"imagen"}),botonHoja("Descargar HTML","button--soft",{compartirSemana:"html"}));
     hoja.abrir({titulo:"Compartir la semana",contenido:[l],botones:[],foco:false});
     return
   }
-  if(d.compartirSemana){hoja.cerrar();Compartir.compartirSemana(d.compartirSemana);return}
+  if(d.compartirSemana){hoja.cerrar();if(d.compartirSemana==="html")SemanasFechadas.downloadWeeklyPlan();else Compartir.compartirSemana(d.compartirSemana);return}
+  if(d.planesGuardados!==undefined)return Selector.abrirPlanesGuardados();
+  if(d.planUsar){hoja.cerrar();return Semana.usarPlanGuardado(d.planUsar)}
+  if(d.planBorrar){if(Semana.deleteVariation(d.planBorrar)){Selector.abrirPlanesGuardados();if(typeof renderDatedWeek==="function")renderDatedWeek();const pl=document.querySelector("#plan [data-planes-guardados]");if(pl)pl.hidden=!Object.keys(Semana.loadVars()).length}return}
   if(d.recordatorioMenu!==undefined){
     const c=ce("div","recordatorio"),dia=ce("select"),hora=ce("input"),ok=botonHoja("Agregar al calendario","button--primary",{recordatorioAgregar:""});
     dia.id="recordatorioDia";

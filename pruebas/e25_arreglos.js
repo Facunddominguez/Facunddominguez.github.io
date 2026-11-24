@@ -61,7 +61,9 @@
   const actual = ev("Semana.semanaActual()"), anterior = ev("Semana.lunesAnterior()");
   const planEsta = localStorage.getItem("miPlatoFacil_plan");
   const proxGuardada = JSON.parse(localStorage.getItem("miPlatoFacil_planProxima_v1"));
-  localStorage.setItem("miPlatoFacil_planPortions_v1", JSON.stringify({ "lunes|cena": 4 }));
+  // Un hueco cuya comida cambia de una semana a la otra (según la semilla de la fecha, "lunes|cena" puede coincidir en las dos).
+  const planEstaObj = JSON.parse(planEsta), huecoCambia = Object.keys(planEstaObj).flatMap(d => Object.keys(planEstaObj[d] || {}).map(sl => d + "|" + sl)).find(k => { const [d, sl] = k.split("|"); return planEstaObj[d][sl] && planEstaObj[d][sl] !== ((proxGuardada.plan[d] || {})[sl]) }) || "lunes|cena";
+  localStorage.setItem("miPlatoFacil_planPortions_v1", JSON.stringify({ [huecoCambia]: 4 }));
   localStorage.setItem("miPlatoFacil_planProxima_v1", JSON.stringify({ lunes: actual, plan: proxGuardada.plan }));
   await abrir(); ev("loadPlan()");
   const adoptado = JSON.stringify(ev("loadPlan()")) === JSON.stringify(ev("Semana.migratePlan(" + JSON.stringify(proxGuardada.plan) + ")"));
@@ -72,7 +74,7 @@
   await abrir(); ev("loadPlan()");
   const dosVeces = localStorage.getItem("miPlatoFacil_plan") === planTrasUna && localStorage.getItem("miPlatoFacil_datedWeeks_v1") === copiasTrasUna;
   ok("E25-adopcion la semana que viene pasa a ser el plan en su lunes, la que termina queda copiada, las porciones viejas no se aplican y correrlo dos veces no cambia nada",
-    adoptado && planTrasUna !== planEsta && copiaAnterior && sinClave && porciones["lunes|cena"] === undefined && dosVeces,
+    adoptado && planTrasUna !== planEsta && copiaAnterior && sinClave && porciones[huecoCambia] === undefined && dosVeces,
     JSON.stringify({ adoptado, copiaAnterior, sinClave, porciones, dosVeces }));
 
   // E25-pasada: una semana que viene que ya pasó sin abrir la app va a Semanas anteriores y no toca el plan.
@@ -95,16 +97,12 @@
   let fichaOk = false, detalle = "sin Completar precios";
   if (completar) {
     await tocar(completar);
-    const fila = doc().querySelector(".completar-precios__fila");
-    if (fila) {
-      await tocar(fila);
-      const hoja = [...doc().querySelectorAll(".hoja")].find(h => h.getClientRects().length && h.querySelector(".ficha-precio"));
-      const html = hoja ? hoja.innerHTML : "", form = hoja && hoja.querySelector(".ficha-precio__form");
-      const abrirBoton = !!(hoja && hoja.querySelector("[data-ficha-precio-abrir]"));
-      const precioAntes = html.indexOf("ficha-precio") >= 0 && html.indexOf("ficha-precio") < html.search(/Energía|kcal/);
-      fichaOk = !!form && !form.hidden && form.getClientRects().length > 0 && !abrirBoton && precioAntes;
-      detalle = JSON.stringify({ form: !!form, visible: !!form && !form.hidden, abrirBoton, precioAntes });
-    } else detalle = "sin filas";
+    // v19.3 (R5-S-07): se abre directo el formulario del primer producto: a la vista, sin botón para abrirlo y sin nutrientes antes del precio.
+    const hoja = [...doc().querySelectorAll(".hoja")].find(h => h.getClientRects().length && h.querySelector(".completar-precios"));
+    const form = hoja && hoja.querySelector("#completarMonto");
+    const abrirBoton = !!(hoja && hoja.querySelector("[data-ficha-precio-abrir]")), nutrientes = !!(hoja && /Energía|kcal/.test(hoja.textContent));
+    fichaOk = !!form && form.getClientRects().length > 0 && !abrirBoton && !nutrientes;
+    detalle = JSON.stringify({ form: !!form, abrirBoton, nutrientes });
   } else {
     // Si no falta ningún precio, se prueba la ficha desde una comida: formulario abierto y sin botón para abrirlo.
     ev("hoja.cerrar()");

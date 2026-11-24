@@ -67,10 +67,18 @@ proteinaBaseDeIdea(idea){
   return null
 },
 pintarBienvenida(){
+  // v19.10 (R5-O-01): antes de los 4 pasos hay una presentación de tres tarjetas (paso 0), que se puede saltear.
   document.querySelectorAll("#bienvenida [data-bienvenida-paso]").forEach(p=>{
-    p.hidden=Number(p.dataset.bienvenidaPaso)!==bienvenidaPaso
+    p.hidden=bienvenidaIntro?Number(p.dataset.bienvenidaPaso)!==0:Number(p.dataset.bienvenidaPaso)!==bienvenidaPaso
   });
-  document.getElementById("bienvenidaPaso").textContent="Paso "+bienvenidaPaso+" de 4";
+  document.getElementById("bienvenidaPaso").textContent=bienvenidaIntro?"Bienvenida":"Paso "+bienvenidaPaso+" de 4";
+  document.querySelectorAll("#bienvenida [data-bienvenida-tarjeta]").forEach(t=>{
+    t.hidden=Number(t.dataset.bienvenidaTarjeta)!==bienvenidaTarjeta+1
+  });
+  document.querySelectorAll("#bienvenida .bienvenida__puntos span").forEach((p,i)=>p.classList.toggle("is-activo",i===bienvenidaTarjeta));
+  document.getElementById("bienvenidaTarjetaPos").textContent=(bienvenidaTarjeta+1)+" de 3";
+  document.getElementById("bienvenidaTarjetaSig").textContent=bienvenidaTarjeta===2?"Empezar":"Siguiente";
+  Bienvenida.pintarEvitar();
   document.querySelectorAll("#bienvenidaDias [data-bienvenida-dia]").forEach(b=>{
     const on=bienvenidaDias.has(Number(b.dataset.bienvenidaDia));b.classList.toggle("is-selected",on);b.setAttribute("aria-pressed",String(on))
   });
@@ -87,7 +95,34 @@ pintarBienvenida(){
   document.querySelector("#bienvenida [data-bienvenida-armar]").disabled=n<3;
   document.getElementById("bienvenidaIdeasEstado").textContent=n?"Elegiste "+n+" de 5."+(n<3?" Elegí al menos 3.":""):"Con estas ideas te armo la semana enseguida."
 },
+// v19.10 (R5-O-02): "Ingredientes a evitar" (la dieta y "Otros") dentro del paso 3. Solo se guarda al tocar "Guardar y seguir".
+pintarEvitar(){
+  const box=document.getElementById("bienvenidaDieta");
+  if(!box||typeof dietaTabla!=="function")return;
+  box.replaceChildren(...dietaTabla().map(f=>{
+    const on=bienvenidaDieta.has(f.id),b=ce("button","filter-chip"+(on?" is-selected":""),f.nombre);
+    b.type="button";b.dataset.bienvenidaDieta=f.id;b.setAttribute("aria-pressed",String(on));
+    return b
+  }))
+},
+guardarEvitarDeBienvenida(){
+  const palabras=document.getElementById("bienvenidaOtros").value.trim();
+  if(bienvenidaDieta.size){
+    const activos=typeof dietaFiltros==="function"?dietaFiltros():[];
+    Dieta.guardarDietaFiltros([...new Set([...activos,...bienvenidaDieta])])
+  }
+  if(palabras){
+    localStorage.setItem(RECIPE_PREF_KEY,JSON.stringify({words:palabras.slice(0,400),enabled:true}));
+    const campo=document.getElementById("recipeAvoidWords"),ocultar=document.getElementById("recipeApplyAvoid");
+    if(campo)campo.value=palabras.slice(0,400);
+    if(ocultar)ocultar.checked=true
+  }
+  if(typeof Dieta!=="undefined")Dieta.renderDieta()
+},
 abrirBienvenida(){
+  bienvenidaIntro=true;
+  bienvenidaTarjeta=0;
+  bienvenidaDieta=new Set();
   bienvenidaPaso=1;
   bienvenidaIdeas=[];
   const rutina=Rutina.loadTrainingWeek();
@@ -132,6 +167,7 @@ guardarHogarDeBienvenida(){
   }
   try{
     if(personas>1)guardarPersonasHogar(personas);
+    Bienvenida.guardarEvitarDeBienvenida();
     if(limite!==null)localStorage.setItem(SHOP_BUDGET_KEY,JSON.stringify({currency:"ARS",limit:limite,period:"semana"}));
     if(region!=="GBA"||localStorage.getItem(REGION_PRECIOS_KEY)!==null)guardarRegionPrecios(region);
     if(typeof renderHogar==="function")renderHogar();
@@ -158,6 +194,9 @@ guardarRutinaDeBienvenida(){
 };
 var BIENVENIDA_KEY="miPlatoFacil_bienvenida_v1";
 var bienvenidaPaso=1;
+var bienvenidaIntro=true;
+var bienvenidaTarjeta=0;
+var bienvenidaDieta=new Set();
 var bienvenidaDias=new Set();
 var bienvenidaIdeas=[];
 // Usuario nuevo: sin comidas ni recetas guardadas, con el plan vacío y sin la marca.
@@ -169,7 +208,15 @@ document.getElementById("bienvenida").addEventListener("click",e=>{
   if(!b)return;
   const d=b.dataset;
   try{
-    if(d.bienvenidaSiguiente!==undefined){
+    if(d.bienvenidaTarjetaSig!==undefined){
+      if(bienvenidaTarjeta<2)bienvenidaTarjeta++;else{bienvenidaIntro=false;bienvenidaPaso=1}
+      Bienvenida.pintarBienvenida()
+    }else if(d.bienvenidaIntroSaltar!==undefined){
+      bienvenidaIntro=false;bienvenidaPaso=1;Bienvenida.pintarBienvenida()
+    }else if(d.bienvenidaDieta!==undefined){
+      if(bienvenidaDieta.has(d.bienvenidaDieta))bienvenidaDieta.delete(d.bienvenidaDieta);else bienvenidaDieta.add(d.bienvenidaDieta);Bienvenida.pintarEvitar()
+    }else if(d.bienvenidaSiguiente!==undefined){
+      if(bienvenidaIntro){bienvenidaIntro=false;bienvenidaPaso=1}
       bienvenidaPaso=Math.min(4,bienvenidaPaso+1);Bienvenida.pintarBienvenida()
     }else if(d.bienvenidaSaltar!==undefined)Bienvenida.terminarBienvenida("hoy");
     else if(d.bienvenidaDia!==undefined){
@@ -178,11 +225,30 @@ document.getElementById("bienvenida").addEventListener("click",e=>{
     else if(d.bienvenidaHogar!==undefined)Bienvenida.guardarHogarDeBienvenida();
     else if(d.bienvenidaIdea!==undefined){
       const i=bienvenidaIdeas.indexOf(d.bienvenidaIdea);if(i>=0)bienvenidaIdeas.splice(i,1);else if(bienvenidaIdeas.length<5)bienvenidaIdeas.push(d.bienvenidaIdea);Bienvenida.pintarBienvenida()
+    }else if(b.id==="bienvenidaOtrosInfo"){
+      const ayuda=document.getElementById("bienvenidaOtrosAyuda"),on=ayuda.hidden;
+      ayuda.hidden=!on;b.setAttribute("aria-expanded",String(on))
     }else if(d.bienvenidaArmar!==undefined)Bienvenida.armarSemanaDesdeBienvenida()
   }catch(err){
     document.getElementById("bienvenidaIdeasEstado").textContent=err.message
   }
 });
+// Las tarjetas también se pasan con el dedo: un deslizamiento a la izquierda pasa a la siguiente y a la derecha vuelve a la anterior.
+{
+  let x0=null;
+  const caja=document.getElementById("bienvenidaTarjetas");
+  caja.addEventListener("touchstart",e=>{x0=e.changedTouches[0].clientX},{passive:true});
+  caja.addEventListener("touchend",e=>{
+    if(x0===null)return;
+    const dx=e.changedTouches[0].clientX-x0;
+    x0=null;
+    if(Math.abs(dx)<40)return;
+    if(dx<0&&bienvenidaTarjeta<2)bienvenidaTarjeta++;
+    else if(dx>0&&bienvenidaTarjeta>0)bienvenidaTarjeta--;
+    else return;
+    Bienvenida.pintarBienvenida()
+  },{passive:true})
+}
 document.addEventListener("click",e=>{
   if(e.target.closest&&e.target.closest("[data-ver-bienvenida]"))Bienvenida.abrirBienvenida()
 });

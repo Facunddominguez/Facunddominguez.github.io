@@ -88,7 +88,7 @@ cookedPlate(id){
     return
   }
   renderSaved();
-  const msg="¡Registrado! Cocinaste este plato "+it.cooked+" ve"+(it.cooked===1?"z":"ces")+".";
+  const msg="¡Registrado! Comiste este plato "+it.cooked+" ve"+(it.cooked===1?"z":"ces")+".";
   savedStatus(msg);
   const det=document.getElementById("comidaEstado");
   registroAviso(stack.at(-1)==="comida"&&det?det:document.getElementById("savedStatus"),msg,antes);
@@ -158,7 +158,7 @@ savedRecipeCard(r,amounts,inPlan){
   const meta=[r.minutes?"⏱ "+r.minutes+" min":"",a&&a.yield?"Rinde "+String(a.yield).replace(".",",")+" porci"+(a.yield===1?"ón":"ones"):"",r.steps.length?r.steps.length+" paso"+(r.steps.length===1?"":"s"):"",inPlan?"📅 En el plan":""].filter(Boolean).join(" · ");
   if(meta)card.append(ce("div","recipe-lib-card__meta",meta));
   const acts=ce("div","recipe-lib-card__actions");
-  for(const [text,key] of [["Ver receta","savedRecipeView"],["🍳 Lo cociné","savedRecipeCook"],["Planificar","savedRecipePlan"],["Editar","savedRecipeEdit"]]){
+  for(const [text,key] of [["Ver receta","savedRecipeView"],["🍽️ Lo comí","savedRecipeCook"],["Planificar","savedRecipePlan"],["Editar","savedRecipeEdit"]]){
     const b=ce("button","button button--soft",text);
     b.type="button";
     b.dataset[key]=r.id;
@@ -329,7 +329,7 @@ function savedCard(item){
   ul.style.fontSize="13px";
   lines.forEach(t=>ul.append(ce("li",null,t)));
   const c=item.cooked||0;
-  const meta=ce("div",null,MisPlatos.fmtWhen(item.savedAt)+(c>0?" · 👨‍🍳 Cocinado "+c+" ve"+(c===1?"z":"ces"):""));
+  const meta=ce("div",null,MisPlatos.fmtWhen(item.savedAt)+(c>0?" · 🍽️ Comido "+c+" ve"+(c===1?"z":"ces"):""));
   meta.style.color="var(--muted)";
   meta.style.fontSize="12px";
   meta.style.marginTop="6px";
@@ -339,7 +339,7 @@ function savedCard(item){
   tog.dataset.toggleActions=item.id;
   tog.setAttribute("aria-expanded",String(open));
   const acts=ce("div","summary-actions"+(open?"":" is-hidden"));
-  const bCook=ce("button","button button--soft","🍳 Lo cociné");
+  const bCook=ce("button","button button--soft","🍽️ Lo comí");
   bCook.type="button";
   bCook.dataset.cookSaved=item.id;
   const bFav=ce("button","button button--soft",item.fav?"⭐ Favorito":"☆ Favorito");
@@ -416,13 +416,10 @@ function renderSaved(){
   if(comidas.length)nodes.push(...ordenarComidas(comidas).map(tarjetaComida));
   else nodes.push(ce("p","screen__hint",q?"Ninguna comida coincide con tu búsqueda.":savedKind==="recetas"?"Todavía no tenés recetas. Tocá + Nueva → Escribir receta.":savedKind==="platos"?"Todavía no guardaste platos. Armá una comida y tocá Guardar.":"Todavía no guardaste comidas."));
   if(savedKind!=="platos"&&savedKind!=="semana"&&!storeError&&copiesF.length){
-    const box=ce("details","home-group saved-recipes");
+    // v19.9 (R5-G-01): a la vista, sin desplegable.
+    const box=ce("div","home-group saved-recipes");
     box.setAttribute("data-avanzado","misplatos");
-    box.open=savedRecipesOpen;
-    box.addEventListener("toggle",()=>{
-      savedRecipesOpen=box.open
-    });
-    box.append(ce("summary",null,"🗂️ Copias de recetas usadas en el plan ("+copiesF.length+")"),ce("p","screen__hint","Se crean al asignar una receta al plan y guardan su nombre e ingredientes por si la receta se borra."),...copiesF.map(savedCard));
+    box.append(ce("h3","plan-day__title","🗂️ Copias de recetas usadas en el plan ("+copiesF.length+")"),ce("p","screen__hint","Se crean al asignar una receta al plan y guardan su nombre e ingredientes por si la receta se borra."),...copiesF.map(savedCard));
     nodes.push(box)
   }
   list.replaceChildren(...nodes)
@@ -453,27 +450,20 @@ document.addEventListener("click",e=>{
     savedStatus(err.message)
   }
 });
-// "Planificar": abre Semana → Buscar en mis recetas con la receta elegida.
+// "Planificar": abre Semana con el selector del almuerzo de hoy, ya buscando la receta elegida (desde la v19.1; antes iba a "Buscar en mis recetas").
 function planSavedRecipe(id){
-  abrirHerramientaPlan("recetas");
-  document.getElementById("planRecipeSearch").value="";
-  const ref=document.getElementById("planRecipeReference");
-  ref.open=true;
-  setTimeout(()=>{
-    const select=document.getElementById("planRecipeSelect");
-    renderPlanRecipeReference();
-    if(![...select.options].some(o=>o.value===id)){
-      document.getElementById("planRecipeApplyAvoid").checked=false;
-      renderPlanRecipeReference()
-    }
-    select.value=id;
-    renderPlanRecipePreview();
-    document.getElementById("planRecipeDay").value=todayPlanDay();
-    document.getElementById("planRecipeSlot").value="almuerzo";
-    document.getElementById("planRecipeAssignStatus").textContent="Elegí el día y la comida, y tocá Asignar receta al plan actual.";
-    ref.scrollIntoView({
-      block:"start",behavior:"smooth"
-    })
-  },80)
+  let titulo="";
+  try{
+    titulo=(loadRecipeDetails()[id]||{}).title||""
+  }catch(e){
+  }
+  if(activeTab!=="semana")openTab("semana");
+  go("plan");
+  abrirSelector(todayPlanDay(),"almuerzo");
+  const buscar=document.getElementById("selectorBuscar");
+  if(buscar&&titulo){
+    buscar.value=titulo;
+    buscar.dispatchEvent(new Event("input",{bubbles:true}))
+  }
 }
 const IMPORT_PLATE_TYPES=["desayuno","plato","snack","pre"];

@@ -169,17 +169,24 @@
   // C2-6 El menú ⋯ tiene lo del plan y cada ítem abre su herramienta funcionando
   await irA("semana"); await tocar(q("[data-plan-menu]"));
   const items = [...doc().querySelectorAll(".hoja .menu-semana button")].map(b => b.textContent);
-  const esperados = ["Repetir semana anterior", "Copiar un día", "Empezar de nuevo", "Planes guardados", "Semanas anteriores y mes", "Historial de cambios", "Descargar", "Buscar en mis recetas", "Registro y objetivos"];
+  const esperados = ["Repetir semana anterior", "Copiar un día", "Empezar de nuevo", "Semanas anteriores y mes", "Compartir la semana", "Registro y objetivos"];
   const herr = {};
   const abrirHerr = async nombre => { if (pantalla() !== "plan") await irA("semana"); await tocar(q("[data-plan-menu]")); await tocar(q('.hoja [data-plan-herr="' + nombre + '"]')); return pantalla() === "planHerramientas" && !q('#planHerramientas [data-herr="' + nombre + '"]').hidden };
-  herr.variaciones = await abrirHerr("variaciones") && [...$("varSelect").options].some(x => x.value === "Semana liviana") && visible(q("#planHerramientas [data-del-var]"));
-  herr.semanas = await abrirHerr("semanas") && visible($("monthlyPlanPanel")) && visible($("datedWeeksPanel")) && $("datedWeekList").querySelectorAll("[data-dated-open]").length === 2 && $("monthlyPlanGrid").querySelectorAll("button").length >= 28;
-  herr.historial = await abrirHerr("historial") && $("planHistoryList").querySelectorAll("p").length >= 6;
-  herr.descargar = await abrirHerr("descargar") && visible(q("[data-download-week]"));
-  herr.recetas = await abrirHerr("recetas") && visible($("planRecipeReference")) && [...$("planRecipeSelect").options].some(x => x.value === "recipe_guiso001");
+  // Desde la v19.2 (R5-S-14) "Planes guardados" no está en el menú ⋯: se usa desde Semana ("Mis planes") y desde Semanas anteriores y mes.
+  await irA("semana"); await tocar(q("#plan [data-planes-guardados]"));
+  herr.variaciones = /Semana liviana/.test(doc().querySelector(".hoja").textContent) && !items.includes("Planes guardados"); ev("hoja.cerrar()"); await espera(100);
+  herr.semanas = await abrirHerr("semanas") && visible($("monthlyPlanGrid")) && visible($("datedWeekView")) && $("monthlyPlanGrid").querySelectorAll("button").length >= 28 && $("monthlyPlanGrid").querySelectorAll("[data-mark]").length >= 2 && visible(q("#planHerramientas [data-plan-guardar]"));
+  // Desde la v19.1: sin Historial de cambios ni Buscar en mis recetas (R5-S-16 y S-18); Descargar está en Compartir la semana (R5-S-11); las recetas, en "Mis recetas" del selector (R5-S-19).
+  herr.historial = !items.includes("Historial de cambios") && !doc().querySelector('.hoja [data-plan-herr="historial"]') && Semana.loadPlanHistory().length >= 6;
+  await irA("semana"); await tocar(q("[data-plan-menu]")); await tocar(q(".hoja [data-compartir-semana-menu]"));
+  herr.descargar = visible(q('.hoja [data-compartir-semana="html"]'));
+  await tocar(q(".hoja .hoja__cerrar, .hoja [data-hoja-cerrar]") || { click() { ev("hoja.cerrar()") } });
+  ev('abrirSelector("lunes", "almuerzo")'); await espera(250);
+  herr.recetas = !!q('.hoja [data-selector-seccion="recetas"]') && /Guiso/.test(q('.hoja [data-selector-seccion="recetas"]').textContent);
+  ev("hoja.cerrar()"); await espera(100);
   // v15.5: "Registro y objetivos" abre el Registro (un solo lugar para lo registrado) con Lo que comí abierto.
   await abrirHerr("consumo"); await espera(80);
-  herr.consumo = pantalla() === "registro" && visible($("consumptionPanel")) && $("consumptionPanel").open && $("consumptionView").textContent.trim().length > 0;
+  herr.consumo = pantalla() === "registro" && visible($("consumptionPanel")) && $("consumptionView").textContent.trim().length > 0;
   ok("C2-6 el menú ⋯ lista lo del plan y cada herramienta abre con sus datos", esperados.every(t => items.includes(t)) && Object.values(herr).every(Boolean), JSON.stringify(herr));
   await tocar(q("#homeTop"));
   ok("C2-6b desde una herramienta se vuelve a la Semana", pantalla() === "plan");
@@ -209,10 +216,10 @@
   cargar(R.data); await abrir(); await irA("semana");
   await abrirHueco("lunes", "almuerzo"); await tocar(q(".hoja [data-hueco-cambiar]"));
   const secciones = [...doc().querySelectorAll(".hoja [data-selector-seccion]")].map(s => s.dataset.selectorSeccion).join(",");
-  const nombres = [...doc().querySelectorAll('.hoja [data-selector-seccion="mias"] .selector-item__nombre')].map(e => e.textContent);
+  const nombres = [...doc().querySelectorAll('.hoja [data-selector-seccion="mias"] .selector-item__nombre, .hoja [data-selector-seccion="recetas"] .selector-item__nombre')].map(e => e.textContent);
   const buscar = q("#selectorBuscar"); buscar.value = "lentejas"; buscar.dispatchEvent(new w.Event("input", { bubbles: true })); await espera(50);
-  const filtrados = [...doc().querySelectorAll('.hoja [data-selector-seccion="mias"] .selector-item__nombre')].map(e => e.textContent);
-  ok("C2-8 el Selector muestra Recientes, Mis comidas e Ideas; el buscador filtra y no hay nombres repetidos", hojaAbierta() && secciones === "recientes,mias,ideas" && nombres.length >= 9 && new Set(nombres).size === nombres.length && filtrados.length >= 1 && filtrados.length < nombres.length && filtrados.some(n => /lentejas/i.test(n)), secciones + " | " + filtrados.join(", "));
+  const filtrados = [...doc().querySelectorAll('.hoja [data-selector-seccion="mias"] .selector-item__nombre, .hoja [data-selector-seccion="recetas"] .selector-item__nombre')].map(e => e.textContent);
+  ok("C2-8 el Selector muestra Recientes, Mis comidas, Mis recetas (R5-S-19) e Ideas; el buscador filtra y no hay nombres repetidos", hojaAbierta() && secciones === "recientes,mias,recetas,ideas" && nombres.length >= 9 && new Set(nombres).size === nombres.length && filtrados.length >= 1 && filtrados.length < nombres.length && filtrados.some(n => /lentejas/i.test(n)), secciones + " | " + filtrados.join(", "));
   await tocar(q(".hoja [data-selector-sugerir]"));
   const propuesta = !!doc().querySelector(".hoja .selector__propuesta");
   await tocar(q(".hoja [data-selector-usar]"));
@@ -241,7 +248,7 @@
   const lunesHoy = (() => { const d = new Date(); d.setHours(12, 0, 0, 0); d.setDate(d.getDate() - (d.getDay() + 6) % 7); return d })(), dom = new Date(lunesHoy); dom.setDate(dom.getDate() + 6);
   const MES = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"], corto = d => d.getDate() + " " + MES[d.getMonth()];
   const chips = [...doc().querySelectorAll("#planDias [data-plan-dia]")];
-  ok("C2-10 \"Esta semana · 26 oct – 1 nov\" y chips de lunes a domingo con 4/4", $("planSemanaTitulo").textContent === "Esta semana · " + corto(lunesHoy) + " – " + corto(dom) && chips.map(c => c.dataset.planDia).join() === DIAS.join() && chips.every(c => c.querySelector(".semana-dia-chip__cuenta").textContent === "4/4") && chips.filter(c => c.getAttribute("aria-pressed") === "true").map(c => c.dataset.planDia).join() === hoy(), $("planSemanaTitulo").textContent);
+  ok("C2-10 \"Esta semana · 26 oct – 1 nov\" y chips de lunes a domingo, todos con las 4 comidas", $("planSemanaTitulo").textContent === "Esta semana · " + corto(lunesHoy) + " – " + corto(dom) && chips.map(c => c.dataset.planDia).join() === DIAS.join() && chips.every(c => /: 4 de 4 comidas$/.test(c.getAttribute("aria-label")) && c.classList.contains("es-completo")) && chips.filter(c => c.getAttribute("aria-pressed") === "true").map(c => c.dataset.planDia).join() === hoy(), $("planSemanaTitulo").textContent);
 
   document.getElementById("marcoPrueba").remove();
   localStorage.clear();
