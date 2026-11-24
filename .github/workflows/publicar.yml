@@ -26,16 +26,12 @@ jobs:
       - name: Pruebas automáticas en Chrome sin ventana
         run: node herramientas/probar.mjs
 
-  publicar:
+  # El paquete se arma y se sube en un trabajo y se publica en otro, como recomienda GitHub para Pages:
+  # en el mismo trabajo, deploy-pages a veces busca el paquete antes de que GitHub lo registre ("Found 0 artifact(s)").
+  armar:
     needs: pruebas
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    concurrency:
-      group: pages
-      cancel-in-progress: false
-    environment:
-      name: github-pages
-      url: ${{ steps.despliegue.outputs.page_url }}
     steps:
       - uses: actions/checkout@v5
         with:
@@ -48,5 +44,17 @@ jobs:
       - uses: actions/upload-pages-artifact@v5
         with:
           path: _sitio
+
+  publicar:
+    needs: armar
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.despliegue.outputs.page_url }}
+    steps:
       - id: despliegue
         uses: actions/deploy-pages@v5
