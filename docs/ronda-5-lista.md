@@ -86,7 +86,7 @@ Cada ítem tiene un control `R5-<ID>` en `docs/validacion/criterios.json`. Las c
 | O-02 | Los 4 pasos se mantienen y se suma "Ingredientes a evitar" (con la dieta), dentro de un paso existente o en uno propio y opcional. | 43 | R5-O-02 | bienvenida-evitar-antes.png, bienvenida-evitar-antes-oscuro.png | bienvenida-evitar-despues.png, bienvenida-evitar-despues-oscuro.png | ✅ |
 
 ## Ítems en ⚠️ (no hechos)
-Ninguno todavía.
+Ninguno: los 79 ítems quedaron hechos.
 
 ## Resumen (Etapa 44)
-Se completa al cerrar la ronda: cuántos ítems quedaron en ✅, cuántos en ⚠️ y por qué.
+**79 ítems en ✅ y 0 en ⚠️.** Cada ✅ tiene su control `R5-<ID>` en `docs/validacion/criterios.json`, una prueba en verde (`pruebas/r5e34_semana.js` a `pruebas/r5e43_bienvenida.js`, más `r5_base.js` con las ayudas) y la captura del después a 390 px en `docs/capturas-ronda-5/`. En la Etapa 44 se volvieron a tomar todas esas capturas con el código final y se miraron también a 360 y 320 px (claro y oscuro donde la escena lo pide), sin errores de JavaScript ni scroll horizontal. Las decisiones que se tomaron sin Facunddominguez y lo que queda para él están en `docs/informe-ronda-5.md`.
