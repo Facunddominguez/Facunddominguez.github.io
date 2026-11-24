@@ -3149,3 +3149,11 @@ Compuerta final (Etapa 44): VALIDACIÓN ETAPA 44: OK (297 controles, 783 pruebas
 ## Arreglo v19.10.1: claves nuevas de Gemini ("AQ.")
 
 Facundo no pudo guardar su clave de Gemini: la app decía "La clave no parece válida". Google AI Studio ahora entrega claves nuevas que empiezan con "AQ." (con punto) en lugar de las viejas "AIza…", y la regla de `29-asistente-ia.js` solo aceptaba letras, números, guiones y guiones bajos. Se acepta también el punto, tanto al pegar la clave como al leerla guardada (`loadAiSettings`), y el mensaje de error dice cómo empiezan las dos clases de clave. La clave se sigue mandando en el encabezado `x-goog-api-key` al endpoint propio de Gemini, que acepta las claves nuevas. Prueba nueva en `r5e42_mas.js` (R5-X-08 con una clave "AQ."). Total: 784.
+
+## Arreglo v19.10.2: Gemini que no responde (errores 5xx)
+
+Con la clave nueva guardada, "Pedir a Gemini" contestaba "Gemini no está respondiendo ahora. Probá más tarde.". En el panel de uso de Google AI Studio se veían las solicitudes y los tokens de entrada, pero ningún token de salida: Gemini (modelo `gemini-flash-latest`, hoy Gemini 3.8 Flash) contestaba con un error 5xx. `geminiGenerate` ahora:
+- reintenta 2 veces con el mismo modelo, con una pausa de 1,5 s y de 3 s (`AsistenteIA.esperaReintento`); el último intento va sin `responseMimeType` JSON, porque `aiParseJson` ya entiende el JSON con texto alrededor;
+- si sigue fallando con 5xx o sin texto, pide la lista de modelos y prueba con hasta 2 modelos Flash distintos del que falla (sin el alias "latest"); si uno anda, queda guardado para la próxima;
+- ignora las partes de "pensamiento" de la respuesta (`thought`) y el mensaje de error dice el código ("error 503").
+Errores que no son 5xx (clave rechazada, límite gratuito, sin conexión) se informan como antes, sin reintentar. Pruebas: `f08_ai.js` suma A22 (503 dos veces y después contesta) y A23 (el modelo guardado sigue fallando y se usa otro Flash); A15 corre con `esperaReintento = 0`. Total: 786.

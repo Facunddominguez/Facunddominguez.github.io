@@ -52,10 +52,24 @@
   const body = calls[0] && JSON.parse(calls[0].opts.body);
   T.ok("A13 Gemini recibe solo el pedido y la clave va en el encabezado", calls.length === 1 && calls[0].url === "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent" && calls[0].opts.method === "POST" && calls[0].opts.headers["x-goog-api-key"] === KEY && body.contents[0].parts[0].text.includes("Ensalada de lentejas para 2") && body.generationConfig.responseMimeType === "application/json" && !calls[0].opts.body.includes(KEY));
   T.ok("A14 la respuesta de Gemini queda como borrador en el editor", $("recipeDetailsTitle").value === "Ensalada de lentejas" && $("recipeYield").value === "2" && /Borrador cargado/.test(runner.querySelector("[data-ai-status]").textContent));
+  // v19.10.2: geminiGenerate reintenta ante errores 5xx; en las pruebas sin pausa entre intentos.
+  AsistenteIA.esperaReintento = 0;
   const msgs = [];
   for (const [st, b] of [[429, { error: { message: "Resource exhausted" } }], [500, {}], [404, { error: { message: "model not found" } }]]) { mock(() => resp(st, b)); resetRecipeDetailsForm(); runner.querySelector("[data-ai-gemini]").click(); await wait(30); msgs.push(runner.querySelector("[data-ai-status]").textContent) }
   window.fetch = () => Promise.reject(new TypeError("Failed to fetch")); runner.querySelector("[data-ai-gemini]").click(); await wait(30); msgs.push(runner.querySelector("[data-ai-status]").textContent);
   T.ok("A15 los errores de Gemini se explican y no cambian el editor", /límite gratuito/.test(msgs[0]) && /no está respondiendo/.test(msgs[1]) && /ya no está disponible/.test(msgs[2]) && /No se pudo conectar/.test(msgs[3]) && $("recipeDetailsTitle").value === "", msgs.join(" | "));
+  // v19.10.2: Gemini sobrecargado (503) dos veces y después contesta: se reintenta solo y la respuesta llega.
+  { let n = 0; calls.length = 0;
+    mock(url => /:generateContent$/.test(url) ? (++n <= 2 ? resp(503, { error: { message: "The model is overloaded" } }) : resp(200, { candidates: [{ content: { parts: [{ text: '{"ok":1}' }] } }] })) : resp(200, {}));
+    const t = await AsistenteIA.geminiGenerate("hola").catch(e => "ERROR " + e.message);
+    T.ok("A22 si Gemini contesta 503 (sobrecargado) se reintenta solo y la respuesta llega; el último intento va sin JSON estricto", t === '{"ok":1}' && n === 3 && !JSON.parse(calls[2].opts.body).generationConfig.responseMimeType && JSON.parse(calls[0].opts.body).generationConfig.responseMimeType === "application/json", t + " · intentos " + n) }
+  // Si el modelo guardado sigue fallando, se prueba con otro Flash de la cuenta y queda guardado.
+  { const antes = JSON.parse(localStorage.getItem("miPlatoFacil_aiSettings_v1")); calls.length = 0;
+    mock(url => /models\?/.test(url) ? resp(200, { models: [{ name: "models/" + antes.model, supportedGenerationMethods: ["generateContent"] }, { name: "models/gemini-2.5-flash", supportedGenerationMethods: ["generateContent"] }, { name: "models/gemini-flash-latest", supportedGenerationMethods: ["generateContent"] }] })
+      : /gemini-2\.5-flash:generateContent$/.test(url) ? resp(200, { candidates: [{ content: { parts: [{ text: '{"ok":2}' }] } }] }) : resp(500, {}));
+    const t = await AsistenteIA.geminiGenerate("hola").catch(e => "ERROR " + e.message), despues = JSON.parse(localStorage.getItem("miPlatoFacil_aiSettings_v1"));
+    T.ok("A23 si el modelo guardado sigue fallando con 5xx, se usa otro Flash de la cuenta (no el alias 'latest') y queda guardado para la próxima", t === '{"ok":2}' && despues.model === "gemini-2.5-flash" && despues.key === antes.key && !calls.some(c => /gemini-flash-latest:generateContent/.test(c.url) && antes.model !== "gemini-flash-latest"), t + " · " + despues.model);
+    localStorage.setItem("miPlatoFacil_aiSettings_v1", JSON.stringify(antes)) }
   localStorage.setItem(PANKEY, JSON.stringify(["pollo", "huevo"]));
   setStock([["Papa", 2, "kg"], ["Arroz", 0, "g"]]);
   showRecipeView("browse"); $("aiIdeasBoton").click(); await wait(20);
