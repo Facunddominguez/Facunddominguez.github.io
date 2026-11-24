@@ -79,6 +79,15 @@
     const pedidos = calls.filter(c => /:generateContent$/.test(c.url)).map(c => c.url.split("/models/")[1].split(":")[0]);
     T.ok("A26 si el modelo guardado ya no existe (404) no pide volver a guardar la clave: prueba el alias 'latest' y otros modelos, y guarda el que anda", t === '{"ok":4}' && despues.model === "gemini-3.1-flash-lite" && despues.key === antes.key && pedidos[0] === "gemini-9.9-flash" && pedidos[1] === "gemini-flash-latest", t + " · " + pedidos.join(" > "));
     localStorage.setItem("miPlatoFacil_aiSettings_v1", JSON.stringify(antes)) }
+  // v19.10.5: respuestas de Gemini con otra forma (claves en inglés o con tilde, sin título, ingredientes como texto, pasos como objetos).
+  { const n1 = aiRecipeFromJson(aiNormalizarReceta({ recipe: { title: "Guiso", ingredients: ["200 g de lentejas", "1/2 taza de arroz", "2 huevos", "Sal"], steps: [{ step: 1, text: "Hervir las lentejas." }, "2. Sumar el arroz."] } }, ""));
+    const n2 = aiRecipeFromJson(aiNormalizarReceta({ "título": "Tarta", "ingredientes": [{ "ingrediente": "Zapallito", "cantidad": "300", "unidad": "gramos" }], "preparación": "1. Rallar.\n2. Hornear." }, ""));
+    const n3 = aiRecipeFromJson(aiNormalizarReceta({ ingredientes: [{ nombre: "Papa", cantidad: 1, unidad: "kg" }], pasos: ["Hervir"] }, "Puré de mi abuela"));
+    const n4 = aiRecipeFromJson(aiNormalizarReceta({ ingredientes: [], pasos: [] }, "Algo"));
+    T.ok("A27 entiende respuestas con otra forma: inglés, tildes, ingredientes como texto, pasos como objetos o en un solo texto, y sin título usa el del texto pegado",
+      n1 && n1.titulo === "Guiso" && n1.ingredientes.length === 4 && n1.ingredientes[0].nombre === "lentejas" && n1.ingredientes[0].cantidad === 200 && n1.ingredientes[0].unidad === "g" && n1.ingredientes[1].cantidad === 0.5 && n1.ingredientes[1].unidad === "taza" && n1.ingredientes[2].nombre === "huevos" && n1.ingredientes[2].cantidad === 2 && n1.ingredientes[3].nombre === "Sal" && n1.pasos[0] === "Hervir las lentejas." && n1.pasos[1] === "Sumar el arroz."
+      && n2 && n2.titulo === "Tarta" && n2.ingredientes[0].cantidad === 300 && n2.ingredientes[0].unidad === "g" && n2.pasos.length === 2 && n3 && n3.titulo === "Puré de mi abuela" && n4 === null,
+      JSON.stringify([n1, n2, n3 && n3.titulo])) }
   // 429 (límite gratuito de ese modelo): no se insiste con el mismo; se prueba directo otro modelo, primero Flash-Lite, y queda guardado.
   { const antes = JSON.parse(localStorage.getItem("miPlatoFacil_aiSettings_v1")); calls.length = 0;
     const lista = { models: ["gemini-flash-latest", antes.model, "gemini-3.8-flash", "gemini-3.1-flash-lite", "gemini-3.8-flash-preview", "gemini-3.8-flash-image"].map(n => ({ name: "models/" + n, supportedGenerationMethods: ["generateContent"] })) };
