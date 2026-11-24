@@ -52,7 +52,7 @@ geminiError(status,msg){
   if(status===401||status===403)return "La clave no tiene permiso para usar Gemini (revisala en Google AI Studio).";
   if(status===404)return "El modelo de Gemini ya no está disponible. Volvé a guardar la clave para elegir otro.";
   if(status===429)return "Se alcanzó el límite gratuito de Gemini por ahora. Probá más tarde.";
-  if(status>=500)return "Gemini no está respondiendo ahora. Probá más tarde.";
+  if(status>=500)return "Gemini no está respondiendo ahora (error "+status+"). Probá más tarde.";
   return "Gemini respondió con un error ("+status+")."
 },
 async geminiFetch(url,opts){
@@ -69,11 +69,16 @@ async geminiFetch(url,opts){
     clearTimeout(t)
   }
   const j=await r.json().catch(()=>null);
-  if(!r.ok)throw Error(AsistenteIA.geminiError(r.status,j&&j.error&&j.error.message||""));
+  if(!r.ok){
+    const err=Error(AsistenteIA.geminiError(r.status,j&&j.error&&j.error.message||""));
+    err.status=r.status;
+    throw err
+  }
   return j
 },
-geminiPickModel(list){
-  const ok=(Array.isArray(list)?list:[]).filter(m=>m&&Array.isArray(m.supportedGenerationMethods)&&m.supportedGenerationMethods.includes("generateContent")).map(m=>String(m.name||"").replace(/^models\//,""));
+geminiPickModel(list,excluir){
+  const fuera=Array.isArray(excluir)?excluir:[];
+  const ok=(Array.isArray(list)?list:[]).filter(m=>m&&Array.isArray(m.supportedGenerationMethods)&&m.supportedGenerationMethods.includes("generateContent")).map(m=>String(m.name||"").replace(/^models\//,"")).filter(n=>!fuera.includes(n));
   if(ok.includes("gemini-flash-latest"))return "gemini-flash-latest";
   const flash=ok.filter(n=>/^gemini-\d+(\.\d+)?-flash$/.test(n)).sort((a,b)=>parseFloat(b.slice(7))-parseFloat(a.slice(7)));
   return flash[0]||ok.find(n=>/flash/.test(n)&&!/(image|tts|audio|live|exp|preview|thinking|embedding)/.test(n))||null
@@ -87,24 +92,68 @@ async geminiChooseModel(key){
   if(!m)throw Error("La clave funciona, pero no se encontró un modelo Gemini Flash disponible.");
   return m
 },
-async geminiGenerate(prompt){
-  const s=loadAiSettings();
-  if(!s.key)throw Error("Configurá tu clave de Gemini en Más → Asistente de IA.");
-  const j=await AsistenteIA.geminiFetch("https://generativelanguage.googleapis.com/v1beta/models/"+encodeURIComponent(s.model||"gemini-flash-latest")+":generateContent",{
+// v19.10.2: Gemini a veces contesta con un error 500 o 503 (sobrecargado) o sin texto. Antes eso cortaba el pedido con
+// "Gemini no está respondiendo ahora". Ahora se reintenta 2 veces con el mismo modelo (la última sin pedir JSON estricto),
+// y si sigue fallando se prueba con otro modelo Flash de la lista; si ese anda, queda guardado para la próxima.
+esperaReintento:1500,
+async geminiPedir(key,model,prompt,json){
+  const config={temperature:0.4};
+  if(json)config.responseMimeType="application/json";
+  const j=await AsistenteIA.geminiFetch("https://generativelanguage.googleapis.com/v1beta/models/"+encodeURIComponent(model||"gemini-flash-latest")+":generateContent",{
     method:"POST",headers:{
-      "Content-Type":"application/json","x-goog-api-key":s.key
+      "Content-Type":"application/json","x-goog-api-key":key
     },body:JSON.stringify({
       contents:[{
         role:"user",parts:[{
           text:prompt
         }]
-      }],generationConfig:{
-        responseMimeType:"application/json",temperature:0.4
-      }
+      }],generationConfig:config
     })
-  }),c=j&&Array.isArray(j.candidates)&&j.candidates[0],text=c&&c.content&&Array.isArray(c.content.parts)?c.content.parts.map(p=>typeof p.text==="string"?p.text:"").join(""):"";
-  if(!text)throw Error("Gemini no devolvió una respuesta. Probá de nuevo.");
+  }),c=j&&Array.isArray(j.candidates)&&j.candidates[0],text=c&&c.content&&Array.isArray(c.content.parts)?c.content.parts.map(p=>typeof p.text==="string"&&!p.thought?p.text:"").join(""):"";
+  if(!text){
+    const err=Error("Gemini no devolvió una respuesta. Probá de nuevo.");
+    err.vacia=true;
+    throw err
+  }
   return text
+},
+async geminiGenerate(prompt){
+  const s=loadAiSettings();
+  if(!s.key)throw Error("Configurá tu clave de Gemini en Más → Asistente de IA.");
+  const reintentable=e=>!!e&&(e.status>=500||e.vacia===true),pausa=ms=>new Promise(r=>setTimeout(r,ms));
+  let ultimo=null;
+  for(const [i,json] of [true,true,false].entries()){
+    if(i>0)await pausa(AsistenteIA.esperaReintento*i);
+    try{
+      return await AsistenteIA.geminiPedir(s.key,s.model,prompt,json)
+    }catch(e){
+      if(!reintentable(e))throw e;
+      ultimo=e
+    }
+  }
+  // Otro modelo Flash de la cuenta (distinto del que viene fallando).
+  let probados=[s.model||"gemini-flash-latest"];
+  try{
+    const lista=await AsistenteIA.geminiFetch("https://generativelanguage.googleapis.com/v1beta/models?pageSize=200",{
+      headers:{"x-goog-api-key":s.key}
+    });
+    for(let k=0;k<2;k++){
+      const otro=AsistenteIA.geminiPickModel(lista&&lista.models,probados.concat(["gemini-flash-latest"]));
+      if(!otro)break;
+      probados.push(otro);
+      try{
+        const text=await AsistenteIA.geminiPedir(s.key,otro,prompt,true);
+        AsistenteIA.saveAiSettings({key:s.key,model:otro});
+        return text
+      }catch(e){
+        if(!reintentable(e))throw e;
+        ultimo=e
+      }
+    }
+  }catch(e){
+    if(!reintentable(e)&&e!==ultimo)throw e
+  }
+  throw ultimo||Error("Gemini no está respondiendo ahora. Probá más tarde.")
 },
 recipeEditorHasContent(){
   return !!(recipeDetailsEditing||["recipeDetailsTitle","recipeDetailsSteps","recipeDetailsNotes","recipeTags","recipeMinutes","recipeSubstitutions"].some(id=>document.getElementById(id).value.trim())||[...document.querySelectorAll("#recipeIngredientRows [data-amount-name]")].some(i=>i.value.trim()))
