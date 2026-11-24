@@ -905,6 +905,19 @@ function productosSinPrecioReal(){
   const c=costoSemanaPlan();
   return c?c.productos.filter(x=>x.tipo!=="real"):[]
 }
+// v19.9 (R5-X-03): el promedio de la región (SEPA/INDEC) como otra opción para "Comparar alternativas de precio": un precio por 1 de la
+// unidad con que se calcula ({id:"auto", price, amount:1, unit, currency:"ARS", auto:true}) o null si no hay dato.
+function opcionPrecioAutomatico(nombre,unidad){
+  try{
+    const p=precioAuto(nombre);
+    if(!p||!p.it||!(p.precio>0))return null;
+    const base=cantidadBasePrecio({b:p.it.b,d:p.it.d},nombre,1,unidad);
+    if(base===null||!(base>0))return null;
+    return {id:"auto",name:nombre,pack:"",amount:1,unit:unidad,price:base*p.precio,currency:"ARS",date:null,auto:true}
+  }catch(e){
+    return null
+  }
+}
 // v19.8 (R5-K-15): ingredientes sin precio real para "Mis precios": {semana:[nombres de la semana], otros:[el resto del catálogo]}.
 // "Sin precio real" es lo mismo que en "Completar precios": ni Mi precio ni el dato de SEPA/INDEC (un estimado no cuenta).
 function ingredientesSinPrecio(){

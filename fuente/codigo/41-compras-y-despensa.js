@@ -24,9 +24,9 @@ abrirHerramientaCompras(nombre){
     ComprasHechas.renderPurchaseSum()
   }
   if(nombre==="presupuesto"){
-    // Todavía es un desplegable (lo cambia la Etapa 42, R5-X-02): se abre solo.
-    const b=document.getElementById("shoppingBudgetPanel");
-    if(b&&!b.open)b.open=true
+    // v19.9 (R5-X-02): el presupuesto se ve directo; solo "Comparar alternativas de precio" sigue plegado.
+    shoppingBudgetRender();
+    budgetCompareRender()
   }
   if(nombre==="precios")CantidadesCostos.abrirPrecios();
   if(nombre==="costoReceta")CantidadesCostos.refreshRecipeCostChoices();

@@ -47,4 +47,12 @@ export const ESCENAS = [
   { id: 'compras-precios', items: ['K-14', 'K-15'], ir: 'openTab("compras"); ComprasDespensa.abrirHerramientaCompras("precios"); ' + esperar },
   { id: 'compras-costo-receta', items: ['K-14'], ir: 'openTab("compras"); ComprasDespensa.abrirHerramientaCompras("costoReceta"); ' + esperar },
   { id: 'despensa', items: ['K-02', 'K-12', 'K-16', 'K-17'], ir: 'ModoSimple.setUiMode("completo"); openTab("compras"); renderPantry(); go("ingredientes"); ' + esperar },
+  // Etapa 42 · Más (la misma ruta sirve para el antes y el después)
+  { id: 'preferencias', items: ['X-01', 'X-04', 'X-05', 'X-06', 'X-07'], oscuro: true, ir: 'ModoSimple.setUiMode("completo"); openTab("mas"); go("preferencias"); ' + esperar },
+  { id: 'presupuesto', items: ['X-02', 'X-03'], ir: 'localStorage.setItem("miPlatoFacil_shoppingBudget_v1", JSON.stringify({ currency: "ARS", limit: 60000, period: "semana" })); openTab("compras"); ComprasDespensa.abrirHerramientaCompras("presupuesto"); ' + esperar + 'const c = document.querySelector("#budgetComparePanel"); if (c) { c.open = true; if (document.getElementById("budgetCompareRefresh")) document.getElementById("budgetCompareRefresh").click() } ' + esperar },
+  { id: 'asistente-ia', items: ['X-08'], ir: 'openTab("mas"); go("asistente"); ' + esperar },
+  { id: 'fuentes', items: ['X-09'], ir: 'openTab("mas"); go("fuentes"); ' + esperar + 'const n = document.getElementById("nutritionLookupPanel"); if (n) n.open = true; ' + esperar },
+  { id: 'como-funciona', items: ['X-10'], ir: 'openTab("mas"); go("comoFunciona"); ' + esperar + 'const p = document.querySelector("#comoFunciona details"); if (p) p.open = true; ' + esperar },
+  { id: 'respaldo', items: ['G-01'], ir: 'openTab("mas"); go("backupScreen"); ' + esperar },
+  { id: 'calendario', items: ['G-01'], ir: 'openTab("mas"); go("trainingCalendar"); ' + esperar },
 ];

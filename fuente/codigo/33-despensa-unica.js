@@ -116,11 +116,11 @@ function renderPantryItems(){
     edit.setAttribute("aria-label",(r.key?"Editar ":"Agregar cantidad a ")+r.name);
     del.setAttribute("aria-label","Quitar "+r.name+" de la despensa");
     row.append(text,edit,del);
-    // Historial del ítem (v15.4): sus movimientos, plegados. Solo lee.
-    const movs=movimientosDe(r.name);
+    // Historial del ítem: sus últimos movimientos, a la vista (v19.9, R5-G-01: sin desplegable). Solo lee.
+    const movs=movimientosDe(r.name,3);
     if(movs.length){
-      const h=ce("details","pantry-item__historial");
-      h.append(ce("summary",null,"Historial ("+movs.length+")"),...movs.map(m=>ce("p","screen__hint",textoMovimiento(m))));
+      const h=ce("div","pantry-item__historial");
+      h.append(ce("p","pantry-item__historial-titulo","Historial"),...movs.map(m=>ce("p","screen__hint",textoMovimiento(m))));
       row.append(h)
     }
     return row

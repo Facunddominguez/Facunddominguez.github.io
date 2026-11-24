@@ -61,11 +61,11 @@
   for (const m of libres) exigir("despensa sin cantidad", seVe($("pantryItemList"), m), m);
   const existencias = Object.values(J(STOCK));
   for (const s of existencias) exigir("existencia", seVe($("pantryItemList"), s.name + " · " + w.cantidadLegible(s.quantity, s.unit)), s.name);
-  for (const h of qa("#pantryItemList .pantry-item__historial")) await tocar(h.querySelector("summary"));
-  const historiales = qa("#pantryItemList .pantry-item__historial p").filter(visible).length;
+  // R5-G-01: el historial de cada ingrediente se ve directo (sus 3 últimos movimientos).
+  const historiales = qa("#pantryItemList .pantry-item__historial .screen__hint").filter(visible).length;
   const filas = existencias.map(s => s.name).concat(libres), movs = J(MOVES);
   const esperados = movs.filter(m => filas.some(n => w.ingredientKey(n) === w.ingredientKey(m.name))).length;
-  exigir("historial por ítem", historiales === Math.min(esperados, filas.length * 10) && esperados > 0, historiales + " de " + esperados);
+  exigir("historial por ítem", historiales === Math.min(esperados, filas.length * 3) && esperados > 0, historiales + " de " + esperados);
   // R5-K-16: "Todos los movimientos" ya no se muestra (los movimientos siguen guardados y se ven por ingrediente).
   exigir("sin 'Todos los movimientos'", !doc().getElementById("stockMoves") && !doc().getElementById("stockMovesPanel") && !/Todos los movimientos/.test($("ingredientes").textContent) && movs.length > 0);
   // Menú ⋯ de Compras: compras realizadas, presupuesto y Mis precios.
@@ -220,8 +220,7 @@
   await abrir(); await irA("compras"); await tocar($("comprasDespensa"));
   const filaQueso = q('#pantryItemList [data-pantry-item]');
   const legible = filaQueso.innerText.includes("Queso rallado · 167 g");
-  await tocar(filaQueso.querySelector(".pantry-item__historial summary"));
-  const hist = [...filaQueso.querySelectorAll(".pantry-item__historial p")].map(p => p.textContent);
+  const hist = [...filaQueso.querySelectorAll(".pantry-item__historial .screen__hint")].map(p => p.textContent);
   const historialOk = hist.length === 1 && /\+167 g · Lo compré/.test(hist[0]);
   const stock0 = localStorage.getItem(STOCK), moves0 = localStorage.getItem(MOVES);
   await tocar(q("#pantryItemList [data-pantry-item-edit]"));

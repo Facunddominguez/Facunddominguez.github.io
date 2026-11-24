@@ -90,13 +90,13 @@ abrirPreparacionesDeFruta(){
   Armado.setFrutaForma(data.frutaPreparaciones.includes(frutaForma)?frutaForma:data.frutaPreparaciones[0])
 },
 renderAlmidones(){
-  const box=document.getElementById("boxa"),mas=data.almidonesMas,det=ce("details","home-group almidones-mas");
-  det.append(ce("summary",null,"Más opciones: harinas, féculas y pan rallado"),...mas.map(label=>choice({
-    label,key:"almidones",multi:true
-  })));
+  // v19.9 (R5-G-01): sin desplegables: las opciones de "más" se ven directo, con su rótulo.
+  const box=document.getElementById("boxa"),mas=data.almidonesMas;
   box.replaceChildren(...data.almidones.filter(x=>!mas.includes(x)).map(label=>choice({
     label,key:"almidones",multi:true
-  })),det)
+  })),ce("p","home-section-label","Más opciones: harinas, féculas y pan rallado"),...mas.map(label=>choice({
+    label,key:"almidones",multi:true
+  })))
 },
 nextFor(id){
   return {
@@ -463,6 +463,14 @@ function go(id){
   if(id==="registro"&&typeof renderRegistro==="function")renderRegistro();
   if(id==="backupScreen"&&typeof RespaldoAviso!=="undefined")RespaldoAviso.pintar();
   if(id==="preferencias"&&typeof renderObjetivosPreferencias==="function")renderObjetivosPreferencias();
+  if(id==="preferencias"&&typeof Equivalencias!=="undefined"){
+    // v19.9 (R5-X-06): "Ingredientes equivalentes" está a la vista: se dibuja al entrar.
+    try{
+      document.getElementById("ingredientAliasStatus").textContent="";
+      Equivalencias.renderIngredientAliases()
+    }catch(e){
+    }
+  }
   if(id==="bf_fruit"){
     frutaForma=state.fruta&&state.fruta.forma&&Armado.formaDeFrutaValida(state.fruta.forma)?state.fruta.forma:"Entera";
     Armado.renderFrutaFormas();Armado.marcarFrutas()

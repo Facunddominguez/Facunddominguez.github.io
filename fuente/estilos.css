@@ -3430,7 +3430,6 @@ body.con-hoja{
 #manualShopList .manual-shop-row .shop-item{flex:1 1 60%}
 #manualShopList .manual-shop-row .filter-chip{min-height:var(--tap)}
 .pantry-item__historial{flex:1 1 100%;margin:2px 0 4px}
-.pantry-item__historial>summary{min-height:var(--tap);display:flex;align-items:center;cursor:pointer;color:var(--muted);font-size:14px}
 /* v15.5 · Registro: un día con lo que comiste y cocinaste, Quitar con Deshacer y los contadores. */
 .registro-dia{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:8px 0}
 .registro-dia strong{flex:1;text-align:center}
@@ -3665,3 +3664,31 @@ select{max-width:100%;min-width:0}
 #manualShopList .manual-shop-row .filter-chip{flex:0 0 auto}
 .despensa-revisar{margin:12px 0}
 .despensa-revisar .button{width:100%}
+
+/* v19.9 · Etapa 42 (Más) */
+#aiKeyStatus.is-ok{color:var(--green);font-weight:700}
+#aiKeyStatus.is-error{color:var(--danger,#c0392b);font-weight:700}
+.otros-fila{display:flex;align-items:center;gap:8px;margin:12px 0 8px}
+.otros-fila label{margin:0;font-weight:700}
+.info-boton{flex:0 0 auto;min-width:var(--tap);min-height:var(--tap);padding:0;border:0;border-radius:50%;background:none;color:var(--green);font:inherit;font-size:20px;line-height:1;cursor:pointer}
+#recipePreferencesPanel>h3{margin:0 0 12px}
+#recipePreferencesPanel .filter-row{margin:0 0 8px}
+#recipePreferencesPanel #recipeAvoidAyuda{margin:0 0 8px}
+#recipePreferencesPanel #recipeAvoidWords{width:100%;margin:0}
+#recipePreferencesPanel .preferencias-ocultar{display:flex;width:100%;margin:12px 0}
+#recipePreferencesPanel>.button{display:block;width:100%;margin-top:12px}
+#recipePreferencesStatus{margin:12px 0 0}
+#ingredientAliasPanel>h3{margin:0 0 12px}
+#ingredientAliasPanel>.screen__hint{margin:0 0 12px;line-height:1.5}
+#ingredientAliasPanel .portion-field{margin-top:12px}
+#ingredientAliasPanel>.button{display:block;width:100%;margin-top:12px}
+#ingredientAliasPanel #ingredientAliasStatus{margin:12px 0 0}
+#habitGoalsPanel .portion-field{margin-top:12px}
+#habitGoalsPanel>.button{display:block;width:100%;margin-top:12px}
+#habitGoalsAbrir{margin:12px 0}
+#nutritionLookupPanel label[for="nutritionLookupInput"]{display:block;margin:12px 0 8px;font-weight:700}
+#shoppingBudgetPanel>.button{display:block;width:100%;margin-top:12px}
+.presupuesto-usado{margin:4px 0 0}
+.pantry-item__historial-titulo{margin:0;color:var(--muted);font-size:13px;font-weight:700}
+.nutrition-box__subtitulo{margin:12px 0 4px;font-weight:700}
+.train-direct>h3{margin:0 0 8px}

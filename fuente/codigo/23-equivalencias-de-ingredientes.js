@@ -96,11 +96,6 @@ function ingredientAliasSuggestions(names){
   }
   return out.slice(0,8)
 }
-document.getElementById("ingredientAliasPanel").addEventListener("toggle",e=>{
-  if(e.target.open){
-    document.getElementById("ingredientAliasStatus").textContent="";Equivalencias.renderIngredientAliases()
-  }
-});
 document.getElementById("ingredientAliasSave").addEventListener("click",()=>{
   const status=document.getElementById("ingredientAliasStatus");try{
     Equivalencias.saveIngredientAlias(document.getElementById("ingredientAliasFrom").value,document.getElementById("ingredientAliasTo").value);document.getElementById("ingredientAliasFrom").value="";document.getElementById("ingredientAliasTo").value="";status.textContent="Equivalencia guardada. Compras, despensa y precios ya la usan.";Equivalencias.renderIngredientAliases()
