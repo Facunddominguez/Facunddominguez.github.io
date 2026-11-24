@@ -3692,3 +3692,32 @@ select{max-width:100%;min-width:0}
 .pantry-item__historial-titulo{margin:0;color:var(--muted);font-size:13px;font-weight:700}
 .nutrition-box__subtitulo{margin:12px 0 4px;font-weight:700}
 .train-direct>h3{margin:0 0 8px}
+
+/* v19.10 · Etapa 43 (Bienvenida): presentación de tres tarjetas e "Ingredientes a evitar" en el paso 3 */
+.bienvenida__tarjetas{margin:12px 0 8px}
+.bienvenida__tarjeta{padding:16px;border:1px solid var(--line);border-radius:20px;background:var(--green2,#e8f5ef);text-align:center}
+.bienvenida__tarjeta[hidden]{display:none}
+.bienvenida__tarjeta h3{margin:12px 0 6px;font-size:19px}
+.bienvenida__tarjeta p{margin:0;line-height:1.45}
+.bienvenida__ilustracion{display:block;width:100%;max-width:300px;height:auto;margin:0 auto}
+.ilu__fondo{fill:var(--surface);stroke:var(--line);stroke-width:1.5}
+.ilu__dias rect{fill:var(--green);opacity:.18}
+.ilu__comidas circle{fill:var(--green)}
+.ilu__boton{fill:var(--green)}
+.ilu__texto{fill:#fff;font:700 12px system-ui,sans-serif}
+.ilu__lineas rect{fill:var(--line)}
+.ilu__casilla{fill:none!important;stroke:var(--green);stroke-width:2}
+.ilu__precios rect{fill:var(--green);opacity:.18}
+.ilu__precio{fill:var(--text);font:700 10px system-ui,sans-serif}
+.ilu__pasos circle{fill:var(--green)}
+.ilu__num{fill:#fff;font:700 12px system-ui,sans-serif}
+.ilu__check{fill:var(--green)}
+.ilu__tilde{fill:none;stroke:#fff;stroke-width:6;stroke-linecap:round;stroke-linejoin:round}
+.bienvenida__puntos{display:flex;justify-content:center;gap:8px;margin:8px 0}
+.bienvenida__puntos span{width:10px;height:10px;border-radius:50%;background:var(--line)}
+.bienvenida__puntos span.is-activo{background:var(--green)}
+#bienvenidaTarjetaPos{text-align:center;margin:0 0 8px}
+.bienvenida__evitar{margin:16px 0 12px}
+.bienvenida__evitar>h3{margin:0 0 12px}
+.bienvenida__evitar .filter-row{margin:0 0 8px}
+.bienvenida__evitar input{width:100%;min-height:var(--tap);padding:10px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--text);font:inherit}

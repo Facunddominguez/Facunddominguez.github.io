@@ -82,8 +82,8 @@ Cada ítem tiene un control `R5-<ID>` en `docs/validacion/criterios.json`. Las c
 | X-09 | En Fuentes de datos, "Consultar nutrientes" sigue siendo desplegable, con al menos 8 px entre el rótulo "Ingrediente" y su campo. | 42 | R5-X-09 | fuentes-antes.png | fuentes-despues.png | ✅ |
 | X-10 | En Cómo funciona, "Publicación e instalación" sigue siendo desplegable y se elimina el texto "Medio plato de verduras, un cuarto de almidones y un cuarto de proteínas." | 42 | R5-X-10 | como-funciona-antes.png | como-funciona-despues.png | ✅ |
 | G-01 | Control global: en ninguna pantalla ni hoja hay listas desplegables, salvo las cuatro excepciones. | 42 | R5-G-01 | respaldo-antes.png, calendario-antes.png, asistente-ia-antes.png | respaldo-despues.png, calendario-despues.png, asistente-ia-despues.png | ✅ |
-| O-01 | Antes de los 4 pasos, una presentación breve y atractiva de la app: qué hace y lo mejor que tiene (armar la semana en un toque, la lista con precios reales, recetas con pasos, Lo comí), mostrada de forma creativa (por ejemplo, 3 tarjetas que se pasan con ilustraciones hechas en la app). Se puede saltear. | 43 | R5-O-01 | — | — | ⬜ |
-| O-02 | Los 4 pasos se mantienen y se suma "Ingredientes a evitar" (con la dieta), dentro de un paso existente o en uno propio y opcional. | 43 | R5-O-02 | — | — | ⬜ |
+| O-01 | Antes de los 4 pasos, una presentación breve y atractiva de la app: qué hace y lo mejor que tiene (armar la semana en un toque, la lista con precios reales, recetas con pasos, Lo comí), mostrada de forma creativa (por ejemplo, 3 tarjetas que se pasan con ilustraciones hechas en la app). Se puede saltear. | 43 | R5-O-01 | bienvenida-antes.png, bienvenida-antes-oscuro.png | bienvenida-despues.png, bienvenida-despues-oscuro.png | ✅ |
+| O-02 | Los 4 pasos se mantienen y se suma "Ingredientes a evitar" (con la dieta), dentro de un paso existente o en uno propio y opcional. | 43 | R5-O-02 | bienvenida-evitar-antes.png, bienvenida-evitar-antes-oscuro.png | bienvenida-evitar-despues.png, bienvenida-evitar-despues-oscuro.png | ✅ |
 
 ## Ítems en ⚠️ (no hechos)
 Ninguno todavía.
