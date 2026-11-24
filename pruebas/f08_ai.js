@@ -57,18 +57,31 @@
   const msgs = [];
   for (const [st, b] of [[429, { error: { message: "Resource exhausted" } }], [500, {}], [404, { error: { message: "model not found" } }]]) { mock(() => resp(st, b)); resetRecipeDetailsForm(); runner.querySelector("[data-ai-gemini]").click(); await wait(30); msgs.push(runner.querySelector("[data-ai-status]").textContent) }
   window.fetch = () => Promise.reject(new TypeError("Failed to fetch")); runner.querySelector("[data-ai-gemini]").click(); await wait(30); msgs.push(runner.querySelector("[data-ai-status]").textContent);
-  T.ok("A15 los errores de Gemini se explican y no cambian el editor", /límite gratuito/.test(msgs[0]) && /no está respondiendo/.test(msgs[1]) && /ya no está disponible/.test(msgs[2]) && /No se pudo conectar/.test(msgs[3]) && $("recipeDetailsTitle").value === "", msgs.join(" | "));
-  // v19.10.2: Gemini sobrecargado (503) dos veces y después contesta: se reintenta solo y la respuesta llega.
+  T.ok("A15 los errores de Gemini se explican y no cambian el editor", /límite gratuito/.test(msgs[0]) && /no está respondiendo|sobrecargado/.test(msgs[1]) && /ya no está disponible/.test(msgs[2]) && /No se pudo conectar/.test(msgs[3]) && $("recipeDetailsTitle").value === "", msgs.join(" | "));
+  // v19.10.3: Gemini sobrecargado (503) una vez y después contesta: un solo reintento con el mismo modelo, sin JSON estricto.
   { let n = 0; calls.length = 0;
-    mock(url => /:generateContent$/.test(url) ? (++n <= 2 ? resp(503, { error: { message: "The model is overloaded" } }) : resp(200, { candidates: [{ content: { parts: [{ text: '{"ok":1}' }] } }] })) : resp(200, {}));
+    mock(url => /:generateContent$/.test(url) ? (++n <= 1 ? resp(503, { error: { message: "The model is overloaded" } }) : resp(200, { candidates: [{ content: { parts: [{ text: '{"ok":1}' }] } }] })) : resp(200, {}));
     const t = await AsistenteIA.geminiGenerate("hola").catch(e => "ERROR " + e.message);
-    T.ok("A22 si Gemini contesta 503 (sobrecargado) se reintenta solo y la respuesta llega; el último intento va sin JSON estricto", t === '{"ok":1}' && n === 3 && !JSON.parse(calls[2].opts.body).generationConfig.responseMimeType && JSON.parse(calls[0].opts.body).generationConfig.responseMimeType === "application/json", t + " · intentos " + n) }
+    T.ok("A22 si Gemini contesta 503 (sobrecargado) se reintenta una vez solo y la respuesta llega; el reintento va sin JSON estricto", t === '{"ok":1}' && n === 2 && !JSON.parse(calls[1].opts.body).generationConfig.responseMimeType && JSON.parse(calls[0].opts.body).generationConfig.responseMimeType === "application/json", t + " · intentos " + n) }
   // Si el modelo guardado sigue fallando, se prueba con otro Flash de la cuenta y queda guardado.
   { const antes = JSON.parse(localStorage.getItem("miPlatoFacil_aiSettings_v1")); calls.length = 0;
     mock(url => /models\?/.test(url) ? resp(200, { models: [{ name: "models/" + antes.model, supportedGenerationMethods: ["generateContent"] }, { name: "models/gemini-2.5-flash", supportedGenerationMethods: ["generateContent"] }, { name: "models/gemini-flash-latest", supportedGenerationMethods: ["generateContent"] }] })
       : /gemini-2\.5-flash:generateContent$/.test(url) ? resp(200, { candidates: [{ content: { parts: [{ text: '{"ok":2}' }] } }] }) : resp(500, {}));
     const t = await AsistenteIA.geminiGenerate("hola").catch(e => "ERROR " + e.message), despues = JSON.parse(localStorage.getItem("miPlatoFacil_aiSettings_v1"));
     T.ok("A23 si el modelo guardado sigue fallando con 5xx, se usa otro Flash de la cuenta (no el alias 'latest') y queda guardado para la próxima", t === '{"ok":2}' && despues.model === "gemini-2.5-flash" && despues.key === antes.key && !calls.some(c => /gemini-flash-latest:generateContent/.test(c.url) && antes.model !== "gemini-flash-latest"), t + " · " + despues.model);
+    localStorage.setItem("miPlatoFacil_aiSettings_v1", JSON.stringify(antes)) }
+  // 429 (límite gratuito de ese modelo): no se insiste con el mismo; se prueba directo otro modelo, primero Flash-Lite, y queda guardado.
+  { const antes = JSON.parse(localStorage.getItem("miPlatoFacil_aiSettings_v1")); calls.length = 0;
+    const lista = { models: ["gemini-flash-latest", antes.model, "gemini-3.8-flash", "gemini-3.1-flash-lite", "gemini-3.8-flash-preview", "gemini-3.8-flash-image"].map(n => ({ name: "models/" + n, supportedGenerationMethods: ["generateContent"] })) };
+    mock(url => /models\?/.test(url) ? resp(200, lista) : /gemini-3\.1-flash-lite:generateContent$/.test(url) ? resp(200, { candidates: [{ content: { parts: [{ text: '{"ok":3}' }] } }] }) : resp(429, { error: { message: "Resource exhausted" } }));
+    const t = await AsistenteIA.geminiGenerate("hola").catch(e => "ERROR " + e.message), despues = JSON.parse(localStorage.getItem("miPlatoFacil_aiSettings_v1"));
+    const pedidos = calls.filter(c => /:generateContent$/.test(c.url)).map(c => c.url.split("/models/")[1].split(":")[0]);
+    T.ok("A24 con el límite gratuito (429) no reintenta el mismo modelo: prueba primero un Flash-Lite de la cuenta (sin vistas previas ni modelos de imagen) y lo deja guardado", t === '{"ok":3}' && despues.model === "gemini-3.1-flash-lite" && pedidos.length === 2 && pedidos[0] === antes.model && pedidos[1] === "gemini-3.1-flash-lite", t + " · " + pedidos.join(" > "));
+    localStorage.setItem("miPlatoFacil_aiSettings_v1", JSON.stringify(antes)); calls.length = 0;
+    mock(url => /models\?/.test(url) ? resp(200, lista) : resp(429, { error: { message: "Resource exhausted" } }));
+    const t2 = await AsistenteIA.geminiGenerate("hola").catch(e => "ERROR " + e.message);
+    const pedidos2 = calls.filter(c => /:generateContent$/.test(c.url)).length;
+    T.ok("A25 si todos los modelos están en el límite gratuito, lo dice una sola vez, explica cuándo se libera y no hace más de 4 pedidos", /límite gratuito de Gemini en los modelos de tu cuenta/.test(t2) && /medianoche/.test(t2) && pedidos2 <= 4 && JSON.parse(localStorage.getItem("miPlatoFacil_aiSettings_v1")).model === antes.model, t2.slice(0, 90) + " · pedidos " + pedidos2);
     localStorage.setItem("miPlatoFacil_aiSettings_v1", JSON.stringify(antes)) }
   localStorage.setItem(PANKEY, JSON.stringify(["pollo", "huevo"]));
   setStock([["Papa", 2, "kg"], ["Arroz", 0, "g"]]);

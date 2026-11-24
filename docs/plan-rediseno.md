@@ -3157,3 +3157,12 @@ Con la clave nueva guardada, "Pedir a Gemini" contestaba "Gemini no está respon
 - si sigue fallando con 5xx o sin texto, pide la lista de modelos y prueba con hasta 2 modelos Flash distintos del que falla (sin el alias "latest"); si uno anda, queda guardado para la próxima;
 - ignora las partes de "pensamiento" de la respuesta (`thought`) y el mensaje de error dice el código ("error 503").
 Errores que no son 5xx (clave rechazada, límite gratuito, sin conexión) se informan como antes, sin reintentar. Pruebas: `f08_ai.js` suma A22 (503 dos veces y después contesta) y A23 (el modelo guardado sigue fallando y se usa otro Flash); A15 corre con `esperaReintento = 0`. Total: 786.
+
+## Arreglo v19.10.3: Gemini con la cuenta gratuita (límite, sobrecarga y demora)
+
+Con la v19.10.2, Facundo vio tres mensajes seguidos: "Se alcanzó el límite gratuito", "error 503" y "Gemini tardó demasiado en responder". Los reintentos de la v19.10.2 hacían hasta 3 pedidos al mismo modelo, y con la cuenta gratuita eso gastaba el límite por minuto de ese modelo. Además, un 429 cortaba sin probar otro modelo, aunque los límites de Gemini son por modelo y por proyecto. `geminiGenerate` ahora:
+- ante 503 o respuesta vacía, reintenta **una sola vez** con el mismo modelo (sin JSON estricto);
+- ante 429, 5xx, demora o respuesta vacía, prueba hasta 3 modelos más de la cuenta (`geminiAlternativas`): primero Flash-Lite y después Flash con número de versión, del más nuevo al más viejo, sin vistas previas, sin modelos de imagen o audio y sin el alias "latest"; el que anda queda guardado;
+- espera hasta 90 s la respuesta (antes 45 s) y 20 s la lista de modelos;
+- si todos están en el límite gratuito, lo dice una vez y explica cuándo se libera (por minuto, enseguida; por día, a la medianoche de EE. UU., las 5 de Argentina); si todos están sobrecargados, dice cuántos probó.
+Pruebas en `f08_ai.js`: A22 (un 503 y después contesta: 2 pedidos), A24 (429: va directo a un Flash-Lite y lo guarda), A25 (todos en el límite: mensaje claro y como mucho 4 pedidos); A15 acepta "sobrecargado". Total: 788.

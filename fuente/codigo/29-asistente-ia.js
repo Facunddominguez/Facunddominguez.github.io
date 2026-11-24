@@ -55,8 +55,8 @@ geminiError(status,msg){
   if(status>=500)return "Gemini no está respondiendo ahora (error "+status+"). Probá más tarde.";
   return "Gemini respondió con un error ("+status+")."
 },
-async geminiFetch(url,opts){
-  const ctrl=new AbortController(),t=setTimeout(()=>ctrl.abort(),45000);
+async geminiFetch(url,opts,espera){
+  const ctrl=new AbortController(),t=setTimeout(()=>ctrl.abort(),espera||45000);
   let r;
   try{
     r=await fetch(url,Object.assign({
@@ -64,7 +64,9 @@ async geminiFetch(url,opts){
       signal:ctrl.signal
     }))
   }catch(e){
-    throw Error(e&&e.name==="AbortError"?"Gemini tardó demasiado en responder.":"No se pudo conectar con Gemini. Revisá tu conexión.")
+    const err=Error(e&&e.name==="AbortError"?"Gemini tardó demasiado en responder.":"No se pudo conectar con Gemini. Revisá tu conexión.");
+    if(e&&e.name==="AbortError")err.tiempo=true;
+    throw err
   }finally{
     clearTimeout(t)
   }
@@ -92,10 +94,11 @@ async geminiChooseModel(key){
   if(!m)throw Error("La clave funciona, pero no se encontró un modelo Gemini Flash disponible.");
   return m
 },
-// v19.10.2: Gemini a veces contesta con un error 500 o 503 (sobrecargado) o sin texto. Antes eso cortaba el pedido con
-// "Gemini no está respondiendo ahora". Ahora se reintenta 2 veces con el mismo modelo (la última sin pedir JSON estricto),
-// y si sigue fallando se prueba con otro modelo Flash de la lista; si ese anda, queda guardado para la próxima.
+// v19.10.3: con la cuenta gratuita, el modelo más nuevo (gemini-flash-latest) a veces está sobrecargado (503), llega al límite
+// gratuito (429) o tarda más de la cuenta. Cada modelo tiene su propio límite, así que en esos casos se prueba con otros
+// modelos Flash y Flash-Lite de la cuenta (uno por vez, sin repetir pedidos de más) y el que anda queda guardado.
 esperaReintento:1500,
+esperaRespuesta:90000,
 async geminiPedir(key,model,prompt,json){
   const config={temperature:0.4};
   if(json)config.responseMimeType="application/json";
@@ -109,7 +112,7 @@ async geminiPedir(key,model,prompt,json){
         }]
       }],generationConfig:config
     })
-  }),c=j&&Array.isArray(j.candidates)&&j.candidates[0],text=c&&c.content&&Array.isArray(c.content.parts)?c.content.parts.map(p=>typeof p.text==="string"&&!p.thought?p.text:"").join(""):"";
+  },AsistenteIA.esperaRespuesta),c=j&&Array.isArray(j.candidates)&&j.candidates[0],text=c&&c.content&&Array.isArray(c.content.parts)?c.content.parts.map(p=>typeof p.text==="string"&&!p.thought?p.text:"").join(""):"";
   if(!text){
     const err=Error("Gemini no devolvió una respuesta. Probá de nuevo.");
     err.vacia=true;
@@ -117,43 +120,60 @@ async geminiPedir(key,model,prompt,json){
   }
   return text
 },
+// Otros modelos para probar, en orden: Flash-Lite y Flash con número de versión (del más nuevo al más viejo), sin vistas previas
+// ni modelos especiales, y sin los que ya fallaron.
+geminiAlternativas(list,excluir){
+  const fuera=new Set(excluir||[]),ver=n=>parseFloat((n.match(/^gemini-(\d+(?:\.\d+)?)/)||[])[1])||0;
+  const ok=(Array.isArray(list)?list:[]).filter(m=>m&&Array.isArray(m.supportedGenerationMethods)&&m.supportedGenerationMethods.includes("generateContent")).map(m=>String(m.name||"").replace(/^models\//,"")).filter(n=>n&&!fuera.has(n)&&!/(image|tts|audio|live|exp|preview|thinking|embedding|latest)/.test(n));
+  const lite=ok.filter(n=>/^gemini-\d+(\.\d+)?-flash-lite$/.test(n)).sort((a,b)=>ver(b)-ver(a));
+  const flash=ok.filter(n=>/^gemini-\d+(\.\d+)?-flash$/.test(n)).sort((a,b)=>ver(b)-ver(a));
+  return lite.concat(flash)
+},
 async geminiGenerate(prompt){
   const s=loadAiSettings();
   if(!s.key)throw Error("Configurá tu clave de Gemini en Más → Asistente de IA.");
-  const reintentable=e=>!!e&&(e.status>=500||e.vacia===true),pausa=ms=>new Promise(r=>setTimeout(r,ms));
-  let ultimo=null;
-  for(const [i,json] of [true,true,false].entries()){
-    if(i>0)await pausa(AsistenteIA.esperaReintento*i);
+  const actual=s.model||"gemini-flash-latest",pausa=ms=>new Promise(r=>setTimeout(r,ms));
+  // Vale la pena probar otro modelo si el error es del modelo (sobrecargado, límite, demora o respuesta vacía), no de la clave ni de la conexión.
+  const otroModelo=e=>!!e&&(e.status>=500||e.status===429||e.tiempo===true||e.vacia===true);
+  const errores=[];
+  try{
+    return await AsistenteIA.geminiPedir(s.key,actual,prompt,true)
+  }catch(e){
+    if(!otroModelo(e))throw e;
+    errores.push(e)
+  }
+  // Sobrecargado o sin texto: un solo reintento con el mismo modelo, sin pedir JSON estricto.
+  if(errores[0].status>=500||errores[0].vacia){
+    await pausa(AsistenteIA.esperaReintento);
     try{
-      return await AsistenteIA.geminiPedir(s.key,s.model,prompt,json)
+      return await AsistenteIA.geminiPedir(s.key,actual,prompt,false)
     }catch(e){
-      if(!reintentable(e))throw e;
-      ultimo=e
+      if(!otroModelo(e))throw e;
+      errores.push(e)
     }
   }
-  // Otro modelo Flash de la cuenta (distinto del que viene fallando).
-  let probados=[s.model||"gemini-flash-latest"];
+  let alternativas=[];
   try{
     const lista=await AsistenteIA.geminiFetch("https://generativelanguage.googleapis.com/v1beta/models?pageSize=200",{
       headers:{"x-goog-api-key":s.key}
-    });
-    for(let k=0;k<2;k++){
-      const otro=AsistenteIA.geminiPickModel(lista&&lista.models,probados.concat(["gemini-flash-latest"]));
-      if(!otro)break;
-      probados.push(otro);
-      try{
-        const text=await AsistenteIA.geminiPedir(s.key,otro,prompt,true);
-        AsistenteIA.saveAiSettings({key:s.key,model:otro});
-        return text
-      }catch(e){
-        if(!reintentable(e))throw e;
-        ultimo=e
-      }
-    }
+    },20000);
+    alternativas=AsistenteIA.geminiAlternativas(lista&&lista.models,[actual]).slice(0,3)
   }catch(e){
-    if(!reintentable(e)&&e!==ultimo)throw e
+    errores.push(e)
   }
-  throw ultimo||Error("Gemini no está respondiendo ahora. Probá más tarde.")
+  for(const otro of alternativas){
+    try{
+      const text=await AsistenteIA.geminiPedir(s.key,otro,prompt,true);
+      AsistenteIA.saveAiSettings({key:s.key,model:otro});
+      return text
+    }catch(e){
+      if(!otroModelo(e))throw e;
+      errores.push(e)
+    }
+  }
+  if(errores.some(e=>e.status===429))throw Error("Se alcanzó el límite gratuito de Gemini en los modelos de tu cuenta. Probá en un rato: el límite por minuto se libera enseguida y el diario se renueva a la medianoche de EE. UU. (5 de la mañana en Argentina).");
+  if(errores.some(e=>e.status>=500))throw Error("Gemini está sobrecargado ahora (probé "+(1+alternativas.length)+(alternativas.length?" modelos":" modelo")+"). Probá en unos minutos.");
+  throw errores[errores.length-1]||Error("Gemini no está respondiendo ahora. Probá más tarde.")
 },
 recipeEditorHasContent(){
   return !!(recipeDetailsEditing||["recipeDetailsTitle","recipeDetailsSteps","recipeDetailsNotes","recipeTags","recipeMinutes","recipeSubstitutions"].some(id=>document.getElementById(id).value.trim())||[...document.querySelectorAll("#recipeIngredientRows [data-amount-name]")].some(i=>i.value.trim()))
