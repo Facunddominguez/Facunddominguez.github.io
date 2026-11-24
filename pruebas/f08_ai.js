@@ -57,7 +57,7 @@
   const msgs = [];
   for (const [st, b] of [[429, { error: { message: "Resource exhausted" } }], [500, {}], [404, { error: { message: "model not found" } }]]) { mock(() => resp(st, b)); resetRecipeDetailsForm(); runner.querySelector("[data-ai-gemini]").click(); await wait(30); msgs.push(runner.querySelector("[data-ai-status]").textContent) }
   window.fetch = () => Promise.reject(new TypeError("Failed to fetch")); runner.querySelector("[data-ai-gemini]").click(); await wait(30); msgs.push(runner.querySelector("[data-ai-status]").textContent);
-  T.ok("A15 los errores de Gemini se explican y no cambian el editor", /límite gratuito/.test(msgs[0]) && /no está respondiendo|sobrecargado/.test(msgs[1]) && /ya no está disponible/.test(msgs[2]) && /No se pudo conectar/.test(msgs[3]) && $("recipeDetailsTitle").value === "", msgs.join(" | "));
+  T.ok("A15 los errores de Gemini se explican y no cambian el editor", /límite gratuito/.test(msgs[0]) && /no está respondiendo|sobrecargado/.test(msgs[1]) && /no está disponible|No encontré un modelo/.test(msgs[2]) && /No se pudo conectar/.test(msgs[3]) && $("recipeDetailsTitle").value === "", msgs.join(" | "));
   // v19.10.3: Gemini sobrecargado (503) una vez y después contesta: un solo reintento con el mismo modelo, sin JSON estricto.
   { let n = 0; calls.length = 0;
     mock(url => /:generateContent$/.test(url) ? (++n <= 1 ? resp(503, { error: { message: "The model is overloaded" } }) : resp(200, { candidates: [{ content: { parts: [{ text: '{"ok":1}' }] } }] })) : resp(200, {}));
@@ -69,6 +69,15 @@
       : /gemini-2\.5-flash:generateContent$/.test(url) ? resp(200, { candidates: [{ content: { parts: [{ text: '{"ok":2}' }] } }] }) : resp(500, {}));
     const t = await AsistenteIA.geminiGenerate("hola").catch(e => "ERROR " + e.message), despues = JSON.parse(localStorage.getItem("miPlatoFacil_aiSettings_v1"));
     T.ok("A23 si el modelo guardado sigue fallando con 5xx, se usa otro Flash de la cuenta (no el alias 'latest') y queda guardado para la próxima", t === '{"ok":2}' && despues.model === "gemini-2.5-flash" && despues.key === antes.key && !calls.some(c => /gemini-flash-latest:generateContent/.test(c.url) && antes.model !== "gemini-flash-latest"), t + " · " + despues.model);
+    localStorage.setItem("miPlatoFacil_aiSettings_v1", JSON.stringify(antes)) }
+  // v19.10.4: el modelo guardado ya no existe (404): se prueba el alias "latest" y otros, y el que anda queda guardado.
+  { const antes = JSON.parse(localStorage.getItem("miPlatoFacil_aiSettings_v1")); calls.length = 0;
+    localStorage.setItem("miPlatoFacil_aiSettings_v1", JSON.stringify({ key: antes.key, model: "gemini-9.9-flash" }));
+    const lista = { models: ["gemini-flash-latest", "gemini-9.9-flash", "gemini-3.1-flash-lite"].map(n => ({ name: "models/" + n, supportedGenerationMethods: ["generateContent"] })) };
+    mock(url => /models\?/.test(url) ? resp(200, lista) : /gemini-9\.9-flash:/.test(url) ? resp(404, { error: { message: "models/gemini-9.9-flash is not found" } }) : /gemini-flash-latest:/.test(url) ? resp(503, {}) : resp(200, { candidates: [{ content: { parts: [{ text: '{"ok":4}' }] } }] }));
+    const t = await AsistenteIA.geminiGenerate("hola").catch(e => "ERROR " + e.message), despues = JSON.parse(localStorage.getItem("miPlatoFacil_aiSettings_v1"));
+    const pedidos = calls.filter(c => /:generateContent$/.test(c.url)).map(c => c.url.split("/models/")[1].split(":")[0]);
+    T.ok("A26 si el modelo guardado ya no existe (404) no pide volver a guardar la clave: prueba el alias 'latest' y otros modelos, y guarda el que anda", t === '{"ok":4}' && despues.model === "gemini-3.1-flash-lite" && despues.key === antes.key && pedidos[0] === "gemini-9.9-flash" && pedidos[1] === "gemini-flash-latest", t + " · " + pedidos.join(" > "));
     localStorage.setItem("miPlatoFacil_aiSettings_v1", JSON.stringify(antes)) }
   // 429 (límite gratuito de ese modelo): no se insiste con el mismo; se prueba directo otro modelo, primero Flash-Lite, y queda guardado.
   { const antes = JSON.parse(localStorage.getItem("miPlatoFacil_aiSettings_v1")); calls.length = 0;

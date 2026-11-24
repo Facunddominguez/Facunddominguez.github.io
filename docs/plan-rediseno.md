@@ -3166,3 +3166,7 @@ Con la v19.10.2, Facundo vio tres mensajes seguidos: "Se alcanzó el límite gra
 - espera hasta 90 s la respuesta (antes 45 s) y 20 s la lista de modelos;
 - si todos están en el límite gratuito, lo dice una vez y explica cuándo se libera (por minuto, enseguida; por día, a la medianoche de EE. UU., las 5 de Argentina); si todos están sobrecargados, dice cuántos probó.
 Pruebas en `f08_ai.js`: A22 (un 503 y después contesta: 2 pedidos), A24 (429: va directo a un Flash-Lite y lo guarda), A25 (todos en el límite: mensaje claro y como mucho 4 pedidos); A15 acepta "sobrecargado". Total: 788.
+
+## Arreglo v19.10.4: modelo de Gemini que ya no existe (404)
+
+Con la v19.10.3 apareció "El modelo de Gemini ya no está disponible. Volvé a guardar la clave para elegir otro.": un modelo respondió 404 y ese error cortaba el pedido sin probar otro. Ahora un 404 también pasa al siguiente modelo. Si el guardado no existe más, se prueba primero el alias `gemini-flash-latest` (si está en la lista de la cuenta) y después los otros, y el que anda queda guardado. Si ninguno anda, el guardado vuelve al alias, para que el próximo intento arranque de cero sin volver a cargar la clave. El mensaje de 404 ya no pide volver a guardar la clave, y si ningún modelo existe para la clave dice que se revise el acceso a la API en Google AI Studio. Prueba A26 en `f08_ai.js`; A15 acepta el mensaje nuevo. Total: 789.
