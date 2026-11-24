@@ -115,6 +115,13 @@
   const vacia = norm(st.textContent);
   $("aiKeyInput").value = "corta"; guardar2.click(); await espera(60);
   const corta = norm(st.textContent);
+  // v19.10.1: las claves nuevas de Google AI Studio empiezan con "AQ." (con punto) y también se aceptan y se guardan.
+  const KEY_AQ = "AQ.Ab8RN6IkTEST-clave_nueva.de_prueba_1234567890abcdef";
+  W.fetch = async (url, opts) => { llamadas.push({ url, key: opts && opts.headers && opts.headers["x-goog-api-key"] }); return { ok: true, status: 200, json: async () => ({ models: [{ name: "models/gemini-3.5-flash", supportedGenerationMethods: ["generateContent"] }] }) } };
+  localStorage.removeItem(AI); $("aiKeyInput").value = KEY_AQ + "\n"; guardar2.click(); await espera(150);
+  const guardadaAQ = J(AI), estadoAQ = norm(st.textContent);
+  ok("R5-X-08 una clave nueva de Google AI Studio que empieza con 'AQ.' se acepta, se prueba con Gemini y queda guardada", !!guardadaAQ && guardadaAQ.key === KEY_AQ && llamadas.at(-1).key === KEY_AQ && /^Listo: la conexión con Gemini funciona/.test(estadoAQ) && ev("loadAiSettings().key") === KEY_AQ, estadoAQ);
+  localStorage.removeItem(AI);
   ok("R5-X-08 con el campo vacío dice 'Pegá primero la clave' y con algo que no es una clave explica cómo es una clave válida (siempre contesta algo)", /^Pegá primero la clave/.test(vacia) && /no parece válida/.test(corta) && vacia !== corta);
 
   // ---- Fuentes de datos y Cómo funciona ----

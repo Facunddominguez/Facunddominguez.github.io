@@ -179,7 +179,7 @@ function loadAiSettings(){
       key:"",model:""
     };
     return {
-      key:typeof o.key==="string"&&/^[A-Za-z0-9_\-]{20,200}$/.test(o.key)?o.key:"",model:typeof o.model==="string"&&/^[a-z0-9][a-z0-9.\-]{2,79}$/.test(o.model)?o.model:""
+      key:typeof o.key==="string"&&/^[A-Za-z0-9_.\-]{20,300}$/.test(o.key)?o.key:"",model:typeof o.model==="string"&&/^[a-z0-9][a-z0-9.\-]{2,79}$/.test(o.model)?o.model:""
     }
   }catch(e){
     return {
@@ -246,8 +246,9 @@ document.getElementById("aiKeySave").addEventListener("click",async e=>{
     inp.focus();
     return
   }
-  if(!/^[A-Za-z0-9_\-]{20,200}$/.test(key)){
-    decir("La clave no parece válida: copiala completa desde Google AI Studio (tiene solo letras, números, guiones y guiones bajos).",false);
+  // v19.10.1: Google AI Studio ahora da claves nuevas que empiezan con "AQ." (con punto), además de las viejas "AIza…".
+  if(!/^[A-Za-z0-9_.\-]{20,300}$/.test(key)){
+    decir("La clave no parece válida: copiala completa desde Google AI Studio (empieza con \"AIza\" o con \"AQ.\" y tiene solo letras, números, puntos, guiones y guiones bajos).",false);
     return
   }
   const textoBoton=btn.textContent;
