@@ -50,7 +50,7 @@ aiPrompt(kind){
 geminiError(status,msg){
   if(status===400&&/api key/i.test(msg))return "La clave de Gemini no es válida.";
   if(status===401||status===403)return "La clave no tiene permiso para usar Gemini (revisala en Google AI Studio).";
-  if(status===404)return "El modelo de Gemini ya no está disponible. Volvé a guardar la clave para elegir otro.";
+  if(status===404)return "Ese modelo de Gemini no está disponible para tu clave.";
   if(status===429)return "Se alcanzó el límite gratuito de Gemini por ahora. Probá más tarde.";
   if(status>=500)return "Gemini no está respondiendo ahora (error "+status+"). Probá más tarde.";
   return "Gemini respondió con un error ("+status+")."
@@ -134,7 +134,8 @@ async geminiGenerate(prompt){
   if(!s.key)throw Error("Configurá tu clave de Gemini en Más → Asistente de IA.");
   const actual=s.model||"gemini-flash-latest",pausa=ms=>new Promise(r=>setTimeout(r,ms));
   // Vale la pena probar otro modelo si el error es del modelo (sobrecargado, límite, demora o respuesta vacía), no de la clave ni de la conexión.
-  const otroModelo=e=>!!e&&(e.status>=500||e.status===429||e.tiempo===true||e.vacia===true);
+  // v19.10.4: un 404 (ese modelo no existe o no está habilitado para tu clave) también pasa al siguiente modelo.
+  const otroModelo=e=>!!e&&(e.status>=500||e.status===429||e.status===404||e.tiempo===true||e.vacia===true);
   const errores=[];
   try{
     return await AsistenteIA.geminiPedir(s.key,actual,prompt,true)
@@ -157,7 +158,9 @@ async geminiGenerate(prompt){
     const lista=await AsistenteIA.geminiFetch("https://generativelanguage.googleapis.com/v1beta/models?pageSize=200",{
       headers:{"x-goog-api-key":s.key}
     },20000);
-    alternativas=AsistenteIA.geminiAlternativas(lista&&lista.models,[actual]).slice(0,3)
+    alternativas=AsistenteIA.geminiAlternativas(lista&&lista.models,[actual]).slice(0,4);
+    // Si el guardado no era el alias y no existe más, el alias "latest" (que Google mantiene apuntando a un Flash vigente) va primero.
+    if(errores.some(e=>e.status===404)&&actual!=="gemini-flash-latest"&&(lista&&Array.isArray(lista.models)?lista.models:[]).some(m=>m&&/gemini-flash-latest$/.test(String(m.name||""))))alternativas.unshift("gemini-flash-latest")
   }catch(e){
     errores.push(e)
   }
@@ -171,6 +174,9 @@ async geminiGenerate(prompt){
       errores.push(e)
     }
   }
+  // Si el modelo guardado no existe más y ninguno anduvo, se vuelve al alias para que el próximo intento arranque de cero.
+  if(errores[0]&&errores[0].status===404&&actual!=="gemini-flash-latest")AsistenteIA.saveAiSettings({key:s.key,model:"gemini-flash-latest"});
+  if(errores.length&&errores.every(e=>e.status===404))throw Error("No encontré un modelo de Gemini disponible para tu clave. Revisá en Google AI Studio que la clave tenga acceso a la API de Gemini.");
   if(errores.some(e=>e.status===429))throw Error("Se alcanzó el límite gratuito de Gemini en los modelos de tu cuenta. Probá en un rato: el límite por minuto se libera enseguida y el diario se renueva a la medianoche de EE. UU. (5 de la mañana en Argentina).");
   if(errores.some(e=>e.status>=500))throw Error("Gemini está sobrecargado ahora (probé "+(1+alternativas.length)+(alternativas.length?" modelos":" modelo")+"). Probá en unos minutos.");
   throw errores[errores.length-1]||Error("Gemini no está respondiendo ahora. Probá más tarde.")
