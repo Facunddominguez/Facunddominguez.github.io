@@ -55,4 +55,7 @@ export const ESCENAS = [
   { id: 'como-funciona', items: ['X-10'], ir: 'openTab("mas"); go("comoFunciona"); ' + esperar + 'const p = document.querySelector("#comoFunciona details"); if (p) p.open = true; ' + esperar },
   { id: 'respaldo', items: ['G-01'], ir: 'openTab("mas"); go("backupScreen"); ' + esperar },
   { id: 'calendario', items: ['G-01'], ir: 'openTab("mas"); go("trainingCalendar"); ' + esperar },
+  // Etapa 43 · Bienvenida (estado vacío: primer uso)
+  { id: 'bienvenida', items: ['O-01'], estado: 'vacio', oscuro: true, ir: 'Bienvenida.abrirBienvenida(); ' + esperar },
+  { id: 'bienvenida-evitar', items: ['O-02'], estado: 'vacio', oscuro: true, ir: 'Bienvenida.abrirBienvenida(); if (typeof bienvenidaIntro !== "undefined") bienvenidaIntro = false; bienvenidaPaso = 3; Bienvenida.pintarBienvenida(); ' + esperar },
 ];

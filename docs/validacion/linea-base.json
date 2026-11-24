@@ -8,7 +8,7 @@
     "navegador": "Chrome/156.0.8078.73"
   },
   "pruebas": {
-    "total": 772,
+    "total": 783,
     "suites": {
       "d01_diseno.js": 8,
       "m01_modo.js": 13,
@@ -82,7 +82,8 @@
       "r5e39_registro.js": 11,
       "r5e40_comidas.js": 14,
       "r5e41_compras.js": 25,
-      "r5e42_mas.js": 18
+      "r5e42_mas.js": 18,
+      "r5e43_bienvenida.js": 11
     }
   },
   "claves": [
@@ -1089,8 +1090,8 @@
     }
   },
   "actualizada": {
-    "etapa": 42,
-    "version": "19.9.0",
+    "etapa": 43,
+    "version": "19.10.0",
     "fecha": "2026-11-24"
   }
 }
