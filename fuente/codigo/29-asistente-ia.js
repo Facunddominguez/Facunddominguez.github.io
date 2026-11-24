@@ -212,11 +212,13 @@ renderAiIdeas(ideas){
 handleAiAnswer(kind,text){
   const o=AsistenteIA.aiParseJson(text);
   if(kind==="recipe"){
-    const r=aiRecipeFromJson(Array.isArray(o)?o[0]:o.receta&&typeof o.receta==="object"?o.receta:o);
-    if(!r)throw Error("La respuesta no tiene una receta válida (falta el título o los ingredientes).");
+    // Si Gemini no pone título, se usa el primer renglón del texto pegado.
+    const primer=(document.getElementById("aiRecipeText").value||"").split(/\n/).map(x=>x.trim()).find(Boolean)||"",n=aiNormalizarReceta(o,primer.slice(0,80)),r=aiRecipeFromJson(n);
+    if(!r)throw Error(n&&n.titulo?"La respuesta de Gemini no trae ingredientes ni pasos. Probá de nuevo o revisá que el texto pegado sea una receta.":"La respuesta no tiene una receta válida (falta el título o los ingredientes).");
     return AsistenteIA.fillRecipeEditorFromAi(r)?"Borrador cargado en el editor: revisalo y guardalo si está bien.":"No se cambió nada."
   }
-  const ideas=(Array.isArray(o)?o:Array.isArray(o.ideas)?o.ideas:[]).map(aiRecipeFromJson).filter(Boolean).slice(0,5);
+  const lista=Array.isArray(o)?o:Array.isArray(aiCampo(o,["ideas","recetas","recipes","comidas","platos"]))?aiCampo(o,["ideas","recetas","recipes","comidas","platos"]):[];
+  const ideas=lista.map(x=>aiRecipeFromJson(aiNormalizarReceta(x,""))).filter(Boolean).slice(0,5);
   if(!ideas.length)throw Error("La respuesta no trae ideas válidas.");
   AsistenteIA.renderAiIdeas(ideas);
   return ideas.length+" idea"+(ideas.length===1?"":"s")+" lista"+(ideas.length===1?"":"s")+": elegí una para verla como receta."
@@ -264,6 +266,80 @@ function loadAiSettings(){
 }
 function aiCleanText(v,max){
   return typeof v==="string"?v.replace(/[\u0000-\u001f\u007f]+/g," ").replace(/\s+/g," ").trim().slice(0,max):""
+}
+// v19.10.5: Gemini no siempre respeta las claves pedidas. Antes de validar, se pasa la respuesta a la forma pedida:
+// claves en inglés o con tilde (title, título, ingredients, steps, preparación…), ingredientes como texto ("200 g de harina"),
+// cantidades como texto ("1/2", "200"), unidades escritas de otra forma (gr, gramos, cda…) y pasos como objetos o como un solo texto.
+function aiSinTilde(v){
+  return String(v||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim()
+}
+function aiCampo(o,nombres){
+  if(!o||typeof o!=="object")return undefined;
+  const claves=Object.keys(o);
+  for(const n of nombres){
+    const k=claves.find(c=>aiSinTilde(c).replace(/[\s_-]+/g,"")===n);
+    if(k!==undefined&&o[k]!==null&&o[k]!==undefined&&o[k]!=="")return o[k]
+  }
+  return undefined
+}
+function aiNumero(v){
+  if(typeof v==="number")return Number.isFinite(v)?v:null;
+  const t=String(v==null?"":v).trim().replace(",",".");
+  let m=t.match(/^(\d+)\s+(\d+)\/(\d+)/);
+  if(m)return Number(m[1])+Number(m[2])/Number(m[3]);
+  m=t.match(/^(\d+)\/(\d+)/);
+  if(m)return Number(m[1])/Number(m[2]);
+  m=t.match(/^\d+(\.\d+)?/);
+  return m?Number(m[0]):null
+}
+function aiUnidad(v){
+  const u=aiSinTilde(v).replace(/\.$/,"");
+  if(!u)return null;
+  const tabla={g:"g",gr:"g",grs:"g",gramo:"g",gramos:"g",kg:"kg",kgs:"kg",kilo:"kg",kilos:"kg",kilogramo:"kg",kilogramos:"kg",ml:"ml",mililitro:"ml",mililitros:"ml",cc:"ml",l:"l",lt:"l",lts:"l",litro:"l",litros:"l",unidad:"unidad",unidades:"unidad",u:"unidad",un:"unidad",una:"unidad",cucharada:"cucharada",cucharadas:"cucharada",cda:"cucharada",cdas:"cucharada",cucharadita:"cucharadita",cucharaditas:"cucharadita",cdita:"cucharadita",cditas:"cucharadita",taza:"taza",tazas:"taza"};
+  return tabla[u]||null
+}
+function aiIngrediente(x){
+  if(typeof x==="string"){
+    const t=x.replace(/^[-•*\s]+/,"").trim();
+    const m=t.match(/^(\d+(?:[.,]\d+)?(?:\s+\d+\/\d+)?|\d+\/\d+)\s*([a-zA-ZáéíóúÁÉÍÓÚ.]+)?\s+(?:de\s+)?(.+)$/);
+    if(m){
+      const unidad=aiUnidad(m[2]);
+      return {nombre:unidad?m[3]:(m[2]?m[2]+" ":"")+m[3],cantidad:aiNumero(m[1]),unidad:unidad||(m[2]?null:"unidad")}
+    }
+    return {nombre:t,cantidad:null,unidad:null}
+  }
+  if(!x||typeof x!=="object")return null;
+  const nombre=aiCampo(x,["nombre","name","ingrediente","ingredient","item","producto"]);
+  const cantidad=aiCampo(x,["cantidad","amount","quantity","qty","cant"]);
+  const unidad=aiCampo(x,["unidad","unit","units","medida"]);
+  return {nombre:typeof nombre==="string"?nombre:"",cantidad:cantidad==null?null:aiNumero(cantidad),unidad:aiUnidad(unidad)}
+}
+function aiPaso(x){
+  if(typeof x==="string")return x.replace(/^\s*(\d+[.)-]|paso\s*\d+[:.)-]?)\s*/i,"");
+  const t=aiCampo(x,["texto","text","descripcion","description","instruccion","instruction","paso","step","detalle"]);
+  return typeof t==="string"?t:""
+}
+function aiNormalizarReceta(o,tituloPorDefecto){
+  if(Array.isArray(o))o=o[0];
+  if(!o||typeof o!=="object")return null;
+  const dentro=aiCampo(o,["receta","recipe","data","resultado"]);
+  if(dentro&&typeof dentro==="object"&&!Array.isArray(dentro))o=dentro;
+  let titulo=aiCampo(o,["titulo","title","nombre","name","nombrereceta","recipename","plato"]);
+  if(typeof titulo!=="string"||!titulo.trim())titulo=tituloPorDefecto||"";
+  let ing=aiCampo(o,["ingredientes","ingredients","listaingredientes"]);
+  if(typeof ing==="string")ing=ing.split(/\n|;/);
+  let pasos=aiCampo(o,["pasos","steps","instrucciones","instructions","preparacion","procedimiento","metodo"]);
+  if(typeof pasos==="string")pasos=pasos.split(/\n+|(?=\b\d+[.)]\s)/);
+  const minutos=aiNumero(aiCampo(o,["minutos","tiempo","tiempototal","time","totaltime","minutes"]));
+  const porciones=aiNumero(aiCampo(o,["porciones","servings","rinde","raciones"]));
+  let etiquetas=aiCampo(o,["etiquetas","tags"]);
+  if(typeof etiquetas==="string")etiquetas=etiquetas.split(/,/);
+  return {
+    titulo,porciones,minutos:minutos?Math.round(minutos):null,etiquetas:Array.isArray(etiquetas)?etiquetas:[],
+    ingredientes:(Array.isArray(ing)?ing:[]).map(aiIngrediente).filter(Boolean),
+    pasos:(Array.isArray(pasos)?pasos:[]).map(aiPaso),
+    porque:aiCampo(o,["porque","motivo","why","reason"])
+  }
 }
 function aiRecipeFromJson(o){
   if(!o||typeof o!=="object"||Array.isArray(o))return null;
