@@ -13,6 +13,8 @@ const esperar = 'await new Promise(r => setTimeout(r, 250)); ';
 export const HOY = (iso, hora = '12:00:00') => `(() => { const R = window.__DateReal || Date, t = new R(${JSON.stringify(iso + 'T' + hora)}).getTime(); window.__DateReal = R; class F extends R { constructor(...a) { if (a.length) super(...a); else super(t) } static now() { return t } } window.Date = F })(); `;
 const armarSemana = 'openTab("semana"); await ArmameSemana.correr("todo"); ' + esperar;
 const armarProxima = 'openTab("semana"); Semana.verSemana(1); await ArmameSemana.correr("todo"); ' + esperar + 'Semana.verSemana(0); ';
+const fichaEnSemana = 'openTab("miscomidas"); { const e = Semana.planEntriesFlat().find(x => x.item); const g = e ? e.item : (MisPlatos.loadSaved()[0] || IdeasHoja.guardarIdea(data.menuCatalog[0]).item); Comidas.abrirComida("plato", g.id); } ' + esperar;
+const abrirCocina = 'if (typeof ModoCocina !== "undefined") { const c = document.querySelector("[data-comida-cocinar]"); if (c && !c.hidden) c.click(); } ' + esperar;
 export const ESCENAS = [
   // Etapa 45 · Precios confiables (los precios incluidos son del 4/11; el teléfono de la captura marca el 26/11: 22 días)
   { id: 'lista-precios', items: ['P-04', 'P-05'], oscuro: true, ir: HOY('2026-11-26') + armarSemana + 'openTab("compras"); ' + esperar },
@@ -24,7 +26,15 @@ export const ESCENAS = [
   { id: 'compras-proxima', items: ['L-01', 'L-04'], ir: HOY('2026-11-26') + armarSemana + armarProxima + 'openTab("compras"); ' + esperar + 'const b = document.querySelector("[data-compras-periodo=proxima]"); if (b) b.click(); ' + esperar },
   { id: 'compras-dos-tachado', items: ['L-04'], ir: HOY('2026-11-26') + armarSemana + armarProxima + 'openTab("compras"); ' + esperar + 'const d = document.querySelector("[data-compras-periodo=dos]"); if (d) d.click(); ' + esperar + 'const c = document.querySelector("#comprasList input[type=checkbox]"); if (c) c.click(); ' + esperar },
   { id: 'compras-compartir', items: ['L-05'], ir: HOY('2026-11-26') + armarSemana + armarProxima + 'openTab("compras"); ' + esperar + 'const b = document.querySelector("[data-compras-periodo=proxima]"); if (b) b.click(); ' + esperar + 'const pre = document.createElement("pre"); pre.style.whiteSpace = "pre-wrap"; pre.textContent = Compras.comprasText().split("\\n").slice(0, 14).join("\\n"); hoja.abrir({ titulo: "Texto que se comparte", contenido: [pre], botones: [] }); ' + esperar, medir: '.hoja' },
+  // Etapa 47 · Modo cocina y ficha de receta (el "antes" muestra la ficha vieja y, donde no existía el modo cocina, la misma ficha)
+  { id: 'ficha-comida', items: ['C-01', 'C-02', 'C-03'], oscuro: true, ir: HOY('2026-11-26') + armarSemana + fichaEnSemana },
+  { id: 'ficha-receta', items: ['C-01', 'C-02'], ir: HOY('2026-11-26') + armarSemana + 'openTab("miscomidas"); const ids = Object.keys(loadRecipeDetails()); if (ids.length) Comidas.abrirComida("receta", ids[0]); ' + esperar },
+  { id: 'cocina-ingredientes', items: ['C-03', 'C-05'], oscuro: true, ir: HOY('2026-11-26') + armarSemana + fichaEnSemana + abrirCocina },
+  { id: 'cocina-paso', items: ['C-03', 'C-04', 'C-07'], oscuro: true, ir: HOY('2026-11-26') + armarSemana + fichaEnSemana + abrirCocina + 'if (typeof ModoCocina !== "undefined" && ModoCocina.datos) { const k = ModoCocina.datos.pasos.findIndex(p => ModoCocina.tiempoDePaso(p) !== null); ModoCocina.ir((k < 0 ? 0 : k) + 1); const ini = document.querySelector("[data-cocina-iniciar]"); if (ini) { ini.click(); ModoCocina.tick() } } ' + esperar },
+  { id: 'cocina-final', items: ['C-06', 'C-07'], ir: HOY('2026-11-26') + armarSemana + fichaEnSemana + abrirCocina + 'if (typeof ModoCocina !== "undefined" && ModoCocina.datos) ModoCocina.ir(ModoCocina.total()); ' + esperar },
 ];
 // Ítems que se comprueban en la salida de una herramienta y no en una pantalla: su "captura" es un texto
 // (docs/capturas-ronda-6/<nombre>-antes.txt y -despues.txt).
+// Ítems que se miran también a otro ancho (--ancho 320): sus capturas llevan el sufijo -320.
+export const ANCHOS = { 'C-07': 320 };
 export const SALIDAS = { 'P-01': ['p-01'], 'P-02': ['p-02'], 'P-03': ['p-03'] };

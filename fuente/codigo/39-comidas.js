@@ -49,6 +49,102 @@ compartirComida(){
     st.textContent=ok?"Copiada para compartir.":"No se pudo copiar."
   })
 },
+// ---- Etapa 47 (R6-C-01 a C-06): pasos, ingredientes y lugar en la semana de la comida que se está viendo ----
+// Los pasos de la comida: los de su receta o, si es una idea del catálogo, los de la idea.
+pasosDeComida(){
+  if(!comidaActual)return [];
+  const limpios=a=>Array.isArray(a)?a.filter(x=>String(x).trim()):[];
+  try{
+    if(comidaActual.origen==="receta"){
+      const r=loadRecipeDetails()[comidaActual.id];
+      return r?limpios(r.steps):[]
+    }
+    const it=MisPlatos.loadSaved().find(x=>x.id===comidaActual.id);
+    if(!it)return [];
+    let idea=null;
+    try{idea=IdeasHoja.ideaDeComida(it)}catch(e){}
+    if(idea&&Array.isArray(idea.pasos)&&idea.pasos.length)return limpios(idea.pasos);
+    const rid=recetaDeComida(it),r=rid&&loadRecipeDetails()[rid];
+    return r?limpios(r.steps):[]
+  }catch(e){
+    return []
+  }
+},
+// Lo que necesita el modo cocina: título, ingredientes con las cantidades de la ficha y pasos (o null si no se puede cocinar).
+datosDeCocina(){
+  if(!comidaActual)return null;
+  const pasos=Comidas.pasosDeComida(),personas=typeof personasHogar==="function"?personasHogar():1;
+  const filas=receta=>{
+    let am=null;
+    try{am=loadRecipeAmounts()}catch(e){}
+    const a=receta&&receta.amountsTitle&&am&&Object.prototype.hasOwnProperty.call(am,receta.amountsTitle)?am[receta.amountsTitle]:null;
+    return a?a.rows.map(row=>row.name+": "+(row.quantity===null?"cantidad desconocida":row.quantity+" "+row.unit)):[]
+  };
+  let titulo="",ingredientes=[];
+  if(comidaActual.origen==="receta"){
+    const r=loadRecipeDetails()[comidaActual.id];
+    if(!r)return null;
+    titulo=r.title;
+    ingredientes=filas(r)
+  }else{
+    const it=MisPlatos.loadSaved().find(x=>x.id===comidaActual.id);
+    if(!it)return null;
+    titulo=mealName(it);
+    let idea=null;
+    try{idea=IdeasHoja.ideaDeComida(it)}catch(e){}
+    if(idea&&Array.isArray(idea.cantidades)&&idea.cantidades.length)ingredientes=idea.cantidades.map(([n,q,u])=>n+" · "+IdeasHoja.textoCantidad(q*personas,u));
+    else{
+      const rid=recetaDeComida(it);
+      ingredientes=rid?filas(loadRecipeDetails()[rid]):[];
+      if(!ingredientes.length)ingredientes=comidaDesdePlato(it).componentes.slice()
+    }
+  }
+  return {
+    origen:comidaActual.origen,id:comidaActual.id,titulo,ingredientes,pasos
+  }
+},
+// Los huecos de la semana que se ve donde ya está esta comida (una receta cuenta con sus copias): [[día, comida], …].
+huecosEnLaSemana(){
+  if(!comidaActual)return [];
+  const plan=loadPlan(),ids=new Set([comidaActual.id]);
+  if(comidaActual.origen==="receta")MisPlatos.loadSaved().forEach(p=>{
+    if(p.recipeSourceId===comidaActual.id)ids.add(p.id)
+  });
+  const out=[];
+  DAYS.forEach(([d])=>SLOTS.forEach(([s])=>{
+    const id=plan[d]&&plan[d][s];
+    if(id&&ids.has(id))out.push([d,s])
+  }));
+  return out
+},
+textoEnSemana(huecos){
+  const t=huecos.slice(0,3).map(([d,s])=>Semana.planDayName(d).toLowerCase()+", "+Semana.planSlotName(s).toLowerCase()).join(" · ");
+  return "En la semana: "+t+(huecos.length>3?" y "+(huecos.length-3)+" más":"")
+},
+// Fila principal de la ficha: Cocinar (si hay pasos) y, según esté o no en la semana, "Agregar a la semana" o "En la semana: martes, cena".
+pintarPrincipal(){
+  const caja=document.getElementById("comidaPrincipal");
+  if(!caja)return;
+  const pasos=Comidas.pasosDeComida(),h=Comidas.huecosEnLaSemana(),cocinar=caja.querySelector("[data-comida-cocinar]"),agregar=caja.querySelector("[data-comida-agregar]"),enSemana=caja.querySelector("[data-comida-en-semana]");
+  cocinar.hidden=!pasos.length;
+  const clase="button "+(pasos.length?"button--soft":"button--primary");
+  if(h.length){
+    enSemana.hidden=false;
+    enSemana.textContent="📅 "+Comidas.textoEnSemana(h);
+    enSemana.className=clase;
+    agregar.textContent="Agregar otra vez";
+    agregar.className="button button--soft"
+  }else{
+    enSemana.hidden=true;
+    agregar.textContent="📅 Agregar a la semana";
+    agregar.className=clase
+  }
+},
+irASemana(){
+  const h=Comidas.huecosEnLaSemana();
+  openTab("semana");
+  if(h.length)try{Semana.elegirDiaPlan(h[0][0]);renderPlan()}catch(e){}
+},
 agregarComidaALaSemana(dayKey,slot){
   if(!comidaActual)throw Error("Abrí una comida primero.");
   const antes=(loadPlan()[dayKey]||{})[slot]||null;
@@ -245,7 +341,8 @@ function pintarCabeceraComida(nombre,etiquetas,conservarAviso){
   document.getElementById("comidaEtiquetas").textContent=etiquetas.join(" · ");
   if(!conservarAviso)document.getElementById("comidaEstado").textContent="";
   if(typeof pintarEnlaceRegistro==="function")pintarEnlaceRegistro();
-  if(typeof pintarCostoComida==="function")pintarCostoComida()
+  if(typeof pintarCostoComida==="function")pintarCostoComida();
+  Comidas.pintarPrincipal()
 }
 function mostrarDetalleReceta(r){
   let amounts={
@@ -258,7 +355,8 @@ function mostrarDetalleReceta(r){
     origen:"receta",id:r.id
   };
   pintarCabeceraComida(r.title,comidaDesdeReceta(r,amounts,false).etiquetas);
-  document.getElementById("comidaPlato").hidden=true
+  document.getElementById("comidaPlato").hidden=true;
+  document.getElementById("comidaPlatoAcciones").hidden=true
 }
 // conservarAviso: al repintar después de una acción (Lo cociné, Favorita…) queda a la vista su aviso.
 function pintarDetallePlato(it,conservarAviso){
@@ -282,15 +380,16 @@ function pintarDetallePlato(it,conservarAviso){
     if(h)h.textContent=idea&&Array.isArray(idea.cantidades)&&idea.cantidades.length?"Qué lleva · para "+personas+(personas===1?" persona":" personas"):"Qué lleva"
   }
   if(pasos){
-    const hay=!!(idea&&Array.isArray(idea.pasos)&&idea.pasos.length);
+    const lista=Comidas.pasosDeComida(),hay=lista.length>0;
     pasos.hidden=!hay;
-    document.getElementById("comidaPasosLista").replaceChildren(...(hay?idea.pasos.map(p=>ce("li",null,p)):[]));
-    document.getElementById("comidaPasosTitulo").textContent="Cómo se hace"+(hay&&idea.minutos?" · "+idea.minutos+" min":"")
+    document.getElementById("comidaPasosLista").replaceChildren(...(hay?lista.map(p=>ce("li",null,p)):[]));
+    document.getElementById("comidaPasosTitulo").textContent="Cómo se hace"+(hay&&idea&&idea.minutos?" · "+idea.minutos+" min":"")
   }
   const boton=(texto,clave,valor,clase)=>{
     const b=ce("button","button "+(clase||"button--soft"),texto);b.type="button";b.dataset[clave]=valor;return b
   };
   // v19.4 (R5-C-03): "Editar receta" si la comida tiene receta; si no, "Añadir receta".
+  acts.hidden=false;
   acts.replaceChildren(boton("🍽️ Lo comí","cookSaved",it.id),boton("Editar nombre","renameSaved",it.id),boton(comidaTieneReceta(it)?"Editar receta":"Añadir receta","comidaRecetaDe",it.id))
 }
 // La receta propia que corresponde a una comida (su copia de receta, la que se armó desde su idea o la que tiene su mismo nombre), o null.
@@ -381,6 +480,8 @@ document.addEventListener("click",e=>{
     if(d.ideasVerTodas!==undefined){
       ideasMenuTodas=!ideasMenuTodas;return Ideas.renderMenuIdeas()
     }
+    if(d.comidaCocinar!==undefined)return ModoCocina.abrir();
+    if(d.comidaEnSemana!==undefined)return Comidas.irASemana();
     if(d.comidaAgregar!==undefined)return Comidas.abrirAgregarComida();
     if(d.comidaCompartir!==undefined)return Comidas.compartirComida();
     if(d.comidaMenu!==undefined)return Comidas.abrirMenuComida();
