@@ -60,7 +60,7 @@ cookRecipeNow(id){
 },
 boughtNow(){
   Compras.syncShoppingWeek();
-  const all=Compras.shoppingPlanItems(),boughtBefore=Compras.shoppingBoughtSet(),items=all.filter(e=>comprasDone[e.key]&&!boughtBefore.has(e.key));
+  const all=Compras.shoppingPlanItems(Compras.periodoActual()),boughtBefore=Compras.shoppingBoughtSet(all),items=all.filter(e=>comprasDone[e.key]&&!boughtBefore.has(e.key));
   if(!items.length)return {
     text:all.some(e=>comprasDone[e.key])?"Lo tachado ya está en tu despensa.":"Primero tachá lo que compraste en la lista."
   };
@@ -104,9 +104,9 @@ boughtNow(){
   };
   try{
     if(changes.length)res=applyStockChanges(changes,("Lo compré · "+typedAppDateLabel(Rutina.localTrainingDate(new Date()))).slice(0,80));
-    const bought=Compras.shoppingBoughtSet();
+    const bought=Compras.shoppingBoughtSet(all);
     items.forEach(e=>bought.add(e.key));
-    Compras.saveShoppingChecks(bought)
+    Compras.saveShoppingChecks(bought,all)
   }catch(err){
     deshacer();
     throw err

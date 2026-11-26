@@ -1,5 +1,6 @@
 // R4 battery: accessibility, amount editor layout, simplified Compras, dead code removed.
 (async () => {
+  R6_LUNES(window);
   const R = window.R2, { wait, results, criticalCase } = R; const T = results();
   criticalCase(); go("compras"); await wait(60);
   const cbs = [...document.querySelectorAll("#comprasList input[data-shop-key]")];
@@ -13,7 +14,7 @@
   const idx = id => kids.indexOf(id);
   // v15.4: "+ Agregar producto" arriba de la lista, los extras al pie y las herramientas en su pantalla (menú ⋯).
   const tools = document.getElementById("shoppingToolsPanel");
-  T.ok("X4 Compras: lista, extras y Compartir arriba; herramientas al final", idx("manualShoppingPanel") < idx("comprasList") && idx("comprasList") < idx("comprasExtras") && idx("comprasExtras") < idx("comprasBoughtBox") && idx("comprasBoughtBox") < idx("comprasStatus") && !sec.contains(tools) && document.getElementById("comprasHerramientas").contains(tools), kids.join(" > "));
+  T.ok("X4 Compras: lista, extras, Agregar producto (R6-L-06, debajo de la lista) y Compartir; herramientas al final", idx("comprasList") < idx("comprasExtras") && idx("comprasExtras") < idx("manualShoppingPanel") && idx("manualShoppingPanel") < idx("comprasBoughtBox") && idx("comprasBoughtBox") < idx("comprasStatus") && !sec.contains(tools) && document.getElementById("comprasHerramientas").contains(tools), kids.join(" > "));
   const PANELES = ["shoppingBudgetPanel", "purchasesPanel", "recipeCostPanel", "pricePanel"];
   const inside = PANELES.every(id => tools.contains(document.getElementById(id)));
   const source = await (await fetch(location.href, { cache: "no-store" })).text();
@@ -31,5 +32,6 @@
   T.ok("X7 la indicación explica dónde registrar la despensa (simple: Con lo que tengo; completo: Más herramientas)", /Despensa/.test(simpleHint) && /Despensa/.test(fullHint) && !/Con lo que tengo|Más herramientas/.test(simpleHint + fullHint), simpleHint + " | " + fullHint);
   T.ok("X8 código sin uso eliminado", typeof buildShopping === "undefined" && typeof shoppingMissingLabel === "undefined" && !document.querySelector("[data-manual-copy]"));
   T.ok("X9 copiar la lista sigue funcionando", /🛒 Lista de compras/.test(Compras.comprasText()) && Compras.comprasText().includes("Papa: 200 g"));
+  R6_REAL(window);
   return T;
 })()

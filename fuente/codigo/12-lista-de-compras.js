@@ -21,24 +21,100 @@ loadShoppingChecks(){
 shoppingChecksWeek(){
   return mondayOf(Rutina.localTrainingDate(new Date()))
 },
-syncShoppingWeek(){
-  const wk=Compras.shoppingChecksWeek();
-  if(wk===comprasWeek)return;
-  comprasWeek=wk;
-  const w=Compras.loadShoppingChecks()[wk];
-  comprasDone=Object.fromEntries((w?w.t:[]).map(k=>[k,true]))
+// Etapa 46 (R6-L-01 a L-03): "Comprar para" esta semana, la que viene o las dos. Lo que elegís a mano se recuerda hasta el lunes
+// siguiente (miPlatoFacil_comprasPeriodo_v1 = {"periodo": "esta"|"proxima"|"dos", "semana": lunes de la semana en que lo elegiste}).
+// Del viernes al domingo, si la semana que viene ya tiene comidas, la lista abre en "La semana que viene"; los otros días, en "Esta semana".
+validComprasPeriodo(v){
+  return !!v&&typeof v==="object"&&!Array.isArray(v)&&Object.keys(v).length===2&&["esta","proxima","dos"].includes(v.periodo)&&Rutina.validTrainingDate(v.semana)
 },
-shoppingBoughtSet(){
-  const w=Compras.loadShoppingChecks()[Compras.shoppingChecksWeek()];
-  return new Set(w?w.c:[])
+periodoElegido(){
+  try{
+    const v=JSON.parse(localStorage.getItem(COMPRAS_PERIODO_KEY)||"null");
+    return Compras.validComprasPeriodo(v)&&v.semana===Semana.semanaActual()?v.periodo:null
+  }catch(e){
+    return null
+  }
 },
-saveShoppingChecks(bought){
+periodoPorDefecto(){
+  const dia=new Date().getDay();
+  if((dia===5||dia===6||dia===0)&&Semana.planTieneComidas(Semana.planDeLaSemana("proxima")))return "proxima";
+  return "esta"
+},
+periodoActual(){
+  return Compras.periodoElegido()||Compras.periodoPorDefecto()
+},
+elegirPeriodo(periodo){
+  if(!["esta","proxima","dos"].includes(periodo))return;
+  try{
+    localStorage.setItem(COMPRAS_PERIODO_KEY,JSON.stringify({
+      periodo,semana:Semana.semanaActual()
+    }))
+  }catch(e){
+    comprasStatus("No se pudo guardar el período elegido.")
+  }
   Compras.syncShoppingWeek();
-  const all=Compras.loadShoppingChecks(),cur=all[comprasWeek],t=Object.keys(comprasDone).filter(k=>comprasDone[k]).sort(),c=[...(bought||new Set(cur?cur.c:[]))].sort();
-  if(t.length||c.length)all[comprasWeek]={
-    t,c
+  renderCompras()
+},
+// "26/11 al 29/11": de hoy al domingo (esta semana), de lunes a domingo (la que viene) o de hoy al domingo de la que viene (las dos).
+pintarPeriodo(){
+  const periodo=Compras.periodoActual();
+  for(const b of document.querySelectorAll("[data-compras-periodo]"))b.setAttribute("aria-pressed",String(b.dataset.comprasPeriodo===periodo))
+},
+rangoDelPeriodo(periodo){
+  const f=d=>d.getDate()+"/"+(d.getMonth()+1),hoy=new Date(Rutina.localTrainingDate(new Date())+"T12:00:00"),dom=new Date(Semana.semanaActual()+"T12:00:00"),sig=new Date(Semana.lunesSiguiente()+"T12:00:00");
+  dom.setDate(dom.getDate()+6);
+  const finSig=new Date(sig);
+  finSig.setDate(finSig.getDate()+6);
+  return periodo==="proxima"?f(sig)+" al "+f(finSig):periodo==="dos"?f(hoy)+" al "+f(finSig):f(hoy)+" al "+f(dom)
+},
+// Tachados y comprados por semana: cada comida lleva su semana (esta o la que viene). Un producto está tachado (o comprado) si lo está
+// en todas las semanas del período en las que aparece; tacharlo (o comprarlo) lo marca en todas.
+marcasDeSemana(all,lunes){
+  const w=all[lunes];
+  return {
+    t:new Set(w?w.t:[]),c:new Set(w?w.c:[])
+  }
+},
+syncShoppingWeek(){
+  const periodo=Compras.periodoActual(),firma=periodo+"|"+Compras.shoppingChecksWeek();
+  if(firma===comprasFirma)return;
+  comprasFirma=firma;
+  comprasWeek=Compras.shoppingChecksWeek();
+  Compras.recargarTachados(periodo)
+},
+recargarTachados(periodo){
+  const all=Compras.loadShoppingChecks();
+  comprasDone={
   };
-  else delete all[comprasWeek];
+  for(const e of Compras.shoppingPlanItems(periodo)){
+    if([...e.semanas].every(l=>Compras.marcasDeSemana(all,l).t.has(e.key)))comprasDone[e.key]=true
+  }
+},
+shoppingBoughtSet(items){
+  const all=Compras.loadShoppingChecks(),out=new Set();
+  for(const e of items||Compras.shoppingPlanItems(Compras.periodoActual())){
+    if([...e.semanas].every(l=>Compras.marcasDeSemana(all,l).c.has(e.key)))out.add(e.key)
+  }
+  return out
+},
+// Guarda en cada semana lo tachado (comprasDone) y, si se pasa, lo comprado de los productos de la lista; lo de otros productos no se toca.
+saveShoppingChecks(bought,items){
+  Compras.syncShoppingWeek();
+  const lista=items||Compras.shoppingPlanItems(Compras.periodoActual()),all=Compras.loadShoppingChecks(),marcas={
+  };
+  for(const e of lista)for(const l of e.semanas){
+    const m=marcas[l]||(marcas[l]=Compras.marcasDeSemana(all,l));
+    if(comprasDone[e.key])m.t.add(e.key);else m.t.delete(e.key);
+    if(bought){
+      if(bought.has(e.key))m.c.add(e.key);else m.c.delete(e.key)
+    }
+  }
+  for(const [l,m] of Object.entries(marcas)){
+    if(m.t.size||m.c.size)all[l]={
+      t:[...m.t].sort(),c:[...m.c].sort()
+    };
+    else delete all[l]
+  }
   const keep=Object.keys(all).sort().reverse().slice(0,12),out=Object.fromEntries(keep.sort().map(k=>[k,all[k]]));
   if(!Compras.validShoppingChecks(out))throw Error("No se pudieron guardar los tachados.");
   if(Object.keys(out).length)localStorage.setItem(SHOPPING_CHECKS_KEY,JSON.stringify(out));
@@ -49,21 +125,23 @@ shoppingQtyText(units){
     maximumFractionDigits:6
   })+" "+unit).join(" + ")
 },
-shoppingPlanItems(){
-  let recipes=null,amounts=null;
+shoppingPlanItems(periodo){
+  let recipes=null,amounts=null,lunesDe=Compras.shoppingChecksWeek();
   const map=new Map(),entry=name=>{
     const key=ingredientKey(name),raw=String(name).trim();
     if(!map.has(key))map.set(key,{
-      key,name:raw,units:new Map(),unknown:0,forms:new Set()
+      key,name:raw,units:new Map(),unknown:0,forms:new Set(),semanas:new Set()
     });
     const e=map.get(key);
     e.forms.add(normalizeSearchText(raw));
+    e.semanas.add(lunesDe);
     return e
   };
   const personas=personasHogar();
   for(const {
-    item,portions
-  } of Semana.planEntriesFlat()){
+    item,portions,lunes
+  } of periodo?Semana.entradasDelPeriodo(periodo):Semana.planEntriesFlat()){
+    lunesDe=lunes||Compras.shoppingChecksWeek();
     let amount=null;
     if(item&&item.recipeSourceId){
       if(!recipes){
@@ -252,14 +330,18 @@ loadVueltas(){
     return {}
   }
 },
-vueltasDeLaSemana(){
-  const v=Compras.loadVueltas()[Compras.shoppingChecksWeek()];
-  return new Set(v||[])
+vueltasDeLaSemana(periodo){
+  const all=Compras.loadVueltas(),out=new Set();
+  for(const l of Semana.semanasDelPeriodo(periodo||"esta"))for(const k of all[l]||[])out.add(k);
+  return out
 },
 devolverALaLista(key){
-  const all=Compras.loadVueltas(),wk=Compras.shoppingChecksWeek(),set=new Set(all[wk]||[]);
-  set.add(key);
-  all[wk]=[...set].sort();
+  const all=Compras.loadVueltas();
+  for(const wk of Semana.semanasDelPeriodo(Compras.periodoActual())){
+    const set=new Set(all[wk]||[]);
+    set.add(key);
+    all[wk]=[...set].sort()
+  }
   const keep=Object.keys(all).sort().reverse().slice(0,12),out=Object.fromEntries(keep.sort().map(k=>[k,all[k]]));
   if(!Compras.validVueltas(out))throw Error("No se pudo guardar el cambio.");
   localStorage.setItem(COMPRAS_VUELTAS_KEY,JSON.stringify(out))
@@ -297,7 +379,7 @@ toggleShop(key,checked){
   renderCompras()
 },
 comprasText(){
-  const todos=Compras.marcarNombresCortos(shoppingDisplayItems()),pend=todos.filter(x=>x.group==="pendiente"&&!comprasDone[x.key]),lines=[],extras=manualShoppingText();
+  const periodo=Compras.periodoActual(),todos=Compras.marcarNombresCortos(shoppingDisplayItems(periodo)),pend=todos.filter(x=>x.group==="pendiente"&&!comprasDone[x.key]),lines=[],extras=manualShoppingText();
   // Etapa 23: para WhatsApp. Por secciones del súper (título en negrita), con cantidades legibles, ≈ precio por producto y el total.
   let precios=null;
   try{
@@ -313,7 +395,7 @@ comprasText(){
   }
   if(!lines.length&&!extras)return "";
   const total=precios&&precios.total>0?NL+NL+"*Total "+formatoPesos(precios.total)+"*"+(precios.sinEstimar?" (al menos)":"")+(precios.estimados?" · incluye "+precios.estimados+(precios.estimados===1?" precio estimado":" precios estimados"):""):"";
-  return "🛒 Lista de compras — Mi plato fácil"+NL+lines.join(NL)+(extras?(lines.length?NL+NL:"")+"Productos extra"+NL+extras:"")+total
+  return "🛒 Lista de compras — Mi plato fácil"+NL+"Lista para la semana del "+Compras.rangoDelPeriodo(periodo)+NL+lines.join(NL)+(extras?(lines.length?NL+NL:"")+"Productos extra"+NL+extras:"")+total
 },
 shareCompras(){
   let t;
@@ -349,7 +431,7 @@ function shoppingMissingRows(){
   const totals=new Map(),unknown=new Set(),recipes=loadRecipeDetails(),amounts=loadRecipeAmounts(),stock=loadStockQuantities(),multiplier=1;
   for(const {
     item,portions
-  } of Semana.planEntriesFlat()){
+  } of Semana.entradasDelPeriodo(Compras.periodoActual())){
     if(!item||!item.recipeSourceId)continue;
     const recipe=recipes[item.recipeSourceId],amount=recipe&&recipe.amountsTitle&&amounts[recipe.amountsTitle];
     if(!amount)continue;
@@ -376,11 +458,15 @@ let comprasShowAll=false;
 // Se escribe solo cuando el usuario actúa (nunca al mostrar) y al escribir se conservan las últimas 12 semanas.
 const SHOPPING_CHECKS_KEY="miPlatoFacil_shoppingChecks_v1";
 var COMPRAS_VUELTAS_KEY="miPlatoFacil_comprasVueltas_v1";
+var COMPRAS_PERIODO_KEY="miPlatoFacil_comprasPeriodo_v1";
+var comprasFirma=null;
 // Lectura tolerante: lo que no tiene el formato esperado se ignora (semana por semana).
 let comprasWeek=null;
 // Trae los tachados de la semana actual (al abrir la app o si empezó otra semana: cada lunes arranca sin tachados).
-// Lo que pasó a la despensa con "Lo compré" esta semana.
-Compras.syncShoppingWeek();
+// Al abrir la app solo se leen los tachados de esta semana (la lista todavía no se puede calcular: faltan archivos por cargar); la primera
+// vez que se pinta o se toca la lista se recalculan para el período elegido.
+comprasWeek=Compras.shoppingChecksWeek();
+comprasDone=Object.fromEntries(((Compras.loadShoppingChecks()[comprasWeek]||{t:[]}).t).map(k=>[k,true]));
 // Interruptor "Descontar lo que tengo" (desde la v15.4), en miPlatoFacil_comprasOpciones_v1: {"descontar": true|false}.
 // Encendido por defecto (el comportamiento de antes). Se escribe solo al tocarlo. Es var por el orden de arranque.
 var COMPRAS_OPCIONES_KEY="miPlatoFacil_comprasOpciones_v1";
@@ -400,9 +486,9 @@ var PALABRAS_SUPER=null;
 // "faltan X". Los tres grupos juntos son siempre la misma lista, con las cantidades del plan.
 // Desde la v15.4: si la despensa tiene otra unidad ("la unidad no coincide"), queda pendiente con "revisá"; con el
 // interruptor "Descontar lo que tengo" apagado, nada va a "Ya tenés" y no se muestra "faltan".
-function shoppingDisplayItems(){
-  const stock=loadStockQuantities(),marked=MarcasDespensa.pantryMarkedMatcher(),bought=Compras.shoppingBoughtSet(),vueltas=Compras.vueltasDeLaSemana(),descontar=comprasDescontar();
-  return Compras.shoppingPlanItems().map(e=>{
+function shoppingDisplayItems(periodo){
+  const stock=loadStockQuantities(),marked=MarcasDespensa.pantryMarkedMatcher(),items=Compras.shoppingPlanItems(periodo),bought=Compras.shoppingBoughtSet(items),vueltas=Compras.vueltasDeLaSemana(periodo),descontar=comprasDescontar();
+  return items.map(e=>{
     const label=Compras.shoppingItemLabel(e),suggestion=Compras.shoppingSuggestion(e,stock,marked),partial=!!suggestion&&suggestion.kind==="partial",revisar=!!suggestion&&suggestion.kind==="info"&&/la unidad no coincide/.test(suggestion.text),group=bought.has(e.key)?"comprado":descontar&&suggestion&&!partial&&!revisar&&!vueltas.has(e.key)?"tenes":"pendiente";const faltaEnvase=descontar&&partial&&suggestion.missing?envasar(e.name,suggestion.missing):null,compra=faltaEnvase||envasar(e.name,e.units),visible=compra&&!faltaEnvase?e.name+": "+compra.texto:label;return {
       key:e.key,name:e.name,units:e.units,unknown:e.unknown,label,suggestion,group,seccion:Compras.seccionDelSuper(e.name),compraUnits:compra?compra.units:null,text:descontar&&group==="pendiente"&&partial?(faltaEnvase?e.name+": "+faltaEnvase.texto:label+" · faltan "+suggestion.buy):descontar&&group==="pendiente"&&revisar?visible+" · revisá":visible
     }
@@ -415,6 +501,7 @@ function renderCompras(){
   const cont=document.getElementById("comprasList"),hint=document.getElementById("comprasHint"),summary=document.getElementById("comprasSummary");
   if(!cont)return;
   Compras.syncShoppingWeek();
+  Compras.pintarPeriodo();
   const sw=document.getElementById("comprasDescontar");
   if(sw)sw.checked=comprasDescontar();
   try{
@@ -423,7 +510,7 @@ function renderCompras(){
   }
   let items;
   try{
-    items=shoppingDisplayItems()
+    items=shoppingDisplayItems(Compras.periodoActual())
   }catch(e){
     cont.replaceChildren(ce("p","screen__hint","No se pudo calcular la lista: "+e.message));
     return

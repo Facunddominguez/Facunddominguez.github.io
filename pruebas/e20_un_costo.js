@@ -11,7 +11,7 @@
     document.body.append(marco);
     await new Promise((res, rej) => { marco.onload = res; marco.onerror = rej; marco.src = "/index.html?marco=" + Date.now() });
     await espera(500);
-    w = marco.contentWindow; w.confirm = () => true; w.prompt = () => "";
+    w = marco.contentWindow; w.confirm = () => true; w.prompt = () => ""; R6_LUNES(w);
   };
   const ev = x => w.eval(x), doc = () => w.document;
   const texto = id => (doc().getElementById(id) || { textContent: "" }).textContent;

@@ -3727,6 +3727,12 @@ select{max-width:100%;min-width:0}
 /* Etapa 45: aviso de precios viejos en la lista (desde los 14 días). */
 .precios-viejos{margin:0 0 8px;padding:10px 12px;border:1px solid var(--orange);border-left-width:4px;border-radius:12px;background:var(--surface);color:var(--text);font-size:14px;line-height:1.4}
 .precios-viejos[hidden]{display:none}
+/* Etapa 46: "Comprar para" (esta semana, la que viene o las dos) arriba de la lista. */
+.compras-periodo{margin:0 0 12px}
+.compras-periodo__titulo{margin:0 0 6px;font-weight:700;font-size:14px;color:var(--muted)}
+.compras-periodo__botones{display:grid;grid-template-columns:1fr 1.4fr 1fr;gap:8px}
+.compras-periodo__boton{min-height:var(--tap);padding:6px 8px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--text);font:inherit;font-size:14px;font-weight:700;line-height:1.2;cursor:pointer}
+.compras-periodo__boton[aria-pressed="true"]{background:var(--green);border-color:var(--green);color:var(--on-green)}
 </style></head><body>
 <div class="app-shell"><header class="app-header"><div class="app-header__row"><div class="brand"><div><h1 class="brand__title" aria-label="Mi Plato Fácil"><span class="wordmark-mi">mi</span> plato <span class="wordmark-facil">fácil</span></h1></div></div><button class="home-button" id="homeTop" type="button">Inicio</button></div></header><main id="appMain">
 <section class="screen card is-active" id="home"><p class="screen__kicker">Hoy</p><h2 class="screen__title">Hoy</h2><p class="screen__hint"></p><div class="today" id="todayPanel"><div class="today__entreno" id="todayEntreno"></div><p class="today__costo" id="todayCosto" hidden></p><p class="today__primera" id="todayPrimera" hidden></p><div class="today__rows" id="todayRows"></div><p class="screen__hint today__status" id="todayStatus" aria-live="polite"></p><p class="respaldo-aviso" id="todayRespaldo" hidden></p></div><div class="home-group home-group--main hoy-acciones">
@@ -3739,7 +3745,7 @@ select{max-width:100%;min-width:0}
 <section class="screen card" id="azar"><p class="screen__kicker">Al azar</p><h2 class="screen__title">¿Qué querés que arme?</h2><p class="screen__hint">Una idea completa que después podés cambiar o guardar.</p><div class="grid"><button class="button button--primary home-main" data-random-type="desayuno">🍳 Desayuno / Merienda</button><button class="button button--primary home-main" data-random-type="plato">🥗 Almuerzo / Cena</button></div><p class="screen__hint" id="azarStatus" aria-live="polite"></p></section>
 <section class="screen card" id="ingredientes"><p class="screen__kicker">Compras</p><h2 class="screen__title">Mi despensa</h2><div class="segmento" role="group" aria-label="Compras"><button type="button" class="segmento__boton" data-compras-vista="lista" aria-pressed="false">Lista</button><button type="button" class="segmento__boton" data-compras-vista="despensa" aria-pressed="true">Despensa</button></div><p class="screen__hint" id="pantryHint">Marcá lo que tenés en casa y te muestro qué podés cocinar.</p><p class="home-section-label">Lo básico</p><div class="filter-row" id="pantryChips"></div><div class="summary-actions"><button class="button button--soft" type="button" data-pantry-clear>Limpiar selección</button></div><p class="home-section-label">Básicos de alacena</p><p class="screen__hint" id="basicosHint">Aceite, sal y especias no van a la lista ni al costo. Si se te terminó alguno, marcalo y aparece.</p><div class="filter-row" id="basicosChips" role="group" aria-label="Básicos de alacena que faltan"></div><div class="home-group" id="pantryItemsPanel"><h3 class="plan-day__title">Otros ingredientes y cantidades</h3><p class="screen__hint">La cantidad es opcional: con ella, Compras sabe cuánto falta.</p><form id="pantryItemForm" autocomplete="off"><div class="portion-field"><label for="pantryItemName">Ingrediente</label><input id="pantryItemName" type="text" maxlength="100" list="pantryItemNames" required placeholder="Ej.: arroz yamaní"></div><div class="pantry-item-qty"><div class="portion-field"><label for="pantryItemQty">Cantidad (opcional)</label><input id="pantryItemQty" type="text" inputmode="decimal" maxlength="12" placeholder="Ej.: 500"></div><div class="portion-field"><label for="pantryItemUnit">Unidad</label><select id="pantryItemUnit"></select></div></div><div class="summary-actions"><button class="button button--soft" type="submit" id="pantryItemSubmit">Agregar a la despensa</button><button class="button button--soft is-hidden" type="button" id="pantryItemCancel">Cancelar edición</button></div></form><datalist id="pantryItemNames"></datalist><p id="pantryItemStatus" class="screen__hint" aria-live="polite"></p><div id="pantryItemList"></div></div><div class="summary-actions despensa-ideas"><button class="button button--soft" type="button" id="pantryIdeasLink" data-con-lo-que-tengo>💡 Ver ideas con lo que tenés</button></div><div class="divider"></div><div class="summary-actions despensa-revisar"><button class="button button--soft" type="button" id="pantryReviewAbrir" data-abre-panel="pantryReviewPanel" aria-expanded="false" aria-controls="pantryReviewPanel">🔎 Revisar qué tengo y qué falta</button></div><div class="home-group" id="pantryReviewPanel" hidden><p class="screen__hint">Elegí una idea y confirmá sus componentes. Se revisa solo lo nombrado en el título, no una receta completa. Variedades, preparaciones, cantidades y otros ingredientes requieren revisión. Las marcas de esta revisión son temporales: no cambian tu despensa ni Compras.</p><div class="portion-field"><label for="pantryReviewRecipe">Idea del menú</label><select id="pantryReviewRecipe"></select></div><button class="button button--soft" type="button" id="pantryReviewReset">Reiniciar revisión desde mi selección</button><div id="pantryReviewItems"></div><p id="pantryReviewStatus" class="screen__hint" aria-live="polite"></p></div></section>
 <section class="screen card" id="plan"><div class="semana-cabeza"><h2 class="screen__title" id="planSemanaTitulo">Esta semana</h2><button class="filter-chip semana-menu" type="button" data-plan-menu aria-label="Más opciones de la semana" aria-haspopup="dialog">⋯</button></div><div class="armame-fila"><button class="button button--primary armame-boton" type="button" data-armame>Armame la semana</button><button class="button button--soft armame-planes" type="button" data-planes-guardados hidden aria-label="Usar un plan guardado">Mis planes</button></div><p class="screen__hint semana-aviso" id="planAviso" aria-live="polite"></p><p class="screen__hint" id="planStatus" aria-live="polite"></p><p class="screen__hint" id="planHint"></p><p class="screen__hint" id="planObjetivos" hidden></p><div class="semana-nueva" id="planSemanaNueva" hidden><p><strong>¿Repetís el plan o empezás de cero?</strong> <span id="planSemanaNuevaTexto"></span></p><div class="semana-nueva__acciones"><button class="button button--primary" type="button" data-plan-repetir>Repetir el plan</button><button class="button button--soft" type="button" data-plan-de-cero>Empezar de cero</button></div></div><div class="semana-dias" id="planDias" role="group" aria-label="Días de la semana"></div><div class="semana-dia" id="currentPlanPanel"><h3 class="semana-dia__titulo" id="planDiaTitulo"></h3><p class="screen__hint" id="planDiaCosto" hidden></p><p class="screen__hint" id="planPreciosEstado" hidden></p><div class="semana-huecos" id="planList"></div></div></section>
-<section class="screen card" id="compras"><div class="semana-cabeza"><h2 class="screen__title">Compras</h2><button class="filter-chip semana-menu" type="button" data-compras-menu aria-label="Más opciones de compras" aria-haspopup="dialog">⋯</button></div><div class="segmento" role="group" aria-label="Compras"><button type="button" class="segmento__boton" data-compras-vista="lista" aria-pressed="true">Lista</button><button type="button" class="segmento__boton" id="comprasDespensa" data-open-pantry aria-pressed="false">Despensa</button></div><p class="screen__hint" id="comprasHint"></p><button type="button" class="compras-presupuesto" id="comprasPresupuesto" data-compras-herr="presupuesto"></button><div class="compras-controles"><label class="interruptor" for="comprasDescontar"><input type="checkbox" id="comprasDescontar" role="switch" checked><span>Descontar lo que tengo</span></label></div><div class="home-group compras-agregar" id="manualShoppingPanel"><h3 class="plan-day__title">Agregar producto</h3><form id="manualShoppingForm"><div class="portion-field"><label for="manualShopName">Producto</label><input id="manualShopName" type="text" maxlength="100" required placeholder="Ej.: detergente"></div><div class="portion-field"><label for="manualShopAmount">Cantidad</label><input id="manualShopAmount" type="text" maxlength="80" placeholder="Ej.: 1 botella"></div><div class="summary-actions"><button class="button button--soft" type="submit" id="manualShopSubmit">Agregar</button><button class="button button--soft is-hidden" type="button" data-manual-cancel>Cancelar edición</button></div></form></div><p id="manualShopStatus" class="screen__hint" aria-live="polite"></p><p class="screen__hint" id="comprasSummary" aria-live="polite"></p><div id="comprasList"></div><div class="compras-seccion" id="comprasExtras"><h3 class="compras-seccion__titulo">Otros productos</h3><div id="manualShopList"></div></div><div class="bought-box" id="comprasBoughtBox"><button class="button button--primary" type="button" id="comprasBought">Terminé de comprar</button><button class="button button--soft" type="button" data-compras-compartir>Compartir lista</button><p class="screen__hint" id="comprasBoughtStatus" aria-live="polite"></p></div><p class="screen__hint" id="comprasStatus" aria-live="polite"></p></section>
+<section class="screen card" id="compras"><div class="semana-cabeza"><h2 class="screen__title">Compras</h2><button class="filter-chip semana-menu" type="button" data-compras-menu aria-label="Más opciones de compras" aria-haspopup="dialog">⋯</button></div><div class="segmento" role="group" aria-label="Compras"><button type="button" class="segmento__boton" data-compras-vista="lista" aria-pressed="true">Lista</button><button type="button" class="segmento__boton" id="comprasDespensa" data-open-pantry aria-pressed="false">Despensa</button></div><div class="compras-periodo" role="group" aria-labelledby="comprasPeriodoTitulo"><p class="compras-periodo__titulo" id="comprasPeriodoTitulo">Comprar para</p><div class="compras-periodo__botones"><button type="button" class="compras-periodo__boton" data-compras-periodo="esta" aria-pressed="false">Esta semana</button><button type="button" class="compras-periodo__boton" data-compras-periodo="proxima" aria-pressed="false">La semana que viene</button><button type="button" class="compras-periodo__boton" data-compras-periodo="dos" aria-pressed="false">Las dos</button></div></div><p class="screen__hint" id="comprasHint"></p><button type="button" class="compras-presupuesto" id="comprasPresupuesto" data-compras-herr="presupuesto"></button><div class="compras-controles"><label class="interruptor" for="comprasDescontar"><input type="checkbox" id="comprasDescontar" role="switch" checked><span>Descontar lo que tengo</span></label></div><p class="screen__hint" id="comprasSummary" aria-live="polite"></p><div id="comprasList"></div><div class="compras-seccion" id="comprasExtras"><h3 class="compras-seccion__titulo">Otros productos</h3><div id="manualShopList"></div></div><div class="home-group compras-agregar" id="manualShoppingPanel"><h3 class="plan-day__title">Agregar producto</h3><form id="manualShoppingForm"><div class="portion-field"><label for="manualShopName">Producto</label><input id="manualShopName" type="text" maxlength="100" required placeholder="Ej.: detergente"></div><div class="portion-field"><label for="manualShopAmount">Cantidad</label><input id="manualShopAmount" type="text" maxlength="80" placeholder="Ej.: 1 botella"></div><div class="summary-actions"><button class="button button--soft" type="submit" id="manualShopSubmit">Agregar</button><button class="button button--soft is-hidden" type="button" data-manual-cancel>Cancelar edición</button></div></form></div><p id="manualShopStatus" class="screen__hint" aria-live="polite"></p><div class="bought-box" id="comprasBoughtBox"><button class="button button--primary" type="button" id="comprasBought">Terminé de comprar</button><button class="button button--soft" type="button" data-compras-compartir>Compartir lista</button><p class="screen__hint" id="comprasBoughtStatus" aria-live="polite"></p></div><p class="screen__hint" id="comprasStatus" aria-live="polite"></p></section>
 <section class="screen card" id="bf_fruit"><p class="screen__kicker">Paso 1 de 4</p><h2 class="screen__title">Frutas</h2><h3 class="home-section-label" id="fruitAskWhich">¿Qué fruta?</h3><p class="screen__hint" id="fruitCount">Elegí hasta 3.</p><div class="grid grid--one" id="fruit"></div><h3 class="home-section-label" id="fruitAskHow">¿Cómo?</h3><div class="filter-row" id="fruitForms" role="group" aria-labelledby="fruitAskHow"></div><div class="filter-row" id="fruitPreps" role="group" aria-label="Qué preparación" hidden></div></section>
 <section class="screen card" id="bf_prot"><p class="screen__kicker">Paso 2 de 4</p><h2 class="screen__title">Proteína</h2><p class="screen__hint">Elegí una opción.</p><div class="grid grid--one" id="bfprot"></div></section>
 <section class="screen card" id="bf_carb"><p class="screen__kicker">Paso 3 de 4</p><h2 class="screen__title">Cereal</h2><p class="screen__hint">Elegí una opción.</p><div class="grid grid--one" id="bfcarb"></div></section>
@@ -6648,6 +6654,61 @@ planEntriesFlat(){
   }));
   return out
 },
+// Etapa 46 (R6-L-01 a L-04): el plan de esta semana o de la que viene, sin depender de lo que se esté viendo en Semana
+// (Compras elige su período por separado). "esta" cuenta de hoy al domingo; las comidas de días que ya pasaron no entran.
+planDeLaSemana(cual){
+  if(cual==="proxima"){
+    Semana.alDiaProxima();
+    const p=Semana.loadProxima();
+    return Semana.migratePlan(p&&p.plan||{
+    })
+  }
+  Semana.adoptarProxima();
+  try{
+    const raw=localStorage.getItem(PKEY),o=raw?JSON.parse(raw):{
+    };
+    return Semana.migratePlan(o&&typeof o==="object"?o:{
+    })
+  }catch(e){
+    return Semana.migratePlan({
+    })
+  }
+},
+porcionesDeEsta(){
+  try{
+    const o=JSON.parse(localStorage.getItem(PLAN_PORTIONS_KEY)||"{}");
+    return Semana.validPlanPortions(o)?o:{
+    }
+  }catch(e){
+    return {
+    }
+  }
+},
+planEntriesDe(cual){
+  const plan=Semana.planDeLaSemana(cual),byId={
+  };
+  MisPlatos.loadSaved().forEach(p=>{
+    byId[p.id]=p
+  });
+  const lunes=cual==="proxima"?Semana.lunesSiguiente():Semana.semanaActual(),port=cual==="proxima"?{
+  }:Semana.porcionesDeEsta(),hoy=cual==="proxima"?0:DAYS.findIndex(d=>d[0]===todayPlanDay()),out=[];
+  DAYS.forEach(([day],i)=>{
+    if(i<hoy)return;
+    SLOTS.forEach(([slot])=>{
+      const id=plan[day]?plan[day][slot]:null;
+      if(id&&byId[id])out.push({
+        day,slot,item:byId[id],portions:port[day+"|"+slot]||null,lunes
+      })
+    })
+  });
+  return out
+},
+semanasDelPeriodo(periodo){
+  return periodo==="dos"?[Semana.semanaActual(),Semana.lunesSiguiente()]:periodo==="proxima"?[Semana.lunesSiguiente()]:[Semana.semanaActual()]
+},
+entradasDelPeriodo(periodo){
+  return periodo==="dos"?Semana.planEntriesDe("esta").concat(Semana.planEntriesDe("proxima")):Semana.planEntriesDe(periodo==="proxima"?"proxima":"esta")
+},
 portionFactor(portions,amount){
   return portions&&amount&&amount.yield>0?portions/amount.yield:1
 },
@@ -7365,24 +7426,100 @@ loadShoppingChecks(){
 shoppingChecksWeek(){
   return mondayOf(Rutina.localTrainingDate(new Date()))
 },
-syncShoppingWeek(){
-  const wk=Compras.shoppingChecksWeek();
-  if(wk===comprasWeek)return;
-  comprasWeek=wk;
-  const w=Compras.loadShoppingChecks()[wk];
-  comprasDone=Object.fromEntries((w?w.t:[]).map(k=>[k,true]))
+// Etapa 46 (R6-L-01 a L-03): "Comprar para" esta semana, la que viene o las dos. Lo que elegís a mano se recuerda hasta el lunes
+// siguiente (miPlatoFacil_comprasPeriodo_v1 = {"periodo": "esta"|"proxima"|"dos", "semana": lunes de la semana en que lo elegiste}).
+// Del viernes al domingo, si la semana que viene ya tiene comidas, la lista abre en "La semana que viene"; los otros días, en "Esta semana".
+validComprasPeriodo(v){
+  return !!v&&typeof v==="object"&&!Array.isArray(v)&&Object.keys(v).length===2&&["esta","proxima","dos"].includes(v.periodo)&&Rutina.validTrainingDate(v.semana)
 },
-shoppingBoughtSet(){
-  const w=Compras.loadShoppingChecks()[Compras.shoppingChecksWeek()];
-  return new Set(w?w.c:[])
+periodoElegido(){
+  try{
+    const v=JSON.parse(localStorage.getItem(COMPRAS_PERIODO_KEY)||"null");
+    return Compras.validComprasPeriodo(v)&&v.semana===Semana.semanaActual()?v.periodo:null
+  }catch(e){
+    return null
+  }
 },
-saveShoppingChecks(bought){
+periodoPorDefecto(){
+  const dia=new Date().getDay();
+  if((dia===5||dia===6||dia===0)&&Semana.planTieneComidas(Semana.planDeLaSemana("proxima")))return "proxima";
+  return "esta"
+},
+periodoActual(){
+  return Compras.periodoElegido()||Compras.periodoPorDefecto()
+},
+elegirPeriodo(periodo){
+  if(!["esta","proxima","dos"].includes(periodo))return;
+  try{
+    localStorage.setItem(COMPRAS_PERIODO_KEY,JSON.stringify({
+      periodo,semana:Semana.semanaActual()
+    }))
+  }catch(e){
+    comprasStatus("No se pudo guardar el período elegido.")
+  }
   Compras.syncShoppingWeek();
-  const all=Compras.loadShoppingChecks(),cur=all[comprasWeek],t=Object.keys(comprasDone).filter(k=>comprasDone[k]).sort(),c=[...(bought||new Set(cur?cur.c:[]))].sort();
-  if(t.length||c.length)all[comprasWeek]={
-    t,c
+  renderCompras()
+},
+// "26/11 al 29/11": de hoy al domingo (esta semana), de lunes a domingo (la que viene) o de hoy al domingo de la que viene (las dos).
+pintarPeriodo(){
+  const periodo=Compras.periodoActual();
+  for(const b of document.querySelectorAll("[data-compras-periodo]"))b.setAttribute("aria-pressed",String(b.dataset.comprasPeriodo===periodo))
+},
+rangoDelPeriodo(periodo){
+  const f=d=>d.getDate()+"/"+(d.getMonth()+1),hoy=new Date(Rutina.localTrainingDate(new Date())+"T12:00:00"),dom=new Date(Semana.semanaActual()+"T12:00:00"),sig=new Date(Semana.lunesSiguiente()+"T12:00:00");
+  dom.setDate(dom.getDate()+6);
+  const finSig=new Date(sig);
+  finSig.setDate(finSig.getDate()+6);
+  return periodo==="proxima"?f(sig)+" al "+f(finSig):periodo==="dos"?f(hoy)+" al "+f(finSig):f(hoy)+" al "+f(dom)
+},
+// Tachados y comprados por semana: cada comida lleva su semana (esta o la que viene). Un producto está tachado (o comprado) si lo está
+// en todas las semanas del período en las que aparece; tacharlo (o comprarlo) lo marca en todas.
+marcasDeSemana(all,lunes){
+  const w=all[lunes];
+  return {
+    t:new Set(w?w.t:[]),c:new Set(w?w.c:[])
+  }
+},
+syncShoppingWeek(){
+  const periodo=Compras.periodoActual(),firma=periodo+"|"+Compras.shoppingChecksWeek();
+  if(firma===comprasFirma)return;
+  comprasFirma=firma;
+  comprasWeek=Compras.shoppingChecksWeek();
+  Compras.recargarTachados(periodo)
+},
+recargarTachados(periodo){
+  const all=Compras.loadShoppingChecks();
+  comprasDone={
   };
-  else delete all[comprasWeek];
+  for(const e of Compras.shoppingPlanItems(periodo)){
+    if([...e.semanas].every(l=>Compras.marcasDeSemana(all,l).t.has(e.key)))comprasDone[e.key]=true
+  }
+},
+shoppingBoughtSet(items){
+  const all=Compras.loadShoppingChecks(),out=new Set();
+  for(const e of items||Compras.shoppingPlanItems(Compras.periodoActual())){
+    if([...e.semanas].every(l=>Compras.marcasDeSemana(all,l).c.has(e.key)))out.add(e.key)
+  }
+  return out
+},
+// Guarda en cada semana lo tachado (comprasDone) y, si se pasa, lo comprado de los productos de la lista; lo de otros productos no se toca.
+saveShoppingChecks(bought,items){
+  Compras.syncShoppingWeek();
+  const lista=items||Compras.shoppingPlanItems(Compras.periodoActual()),all=Compras.loadShoppingChecks(),marcas={
+  };
+  for(const e of lista)for(const l of e.semanas){
+    const m=marcas[l]||(marcas[l]=Compras.marcasDeSemana(all,l));
+    if(comprasDone[e.key])m.t.add(e.key);else m.t.delete(e.key);
+    if(bought){
+      if(bought.has(e.key))m.c.add(e.key);else m.c.delete(e.key)
+    }
+  }
+  for(const [l,m] of Object.entries(marcas)){
+    if(m.t.size||m.c.size)all[l]={
+      t:[...m.t].sort(),c:[...m.c].sort()
+    };
+    else delete all[l]
+  }
   const keep=Object.keys(all).sort().reverse().slice(0,12),out=Object.fromEntries(keep.sort().map(k=>[k,all[k]]));
   if(!Compras.validShoppingChecks(out))throw Error("No se pudieron guardar los tachados.");
   if(Object.keys(out).length)localStorage.setItem(SHOPPING_CHECKS_KEY,JSON.stringify(out));
@@ -7393,21 +7530,23 @@ shoppingQtyText(units){
     maximumFractionDigits:6
   })+" "+unit).join(" + ")
 },
-shoppingPlanItems(){
-  let recipes=null,amounts=null;
+shoppingPlanItems(periodo){
+  let recipes=null,amounts=null,lunesDe=Compras.shoppingChecksWeek();
   const map=new Map(),entry=name=>{
     const key=ingredientKey(name),raw=String(name).trim();
     if(!map.has(key))map.set(key,{
-      key,name:raw,units:new Map(),unknown:0,forms:new Set()
+      key,name:raw,units:new Map(),unknown:0,forms:new Set(),semanas:new Set()
     });
     const e=map.get(key);
     e.forms.add(normalizeSearchText(raw));
+    e.semanas.add(lunesDe);
     return e
   };
   const personas=personasHogar();
   for(const {
-    item,portions
-  } of Semana.planEntriesFlat()){
+    item,portions,lunes
+  } of periodo?Semana.entradasDelPeriodo(periodo):Semana.planEntriesFlat()){
+    lunesDe=lunes||Compras.shoppingChecksWeek();
     let amount=null;
     if(item&&item.recipeSourceId){
       if(!recipes){
@@ -7596,14 +7735,18 @@ loadVueltas(){
     return {}
   }
 },
-vueltasDeLaSemana(){
-  const v=Compras.loadVueltas()[Compras.shoppingChecksWeek()];
-  return new Set(v||[])
+vueltasDeLaSemana(periodo){
+  const all=Compras.loadVueltas(),out=new Set();
+  for(const l of Semana.semanasDelPeriodo(periodo||"esta"))for(const k of all[l]||[])out.add(k);
+  return out
 },
 devolverALaLista(key){
-  const all=Compras.loadVueltas(),wk=Compras.shoppingChecksWeek(),set=new Set(all[wk]||[]);
-  set.add(key);
-  all[wk]=[...set].sort();
+  const all=Compras.loadVueltas();
+  for(const wk of Semana.semanasDelPeriodo(Compras.periodoActual())){
+    const set=new Set(all[wk]||[]);
+    set.add(key);
+    all[wk]=[...set].sort()
+  }
   const keep=Object.keys(all).sort().reverse().slice(0,12),out=Object.fromEntries(keep.sort().map(k=>[k,all[k]]));
   if(!Compras.validVueltas(out))throw Error("No se pudo guardar el cambio.");
   localStorage.setItem(COMPRAS_VUELTAS_KEY,JSON.stringify(out))
@@ -7641,7 +7784,7 @@ toggleShop(key,checked){
   renderCompras()
 },
 comprasText(){
-  const todos=Compras.marcarNombresCortos(shoppingDisplayItems()),pend=todos.filter(x=>x.group==="pendiente"&&!comprasDone[x.key]),lines=[],extras=manualShoppingText();
+  const periodo=Compras.periodoActual(),todos=Compras.marcarNombresCortos(shoppingDisplayItems(periodo)),pend=todos.filter(x=>x.group==="pendiente"&&!comprasDone[x.key]),lines=[],extras=manualShoppingText();
   // Etapa 23: para WhatsApp. Por secciones del súper (título en negrita), con cantidades legibles, ≈ precio por producto y el total.
   let precios=null;
   try{
@@ -7657,7 +7800,7 @@ comprasText(){
   }
   if(!lines.length&&!extras)return "";
   const total=precios&&precios.total>0?NL+NL+"*Total "+formatoPesos(precios.total)+"*"+(precios.sinEstimar?" (al menos)":"")+(precios.estimados?" · incluye "+precios.estimados+(precios.estimados===1?" precio estimado":" precios estimados"):""):"";
-  return "🛒 Lista de compras — Mi plato fácil"+NL+lines.join(NL)+(extras?(lines.length?NL+NL:"")+"Productos extra"+NL+extras:"")+total
+  return "🛒 Lista de compras — Mi plato fácil"+NL+"Lista para la semana del "+Compras.rangoDelPeriodo(periodo)+NL+lines.join(NL)+(extras?(lines.length?NL+NL:"")+"Productos extra"+NL+extras:"")+total
 },
 shareCompras(){
   let t;
@@ -7693,7 +7836,7 @@ function shoppingMissingRows(){
   const totals=new Map(),unknown=new Set(),recipes=loadRecipeDetails(),amounts=loadRecipeAmounts(),stock=loadStockQuantities(),multiplier=1;
   for(const {
     item,portions
-  } of Semana.planEntriesFlat()){
+  } of Semana.entradasDelPeriodo(Compras.periodoActual())){
     if(!item||!item.recipeSourceId)continue;
     const recipe=recipes[item.recipeSourceId],amount=recipe&&recipe.amountsTitle&&amounts[recipe.amountsTitle];
     if(!amount)continue;
@@ -7720,11 +7863,15 @@ let comprasShowAll=false;
 // Se escribe solo cuando el usuario actúa (nunca al mostrar) y al escribir se conservan las últimas 12 semanas.
 const SHOPPING_CHECKS_KEY="miPlatoFacil_shoppingChecks_v1";
 var COMPRAS_VUELTAS_KEY="miPlatoFacil_comprasVueltas_v1";
+var COMPRAS_PERIODO_KEY="miPlatoFacil_comprasPeriodo_v1";
+var comprasFirma=null;
 // Lectura tolerante: lo que no tiene el formato esperado se ignora (semana por semana).
 let comprasWeek=null;
 // Trae los tachados de la semana actual (al abrir la app o si empezó otra semana: cada lunes arranca sin tachados).
-// Lo que pasó a la despensa con "Lo compré" esta semana.
-Compras.syncShoppingWeek();
+// Al abrir la app solo se leen los tachados de esta semana (la lista todavía no se puede calcular: faltan archivos por cargar); la primera
+// vez que se pinta o se toca la lista se recalculan para el período elegido.
+comprasWeek=Compras.shoppingChecksWeek();
+comprasDone=Object.fromEntries(((Compras.loadShoppingChecks()[comprasWeek]||{t:[]}).t).map(k=>[k,true]));
 // Interruptor "Descontar lo que tengo" (desde la v15.4), en miPlatoFacil_comprasOpciones_v1: {"descontar": true|false}.
 // Encendido por defecto (el comportamiento de antes). Se escribe solo al tocarlo. Es var por el orden de arranque.
 var COMPRAS_OPCIONES_KEY="miPlatoFacil_comprasOpciones_v1";
@@ -7744,9 +7891,9 @@ var PALABRAS_SUPER=null;
 // "faltan X". Los tres grupos juntos son siempre la misma lista, con las cantidades del plan.
 // Desde la v15.4: si la despensa tiene otra unidad ("la unidad no coincide"), queda pendiente con "revisá"; con el
 // interruptor "Descontar lo que tengo" apagado, nada va a "Ya tenés" y no se muestra "faltan".
-function shoppingDisplayItems(){
-  const stock=loadStockQuantities(),marked=MarcasDespensa.pantryMarkedMatcher(),bought=Compras.shoppingBoughtSet(),vueltas=Compras.vueltasDeLaSemana(),descontar=comprasDescontar();
-  return Compras.shoppingPlanItems().map(e=>{
+function shoppingDisplayItems(periodo){
+  const stock=loadStockQuantities(),marked=MarcasDespensa.pantryMarkedMatcher(),items=Compras.shoppingPlanItems(periodo),bought=Compras.shoppingBoughtSet(items),vueltas=Compras.vueltasDeLaSemana(periodo),descontar=comprasDescontar();
+  return items.map(e=>{
     const label=Compras.shoppingItemLabel(e),suggestion=Compras.shoppingSuggestion(e,stock,marked),partial=!!suggestion&&suggestion.kind==="partial",revisar=!!suggestion&&suggestion.kind==="info"&&/la unidad no coincide/.test(suggestion.text),group=bought.has(e.key)?"comprado":descontar&&suggestion&&!partial&&!revisar&&!vueltas.has(e.key)?"tenes":"pendiente";const faltaEnvase=descontar&&partial&&suggestion.missing?envasar(e.name,suggestion.missing):null,compra=faltaEnvase||envasar(e.name,e.units),visible=compra&&!faltaEnvase?e.name+": "+compra.texto:label;return {
       key:e.key,name:e.name,units:e.units,unknown:e.unknown,label,suggestion,group,seccion:Compras.seccionDelSuper(e.name),compraUnits:compra?compra.units:null,text:descontar&&group==="pendiente"&&partial?(faltaEnvase?e.name+": "+faltaEnvase.texto:label+" · faltan "+suggestion.buy):descontar&&group==="pendiente"&&revisar?visible+" · revisá":visible
     }
@@ -7759,6 +7906,7 @@ function renderCompras(){
   const cont=document.getElementById("comprasList"),hint=document.getElementById("comprasHint"),summary=document.getElementById("comprasSummary");
   if(!cont)return;
   Compras.syncShoppingWeek();
+  Compras.pintarPeriodo();
   const sw=document.getElementById("comprasDescontar");
   if(sw)sw.checked=comprasDescontar();
   try{
@@ -7767,7 +7915,7 @@ function renderCompras(){
   }
   let items;
   try{
-    items=shoppingDisplayItems()
+    items=shoppingDisplayItems(Compras.periodoActual())
   }catch(e){
     cont.replaceChildren(ce("p","screen__hint","No se pudo calcular la lista: "+e.message));
     return
@@ -8636,6 +8784,7 @@ validateCompleteBackup(o){
     if(k==="miPlatoFacil_preciosRevisados_v1"&&!validPreciosRevisados(v))throw new Error("Precios revisados inválidos.");
     if(k==="miPlatoFacil_respaldoAviso_v1"&&!validRespaldoAviso(v))throw new Error("Aviso de respaldo inválido.");
     if(k==="miPlatoFacil_gastoSemanal_v1"&&!validGastoSemanal(v))throw new Error("Gasto semanal inválido.");
+    if(k==="miPlatoFacil_comprasPeriodo_v1"&&!Compras.validComprasPeriodo(v))throw new Error("Período de compras inválido.");
     if(k==="miPlatoFacil_comprasVueltas_v1"&&!Compras.validVueltas(v))throw new Error("Productos devueltos a la lista inválidos.");
     if(k==="miPlatoFacil_comprasOpciones_v1"&&!Compras.validComprasOpciones(v))throw new Error("Opciones de compras inválidas.");
     if(k==="miPlatoFacil_shoppingChecks_v1"&&!Compras.validShoppingChecks(v))throw new Error("Tachados de la lista inválidos.");
@@ -8684,15 +8833,15 @@ updateCompleteBackupButton(){
   document.getElementById("backupRestore").disabled=!completeBackupPending
 }
 };
-const COMPLETE_BACKUP_KEYS=["miPlatoFacil_adviceFavorites", "miPlatoFacil_datedWeeks_v1", "miPlatoFacil_manualShopping_v1", "miPlatoFacil_pantry", "miPlatoFacil_plan", "miPlatoFacil_planVars", "miPlatoFacil_saved", "miPlatoFacil_theme", "miPlatoFacil_trainingExceptions", "miPlatoFacil_trainingWeek", "miPlatoFacil_cookingHistory_v1", "miPlatoFacil_recipeAmounts_v1", "miPlatoFacil_referencePrices_v1", "miPlatoFacil_recipeDetails_v1", "miPlatoFacil_pantryQuantities_v1", "miPlatoFacil_shoppingBudget_v1", "miPlatoFacil_recipePreferences_v1", "miPlatoFacil_ingredientAliases_v1", "miPlatoFacil_planPortions_v1", "miPlatoFacil_planHistory_v1", "miPlatoFacil_consumption_v1", "miPlatoFacil_habitGoals_v1", "miPlatoFacil_purchases_v1", "miPlatoFacil_pantryMoves_v1", "miPlatoFacil_shoppingChecks_v1","miPlatoFacil_bienvenida_v1","miPlatoFacil_comprasOpciones_v1","miPlatoFacil_region_v1","miPlatoFacil_mostrarPrecios_v1","miPlatoFacil_hogar_v1","miPlatoFacil_basicosFaltantes_v1","miPlatoFacil_dieta_v1","miPlatoFacil_planProxima_v1","miPlatoFacil_dondeCompro_v1","miPlatoFacil_preciosRevisados_v1","miPlatoFacil_respaldoAviso_v1","miPlatoFacil_gastoSemanal_v1","miPlatoFacil_comprasVueltas_v1"];
-const COMPLETE_BACKUP_OPTIONAL_KEYS=["miPlatoFacil_cookingHistory_v1","miPlatoFacil_recipeAmounts_v1","miPlatoFacil_referencePrices_v1","miPlatoFacil_recipeDetails_v1","miPlatoFacil_pantryQuantities_v1","miPlatoFacil_shoppingBudget_v1","miPlatoFacil_recipePreferences_v1","miPlatoFacil_ingredientAliases_v1","miPlatoFacil_planPortions_v1","miPlatoFacil_planHistory_v1","miPlatoFacil_consumption_v1","miPlatoFacil_habitGoals_v1","miPlatoFacil_purchases_v1","miPlatoFacil_pantryMoves_v1","miPlatoFacil_shoppingChecks_v1","miPlatoFacil_bienvenida_v1","miPlatoFacil_comprasOpciones_v1","miPlatoFacil_region_v1","miPlatoFacil_mostrarPrecios_v1","miPlatoFacil_hogar_v1","miPlatoFacil_basicosFaltantes_v1","miPlatoFacil_dieta_v1","miPlatoFacil_planProxima_v1","miPlatoFacil_dondeCompro_v1","miPlatoFacil_preciosRevisados_v1","miPlatoFacil_respaldoAviso_v1","miPlatoFacil_gastoSemanal_v1","miPlatoFacil_comprasVueltas_v1"];
+const COMPLETE_BACKUP_KEYS=["miPlatoFacil_adviceFavorites", "miPlatoFacil_datedWeeks_v1", "miPlatoFacil_manualShopping_v1", "miPlatoFacil_pantry", "miPlatoFacil_plan", "miPlatoFacil_planVars", "miPlatoFacil_saved", "miPlatoFacil_theme", "miPlatoFacil_trainingExceptions", "miPlatoFacil_trainingWeek", "miPlatoFacil_cookingHistory_v1", "miPlatoFacil_recipeAmounts_v1", "miPlatoFacil_referencePrices_v1", "miPlatoFacil_recipeDetails_v1", "miPlatoFacil_pantryQuantities_v1", "miPlatoFacil_shoppingBudget_v1", "miPlatoFacil_recipePreferences_v1", "miPlatoFacil_ingredientAliases_v1", "miPlatoFacil_planPortions_v1", "miPlatoFacil_planHistory_v1", "miPlatoFacil_consumption_v1", "miPlatoFacil_habitGoals_v1", "miPlatoFacil_purchases_v1", "miPlatoFacil_pantryMoves_v1", "miPlatoFacil_shoppingChecks_v1","miPlatoFacil_bienvenida_v1","miPlatoFacil_comprasOpciones_v1","miPlatoFacil_region_v1","miPlatoFacil_mostrarPrecios_v1","miPlatoFacil_hogar_v1","miPlatoFacil_basicosFaltantes_v1","miPlatoFacil_dieta_v1","miPlatoFacil_planProxima_v1","miPlatoFacil_dondeCompro_v1","miPlatoFacil_preciosRevisados_v1","miPlatoFacil_respaldoAviso_v1","miPlatoFacil_gastoSemanal_v1","miPlatoFacil_comprasVueltas_v1", "miPlatoFacil_comprasPeriodo_v1"];
+const COMPLETE_BACKUP_OPTIONAL_KEYS=["miPlatoFacil_cookingHistory_v1","miPlatoFacil_recipeAmounts_v1","miPlatoFacil_referencePrices_v1","miPlatoFacil_recipeDetails_v1","miPlatoFacil_pantryQuantities_v1","miPlatoFacil_shoppingBudget_v1","miPlatoFacil_recipePreferences_v1","miPlatoFacil_ingredientAliases_v1","miPlatoFacil_planPortions_v1","miPlatoFacil_planHistory_v1","miPlatoFacil_consumption_v1","miPlatoFacil_habitGoals_v1","miPlatoFacil_purchases_v1","miPlatoFacil_pantryMoves_v1","miPlatoFacil_shoppingChecks_v1","miPlatoFacil_bienvenida_v1","miPlatoFacil_comprasOpciones_v1","miPlatoFacil_region_v1","miPlatoFacil_mostrarPrecios_v1","miPlatoFacil_hogar_v1","miPlatoFacil_basicosFaltantes_v1","miPlatoFacil_dieta_v1","miPlatoFacil_planProxima_v1","miPlatoFacil_dondeCompro_v1","miPlatoFacil_preciosRevisados_v1","miPlatoFacil_respaldoAviso_v1","miPlatoFacil_gastoSemanal_v1","miPlatoFacil_comprasVueltas_v1", "miPlatoFacil_comprasPeriodo_v1"];
 // v15.7: "Mostrar precios y presupuesto" (miPlatoFacil_mostrarPrecios_v1, {"mostrar":true}) es opcional y se valida; sin él se deriva de uiMode_v1.
 // v15.6: la región de los precios (miPlatoFacil_region_v1) es opcional; si falta en un respaldo viejo se usa GBA.
 // v15.3: la marca "ya vio la bienvenida" (miPlatoFacil_bienvenida_v1). Solo vale {"vista":true}.
 let completeBackupPending=null;
 function completeBackupSnapshot(storage){
   return {
-    app:"MiPlatoFacil",format:"complete-local-v1",createdAt:new Date().toISOString(),data:Object.fromEntries(COMPLETE_BACKUP_KEYS.map(k=>[k,storage.getItem(k)]).filter(([k,v])=>!([INGREDIENT_ALIASES_KEY,"miPlatoFacil_planPortions_v1","miPlatoFacil_planHistory_v1","miPlatoFacil_consumption_v1","miPlatoFacil_habitGoals_v1","miPlatoFacil_purchases_v1","miPlatoFacil_pantryMoves_v1","miPlatoFacil_shoppingChecks_v1","miPlatoFacil_bienvenida_v1","miPlatoFacil_comprasOpciones_v1","miPlatoFacil_region_v1","miPlatoFacil_mostrarPrecios_v1","miPlatoFacil_hogar_v1","miPlatoFacil_basicosFaltantes_v1","miPlatoFacil_dieta_v1","miPlatoFacil_planProxima_v1","miPlatoFacil_dondeCompro_v1","miPlatoFacil_preciosRevisados_v1","miPlatoFacil_respaldoAviso_v1","miPlatoFacil_gastoSemanal_v1","miPlatoFacil_comprasVueltas_v1"].includes(k)&&v===null)))
+    app:"MiPlatoFacil",format:"complete-local-v1",createdAt:new Date().toISOString(),data:Object.fromEntries(COMPLETE_BACKUP_KEYS.map(k=>[k,storage.getItem(k)]).filter(([k,v])=>!([INGREDIENT_ALIASES_KEY,"miPlatoFacil_planPortions_v1","miPlatoFacil_planHistory_v1","miPlatoFacil_consumption_v1","miPlatoFacil_habitGoals_v1","miPlatoFacil_purchases_v1","miPlatoFacil_pantryMoves_v1","miPlatoFacil_shoppingChecks_v1","miPlatoFacil_bienvenida_v1","miPlatoFacil_comprasOpciones_v1","miPlatoFacil_region_v1","miPlatoFacil_mostrarPrecios_v1","miPlatoFacil_hogar_v1","miPlatoFacil_basicosFaltantes_v1","miPlatoFacil_dieta_v1","miPlatoFacil_planProxima_v1","miPlatoFacil_dondeCompro_v1","miPlatoFacil_preciosRevisados_v1","miPlatoFacil_respaldoAviso_v1","miPlatoFacil_gastoSemanal_v1","miPlatoFacil_comprasVueltas_v1","miPlatoFacil_comprasPeriodo_v1"].includes(k)&&v===null)))
   }
 }
 document.getElementById("backupExport").addEventListener("click",()=>RespaldoAviso.guardarCopia());
@@ -11157,7 +11306,7 @@ document.getElementById("purchaseAddItem").addEventListener("click",()=>{
 });
 document.getElementById("purchaseFromList").addEventListener("click",()=>{
   const st=document.getElementById("purchaseStatus");try{
-    const box=document.getElementById("purchaseItems");if(box.children.length&&!window.confirm("¿Reemplazar los productos cargados por los pendientes de la lista?"))return;box.replaceChildren();let n=0;for(const e of Compras.shoppingPlanItems()){
+    const box=document.getElementById("purchaseItems");if(box.children.length&&!window.confirm("¿Reemplazar los productos cargados por los pendientes de la lista?"))return;box.replaceChildren();let n=0;for(const e of Compras.shoppingPlanItems(Compras.periodoActual())){
       if(comprasDone[e.key])continue;const m=Ingredientes.mergeUnits(e.units),one=m.size===1?[...m.entries()][0]:null;ComprasHechas.appendPurchaseItem({
         name:e.name,quantity:one&&!e.unknown?one[1]:null,unit:one&&!e.unknown?one[0]:null,price:null
       });n++
@@ -12697,7 +12846,7 @@ cookRecipeNow(id){
 },
 boughtNow(){
   Compras.syncShoppingWeek();
-  const all=Compras.shoppingPlanItems(),boughtBefore=Compras.shoppingBoughtSet(),items=all.filter(e=>comprasDone[e.key]&&!boughtBefore.has(e.key));
+  const all=Compras.shoppingPlanItems(Compras.periodoActual()),boughtBefore=Compras.shoppingBoughtSet(all),items=all.filter(e=>comprasDone[e.key]&&!boughtBefore.has(e.key));
   if(!items.length)return {
     text:all.some(e=>comprasDone[e.key])?"Lo tachado ya está en tu despensa.":"Primero tachá lo que compraste en la lista."
   };
@@ -12741,9 +12890,9 @@ boughtNow(){
   };
   try{
     if(changes.length)res=applyStockChanges(changes,("Lo compré · "+typedAppDateLabel(Rutina.localTrainingDate(new Date()))).slice(0,80));
-    const bought=Compras.shoppingBoughtSet();
+    const bought=Compras.shoppingBoughtSet(all);
     items.forEach(e=>bought.add(e.key));
-    Compras.saveShoppingChecks(bought)
+    Compras.saveShoppingChecks(bought,all)
   }catch(err){
     deshacer();
     throw err
@@ -14666,6 +14815,7 @@ document.addEventListener("click",e=>{
   if(!b)return;
   const d=b.dataset;
   if(d.comprasMenu!==undefined)return ComprasDespensa.abrirMenuCompras();
+  if(d.comprasPeriodo)return Compras.elegirPeriodo(d.comprasPeriodo);
   if(d.comprasCompartir!==undefined)return Compras.shareCompras();
   if(d.volverALista){
     try{
@@ -16281,7 +16431,7 @@ function detallePrecio(costo,rango,fuente){
   return formatoPesos(costo)+(rango?" · entre "+pesos(rango[0])+" y "+pesos(rango[1]):"")+(fuente?" · "+fuente:"")
 }
 function totalAutomaticoLista(){
-  const p=preciosDeLaLista(shoppingDisplayItems());
+  const p=preciosDeLaLista(shoppingDisplayItems(Compras.periodoActual()));
   return p&&p.conPrecio+p.estimados>0?p:null
 }
 // Textos de la lista: resumen con el total, fuente y aviso para quien no activó los precios.
