@@ -151,17 +151,18 @@ escribirPlan(plan,texto,porciones){
   };
   if(!Semana.persistPlan(Semana.migratePlan(plan)))throw Error(errorDelPlan||"No se pudo guardar el plan.");
   if(porciones)try{Semana.savePlanPortions(porciones)}catch(e){}
-  Semana.logPlanChange(texto);
+  Semana.logPlanChange(texto.replace(/\.$/,""));
   deshacerPlan={
-    texto,plan:antes.plan,porciones:antes.porciones,tab:activeTab
+    texto:texto.replace(/\.$/,""),plan:antes.plan,porciones:antes.porciones,tab:activeTab
   }
 },
-aviso(texto){
+// El aviso de una línea. En Semana, lo que se puede deshacer ya lo muestra el aviso de la semana (con su Deshacer): no se repite.
+aviso(texto,conDeshacer){
   if(semanaFechada&&document.getElementById("datedWeekStatus")){
     document.getElementById("datedWeekStatus").textContent=texto;
     return
   }
-  planStatus(texto)
+  if(!conDeshacer)planStatus(texto)
 },
 // F-01: pasa la comida de un hueco a otro día y comida; si el destino tenía algo, se intercambian.
 pasarAOtroDia(dia,slot,dia2,slot2){
@@ -194,7 +195,7 @@ pasarAOtroDia(dia,slot,dia2,slot2){
   // Si el destino estaba marcado "Afuera", deja de estarlo (ahora tiene una comida).
   SemanaAjustes.limpiarAfuera(dia2,slot2);
   renderPlan();
-  SemanaAjustes.aviso(texto);
+  SemanaAjustes.aviso(texto,true);
   return texto
 },
 // F-03: la misma comida en el almuerzo de mañana, con la marca "Sobra de…".
@@ -221,7 +222,7 @@ queSobre(dia,slot,reemplazar){
     delete x.afuera[sig+"|almuerzo"]
   });
   renderPlan();
-  SemanaAjustes.aviso(texto);
+  SemanaAjustes.aviso(texto,true);
   return {
     texto
   }

@@ -219,7 +219,7 @@ var ArmameSemana=(function(){
     for(const [dia] of DAYS)for(const slot of ORDEN){
       const id=(plan[dia]||{})[slot];
       // Etapa 48: un hueco marcado "Afuera" no se llena.
-      if(SemanaAjustes.afuera(dia,slot))continue;
+      if(typeof SemanaAjustes!=="undefined"&&SemanaAjustes.afuera(dia,slot))continue;
       if(modo==="todo"||!id||!items.has(id))aFillar.push([dia,slot])
     }
     const salvo=new Set(aFillar.map(([d,s])=>d+"|"+s)),sem=leerSemana(plan,salvo),memo=new Map(),sd=semilla(modo),r=azar(sd);

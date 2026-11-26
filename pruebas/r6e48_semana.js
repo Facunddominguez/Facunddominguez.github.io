@@ -22,7 +22,7 @@
   const carta = async k => { ev(`Semana.elegirDiaPlan(${JSON.stringify(k.split("|")[0])}); renderPlan()`); await espera(150); return hueco(k) ? norm(hueco(k).innerText) : "(no hay carta)" };
   const botonHoja = re => H.boton(re, H.hoja());
   const abrirHueco = async k => { ev(`Semana.elegirDiaPlan(${JSON.stringify(k.split("|")[0])}); renderPlan()`); await espera(200); await tocar(hueco(k), 300) };
-  const aviso = () => norm((doc().getElementById("planStatus") || { innerText: "" }).innerText);
+  const aviso = () => { const a = norm((doc().getElementById("planAviso") || { innerText: "" }).innerText).replace(/\s*Deshacer$/, ""); return a || norm((doc().getElementById("planStatus") || { innerText: "" }).innerText) };
   const elegirEn = async (dia, slot) => { $("hojaPasarDia").value = dia; $("hojaPasarSlot").value = slot };
   const semanaLunes = "2026-11-23";
 
@@ -56,7 +56,9 @@
   await tocar(botonHoja(/^Pasar$/), 400);
   ok("R6-F-01 las porciones de la comida viajan con ella", JSON.stringify(J(PORC)) === JSON.stringify({ "viernes|almuerzo": 3 }), JSON.stringify(J(PORC)));
   // Deshacer
-  ok("R6-F-01 el cambio se puede deshacer como los otros cambios de la semana", !!doc().querySelector("#planAviso [data-plan-deshacer], #planStatus [data-plan-deshacer], [data-plan-deshacer]"));
+  const antesDeshacer = JSON.stringify(plan());
+  await tocar(doc().querySelector("#planAviso [data-plan-deshacer]"), 400);
+  ok("R6-F-01 el cambio se puede deshacer como los otros cambios de la semana (y vuelve la comida y sus porciones)", JSON.stringify(plan()) !== antesDeshacer && plan().lunes.cena === A && JSON.stringify(J(PORC)) === JSON.stringify({ "lunes|cena": 3 }), localStorage.getItem(PORC));
   // Semanas anteriores y mes: la misma hoja, sobre la copia
   await abrir();
   await tocar(doc().querySelector("#plan [data-plan-menu]")); await tocar(H.boton(/^Semanas anteriores y mes$/, H.hoja())); await espera(200);

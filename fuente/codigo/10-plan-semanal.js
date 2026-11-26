@@ -681,7 +681,7 @@ function setSlot(dayKey,slot,id){
     planStatus(errorDelPlan);
     return false
   }
-  if(id)SemanaAjustes.limpiarAfuera(dayKey,slot);
+  if(id&&typeof SemanaAjustes!=="undefined")SemanaAjustes.limpiarAfuera(dayKey,slot);
   if(before!==(id||null)){
     try{
       const p=Semana.loadPlanPortions();
@@ -853,7 +853,10 @@ function renderPlan(){
     b.dataset.comidas=String(n);
     b.append(ce("span","semana-dia-chip__letra",label.charAt(0)),ce("span","semana-dia-chip__num",String(f.getDate())));
     // Un hueco marcado "Afuera" también cuenta como resuelto para el punto del día completo (la cuenta "N de 4" sigue siendo de comidas).
-    if(n+SLOTS.filter(([sl])=>!(plan[key]&&plan[key][sl])&&SemanaAjustes.afuera(key,sl)).length>=4)b.classList.add("es-completo");
+    // (El módulo SemanaAjustes se carga después de este archivo: si todavía no está, no hay marcas.)
+    let afuera=0;
+    try{afuera=SLOTS.filter(([sl])=>!(plan[key]&&plan[key][sl])&&SemanaAjustes.afuera(key,sl)).length}catch(e){}
+    if(n+afuera>=4)b.classList.add("es-completo");
     return b
   });
   document.getElementById("planDias").replaceChildren(...chips);
