@@ -309,7 +309,7 @@ try {
         if (conImagenes && !m.error) {
           // Para la imagen, la ventana se estira al alto de la página: así las barras fijas quedan abajo, donde se ven al
           // final del recorrido, y no tapan contenido en el medio de la captura. Las medidas ya se tomaron a 390×844.
-          const altoFoto = Math.min(m.alto, 16000);
+          const altoFoto = vista.escena && vista.escena.fija ? ALTO : Math.min(m.alto, 16000); // fija: pantalla completa (modo cocina), se saca a la altura de la ventana
           await enviar('Emulation.setDeviceMetricsOverride', { width: ANCHO, height: altoFoto, deviceScaleFactor: 1, mobile: true }, S);
           await espera(200);
           const foto = await enviar('Page.captureScreenshot', { format: 'png', clip: { x: 0, y: 0, width: ANCHO, height: altoFoto, scale: 1 } }, S);

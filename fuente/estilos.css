@@ -3776,3 +3776,8 @@ body.cocina-abierta{overflow:hidden}
 .cocina__barra .button{min-height:52px;margin:0;font-size:17px}
 .cocina__barra.is-final #cocinaLoComi{grid-column:1 / -1}
 .summary-actions[hidden],.comida-principal [hidden]{display:none}
+.comida-acciones{display:flex;flex-wrap:wrap;gap:8px}
+.comida-acciones .comida-registro{display:block;flex:1 1 100%}
+.comida-acciones .comida-registro .button{width:100%}
+.comida-acciones>.button{flex:1 1 0;margin:0}
+.comida-acciones>[data-comida-menu]{flex:0 0 64px}

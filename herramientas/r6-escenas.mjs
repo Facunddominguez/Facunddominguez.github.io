@@ -14,6 +14,8 @@ export const HOY = (iso, hora = '12:00:00') => `(() => { const R = window.__Date
 const armarSemana = 'openTab("semana"); await ArmameSemana.correr("todo"); ' + esperar;
 const armarProxima = 'openTab("semana"); Semana.verSemana(1); await ArmameSemana.correr("todo"); ' + esperar + 'Semana.verSemana(0); ';
 const fichaEnSemana = 'openTab("miscomidas"); { const e = Semana.planEntriesFlat().find(x => x.item); const g = e ? e.item : (MisPlatos.loadSaved()[0] || IdeasHoja.guardarIdea(data.menuCatalog[0]).item); Comidas.abrirComida("plato", g.id); } ' + esperar;
+// Para el modo cocina: una comida de la semana con algún paso que diga un tiempo (si no hay ninguna, la primera).
+const fichaConTiempo = 'openTab("miscomidas"); { const es = Semana.planEntriesFlat().filter(x => x.item); let g = null; if (typeof ModoCocina !== "undefined") for (const e of es) { try { const idea = IdeasHoja.ideaDeComida(e.item); if (idea && Array.isArray(idea.pasos) && idea.pasos.some(p => ModoCocina.tiempoDePaso(p) !== null)) { g = e.item; break } } catch (x) { } } if (!g) g = es.length ? es[0].item : (MisPlatos.loadSaved()[0] || IdeasHoja.guardarIdea(data.menuCatalog[0]).item); Comidas.abrirComida("plato", g.id); } ' + esperar;
 const abrirCocina = 'if (typeof ModoCocina !== "undefined") { const c = document.querySelector("[data-comida-cocinar]"); if (c && !c.hidden) c.click(); } ' + esperar;
 export const ESCENAS = [
   // Etapa 45 · Precios confiables (los precios incluidos son del 4/11; el teléfono de la captura marca el 26/11: 22 días)
@@ -29,9 +31,9 @@ export const ESCENAS = [
   // Etapa 47 · Modo cocina y ficha de receta (el "antes" muestra la ficha vieja y, donde no existía el modo cocina, la misma ficha)
   { id: 'ficha-comida', items: ['C-01', 'C-02', 'C-03'], oscuro: true, ir: HOY('2026-11-26') + armarSemana + fichaEnSemana },
   { id: 'ficha-receta', items: ['C-01', 'C-02'], ir: HOY('2026-11-26') + armarSemana + 'openTab("miscomidas"); const ids = Object.keys(loadRecipeDetails()); if (ids.length) Comidas.abrirComida("receta", ids[0]); ' + esperar },
-  { id: 'cocina-ingredientes', items: ['C-03', 'C-05'], oscuro: true, ir: HOY('2026-11-26') + armarSemana + fichaEnSemana + abrirCocina },
-  { id: 'cocina-paso', items: ['C-03', 'C-04', 'C-07'], oscuro: true, ir: HOY('2026-11-26') + armarSemana + fichaEnSemana + abrirCocina + 'if (typeof ModoCocina !== "undefined" && ModoCocina.datos) { const k = ModoCocina.datos.pasos.findIndex(p => ModoCocina.tiempoDePaso(p) !== null); ModoCocina.ir((k < 0 ? 0 : k) + 1); const ini = document.querySelector("[data-cocina-iniciar]"); if (ini) { ini.click(); ModoCocina.tick() } } ' + esperar },
-  { id: 'cocina-final', items: ['C-06', 'C-07'], ir: HOY('2026-11-26') + armarSemana + fichaEnSemana + abrirCocina + 'if (typeof ModoCocina !== "undefined" && ModoCocina.datos) ModoCocina.ir(ModoCocina.total()); ' + esperar },
+  { id: 'cocina-ingredientes', fija: true, items: ['C-03', 'C-05'], oscuro: true, ir: HOY('2026-11-26') + armarSemana + fichaConTiempo + abrirCocina },
+  { id: 'cocina-paso', fija: true, items: ['C-03', 'C-04', 'C-07'], oscuro: true, ir: HOY('2026-11-26') + armarSemana + fichaConTiempo + abrirCocina + 'if (typeof ModoCocina !== "undefined" && ModoCocina.datos) { const k = ModoCocina.datos.pasos.findIndex(p => ModoCocina.tiempoDePaso(p) !== null); ModoCocina.ir((k < 0 ? 0 : k) + 1); const ini = document.querySelector("[data-cocina-iniciar]"); if (ini) { ini.click(); ModoCocina.tick() } } ' + esperar },
+  { id: 'cocina-final', fija: true, items: ['C-06', 'C-07'], ir: HOY('2026-11-26') + armarSemana + fichaConTiempo + abrirCocina + 'if (typeof ModoCocina !== "undefined" && ModoCocina.datos) ModoCocina.ir(ModoCocina.total()); ' + esperar },
 ];
 // Ítems que se comprueban en la salida de una herramienta y no en una pantalla: su "captura" es un texto
 // (docs/capturas-ronda-6/<nombre>-antes.txt y -despues.txt).
