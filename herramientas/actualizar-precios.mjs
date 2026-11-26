@@ -502,7 +502,7 @@ export async function pedirConReintentos(url, { que, timeout = 30000, fetchFn = 
       const detalle = [h('server') && 'server: ' + h('server'), h('cf-ray') && 'cf-ray: ' + h('cf-ray'), h('content-type') && 'tipo: ' + h('content-type'), cuerpo && 'cuerpo: "' + cuerpo + '"'].filter(Boolean).join(', ');
       ultimo = { status: r.status, corto: `HTTP ${r.status} ${que}`, largo: `HTTP ${r.status} ${que} (${i + 1} intento${i ? 's' : ''}${detalle ? '; ' + detalle : ''})` };
       if (!REINTENTABLES.has(r.status)) break;
-    } catch (e) { ultimo = { status: 0, corto: `${que}: ${e.message}`, largo: `${que}: ${e.message} (${i + 1} intento${i ? 's' : ''})` } }
+    } catch (e) { const antes = ultimo && ultimo.status ? `; antes respondió ${ultimo.corto}` : ''; ultimo = { status: 0, corto: `${que}: ${e.message}`, largo: `${que}: ${e.message} (${i + 1} intento${i ? 's' : ''}${antes})` } }
   }
   throw new Error(ultimo.largo);
 }
@@ -665,8 +665,12 @@ async function principal() {
   const hoy = arg('--hoy') || new Date().toISOString().slice(0, 10);
   const soloIndec = args.includes('--solo-indec'), soloSepa = args.includes('--solo-sepa');
   const salida = arg('--salida') ? resolve(arg('--salida')) : fileURLToPath(ruta('datos/precios.json'));
-  let previo = null; try { previo = JSON.parse(await readFile(arg('--previo') ? resolve(arg('--previo')) : fileURLToPath(ruta('datos/precios.json')), 'utf8')) } catch { /* no existe */ }
-  if (!previo) try { previo = JSON.parse(await readFile(salida, 'utf8')) } catch { /* no existe */ }
+  // --previo y --indec-json son solo para pruebas: obligan a elegir --salida (así nunca pisan datos/precios.json) y un --previo ilegible falla.
+  if ((arg('--previo') || arg('--indec-json')) && !arg('--salida')) throw new Error('--previo y --indec-json se usan con --salida: así no se pisa datos/precios.json');
+  let previo = null;
+  if (arg('--previo')) previo = JSON.parse(await readFile(resolve(arg('--previo')), 'utf8'));
+  else try { previo = JSON.parse(await readFile(fileURLToPath(ruta('datos/precios.json')), 'utf8')) } catch { /* no existe */ }
+  if (!previo && !arg('--previo')) try { previo = JSON.parse(await readFile(salida, 'utf8')) } catch { /* no existe */ }
   let indec = null, sepa = null, hashIndec = null;
   const errores = [];
   if (!soloSepa && arg('--indec-json')) indec = JSON.parse(await readFile(resolve(arg('--indec-json')), 'utf8')); // solo para pruebas: usa un JSON ya armado en lugar del .xls de INDEC

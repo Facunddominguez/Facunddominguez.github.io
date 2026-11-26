@@ -22,6 +22,9 @@
   const ficha = ev('(() => { const c = fichaPrecio("Arroz"); document.body.append(c); c.id = "fichaPrueba"; return c.innerText })()');
   ok("R6-P-04 en la ficha de precio, bajo el precio, dice 'Precios de hace 22 días'", /Precios de hace 22 días/.test(ficha) && /≈ \$/.test(ficha), H.norm(ficha).slice(0, 160));
   ev('document.getElementById("fichaPrueba").remove()');
+  // Con Mi precio cargado, el "Promedio de la zona" lleva la antigüedad (es el precio automático el que tiene fecha).
+  const fichaMio = ev('(() => { const o = misPreciosDe; misPreciosDe = () => [{ id: "t1", name: "Arroz", price: 1905, amount: 1, unit: "kg", pack: "granel", currency: "ARS", date: "2026-11-20" }]; try { return fichaPrecio("Arroz").innerText } finally { misPreciosDe = o } })()');
+  ok("R6-P-04 en la ficha de precio con Mi precio cargado, el 'Promedio de la zona' también dice 'Precios de hace 22 días'", /Mi precio: \$1\.905/.test(fichaMio) && /Promedio de la zona: ≈ \$[\d.]+\/kg · Precios de hace 22 días/.test(fichaMio), H.norm(fichaMio).slice(0, 200));
   // Otros días: hoy, ayer, y un teléfono con fecha anterior al archivo no inventa nada.
   const antig = async hoy => { H.fijarFecha(hoy); return ev("antiguedadPrecios()") };
   ok("R6-P-04 la antigüedad se escribe en palabras: hoy, ayer, hace 2 días, hace 120 días; y con la fecha del teléfono anterior a la del archivo no se muestra",

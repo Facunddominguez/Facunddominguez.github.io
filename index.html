@@ -7228,7 +7228,7 @@ function shoppingBudgetRender(){
   box.append(ce("p","screen__hint",covered+" ingredientes valorizados; "+unpriced+" sin costo completo; "+otherCurrency+" con precio en otra moneda."));
   if(unpriced||otherCurrency)box.append(ce("p","screen__hint","Comparación parcial: faltan precios."));
   else box.append(ce("p","screen__hint","Con tus precios guardados."));
-  if(typeof antiguedadPrecios==="function"&&preciosActivos()&&antiguedadPrecios())box.append(ce("p","screen__hint presupuesto-antiguedad",[fuentePrecios(undefined,"sepa").replace(" · mediana",""),antiguedadPrecios()].filter(Boolean).join(" · ")));
+  if(typeof antiguedadPrecios==="function"&&preciosActivos()&&totalAutomaticoLista()&&antiguedadPrecios())box.append(ce("p","screen__hint presupuesto-antiguedad",[fuentePrecios(undefined,"sepa").replace(" · mediana",""),antiguedadPrecios()].filter(Boolean).join(" · ")));
   budgetRealLines(box,budget,estimated)
 }
 let budgetScenarioText="";
@@ -15922,10 +15922,10 @@ function fichaPrecio(nombre){
     cont.append(ce("h3","ficha-precio__titulo","Precio"));
     if(dual)for(const x of dual)cont.append(ce("p","ficha-precio__linea",x.texto));
     else cont.append(ce("p","ficha-precio__linea",textoPrecioFicha(nombre)));
-    if(!mio&&antiguedadPrecios())cont.append(ce("p","screen__hint ficha-precio__antiguedad",antiguedadPrecios()));
+    {const auto=mio?null:precioAuto(nombre);if(auto&&auto.fuente==="sepa"&&antiguedadPrecios())cont.append(ce("p","screen__hint ficha-precio__antiguedad",antiguedadPrecios()))}
     if(mio){
       const auto=precioAuto(nombre);
-      if(auto)cont.append(ce("p","screen__hint","Promedio de la zona: ≈ "+pesosCortos(auto.precio)+"/"+(auto.it.b==="l"?"l":auto.it.b==="unidad"?"unidad":"kg")));
+      if(auto)cont.append(ce("p","screen__hint ficha-precio__antiguedad","Promedio de la zona: ≈ "+pesosCortos(auto.precio)+"/"+(auto.it.b==="l"?"l":auto.it.b==="unidad"?"unidad":"kg")+(auto.fuente==="sepa"&&antiguedadPrecios()?" · "+antiguedadPrecios():"")));
       const rev=precioParaRevisar(mio);
       if(rev){
         const caja=ce("div","ficha-precio__revision"),igual=ce("button","button button--soft","Sigue igual"),act=ce("button","button button--primary","Actualizar");

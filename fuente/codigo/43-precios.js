@@ -813,10 +813,10 @@ function fichaPrecio(nombre){
     cont.append(ce("h3","ficha-precio__titulo","Precio"));
     if(dual)for(const x of dual)cont.append(ce("p","ficha-precio__linea",x.texto));
     else cont.append(ce("p","ficha-precio__linea",textoPrecioFicha(nombre)));
-    if(!mio&&antiguedadPrecios())cont.append(ce("p","screen__hint ficha-precio__antiguedad",antiguedadPrecios()));
+    {const auto=mio?null:precioAuto(nombre);if(auto&&auto.fuente==="sepa"&&antiguedadPrecios())cont.append(ce("p","screen__hint ficha-precio__antiguedad",antiguedadPrecios()))}
     if(mio){
       const auto=precioAuto(nombre);
-      if(auto)cont.append(ce("p","screen__hint","Promedio de la zona: ≈ "+pesosCortos(auto.precio)+"/"+(auto.it.b==="l"?"l":auto.it.b==="unidad"?"unidad":"kg")));
+      if(auto)cont.append(ce("p","screen__hint ficha-precio__antiguedad","Promedio de la zona: ≈ "+pesosCortos(auto.precio)+"/"+(auto.it.b==="l"?"l":auto.it.b==="unidad"?"unidad":"kg")+(auto.fuente==="sepa"&&antiguedadPrecios()?" · "+antiguedadPrecios():"")));
       const rev=precioParaRevisar(mio);
       if(rev){
         const caja=ce("div","ficha-precio__revision"),igual=ce("button","button button--soft","Sigue igual"),act=ce("button","button button--primary","Actualizar");

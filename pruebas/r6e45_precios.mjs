@@ -133,6 +133,12 @@ try {
     ok('R6-P-02 descargarSepa se recupera de un 403 en el paquete, baja el ZIP64 y lo lee', n === 2 && visto.length === 3 && r.fecha === '2026-11-02' && r.items.get('Zanahoria').get('GBA').med === 3000, JSON.stringify(visto));
   }
 
+  {
+    const g = guion(respuesta(403, 'Forbidden'), new Error('fetch failed'));
+    let msg = ''; try { await pedirConReintentos('https://x/', { que: 'al pedir el paquete de SEPA', fetchFn: g.f, espera: g.espera, esperas: [1], log: () => {} }) } catch (e) { msg = e.message }
+    ok('R6-P-02 si el último intento es un corte de red después de un 403, el error no pierde el 403', /fetch failed/.test(msg) && /antes respondió HTTP 403/.test(msg), msg);
+  }
+
   // ---------- P-03: precios viejos y sin SEPA nuevo → la tarea falla ----------
   const real = JSON.parse(readFileSync(join(RAIZ, 'datos/precios.json'), 'utf8')), fechaSepa = real.sepa.fecha;
   const mas = (f, d) => new Date(Date.parse(f) + d * 864e5).toISOString().slice(0, 10);
@@ -149,6 +155,9 @@ try {
     && !existsSync(salida) && readFileSync(previoViejo, 'utf8') === antes && readFileSync(join(RAIZ, 'datos/precios.json'), 'utf8') === repoAntes, salidaVieja.trim().slice(0, 220));
   const fresca = correr(mas(fechaSepa, 3));
   ok('R6-P-03 con SEPA caído pero precios de hace 3 días la tarea sigue como antes: avisa y conserva lo anterior (código 0)', fresca.status === 0 && /Aviso, se conserva lo anterior: SEPA/.test(fresca.stderr || ''), ((fresca.stdout || '') + (fresca.stderr || '')).trim().slice(0, 220));
+  const sinSalida = spawnSync(process.execPath, [join(RAIZ, 'herramientas/actualizar-precios.mjs'), '--previo', previoViejo, '--indec-json', previoViejo, '--archivo-sepa', roto, '--hoy', mas(fechaSepa, 3)], { encoding: 'utf8' });
+  const previoInexistente = spawnSync(process.execPath, [join(RAIZ, 'herramientas/actualizar-precios.mjs'), '--previo', join(dir, 'no-existe.json'), '--indec-json', previoViejo, '--archivo-sepa', roto, '--salida', salida, '--hoy', mas(fechaSepa, 3)], { encoding: 'utf8' });
+  ok('R6-P-03 --previo y --indec-json (de prueba) exigen --salida y un --previo ilegible falla: nunca caen sobre datos/precios.json', sinSalida.status === 1 && /con --salida/.test(sinSalida.stderr) && previoInexistente.status === 1 && !existsSync(salida) && readFileSync(join(RAIZ, 'datos/precios.json'), 'utf8') === repoAntes);
   const soloIndec = correr(mas(fechaSepa, 40), ['--solo-indec']);
   ok('R6-P-03 con --solo-indec (no se pidió SEPA) la antigüedad de SEPA no hace fallar la tarea', soloIndec.status === 0, ((soloIndec.stdout || '') + (soloIndec.stderr || '')).trim().slice(0, 220));
 } finally { rmSync(dir, { recursive: true, force: true }) }
