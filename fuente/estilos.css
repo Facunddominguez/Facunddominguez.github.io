@@ -3727,10 +3727,23 @@ select{max-width:100%;min-width:0}
 .precios-viejos{margin:0 0 8px;padding:10px 12px;border:1px solid var(--orange);border-left-width:4px;border-radius:12px;background:var(--surface);color:var(--text);font-size:14px;line-height:1.4}
 .precios-viejos[hidden]{display:none}
 /* Etapa 46: "Comprar para" (esta semana, la que viene o las dos) arriba de la lista. */
-.compras-periodo{margin:0 0 12px}
-.compras-periodo__titulo{margin:0 0 6px;font-weight:700;font-size:14px;color:var(--muted)}
-.compras-periodo__botones{display:grid;grid-template-columns:1fr 1.4fr 1fr;gap:8px}
-.compras-periodo__boton{min-height:var(--tap);padding:6px 8px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--text);font:inherit;font-size:14px;font-weight:700;line-height:1.2;cursor:pointer}
+.compras-periodo{margin:0 0 8px}
+.compras-periodo__cabeza{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin:0 0 4px}
+.compras-periodo__titulo{margin:0;font-weight:700;font-size:14px;color:var(--muted)}
+.compras-periodo__hint{margin:0;font-size:13px}
+.compras-periodo__botones{display:grid;grid-template-columns:1fr 1.7fr .9fr;gap:8px}
+.compras-periodo__boton{min-height:var(--tap);padding:4px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--text);font:inherit;font-size:13px;font-weight:700;line-height:1.15;cursor:pointer}
 .compras-periodo__boton[aria-pressed="true"]{background:var(--green);border-color:var(--green);color:var(--on-green)}
 /* Etapa 46: una fila con la nota de la despensa ("💡 Despensa: tenés 3 unidades…") baja la nota a otra línea en vez de apretar el nombre. */
 .shop-item:has(>.shop-item__detail){flex-wrap:wrap}
+/* Etapa 46: "Agregar producto" en dos columnas (Producto y Cantidad lado a lado) para que la pantalla no crezca con los botones nuevos. */
+.compras-agregar #manualShoppingForm{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}
+.compras-agregar #manualShoppingForm .summary-actions{grid-column:1 / -1}
+.shop-item__volver{min-width:44px;font-size:18px}
+.compras-agregar #manualShoppingForm .portion-field+.portion-field{margin-top:0}
+.compras-agregar>.plan-day__title{margin:0 0 8px}
+.compras-controles{margin:0}
+#manualShopList .manual-shop-row .filter-chip{padding:8px 7px}
+/* Etapa 46: los encabezados de sección de la lista se acercan un poco (el alto de Compras tiene tope). */
+.compras-seccion{margin:6px 0 2px}
+.compras-seccion__titulo{margin:8px 0 2px}

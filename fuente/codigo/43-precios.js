@@ -1255,7 +1255,7 @@ function atribucionPrecios(){
       refrescarPrecios()
     })
   }
-  const lista=document.getElementById("comprasHint");
+  const lista=document.getElementById("comprasPeriodoGrupo");
   if(lista&&!document.getElementById("comprasPrecioFuente")){
     const f=ce("p","screen__hint");
     f.id="comprasPrecioFuente";

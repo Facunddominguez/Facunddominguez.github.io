@@ -1,6 +1,5 @@
 // R4 battery: accessibility, amount editor layout, simplified Compras, dead code removed.
 (async () => {
-  R6_LUNES(window);
   const R = window.R2, { wait, results, criticalCase } = R; const T = results();
   criticalCase(); go("compras"); await wait(60);
   const cbs = [...document.querySelectorAll("#comprasList input[data-shop-key]")];
@@ -32,6 +31,5 @@
   T.ok("X7 la indicación explica dónde registrar la despensa (simple: Con lo que tengo; completo: Más herramientas)", /Despensa/.test(simpleHint) && /Despensa/.test(fullHint) && !/Con lo que tengo|Más herramientas/.test(simpleHint + fullHint), simpleHint + " | " + fullHint);
   T.ok("X8 código sin uso eliminado", typeof buildShopping === "undefined" && typeof shoppingMissingLabel === "undefined" && !document.querySelector("[data-manual-copy]"));
   T.ok("X9 copiar la lista sigue funcionando", /🛒 Lista de compras/.test(Compras.comprasText()) && Compras.comprasText().includes("Papa: 200 g"));
-  R6_REAL(window);
   return T;
 })()

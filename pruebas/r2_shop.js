@@ -3,7 +3,6 @@
 // comparar) y "Ya en tu despensa" (lo pasado con Lo compré). Juntos son siempre los mismos ítems con las cantidades
 // del plan; "Anotar" se integró como "faltan X" y "Tachar" como el grupo "Ya tenés".
 (async () => {
-  R6_LUNES(window);
   const R = window.R2, { wait, results, reset, setAmounts, setRecipes, recipePlate, tradPlate, tradPlateTexto, setSaved, setPlan, setStock, criticalCase, item, renderedRows, IDEA1, IDEA2, IDEA3 } = R; const T = results();
   const grupo = name => (item(name) || {}).group;
   const keysEnPantalla = () => JSON.stringify([...document.querySelectorAll("#comprasList [data-shop-key]")].map(c => c.dataset.shopKey).sort());
@@ -117,6 +116,5 @@
   setRecipes([{ id: "recipe_test0003", title: "Risotto", amountsTitle: IDEA3 }]);
   setSaved([recipePlate("rp3", "recipe_test0003", "Risotto", ['Queso "cremoso"'])]); setPlan([["lunes", "cena", "rp3"]]);
   go("compras"); await wait(60);
-  R6_REAL(window);
   return T;
 })()

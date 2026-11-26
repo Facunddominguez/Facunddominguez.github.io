@@ -538,7 +538,7 @@ function renderCompras(){
   }
   summary.textContent=pending.length+" pendientes · "+tachados+" tachados"+resumenPrecios(precios);
   pintarPreciosCompras(precios);
-  hint.textContent="Tachá lo que comprás. Despensa aparte.";
+  hint.textContent="Despensa aparte.";
   const nodes=[],equiv=Compras.equivalenciaSugerida(items);
   if(equiv)nodes.push(equiv);
   let i=0;
@@ -571,10 +571,11 @@ function renderCompras(){
     const g=Compras.shoppingGroup("Ya tenés",tenes);
     // Una línea por producto: solo el nombre y su botón (por qué ya lo tenés queda en el título de la fila).
     for(const x of tenes){
-      const nombre=Ingredientes.textoLegible(Compras.nombreCorto(x.name)),fila=Compras.shoppingRow({...x,text:Compras.nombreCorto(x.name),cortar:false,precioTxt:""},i++,!!comprasDone[x.key],""),volver=ce("button","filter-chip shop-item__volver","Volver");
+      const nombre=Ingredientes.textoLegible(Compras.nombreCorto(x.name)),fila=Compras.shoppingRow({...x,text:Compras.nombreCorto(x.name),cortar:false,precioTxt:""},i++,!!comprasDone[x.key],""),volver=ce("button","filter-chip shop-item__volver","↩");
       volver.type="button";
       volver.dataset.volverALista=x.key;
       volver.setAttribute("aria-label","Volver a la lista: "+nombre);
+      volver.title="Volver a la lista";
       if(x.suggestion)fila.title=x.suggestion.text;
       fila.insertBefore(volver,fila.querySelector(".shop-item__ficha"));
       g.append(fila)
