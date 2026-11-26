@@ -30,6 +30,16 @@ jobs:
         run: node herramientas/actualizar-precios.mjs --verificar
       - name: Lector de SEPA con un ZIP armado en la prueba (sin red)
         run: node pruebas/sepa-lector.mjs
+      - name: Pruebas de ZIP64, reintentos y antigüedad de la tarea de precios (sin red)
+        run: node pruebas/r6e45_precios.mjs
+      - name: Diagnóstico del portal de datos (qué responde desde los servidores de GitHub)
+        continue-on-error: true
+        run: |
+          for ua in "mi-plato-facil (GitHub Actions)" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36"; do
+            echo "== User-Agent: $ua"
+            curl -sS -m 40 -o "$RUNNER_TEMP/portal.txt" -D - -A "$ua" -H "Accept-Language: es-AR,es;q=0.9" -H "Referer: https://datos.produccion.gob.ar/dataset/sepa-precios" "https://datos.produccion.gob.ar/api/3/action/package_show?id=sepa-precios" | head -25 || true
+            echo "-- cuerpo (160 bytes):"; head -c 160 "$RUNNER_TEMP/portal.txt" | tr '\n' ' '; echo
+          done
       - name: Descargar, procesar y validar SEPA e INDEC (sin tocar datos/precios.json)
         id: descarga
         continue-on-error: true
