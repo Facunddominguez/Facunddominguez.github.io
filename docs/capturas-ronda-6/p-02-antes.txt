@@ -1,0 +1,4 @@
+# P-02 antes: tarea semanal del 24/11/2026 (corrida 45454037806, job "actualizar"), paso "Descargar SEPA e INDEC y regenerar los precios":
+2026-11-24T17:56:32Z Aviso, se conserva lo anterior: SEPA: HTTP 403 al pedir el paquete de SEPA
+2026-11-24T17:56:32Z Cobertura: núcleo 55/59, armado 28/42, total 83/101 (11 aproximados) · 119 ingredientes · 42958 bytes · INDEC sha256 a837450367d6bc6a · sin cambios
+# (un solo intento, 3 segundos; el 17/11, corrida 44123404443, el paso duró 18 s: el mismo patrón)

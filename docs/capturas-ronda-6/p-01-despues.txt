@@ -1,0 +1,8 @@
+# P-01 después: node pruebas/r6e45_precios.mjs R6-P-01
+PASA R6-P-01 un ZIP64 de prueba (solo el externo, solo los de cada comercio, o los dos) se lee igual que uno común: fecha, mediana, percentiles y comercios · {"fecha":"2026-11-02","med":3000,"p25":2800,"p75":3000,"n":15,"com":3,"comercios":3}
+PASA R6-P-01 el ZIP64 con tamaños y posiciones de más de 4 GB se lee entero (64 bits, sin perder dígitos) · [{"nombre":"2026-11-02/sepa_1_comercio.zip","metodo":0,"csize":2900000000,"usize":2900001000,"off":4500000000}]
+PASA R6-P-01 un ZIP64 con el localizador o el campo extra dañado falla con un mensaje claro y no con "ZIP64 no soportado"
+PASA R6-P-01 la herramienta, corrida con un ZIP64, no dice "ZIP64 no soportado" (puede fallar por otra cosa, como pocos comercios en la prueba) · SEPA 2026-11-02: 15 filas, 15 con precio coherente, 0 descartadas por precio, 0 por tamaño, 0 sin región, 1 ingredientes, 0 s
+No se actualizaron los precios (se
+
+4 pruebas en verde

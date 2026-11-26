@@ -67,13 +67,13 @@ const sepaZip = (z64Externo, z64Interno) => zip([
 const dir = mkdtempSync(join(tmpdir(), 'r6e45-'));
 try {
   // ---------- P-01: ZIP64 ----------
-  const archivoComun = join(dir, 'comun.zip'), archivo64 = join(dir, 'zip64.zip'), archivoMixto = join(dir, 'mixto.zip');
-  writeFileSync(archivoComun, sepaZip(false, false)); writeFileSync(archivo64, sepaZip(true, true)); writeFileSync(archivoMixto, sepaZip(true, false));
+  const archivoComun = join(dir, 'comun.zip'), archivo64 = join(dir, 'zip64.zip'), archivoMixto = join(dir, 'mixto.zip'), archivoInterno = join(dir, 'interno64.zip');
+  writeFileSync(archivoComun, sepaZip(false, false)); writeFileSync(archivo64, sepaZip(true, true)); writeFileSync(archivoMixto, sepaZip(true, false)); writeFileSync(archivoInterno, sepaZip(false, true));
   const resumen = r => { const g = r.items.get('Zanahoria') && r.items.get('Zanahoria').get('GBA'); return g ? { fecha: r.fecha, med: g.med, p25: g.p25, p75: g.p75, n: g.n, com: g.com, comercios: r.cuentas.comercios } : { fecha: r.fecha, sin: true } };
   const comun = resumen(await leerSepa(archivoComun, MAPA));
-  let z64 = null, mixto = null, errorZ64 = '';
-  try { z64 = resumen(await leerSepa(archivo64, MAPA)); mixto = resumen(await leerSepa(archivoMixto, MAPA)) } catch (e) { errorZ64 = e.message }
-  ok('R6-P-01 un ZIP64 de prueba (el externo y los de cada comercio) se lee igual que uno común: fecha, mediana, percentiles y comercios', !errorZ64 && comun.med === 3000 && JSON.stringify(z64) === JSON.stringify(comun) && JSON.stringify(mixto) === JSON.stringify(comun), errorZ64 || JSON.stringify(z64));
+  let z64 = null, mixto = null, interno = null, errorZ64 = '';
+  try { z64 = resumen(await leerSepa(archivo64, MAPA)); mixto = resumen(await leerSepa(archivoMixto, MAPA)); interno = resumen(await leerSepa(archivoInterno, MAPA)) } catch (e) { errorZ64 = e.message }
+  ok('R6-P-01 un ZIP64 de prueba (solo el externo, solo los de cada comercio, o los dos) se lee igual que uno común: fecha, mediana, percentiles y comercios', !errorZ64 && comun.med === 3000 && JSON.stringify(z64) === JSON.stringify(comun) && JSON.stringify(mixto) === JSON.stringify(comun) && JSON.stringify(interno) === JSON.stringify(comun), errorZ64 || JSON.stringify(z64));
 
   // Tamaños y posiciones de más de 4 GB: sin crear el archivo, con un lector virtual que solo tiene el final y el directorio central.
   {

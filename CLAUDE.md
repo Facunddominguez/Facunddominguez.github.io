@@ -45,6 +45,18 @@ El plan y la lista de 79 pedidos están en la sección "Ronda 5" de `docs/plan-r
 - Cada ítem tiene un control `R5-<ID>` en `docs/validacion/criterios.json` y una prueba cuyo nombre empieza con `R5-<ID> `; `validar-etapa.mjs N` exige que los ítems de la etapa N estén en ✅ en `docs/ronda-5-lista.md`. Capturas por ítem: `node herramientas/capturas.mjs --r5 antes|despues [--ids S-11,S-12]` (van a `docs/capturas-ronda-5/`).
 - Antes de cerrar cada etapa, la batería completa también se corre con DejaVu como única tipografía (la del runner de GitHub): `FONTCONFIG_FILE=$PWD/herramientas/fuentes-dejavu.conf node herramientas/probar.mjs`.
 
+## Ronda 6 (Etapas 45 a 55): que sirva en la semana real
+
+El plan y la lista de 51 pedidos están en la sección "Ronda 6" de `docs/plan-rediseno.md`; el control ítem por ítem, en `docs/ronda-6-lista.md`. Valen las reglas de la Ronda 5 (sin listas desplegables salvo las cuatro excepciones, también en las pantallas nuevas: modo cocina, revisión del ticket, Para mañana; "Lo comí" en toda la app; IA solo con clave) y estas, que pisan a las de arriba donde chocan:
+
+- **No se elimina ninguna función.** Se ordena, se mueve o se integra.
+- **Datos:** cada clave nueva se llama `miPlatoFacil_<nombre>_v1`, entra al respaldo como opcional y se restaura; un respaldo viejo sin esas claves se restaura igual. Ninguna clave existente cambia de formato: `miPlatoFacil_hogar_v1` sigue aceptando solo `personas`. Sin configurar nada nuevo, cantidades, lista y costos dan exactamente lo mismo que en la v19.10.5 (lo comprueba una prueba con `pruebas/fixtures/respaldo-v14.9.94.json`).
+- **Sin dependencias nuevas ni llamadas a internet en la app,** salvo Gemini (la IA que ya existe). La Screen Wake Lock y los temporizadores son del navegador.
+- Ramas: integración `rediseno-6` desde `main`; cada etapa en `rediseno-6-etapa-N-tema`; sin tags. Versión 20.0.0 en la Etapa 45, después 20.1.0, 20.2.0… Registro en la sección "Registro de la Ronda 6" del plan.
+- Cada ítem tiene un control `R6-<ID>` en `docs/validacion/criterios.json` y una prueba cuyo nombre empieza con `R6-<ID> ` (los de la tarea de precios, P-01 a P-03, se corren con `node pruebas/r6e45_precios.mjs R6-P-01`). `validar-etapa.mjs N` exige que los ítems de la etapa N estén en ✅ en `docs/ronda-6-lista.md` (o en ⚠️ con motivo y 2 opciones). Capturas por ítem: `node herramientas/capturas.mjs --r6 antes|despues [--ids P-04] [--raiz <copia con el código de antes>]` (van a `docs/capturas-ronda-6/`; las escenas están en `herramientas/r6-escenas.mjs`); `node herramientas/marcar-items-r6.mjs N` llena la lista con las capturas.
+- Las pruebas que dependen del día (lista por período, Para mañana, Armame, antigüedad de precios) fijan la fecha: `R6H().fijarFecha("2026-11-26")` en `pruebas/r6_base.js`, o `armarFijo` en `pruebas/e20_un_costo.js`.
+- Antes de cerrar cada etapa, la batería completa también se corre con DejaVu: `FONTCONFIG_FILE=$PWD/herramientas/fuentes-dejavu.conf node herramientas/probar.mjs`.
+
 ## Ciclo de cada etapa (modo autónomo)
 
 1. `git switch -c rediseno-etapa-N-tema rediseno` (no `rediseno/…`: git no deja tener a la vez la rama `rediseno` y ramas debajo de ese nombre).

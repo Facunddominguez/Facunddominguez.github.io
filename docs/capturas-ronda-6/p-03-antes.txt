@@ -1,0 +1,4 @@
+# P-03 antes: con SEPA caído y precios de 20 días, la tarea semanal terminaba en verde con "sin cambios" (24/11/2026, corrida 45454037806):
+2026-11-24T17:56:32Z Aviso, se conserva lo anterior: SEPA: HTTP 403 al pedir el paquete de SEPA
+2026-11-24T17:56:32Z Cobertura: ... · sin cambios
+2026-11-24T17:56:47Z Sin cambios.        (job "actualizar": conclusion success; nadie recibió un aviso de GitHub)

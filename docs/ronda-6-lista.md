@@ -5,11 +5,11 @@ Cada ítem tiene un control `R6-<ID>` en `docs/validacion/criterios.json` y una 
 
 | ID | Pedido | Etapa | Prueba | Captura antes | Captura después | Estado |
 |---|---|---|---|---|---|---|
-| P-01 | Error: la tarea "Actualizar precios (SEPA e INDEC)" falló el 10/11 con "SEPA: ZIP64 no soportado". Reproducilo con un ZIP64 de prueba y que `herramientas/actualizar-precios.mjs` lo lea, sin dependencias. | 45 | R6-P-01 |  |  | ⬜ |
-| P-02 | Error: el 17/11 y el 24/11 la tarea recibió "HTTP 403 al pedir el paquete de SEPA". Reproducilo, probá reintentos con espera y cabeceras de navegador, y anotá en el Registro qué respondió. Si es un bloqueo a los servidores de GitHub que el código no resuelve, no inventes otra fuente: ⚠️ con el diagnóstico y 2 o 3 opciones en "Pendientes para vos". | 45 | R6-P-02 |  |  | ⬜ |
-| P-03 | Si SEPA no da precios nuevos y los guardados tienen más de 10 días, la tarea termina en falla (para que GitHub mande el aviso) en vez de "sin cambios", y deja `datos/precios.json` como estaba. | 45 | R6-P-03 |  |  | ⬜ |
-| P-04 | En la app, junto a la fuente de precios (lista, presupuesto y ficha de precio), la antigüedad en palabras: "Precios de hace 22 días", contada contra la fecha del teléfono. | 45 | R6-P-04 |  |  | ⬜ |
-| P-05 | Desde los 14 días, un aviso visible en la lista: "Los precios pueden estar desactualizados. Tus precios (Mi precio) se usan primero." Con menos de 14 días no aparece. | 45 | R6-P-05 |  |  | ⬜ |
+| P-01 | Error: la tarea "Actualizar precios (SEPA e INDEC)" falló el 10/11 con "SEPA: ZIP64 no soportado". Reproducilo con un ZIP64 de prueba y que `herramientas/actualizar-precios.mjs` lo lea, sin dependencias. | 45 | R6-P-01 | p-01-antes.txt | p-01-despues.txt | ✅ |
+| P-02 | Error: el 17/11 y el 24/11 la tarea recibió "HTTP 403 al pedir el paquete de SEPA". Reproducilo, probá reintentos con espera y cabeceras de navegador, y anotá en el Registro qué respondió. Si es un bloqueo a los servidores de GitHub que el código no resuelve, no inventes otra fuente: ⚠️ con el diagnóstico y 2 o 3 opciones en "Pendientes para vos". | 45 | R6-P-02 | p-02-antes.txt | p-02-despues.txt | ⚠️ |
+| P-03 | Si SEPA no da precios nuevos y los guardados tienen más de 10 días, la tarea termina en falla (para que GitHub mande el aviso) en vez de "sin cambios", y deja `datos/precios.json` como estaba. | 45 | R6-P-03 | p-03-antes.txt | p-03-despues.txt | ✅ |
+| P-04 | En la app, junto a la fuente de precios (lista, presupuesto y ficha de precio), la antigüedad en palabras: "Precios de hace 22 días", contada contra la fecha del teléfono. | 45 | R6-P-04 | lista-precios-antes.png, lista-precios-antes-oscuro.png, presupuesto-precios-antes.png, ficha-precio-antes.png | lista-precios-despues.png, lista-precios-despues-oscuro.png, presupuesto-precios-despues.png, ficha-precio-despues.png | ✅ |
+| P-05 | Desde los 14 días, un aviso visible en la lista: "Los precios pueden estar desactualizados. Tus precios (Mi precio) se usan primero." Con menos de 14 días no aparece. | 45 | R6-P-05 | lista-precios-antes.png, lista-precios-antes-oscuro.png | lista-precios-despues.png, lista-precios-despues-oscuro.png | ✅ |
 | L-01 | Arriba de la lista, "Comprar para" con tres botones: Esta semana, La semana que viene y Las dos. La lista, el total y la barra de presupuesto salen del período elegido. | 46 | R6-L-01 |  |  | ⬜ |
 | L-02 | "Esta semana" cuenta las comidas de hoy al domingo, no las de días que ya pasaron. | 46 | R6-L-02 |  |  | ⬜ |
 | L-03 | Del viernes al domingo, si la semana que viene tiene al menos una comida, la lista abre en "La semana que viene"; los otros días, en "Esta semana". Lo que elijas a mano se recuerda hasta el lunes siguiente (clave `miPlatoFacil_comprasPeriodo_v1`). | 46 | R6-L-03 |  |  | ⬜ |
@@ -58,7 +58,12 @@ Cada ítem tiene un control `R6-<ID>` en `docs/validacion/criterios.json` y una 
 | E-04 | Entre opciones parecidas, Armame prefiere las que usan frutas y verduras de estación (como desempate, no como regla fija) y lo dice en Ver detalle. | 54 | R6-E-04 |  |  | ⬜ |
 
 ## Ítems en ⚠️ (no hechos)
-Ninguno por ahora.
+
+### P-02
+**Motivo.** Se reprodujo desde los servidores de GitHub (tarea de prueba disparada a mano el 26/11/2026, corrida 45849889923) y el portal `datos.produccion.gob.ar` responde **HTTP 403** a todo pedido: con el User-Agent de la tarea y con el de Chrome, con `Accept-Language` y `Referer` del portal, y tras 4 intentos con 5, 20 y 60 s de espera (90 s en total). La respuesta es siempre la misma página `403 | Forbidden` (sin cabeceras de CDN), así que es un bloqueo por origen (los servidores de GitHub) y no por la forma del pedido. La herramienta ya reintenta con espera y con cabeceras de navegador y, si el bloqueo sigue, dice qué respondió el portal; eso quedó hecho y probado (pruebas R6-P-02), pero con la tarea corriendo en GitHub no hay forma de bajar el paquete. No se inventó otra fuente. Con lo de P-03, la tarea semanal ahora falla en rojo en vez de decir "sin cambios".
+**Opción 1.** Correr la tarea desde una computadora tuya con conexión argentina (un runner autoalojado de GitHub Actions, o a mano una vez por semana con `node herramientas/actualizar-precios.mjs` y subir `datos/precios.json`): el portal no bloquea ese origen y la herramienta ya acepta `--archivo-sepa` si bajás el ZIP a mano.
+**Opción 2.** Pedirle a la Secretaría de Comercio (el portal de datos abiertos, `datos.produccion.gob.ar`) que deje pasar los servidores de GitHub Actions, o que te den una clave de acceso; si la dan, se carga como secreto del repositorio y la herramienta la manda en el pedido.
+**Opción 3.** Aceptar que los precios de SEPA se actualicen solo cuando vos los subas, y dejar la tarea semanal solo con INDEC (`--solo-indec`), que no tiene el problema: los precios de supermercado quedarían con la fecha de la última carga y la app ya avisa su antigüedad (P-04 y P-05).
 
 ## Resumen (Etapa 55)
 Pendiente.
