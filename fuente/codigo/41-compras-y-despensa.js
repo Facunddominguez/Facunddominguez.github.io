@@ -80,6 +80,7 @@ document.addEventListener("click",e=>{
   if(!b)return;
   const d=b.dataset;
   if(d.comprasMenu!==undefined)return ComprasDespensa.abrirMenuCompras();
+  if(d.comprasPeriodo)return Compras.elegirPeriodo(d.comprasPeriodo);
   if(d.comprasCompartir!==undefined)return Compras.shareCompras();
   if(d.volverALista){
     try{

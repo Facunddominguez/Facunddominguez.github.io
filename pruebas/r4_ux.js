@@ -13,7 +13,7 @@
   const idx = id => kids.indexOf(id);
   // v15.4: "+ Agregar producto" arriba de la lista, los extras al pie y las herramientas en su pantalla (menú ⋯).
   const tools = document.getElementById("shoppingToolsPanel");
-  T.ok("X4 Compras: lista, extras y Compartir arriba; herramientas al final", idx("manualShoppingPanel") < idx("comprasList") && idx("comprasList") < idx("comprasExtras") && idx("comprasExtras") < idx("comprasBoughtBox") && idx("comprasBoughtBox") < idx("comprasStatus") && !sec.contains(tools) && document.getElementById("comprasHerramientas").contains(tools), kids.join(" > "));
+  T.ok("X4 Compras: lista, extras, Agregar producto (R6-L-06, debajo de la lista) y Compartir; herramientas al final", idx("comprasList") < idx("comprasExtras") && idx("comprasExtras") < idx("manualShoppingPanel") && idx("manualShoppingPanel") < idx("comprasBoughtBox") && idx("comprasBoughtBox") < idx("comprasStatus") && !sec.contains(tools) && document.getElementById("comprasHerramientas").contains(tools), kids.join(" > "));
   const PANELES = ["shoppingBudgetPanel", "purchasesPanel", "recipeCostPanel", "pricePanel"];
   const inside = PANELES.every(id => tools.contains(document.getElementById(id)));
   const source = await (await fetch(location.href, { cache: "no-store" })).text();

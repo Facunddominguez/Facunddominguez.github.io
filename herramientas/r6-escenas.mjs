@@ -12,11 +12,18 @@
 const esperar = 'await new Promise(r => setTimeout(r, 250)); ';
 export const HOY = (iso, hora = '12:00:00') => `(() => { const R = window.__DateReal || Date, t = new R(${JSON.stringify(iso + 'T' + hora)}).getTime(); window.__DateReal = R; class F extends R { constructor(...a) { if (a.length) super(...a); else super(t) } static now() { return t } } window.Date = F })(); `;
 const armarSemana = 'openTab("semana"); await ArmameSemana.correr("todo"); ' + esperar;
+const armarProxima = 'openTab("semana"); Semana.verSemana(1); await ArmameSemana.correr("todo"); ' + esperar + 'Semana.verSemana(0); ';
 export const ESCENAS = [
   // Etapa 45 · Precios confiables (los precios incluidos son del 4/11; el teléfono de la captura marca el 26/11: 22 días)
   { id: 'lista-precios', items: ['P-04', 'P-05'], oscuro: true, ir: HOY('2026-11-26') + armarSemana + 'openTab("compras"); ' + esperar },
   { id: 'presupuesto-precios', items: ['P-04'], ir: HOY('2026-11-26') + 'localStorage.setItem("miPlatoFacil_shoppingBudget_v1", JSON.stringify({ currency: "ARS", limit: 60000, period: "semana" })); ' + armarSemana + 'openTab("compras"); ComprasDespensa.abrirHerramientaCompras("presupuesto"); ' + esperar },
   { id: 'ficha-precio', items: ['P-04'], ir: HOY('2026-11-26') + 'openTab("semana"); hoja.abrir({ titulo: "Precio de Arroz", contenido: [fichaPrecio("Arroz")], botones: [] }); ' + esperar, medir: '.hoja' },
+  // Etapa 46 · Lista para cuando comprás (jueves 26/11; con la semana de hoy y la que viene armadas)
+  { id: 'compras-periodo', items: ['L-01', 'L-02', 'L-03', 'L-06'], oscuro: true, ir: HOY('2026-11-26') + armarSemana + armarProxima + 'openTab("compras"); ' + esperar },
+  { id: 'compras-viernes', items: ['L-03'], ir: HOY('2026-11-27') + armarSemana + armarProxima + 'openTab("compras"); ' + esperar },
+  { id: 'compras-proxima', items: ['L-01', 'L-04'], ir: HOY('2026-11-26') + armarSemana + armarProxima + 'openTab("compras"); ' + esperar + 'const b = document.querySelector("[data-compras-periodo=proxima]"); if (b) b.click(); ' + esperar },
+  { id: 'compras-dos-tachado', items: ['L-04'], ir: HOY('2026-11-26') + armarSemana + armarProxima + 'openTab("compras"); ' + esperar + 'const d = document.querySelector("[data-compras-periodo=dos]"); if (d) d.click(); ' + esperar + 'const c = document.querySelector("#comprasList input[type=checkbox]"); if (c) c.click(); ' + esperar },
+  { id: 'compras-compartir', items: ['L-05'], ir: HOY('2026-11-26') + armarSemana + armarProxima + 'openTab("compras"); ' + esperar + 'const b = document.querySelector("[data-compras-periodo=proxima]"); if (b) b.click(); ' + esperar + 'const pre = document.createElement("pre"); pre.style.whiteSpace = "pre-wrap"; pre.textContent = Compras.comprasText().split("\\n").slice(0, 14).join("\\n"); hoja.abrir({ titulo: "Texto que se comparte", contenido: [pre], botones: [] }); ' + esperar, medir: '.hoja' },
 ];
 // Ítems que se comprueban en la salida de una herramienta y no en una pantalla: su "captura" es un texto
 // (docs/capturas-ronda-6/<nombre>-antes.txt y -despues.txt).

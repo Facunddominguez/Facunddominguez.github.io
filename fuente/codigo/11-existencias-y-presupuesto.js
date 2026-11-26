@@ -133,7 +133,7 @@ function renderPresupuestoCompras(){
     return
   }
   const faltan=e.unpriced+e.otherCurrency;
-  bar.textContent="💰 Presupuesto "+fmt(budget.limit)+" · "+(e.alMenos||(e.covered!==undefined&&faltan>e.covered)?"al menos ":"")+"≈ "+fmt(e.estimated)+" estimado"+(faltan?" (faltan "+faltan+" precio"+(faltan===1?"":"s")+")":"");
+  bar.textContent="💰 Presupuesto "+fmt(budget.limit)+" · "+(e.alMenos||(e.covered!==undefined&&faltan>e.covered)?"al menos ":"")+"≈ "+fmt(e.estimated)+(faltan?" (faltan "+faltan+" precio"+(faltan===1?"":"s")+")":"");
   bar.classList.toggle("is-excedido",e.estimated>budget.limit)
 }
 function shoppingBudgetRender(){

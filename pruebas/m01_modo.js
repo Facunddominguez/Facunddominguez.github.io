@@ -147,9 +147,10 @@
   card.click(); await wait(10); card.click(); await wait(10);
   T.ok("M8 cambiar de modo no modifica ningún dato guardado (solo el ajuste de los precios, que quedó como lo dejó el usuario)", appData() === before && localStorage.getItem("miPlatoFacil_mostrarPrecios_v1") === '{"mostrar":true}' && Object.keys(localStorage).filter(k => k.startsWith("miPlatoFacil_")).includes(UI_MODE_KEY));
   // M9 Lo guardado en herramientas ocultas sigue en uso: las existencias generan la sugerencia en Compras
-  go("compras"); await wait(30);
+  R6_LUNES(window); go("compras"); await wait(30); // R6-L-02: "Esta semana" cuenta de hoy al domingo; el plan de esta prueba es del lunes
   const papa = shoppingDisplayItems().find(x => x.name === "Papa");
   T.ok("M9 las existencias guardadas siguen sugiriendo en Compras aunque estén ocultas", Interfaz.getUiMode() === "simple" && !!papa && !!papa.suggestion && /1 kg/.test(papa.suggestion.text) && ([...document.querySelectorAll("#comprasList .shop-item")].some(r => /1 kg/.test(r.title)) || /💡/.test($("comprasList").textContent)), papa && papa.suggestion && papa.suggestion.text);
+  R6_REAL(window);
   // M10 (Ronda 5, M-08) Las recomendaciones por despensa son un solo interruptor de la búsqueda, igual en los dos modos:
   // ya no hay selectores de prioridad, orden ni cantidad por página que se escondan y sigan cambiando lo que se ve.
   ModoSimple.setUiMode("completo");

@@ -319,7 +319,7 @@ document.getElementById("purchaseAddItem").addEventListener("click",()=>{
 });
 document.getElementById("purchaseFromList").addEventListener("click",()=>{
   const st=document.getElementById("purchaseStatus");try{
-    const box=document.getElementById("purchaseItems");if(box.children.length&&!window.confirm("¿Reemplazar los productos cargados por los pendientes de la lista?"))return;box.replaceChildren();let n=0;for(const e of Compras.shoppingPlanItems()){
+    const box=document.getElementById("purchaseItems");if(box.children.length&&!window.confirm("¿Reemplazar los productos cargados por los pendientes de la lista?"))return;box.replaceChildren();let n=0;for(const e of Compras.shoppingPlanItems(Compras.periodoActual())){
       if(comprasDone[e.key])continue;const m=Ingredientes.mergeUnits(e.units),one=m.size===1?[...m.entries()][0]:null;ComprasHechas.appendPurchaseItem({
         name:e.name,quantity:one&&!e.unknown?one[1]:null,unit:one&&!e.unknown?one[0]:null,price:null
       });n++

@@ -175,9 +175,9 @@
   const arroz = JSON.parse(localStorage.getItem(STOCK))['["arroz","g"]'];
   ok("C5-3b apagado, 'Terminé de comprar' suma la cantidad completa del plan", sinFaltan && !!arroz && arroz.quantity === 400, arroz && arroz.quantity);
 
-  // C5-4 Productos extra: "+ Agregar producto" arriba, en la lista; tachar escribe done; Editar; Quitar con Deshacer
+  // C5-4 Productos extra: "+ Agregar producto" debajo de la lista (R6-L-06, antes arriba); tachar escribe done; Editar; Quitar con Deshacer
   cargar({}); await abrir(); await irA("compras");
-  const agregar = q("#manualShoppingPanel h3"), arriba = agregar.compareDocumentPosition($("comprasList")) & 4;
+  const agregar = q("#manualShoppingPanel h3"), arriba = agregar.compareDocumentPosition($("comprasList")) & 2;
   await tocar(agregar);
   $("manualShopName").value = "Detergente"; $("manualShopAmount").value = "1 botella"; await tocar($("manualShopSubmit"));
   let extras = JSON.parse(localStorage.getItem(EXTRAS) || "[]");
@@ -191,7 +191,7 @@
   const quitado = JSON.parse(localStorage.getItem(EXTRAS)).length === 0;
   // R5-K-01: Quitar ya no ofrece Deshacer.
   const sinDeshacer = !qa("#manualShopStatus [data-manual-undo]").length && !/Deshacer/.test($("compras").textContent) && /Quitado: Lavandina\./.test($("manualShopStatus").textContent);
-  ok("C5-4 productos extra: se agregan arriba, se ven en la lista, se tachan, se editan y Quitar no tiene Deshacer (R5-K-01)", !!arriba && enLista && tachado && editado && quitado && sinDeshacer);
+  ok("C5-4 productos extra: se agregan debajo de la lista (R6-L-06), se ven en la lista, se tachan, se editan y Quitar no tiene Deshacer (R5-K-01)", !!arriba && enLista && tachado && editado && quitado && sinDeshacer);
 
   // C5-5 "Terminé de comprar" (como Lo compré) y "Anotar gasto": compra y Mis precios con el formulario de siempre
   cargar(conReceta("recipe_e5prue04", "Merluza con papa", [{ name: "Papa", quantity: 500, unit: "g" }, { name: "Merluza", quantity: 2, unit: "unidad" }]));

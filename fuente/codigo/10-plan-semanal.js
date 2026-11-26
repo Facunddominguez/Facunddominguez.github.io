@@ -463,6 +463,61 @@ planEntriesFlat(){
   }));
   return out
 },
+// Etapa 46 (R6-L-01 a L-04): el plan de esta semana o de la que viene, sin depender de lo que se esté viendo en Semana
+// (Compras elige su período por separado). "esta" cuenta de hoy al domingo; las comidas de días que ya pasaron no entran.
+planDeLaSemana(cual){
+  if(cual==="proxima"){
+    Semana.alDiaProxima();
+    const p=Semana.loadProxima();
+    return Semana.migratePlan(p&&p.plan||{
+    })
+  }
+  Semana.adoptarProxima();
+  try{
+    const raw=localStorage.getItem(PKEY),o=raw?JSON.parse(raw):{
+    };
+    return Semana.migratePlan(o&&typeof o==="object"?o:{
+    })
+  }catch(e){
+    return Semana.migratePlan({
+    })
+  }
+},
+porcionesDeEsta(){
+  try{
+    const o=JSON.parse(localStorage.getItem(PLAN_PORTIONS_KEY)||"{}");
+    return Semana.validPlanPortions(o)?o:{
+    }
+  }catch(e){
+    return {
+    }
+  }
+},
+planEntriesDe(cual){
+  const plan=Semana.planDeLaSemana(cual),byId={
+  };
+  MisPlatos.loadSaved().forEach(p=>{
+    byId[p.id]=p
+  });
+  const lunes=cual==="proxima"?Semana.lunesSiguiente():Semana.semanaActual(),port=cual==="proxima"?{
+  }:Semana.porcionesDeEsta(),hoy=cual==="proxima"?0:DAYS.findIndex(d=>d[0]===todayPlanDay()),out=[];
+  DAYS.forEach(([day],i)=>{
+    if(i<hoy)return;
+    SLOTS.forEach(([slot])=>{
+      const id=plan[day]?plan[day][slot]:null;
+      if(id&&byId[id])out.push({
+        day,slot,item:byId[id],portions:port[day+"|"+slot]||null,lunes
+      })
+    })
+  });
+  return out
+},
+semanasDelPeriodo(periodo){
+  return periodo==="dos"?[Semana.semanaActual(),Semana.lunesSiguiente()]:periodo==="proxima"?[Semana.lunesSiguiente()]:[Semana.semanaActual()]
+},
+entradasDelPeriodo(periodo){
+  return periodo==="dos"?Semana.planEntriesDe("esta").concat(Semana.planEntriesDe("proxima")):Semana.planEntriesDe(periodo==="proxima"?"proxima":"esta")
+},
 portionFactor(portions,amount){
   return portions&&amount&&amount.yield>0?portions/amount.yield:1
 },

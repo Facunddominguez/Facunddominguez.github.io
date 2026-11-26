@@ -1172,7 +1172,7 @@ function detallePrecio(costo,rango,fuente){
   return formatoPesos(costo)+(rango?" · entre "+pesos(rango[0])+" y "+pesos(rango[1]):"")+(fuente?" · "+fuente:"")
 }
 function totalAutomaticoLista(){
-  const p=preciosDeLaLista(shoppingDisplayItems());
+  const p=preciosDeLaLista(shoppingDisplayItems(Compras.periodoActual()));
   return p&&p.conPrecio+p.estimados>0?p:null
 }
 // Textos de la lista: resumen con el total, fuente y aviso para quien no activó los precios.
@@ -1255,7 +1255,7 @@ function atribucionPrecios(){
       refrescarPrecios()
     })
   }
-  const lista=document.getElementById("comprasHint");
+  const lista=document.getElementById("comprasPeriodoGrupo");
   if(lista&&!document.getElementById("comprasPrecioFuente")){
     const f=ce("p","screen__hint");
     f.id="comprasPrecioFuente";
