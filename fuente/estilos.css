@@ -3733,5 +3733,4 @@ select{max-width:100%;min-width:0}
 .compras-periodo__boton{min-height:var(--tap);padding:6px 8px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--text);font:inherit;font-size:14px;font-weight:700;line-height:1.2;cursor:pointer}
 .compras-periodo__boton[aria-pressed="true"]{background:var(--green);border-color:var(--green);color:var(--on-green)}
 /* Etapa 46: una fila con la nota de la despensa ("💡 Despensa: tenés 3 unidades…") baja la nota a otra línea en vez de apretar el nombre. */
-.shop-item{flex-wrap:wrap}
-.shop-item>label{flex:1 1 0;min-width:0}
+.shop-item:has(>.shop-item__detail){flex-wrap:wrap}
