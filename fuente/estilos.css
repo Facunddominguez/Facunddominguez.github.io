@@ -3783,3 +3783,7 @@ body.cocina-abierta{overflow:hidden}
 .comida-acciones>[data-comida-menu]{flex:0 0 64px}
 .cocina__barra .button:disabled{opacity:.4;cursor:default}
 .cocina__tiempo-rotulo{color:var(--text);opacity:.75}
+/* Etapa 48: hueco "Afuera" y "Sobra de…". */
+.hueco--afuera{border-style:dashed}
+.hueco--afuera .hueco__plato{font-style:italic}
+.hueco__sobra{display:block;margin-top:2px;font-size:13px;color:var(--muted)}

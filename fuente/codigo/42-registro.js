@@ -53,7 +53,12 @@ graficoGastoSemanal(lunes){
   caja.append(grafico);
   if(semanal===null)caja.append(ce("p","screen__hint","Sin presupuesto cargado: poné uno en Preferencias para compararlo con el gasto."));
   else if(!hayGasto)caja.append(ce("p","screen__hint","Todavía no hay compras registradas en estas semanas. Cargalas en Compras realizadas o escribí el gasto acá abajo."));
-  const actual=corr[lunes]!==undefined?corr[lunes]:gastoDeLaSemana(lunes,moneda),campo=ce("div","portion-field"),etiqueta=ce("label",null,"Gasto de la semana del "+typedAppDateLabel(lunes).slice(0,5)+" ("+(moneda==="USD"?"US$":"$")+")"),inp=ce("input"),
+  // Etapa 48 (R6-F-02): lo gastado en comidas afuera esa semana, aparte de las compras (no se suma al gasto de arriba).
+  {
+    const af=SemanaAjustes.resumenAfuera(lunes);
+    if(af.cantidad)caja.append(ce("p","screen__hint registro-afuera","Comidas afuera esa semana: "+af.cantidad+(af.total>0?" · "+pesosCortos(af.total):" · sin gasto anotado")+(af.total>0&&af.sinGasto?" (en "+af.sinGasto+" no lo anotaste)":"")+". Va aparte de las compras."))
+  }
+    const actual=corr[lunes]!==undefined?corr[lunes]:gastoDeLaSemana(lunes,moneda),campo=ce("div","portion-field"),etiqueta=ce("label",null,"Gasto de la semana del "+typedAppDateLabel(lunes).slice(0,5)+" ("+(moneda==="USD"?"US$":"$")+")"),inp=ce("input"),
     guardar=ce("button","button button--soft","Guardar gasto"),estado=ce("p","screen__hint");
   inp.id="gastoSemanaMonto";inp.type="text";inp.inputMode="decimal";inp.value=actual?String(Math.round(actual*100)/100).replace(".",","):"";
   etiqueta.htmlFor="gastoSemanaMonto";

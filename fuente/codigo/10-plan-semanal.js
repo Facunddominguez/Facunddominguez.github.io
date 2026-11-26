@@ -681,6 +681,7 @@ function setSlot(dayKey,slot,id){
     planStatus(errorDelPlan);
     return false
   }
+  if(id)SemanaAjustes.limpiarAfuera(dayKey,slot);
   if(before!==(id||null)){
     try{
       const p=Semana.loadPlanPortions();
@@ -804,12 +805,26 @@ function crearHueco(dia,slot,it,porciones){
         if(ct)fila.append(ce("span","hueco__costo",ct))
       }catch(e){
       }
-      b.setAttribute("aria-label",Semana.nombreDelHueco(dia,slot)+": "+mealName(it)+". Cambiar, quitar y más")
+      // Etapa 48: "Sobra de la cena del lunes".
+      let sobra="";
+      try{sobra=SemanaAjustes.textoSobra(dia,slot,loadPlan())}catch(e){}
+      if(sobra)texto.append(ce("span","hueco__sobra",sobra));
+      b.setAttribute("aria-label",Semana.nombreDelHueco(dia,slot)+": "+mealName(it)+(sobra?". "+sobra:"")+". Cambiar, quitar y más")
     }else{
-      texto.append(ce("span","hueco__plato is-empty","Sin elegir"));
-      b.setAttribute("aria-label","Elegir "+Semana.nombreDelHueco(dia,slot).toLowerCase())
+      // Etapa 48: "Comemos afuera" (con el gasto, si se anotó).
+      let afuera=null;
+      try{afuera=SemanaAjustes.afuera(dia,slot)}catch(e){}
+      if(afuera){
+        b.classList.add("hueco--afuera");
+        b.classList.remove("hueco--vacio");
+        texto.append(ce("span","hueco__plato",SemanaAjustes.textoAfuera(dia,slot)));
+        b.setAttribute("aria-label",Semana.nombreDelHueco(dia,slot)+": comemos afuera. Cambiar o quitar")
+      }else{
+        texto.append(ce("span","hueco__plato is-empty","Sin elegir"));
+        b.setAttribute("aria-label","Elegir "+Semana.nombreDelHueco(dia,slot).toLowerCase())
+      }
     }
-    b.append(texto,ce("span","hueco__accion",it?"›":"Elegir"));
+    b.append(texto,ce("span","hueco__accion",it||b.classList.contains("hueco--afuera")?"›":"Elegir"));
     return b
 }
 // La semana del plan es la de su último cambio (el historial guarda la hora en UTC; se pasa a la fecha local).
@@ -837,7 +852,8 @@ function renderPlan(){
     // v19.1: la letra y el número del día, sin la barra ni el "4/4" (la cuenta queda en el aria-label); un punto marca el día completo.
     b.dataset.comidas=String(n);
     b.append(ce("span","semana-dia-chip__letra",label.charAt(0)),ce("span","semana-dia-chip__num",String(f.getDate())));
-    if(n>=4)b.classList.add("es-completo");
+    // Un hueco marcado "Afuera" también cuenta como resuelto para el punto del día completo (la cuenta "N de 4" sigue siendo de comidas).
+    if(n+SLOTS.filter(([sl])=>!(plan[key]&&plan[key][sl])&&SemanaAjustes.afuera(key,sl)).length>=4)b.classList.add("es-completo");
     return b
   });
   document.getElementById("planDias").replaceChildren(...chips);

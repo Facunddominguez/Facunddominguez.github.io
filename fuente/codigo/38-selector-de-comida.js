@@ -175,6 +175,8 @@ function rendimientoDeReceta(rid){
 // Hueco lleno: Cambiar, Quitar, Porciones (recetas) y Lo comí (solo hoy).
 function abrirHueco(dia,slot){
   const id=(loadPlan()[dia]||{})[slot]||null,it=id?Semana.guardadosActivos().find(p=>p.id===id):null;
+  // Etapa 48: un hueco "Afuera" abre su propia hoja (gasto, "Ya no comemos afuera" o elegir una comida).
+  if(!it&&SemanaAjustes.afuera(dia,slot))return SemanaAjustes.abrirAfuera(dia,slot);
   if(!it)return abrirSelector(dia,slot);
   const pk=dia+"|"+slot,caja=ce("div","hueco-hoja"),h={
     dia,slot,id,modo:"lleno",caja,item:it
@@ -219,6 +221,15 @@ function abrirHueco(dia,slot){
     huecoParecida:pk
   }),botonHoja("Cambiar por una más barata","button--soft",{
     huecoBarata:pk
+  }),botonHoja("Pasar a otro día","button--soft",{
+    huecoPasar:pk
+  }));
+  // Etapa 48: lo que sobra de un almuerzo o una cena pasa al almuerzo de mañana; "Comemos afuera" saca la comida del hueco.
+  if(SemanaAjustes.puedeQueSobre(dia,slot))acciones.append(botonHoja("Que sobre para mañana","button--soft",{
+    huecoSobra:pk
+  }));
+  acciones.append(botonHoja("Comemos afuera","button--soft",{
+    huecoAfuera:pk
   }),botonHoja("Quitar","button--danger",{
     planClear:pk
   }));
@@ -350,6 +361,10 @@ function abrirSelector(dia,slot){
   }));
   acciones.append(botonHoja("🎲 Sugerime","button--soft",{
     selectorSugerir:""
+  }));
+  // Etapa 48: el hueco queda marcado "Afuera" (no suma a la lista ni al presupuesto y Armame no lo llena).
+  acciones.append(botonHoja("Comemos afuera","button--soft",{
+    huecoAfuera:dia+"|"+slot
   }));
   sug.hidden=true;
   sug.setAttribute("aria-live","polite");
