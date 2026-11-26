@@ -3174,3 +3174,135 @@ Con la v19.10.3 apareció "El modelo de Gemini ya no está disponible. Volvé a 
 ## Arreglo v19.10.5: respuestas de Gemini con otra forma
 
 Con la v19.10.4 Gemini ya contesta, pero la app decía "La respuesta no tiene una receta válida (falta el título o los ingredientes)". La validación (`aiRecipeFromJson`) exigía exactamente las claves pedidas (`titulo`, `ingredientes` con `nombre`, `pasos` como textos), y los modelos nuevos a veces responden con otras: en inglés (`title`, `ingredients`, `steps`), con tilde (`título`, `preparación`), con los ingredientes como texto ("200 g de lentejas"), las cantidades como texto ("1/2"), las unidades escritas de otra forma ("gramos", "cda"), los pasos como objetos o en un solo texto, o sin título. `aiNormalizarReceta` lleva cualquiera de esas formas a la forma pedida antes de validar. Si falta el título, se usa el primer renglón del texto pegado. Las ideas usan lo mismo (también aceptan `recetas` o `recipes` en vez de `ideas`). La validación final no cambió: sin ingredientes ni pasos no hay receta, y el mensaje lo dice. Prueba A27 en `f08_ai.js`. Total: 790.
+
+## Ronda 6: que sirva en la semana real
+
+Plan pedido por Facundo después de revisar la v19.10.5. Las rondas 1 a 5 y los arreglos v19.10.1 a v19.10.5 están en `main` (v19.10.5). La compuerta (`herramientas/validar-etapa.mjs`), los criterios, las capturas, los precios congelados de las pruebas y los revisores siguen vigentes: se extienden, no se reescriben.
+
+Esta ronda aplica una lista cerrada de 51 pedidos para que el ciclo de cada semana (armar, comprar, cocinar y comer) no se corte. **Todos se aplican y nada queda afuera.** Un ítem cuenta como hecho solo si su prueba lo comprueba en la pantalla (o en la salida de la herramienta, para los de la Etapa 45) y su captura del después lo muestra. Si uno resulta imposible o choca con otro, no se da por hecho: se anota como "⚠️ no hecho" en `docs/ronda-6-lista.md` con el motivo y 2 opciones, y se sigue con el resto.
+No se cambia nada que no esté en la lista, salvo lo mínimo para que funcione.
+Se trabaja solo, de la Etapa 45 a la 55, sin esperar entre etapas; la única intervención de Facundo es el merge final.
+
+### Reglas de esta ronda (se anotan en CLAUDE.md en la Etapa 45, como sección "Ronda 6")
+- **No se elimina ninguna función.** Se ordena, se mueve o se integra.
+- Siguen las reglas de la Ronda 5: sin listas desplegables salvo las cuatro excepciones (también en las pantallas nuevas: modo cocina, revisión del ticket, Para mañana), "Lo comí" en toda la app e IA solo con clave.
+- Datos: cada clave nueva se llama `miPlatoFacil_<nombre>_v1`, entra al respaldo como opcional y se restaura; un respaldo viejo sin esas claves se restaura igual. Ninguna clave existente cambia de formato: `miPlatoFacil_hogar_v1` sigue aceptando solo `personas`. Sin configurar nada nuevo, cantidades, lista y costos dan exactamente lo mismo que en la v19.10.5 (lo comprueba una prueba con `pruebas/fixtures/respaldo-v14.9.94.json`).
+- Sin dependencias nuevas ni llamadas a internet en la app, salvo Gemini (la IA que ya existe). La Screen Wake Lock y los temporizadores son del navegador.
+- Lo demás de CLAUDE.md sigue igual: 44 px, verde para acciones, rojo para borrar, tema claro y oscuro, voseo.
+
+### Cómo se controla cada ítem
+- En la Etapa 45 se crea `docs/ronda-6-lista.md` con la tabla de abajo y estas columnas más: Etapa, Prueba, Captura antes, Captura después y Estado (⬜, ✅ o ⚠️).
+- Cada ítem tiene un control `R6-<ID>` en `docs/validacion/criterios.json` y una prueba cuyo nombre empieza con `R6-<ID> ` que mira el resultado (texto visible, que exista o no un botón, que un dato se guarde, la salida de la tarea de precios), no el código. Los errores (ítems que dicen "Error:") se reproducen primero con una prueba que falla y después se arreglan.
+- `validar-etapa.mjs` lee `docs/ronda-6-lista.md` igual que la de la Ronda 5: falla si un ítem de la etapa N no está en ✅ con su prueba en verde. En la Etapa 55 falla si alguno de los 51 no está en ✅ o en ⚠️ con motivo.
+- El antes de cada ítem se captura al empezar su etapa (390 px, tema claro; los de modo oscuro, también en oscuro) y el después al cerrarla, en `docs/capturas-ronda-6/` (`capturas.mjs` suma `--r6`).
+- `revisor-usuario` mira el antes y el después de cada ítem y responde por ítem: HECHO o NO HECHO. Un NO HECHO es bloqueante.
+- `revisor-codigo` revisa las etapas que tocan datos guardados o la tarea de precios: 45, 46, 48, 49, 50, 51 y 52.
+- Antes de cerrar cada etapa, se corre la batería completa con la tipografía de este entorno y con DejaVu (`FONTCONFIG_FILE=$PWD/herramientas/fuentes-dejavu.conf`).
+- Las pruebas que dependen del día (lista por período, Para mañana, Armame, antigüedad de precios) fijan la fecha, como `armarFijo` en `pruebas/e20_un_costo.js`.
+
+### Modo de trabajo
+- Ramas: integración `rediseno-6` desde `main`; cada etapa en `rediseno-6-etapa-N-tema`. Sin tags. Commit y push por parte.
+- Versión: 20.0.0 en la Etapa 45, después 20.1.0, 20.2.0…
+- Registro: sección "Registro de la Ronda 6", más abajo.
+- Las pruebas viejas que miraban algo que esta lista cambia se adaptan en el mismo commit, con el ítem que lo pide anotado en el Registro. La cantidad total de pruebas no baja.
+
+### La lista (51 ítems)
+
+#### Etapa 45 · Precios confiables
+| ID | Pedido |
+|---|---|
+| P-01 | Error: la tarea "Actualizar precios (SEPA e INDEC)" falló el 10/11 con "SEPA: ZIP64 no soportado". Reproducilo con un ZIP64 de prueba y que `herramientas/actualizar-precios.mjs` lo lea, sin dependencias. |
+| P-02 | Error: el 17/11 y el 24/11 la tarea recibió "HTTP 403 al pedir el paquete de SEPA". Reproducilo, probá reintentos con espera y cabeceras de navegador, y anotá en el Registro qué respondió. Si es un bloqueo a los servidores de GitHub que el código no resuelve, no inventes otra fuente: ⚠️ con el diagnóstico y 2 o 3 opciones en "Pendientes para vos". |
+| P-03 | Si SEPA no da precios nuevos y los guardados tienen más de 10 días, la tarea termina en falla (para que GitHub mande el aviso) en vez de "sin cambios", y deja `datos/precios.json` como estaba. |
+| P-04 | En la app, junto a la fuente de precios (lista, presupuesto y ficha de precio), la antigüedad en palabras: "Precios de hace 22 días", contada contra la fecha del teléfono. |
+| P-05 | Desde los 14 días, un aviso visible en la lista: "Los precios pueden estar desactualizados. Tus precios (Mi precio) se usan primero." Con menos de 14 días no aparece. |
+
+#### Etapa 46 · Lista para cuando comprás
+| ID | Pedido |
+|---|---|
+| L-01 | Arriba de la lista, "Comprar para" con tres botones: Esta semana, La semana que viene y Las dos. La lista, el total y la barra de presupuesto salen del período elegido. |
+| L-02 | "Esta semana" cuenta las comidas de hoy al domingo, no las de días que ya pasaron. |
+| L-03 | Del viernes al domingo, si la semana que viene tiene al menos una comida, la lista abre en "La semana que viene"; los otros días, en "Esta semana". Lo que elijas a mano se recuerda hasta el lunes siguiente (clave `miPlatoFacil_comprasPeriodo_v1`). |
+| L-04 | Lo tachado se guarda en la semana de cada comida: tachar algo de la semana que viene no cambia esta semana, y lo ya tachado sigue igual. Con "Las dos", un producto de las dos semanas aparece una vez con la cantidad sumada, y tacharlo lo tacha en las dos. |
+| L-05 | Compartir la lista dice el período ("Lista para la semana del 30/11 al 6/12") y lleva solo los productos de ese período. |
+| L-06 | "Agregar producto" pasa debajo de la lista. |
+
+#### Etapa 47 · Modo cocina y ficha de receta
+| ID | Pedido |
+|---|---|
+| C-01 | En la ficha de una receta, los ingredientes y los pasos van primero; Ver en el registro, Compartir y ⋯ van después de los pasos. |
+| C-02 | Si la comida ya está en la semana que se ve, en lugar de "Agregar a la semana" como botón principal se lee "En la semana: martes, cena", y agregarla otra vez queda como botón secundario. |
+| C-03 | Botón principal "Cocinar" en toda receta con pasos. Abre una pantalla completa: primero los ingredientes con las cantidades de la ficha y un tilde cada uno; después un paso por pantalla, en letra de al menos 20 px, con Anterior, Siguiente y "3 de 7". Sin pasos, no aparece "Cocinar". |
+| C-04 | Si un paso dice un tiempo ("10 minutos", "1 hora", "media hora", "5 a 7 min"), aparece un temporizador con ese tiempo (en un rango, el menor) y botones Iniciar, Pausar y Reiniciar. Al llegar a cero se ve "¡Listo!" y vibra donde el teléfono lo permita. |
+| C-05 | Mientras el modo cocina está abierto, la pantalla no se apaga (Screen Wake Lock); al salir se libera. Donde el navegador no lo permite, no aparece ningún error. |
+| C-06 | El último paso termina con "Lo comí", que hace lo mismo que Lo comí desde la ficha (registro y descuento de la Despensa), y "Salir". |
+| C-07 | El modo cocina se usa con una mano a 320 px: botones de al menos 44 px abajo de la pantalla, nada encimado, en claro y en oscuro. |
+
+#### Etapa 48 · Semana flexible
+| ID | Pedido |
+|---|---|
+| F-01 | En la hoja de una comida (Semana y Semanas anteriores y mes), "Pasar a otro día": elegís día y comida; si el destino tenía algo, se intercambian. Un aviso de una línea dice qué pasó. |
+| F-02 | "Comemos afuera": el hueco queda marcado "Afuera", no suma a la lista ni al presupuesto y Armame no lo llena. Se puede anotar cuánto se gastó (opcional), que se ve en el hueco y en el gasto de esa semana del Registro, separado de las compras. Se saca con "Ya no comemos afuera". Clave `miPlatoFacil_semanaAjustes_v1`. |
+| F-03 | "Que sobre para mañana" en almuerzo y cena: pone la misma comida en el almuerzo del día siguiente con la marca "Sobra de la cena del lunes", y la lista cuenta las porciones de los dos huecos, como "cociná doble" de Armame. Si el almuerzo de mañana tenía algo, pregunta antes de reemplazarlo. |
+| F-04 | El plan guardado no cambia de formato: "Afuera" y "Sobra de" viven en la clave nueva, entran al respaldo y se restauran, y un respaldo viejo sin ella se restaura igual. |
+
+#### Etapa 49 · Armame aprende de vos
+| ID | Pedido |
+|---|---|
+| A-01 | Después de "Lo comí" (en Hoy, Registro y modo cocina), una pregunta opcional de un toque: "¿Te gustó?" Sí / No, que se puede cerrar sin responder. Clave `miPlatoFacil_gustos_v1`. |
+| A-02 | Armame prefiere tus favoritas, las comidas con "Sí" y las que más comiste. Prueba con fecha fija: con una favorita y la semana vacía, la favorita aparece en la semana armada. |
+| A-03 | Armame no elige una comida con dos o más "No" y ningún "Sí" después; al cambiar una comida, esas aparecen al final con la nota "No te gustó". |
+| A-04 | Armame no repite almuerzos ni cenas de la semana anterior, salvo favoritas o si no alcanzan las opciones, y en ese caso lo dice en Ver detalle. |
+| A-05 | "Días con poco tiempo" en Preferencias: por defecto, cenas de lunes a viernes hasta 30 minutos, editable por día y comida. Armame pone en esos huecos recetas de hasta esos minutos; si no hay, lo dice en Ver detalle. Clave `miPlatoFacil_armameReglas_v1`. |
+| A-06 | Ver detalle del aviso de la semana armada dice por qué eligió (favoritas, lo que te gustó, poco tiempo). |
+
+#### Etapa 50 · Hoy anticipa
+| ID | Pedido |
+|---|---|
+| H-01 | En Hoy, tarjeta "Para mañana" cuando las comidas de mañana necesitan algo la noche anterior: legumbres secas ("Poné en remojo los porotos esta noche"), carne, pollo o pescado ("Si están en el freezer, pasalos a la heladera") y recetas cuyos pasos dicen marinar o "de un día para otro". Cada aviso tiene "Listo", que lo oculta (clave `miPlatoFacil_hoyAvisos_v1`). |
+| H-02 | Si mañana no hay nada que preparar antes, la tarjeta no aparece. |
+| H-03 | "Para comprar hoy: X e Y" cuando ingredientes de las comidas de hoy no están en la Despensa ni tachados en la lista, con el botón "Ver en la lista". Sin faltantes, no aparece. No se confunde con el "Te falta: fruta" del plato completo. |
+| H-04 | Las palabras que disparan cada aviso están en un archivo de datos, y la prueba usa 3 recetas reales del catálogo (una con legumbres secas, una con pollo y una sin nada). |
+
+#### Etapa 51 · Quién come en cada comida
+| ID | Pedido |
+|---|---|
+| Q-01 | Donde hoy se elige la cantidad de personas: adultos y chicos; un chico cuenta media porción por defecto (editable de 0,25 a 1). |
+| Q-02 | Una grilla simple de cuántos comen en casa en cada comida de cada día, con el atajo "Almuerzos de lunes a viernes: N". Un hueco con 0 se ve "Nadie come en casa" y no suma. Clave `miPlatoFacil_comensales_v1`. |
+| Q-03 | Las cantidades de la ficha, la lista, el costo de la semana y el presupuesto usan las porciones de cada hueco. Prueba: 2 adultos y 1 chico dan 2,5 porciones; con el almuerzo del lunes en 1, esa comida suma 1 porción a la lista. |
+| Q-04 | Sin configurar nada, todo da lo mismo que en la v19.10.5, y `miPlatoFacil_hogar_v1` sigue igual y se usa cuando la clave nueva no existe. |
+| Q-05 | En la Bienvenida, el paso del hogar pregunta adultos y chicos (opcional). |
+
+#### Etapa 52 · Foto del ticket (solo con clave de Gemini)
+| ID | Pedido |
+|---|---|
+| T-01 | Con clave de Gemini, en Compras realizadas: "Cargar ticket (foto)". Sin clave no aparece. |
+| T-02 | Sacás o elegís una foto; se achica en el teléfono antes de enviarla (lado mayor de 1600 px, JPEG) y va a Gemini con el mismo manejo de errores y de modelos alternativos de la v19.10.5. |
+| T-03 | La respuesta se muestra para revisar: producto, cantidad, unidad, precio y con qué ingrediente de la app se relaciona (editable o "No relacionar"), más el total del ticket y la suma de las filas. |
+| T-04 | "Guardar" crea una Compra realizada con esos productos y el total, actualiza Mi precio de los relacionados y suma a la Despensa lo relacionado. Cada parte tiene su tilde para elegir, y todo usa los formatos que ya existen. |
+| T-05 | Mensajes claros si la foto no se lee, si no vinieron productos o si no hay conexión. Nada se guarda sin confirmar. |
+| T-06 | Las pruebas usan respuestas de Gemini simuladas, sin internet: un ticket normal, uno con productos que la app no conoce y una respuesta mal formada. |
+
+#### Etapa 53 · Orden y limpieza
+| ID | Pedido |
+|---|---|
+| O-01 | Fechas bien escritas en toda la app: el mes en minúscula y "de", "del" y "al" en minúscula ("noviembre de 2026", "Semana del 23 al 29 de noviembre"). Un control lo busca en el texto visible de todas las pantallas. |
+| O-02 | Al elegir o cambiar una comida, ninguna comida aparece dos veces: Recientes va primero y Mis comidas muestra el resto. |
+| O-03 | Una sola acción principal (botón verde lleno) a la vista al abrir cada pestaña: Hoy, Semana, Comidas, Compras y Más. Lo demás queda secundario. Proponé en el Registro, con captura, cuál es la principal de cada una. |
+| O-04 | Anotá en el Registro cuántos botones tiene cada pantalla antes y después. No se elimina ninguna función: solo se ordena. |
+
+#### Etapa 54 · Frutas y verduras de estación
+| ID | Pedido |
+|---|---|
+| E-01 | `datos/estacion.json` con las frutas y verduras de estación de Argentina por mes, armado desde una fuente pública que el archivo cita (nombre, dirección y fecha). Si no encontrás una fuente verificable, ⚠️: no se inventa. |
+| E-02 | "Fruta de estación" muestra ejemplos del mes en la ficha, la lista y Hoy ("Fruta de estación: durazno, ciruela o sandía"); su precio se calcula como hoy. |
+| E-03 | En la lista y al elegir una comida, las frutas y verduras de estación llevan la marca "de estación". |
+| E-04 | Entre opciones parecidas, Armame prefiere las que usan frutas y verduras de estación (como desempate, no como regla fija) y lo dice en Ver detalle. |
+
+#### Etapa 55 · Cierre
+Recorrido final con `revisor-usuario` a 390, 360 y 320 px, en claro y en oscuro, con los 51 ítems, y una semana completa de punta a punta: armar la semana que viene, comprar con su lista, cocinar una receta en modo cocina y marcar Lo comí. Al final de `docs/ronda-6-lista.md` va un resumen: cuántos ítems quedaron en ✅, cuántos en ⚠️ y por qué.
+
+### Al terminar
+1. Si `main` cambió, traerlo a `rediseno-6` con merge, reconstruir y volver a pasar la compuerta.
+2. Escribir `docs/informe-ronda-6.md`: la tabla de los 51 ítems con su estado, prueba y capturas; las decisiones tomadas sin Facundo y lo que quedó pendiente.
+3. Abrir el PR `rediseno-6` → `main` con `gh api`, listo para revisar, con el informe como descripción. No mergearlo.

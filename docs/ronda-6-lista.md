@@ -1,0 +1,64 @@
+# Ronda 6: lista de control de los 51 pedidos
+
+Estado: ⬜ pendiente · ✅ hecho (prueba en verde y captura del después) · ⚠️ no hecho (con motivo y 2 opciones, abajo).
+Cada ítem tiene un control `R6-<ID>` en `docs/validacion/criterios.json` y una prueba cuyo nombre empieza con `R6-<ID> `. Las capturas van en `docs/capturas-ronda-6/` (`<escena>-antes.png` y `<escena>-despues.png`, con `-oscuro` en las de modo oscuro; varios ítems pueden compartir la captura de su pantalla). Los ítems de la Etapa 45 (tarea de precios) se comprueban con la salida de la herramienta. El plan y las reglas de la ronda están en la sección "Ronda 6" de `docs/plan-rediseno.md`.
+
+| ID | Pedido | Etapa | Prueba | Captura antes | Captura después | Estado |
+|---|---|---|---|---|---|---|
+| P-01 | Error: la tarea "Actualizar precios (SEPA e INDEC)" falló el 10/11 con "SEPA: ZIP64 no soportado". Reproducilo con un ZIP64 de prueba y que `herramientas/actualizar-precios.mjs` lo lea, sin dependencias. | 45 | R6-P-01 |  |  | ⬜ |
+| P-02 | Error: el 17/11 y el 24/11 la tarea recibió "HTTP 403 al pedir el paquete de SEPA". Reproducilo, probá reintentos con espera y cabeceras de navegador, y anotá en el Registro qué respondió. Si es un bloqueo a los servidores de GitHub que el código no resuelve, no inventes otra fuente: ⚠️ con el diagnóstico y 2 o 3 opciones en "Pendientes para vos". | 45 | R6-P-02 |  |  | ⬜ |
+| P-03 | Si SEPA no da precios nuevos y los guardados tienen más de 10 días, la tarea termina en falla (para que GitHub mande el aviso) en vez de "sin cambios", y deja `datos/precios.json` como estaba. | 45 | R6-P-03 |  |  | ⬜ |
+| P-04 | En la app, junto a la fuente de precios (lista, presupuesto y ficha de precio), la antigüedad en palabras: "Precios de hace 22 días", contada contra la fecha del teléfono. | 45 | R6-P-04 |  |  | ⬜ |
+| P-05 | Desde los 14 días, un aviso visible en la lista: "Los precios pueden estar desactualizados. Tus precios (Mi precio) se usan primero." Con menos de 14 días no aparece. | 45 | R6-P-05 |  |  | ⬜ |
+| L-01 | Arriba de la lista, "Comprar para" con tres botones: Esta semana, La semana que viene y Las dos. La lista, el total y la barra de presupuesto salen del período elegido. | 46 | R6-L-01 |  |  | ⬜ |
+| L-02 | "Esta semana" cuenta las comidas de hoy al domingo, no las de días que ya pasaron. | 46 | R6-L-02 |  |  | ⬜ |
+| L-03 | Del viernes al domingo, si la semana que viene tiene al menos una comida, la lista abre en "La semana que viene"; los otros días, en "Esta semana". Lo que elijas a mano se recuerda hasta el lunes siguiente (clave `miPlatoFacil_comprasPeriodo_v1`). | 46 | R6-L-03 |  |  | ⬜ |
+| L-04 | Lo tachado se guarda en la semana de cada comida: tachar algo de la semana que viene no cambia esta semana, y lo ya tachado sigue igual. Con "Las dos", un producto de las dos semanas aparece una vez con la cantidad sumada, y tacharlo lo tacha en las dos. | 46 | R6-L-04 |  |  | ⬜ |
+| L-05 | Compartir la lista dice el período ("Lista para la semana del 30/11 al 6/12") y lleva solo los productos de ese período. | 46 | R6-L-05 |  |  | ⬜ |
+| L-06 | "Agregar producto" pasa debajo de la lista. | 46 | R6-L-06 |  |  | ⬜ |
+| C-01 | En la ficha de una receta, los ingredientes y los pasos van primero; Ver en el registro, Compartir y ⋯ van después de los pasos. | 47 | R6-C-01 |  |  | ⬜ |
+| C-02 | Si la comida ya está en la semana que se ve, en lugar de "Agregar a la semana" como botón principal se lee "En la semana: martes, cena", y agregarla otra vez queda como botón secundario. | 47 | R6-C-02 |  |  | ⬜ |
+| C-03 | Botón principal "Cocinar" en toda receta con pasos. Abre una pantalla completa: primero los ingredientes con las cantidades de la ficha y un tilde cada uno; después un paso por pantalla, en letra de al menos 20 px, con Anterior, Siguiente y "3 de 7". Sin pasos, no aparece "Cocinar". | 47 | R6-C-03 |  |  | ⬜ |
+| C-04 | Si un paso dice un tiempo ("10 minutos", "1 hora", "media hora", "5 a 7 min"), aparece un temporizador con ese tiempo (en un rango, el menor) y botones Iniciar, Pausar y Reiniciar. Al llegar a cero se ve "¡Listo!" y vibra donde el teléfono lo permita. | 47 | R6-C-04 |  |  | ⬜ |
+| C-05 | Mientras el modo cocina está abierto, la pantalla no se apaga (Screen Wake Lock); al salir se libera. Donde el navegador no lo permite, no aparece ningún error. | 47 | R6-C-05 |  |  | ⬜ |
+| C-06 | El último paso termina con "Lo comí", que hace lo mismo que Lo comí desde la ficha (registro y descuento de la Despensa), y "Salir". | 47 | R6-C-06 |  |  | ⬜ |
+| C-07 | El modo cocina se usa con una mano a 320 px: botones de al menos 44 px abajo de la pantalla, nada encimado, en claro y en oscuro. | 47 | R6-C-07 |  |  | ⬜ |
+| F-01 | En la hoja de una comida (Semana y Semanas anteriores y mes), "Pasar a otro día": elegís día y comida; si el destino tenía algo, se intercambian. Un aviso de una línea dice qué pasó. | 48 | R6-F-01 |  |  | ⬜ |
+| F-02 | "Comemos afuera": el hueco queda marcado "Afuera", no suma a la lista ni al presupuesto y Armame no lo llena. Se puede anotar cuánto se gastó (opcional), que se ve en el hueco y en el gasto de esa semana del Registro, separado de las compras. Se saca con "Ya no comemos afuera". Clave `miPlatoFacil_semanaAjustes_v1`. | 48 | R6-F-02 |  |  | ⬜ |
+| F-03 | "Que sobre para mañana" en almuerzo y cena: pone la misma comida en el almuerzo del día siguiente con la marca "Sobra de la cena del lunes", y la lista cuenta las porciones de los dos huecos, como "cociná doble" de Armame. Si el almuerzo de mañana tenía algo, pregunta antes de reemplazarlo. | 48 | R6-F-03 |  |  | ⬜ |
+| F-04 | El plan guardado no cambia de formato: "Afuera" y "Sobra de" viven en la clave nueva, entran al respaldo y se restauran, y un respaldo viejo sin ella se restaura igual. | 48 | R6-F-04 |  |  | ⬜ |
+| A-01 | Después de "Lo comí" (en Hoy, Registro y modo cocina), una pregunta opcional de un toque: "¿Te gustó?" Sí / No, que se puede cerrar sin responder. Clave `miPlatoFacil_gustos_v1`. | 49 | R6-A-01 |  |  | ⬜ |
+| A-02 | Armame prefiere tus favoritas, las comidas con "Sí" y las que más comiste. Prueba con fecha fija: con una favorita y la semana vacía, la favorita aparece en la semana armada. | 49 | R6-A-02 |  |  | ⬜ |
+| A-03 | Armame no elige una comida con dos o más "No" y ningún "Sí" después; al cambiar una comida, esas aparecen al final con la nota "No te gustó". | 49 | R6-A-03 |  |  | ⬜ |
+| A-04 | Armame no repite almuerzos ni cenas de la semana anterior, salvo favoritas o si no alcanzan las opciones, y en ese caso lo dice en Ver detalle. | 49 | R6-A-04 |  |  | ⬜ |
+| A-05 | "Días con poco tiempo" en Preferencias: por defecto, cenas de lunes a viernes hasta 30 minutos, editable por día y comida. Armame pone en esos huecos recetas de hasta esos minutos; si no hay, lo dice en Ver detalle. Clave `miPlatoFacil_armameReglas_v1`. | 49 | R6-A-05 |  |  | ⬜ |
+| A-06 | Ver detalle del aviso de la semana armada dice por qué eligió (favoritas, lo que te gustó, poco tiempo). | 49 | R6-A-06 |  |  | ⬜ |
+| H-01 | En Hoy, tarjeta "Para mañana" cuando las comidas de mañana necesitan algo la noche anterior: legumbres secas ("Poné en remojo los porotos esta noche"), carne, pollo o pescado ("Si están en el freezer, pasalos a la heladera") y recetas cuyos pasos dicen marinar o "de un día para otro". Cada aviso tiene "Listo", que lo oculta (clave `miPlatoFacil_hoyAvisos_v1`). | 50 | R6-H-01 |  |  | ⬜ |
+| H-02 | Si mañana no hay nada que preparar antes, la tarjeta no aparece. | 50 | R6-H-02 |  |  | ⬜ |
+| H-03 | "Para comprar hoy: X e Y" cuando ingredientes de las comidas de hoy no están en la Despensa ni tachados en la lista, con el botón "Ver en la lista". Sin faltantes, no aparece. No se confunde con el "Te falta: fruta" del plato completo. | 50 | R6-H-03 |  |  | ⬜ |
+| H-04 | Las palabras que disparan cada aviso están en un archivo de datos, y la prueba usa 3 recetas reales del catálogo (una con legumbres secas, una con pollo y una sin nada). | 50 | R6-H-04 |  |  | ⬜ |
+| Q-01 | Donde hoy se elige la cantidad de personas: adultos y chicos; un chico cuenta media porción por defecto (editable de 0,25 a 1). | 51 | R6-Q-01 |  |  | ⬜ |
+| Q-02 | Una grilla simple de cuántos comen en casa en cada comida de cada día, con el atajo "Almuerzos de lunes a viernes: N". Un hueco con 0 se ve "Nadie come en casa" y no suma. Clave `miPlatoFacil_comensales_v1`. | 51 | R6-Q-02 |  |  | ⬜ |
+| Q-03 | Las cantidades de la ficha, la lista, el costo de la semana y el presupuesto usan las porciones de cada hueco. Prueba: 2 adultos y 1 chico dan 2,5 porciones; con el almuerzo del lunes en 1, esa comida suma 1 porción a la lista. | 51 | R6-Q-03 |  |  | ⬜ |
+| Q-04 | Sin configurar nada, todo da lo mismo que en la v19.10.5, y `miPlatoFacil_hogar_v1` sigue igual y se usa cuando la clave nueva no existe. | 51 | R6-Q-04 |  |  | ⬜ |
+| Q-05 | En la Bienvenida, el paso del hogar pregunta adultos y chicos (opcional). | 51 | R6-Q-05 |  |  | ⬜ |
+| T-01 | Con clave de Gemini, en Compras realizadas: "Cargar ticket (foto)". Sin clave no aparece. | 52 | R6-T-01 |  |  | ⬜ |
+| T-02 | Sacás o elegís una foto; se achica en el teléfono antes de enviarla (lado mayor de 1600 px, JPEG) y va a Gemini con el mismo manejo de errores y de modelos alternativos de la v19.10.5. | 52 | R6-T-02 |  |  | ⬜ |
+| T-03 | La respuesta se muestra para revisar: producto, cantidad, unidad, precio y con qué ingrediente de la app se relaciona (editable o "No relacionar"), más el total del ticket y la suma de las filas. | 52 | R6-T-03 |  |  | ⬜ |
+| T-04 | "Guardar" crea una Compra realizada con esos productos y el total, actualiza Mi precio de los relacionados y suma a la Despensa lo relacionado. Cada parte tiene su tilde para elegir, y todo usa los formatos que ya existen. | 52 | R6-T-04 |  |  | ⬜ |
+| T-05 | Mensajes claros si la foto no se lee, si no vinieron productos o si no hay conexión. Nada se guarda sin confirmar. | 52 | R6-T-05 |  |  | ⬜ |
+| T-06 | Las pruebas usan respuestas de Gemini simuladas, sin internet: un ticket normal, uno con productos que la app no conoce y una respuesta mal formada. | 52 | R6-T-06 |  |  | ⬜ |
+| O-01 | Fechas bien escritas en toda la app: el mes en minúscula y "de", "del" y "al" en minúscula ("noviembre de 2026", "Semana del 23 al 29 de noviembre"). Un control lo busca en el texto visible de todas las pantallas. | 53 | R6-O-01 |  |  | ⬜ |
+| O-02 | Al elegir o cambiar una comida, ninguna comida aparece dos veces: Recientes va primero y Mis comidas muestra el resto. | 53 | R6-O-02 |  |  | ⬜ |
+| O-03 | Una sola acción principal (botón verde lleno) a la vista al abrir cada pestaña: Hoy, Semana, Comidas, Compras y Más. Lo demás queda secundario. Proponé en el Registro, con captura, cuál es la principal de cada una. | 53 | R6-O-03 |  |  | ⬜ |
+| O-04 | Anotá en el Registro cuántos botones tiene cada pantalla antes y después. No se elimina ninguna función: solo se ordena. | 53 | R6-O-04 |  |  | ⬜ |
+| E-01 | `datos/estacion.json` con las frutas y verduras de estación de Argentina por mes, armado desde una fuente pública que el archivo cita (nombre, dirección y fecha). Si no encontrás una fuente verificable, ⚠️: no se inventa. | 54 | R6-E-01 |  |  | ⬜ |
+| E-02 | "Fruta de estación" muestra ejemplos del mes en la ficha, la lista y Hoy ("Fruta de estación: durazno, ciruela o sandía"); su precio se calcula como hoy. | 54 | R6-E-02 |  |  | ⬜ |
+| E-03 | En la lista y al elegir una comida, las frutas y verduras de estación llevan la marca "de estación". | 54 | R6-E-03 |  |  | ⬜ |
+| E-04 | Entre opciones parecidas, Armame prefiere las que usan frutas y verduras de estación (como desempate, no como regla fija) y lo dice en Ver detalle. | 54 | R6-E-04 |  |  | ⬜ |
+
+## Ítems en ⚠️ (no hechos)
+Ninguno por ahora.
+
+## Resumen (Etapa 55)
+Pendiente.
