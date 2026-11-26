@@ -31,7 +31,7 @@
   await abrirHueco("lunes|cena");
   ok("R6-F-01 la hoja de una comida (Semana) tiene 'Pasar a otro día'", !!botonHoja(/^Pasar a otro día$/), H.botonesHoja().join(" | "));
   await tocar(botonHoja(/^Pasar a otro día$/), 300);
-  ok("R6-F-01 'Pasar a otro día' pide día y comida", H.textoHoja().includes("Pasar a otro día") && !!$("hojaPasarDia") && !!$("hojaPasarSlot") && $("hojaPasarDia").value === "lunes" && $("hojaPasarSlot").value === "cena");
+  ok("R6-F-01 'Pasar a otro día' pide día y comida", H.textoHoja().includes("Pasar a otro día") && !!$("hojaPasarDia") && !!$("hojaPasarSlot") && $("hojaPasarDia").value === "martes" && $("hojaPasarSlot").value === "cena");  // arranca en el día siguiente
   await elegirEn("jueves", "cena");
   await tocar(botonHoja(/^Pasar$/), 400);
   const p1 = plan();
@@ -45,6 +45,7 @@
   // mismo hueco: error en la hoja, no cambia nada
   await abrirHueco("miercoles|cena");
   await tocar(botonHoja(/^Pasar a otro día$/), 300);
+  await elegirEn("miercoles", "cena");
   await tocar(botonHoja(/^Pasar$/), 300);
   ok("R6-F-01 pasar al mismo hueco no cambia nada y la hoja explica por qué", /Elegí otro día u otra comida/.test(H.textoHoja()) && JSON.stringify(plan()) === JSON.stringify(p2));
   await H.cerrarHoja();
@@ -96,6 +97,12 @@
   await tocar(botonHoja(/^Guardar$/), 400);
   const itemsDespues = ev("shoppingDisplayItems().map(x => x.name).sort().join(',')"), costoDespues = ev("costoSemanaPlan() && costoSemanaPlan().total");
   ok("R6-F-02 un hueco afuera no suma a la lista ni al presupuesto (los ingredientes de esa comida salen de la lista y el costo baja)", plan().jueves.cena === null && /Lentejas/.test(itemsAntes) && !/Lentejas/.test(itemsDespues) && /Pollo/.test(itemsDespues) && costoDespues < costoAntes, JSON.stringify({ itemsAntes, itemsDespues, costoAntes, costoDespues }));
+  {
+    const todos = []; for (const d of H.DIAS) for (const sl of H.SLOTS) if (!(d === "lunes" && sl === "desayuno")) todos.push([d, sl, A]);
+    await abrir({ [AJ]: JSON.stringify({ [semanaLunes]: { afuera: { "lunes|desayuno": {} } } }) }, todos);
+    const hint = $("planHint");
+    ok("R6-F-02 un hueco afuera cuenta como resuelto en la cabecera de Semana: con 27 comidas y 1 afuera no dice 'faltan' ni '27 de 28', y 'Armame la semana' no pasa a ser el botón principal", hint.hidden && !/27 de 28/.test(norm(hint.innerText)) && !!$("planList"), norm(hint.innerText) + " hidden=" + hint.hidden);
+  }
   await abrir({}, [["lunes", "cena", A]]);
   await abrirHueco("martes|cena"); await tocar(botonHoja(/^Comemos afuera$/), 300); await tocar(botonHoja(/^Guardar$/), 400);
   ev('openTab("semana")'); await espera(200);
@@ -104,12 +111,16 @@
   ok("R6-F-02 Armame la semana no llena un hueco afuera (ni con 'Rehacer semana')", trasArmar.martes.cena === null && !!afueraSigue && trasArmar.lunes.almuerzo !== null && DIAS_OTROS(trasArmar), JSON.stringify(trasArmar.martes));
   function DIAS_OTROS(p) { return ["miercoles", "jueves", "viernes"].every(d => p[d].cena) }
   await ev('(async () => { await ArmameSemana.correr("todo") })()'); await espera(600);
-  ok("R6-F-02 'Rehacer semana' (todo) tampoco lo llena", plan().martes.cena === null && !!J(AJ)[semanaLunes].afuera["martes|cena"]);
+  ok("R6-F-02 'Rehacer semana' (todo) tampoco lo llena", plan().martes.cena === null && !!(J(AJ) || {})[semanaLunes] && !!J(AJ)[semanaLunes].afuera["martes|cena"], JSON.stringify(plan().martes) + " " + localStorage.getItem(AJ));
   // gasto en el Registro, separado de las compras
   await abrir({ ...H.PRES(60000), [AJ]: JSON.stringify({ [semanaLunes]: { afuera: { "jueves|cena": { gasto: 12500 }, "viernes|cena": { gasto: 8000 }, "sabado|almuerzo": {} } } }) });
   ev('openTab("mas"); abrirRegistro()'); await espera(400);
   const registro = norm($("registro").innerText);
   ok("R6-F-02 el Registro muestra el gasto de comidas afuera de la semana, separado de las compras", /Comidas afuera esa semana: 3 · \$20\.500 \(en 1 no lo anotaste\)\. Va aparte de las compras\./.test(registro), registro.slice(registro.indexOf("Comidas afuera") - 20, registro.indexOf("Comidas afuera") + 140));
+  // una marca vieja (el hueco ya tiene comida) no cuenta en el Registro
+  await abrir({ [AJ]: JSON.stringify({ [semanaLunes]: { afuera: { "jueves|cena": { gasto: 999 }, "viernes|cena": {} } } }) }, [["jueves", "cena", A]]);
+  ev('openTab("mas"); abrirRegistro()'); await espera(400);
+  ok("R6-F-02 una marca 'Afuera' vieja (el hueco ya tiene una comida) no cuenta en el Registro", /Comidas afuera esa semana: 1 · sin gasto anotado/.test(norm($("registro").innerText)), norm($("registro").innerText).slice(-200));
   // Ya no comemos afuera
   await abrir({ [AJ]: JSON.stringify({ [semanaLunes]: { afuera: { "jueves|cena": { gasto: 12500 } } } }) });
   await abrirHueco("jueves|cena");

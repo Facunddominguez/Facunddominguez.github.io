@@ -28,14 +28,16 @@ cargar(){
     return {}
   }
 },
-guardar(todo){
+guardar(todo,editada){
   for(const k of Object.keys(todo)){
     const w=todo[k];
     if(w.afuera&&!Object.keys(w.afuera).length)delete w.afuera;
     if(w.sobra&&!Object.keys(w.sobra).length)delete w.sobra;
     if(!Object.keys(w).length)delete todo[k]
   }
-  const mantener=Object.keys(todo).sort().reverse().slice(0,12),out=Object.fromEntries(mantener.sort().map(k=>[k,todo[k]]));
+  const mantener=Object.keys(todo).sort().reverse().slice(0,12);
+  if(editada&&todo[editada]&&!mantener.includes(editada))mantener.push(editada);
+  const out=Object.fromEntries(mantener.sort().map(k=>[k,todo[k]]));
   if(!SemanaAjustes.validAjustes(out))throw Error("No se pudo guardar el cambio de la semana.");
   if(Object.keys(out).length)localStorage.setItem(SEMANA_AJUSTES_KEY,JSON.stringify(out));
   else localStorage.removeItem(SEMANA_AJUSTES_KEY)
@@ -60,7 +62,18 @@ cambiar(f,lunes){
   todo[k]={
     afuera:act.afuera,sobra:act.sobra
   };
-  SemanaAjustes.guardar(todo)
+  SemanaAjustes.guardar(todo,k)
+},
+// El plan de una semana (para saber qué huecos siguen vacíos): esta, la que viene o una copia fechada; null si no se conoce.
+planDe(lunes){
+  try{
+    if(lunes===Semana.semanaActual())return Semana.planDeLaSemana("esta");
+    if(lunes===Semana.lunesSiguiente())return Semana.planDeLaSemana("proxima");
+    const w=loadDatedWeeks()[lunes];
+    return w&&w.plan?Semana.migratePlan(w.plan):null
+  }catch(e){
+    return null
+  }
 },
 // ---- Afuera ----
 afuera(dia,slot,lunes){
@@ -114,7 +127,7 @@ limpiarAfuera(dia,slot){
 },
 // El gasto de comidas afuera de una semana, aparte de las compras: {cantidad, total, sinGasto}.
 resumenAfuera(lunes){
-  const h=SemanaAjustes.huecosAfuera(lunes,null);
+  const h=SemanaAjustes.huecosAfuera(lunes||SemanaAjustes.lunesDelContexto(),SemanaAjustes.planDe(lunes||SemanaAjustes.lunesDelContexto()));
   return {
     cantidad:h.length,total:h.reduce((t,x)=>t+(x.gasto||0),0),sinGasto:h.filter(x=>x.gasto===null).length
   }
@@ -232,7 +245,8 @@ abrirPasar(dia,slot){
   const plan=loadPlan();
   if(!(plan[dia]||{})[slot])return;
   const fila=ce("div","pantry-item-qty");
-  fila.append(Comidas.campoDeHoja("hojaPasarDia","Día",DAYS,dia),Comidas.campoDeHoja("hojaPasarSlot","Comida",SLOTS.map(([v,t])=>[v,t.replace(/^\S+\s/,"")]),slot));
+  // Arranca en el día siguiente (el domingo, en el lunes): así el primer "Pasar" que se toca ya hace algo.
+  fila.append(Comidas.campoDeHoja("hojaPasarDia","Día",DAYS,SemanaAjustes.diaSiguiente(dia)||"lunes"),Comidas.campoDeHoja("hojaPasarSlot","Comida",SLOTS.map(([v,t])=>[v,t.replace(/^\S+\s/,"")]),slot));
   // Si algo no se puede (por ejemplo, el mismo hueco), la hoja muestra el motivo y queda abierta.
   hoja.abrir({
     titulo:"Pasar a otro día",contenido:[fila],botones:[["Pasar","button--primary",()=>{

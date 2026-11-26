@@ -856,6 +856,7 @@ function renderPlan(){
     // (El módulo SemanaAjustes se carga después de este archivo: si todavía no está, no hay marcas.)
     let afuera=0;
     try{afuera=SLOTS.filter(([sl])=>!(plan[key]&&plan[key][sl])&&SemanaAjustes.afuera(key,sl)).length}catch(e){}
+    total+=afuera;
     if(n+afuera>=4)b.classList.add("es-completo");
     return b
   });
