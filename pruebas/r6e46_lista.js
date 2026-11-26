@@ -22,6 +22,7 @@
   const filas = () => qa("#comprasList .shop-item").map(f => norm(f.innerText));
   const botonesPeriodo = () => qa("[data-compras-periodo]");
   const pulsado = () => botonesPeriodo().filter(b => b.getAttribute("aria-pressed") === "true").map(b => b.dataset.comprasPeriodo);
+  const w_ = () => H.w().localStorage;
   const elegir = async p => { await tocar(botonesPeriodo().find(b => b.dataset.comprasPeriodo === p), 350) };
   const tachar = async nombre => { const f = qa("#comprasList .shop-item").find(x => new RegExp("^" + nombre, "i").test(norm(x.innerText))); const c = f && f.querySelector("input[type=checkbox]"); if (!c) throw new Error("no hay casilla para " + nombre); await tocar(c, 350) };
 
@@ -90,6 +91,29 @@
   await abrir("2026-11-26", { ...base("2026-11-26", PLAN, null, { [CHECKS]: JSON.stringify({ "2026-11-23": { t: ["arroz", "pollo"], c: [] } }) }) });
   ok("R6-L-04 con tachados guardados de esta semana y sin la clave nueva, la lista abre en 'Esta semana' con esos productos tachados", pulsado()[0] === "esta" && ev("comprasDone.arroz === true && comprasDone.pollo === true") && qa("#comprasList .shop-item input:checked").length === 2);
 
+  // Con "Las dos", tachar o destachar otra cosa no borra lo que está tachado (o comprado) en una sola semana.
+  await abrir("2026-11-26", base("2026-11-26", PLAN, PROX, { [CHECKS]: JSON.stringify({ "2026-11-23": { t: ["pollo", "arroz"], c: ["arroz"] }, "2026-11-30": { t: ["lechuga"], c: [] } }) }));
+  const ordenar = o => Object.fromEntries(Object.entries(o).map(([k, v]) => [k, { t: [...v.t].sort(), c: [...v.c].sort() }]));
+  const antesDos = JSON.stringify(J(CHECKS));
+  await elegir("dos");
+  await tachar("Huevo");
+  const tras1 = J(CHECKS);
+  await tachar("Huevo");
+  const tras2 = J(CHECKS);
+  ok("R6-L-04 con 'Las dos', tachar y destachar un producto solo toca a ese producto: lo tachado y lo comprado de una sola semana (pollo, arroz, lechuga) sigue guardado", ["pollo", "arroz"].every(k => tras1["2026-11-23"].t.includes(k)) && tras1["2026-11-23"].c.includes("arroz") && tras1["2026-11-30"].t.includes("lechuga")
+    && tras1["2026-11-23"].t.includes("huevo") && !tras2["2026-11-23"].t.includes("huevo") && JSON.stringify(ordenar(tras2)) === JSON.stringify(ordenar(JSON.parse(antesDos))), JSON.stringify({ antesDos, tras1, tras2 }));
+  // "Terminé de comprar" con "Las dos" marca como comprado solo lo tachado y deja lo comprado de otra semana.
+  await tachar("Carne picada");
+  await tocar($("comprasBought"), 500);
+  const trasComprar = J(CHECKS);
+  ok("R6-L-04 'Terminé de comprar' con 'Las dos' marca lo tachado como comprado en su semana y conserva el resto", trasComprar["2026-11-30"].c.includes("carne picada") && trasComprar["2026-11-23"].c.includes("arroz") && trasComprar["2026-11-30"].t.includes("lechuga"), JSON.stringify(trasComprar));
+  // Si el plan cambia, un producto que vuelve a aparecer se ve tachado si lo estaba (se relee del almacenamiento).
+  await abrir("2026-11-26", base("2026-11-26", PLAN, null, { [CHECKS]: JSON.stringify({ "2026-11-23": { t: ["pollo", "lechuga"], c: [] } }) }));
+  const sinLechuga = !ev("comprasDone.lechuga");
+  localStorage.setItem("miPlatoFacil_plan", JSON.stringify(H.planDe([...PLAN, ["viernes", "almuerzo", "rp_recipe_lista6d"]])));
+  w_(); await espera(100); ev('renderCompras()');
+  ok("R6-L-04 si el plan cambia, un producto que vuelve a aparecer se ve tachado si lo estaba (no se pierde de la vista ni del almacenamiento)", sinLechuga && ev("comprasDone.lechuga === true") && J(CHECKS)["2026-11-23"].t.includes("lechuga"));
+
   // ---- L-05: compartir ----
   await abrir("2026-11-26", base("2026-11-26", PLAN, PROX));
   await elegir("proxima");
@@ -113,6 +137,19 @@
   const conNota = qa("#comprasList .shop-item").filter(f => f.querySelector(".shop-item__detail"));
   const angosta = qa("#comprasList .shop-item label").filter(l => l.getBoundingClientRect().height > 90 && H.visible(l));
   ok("R6-L-01 ninguna fila de la lista deja el nombre partido en muchas líneas (más de 90 px de alto), tengan o no una nota de la despensa", angosta.length === 0, "filas con nota: " + conNota.length + ", angostas: " + angosta.map(l => norm(l.innerText) + " " + Math.round(l.getBoundingClientRect().width) + "px fila " + Math.round(l.parentNode.getBoundingClientRect().width) + "px").join(" | "));
+
+  // ---- El período se guarda en el respaldo (opcional) y un respaldo viejo sin la clave se restaura igual ----
+  {
+    const R0 = await (await fetch("/tests/fixtures/respaldo-v14.9.94.json", { cache: "no-store" })).json(), w = H.w();
+    const conClave = JSON.parse(JSON.stringify(R0)); conClave.data[PERIODO] = JSON.stringify({ periodo: "dos", semana: "2026-11-23" });
+    const malo = JSON.parse(JSON.stringify(R0)); malo.data[PERIODO] = '{"periodo":"mes","semana":"x"}';
+    let restauroCon = false, restauroViejo = false, rechazoMalo = false;
+    try { w.Respaldo.restoreCompleteBackup(conClave, w.localStorage); restauroCon = w.localStorage.getItem(PERIODO) === conClave.data[PERIODO] } catch (e) { }
+    w.localStorage.removeItem(PERIODO);
+    try { w.Respaldo.restoreCompleteBackup(JSON.parse(JSON.stringify(R0)), w.localStorage); restauroViejo = true } catch (e) { }
+    try { w.Respaldo.restoreCompleteBackup(malo, w.localStorage) } catch (e) { rechazoMalo = true }
+    ok("R6-L-03 la clave del período entra al respaldo como opcional: se restaura con la clave, se restaura un respaldo viejo sin ella y se rechaza una con formato malo", restauroCon && restauroViejo && rechazoMalo && w.eval("COMPLETE_BACKUP_KEYS.includes(" + JSON.stringify(PERIODO) + ") && COMPLETE_BACKUP_OPTIONAL_KEYS.includes(" + JSON.stringify(PERIODO) + ")"), JSON.stringify({ restauroCon, restauroViejo, rechazoMalo }));
+  }
 
   // ---- Sin configurar nada: la lista da lo mismo que en la v19.10.5 (esta semana completa, sin período guardado) ----
   const lunesTodo = await (async () => { await abrir("2026-11-23", base("2026-11-23", PLAN, PROX)); return JSON.stringify(ev("shoppingDisplayItems('esta').map(x => [x.name, [...x.units]])")) === JSON.stringify(ev("shoppingDisplayItems().map(x => [x.name, [...x.units]])")) })();

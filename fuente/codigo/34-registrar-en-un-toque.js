@@ -104,9 +104,7 @@ boughtNow(){
   };
   try{
     if(changes.length)res=applyStockChanges(changes,("Lo compré · "+typedAppDateLabel(Rutina.localTrainingDate(new Date()))).slice(0,80));
-    const bought=Compras.shoppingBoughtSet(all);
-    items.forEach(e=>bought.add(e.key));
-    Compras.saveShoppingChecks(bought,all)
+    Compras.guardarMarcas(items.map(e=>({semanas:e.semanas,key:e.key,t:true,c:true})))
   }catch(err){
     deshacer();
     throw err

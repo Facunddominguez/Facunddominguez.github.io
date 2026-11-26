@@ -76,19 +76,30 @@ marcasDeSemana(all,lunes){
   }
 },
 syncShoppingWeek(){
-  const periodo=Compras.periodoActual(),firma=periodo+"|"+Compras.shoppingChecksWeek();
+  // La firma incluye el plan (de esta semana y de la que viene): si cambia lo armado, los tachados se vuelven a leer del almacenamiento.
+  let planes="";
+  try{planes=(localStorage.getItem(PKEY)||"")+"|"+(localStorage.getItem(PROX_KEY)||"")}catch(e){}
+  const periodo=Compras.periodoActual(),firma=periodo+"|"+Compras.shoppingChecksWeek()+"|"+planes;
   if(firma===comprasFirma)return;
-  comprasFirma=firma;
   comprasWeek=Compras.shoppingChecksWeek();
-  Compras.recargarTachados(periodo)
+  // Si la lista no se puede calcular ahora (por ejemplo, datos de recetas que no se leen), se muestra el error de siempre al pintarla y
+  // se vuelve a intentar la próxima vez: la firma solo se guarda cuando salió bien.
+  if(Compras.recargarTachados(periodo))comprasFirma=firma
 },
 recargarTachados(periodo){
   const all=Compras.loadShoppingChecks();
+  let items;
+  try{
+    items=Compras.shoppingPlanItems(periodo)
+  }catch(e){
+    return false
+  }
   comprasDone={
   };
-  for(const e of Compras.shoppingPlanItems(periodo)){
+  for(const e of items){
     if([...e.semanas].every(l=>Compras.marcasDeSemana(all,l).t.has(e.key)))comprasDone[e.key]=true
   }
+  return true
 },
 shoppingBoughtSet(items){
   const all=Compras.loadShoppingChecks(),out=new Set();
@@ -97,17 +108,17 @@ shoppingBoughtSet(items){
   }
   return out
 },
-// Guarda en cada semana lo tachado (comprasDone) y, si se pasa, lo comprado de los productos de la lista; lo de otros productos no se toca.
-saveShoppingChecks(bought,items){
+// Guarda SOLO las marcas que se tocaron, en cada semana del producto (nunca reescribe el estado de toda la lista: lo tachado o comprado
+// de otra semana, o de productos que hoy no están en la lista, queda como estaba). cambios: [{semanas, key, t?, c?}] con true (marcar) o
+// false (sacar la marca); una marca que no se menciona no se toca.
+guardarMarcas(cambios){
   Compras.syncShoppingWeek();
-  const lista=items||Compras.shoppingPlanItems(Compras.periodoActual()),all=Compras.loadShoppingChecks(),marcas={
+  const all=Compras.loadShoppingChecks(),marcas={
   };
-  for(const e of lista)for(const l of e.semanas){
+  for(const x of cambios)for(const l of x.semanas){
     const m=marcas[l]||(marcas[l]=Compras.marcasDeSemana(all,l));
-    if(comprasDone[e.key])m.t.add(e.key);else m.t.delete(e.key);
-    if(bought){
-      if(bought.has(e.key))m.c.add(e.key);else m.c.delete(e.key)
-    }
+    if(x.t===true)m.t.add(x.key);else if(x.t===false)m.t.delete(x.key);
+    if(x.c===true)m.c.add(x.key);else if(x.c===false)m.c.delete(x.key)
   }
   for(const [l,m] of Object.entries(marcas)){
     if(m.t.size||m.c.size)all[l]={
@@ -119,6 +130,11 @@ saveShoppingChecks(bought,items){
   if(!Compras.validShoppingChecks(out))throw Error("No se pudieron guardar los tachados.");
   if(Object.keys(out).length)localStorage.setItem(SHOPPING_CHECKS_KEY,JSON.stringify(out));
   else localStorage.removeItem(SHOPPING_CHECKS_KEY)
+},
+// Las semanas de un producto de la lista actual (si ya no está, la de esta semana).
+semanasDe(key){
+  const e=Compras.shoppingPlanItems(Compras.periodoActual()).find(x=>x.key===key);
+  return e?[...e.semanas]:[Compras.shoppingChecksWeek()]
 },
 shoppingQtyText(units){
   return [...units.entries()].map(([unit,q])=>Number(q.toFixed(6)).toLocaleString("es-AR",{
@@ -366,13 +382,10 @@ equivalenciaSugerida(items){
 toggleShop(key,checked){
   Compras.syncShoppingWeek();
   comprasDone[key]=checked;
-  let bought;
-  if(!checked){
-    bought=Compras.shoppingBoughtSet();
-    bought.delete(key)
-  }
   try{
-    Compras.saveShoppingChecks(bought)
+    Compras.guardarMarcas([{
+      semanas:Compras.semanasDe(key),key,t:checked,c:checked?undefined:false
+    }])
   }catch(e){
     comprasStatus(e.message)
   }
