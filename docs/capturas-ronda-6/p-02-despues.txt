@@ -1,0 +1,21 @@
+# P-02 después: "Prueba de precios (SEPA e INDEC)" disparada a mano sobre la rama rediseno-6-etapa-45-precios (corrida 45849889923, 26/11/2026),
+# desde los servidores de GitHub. Diagnóstico del portal (curl con el User-Agent de la tarea y con el de Chrome, más Accept-Language y Referer):
+== User-Agent: mi-plato-facil (GitHub Actions)
+HTTP/2 403   content-type: text/html; charset=utf-8   (sin cabecera server ni cf-ray)   cuerpo: <title>403 | Forbidden</title>
+== User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36
+HTTP/2 403   content-type: text/html; charset=utf-8   cuerpo: <title>403 | Forbidden</title>
+# La herramienta nueva, con reintentos (5, 20 y 60 s) y cabeceras de navegador:
+2026-11-26T15:31:22Z SEPA: HTTP 403 al pedir el paquete de SEPA; reintento 1 de 3 en 5 s
+2026-11-26T15:31:28Z SEPA: HTTP 403 al pedir el paquete de SEPA; reintento 2 de 3 en 20 s
+2026-11-26T15:31:48Z SEPA: HTTP 403 al pedir el paquete de SEPA; reintento 3 de 3 en 60 s
+2026-11-26T15:32:49Z ... Motivo: SEPA: HTTP 403 al pedir el paquete de SEPA (4 intentos; tipo: text/html; charset=utf-8, cuerpo: "<!doctype html>...<title>403 | Forbidden</title>")
+# Conclusión: el portal rechaza todo pedido que viene de los servidores de GitHub (misma respuesta con y sin cabeceras de navegador, y tras 90 s de espera).
+# Es un bloqueo por origen que el código no resuelve: ver "Ítems en ⚠️" en docs/ronda-6-lista.md.
+# Pruebas de los reintentos (sin red, con un servidor simulado): node pruebas/r6e45_precios.mjs R6-P-02
+PASA R6-P-02 tras dos 403 el tercer intento anda, esperando entre intentos (5 s y 20 s) · [5000,20000]
+PASA R6-P-02 cada pedido lleva cabeceras de navegador (User-Agent de Chrome, Accept-Language en español y Referer del portal)
+PASA R6-P-02 si el 403 sigue tras 4 intentos, el error conserva "HTTP 403 al pedir el paquete de SEPA" y dice qué respondió el servidor (servidor, cf-ray y cuerpo) · HTTP 403 al pedir el paquete de SEPA (4 intentos; server: cloudflare, cf-ray: abc123, tipo:
+PASA R6-P-02 un 404 no se reintenta; un corte de red sí, y el segundo intento anda
+PASA R6-P-02 descargarSepa se recupera de un 403 en el paquete, baja el ZIP64 y lo lee · ["https://datos.produccion.gob.ar/api/3/action/package_show?id=sepa-precios","https://datos.produccion.gob.ar/api/3/action/package_show?id=sepa-precios","https://datos.pr
+
+5 pruebas en verde

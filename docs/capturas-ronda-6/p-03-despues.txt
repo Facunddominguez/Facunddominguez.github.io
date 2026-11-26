@@ -1,0 +1,11 @@
+# P-03 después: lo mismo, en la corrida real del 26/11/2026 (precios de SEPA del 4/11):
+2026-11-26T15:32:49Z No se actualizaron los precios (se conserva el último archivo): SEPA no dio precios nuevos y los guardados son de hace 22 días (del 2026-11-04; el máximo es 10). La tarea falla para que GitHub avise y datos/precios.json queda como estaba. Motivo: SEPA: HTTP 403 al pedir el paquete de SEPA ...
+# (la tarea semanal sale con código 1: el job queda en rojo y GitHub manda el aviso; la tarea de prueba lo marca como aviso porque ese paso tiene continue-on-error)
+# Pruebas: node pruebas/r6e45_precios.mjs R6-P-03
+PASA R6-P-03 controlarFrescura: sin SEPA nuevo falla con más de 10 días, con 10 o menos no, y con SEPA nuevo nunca
+PASA R6-P-03 con SEPA caído y precios de hace 11 días la herramienta termina en falla (código 1), lo dice, y no escribe nada ni toca datos/precios.json · No se actualizaron los precios (se conserva el último archivo): SEPA no dio precios nuevos y los guar
+PASA R6-P-03 con SEPA caído pero precios de hace 3 días la tarea sigue como antes: avisa y conserva lo anterior (código 0) · Cobertura: núcleo 55/59, armado 28/42, total 83/101 (11 aproximados) · 119 ingredientes · 42958 bytes · sin cambios
+Aviso, se conserva lo anterior: SEPA: El archivo de SEPA no es un ZIP
+PASA R6-P-03 con --solo-indec (no se pidió SEPA) la antigüedad de SEPA no hace fallar la tarea · Cobertura: núcleo 55/59, armado 28/42, total 83/101 (11 aproximados) · 119 ingredientes · 42958 bytes · sin cambios
+
+4 pruebas en verde

@@ -161,6 +161,7 @@ function shoppingBudgetRender(){
   box.append(ce("p","screen__hint",covered+" ingredientes valorizados; "+unpriced+" sin costo completo; "+otherCurrency+" con precio en otra moneda."));
   if(unpriced||otherCurrency)box.append(ce("p","screen__hint","Comparación parcial: faltan precios."));
   else box.append(ce("p","screen__hint","Con tus precios guardados."));
+  if(typeof antiguedadPrecios==="function"&&preciosActivos()&&totalAutomaticoLista()&&antiguedadPrecios())box.append(ce("p","screen__hint presupuesto-antiguedad",[fuentePrecios(undefined,"sepa").replace(" · mediana",""),antiguedadPrecios()].filter(Boolean).join(" · ")));
   budgetRealLines(box,budget,estimated)
 }
 let budgetScenarioText="";

@@ -8,7 +8,7 @@
     "navegador": "Chrome/156.0.8078.73"
   },
   "pruebas": {
-    "total": 783,
+    "total": 798,
     "suites": {
       "d01_diseno.js": 8,
       "m01_modo.js": 13,
@@ -16,7 +16,7 @@
       "l01_biblioteca.js": 12,
       "dp01_despensa.js": 14,
       "u01_toque.js": 9,
-      "f08_ai.js": 21,
+      "f08_ai.js": 27,
       "f07_nutri.js": 16,
       "f02_units.js": 16,
       "f01_key.js": 5,
@@ -82,8 +82,9 @@
       "r5e39_registro.js": 11,
       "r5e40_comidas.js": 14,
       "r5e41_compras.js": 25,
-      "r5e42_mas.js": 18,
-      "r5e43_bienvenida.js": 11
+      "r5e42_mas.js": 19,
+      "r5e43_bienvenida.js": 11,
+      "r6e45_precios.js": 8
     }
   },
   "claves": [
@@ -1090,8 +1091,8 @@
     }
   },
   "actualizada": {
-    "etapa": 43,
-    "version": "19.10.0",
-    "fecha": "2026-11-24"
+    "etapa": 45,
+    "version": "20.0.0",
+    "fecha": "2026-11-26"
   }
 }

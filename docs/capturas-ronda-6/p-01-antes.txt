@@ -1,0 +1,3 @@
+# P-01 antes: la herramienta de main (v19.10.5) leyendo un ZIP64 de prueba (ZIP externo común con ZIP64 en los de cada comercio, armado por pruebas/r6e45_precios.mjs)
+# En GitHub, la tarea del 10/11/2026 (corrida 42840096604) terminó el paso de descarga con: 'Aviso, se conserva lo anterior: SEPA: ZIP64 no soportado'
+ERROR con la herramienta de main: ZIP64 no soportado

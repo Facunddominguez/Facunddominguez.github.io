@@ -3721,3 +3721,8 @@ select{max-width:100%;min-width:0}
 .bienvenida__evitar>h3{margin:0 0 12px}
 .bienvenida__evitar .filter-row{margin:0 0 8px}
 .bienvenida__evitar input{width:100%;min-height:var(--tap);padding:10px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--text);font:inherit}
+
+/* ===== Ronda 6 ===== */
+/* Etapa 45: aviso de precios viejos en la lista (desde los 14 días). */
+.precios-viejos{margin:0 0 8px;padding:10px 12px;border:1px solid var(--orange);border-left-width:4px;border-radius:12px;background:var(--surface);color:var(--text);font-size:14px;line-height:1.4}
+.precios-viejos[hidden]{display:none}
