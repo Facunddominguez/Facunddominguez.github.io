@@ -1,0 +1,77 @@
+{
+  "version": 1,
+  "descripcion": "Palabras que disparan los avisos de la tarjeta 'Para mañana' de Hoy (Ronda 6, Etapa 50). Se comparan sin tildes ni mayúsculas con los ingredientes y los pasos de las comidas de mañana. 'excluir' evita falsos positivos (latas, cocidos, fiambres). Las legumbres avisan si la receta habla de remojar (lentejas y arvejas partidas no lo necesitan y no están). Lo incrusta construir.mjs.",
+  "legumbres": {
+    "palabras": {
+      "porotos": "los",
+      "garbanzos": "los",
+      "alubias": "las"
+    },
+    "remojo": [
+      "remoj"
+    ],
+    "excluir": [
+      "lata",
+      "enlatad",
+      "cocid",
+      "conserva",
+      "harina",
+      "hummus",
+      "brotes",
+      "pasta",
+      "fideos",
+      "milanesa",
+      "burger",
+      "hamburguesa"
+    ]
+  },
+  "congelados": {
+    "palabras": [
+      "pollo",
+      "pechuga",
+      "muslo",
+      "carne",
+      "bife",
+      "cerdo",
+      "bondiola",
+      "nalga",
+      "cuadril",
+      "vacio",
+      "asado",
+      "pescado",
+      "merluza",
+      "salmon",
+      "trucha",
+      "lomo"
+    ],
+    "excluir": [
+      "lata",
+      "enlatad",
+      "cocid",
+      "conserva",
+      "caldo",
+      "jamon",
+      "fiambre",
+      "salchicha",
+      "chorizo",
+      "vegetal",
+      "soja",
+      "hamburguesa"
+    ]
+  },
+  "pasos": {
+    "palabras": [
+      "marinar",
+      "marinad",
+      "marinalo",
+      "marinala",
+      "de un dia para otro",
+      "de un dia para el otro",
+      "de un dia para el dia siguiente",
+      "toda la noche",
+      "de la noche anterior",
+      "la noche anterior",
+      "desde la noche"
+    ]
+  }
+}

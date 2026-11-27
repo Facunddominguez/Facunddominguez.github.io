@@ -3798,3 +3798,13 @@ body.cocina-abierta{overflow:hidden}
 .poco-fila__dia{font-weight:700}
 .poco-chip{min-height:44px;justify-content:center}
 .poco-chip[aria-pressed="true"]{background:var(--green);border-color:var(--green);color:var(--on-green)}
+/* Etapa 50: avisos de Hoy ("Para mañana" y "Para comprar hoy"). */
+.hoy-avisos{display:grid;gap:10px;margin:10px 0}
+.hoy-avisos[hidden]{display:none}
+.hoy-aviso{padding:10px 12px;border:1px solid var(--line);border-radius:14px;background:var(--surface)}
+.hoy-aviso .settings-label{margin:0 0 6px}
+.hoy-aviso__lista{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.hoy-aviso__fila{display:flex;align-items:center;gap:10px}
+.hoy-aviso__texto{flex:1 1 auto;margin:0;line-height:1.35}
+.hoy-aviso .button{flex:0 0 auto;min-height:44px;margin:0;padding:6px 14px}
+.hoy-aviso--comprar{display:flex;align-items:center;gap:10px}

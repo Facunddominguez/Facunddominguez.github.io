@@ -3799,9 +3799,19 @@ body.cocina-abierta{overflow:hidden}
 .poco-fila__dia{font-weight:700}
 .poco-chip{min-height:44px;justify-content:center}
 .poco-chip[aria-pressed="true"]{background:var(--green);border-color:var(--green);color:var(--on-green)}
+/* Etapa 50: avisos de Hoy ("Para mañana" y "Para comprar hoy"). */
+.hoy-avisos{display:grid;gap:10px;margin:10px 0}
+.hoy-avisos[hidden]{display:none}
+.hoy-aviso{padding:10px 12px;border:1px solid var(--line);border-radius:14px;background:var(--surface)}
+.hoy-aviso .settings-label{margin:0 0 6px}
+.hoy-aviso__lista{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.hoy-aviso__fila{display:flex;align-items:center;gap:10px}
+.hoy-aviso__texto{flex:1 1 auto;margin:0;line-height:1.35}
+.hoy-aviso .button{flex:0 0 auto;min-height:44px;margin:0;padding:6px 14px}
+.hoy-aviso--comprar{display:flex;align-items:center;gap:10px}
 </style></head><body>
 <div class="app-shell"><header class="app-header"><div class="app-header__row"><div class="brand"><div><h1 class="brand__title" aria-label="Mi Plato Fácil"><span class="wordmark-mi">mi</span> plato <span class="wordmark-facil">fácil</span></h1></div></div><button class="home-button" id="homeTop" type="button">Inicio</button></div></header><main id="appMain">
-<section class="screen card is-active" id="home"><p class="screen__kicker">Hoy</p><h2 class="screen__title">Hoy</h2><p class="screen__hint"></p><div class="today" id="todayPanel"><div class="today__entreno" id="todayEntreno"></div><p class="today__costo" id="todayCosto" hidden></p><p class="today__primera" id="todayPrimera" hidden></p><div class="today__rows" id="todayRows"></div><p class="screen__hint today__status" id="todayStatus" aria-live="polite"></p><p class="respaldo-aviso" id="todayRespaldo" hidden></p></div><div class="home-group home-group--main hoy-acciones">
+<section class="screen card is-active" id="home"><p class="screen__kicker">Hoy</p><h2 class="screen__title">Hoy</h2><p class="screen__hint"></p><div class="today" id="todayPanel"><div class="today__entreno" id="todayEntreno"></div><p class="today__costo" id="todayCosto" hidden></p><p class="today__primera" id="todayPrimera" hidden></p><div class="today__rows" id="todayRows"></div><div class="hoy-avisos" id="hoyAvisos" hidden></div><p class="screen__hint today__status" id="todayStatus" aria-live="polite"></p><p class="respaldo-aviso" id="todayRespaldo" hidden></p></div><div class="home-group home-group--main hoy-acciones">
 <div class="hoy-grupo" role="group" aria-labelledby="hoyGrupoDia"><p class="settings-label" id="hoyGrupoDia">Tu día</p><div class="hoy-botones"><button class="button button--soft" type="button" data-open-registro id="todayRegistro">📒 Ver tu registro de hoy</button><button class="button button--soft" type="button" data-hoy-manana id="todayMananaBoton">📅 Mañana</button></div></div>
 <div class="hoy-grupo" role="group" aria-labelledby="hoyGrupoArmar"><p class="settings-label" id="hoyGrupoArmar">Armar una comida</p><div class="hoy-botones"><button class="button button--soft" type="button" data-start="desayuno">🍳 Desayuno o merienda</button><button class="button button--soft" type="button" data-start="plato">🥗 Almuerzo o cena</button></div></div>
 <div class="hoy-grupo" role="group" aria-labelledby="hoyGrupoIdeas"><p class="settings-label" id="hoyGrupoIdeas">Ideas para decidir</p><div class="hoy-botones"><button class="button button--soft" type="button" data-sugerime>🎲 Sugerime algo</button><button class="button button--soft" type="button" data-con-lo-que-tengo>🧊 Con lo que tengo</button></div></div>
@@ -8891,6 +8901,7 @@ validateCompleteBackup(o){
     if(k==="miPlatoFacil_gastoSemanal_v1"&&!validGastoSemanal(v))throw new Error("Gasto semanal inválido.");
     if(k==="miPlatoFacil_gustos_v1"&&!Gustos.validGustos(v))throw new Error("Gustos inválidos.");
     if(k==="miPlatoFacil_armameReglas_v1"&&!ArmameReglas.validReglas(v))throw new Error("Reglas de Armame inválidas.");
+    if(k==="miPlatoFacil_hoyAvisos_v1"&&!HoyAnticipa.validAvisos(v))throw new Error("Avisos de Hoy inválidos.");
     if(k==="miPlatoFacil_semanaAjustes_v1"&&!SemanaAjustes.validAjustes(v))throw new Error("Ajustes de la semana inválidos.");
     if(k==="miPlatoFacil_comprasPeriodo_v1"&&!Compras.validComprasPeriodo(v))throw new Error("Período de compras inválido.");
     if(k==="miPlatoFacil_comprasVueltas_v1"&&!Compras.validVueltas(v))throw new Error("Productos devueltos a la lista inválidos.");
@@ -8941,15 +8952,15 @@ updateCompleteBackupButton(){
   document.getElementById("backupRestore").disabled=!completeBackupPending
 }
 };
-const COMPLETE_BACKUP_KEYS=["miPlatoFacil_adviceFavorites", "miPlatoFacil_datedWeeks_v1", "miPlatoFacil_manualShopping_v1", "miPlatoFacil_pantry", "miPlatoFacil_plan", "miPlatoFacil_planVars", "miPlatoFacil_saved", "miPlatoFacil_theme", "miPlatoFacil_trainingExceptions", "miPlatoFacil_trainingWeek", "miPlatoFacil_cookingHistory_v1", "miPlatoFacil_recipeAmounts_v1", "miPlatoFacil_referencePrices_v1", "miPlatoFacil_recipeDetails_v1", "miPlatoFacil_pantryQuantities_v1", "miPlatoFacil_shoppingBudget_v1", "miPlatoFacil_recipePreferences_v1", "miPlatoFacil_ingredientAliases_v1", "miPlatoFacil_planPortions_v1", "miPlatoFacil_planHistory_v1", "miPlatoFacil_consumption_v1", "miPlatoFacil_habitGoals_v1", "miPlatoFacil_purchases_v1", "miPlatoFacil_pantryMoves_v1", "miPlatoFacil_shoppingChecks_v1","miPlatoFacil_bienvenida_v1","miPlatoFacil_comprasOpciones_v1","miPlatoFacil_region_v1","miPlatoFacil_mostrarPrecios_v1","miPlatoFacil_hogar_v1","miPlatoFacil_basicosFaltantes_v1","miPlatoFacil_dieta_v1","miPlatoFacil_planProxima_v1","miPlatoFacil_dondeCompro_v1","miPlatoFacil_preciosRevisados_v1","miPlatoFacil_respaldoAviso_v1","miPlatoFacil_gastoSemanal_v1","miPlatoFacil_comprasVueltas_v1", "miPlatoFacil_comprasPeriodo_v1","miPlatoFacil_semanaAjustes_v1","miPlatoFacil_gustos_v1","miPlatoFacil_armameReglas_v1"];
-const COMPLETE_BACKUP_OPTIONAL_KEYS=["miPlatoFacil_cookingHistory_v1","miPlatoFacil_recipeAmounts_v1","miPlatoFacil_referencePrices_v1","miPlatoFacil_recipeDetails_v1","miPlatoFacil_pantryQuantities_v1","miPlatoFacil_shoppingBudget_v1","miPlatoFacil_recipePreferences_v1","miPlatoFacil_ingredientAliases_v1","miPlatoFacil_planPortions_v1","miPlatoFacil_planHistory_v1","miPlatoFacil_consumption_v1","miPlatoFacil_habitGoals_v1","miPlatoFacil_purchases_v1","miPlatoFacil_pantryMoves_v1","miPlatoFacil_shoppingChecks_v1","miPlatoFacil_bienvenida_v1","miPlatoFacil_comprasOpciones_v1","miPlatoFacil_region_v1","miPlatoFacil_mostrarPrecios_v1","miPlatoFacil_hogar_v1","miPlatoFacil_basicosFaltantes_v1","miPlatoFacil_dieta_v1","miPlatoFacil_planProxima_v1","miPlatoFacil_dondeCompro_v1","miPlatoFacil_preciosRevisados_v1","miPlatoFacil_respaldoAviso_v1","miPlatoFacil_gastoSemanal_v1","miPlatoFacil_comprasVueltas_v1", "miPlatoFacil_comprasPeriodo_v1","miPlatoFacil_semanaAjustes_v1","miPlatoFacil_gustos_v1","miPlatoFacil_armameReglas_v1"];
+const COMPLETE_BACKUP_KEYS=["miPlatoFacil_adviceFavorites", "miPlatoFacil_datedWeeks_v1", "miPlatoFacil_manualShopping_v1", "miPlatoFacil_pantry", "miPlatoFacil_plan", "miPlatoFacil_planVars", "miPlatoFacil_saved", "miPlatoFacil_theme", "miPlatoFacil_trainingExceptions", "miPlatoFacil_trainingWeek", "miPlatoFacil_cookingHistory_v1", "miPlatoFacil_recipeAmounts_v1", "miPlatoFacil_referencePrices_v1", "miPlatoFacil_recipeDetails_v1", "miPlatoFacil_pantryQuantities_v1", "miPlatoFacil_shoppingBudget_v1", "miPlatoFacil_recipePreferences_v1", "miPlatoFacil_ingredientAliases_v1", "miPlatoFacil_planPortions_v1", "miPlatoFacil_planHistory_v1", "miPlatoFacil_consumption_v1", "miPlatoFacil_habitGoals_v1", "miPlatoFacil_purchases_v1", "miPlatoFacil_pantryMoves_v1", "miPlatoFacil_shoppingChecks_v1","miPlatoFacil_bienvenida_v1","miPlatoFacil_comprasOpciones_v1","miPlatoFacil_region_v1","miPlatoFacil_mostrarPrecios_v1","miPlatoFacil_hogar_v1","miPlatoFacil_basicosFaltantes_v1","miPlatoFacil_dieta_v1","miPlatoFacil_planProxima_v1","miPlatoFacil_dondeCompro_v1","miPlatoFacil_preciosRevisados_v1","miPlatoFacil_respaldoAviso_v1","miPlatoFacil_gastoSemanal_v1","miPlatoFacil_comprasVueltas_v1", "miPlatoFacil_comprasPeriodo_v1","miPlatoFacil_semanaAjustes_v1","miPlatoFacil_gustos_v1","miPlatoFacil_armameReglas_v1","miPlatoFacil_hoyAvisos_v1"];
+const COMPLETE_BACKUP_OPTIONAL_KEYS=["miPlatoFacil_cookingHistory_v1","miPlatoFacil_recipeAmounts_v1","miPlatoFacil_referencePrices_v1","miPlatoFacil_recipeDetails_v1","miPlatoFacil_pantryQuantities_v1","miPlatoFacil_shoppingBudget_v1","miPlatoFacil_recipePreferences_v1","miPlatoFacil_ingredientAliases_v1","miPlatoFacil_planPortions_v1","miPlatoFacil_planHistory_v1","miPlatoFacil_consumption_v1","miPlatoFacil_habitGoals_v1","miPlatoFacil_purchases_v1","miPlatoFacil_pantryMoves_v1","miPlatoFacil_shoppingChecks_v1","miPlatoFacil_bienvenida_v1","miPlatoFacil_comprasOpciones_v1","miPlatoFacil_region_v1","miPlatoFacil_mostrarPrecios_v1","miPlatoFacil_hogar_v1","miPlatoFacil_basicosFaltantes_v1","miPlatoFacil_dieta_v1","miPlatoFacil_planProxima_v1","miPlatoFacil_dondeCompro_v1","miPlatoFacil_preciosRevisados_v1","miPlatoFacil_respaldoAviso_v1","miPlatoFacil_gastoSemanal_v1","miPlatoFacil_comprasVueltas_v1", "miPlatoFacil_comprasPeriodo_v1","miPlatoFacil_semanaAjustes_v1","miPlatoFacil_gustos_v1","miPlatoFacil_armameReglas_v1","miPlatoFacil_hoyAvisos_v1"];
 // v15.7: "Mostrar precios y presupuesto" (miPlatoFacil_mostrarPrecios_v1, {"mostrar":true}) es opcional y se valida; sin él se deriva de uiMode_v1.
 // v15.6: la región de los precios (miPlatoFacil_region_v1) es opcional; si falta en un respaldo viejo se usa GBA.
 // v15.3: la marca "ya vio la bienvenida" (miPlatoFacil_bienvenida_v1). Solo vale {"vista":true}.
 let completeBackupPending=null;
 function completeBackupSnapshot(storage){
   return {
-    app:"MiPlatoFacil",format:"complete-local-v1",createdAt:new Date().toISOString(),data:Object.fromEntries(COMPLETE_BACKUP_KEYS.map(k=>[k,storage.getItem(k)]).filter(([k,v])=>!([INGREDIENT_ALIASES_KEY,"miPlatoFacil_planPortions_v1","miPlatoFacil_planHistory_v1","miPlatoFacil_consumption_v1","miPlatoFacil_habitGoals_v1","miPlatoFacil_purchases_v1","miPlatoFacil_pantryMoves_v1","miPlatoFacil_shoppingChecks_v1","miPlatoFacil_bienvenida_v1","miPlatoFacil_comprasOpciones_v1","miPlatoFacil_region_v1","miPlatoFacil_mostrarPrecios_v1","miPlatoFacil_hogar_v1","miPlatoFacil_basicosFaltantes_v1","miPlatoFacil_dieta_v1","miPlatoFacil_planProxima_v1","miPlatoFacil_dondeCompro_v1","miPlatoFacil_preciosRevisados_v1","miPlatoFacil_respaldoAviso_v1","miPlatoFacil_gastoSemanal_v1","miPlatoFacil_comprasVueltas_v1","miPlatoFacil_comprasPeriodo_v1","miPlatoFacil_semanaAjustes_v1","miPlatoFacil_gustos_v1","miPlatoFacil_armameReglas_v1"].includes(k)&&v===null)))
+    app:"MiPlatoFacil",format:"complete-local-v1",createdAt:new Date().toISOString(),data:Object.fromEntries(COMPLETE_BACKUP_KEYS.map(k=>[k,storage.getItem(k)]).filter(([k,v])=>!([INGREDIENT_ALIASES_KEY,"miPlatoFacil_planPortions_v1","miPlatoFacil_planHistory_v1","miPlatoFacil_consumption_v1","miPlatoFacil_habitGoals_v1","miPlatoFacil_purchases_v1","miPlatoFacil_pantryMoves_v1","miPlatoFacil_shoppingChecks_v1","miPlatoFacil_bienvenida_v1","miPlatoFacil_comprasOpciones_v1","miPlatoFacil_region_v1","miPlatoFacil_mostrarPrecios_v1","miPlatoFacil_hogar_v1","miPlatoFacil_basicosFaltantes_v1","miPlatoFacil_dieta_v1","miPlatoFacil_planProxima_v1","miPlatoFacil_dondeCompro_v1","miPlatoFacil_preciosRevisados_v1","miPlatoFacil_respaldoAviso_v1","miPlatoFacil_gastoSemanal_v1","miPlatoFacil_comprasVueltas_v1","miPlatoFacil_comprasPeriodo_v1","miPlatoFacil_semanaAjustes_v1","miPlatoFacil_gustos_v1","miPlatoFacil_armameReglas_v1","miPlatoFacil_hoyAvisos_v1"].includes(k)&&v===null)))
   }
 }
 document.getElementById("backupExport").addEventListener("click",()=>RespaldoAviso.guardarCopia());
@@ -12463,6 +12474,7 @@ function renderToday(){
   }
   // En el orden del día (el plan las guarda como desayuno, merienda, almuerzo, cena).
   box.replaceChildren(...HOY_COMIDAS.map(slot=>filaHoy(day,slot,plan,byId,true,primera)));
+  try{HoyAnticipa.pintar()}catch(e){}
   // v19.5 (R5-H-01): sin Deshacer debajo de las comidas. El cambio hecho desde Hoy se cuenta en una línea y se va con el siguiente.
   const st=document.getElementById("todayStatus");
   if(!st)return;
@@ -18708,6 +18720,187 @@ document.addEventListener("change",e=>{
       const est=document.getElementById("pocoTiempoEstado");
       if(est)est.textContent=err.message
     }
+  }
+});
+// Mi Plato Fácil · Hoy anticipa (Ronda 6, Etapa 50): "Para mañana" (lo que hay que dejar listo la noche anterior) y "Para comprar hoy".
+// Las palabras que disparan cada aviso están en datos/avisos-hoy.json (se incrustan al construir): legumbres secas, carne/pollo/pescado y pasos que
+// dicen marinar o "de un día para otro". miPlatoFacil_hoyAvisos_v1 = {"fecha": "AAAA-MM-DD", "hechos": ["legumbres", …]}: los avisos que marcaste
+// "Listo" hoy (al día siguiente se ignora y vuelven a aparecer los que corresponden). Es opcional en el respaldo.
+// Parte 51: los archivos se unen en orden según su número, que define el orden de arranque.
+var HOY_AVISOS_KEY="miPlatoFacil_hoyAvisos_v1";
+var HOY_AVISOS_DATOS={"version":1,"descripcion":"Palabras que disparan los avisos de la tarjeta 'Para mañana' de Hoy (Ronda 6, Etapa 50). Se comparan sin tildes ni mayúsculas con los ingredientes y los pasos de las comidas de mañana. 'excluir' evita falsos positivos (latas, cocidos, fiambres). Las legumbres avisan si la receta habla de remojar (lentejas y arvejas partidas no lo necesitan y no están). Lo incrusta construir.mjs.","legumbres":{"palabras":{"porotos":"los","garbanzos":"los","alubias":"las"},"remojo":["remoj"],"excluir":["lata","enlatad","cocid","conserva","harina","hummus","brotes","pasta","fideos","milanesa","burger","hamburguesa"]},"congelados":{"palabras":["pollo","pechuga","muslo","carne","bife","cerdo","bondiola","nalga","cuadril","vacio","asado","pescado","merluza","salmon","trucha","lomo"],"excluir":["lata","enlatad","cocid","conserva","caldo","jamon","fiambre","salchicha","chorizo","vegetal","soja","hamburguesa"]},"pasos":{"palabras":["marinar","marinad","marinalo","marinala","de un dia para otro","de un dia para el otro","de un dia para el dia siguiente","toda la noche","de la noche anterior","la noche anterior","desde la noche"]}};
+var HoyAnticipa={
+validAvisos(o){
+  return !!o&&typeof o==="object"&&!Array.isArray(o)&&Object.keys(o).length===2&&Rutina.validTrainingDate(o.fecha)&&Array.isArray(o.hechos)&&o.hechos.length<=40&&o.hechos.every(x=>typeof x==="string"&&x.length>0&&x.length<=120)
+},
+hoyClave(){
+  return Rutina.localTrainingDate(new Date())
+},
+// Los avisos "Listo" de hoy (los de otro día no cuentan).
+hechos(){
+  try{
+    const o=JSON.parse(localStorage.getItem(HOY_AVISOS_KEY)||"null");
+    return HoyAnticipa.validAvisos(o)&&o.fecha===HoyAnticipa.hoyClave()?new Set(o.hechos):new Set()
+  }catch(e){
+    return new Set()
+  }
+},
+marcarListo(id){
+  const set=HoyAnticipa.hechos();
+  set.add(String(id).slice(0,120));
+  const o={
+    fecha:HoyAnticipa.hoyClave(),hechos:[...set].slice(-40)
+  };
+  if(!HoyAnticipa.validAvisos(o))throw Error("No se pudo guardar.");
+  localStorage.setItem(HOY_AVISOS_KEY,JSON.stringify(o))
+},
+// Las comidas (guardadas) de un día: de hoy, o de mañana. Mañana de un domingo es el lunes de la semana que viene.
+comidasDe(cual){
+  const dia=todayPlanDay(),byId=new Map(MisPlatos.loadSaved().map(p=>[p.id,p]));
+  let plan,d=dia;
+  if(cual==="manana"){
+    d=diaSiguienteDelPlan(dia);
+    plan=dia==="domingo"?Semana.planDeLaSemana("proxima"):loadPlan()
+  }else plan=loadPlan();
+  return HOY_COMIDAS.map(s=>plan[d]&&plan[d][s]?byId.get(plan[d][s]):null).filter(Boolean)
+},
+palabras(texto){
+  return normalizeSearchText(String(texto||"")).split(/[^a-z0-9ñ]+/).filter(Boolean)
+},
+// ¿El nombre dice alguna de las palabras (completa, o en singular)? Sin las palabras de "excluir" (latas, cocidos, fiambres…).
+coincide(nombre,palabras,excluir){
+  const t=normalizeSearchText(String(nombre||""));
+  if((excluir||[]).some(x=>t.includes(x)))return null;
+  const ws=HoyAnticipa.palabras(nombre);
+  return palabras.find(p=>ws.includes(p)||ws.includes(p.replace(/s$/,"")))||null
+},
+// [{id, texto}] con lo que mañana pide hacer hoy a la noche. Sin nada para anticipar, la lista queda vacía.
+paraManana(){
+  const D=HOY_AVISOS_DATOS,hechos=HoyAnticipa.hechos(),items=HoyAnticipa.comidasDe("manana"),out=[],leg=[],carnes=[],marinar=[],pal=Object.keys(D.legumbres.palabras);
+  let recetas=null;
+  const enPasos=(pasos,palabras,sin)=>pasos.some(p=>{
+    const t=normalizeSearchText(String(p));
+    return palabras.some(w=>t.includes(w))&&!(sin&&sin.some(w=>t.includes(w)))
+  });
+  for(const it of items){
+    // Los pasos: los de la receta o los de la idea del catálogo (una comida armada no tiene).
+    let pasos=[];
+    if(it.recipeSourceId){
+      try{
+        if(!recetas)recetas=loadRecipeDetails();
+        const r=recetas[it.recipeSourceId];
+        if(r&&Array.isArray(r.steps))pasos=r.steps
+      }catch(e){
+      }
+    }else{
+      try{
+        const idea=IdeasHoja.ideaDeComida(it);
+        if(idea&&Array.isArray(idea.pasos))pasos=idea.pasos
+      }catch(e){
+      }
+    }
+    // Con pasos, una legumbre avisa solo si la preparación habla de remojar (las de lata o ya cocidas no); sin pasos, avisa siempre.
+    const remoja=!pasos.length||enPasos(pasos,D.legumbres.remojo);
+    for(const n of Semana.extractIngredients(it)){
+      const l=remoja?HoyAnticipa.coincide(n,pal,D.legumbres.excluir):null;
+      if(l&&!leg.includes(l))leg.push(l);
+      const c=HoyAnticipa.coincide(n,D.congelados.palabras,D.congelados.excluir);
+      if(c&&!carnes.includes(c))carnes.push(c)
+    }
+    // "Dejá los porotos en remojo toda la noche" ya lo cubre el aviso de las legumbres.
+    if(enPasos(pasos,D.pasos.palabras,D.legumbres.remojo))marinar.push(it)
+  }
+  const unir=a=>a.length>1?a.slice(0,-1).join(", ")+" y "+a.at(-1):a[0];
+  if(leg.length&&!hechos.has("legumbres"))out.push({
+    id:"legumbres",texto:"Poné en remojo "+unir(leg.map(l=>D.legumbres.palabras[l]+" "+l))+" esta noche."
+  });
+  if(carnes.length&&!hechos.has("congelados"))out.push({
+    id:"congelados",texto:"Si están en el freezer, pasalos a la heladera: "+unir(carnes)+"."
+  });
+  for(const it of marinar){
+    const id="marinar:"+HoyAnticipa.palabras(mealName(it)).join("-").slice(0,100);
+    if(!hechos.has(id))out.push({
+      id,texto:"Dejá preparado para mañana: "+mealName(it)+" lleva marinado o descanso de un día para otro."
+    })
+  }
+  return out
+},
+// Ingredientes de las comidas de hoy que no están en la Despensa ni tachados (o comprados) en la lista de esta semana.
+paraComprarHoy(){
+  const tengo=MarcasDespensa.pantryMarkedMatcher(),stock=new Set(Object.values(loadStockQuantities()).filter(s=>s.quantity>0).map(s=>ingredientKey(s.name))),marcas=Compras.marcasDeSemana(Compras.loadShoppingChecks(),Compras.shoppingChecksWeek()),vistos=new Set(),out=[];
+  for(const it of HoyAnticipa.comidasDe("hoy")){
+    for(const n of Semana.extractIngredients(it)){
+      const nombre=String(n).trim();
+      if(!nombre||fueraDeLaLista(nombre))continue;
+      const k=ingredientKey(nombre);
+      if(!k||vistos.has(k))continue;
+      vistos.add(k);
+      if(tengo.has(nombre)||stock.has(k)||marcas.t.has(k)||marcas.c.has(k))continue;
+      out.push(nombre.charAt(0).toLowerCase()+nombre.slice(1))
+    }
+  }
+  return out
+},
+texto(nombres){
+  const a=nombres.length>4?nombres.slice(0,4).concat("otros "+(nombres.length-4)):nombres;
+  return a.length>1?a.slice(0,-1).join(", ")+" y "+a.at(-1):a[0]
+},
+pintar(){
+  const caja=document.getElementById("hoyAvisos");
+  if(!caja)return;
+  let manana=[],comprar=[];
+  try{manana=HoyAnticipa.paraManana()}catch(e){}
+  try{comprar=HoyAnticipa.paraComprarHoy()}catch(e){}
+  const hijos=[];
+  if(manana.length){
+    const sec=ce("section","hoy-aviso"),t=ce("p","settings-label","Para mañana"),ul=ce("ul","hoy-aviso__lista");
+    t.id="hoyAvisoManana";
+    sec.setAttribute("aria-labelledby","hoyAvisoManana");
+    sec.dataset.hoyAvisoManana="";
+    for(const a of manana){
+      const li=ce("li","hoy-aviso__fila"),b=ce("button","button button--soft","Listo");
+      b.type="button";
+      b.dataset.hoyAvisoListo=a.id;
+      b.setAttribute("aria-label","Listo: "+a.texto);
+      li.append(ce("span","hoy-aviso__texto",a.texto),b);
+      ul.append(li)
+    }
+    sec.append(t,ul);
+    hijos.push(sec)
+  }
+  if(comprar.length){
+    const sec=ce("section","hoy-aviso hoy-aviso--comprar"),b=ce("button","button button--soft","Ver en la lista");
+    sec.dataset.hoyComprarHoy="";
+    b.type="button";
+    b.dataset.hoyVerLista="";
+    sec.append(ce("p","hoy-aviso__texto","Para comprar hoy: "+HoyAnticipa.texto(comprar)),b);
+    hijos.push(sec)
+  }
+  caja.replaceChildren(...hijos);
+  caja.hidden=!hijos.length
+}
+};
+document.addEventListener("click",e=>{
+  const b=e.target.closest&&e.target.closest("button");
+  if(!b||!b.dataset)return;
+  if(b.dataset.hoyAvisoListo){
+    try{
+      HoyAnticipa.marcarListo(b.dataset.hoyAvisoListo)
+    }catch(err){
+      const st=document.getElementById("todayStatus");
+      if(st)st.textContent=err.message
+    }
+    HoyAnticipa.pintar();
+    return
+  }
+  if(b.dataset.hoyVerLista!==undefined){
+    // Las comidas de hoy son de esta semana: si la lista estaba en "La semana que viene", se pasa a "Esta semana" para verlas.
+    try{
+      if(Compras.periodoActual()==="proxima")Compras.elegirPeriodo("esta")
+    }catch(err){
+    }
+    renderCompras();
+    go("compras")
   }
 });
 </script></body></html>
