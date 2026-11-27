@@ -443,6 +443,8 @@ function start(type,dayKey,slot){
   }[type])
 }
 function go(id){
+  // Etapa 49: la pregunta "¿Te gustó?" es de la comida que acabás de anotar: al cambiar de pantalla se va.
+  if(typeof Gustos!=="undefined")Gustos.cerrarPregunta();
   document.querySelectorAll(".screen").forEach(s=>{
     s.classList.remove("is-active");s.setAttribute("aria-hidden","true")
   });
@@ -463,6 +465,7 @@ function go(id){
   if(id==="registro"&&typeof renderRegistro==="function")renderRegistro();
   if(id==="backupScreen"&&typeof RespaldoAviso!=="undefined")RespaldoAviso.pintar();
   if(id==="preferencias"&&typeof renderObjetivosPreferencias==="function")renderObjetivosPreferencias();
+  if(id==="preferencias"&&typeof ArmameReglas!=="undefined")ArmameReglas.pintar();
   if(id==="preferencias"&&typeof Equivalencias!=="undefined"){
     // v19.9 (R5-X-06): "Ingredientes equivalentes" está a la vista: se dibuja al entrar.
     try{

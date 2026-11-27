@@ -92,6 +92,7 @@ cookedPlate(id){
   savedStatus(msg);
   const det=document.getElementById("comidaEstado");
   registroAviso(stack.at(-1)==="comida"&&det?det:document.getElementById("savedStatus"),msg,antes);
+  try{if(typeof Gustos!=="undefined")Gustos.preguntar(mealName(it))}catch(e){}
   try{
     if(stack.at(-1)==="registro")renderRegistro()
   }catch(e){

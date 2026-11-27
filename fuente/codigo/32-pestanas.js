@@ -47,6 +47,7 @@ var resetTabs=null;
     }
   }
   function showScreen(id){
+    if(typeof Gustos!=="undefined")Gustos.cerrarPregunta();
     document.querySelectorAll(".screen").forEach(s=>{
       const on=s.id===id;s.classList.toggle("is-active",on);if(on)s.removeAttribute("aria-hidden");else s.setAttribute("aria-hidden","true")
     });
@@ -62,6 +63,7 @@ var resetTabs=null;
     if(id==="registro"&&typeof renderRegistro==="function")renderRegistro();
     if(id==="backupScreen"&&typeof RespaldoAviso!=="undefined")RespaldoAviso.pintar();
     if(id==="preferencias"&&typeof renderObjetivosPreferencias==="function")renderObjetivosPreferencias();
+    if(id==="preferencias"&&typeof ArmameReglas!=="undefined")ArmameReglas.pintar();
     nav()
   }
   function switchTab(tab){

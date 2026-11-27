@@ -26,7 +26,7 @@ window.R6H = (ancho0 = 390) => {
   const recetas = lista => ({
     miPlatoFacil_recipeDetails_v1: JSON.stringify(Object.fromEntries(lista.map(r => [r.id, { id: r.id, title: r.titulo, sourceTitle: null, amountsTitle: "receta:" + r.id, steps: r.pasos || ["Cocinar"], notes: "" }]))),
     miPlatoFacil_recipeAmounts_v1: JSON.stringify(Object.fromEntries(lista.map(r => ["receta:" + r.id, { yield: r.rinde || 1, rows: r.filas }]))),
-    miPlatoFacil_saved: JSON.stringify(lista.map(r => ({ id: "rp_" + r.id, savedAt: "2026-10-26T10:00:00.000Z", type: r.tipo || "plato", title: r.titulo, lines: [], sig: "recipe-ref:" + r.id + ":" + (r.tipo || "plato"), text: r.titulo, cooked: 0, state: null, recipeSourceId: r.id, recipeIngredients: r.filas.map(x => x.name) }))),
+    miPlatoFacil_saved: JSON.stringify(lista.map(r => ({ id: "rp_" + r.id, savedAt: "2026-10-26T10:00:00.000Z", type: r.tipo || "plato", title: r.titulo, lines: [], sig: "recipe-ref:" + r.id + ":" + (r.tipo || "plato"), text: r.titulo, cooked: 0, state: null, fav: !!r.fav, recipeSourceId: r.id, recipeIngredients: r.filas.map(x => x.name) }))),
   });
   // La semana que viene: miPlatoFacil_planProxima_v1 = { lunes, plan }.
   const proxima = (lunes, slots) => ({ miPlatoFacil_planProxima_v1: JSON.stringify({ lunes, plan: planDe(slots) }) });

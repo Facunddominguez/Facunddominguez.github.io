@@ -299,19 +299,21 @@ function seccionesSelector(h,q){
   const motivoDe=it=>{
     try{return dietaMotivo(mealName(it)+" "+Semana.extractIngredients(it).join(" "))}catch(e){return ""}
   };
+  // Etapa 49 (R6-A-03): lo que no te gustó (dos o más "No" seguidos) va al final, con la nota "No te gustó".
+  const noGusta=new Set(items.filter(it=>{try{return Gustos.disgustada(Gustos.claveDe(mealName(it)))}catch(e){return false}}).map(it=>it.id));
   const fila=it=>{
-    const motivo=motivoDe(it),b=ce("button","selector-item"+(it.id===h.id?" is-actual":"")+(motivo?" is-apagado":""));b.type="button";b.dataset.selectorId=it.id;b.append(ce("span","selector-item__nombre",Semana.planPlateLabel(it,nombre(it))));
+    const motivo=motivoDe(it)||(noGusta.has(it.id)?"No te gustó":""),b=ce("button","selector-item"+(it.id===h.id?" is-actual":"")+(motivo?" is-apagado":""));b.type="button";b.dataset.selectorId=it.id;b.append(ce("span","selector-item__nombre",Semana.planPlateLabel(it,nombre(it))));
     if(motivo){b.append(ce("span","selector-item__motivo",motivo));b.setAttribute("aria-label",nombre(it)+". "+motivo)}const d=savedItemLines(it).join(" · ");if(d)b.append(ce("span","selector-item__detalle",d));if(it.id===h.id)b.setAttribute("aria-current","true");return b
   };
   const seccion=(titulo,clave,filas,vacio)=>{
     const s=ce("section","selector-seccion");s.dataset.selectorSeccion=clave;s.append(ce("h3","selector-seccion__titulo",titulo));if(filas.length)s.append(...filas);else s.append(ce("p","screen__hint",vacio));return s
   };
   const out=[];
-  if(!n&&items.length>4)out.push(seccion("Recientes","recientes",recientesDelTipo(items).map(fila),""));
+  if(!n&&items.length>4)out.push(seccion("Recientes","recientes",recientesDelTipo(items).filter(it=>!noGusta.has(it.id)).map(fila),""));
   // v19.1 (S-19): "Mis recetas" es una sección más (junto a Recientes, Mis comidas e Ideas): las recetas que ya tienen copia para este tipo de comida y las que todavía no.
   const orden=(a,b)=>(b.fav?1:0)-(a.fav?1:0),coincideItem=it=>coincide(nombre(it)+" "+savedItemLines(it).join(" ")),
-    mias=items.filter(it=>!it.recipeSourceId&&coincideItem(it)).sort(orden),
-    conCopia=items.filter(it=>it.recipeSourceId&&coincideItem(it)).sort(orden),
+    mias=items.filter(it=>!it.recipeSourceId&&!noGusta.has(it.id)&&coincideItem(it)).sort(orden),
+    conCopia=items.filter(it=>it.recipeSourceId&&!noGusta.has(it.id)&&coincideItem(it)).sort(orden),
     recetasNuevas=recetasSinCopia(items).filter(r=>coincide(r.title)).map(r=>{
       let motivo="";
       try{motivo=dietaMotivo(r.title+" "+loadRecipeAmounts()[r.amountsTitle].rows.map(x=>x.name).join(" "))}catch(e){}
@@ -345,6 +347,8 @@ function seccionesSelector(h,q){
     const pocas=dietaAvisoPocas();
     if(pocas)out.at(-1).append(ce("p","screen__hint",pocas))
   }
+  const finales=items.filter(it=>noGusta.has(it.id)&&coincideItem(it));
+  if(finales.length)out.push(seccion("No te gustó","nogusto",finales.map(fila),""));
   return out
 }
 function abrirSelector(dia,slot){

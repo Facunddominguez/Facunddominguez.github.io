@@ -3787,3 +3787,17 @@ body.cocina-abierta{overflow:hidden}
 .hueco--afuera{border-style:dashed}
 .hueco--afuera .hueco__plato{font-style:italic}
 .hueco__sobra{display:block;margin-top:2px;font-size:13px;color:var(--muted)}
+/* Etapa 49: "¿Te gustó?" y "Días con poco tiempo". */
+.gusto-pregunta{position:fixed;left:12px;right:12px;bottom:calc(var(--section-nav-h,64px) + 12px);z-index:70;display:flex;align-items:center;gap:8px;padding:8px 8px 8px 14px;border:1px solid var(--line);border-radius:16px;background:var(--surface);color:var(--text);box-shadow:0 6px 20px rgba(0,0,0,.18)}
+.gusto-pregunta__texto{flex:1 1 auto;font-weight:700}
+.gusto-pregunta .button{flex:0 0 auto;min-height:44px;min-width:56px;padding:6px 12px;margin:0}
+.gusto-pregunta__cerrar{flex:0 0 44px;min-height:44px;width:44px;border:0;border-radius:12px;background:none;color:var(--muted);font:inherit;font-size:18px;cursor:pointer}
+body:has(#gustoPregunta:not(.gusto-pregunta--cocina)){padding-bottom:72px}
+.gusto-pregunta--cocina{position:static;margin:16px 0 0;box-shadow:none}
+.poco-grilla{display:grid;gap:4px;margin:8px 0}
+.poco-fila{display:grid;grid-template-columns:76px minmax(0,1fr) minmax(0,1fr);gap:6px;align-items:center}
+.poco-fila__dia{font-weight:700}
+.poco-fila__slot{font-size:13px;color:var(--muted);text-align:center}
+.poco-chip[aria-pressed="true"]::after{content:"✓";font-weight:800}
+.poco-chip{min-height:44px;min-width:0;justify-content:center;padding-left:6px;padding-right:6px}
+.poco-chip[aria-pressed="true"]{background:var(--green);border-color:var(--green);color:var(--on-green)}
