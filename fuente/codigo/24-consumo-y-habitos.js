@@ -183,7 +183,8 @@ document.getElementById("consumptionSave").addEventListener("click",()=>{
   const st=document.getElementById("consumptionStatus");try{
     const date=SemanasFechadas.parseTypedAppDate(document.getElementById("consumptionDate").value);if(!date)throw Error("Ingresá una fecha.");const meal=document.getElementById("consumptionMeal").value,id=document.getElementById("consumptionPlate").value,item=id?MisPlatos.loadSaved().find(p=>p.id===id):null,wd=DAYS[(new Date(date+"T12:00:00").getDay()+6)%7][0],plan=loadPlan(),planned=!!item&&!!plan[wd]&&plan[wd][meal]===item.id&&mondayOf(date)===mondayOf(Rutina.localTrainingDate(new Date())),antes=registroFoto();Consumo.recordConsumption({
       date,meal,item,title:document.getElementById("consumptionText").value,planned
-    });document.getElementById("consumptionText").value="";consumptionWeek=mondayOf(date);renderConsumption();registroRepintar();st.textContent="Registrado."
+    });document.getElementById("consumptionText").value="";consumptionWeek=mondayOf(date);renderConsumption();registroRepintar();st.textContent="Registrado.";
+    try{const ult=loadConsumption().at(-1);if(ult&&typeof Gustos!=="undefined")Gustos.preguntar(ult.title)}catch(e){}
   }catch(err){
     st.textContent=err.message
   }
@@ -227,7 +228,8 @@ document.addEventListener("click",e=>{
     const [day,slot]=b.dataset.planEaten.split("|"),plan=loadPlan(),id=plan[day]&&plan[day][slot],item=id?MisPlatos.loadSaved().find(p=>p.id===id):null;if(!item)return;try{
       Consumo.recordConsumption({
         date:Rutina.localTrainingDate(new Date()),meal:slot,item,planned:true
-      });renderPlan();planStatus("Registrado como comido hoy. El plan no cambió.");renderConsumption()
+      });renderPlan();planStatus("Registrado como comido hoy. El plan no cambió.");renderConsumption();
+      if(typeof Gustos!=="undefined")Gustos.preguntar(mealName(item))
     }catch(err){
       planStatus(err.message)
     }

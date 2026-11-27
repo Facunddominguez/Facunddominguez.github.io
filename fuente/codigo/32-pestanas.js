@@ -62,6 +62,7 @@ var resetTabs=null;
     if(id==="registro"&&typeof renderRegistro==="function")renderRegistro();
     if(id==="backupScreen"&&typeof RespaldoAviso!=="undefined")RespaldoAviso.pintar();
     if(id==="preferencias"&&typeof renderObjetivosPreferencias==="function")renderObjetivosPreferencias();
+    if(id==="preferencias"&&typeof ArmameReglas!=="undefined")ArmameReglas.pintar();
     nav()
   }
   function switchTab(tab){

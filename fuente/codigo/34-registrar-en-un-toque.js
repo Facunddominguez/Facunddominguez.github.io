@@ -145,14 +145,16 @@ document.addEventListener("click",e=>{
         before:r.before,after:r.after,status:st
       };
       RegistroRapido.afterOneTap();
-      RegistroRapido.oneTapStatus(st,r.text,"cook")
+      RegistroRapido.oneTapStatus(st,r.text,"cook");
+      try{if(typeof Gustos!=="undefined")Gustos.preguntar(loadRecipeDetails()[recipeReadId].title)}catch(e){}
     }else if(b.dataset.savedRecipeCook){
       const st=document.getElementById("savedActionStatus"),r=RegistroRapido.cookRecipeNow(b.dataset.savedRecipeCook);
       oneTapUndo.cook={
         before:r.before,after:r.after,status:st
       };
       RegistroRapido.afterOneTap();
-      RegistroRapido.oneTapStatus(st,r.text,"cook")
+      RegistroRapido.oneTapStatus(st,r.text,"cook");
+      try{if(typeof Gustos!=="undefined")Gustos.preguntar(loadRecipeDetails()[b.dataset.savedRecipeCook].title)}catch(e){}
     }else if(b.id==="comprasBought"){
       const st=document.getElementById("comprasBoughtStatus"),r=RegistroRapido.boughtNow();
       // v19.8 (R5-K-01): sin Deshacer en Compras.

@@ -463,6 +463,7 @@ function go(id){
   if(id==="registro"&&typeof renderRegistro==="function")renderRegistro();
   if(id==="backupScreen"&&typeof RespaldoAviso!=="undefined")RespaldoAviso.pintar();
   if(id==="preferencias"&&typeof renderObjetivosPreferencias==="function")renderObjetivosPreferencias();
+  if(id==="preferencias"&&typeof ArmameReglas!=="undefined")ArmameReglas.pintar();
   if(id==="preferencias"&&typeof Equivalencias!=="undefined"){
     // v19.9 (R5-X-06): "Ingredientes equivalentes" está a la vista: se dibuja al entrar.
     try{
