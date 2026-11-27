@@ -3817,3 +3817,6 @@ body:has(#gustoPregunta:not(.gusto-pregunta--cocina)){padding-bottom:72px}
 .comensales-fila__dia{font-weight:700;font-size:14px}
 .comensales-fila__slot{font-size:11px;color:var(--muted);text-align:center;overflow-wrap:anywhere}
 .comensales-fila__sel{min-width:0;min-height:44px;width:100%;padding:0 2px;font-size:15px;text-align:center}
+.hoy-aviso--comprar{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.hoy-aviso--comprar .hoy-aviso__texto{flex:1 1 100%;min-width:0;overflow-wrap:anywhere}
+.hoy-aviso--comprar .button{flex:1 1 100%;max-width:100%}
