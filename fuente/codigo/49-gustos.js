@@ -160,11 +160,14 @@ pintar(){
     }
     sel.value=String(r.minutos)
   }
-  g.replaceChildren(...DAYS.map(([d,nombre])=>{
+  // Los nombres de las comidas van una sola vez, arriba; cada botón se lee por su etiqueta ("Cena del lunes: poco tiempo") y muestra una tilde cuando está marcado.
+  const cab=ce("div","poco-fila poco-fila--cab");
+  cab.append(ce("span"),ce("span","poco-fila__slot",Semana.planSlotName("almuerzo")),ce("span","poco-fila__slot",Semana.planSlotName("cena")));
+  g.replaceChildren(cab,...DAYS.map(([d,nombre])=>{
     const fila=ce("div","poco-fila"),et=ce("span","poco-fila__dia",nombre);
     fila.append(et);
     for(const slot of ["almuerzo","cena"]){
-      const b=ce("button","filter-chip poco-chip",Semana.planSlotName(slot)),on=r.huecos.includes(d+"|"+slot);
+      const b=ce("button","filter-chip poco-chip"),on=r.huecos.includes(d+"|"+slot);
       b.type="button";
       b.dataset.pocoTiempo=d+"|"+slot;
       b.setAttribute("aria-pressed",String(on));
