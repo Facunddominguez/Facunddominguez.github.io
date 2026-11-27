@@ -3820,8 +3820,10 @@ body:has(#gustoPregunta:not(.gusto-pregunta--cocina)){padding-bottom:72px}
 #ticketCargar{margin-top:8px}
 .ticket-fila{border:1px solid var(--line);border-radius:12px;padding:8px;margin:8px 0}
 /* Etapa 53: una sola acción principal por pestaña (Más: Registro). */
-.tool-button--primary,.tool-button--primary .tool-button__label,.tool-button--primary .tool-button__desc{background:var(--green);border-color:var(--green);color:var(--on-green)}
-.tool-button--primary .tool-button__label,.tool-button--primary .tool-button__desc{background:none}
+#home .tool-button.tool-button--primary,[data-theme="dark"] #home .tool-button.tool-button--primary,#home[data-home-tab="mas"] .tool-button.tool-button--primary{background:var(--green)!important;border-color:var(--green)!important;color:var(--on-green)!important}
+#home .tool-button.tool-button--primary .tool-button__label,#home .tool-button.tool-button--primary .tool-button__desc,#home .tool-button.tool-button--primary .tool-button__emoji{color:var(--on-green)!important;background:none!important}
+/* Compras: "Terminé de comprar" queda a la vista, fijo arriba de la barra de pestañas, mientras se recorre la lista. */
+#comprasBoughtBox{position:sticky;bottom:calc(var(--section-nav-h,76px) + 8px);z-index:6;padding:8px 0;background:linear-gradient(to top,var(--bg) 70%,transparent)}
 .hoy-aviso--comprar{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
 .hoy-aviso--comprar .hoy-aviso__texto{flex:1 1 100%;min-width:0;overflow-wrap:anywhere}
 .hoy-aviso--comprar .button{flex:1 1 100%;max-width:100%}

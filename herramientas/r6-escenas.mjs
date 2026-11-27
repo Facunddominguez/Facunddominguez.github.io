@@ -70,7 +70,7 @@ export const ESCENAS = [
   { id: 'principal-hoy', items: ['O-03', 'O-04'], oscuro: true, ir: HOY('2026-11-24') + 'openTab("hoy"); ' + esperar },
   { id: 'principal-semana', items: ['O-03'], ir: HOY('2026-11-24') + 'openTab("semana"); ' + esperar },
   { id: 'principal-comidas', items: ['O-03'], ir: HOY('2026-11-24') + 'openTab("miscomidas"); ' + esperar },
-  { id: 'principal-compras', items: ['O-03'], ir: HOY('2026-11-24') + 'openTab("compras"); ' + esperar },
+  { id: 'principal-compras', items: ['O-03'], fija: true, ir: HOY('2026-11-24') + 'openTab("compras"); ' + esperar },
   { id: 'principal-mas', items: ['O-03'], oscuro: true, ir: HOY('2026-11-24') + 'openTab("mas"); ' + esperar },
 ];
 // Ítems que se comprueban en la salida de una herramienta y no en una pantalla: su "captura" es un texto
