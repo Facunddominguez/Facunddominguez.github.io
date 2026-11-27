@@ -89,7 +89,7 @@
   ok("R6-L-04 al volver a 'Esta semana' el pollo sigue tachado y la lechuga no está", ev("comprasDone.pollo === true") && !nombres().includes("Lechuga"));
   // Compatibilidad: un respaldo viejo (tachados de esta semana, sin la clave del período) se ve igual que antes.
   await abrir("2026-11-26", { ...base("2026-11-26", PLAN, null, { [CHECKS]: JSON.stringify({ "2026-11-23": { t: ["arroz", "pollo"], c: [] } }) }) });
-  ok("R6-L-04 con tachados guardados de esta semana y sin la clave nueva, la lista abre en 'Esta semana' con esos productos tachados", pulsado()[0] === "esta" && ev("comprasDone.arroz === true && comprasDone.pollo === true") && qa("#comprasList .shop-item input:checked").length === 2);
+  ok("R6-L-04 con tachados guardados de esta semana y sin la clave nueva, la lista abre en 'Esta semana' con esos productos tachados", pulsado()[0] === "esta" && ev("comprasDone.arroz === true && comprasDone.pollo === true") && qa("#comprasList .shop-item input:checked").length === 2, JSON.stringify({ p: pulsado(), d: ev("JSON.stringify(comprasDone)"), n: qa("#comprasList .shop-item input:checked").length, periodo: ev("Compras.periodoActual()"), hoy: ev("String(new Date())") }));
 
   // Con "Las dos", tachar o destachar otra cosa no borra lo que está tachado (o comprado) en una sola semana.
   await abrir("2026-11-26", base("2026-11-26", PLAN, PROX, { [CHECKS]: JSON.stringify({ "2026-11-23": { t: ["pollo", "arroz"], c: ["arroz"] }, "2026-11-30": { t: ["lechuga"], c: [] } }) }));
@@ -150,6 +150,14 @@
     try { w.Respaldo.restoreCompleteBackup(malo, w.localStorage) } catch (e) { rechazoMalo = true }
     ok("R6-L-03 la clave del período entra al respaldo como opcional: se restaura con la clave, se restaura un respaldo viejo sin ella y se rechaza una con formato malo", restauroCon && restauroViejo && rechazoMalo && w.eval("COMPLETE_BACKUP_KEYS.includes(" + JSON.stringify(PERIODO) + ") && COMPLETE_BACKUP_OPTIONAL_KEYS.includes(" + JSON.stringify(PERIODO) + ")"), JSON.stringify({ restauroCon, restauroViejo, rechazoMalo }));
   }
+
+  // ---- Si el día cambia con la app abierta, la lista y los tachados se recalculan ----
+  await abrir("2026-11-23", base("2026-11-23", PLAN, PROX));
+  const KEYLENT = ev('ingredientKey("Lentejas")');
+  await abrir("2026-11-23", base("2026-11-23", PLAN, PROX, { [CHECKS]: JSON.stringify({ "2026-11-23": { t: [KEYLENT], c: [] } }) }));
+  const lunesAntes = { n: nombres(), d: ev("JSON.stringify(comprasDone)"), hoy: ev("String(new Date())"), per: ev("Compras.periodoActual()") }, lunesCon = nombres().includes("Lentejas") && ev("comprasDone[" + JSON.stringify(KEYLENT) + "] === true");
+  H.fijarFecha("2026-11-26"); ev("renderCompras()"); await espera(200);
+  ok("R6-L-02 si el día cambia con la app abierta (del lunes al jueves), la lista ya no cuenta lo que pasó y los tachados se recalculan", lunesCon && !nombres().includes("Lentejas") && ev("comprasDone[" + JSON.stringify(KEYLENT) + "] !== true") && !!J(CHECKS)["2026-11-23"].t.includes(KEYLENT), JSON.stringify({ lunesAntes, n: nombres(), d: ev("JSON.stringify(comprasDone)"), s: localStorage.getItem(CHECKS) }));
 
   // ---- Sin configurar nada: la lista da lo mismo que en la v19.10.5 (esta semana completa, sin período guardado) ----
   const lunesTodo = await (async () => { await abrir("2026-11-23", base("2026-11-23", PLAN, PROX)); return JSON.stringify(ev("shoppingDisplayItems('esta').map(x => [x.name, [...x.units]])")) === JSON.stringify(ev("shoppingDisplayItems().map(x => [x.name, [...x.units]])")) })();
