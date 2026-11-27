@@ -192,6 +192,7 @@ function renderToday(){
   }
   // En el orden del día (el plan las guarda como desayuno, merienda, almuerzo, cena).
   box.replaceChildren(...HOY_COMIDAS.map(slot=>filaHoy(day,slot,plan,byId,true,primera)));
+  try{HoyAnticipa.pintar()}catch(e){}
   // v19.5 (R5-H-01): sin Deshacer debajo de las comidas. El cambio hecho desde Hoy se cuenta en una línea y se va con el siguiente.
   const st=document.getElementById("todayStatus");
   if(!st)return;
