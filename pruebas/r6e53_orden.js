@@ -54,9 +54,9 @@
   ok("R6-O-02 al elegir una comida, ninguna aparece dos veces: Recientes va primero (4) y Mis comidas muestra el resto (3)", secciones[0].clave === "recientes" && secciones[0].nombres.length === 4 && secciones.find(s => s.clave === "mias").nombres.length === 3 && repetidos.length === 0 && todos.length === 7, JSON.stringify(secciones));
   await H.cerrarHoja();
   ev('abrirSelector("miercoles", "almuerzo")'); await espera(300);
-  ev('(() => { const i = document.querySelector(".hoja .selector-buscar input, .hoja input[type=search], .hoja input[type=text]"); if (i) { i.value = "Plato de prueba"; i.dispatchEvent(new Event("input", { bubbles: true })) } })()'); await espera(300);
-  const conBusqueda = qa(".hoja .selector-item__nombre").map(x => norm(x.textContent));
-  ok("R6-O-02 con una búsqueda tampoco se repite ninguna (Recientes se esconde y salen las 7 una sola vez)", conBusqueda.length === 7 && new Set(conBusqueda).size === 7, JSON.stringify(conBusqueda));
+  ev('(() => { const i = document.getElementById("selectorBuscar"); i.value = "pollo"; i.dispatchEvent(new Event("input", { bubbles: true })) })()'); await espera(400);
+  const conBusqueda = qa(".hoja [data-selector-seccion=mias] .selector-item__nombre, .hoja [data-selector-seccion=recientes] .selector-item__nombre").map(x => norm(x.textContent)), dbg = [norm(($("selectorBuscar") || {}).value), qa(".hoja .selector-item").length, qa(".hoja [data-selector-seccion]").map(s => s.dataset.selectorSeccion + ":" + s.querySelectorAll("button").length).join()];
+  ok("R6-O-02 con una búsqueda tampoco se repite ninguna (Recientes se esconde y salen las 7 de Mis comidas una sola vez)", conBusqueda.length === 7 && new Set(conBusqueda).size === 7, JSON.stringify([conBusqueda, dbg]));
   await H.cerrarHoja();
   await H.abrirEn("2026-11-24", { ...H.MARCA, miPlatoFacil_saved: JSON.stringify(guardadas.slice(0, 3)) });
   ev('openTab("semana"); abrirSelector("miercoles", "almuerzo")'); await espera(400);
