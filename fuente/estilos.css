@@ -3823,3 +3823,7 @@ body:has(#gustoPregunta:not(.gusto-pregunta--cocina)){padding-bottom:72px}
 .hoy-aviso--comprar{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
 .hoy-aviso--comprar .hoy-aviso__texto{flex:1 1 100%;min-width:0;overflow-wrap:anywhere}
 .hoy-aviso--comprar .button{flex:1 1 100%;max-width:100%}
+.ticket-fila [data-ticket-nombre]{grid-column:1 / 6}
+.ticket-fila>button{grid-column:6;grid-row:1;min-width:0;min-height:var(--tap);padding:0}
+.ticket-fila input,.ticket-fila select{width:100%;min-width:0;min-height:var(--tap);padding:10px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--text);font:inherit}
+.ticket-fila .purchase-campo:last-child{grid-column:1 / -1}
