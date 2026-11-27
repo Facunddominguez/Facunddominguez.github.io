@@ -174,10 +174,10 @@ pintar(){
   const total=document.getElementById("comensalesTotal");
   if(total){
     const b=c?Comensales.base():personasHogar();
-    total.textContent="Cada comida cuenta "+String(b).replace(".",",")+(b===1?" porción.":" porciones.")
+    total.textContent="Cada comida cuenta "+String(b).replace(".",",")+(b===1?" porción.":" porciones.")+" En la grilla, – es que comen todos."
   }
-  const opciones=()=>{
-    const out=[],todos=ce("option",null,"Todos");
+  const opciones=(corto)=>{
+    const out=[],todos=ce("option",null,corto?"–":"Todos");
     todos.value="";
     out.push(todos);
     for(let i=0;i<=12;i++){
@@ -198,10 +198,12 @@ pintar(){
   encabezado.append(ce("span"),...["desayuno","almuerzo","merienda","cena"].map(s=>ce("span","comensales-fila__slot",Semana.planSlotName(s))));
   grilla.replaceChildren(encabezado,...DAYS.map(([d,nombre])=>{
     const fila=ce("div","comensales-fila");
-    fila.append(ce("span","comensales-fila__dia",nombre));
+    const dia=ce("span","comensales-fila__dia",nombre.slice(0,3));
+    dia.setAttribute("aria-label",nombre);
+    fila.append(dia);
     for(const s of ["desayuno","almuerzo","merienda","cena"]){
       const sel=ce("select","comensales-fila__sel");
-      sel.append(...opciones());
+      sel.append(...opciones(true));
       sel.dataset.comensalesHueco=d+"|"+s;
       sel.value=c&&c.huecos[d+"|"+s]!==undefined?String(c.huecos[d+"|"+s]):"";
       sel.setAttribute("aria-label",Semana.planSlotName(s)+" del "+nombre.toLowerCase()+": cuántos comen en casa");
