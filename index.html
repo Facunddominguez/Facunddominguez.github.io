@@ -18860,13 +18860,14 @@ paraComprarHoy(){
       if(!k||vistos.has(k))continue;
       vistos.add(k);
       if(tengo.has(nombre)||stock.has(k)||marcas.t.has(k)||marcas.c.has(k))continue;
-      out.push(nombre.charAt(0).toLowerCase()+nombre.slice(1))
+      const corto=Compras.nombreCorto(nombre);
+      out.push(corto.charAt(0).toLowerCase()+corto.slice(1))
     }
   }
   return out
 },
 texto(nombres){
-  const a=nombres.length>4?nombres.slice(0,4).concat("otros "+(nombres.length-4)):nombres;
+  const a=nombres.length>3?nombres.slice(0,3).concat("otros "+(nombres.length-3)):nombres;
   return a.length>1?a.slice(0,-1).join(", ")+" y "+a.at(-1):a[0]
 },
 pintar(){
