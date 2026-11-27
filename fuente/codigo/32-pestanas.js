@@ -47,6 +47,7 @@ var resetTabs=null;
     }
   }
   function showScreen(id){
+    if(typeof Gustos!=="undefined")Gustos.cerrarPregunta();
     document.querySelectorAll(".screen").forEach(s=>{
       const on=s.id===id;s.classList.toggle("is-active",on);if(on)s.removeAttribute("aria-hidden");else s.setAttribute("aria-hidden","true")
     });

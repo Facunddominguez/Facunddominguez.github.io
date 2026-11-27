@@ -443,6 +443,8 @@ function start(type,dayKey,slot){
   }[type])
 }
 function go(id){
+  // Etapa 49: la pregunta "¿Te gustó?" es de la comida que acabás de anotar: al cambiar de pantalla se va.
+  if(typeof Gustos!=="undefined")Gustos.cerrarPregunta();
   document.querySelectorAll(".screen").forEach(s=>{
     s.classList.remove("is-active");s.setAttribute("aria-hidden","true")
   });

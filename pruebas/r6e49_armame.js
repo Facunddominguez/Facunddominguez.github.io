@@ -26,13 +26,17 @@
 
   // ---- A-01: la pregunta "¿Te gustó?" ----
   const sobre = { ...H.PRES(60000) };
-  await abrir("2026-11-24", { miPlatoFacil_plan: JSON.stringify(H.planDe([["martes", "almuerzo", B], ["martes", "cena", A]])) });
+  await abrir("2026-11-24", { miPlatoFacil_plan: JSON.stringify(H.planDe([["martes", "desayuno", C], ["martes", "almuerzo", B], ["martes", "cena", A]])) });
   ev('openTab("hoy")'); await espera(400);
   await tocar(doc().querySelector("[data-today-eaten]"), 400);
   const p1 = $("gustoPregunta");
   ok("R6-A-01 después de 'Lo comí' en Hoy aparece '¿Te gustó?' con Sí, No y una forma de cerrar, de al menos 44 px", !!p1 && visible(p1) && /¿Te gustó\?/.test(norm(p1.innerText)) && [...p1.querySelectorAll("button")].map(b => norm(b.textContent)).join("|") === "Sí|No|✕" && [...p1.querySelectorAll("button")].every(b => b.getBoundingClientRect().height >= 44), p1 && norm(p1.innerText));
   await tocar(doc().querySelector("#gustoPregunta [data-gusto-cerrar]"), 200);
   ok("R6-A-01 se puede cerrar sin responder: no se escribe nada", !$("gustoPregunta") && localStorage.getItem(GUSTOS) === null);
+  await tocar(doc().querySelector("[data-today-eaten]"), 400);
+  ev('openTab("semana")'); await espera(300);
+  ok("R6-A-01 la pregunta se va al cambiar de pantalla (es de la comida que acabás de anotar)", !$("gustoPregunta"));
+  ev('openTab("hoy")'); await espera(300);
   await tocar(doc().querySelector("[data-today-eaten]"), 400);
   await tocar(doc().querySelector('#gustoPregunta [data-gusto-responder="s"]'), 300);
   ok("R6-A-01 'Sí' se guarda en la clave nueva con el nombre de la comida (sin tildes ni signos) y la pregunta se despide", /Anotado, gracias/.test(norm($("gustoPregunta").innerText)) && Object.values(J(GUSTOS)).join() === "s" && /^[a-z0-9ñ ]+$/.test(Object.keys(J(GUSTOS))[0]), localStorage.getItem(GUSTOS));
