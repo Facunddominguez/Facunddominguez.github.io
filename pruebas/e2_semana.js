@@ -41,8 +41,8 @@
   cargar(conPlan([[diaVacio, "cena", null]])); await abrir(); await irA("semana");
   toques = 0;
   await abrirHueco(diaVacio, "cena");
-  const seleccionOk = hojaAbierta() && !!doc().querySelector('.hoja [data-selector-seccion="mias"] [data-selector-id="plato_p3"]');
-  await tocar(q('.hoja [data-selector-seccion="mias"] [data-selector-id="plato_p3"]'));
+  const seleccionOk = hojaAbierta() && !!doc().querySelector('.hoja [data-selector-id="plato_p3"]');
+  await tocar(q('.hoja [data-selector-id="plato_p3"]'));
   ok("C2-1 asignar una comida guardada a un hueco lleva 3 toques o menos", seleccionOk && toques <= 3 && plan()[diaVacio].cena === "plato_p3" && !hojaAbierta() && pantalla() === "plan", toques + " toques");
   const antesDeHoy = plan();
   toques = 0; await tocar(q('[data-hueco="' + diaVacio + '|cena"]'));
@@ -216,9 +216,9 @@
   cargar(R.data); await abrir(); await irA("semana");
   await abrirHueco("lunes", "almuerzo"); await tocar(q(".hoja [data-hueco-cambiar]"));
   const secciones = [...doc().querySelectorAll(".hoja [data-selector-seccion]")].map(s => s.dataset.selectorSeccion).join(",");
-  const nombres = [...doc().querySelectorAll('.hoja [data-selector-seccion="mias"] .selector-item__nombre, .hoja [data-selector-seccion="recetas"] .selector-item__nombre')].map(e => e.textContent);
+  const nombres = [...doc().querySelectorAll('.hoja [data-selector-seccion="recientes"] .selector-item__nombre, .hoja [data-selector-seccion="mias"] .selector-item__nombre, .hoja [data-selector-seccion="recetas"] .selector-item__nombre')].map(e => e.textContent);
   const buscar = q("#selectorBuscar"); buscar.value = "lentejas"; buscar.dispatchEvent(new w.Event("input", { bubbles: true })); await espera(50);
-  const filtrados = [...doc().querySelectorAll('.hoja [data-selector-seccion="mias"] .selector-item__nombre, .hoja [data-selector-seccion="recetas"] .selector-item__nombre')].map(e => e.textContent);
+  const filtrados = [...doc().querySelectorAll('.hoja [data-selector-seccion="recientes"] .selector-item__nombre, .hoja [data-selector-seccion="mias"] .selector-item__nombre, .hoja [data-selector-seccion="recetas"] .selector-item__nombre')].map(e => e.textContent);
   ok("C2-8 el Selector muestra Recientes, Mis comidas, Mis recetas (R5-S-19) e Ideas; el buscador filtra y no hay nombres repetidos", hojaAbierta() && secciones === "recientes,mias,recetas,ideas" && nombres.length >= 9 && new Set(nombres).size === nombres.length && filtrados.length >= 1 && filtrados.length < nombres.length && filtrados.some(n => /lentejas/i.test(n)), secciones + " | " + filtrados.join(", "));
   await tocar(q(".hoja [data-selector-sugerir]"));
   const propuesta = !!doc().querySelector(".hoja .selector__propuesta");

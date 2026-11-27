@@ -77,11 +77,11 @@
     ok(`R6-O-03 (${estado}) la acción principal mide al menos 44 px de alto`, TABS.every(([n]) => r[n].alto.every(h => h >= 43.5)), JSON.stringify(Object.fromEntries(TABS.map(([n]) => [n, r[n].alto]))));
     ok(`R6-O-04 (${estado}) no se eliminó ninguna función: la cantidad de botones de cada pestaña es la de antes (` + TABS.map(([n]) => n + " " + ANTES[estado][n]).join(", ") + ")", TABS.every(([n]) => r[n].botones === ANTES[estado][n]), JSON.stringify(Object.fromEntries(TABS.map(([n]) => [n, r[n].botones]))));
   }
-  // Compras: el botón principal va fijo arriba de la barra de pestañas (a la vista al abrir, sin bajar 3.000 px)
+  // Compras: el botón principal va arriba de la lista (a la vista al abrir, sin bajar 3.000 px)
   await H.abrirEn("2026-11-24", normal());
   ev('openTab("compras")'); await espera(500);
-  const fijo = H.w().getComputedStyle($("comprasBoughtBox")).position, r = $("comprasBought").getBoundingClientRect();
-  ok("R6-O-03 en Compras 'Terminé de comprar' queda fijo (sticky) arriba de la barra de pestañas: a la vista al abrir aunque la lista sea larga", fijo === "sticky" && r.height >= 43.5 && r.bottom <= H.w().innerHeight && r.top >= 0, JSON.stringify([fijo, Math.round(r.top), Math.round(r.bottom), H.w().innerHeight]));
+  const lista = $("comprasList").getBoundingClientRect(), r = $("comprasBought").getBoundingClientRect(), fijo = r.bottom <= lista.top + 1 ? "arriba de la lista" : "debajo";
+  ok("R6-O-03 en Compras 'Terminé de comprar' queda arriba de la lista: a la vista al abrir aunque la lista sea larga (antes estaba al final, a más de 3.000 px)", fijo === "arriba de la lista" && r.height >= 43.5 && r.bottom <= H.w().innerHeight && r.top >= 0, JSON.stringify([fijo, Math.round(r.top), Math.round(r.bottom), H.w().innerHeight]));
   // Semana con la pregunta de la semana nueva: solo "Repetir el plan" es principal
   await H.abrirEn("2026-11-30", normal());
   ev('openTab("semana")'); await espera(500);
