@@ -3811,7 +3811,9 @@ body:has(#gustoPregunta:not(.gusto-pregunta--cocina)){padding-bottom:72px}
 .hoy-aviso__fila{display:flex;align-items:center;gap:10px}
 .hoy-aviso__texto{flex:1 1 auto;margin:0;line-height:1.35}
 .hoy-aviso .button{flex:0 0 auto;min-height:44px;margin:0;padding:6px 14px}
-.hoy-aviso--comprar{display:flex;align-items:center;gap:10px}
+.hoy-aviso--comprar{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.hoy-aviso--comprar .hoy-aviso__texto{flex:1 1 100%;min-width:0;overflow-wrap:anywhere}
+.hoy-aviso--comprar .button{flex:1 1 100%;max-width:100%}
 </style></head><body>
 <div class="app-shell"><header class="app-header"><div class="app-header__row"><div class="brand"><div><h1 class="brand__title" aria-label="Mi Plato Fácil"><span class="wordmark-mi">mi</span> plato <span class="wordmark-facil">fácil</span></h1></div></div><button class="home-button" id="homeTop" type="button">Inicio</button></div></header><main id="appMain">
 <section class="screen card is-active" id="home"><p class="screen__kicker">Hoy</p><h2 class="screen__title">Hoy</h2><p class="screen__hint"></p><div class="today" id="todayPanel"><div class="today__entreno" id="todayEntreno"></div><p class="today__costo" id="todayCosto" hidden></p><p class="today__primera" id="todayPrimera" hidden></p><div class="today__rows" id="todayRows"></div><div class="hoy-avisos" id="hoyAvisos" hidden></div><p class="screen__hint today__status" id="todayStatus" aria-live="polite"></p><p class="respaldo-aviso" id="todayRespaldo" hidden></p></div><div class="home-group home-group--main hoy-acciones">
