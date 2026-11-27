@@ -194,6 +194,14 @@ function renderToday(){
   }
   // En el orden del día (el plan las guarda como desayuno, merienda, almuerzo, cena).
   box.replaceChildren(...HOY_COMIDAS.map(slot=>filaHoy(day,slot,plan,byId,true,primera)));
+  // Etapa 53 (R6-O-03): una sola acción principal: "Lo comí" de la primera comida por anotar (o, sin comidas, "Elegir" el almuerzo).
+  if(!box.querySelector(".button--primary")){
+    const principal=box.querySelector("[data-today-eaten]")||box.querySelector("[data-today-slot=almuerzo] [data-today-choose]")||box.querySelector("[data-today-choose]");
+    if(principal){
+      principal.classList.remove("button--soft");
+      principal.classList.add("button--primary")
+    }
+  }
   try{HoyAnticipa.pintar()}catch(e){}
   // v19.5 (R5-H-01): sin Deshacer debajo de las comidas. El cambio hecho desde Hoy se cuenta en una línea y se va con el siguiente.
   const st=document.getElementById("todayStatus");

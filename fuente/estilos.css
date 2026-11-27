@@ -1257,7 +1257,6 @@ button:active{
 }
 
 .train-month-head strong{
-  text-transform:capitalize;
   font-size:15px
 }
 
@@ -3819,3 +3818,6 @@ body:has(#gustoPregunta:not(.gusto-pregunta--cocina)){padding-bottom:72px}
 #ticketCargar[hidden]{display:none}
 #ticketCargar{margin-top:8px}
 .ticket-fila{border:1px solid var(--line);border-radius:12px;padding:8px;margin:8px 0}
+/* Etapa 53: una sola acción principal por pestaña (Más: Registro). */
+.tool-button--primary,.tool-button--primary .tool-button__label,.tool-button--primary .tool-button__desc{background:var(--green);border-color:var(--green);color:var(--on-green)}
+.tool-button--primary .tool-button__label,.tool-button--primary .tool-button__desc{background:none}

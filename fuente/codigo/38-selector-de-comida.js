@@ -309,11 +309,13 @@ function seccionesSelector(h,q){
     const s=ce("section","selector-seccion");s.dataset.selectorSeccion=clave;s.append(ce("h3","selector-seccion__titulo",titulo));if(filas.length)s.append(...filas);else s.append(ce("p","screen__hint",vacio));return s
   };
   const out=[];
-  if(!n&&items.length>4)out.push(seccion("Recientes","recientes",recientesDelTipo(items).filter(it=>!noGusta.has(it.id)).map(fila),""));
+  // Etapa 53 (R6-O-02): ninguna comida aparece dos veces: las de Recientes van primero y "Mis comidas" y "Mis recetas" muestran el resto.
+  const recientes=!n&&items.length>4?recientesDelTipo(items).filter(it=>!noGusta.has(it.id)):[],enRecientes=new Set(recientes.map(it=>it.id));
+  if(!n&&items.length>4)out.push(seccion("Recientes","recientes",recientes.map(fila),""));
   // v19.1 (S-19): "Mis recetas" es una sección más (junto a Recientes, Mis comidas e Ideas): las recetas que ya tienen copia para este tipo de comida y las que todavía no.
   const orden=(a,b)=>(b.fav?1:0)-(a.fav?1:0),coincideItem=it=>coincide(nombre(it)+" "+savedItemLines(it).join(" ")),
-    mias=items.filter(it=>!it.recipeSourceId&&!noGusta.has(it.id)&&coincideItem(it)).sort(orden),
-    conCopia=items.filter(it=>it.recipeSourceId&&!noGusta.has(it.id)&&coincideItem(it)).sort(orden),
+    mias=items.filter(it=>!it.recipeSourceId&&!noGusta.has(it.id)&&!enRecientes.has(it.id)&&coincideItem(it)).sort(orden),
+    conCopia=items.filter(it=>it.recipeSourceId&&!noGusta.has(it.id)&&!enRecientes.has(it.id)&&coincideItem(it)).sort(orden),
     recetasNuevas=recetasSinCopia(items).filter(r=>coincide(r.title)).map(r=>{
       let motivo="";
       try{motivo=dietaMotivo(r.title+" "+loadRecipeAmounts()[r.amountsTitle].rows.map(x=>x.name).join(" "))}catch(e){}
@@ -321,7 +323,7 @@ function seccionesSelector(h,q){
       if(motivo)b.append(ce("span","selector-item__motivo",motivo));
       return b
     });
-  out.push(seccion("Mis comidas","mias",mias.map(fila),n?"Ninguna de tus comidas coincide.":"Todavía no guardaste comidas de este tipo: armá una nueva."));
+  out.push(seccion("Mis comidas","mias",mias.map(fila),n?"Ninguna de tus comidas coincide.":enRecientes.size?"No hay más comidas guardadas de este tipo.":"Todavía no guardaste comidas de este tipo: armá una nueva."));
   if(conCopia.length||recetasNuevas.length)out.push(seccion("Mis recetas","recetas",[...conCopia.map(fila),...recetasNuevas],""));
   // Etapa 29: al elegir desayuno o merienda, también las ideas de desayuno (con sus cantidades y pasos).
   if(pool==="desayuno"){
