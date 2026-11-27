@@ -101,7 +101,7 @@
   // Máximo de nombres
   const MUCHAS = [{ id: "recipe_hoy50g", titulo: "Mucho de todo", filas: ["Zapallito", "Tomate", "Berenjena", "Brócoli", "Choclo", "Remolacha"].map(n => ({ name: n, quantity: 1, unit: "unidad" })) }];
   await abrir("2026-11-24", { ...H.recetas(MUCHAS), miPlatoFacil_plan: JSON.stringify(H.planDe([["martes", "cena", "rp_recipe_hoy50g"]])) }); await hoy();
-  ok("R6-H-03 con muchos faltantes muestra 4 y cuenta el resto ('… y otros 2')", comprar().length === 1 && /Para comprar hoy: .+ y otros 2$/.test(norm(comprar()[0].querySelector("p").innerText)), texto());
+  ok("R6-H-03 con muchos faltantes muestra 3 y cuenta el resto ('… y otros 3')", comprar().length === 1 && /Para comprar hoy: .+ y otros 3$/.test(norm(comprar()[0].querySelector("p").innerText)), texto());
 
   // ---- Datos: respaldo ----
   await abrir("2026-11-24", {});

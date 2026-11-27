@@ -3797,6 +3797,8 @@ body:has(#gustoPregunta:not(.gusto-pregunta--cocina)){padding-bottom:72px}
 .poco-grilla{display:grid;gap:4px;margin:8px 0}
 .poco-fila{display:grid;grid-template-columns:76px minmax(0,1fr) minmax(0,1fr);gap:6px;align-items:center}
 .poco-fila__dia{font-weight:700}
+.poco-fila__slot{font-size:13px;color:var(--muted);text-align:center}
+.poco-chip[aria-pressed="true"]::after{content:"✓";font-weight:800}
 .poco-chip{min-height:44px;min-width:0;justify-content:center;padding-left:6px;padding-right:6px}
 .poco-chip[aria-pressed="true"]{background:var(--green);border-color:var(--green);color:var(--on-green)}
 /* Etapa 50: avisos de Hoy ("Para mañana" y "Para comprar hoy"). */
