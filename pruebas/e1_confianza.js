@@ -119,7 +119,7 @@
   // v15.1: los nombres de "Mis comidas" en el Selector de la cena del lunes (antes, las opciones del select).
   await irA("semana"); await tocar(q('#planDias [data-plan-dia="lunes"]')); await tocar(q('[data-hueco="lunes|cena"]'));
   if (!doc().querySelector(".hoja [data-selector-id]")) await tocar(q(".hoja [data-hueco-cambiar]"));
-  const opciones = [...doc().querySelectorAll('.hoja [data-selector-seccion="mias"] .selector-item__nombre')].map(o => o.textContent);
+  const opciones = [...doc().querySelectorAll('.hoja [data-selector-seccion="recientes"] .selector-item__nombre, .hoja [data-selector-seccion="mias"] .selector-item__nombre')].map(o => o.textContent);
   ok("E1-2 ningún selector repite nombres de comidas", new Set(etiquetas.map(norm)).size === etiquetas.length && !etiquetas.some(e => /^(desayuno \/ merienda|almuerzo \/ cena)/.test(norm(e))) && new Set(e2.map(norm)).size === 3 && e2[0] === "Merluza con papa y tomate · día libre" && opciones.length > 3 && new Set(opciones).size === opciones.length, e2.join(" | ") + " || " + opciones.slice(0, 4).join(" | "));
 
   // E1-3 Respaldo: la clave nueva entra como opcional; uno viejo sin ella no la toca; una inválida se rechaza

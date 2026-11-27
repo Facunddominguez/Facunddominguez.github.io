@@ -86,7 +86,7 @@
   await abrir({});
   await prefs();
   const celdas = qa("#comensalesGrilla [data-comensales-hueco]");
-  ok("R6-Q-02 Preferencias tiene una grilla con un selector por cada comida de cada día (7 × 4), de al menos 44 px, con 'Todos' por omisión", celdas.length === 28 && celdas.every(c => c.getBoundingClientRect().height >= 43.5 && c.value === "") && /Todos/.test(celdas[0].options[0].text) && visible($("comensalesGrilla")), String(celdas.length));
+  ok("R6-Q-02 Preferencias tiene una grilla con un selector por cada comida de cada día (7 × 4), de al menos 44 px, con '–' (comen todos) por omisión", celdas.length === 28 && celdas.every(c => c.getBoundingClientRect().height >= 43.5 && c.value === "") && celdas[0].options[0].text === "–" && visible($("comensalesGrilla")), String(celdas.length));
   ok("R6-Q-02 mirar la grilla no escribe nada", localStorage.getItem(CLAVE) === null);
   await cambiar(qa("[data-comensales-hueco='sabado|cena']")[0], "0");
   ok("R6-Q-02 un hueco en 0 dice 'Nadie come en casa' (en la grilla, y se guarda en la clave nueva)", /Nadie come en casa: cena del sábado\./.test(norm($("comensalesEstado").textContent)) && J(CLAVE).huecos["sabado|cena"] === 0, localStorage.getItem(CLAVE));

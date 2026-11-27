@@ -44,7 +44,7 @@
   cargar(conPlan([[hoy(), "almuerzo", null]])); await abrir(); await irA("hoy");
   toques = 0;
   await tocar(q('#todayRows [data-today-slot="almuerzo"] [data-today-choose]'));
-  const enSelector = hojaAbierta() && pantalla() === "home" && !!doc().querySelector('.hoja [data-selector-seccion="mias"] [data-selector-id="plato_p3"]');
+  const enSelector = hojaAbierta() && pantalla() === "home" && !!doc().querySelector('.hoja [data-selector-id="plato_p3"]');
   await tocar(q('.hoja [data-selector-id="plato_p3"]'));
   const asignado = plan()[hoy()].almuerzo === "plato_p3" && !hojaAbierta() && pantalla() === "home" && !estado().querySelector("[data-plan-deshacer]");
   await tocar(q('#todayRows [data-today-slot="almuerzo"] [data-plan-eaten]'));
@@ -97,7 +97,7 @@
   ok("C3-3 primera vez: una línea con el método y el primer paso, y el Elegir del almuerzo es el botón lleno", visible($("todayPrimera")) && /Medio plato de verduras/.test($("todayPrimera").textContent) && /Empezá eligiendo tu almuerzo/.test($("todayPrimera").textContent) && q('#todayRows [data-today-slot="almuerzo"] [data-today-choose]').classList.contains("button--primary") && doc().querySelectorAll("#todayRows .button--primary").length === 1 && !filas3.some(f => /Sin plan para hoy/.test(f.textContent)) && filas3.length === 4);
   ok("C3-3b pintar Hoy no escribe nada", todo() === antes3);
   cargar(conPlan(DIAS.flatMap(d => ["desayuno", "merienda", "almuerzo", "cena"].map(c => [d, c, null])))); await abrir(); await irA("hoy");
-  ok("C3-3c con comidas guardadas, la línea de primera vez no está", !visible($("todayPrimera")) && !doc().querySelector("#todayRows .button--primary"));
+  ok("C3-3c con comidas guardadas, la línea de primera vez no está", !visible($("todayPrimera")) && doc().querySelectorAll("#todayRows .button--primary").length === 1);
 
   // C3-4 Mañana: plegado, con las comidas del día siguiente del plan; elegir ahí asigna a ese día, sin Lo comí
   cargar(R.data); await abrir(); await irA("hoy");

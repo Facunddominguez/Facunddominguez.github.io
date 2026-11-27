@@ -48,14 +48,14 @@ Cada ítem tiene un control `R6-<ID>` en `docs/validacion/criterios.json` y una 
 | T-04 | "Guardar" crea una Compra realizada con esos productos y el total, actualiza Mi precio de los relacionados y suma a la Despensa lo relacionado. Cada parte tiene su tilde para elegir, y todo usa los formatos que ya existen. | 52 | R6-T-04 | ticket-revision-antes.png, ticket-revision-antes-oscuro.png, ticket-guardar-antes.png, ticket-guardar-antes-oscuro.png | ticket-revision-despues.png, ticket-revision-despues-oscuro.png, ticket-guardar-despues.png, ticket-guardar-despues-oscuro.png | ✅ |
 | T-05 | Mensajes claros si la foto no se lee, si no vinieron productos o si no hay conexión. Nada se guarda sin confirmar. | 52 | R6-T-05 | ticket-error-antes.png | ticket-error-despues.png | ✅ |
 | T-06 | Las pruebas usan respuestas de Gemini simuladas, sin internet: un ticket normal, uno con productos que la app no conoce y una respuesta mal formada. | 52 | R6-T-06 | ticket-revision-antes.png, ticket-revision-antes-oscuro.png | ticket-revision-despues.png, ticket-revision-despues-oscuro.png | ✅ |
-| O-01 | Fechas bien escritas en toda la app: el mes en minúscula y "de", "del" y "al" en minúscula ("noviembre de 2026", "Semana del 23 al 29 de noviembre"). Un control lo busca en el texto visible de todas las pantallas. | 53 | R6-O-01 |  |  | ⬜ |
-| O-02 | Al elegir o cambiar una comida, ninguna comida aparece dos veces: Recientes va primero y Mis comidas muestra el resto. | 53 | R6-O-02 |  |  | ⬜ |
-| O-03 | Una sola acción principal (botón verde lleno) a la vista al abrir cada pestaña: Hoy, Semana, Comidas, Compras y Más. Lo demás queda secundario. Proponé en el Registro, con captura, cuál es la principal de cada una. | 53 | R6-O-03 |  |  | ⬜ |
-| O-04 | Anotá en el Registro cuántos botones tiene cada pantalla antes y después. No se elimina ninguna función: solo se ordena. | 53 | R6-O-04 |  |  | ⬜ |
-| E-01 | `datos/estacion.json` con las frutas y verduras de estación de Argentina por mes, armado desde una fuente pública que el archivo cita (nombre, dirección y fecha). Si no encontrás una fuente verificable, ⚠️: no se inventa. | 54 | R6-E-01 |  |  | ⬜ |
-| E-02 | "Fruta de estación" muestra ejemplos del mes en la ficha, la lista y Hoy ("Fruta de estación: durazno, ciruela o sandía"); su precio se calcula como hoy. | 54 | R6-E-02 |  |  | ⬜ |
-| E-03 | En la lista y al elegir una comida, las frutas y verduras de estación llevan la marca "de estación". | 54 | R6-E-03 |  |  | ⬜ |
-| E-04 | Entre opciones parecidas, Armame prefiere las que usan frutas y verduras de estación (como desempate, no como regla fija) y lo dice en Ver detalle. | 54 | R6-E-04 |  |  | ⬜ |
+| O-01 | Fechas bien escritas en toda la app: el mes en minúscula y "de", "del" y "al" en minúscula ("noviembre de 2026", "Semana del 23 al 29 de noviembre"). Un control lo busca en el texto visible de todas las pantallas. | 53 | R6-O-01 | calendario-mes-antes.png, calendario-mes-antes-oscuro.png | calendario-mes-despues.png, calendario-mes-despues-oscuro.png | ✅ |
+| O-02 | Al elegir o cambiar una comida, ninguna comida aparece dos veces: Recientes va primero y Mis comidas muestra el resto. | 53 | R6-O-02 | selector-recientes-antes.png | selector-recientes-despues.png | ✅ |
+| O-03 | Una sola acción principal (botón verde lleno) a la vista al abrir cada pestaña: Hoy, Semana, Comidas, Compras y Más. Lo demás queda secundario. Proponé en el Registro, con captura, cuál es la principal de cada una. | 53 | R6-O-03 | principal-hoy-antes.png, principal-hoy-antes-oscuro.png, principal-semana-antes.png, principal-comidas-antes.png, principal-compras-antes.png, principal-mas-antes.png, principal-mas-antes-oscuro.png | principal-hoy-despues.png, principal-hoy-despues-oscuro.png, principal-semana-despues.png, principal-comidas-despues.png, principal-compras-despues.png, principal-mas-despues.png, principal-mas-despues-oscuro.png | ✅ |
+| O-04 | Anotá en el Registro cuántos botones tiene cada pantalla antes y después. No se elimina ninguna función: solo se ordena. | 53 | R6-O-04 | principal-hoy-antes.png, principal-hoy-antes-oscuro.png | principal-hoy-despues.png, principal-hoy-despues-oscuro.png | ✅ |
+| E-01 | `datos/estacion.json` con las frutas y verduras de estación de Argentina por mes, armado desde una fuente pública que el archivo cita (nombre, dirección y fecha). Si no encontrás una fuente verificable, ⚠️: no se inventa. | 54 | R6-E-01 |  |  | ⚠️ |
+| E-02 | "Fruta de estación" muestra ejemplos del mes en la ficha, la lista y Hoy ("Fruta de estación: durazno, ciruela o sandía"); su precio se calcula como hoy. | 54 | R6-E-02 |  |  | ⚠️ |
+| E-03 | En la lista y al elegir una comida, las frutas y verduras de estación llevan la marca "de estación". | 54 | R6-E-03 |  |  | ⚠️ |
+| E-04 | Entre opciones parecidas, Armame prefiere las que usan frutas y verduras de estación (como desempate, no como regla fija) y lo dice en Ver detalle. | 54 | R6-E-04 |  |  | ⚠️ |
 
 ## Ítems en ⚠️ (no hechos)
 
@@ -65,5 +65,25 @@ Cada ítem tiene un control `R6-<ID>` en `docs/validacion/criterios.json` y una 
 **Opción 2.** Pedirle a la Secretaría de Comercio (el portal de datos abiertos, `datos.produccion.gob.ar`) que deje pasar los servidores de GitHub Actions, o que te den una clave de acceso; si la dan, se carga como secreto del repositorio y la herramienta la manda en el pedido.
 **Opción 3.** Aceptar que los precios de SEPA se actualicen solo cuando vos los subas, y dejar la tarea semanal solo con INDEC (`--solo-indec`), que no tiene el problema: los precios de supermercado quedarían con la fecha de la última carga y la app ya avisa su antigüedad (P-04 y P-05).
 
+### E-01
+**Motivo.** No se pudo armar `datos/estacion.json` desde una fuente pública verificable. Se buscó el calendario de frutas y verduras de estación de Argentina: la búsqueda encontró publicaciones del Gobierno de la Ciudad de Buenos Aires (`buenosaires.gob.ar`, "Frutas y verduras en tu alimentación" y "Cocina en casa", 2025) y notas de prensa mes por mes, pero desde este entorno ningún sitio responde: `buenosaires.gob.ar`, `argentina.gob.ar`, `meteored.com.ar`, `rionegro.com.ar` y `airedesantafe.com.ar` están fuera de los dominios que deja pasar la red de la sesión (el pedido nunca llega: "getaddrinfo ENOTFOUND" o rechazo 403 del proxy). Sin poder leer la fuente no se puede citar con su dirección y su fecha ni copiar el calendario; armarlo de memoria sería inventarlo, y la regla del pedido es "no se inventa".
+**Opción 1 (la que recomiendo).** Habilitar en la configuración de red del entorno el dominio `buenosaires.gob.ar` (o pasarme el PDF/ la página del calendario oficial que prefieras, por ejemplo del Ministerio de Agricultura o del Mercado Central) y volver a correr esta etapa: se arma `datos/estacion.json` con la fuente (nombre, dirección y fecha) y se hacen E-02 a E-04 con pruebas.
+**Opción 2.** Cargar vos el archivo: `datos/estacion.json` con `{"version": 1, "fuente": {"nombre": …, "url": …, "fecha": …}, "meses": {"1": {"frutas": […], "verduras": […]}, …}}` desde la fuente que elijas; con el archivo en el repositorio, `construir.mjs` lo incrusta y la etapa se completa sin tocar nada más (el código de E-02 a E-04 se escribe en cuanto exista).
+
+### E-02
+**Motivo.** Depende de E-01 (los ejemplos del mes salen de `datos/estacion.json`, que no existe). No se muestran "ejemplos de estación" inventados.
+**Opción 1.** La de E-01 (habilitar el dominio o pasar la fuente): después se muestran los ejemplos del mes en la ficha, la lista y Hoy y el precio de "Fruta de estación" sigue calculándose como hoy.
+**Opción 2.** Mientras tanto, dejar "Fruta de estación" como está (un genérico con precio de la categoría), que es lo que la app hace desde antes.
+
+### E-03
+**Motivo.** Depende de E-01 (la marca "de estación" se decide con el archivo de estación del mes).
+**Opción 1.** La de E-01.
+**Opción 2.** Marcar "de estación" solo lo que vos indiques a mano (una lista corta en Preferencias), sin archivo de fuente pública; es más trabajo para quien usa la app y no reemplaza al calendario oficial.
+
+### E-04
+**Motivo.** Depende de E-01 (Armame necesita saber qué es de estación en cada mes).
+**Opción 1.** La de E-01: Armame suma un desempate chico para las comidas con frutas y verduras de estación y lo dice en Ver detalle.
+**Opción 2.** Dejar a Armame como está (sin criterio de estación).
+
 ## Resumen (Etapa 55)
-Pendiente.
+De los 51 pedidos, **46 quedaron en ✅** (cada uno con su prueba en verde y su captura del después) y **5 en ⚠️**, con el motivo y 2 opciones arriba: P-02 (SEPA responde 403 a los servidores de GitHub: es un bloqueo de origen que el código no resuelve) y E-01 a E-04 (frutas y verduras de estación: no se pudo leer una fuente pública verificable desde este entorno y no se inventa; E-02 a E-04 dependen de E-01). Ninguno quedó en ⬜. El recorrido final de la Etapa 55 (una semana completa: armar la que viene, comprar con su lista, cocinar en modo cocina, "Lo comí" y "¿Te gustó?") tiene su prueba en `pruebas/r6e55_semana.js`, y `revisor-usuario` miró las pantallas a 390, 360 y 320 px, en claro y en oscuro.

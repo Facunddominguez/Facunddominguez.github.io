@@ -899,6 +899,11 @@ function renderPlan(){
   if(nueva){
     const pendiente=!prox&&Semana.semanaNuevaPendiente(plan);
     nueva.hidden=!pendiente;
+    // Etapa 53 (R6-O-03): una sola acción principal a la vista: con la pregunta de la semana nueva, "Armame la semana" pasa a secundaria.
+    if(pendiente&&armame){
+      armame.classList.remove("button--primary");
+      armame.classList.add("button--soft")
+    }
     if(pendiente)document.getElementById("planSemanaNuevaTexto").textContent="Tu plan es de la semana del "+typedAppDateLabel(Semana.semanaDelPlan()).slice(0,5)+"."
   }
   const aviso=document.getElementById("planAviso");
