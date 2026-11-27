@@ -2,7 +2,7 @@
 // La foto se achica en el teléfono (lado mayor de 1600 px, JPEG) antes de enviarse a Gemini (con el mismo manejo de errores y de modelos alternativos que
 // el resto del asistente). La respuesta se muestra para revisar y NADA se guarda hasta tocar "Guardar". Guardar usa los formatos que ya existen: una
 // Compra realizada (miPlatoFacil_purchases_v1), Mis precios (referencePrices_v1) y la Despensa (pantryQuantities_v1). No agrega claves ni va al respaldo.
-// Parte 53: los archivos se unen en orden según su número, que define el orden de arranque.
+// Parte 52: los archivos se unen en orden según su número, que define el orden de arranque.
 var Ticket={
 MAX_LADO:1600,
 CALIDAD:0.85,
@@ -47,7 +47,7 @@ async achicar(archivo){
 },
 dinero(v){
   if(typeof v==="number")return Number.isFinite(v)&&v>0&&v<=10000000000?Math.round(v*100)/100:null;
-  if(typeof v!=="string"||!v.trim())return null;
+  if(typeof v!=="string"||!v.trim()||/^\s*[-−–]/.test(v))return null;
   try{
     return ComprasHechas.parseMoneyText(v.replace(/[^\d.,]/g,""),true,"x")
   }catch(e){
@@ -241,13 +241,13 @@ revisar(datos){
   Ticket.pintarSuma()
 },
 // Lo que dice el renglón y la hoja, leído de la pantalla.
-leerHoja(){
+leerHoja(compraOn){
   const date=SemanasFechadas.parseTypedAppDate(document.getElementById("ticketFecha").value);
   if(!date)throw Error("Ingresá la fecha del ticket.");
   if(date>Rutina.localTrainingDate(new Date()))throw Error("La fecha no puede ser futura.");
   const moneda=document.getElementById("ticketMoneda").value.trim().toUpperCase();
   if(!/^[A-Z]{3}$/.test(moneda))throw Error("Usá una moneda de 3 letras, por ejemplo ARS.");
-  const total=ComprasHechas.parseMoneyText(document.getElementById("ticketTotal").value,false,"Total del ticket"),items=[],relacionados=[];
+  const total=ComprasHechas.parseMoneyText(document.getElementById("ticketTotal").value,compraOn===false,"Total del ticket")||0,items=[],relacionados=[];
   for(const fila of document.querySelectorAll("#ticketFilas .ticket-fila")){
     const nombre=fila.querySelector("[data-ticket-nombre]").value.trim(),q=fila.querySelector("[data-ticket-cantidad]").value.trim(),unidad=fila.querySelector("[data-ticket-unidad]").value||null,pre=fila.querySelector("[data-ticket-precio]").value.trim();
     if(!nombre&&!q&&!pre)continue;
@@ -295,9 +295,9 @@ pintarSuma(){
 },
 // "Guardar": cada parte con su tilde (compra realizada, Mis precios y Despensa de lo relacionado).
 guardar(){
-  const {
+  const compraOn=document.getElementById("ticketGuardarCompra").checked,preciosOn=document.getElementById("ticketActualizarPrecios").checked,despensaOn=document.getElementById("ticketSumarDespensa").checked,{
     compra,relacionados
-  }=Ticket.leerHoja(),compraOn=document.getElementById("ticketGuardarCompra").checked,preciosOn=document.getElementById("ticketActualizarPrecios").checked,despensaOn=document.getElementById("ticketSumarDespensa").checked;
+  }=Ticket.leerHoja(compraOn);
   if(!compraOn&&!preciosOn&&!despensaOn)throw Error("Tildá al menos una parte para guardar.");
   const r=ComprasHechas.guardarCompra(compra,{
     precios:preciosOn,despensa:despensaOn,relacionados,sinCompra:!compraOn
@@ -311,7 +311,7 @@ guardar(){
   hoja.cerrar();
   Ticket.datos=null;
   const st=document.getElementById("purchaseStatus");
-  if(st)st.textContent=(partes.join(" · ")||"Listo")+".";
+  if(st)st.textContent=partes.length?partes.join(" · ")+".":"No había nada relacionado (con cantidad, unidad y precio) para actualizar.";
   try{ComprasHechas.renderPurchases()}catch(e){}
   try{renderCompras()}catch(e){}
   try{refrescarPrecios()}catch(e){}

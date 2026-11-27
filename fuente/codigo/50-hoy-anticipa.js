@@ -38,7 +38,8 @@ comidasDe(cual){
     d=diaSiguienteDelPlan(dia);
     plan=dia==="domingo"?Semana.planDeLaSemana("proxima"):loadPlan()
   }else plan=loadPlan();
-  return HOY_COMIDAS.map(s=>plan[d]&&plan[d][s]?byId.get(plan[d][s]):null).filter(Boolean)
+  // Donde nadie come en casa (miPlatoFacil_comensales_v1) no hay nada que anticipar ni comprar.
+  return HOY_COMIDAS.filter(s=>!(typeof Comensales!=="undefined"&&Comensales.nadieEn(d,s))).map(s=>plan[d]&&plan[d][s]?byId.get(plan[d][s]):null).filter(Boolean)
 },
 palabras(texto){
   return normalizeSearchText(String(texto||"")).split(/[^a-z0-9ñ]+/).filter(Boolean)
@@ -112,13 +113,14 @@ paraComprarHoy(){
       if(!k||vistos.has(k))continue;
       vistos.add(k);
       if(tengo.has(nombre)||stock.has(k)||marcas.t.has(k)||marcas.c.has(k))continue;
-      out.push(nombre.charAt(0).toLowerCase()+nombre.slice(1))
+      const corto=Compras.nombreCorto(nombre);
+      out.push(corto.charAt(0).toLowerCase()+corto.slice(1))
     }
   }
   return out
 },
 texto(nombres){
-  const a=nombres.length>4?nombres.slice(0,4).concat("otros "+(nombres.length-4)):nombres;
+  const a=nombres.length>3?nombres.slice(0,3).concat("otros "+(nombres.length-3)):nombres;
   return a.length>1?a.slice(0,-1).join(", ")+" y "+a.at(-1):a[0]
 },
 pintar(){

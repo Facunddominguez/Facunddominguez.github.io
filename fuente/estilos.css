@@ -3796,6 +3796,8 @@ body:has(#gustoPregunta:not(.gusto-pregunta--cocina)){padding-bottom:72px}
 .poco-grilla{display:grid;gap:4px;margin:8px 0}
 .poco-fila{display:grid;grid-template-columns:76px minmax(0,1fr) minmax(0,1fr);gap:6px;align-items:center}
 .poco-fila__dia{font-weight:700}
+.poco-fila__slot{font-size:13px;color:var(--muted);text-align:center}
+.poco-chip[aria-pressed="true"]::after{content:"✓";font-weight:800}
 .poco-chip{min-height:44px;min-width:0;justify-content:center;padding-left:6px;padding-right:6px}
 .poco-chip[aria-pressed="true"]{background:var(--green);border-color:var(--green);color:var(--on-green)}
 /* Etapa 50: avisos de Hoy ("Para mañana" y "Para comprar hoy"). */
@@ -3807,7 +3809,6 @@ body:has(#gustoPregunta:not(.gusto-pregunta--cocina)){padding-bottom:72px}
 .hoy-aviso__fila{display:flex;align-items:center;gap:10px}
 .hoy-aviso__texto{flex:1 1 auto;margin:0;line-height:1.35}
 .hoy-aviso .button{flex:0 0 auto;min-height:44px;margin:0;padding:6px 14px}
-.hoy-aviso--comprar{display:flex;align-items:center;gap:10px}
 /* Etapa 51: quién come en cada comida (Preferencias). */
 .comensales-grilla{display:grid;gap:4px;margin:8px 0}
 .comensales-fila{display:grid;grid-template-columns:72px repeat(4,minmax(0,1fr));gap:4px;align-items:center}
@@ -3821,3 +3822,10 @@ body:has(#gustoPregunta:not(.gusto-pregunta--cocina)){padding-bottom:72px}
 /* Etapa 53: una sola acción principal por pestaña (Más: Registro). */
 .tool-button--primary,.tool-button--primary .tool-button__label,.tool-button--primary .tool-button__desc{background:var(--green);border-color:var(--green);color:var(--on-green)}
 .tool-button--primary .tool-button__label,.tool-button--primary .tool-button__desc{background:none}
+.hoy-aviso--comprar{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.hoy-aviso--comprar .hoy-aviso__texto{flex:1 1 100%;min-width:0;overflow-wrap:anywhere}
+.hoy-aviso--comprar .button{flex:1 1 100%;max-width:100%}
+.ticket-fila [data-ticket-nombre]{grid-column:1 / 6}
+.ticket-fila>button{grid-column:6;grid-row:1;min-width:0;min-height:var(--tap);padding:0}
+.ticket-fila input,.ticket-fila select{width:100%;min-width:0;min-height:var(--tap);padding:10px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--text);font:inherit}
+.ticket-fila .purchase-campo:last-child{grid-column:1 / -1}

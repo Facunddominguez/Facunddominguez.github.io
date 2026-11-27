@@ -97,6 +97,22 @@
   const ninguno = await conTildes(false, false, false);
   ok("R6-T-04 sin ningún tilde no guarda nada y la hoja avisa que tildes una parte (queda abierta)", ninguno.c === null && ninguno.p === null && ninguno.s === null && ninguno.hoja && /Tildá al menos una parte/.test(norm(doc().querySelector(".hoja__estado, .hoja .screen__hint:last-child") ? doc().querySelector(".hoja").innerText : "")));
   await H.cerrarHoja();
+  // Sin la tilde de la compra, el total del ticket no hace falta
+  await abrir(CLAVE); await herr(); await foto(1000, 1000); simular(() => JSON.stringify({ ...NORMAL, total: null })); await procesar();
+  $("ticketGuardarCompra").checked = false;
+  await tocar(qa(".hoja__acciones button").find(x => /^Guardar$/.test(norm(x.innerText))), 500);
+  ok("R6-T-04 si el ticket no trae total y no se tilda la compra, igual se guardan los precios y la Despensa (el total solo se pide para la compra)", localStorage.getItem(COMPRAS) === null && Object.keys(J(PRECIOS) || {}).length === 2 && Object.keys(J(DESPENSA) || {}).length === 2, norm($("purchaseStatus").textContent));
+  await abrir(CLAVE); await herr(); await foto(1000, 1000); simular(() => JSON.stringify({ ...NORMAL, total: null })); await procesar();
+  await tocar(qa(".hoja__acciones button").find(x => /^Guardar$/.test(norm(x.innerText))), 400);
+  ok("R6-T-05 con la compra tildada y sin total, la hoja lo pide y no guarda nada", /Total del ticket/.test(norm(doc().querySelector(".hoja").innerText)) && localStorage.getItem(COMPRAS) === null && localStorage.getItem(PRECIOS) === null);
+  await H.cerrarHoja();
+  await abrir(CLAVE); await herr(); await foto(1000, 1000); simular(() => JSON.stringify({ ...NORMAL, productos: [{ nombre: "DESCUENTO", cantidad: null, unidad: null, precio: "-500,00" }, { nombre: "Pan", cantidad: 1, unidad: "unidad", precio: 900 }] })); await procesar();
+  const precios2 = filas().map(x => x.querySelector("[data-ticket-precio]").value);
+  ok("R6-T-06 un descuento con signo menos en texto ('-500,00') no se lee como un precio positivo", precios2[0] === "" && precios2[1] === "900", JSON.stringify(precios2));
+  $("ticketGuardarCompra").checked = false; $("ticketActualizarPrecios").checked = false; $("ticketSumarDespensa").checked = true;
+  filas()[1].querySelector("[data-ticket-relacion]").value = "";
+  await tocar(qa(".hoja__acciones button").find(x => /^Guardar$/.test(norm(x.innerText))), 500);
+  ok("R6-T-05 si no hay nada relacionado para guardar, lo dice (no un 'Listo' vacío)", /No había nada relacionado/.test(norm($("purchaseStatus").textContent)) && localStorage.getItem(DESPENSA) === null, norm($("purchaseStatus").textContent));
   // Usa los formatos que existen: el respaldo completo la acepta
   await abrir(CLAVE); await herr(); await foto(1000, 1000); simular(() => JSON.stringify(NORMAL)); await procesar();
   await tocar(qa(".hoja__acciones button").find(x => /^Guardar$/.test(norm(x.innerText))), 500);

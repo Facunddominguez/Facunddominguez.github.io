@@ -8,7 +8,7 @@
     "navegador": "Chrome/156.0.8078.73"
   },
   "pruebas": {
-    "total": 892,
+    "total": 1023,
     "suites": {
       "d01_diseno.js": 8,
       "m01_modo.js": 13,
@@ -87,14 +87,20 @@
       "r6e45_precios.js": 8,
       "r6e46_lista.js": 26,
       "r6e47_cocina.js": 31,
-      "r6e48_semana.js": 37
+      "r6e48_semana.js": 37,
+      "r6e49_armame.js": 30,
+      "r6e50_hoy.js": 29,
+      "r6e51_comensales.js": 35,
+      "r6e52_ticket.js": 37
     }
   },
   "claves": [
     "miPlatoFacil_adviceFavorites",
     "miPlatoFacil_aiSettings_v1",
+    "miPlatoFacil_armameReglas_v1",
     "miPlatoFacil_basicosFaltantes_v1",
     "miPlatoFacil_bienvenida_v1",
+    "miPlatoFacil_comensales_v1",
     "miPlatoFacil_comprasOpciones_v1",
     "miPlatoFacil_comprasPeriodo_v1",
     "miPlatoFacil_comprasVueltas_v1",
@@ -104,8 +110,10 @@
     "miPlatoFacil_dieta_v1",
     "miPlatoFacil_dondeCompro_v1",
     "miPlatoFacil_gastoSemanal_v1",
+    "miPlatoFacil_gustos_v1",
     "miPlatoFacil_habitGoals_v1",
     "miPlatoFacil_hogar_v1",
+    "miPlatoFacil_hoyAvisos_v1",
     "miPlatoFacil_ingredientAliases_v1",
     "miPlatoFacil_manualShopping_v1",
     "miPlatoFacil_mostrarPrecios_v1",
@@ -136,8 +144,10 @@
   ],
   "clavesRespaldo": [
     "miPlatoFacil_adviceFavorites",
+    "miPlatoFacil_armameReglas_v1",
     "miPlatoFacil_basicosFaltantes_v1",
     "miPlatoFacil_bienvenida_v1",
+    "miPlatoFacil_comensales_v1",
     "miPlatoFacil_comprasOpciones_v1",
     "miPlatoFacil_comprasPeriodo_v1",
     "miPlatoFacil_comprasVueltas_v1",
@@ -147,8 +157,10 @@
     "miPlatoFacil_dieta_v1",
     "miPlatoFacil_dondeCompro_v1",
     "miPlatoFacil_gastoSemanal_v1",
+    "miPlatoFacil_gustos_v1",
     "miPlatoFacil_habitGoals_v1",
     "miPlatoFacil_hogar_v1",
+    "miPlatoFacil_hoyAvisos_v1",
     "miPlatoFacil_ingredientAliases_v1",
     "miPlatoFacil_manualShopping_v1",
     "miPlatoFacil_mostrarPrecios_v1",
@@ -177,8 +189,10 @@
     "miPlatoFacil_trainingWeek"
   ],
   "clavesRespaldoOpcionales": [
+    "miPlatoFacil_armameReglas_v1",
     "miPlatoFacil_basicosFaltantes_v1",
     "miPlatoFacil_bienvenida_v1",
+    "miPlatoFacil_comensales_v1",
     "miPlatoFacil_comprasOpciones_v1",
     "miPlatoFacil_comprasPeriodo_v1",
     "miPlatoFacil_comprasVueltas_v1",
@@ -187,8 +201,10 @@
     "miPlatoFacil_dieta_v1",
     "miPlatoFacil_dondeCompro_v1",
     "miPlatoFacil_gastoSemanal_v1",
+    "miPlatoFacil_gustos_v1",
     "miPlatoFacil_habitGoals_v1",
     "miPlatoFacil_hogar_v1",
+    "miPlatoFacil_hoyAvisos_v1",
     "miPlatoFacil_ingredientAliases_v1",
     "miPlatoFacil_mostrarPrecios_v1",
     "miPlatoFacil_pantryMoves_v1",
@@ -1100,8 +1116,8 @@
     }
   },
   "actualizada": {
-    "etapa": 48,
-    "version": "20.3.0",
+    "etapa": 52,
+    "version": "20.7.0",
     "fecha": "2026-11-27"
   }
 }

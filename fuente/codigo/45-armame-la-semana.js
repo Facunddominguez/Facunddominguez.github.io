@@ -275,7 +275,7 @@ var ArmameSemana=(function(){
     const pool=slot=>slotPool(slot)==="plato"?cp:cd;
     const medianaDe=slot=>{
       const p=slotPool(slot);
-      if(imputados[p]===null)imputados[p]=mediana(pool(slot).map(c=>costoDe(c,"lunes",memo,slot)));
+      if(imputados[p]===null)imputados[p]=mediana(pool(slot).map(c=>costoDe(c,"lunes",memo)));
       return imputados[p]
     };
     const costo=(c,dia,slot)=>{const v=costoDe(c,dia,memo,slot);return v===null?medianaDe(slot):v};

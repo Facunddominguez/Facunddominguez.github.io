@@ -102,6 +102,14 @@
   ok("R6-Q-02 en Semana, el almuerzo del lunes (con comida) y el desayuno (vacío) dicen 'Nadie come en casa'", /Nadie come en casa/.test(norm(hAlm.innerText)) && /Nadie come en casa/.test(norm(hDes.innerText)) && !/Sin elegir/.test(norm(hDes.innerText)));
   ev('openTab("hoy")'); await espera(300);
   ok("R6-Q-02 en Hoy el almuerzo y el desayuno también lo dicen", /Nadie come en casa/.test(norm(qa("[data-today-slot='almuerzo']")[0].innerText)) && /Nadie come en casa/.test(norm(qa("[data-today-slot='desayuno']")[0].innerText)));
+  ok("R6-Q-02 en Hoy, donde nadie come en casa no hay 'Lo comí' que anotar (el almuerzo y el desayuno sin botón) y las demás comidas sí lo tienen", !qa("[data-today-slot='almuerzo'] [data-today-eaten]").length && !qa("[data-today-slot='desayuno'] [data-today-eaten]").length);
+  // Los avisos de Hoy no miran donde nadie come
+  await abrir({ [CLAVE]: JSON.stringify({ adultos: 2, chicos: 0, porcionChico: 0.5, huecos: { "martes|cena": 0 } }) }, [["martes", "cena", A]]);
+  ev('openTab("hoy")'); await espera(300);
+  ok("R6-Q-02 'Para comprar hoy' no cuenta la cena de hoy si nadie come en casa (y sin ese hueco en 0 sí la cuenta)", !qa("[data-hoy-comprar-hoy]").length);
+  await abrir({ [CLAVE]: JSON.stringify({ adultos: 2, chicos: 0, porcionChico: 0.5 }) }, [["lunes", "cena", A]]);
+  ev('openTab("hoy")'); await espera(300);
+  ok("R6-Q-02 (control) con la misma cena y sin el hueco en 0, 'Para comprar hoy' aparece", qa("[data-hoy-comprar-hoy]").length === 1);
   // Armame no llena donde nadie come
   await abrir({ [CLAVE]: JSON.stringify({ adultos: 2, chicos: 0, porcionChico: 0.5, huecos: { "lunes|cena": 0 } }) }, []);
   ev('openTab("semana")'); await espera(200);
@@ -120,6 +128,19 @@
   await abrir({});
   ev("bienvenidaPaso = 3"); $("bienvenidaPersonas").value = "3"; ev("Bienvenida.guardarHogarDeBienvenida()"); await espera(200);
   ok("R6-Q-05 sin chicos se guarda como siempre (hogar_v1 con 3 personas) y la clave nueva no se escribe", JSON.stringify(J(HOGAR)) === '{"personas":3}' && localStorage.getItem(CLAVE) === null);
+
+  // Volver a correr la Bienvenida con la clave ya cargada no pisa los huecos
+  await abrir({ [CLAVE]: JSON.stringify({ adultos: 2, chicos: 1, porcionChico: 0.75, huecos: { "lunes|almuerzo": 1 } }) });
+  ev("bienvenidaPaso = 3"); $("bienvenidaPersonas").value = "3"; $("bienvenidaChicos").value = "2"; ev("Bienvenida.guardarHogarDeBienvenida()"); await espera(200);
+  ok("R6-Q-05 si la clave nueva ya estaba cargada, la Bienvenida cambia solo adultos y chicos y conserva lo que cuenta un chico (0,75) y los huecos", JSON.stringify(J(CLAVE)) === '{"adultos":3,"chicos":2,"porcionChico":0.75,"huecos":{"lunes|almuerzo":1}}', localStorage.getItem(CLAVE));
+  // La ficha dice las porciones con coma
+  await abrir({ [CLAVE]: JSON.stringify({ adultos: 2, chicos: 1, porcionChico: 0.5, huecos: { "lunes|almuerzo": 0 } }) }, []);
+  ev('IdeasHoja.agregarIdeaALaSemana(data.menuCatalog.find(x => x.corto === "Pollo al horno con papas y batatas"), "lunes", "almuerzo"); IdeasHoja.agregarIdeaALaSemana(data.menuCatalog.find(x => x.corto === "Pollo al horno con papas y batatas"), "martes", "almuerzo")');
+  const idP = ev('(loadPlan().lunes || {}).almuerzo');
+  ev(`openTab("miscomidas"); Comidas.abrirComida("plato", ${JSON.stringify(idP)}, { dia: "martes", slot: "almuerzo" })`); await espera(400);
+  const t1 = norm(doc().querySelector("#comidaPlato h4").textContent);
+  ev(`Comidas.abrirComida("plato", ${JSON.stringify(idP)}, { dia: "lunes", slot: "almuerzo" })`); await espera(400);
+  ok("R6-Q-03 la ficha dice 'Qué lleva · para 2,5 porciones' (con coma) y, abierta desde un hueco sin comensales, 'Qué lleva · nadie come en casa'", t1 === "Qué lleva · para 2,5 porciones" && norm(doc().querySelector("#comidaPlato h4").textContent) === "Qué lleva · nadie come en casa", t1);
 
   // ---- Respaldo ----
   await abrir({});
