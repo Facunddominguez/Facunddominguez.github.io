@@ -7572,7 +7572,8 @@ syncShoppingWeek(){
   // La firma incluye el plan (de esta semana y de la que viene): si cambia lo armado, los tachados se vuelven a leer del almacenamiento.
   let planes="";
   try{planes=(localStorage.getItem(PKEY)||"")+"|"+(localStorage.getItem(PROX_KEY)||"")}catch(e){}
-  const periodo=Compras.periodoActual(),firma=periodo+"|"+Compras.shoppingChecksWeek()+"|"+planes;
+  // También el día de hoy: "Esta semana" cuenta de hoy al domingo, así que al cambiar el día (con la app abierta de un día para el otro) se recalcula.
+  const periodo=Compras.periodoActual(),firma=periodo+"|"+Rutina.localTrainingDate(new Date())+"|"+Compras.shoppingChecksWeek()+"|"+planes;
   if(firma===comprasFirma)return;
   comprasWeek=Compras.shoppingChecksWeek();
   // Si la lista no se puede calcular ahora (por ejemplo, datos de recetas que no se leen), se muestra el error de siempre al pintarla y
