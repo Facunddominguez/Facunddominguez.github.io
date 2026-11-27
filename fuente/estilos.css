@@ -3810,7 +3810,6 @@ body:has(#gustoPregunta:not(.gusto-pregunta--cocina)){padding-bottom:72px}
 .hoy-aviso__fila{display:flex;align-items:center;gap:10px}
 .hoy-aviso__texto{flex:1 1 auto;margin:0;line-height:1.35}
 .hoy-aviso .button{flex:0 0 auto;min-height:44px;margin:0;padding:6px 14px}
-.hoy-aviso--comprar{display:flex;align-items:center;gap:10px}
 /* Etapa 51: quién come en cada comida (Preferencias). */
 .comensales-grilla{display:grid;gap:4px;margin:8px 0}
 .comensales-fila{display:grid;grid-template-columns:72px repeat(4,minmax(0,1fr));gap:4px;align-items:center}

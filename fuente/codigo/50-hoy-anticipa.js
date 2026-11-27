@@ -38,7 +38,8 @@ comidasDe(cual){
     d=diaSiguienteDelPlan(dia);
     plan=dia==="domingo"?Semana.planDeLaSemana("proxima"):loadPlan()
   }else plan=loadPlan();
-  return HOY_COMIDAS.map(s=>plan[d]&&plan[d][s]?byId.get(plan[d][s]):null).filter(Boolean)
+  // Donde nadie come en casa (miPlatoFacil_comensales_v1) no hay nada que anticipar ni comprar.
+  return HOY_COMIDAS.filter(s=>!(typeof Comensales!=="undefined"&&Comensales.nadieEn(d,s))).map(s=>plan[d]&&plan[d][s]?byId.get(plan[d][s]):null).filter(Boolean)
 },
 palabras(texto){
   return normalizeSearchText(String(texto||"")).split(/[^a-z0-9ñ]+/).filter(Boolean)

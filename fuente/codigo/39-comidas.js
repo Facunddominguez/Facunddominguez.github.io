@@ -384,7 +384,7 @@ function pintarDetallePlato(it,conservarAviso){
   }):[ce("li",null,"Sin ingredientes cargados")]));
   {
     const h=document.querySelector("#comidaPlato h4");
-    if(h)h.textContent=idea&&Array.isArray(idea.cantidades)&&idea.cantidades.length?"Qué lleva · para "+personas+(personas===1?" persona":" personas"):"Qué lleva"
+    if(h)h.textContent=idea&&Array.isArray(idea.cantidades)&&idea.cantidades.length?(personas===0?"Qué lleva · nadie come en casa":"Qué lleva · para "+String(personas).replace(".",",")+(personas===1?" porción":" porciones")):"Qué lleva"
   }
   if(pasos){
     const lista=Comidas.pasosDeComida(),hay=lista.length>0;
