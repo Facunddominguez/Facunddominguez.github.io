@@ -31,7 +31,11 @@ responder(nombre,respuesta){
   // Máximo 500 comidas: si se pasa, se olvidan las que hace más que no se responden (las primeras de la lista).
   for(const clave of Object.keys(todo).slice(0,Math.max(0,Object.keys(todo).length-500)))delete todo[clave];
   if(!Gustos.validGustos(todo))return false;
-  localStorage.setItem(GUSTOS_KEY,JSON.stringify(todo));
+  try{
+    localStorage.setItem(GUSTOS_KEY,JSON.stringify(todo))
+  }catch(e){
+    return false
+  }
   return true
 },
 // {si, no, seguidosNo}: cuántos Sí y No hay y cuántos No seguidos hay al final (un Sí los borra).

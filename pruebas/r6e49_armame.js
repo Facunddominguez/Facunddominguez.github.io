@@ -137,6 +137,21 @@
   await abrir("2026-11-24", { [REGLAS]: JSON.stringify({ poco: { minutos: 5, huecos: ["lunes|cena", "martes|cena"] } }) }, sinFavoritas);
   await armar("todo");
   ok("R6-A-05 si no hay recetas de hasta esos minutos (5), Armame igual llena el hueco y lo dice en Ver detalle", plan().lunes.cena && plan().martes.cena && /No encontré recetas de hasta 5 minutos para cena del lunes y cena del martes: puse otra comida\./.test(detalle()), detalle().slice(0, 400));
+  // Con presupuesto: el ajuste que cambia lo más caro por algo más barato respeta los minutos y lo de la semana pasada.
+  await abrir("2026-11-24", { ...H.PRES(1500) }, sinFavoritas);
+  const ajuste = JSON.parse(ev(`JSON.stringify((() => { const r = ArmameSemana.armar({ modo: "todo" }); return { cambios: r.cambios, pasado: r.pasado, cenas: r.asignadas.filter(x => x.slot === "cena" && ["lunes", "martes", "miercoles", "jueves", "viernes"].includes(x.dia)).map(x => x.cand.idea ? x.cand.idea.minutos : null), detalle: ArmameSemana.resumen(r) } })())`));
+  ok("R6-A-05 con un presupuesto que obliga a abaratar (el ajuste cambió comidas), las cenas de poco tiempo siguen en 30 minutos o menos", ajuste.cambios > 0 && ajuste.cenas.length === 5 && ajuste.cenas.every(m => m !== null && m <= 30), JSON.stringify(ajuste).slice(0, 300));
+  ok("R6-A-06 y el detalle sigue diciendo la verdad: dice cuántos huecos de poco tiempo quedaron bien", /hasta 30 minutos \(5 huecos\)/.test(ajuste.detalle), ajuste.detalle.slice(0, 400));
+  // Recetas propias: sus minutos salen de sus detalles.
+  const conMin = REC.map((x, i) => ({ ...x, fav: false, minutos: [15, 90, null][i] }));
+  const recM = H.recetas(conMin), detM = JSON.parse(recM.miPlatoFacil_recipeDetails_v1);
+  conMin.forEach(x => { if (x.minutos !== null) detM[x.id].minutes = x.minutos });
+  await abrir("2026-11-24", { ...recM, miPlatoFacil_recipeDetails_v1: JSON.stringify(detM), [REGLAS]: JSON.stringify({ poco: { minutos: 30, huecos: ["lunes|almuerzo"] } }) }, conMin);
+  const minPropia = JSON.parse(ev(`JSON.stringify(["${A}", "${B}", "${C}"].map(id => { const c = { item: MisPlatos.loadSaved().find(x => x.id === id) }; const r = loadRecipeDetails()[c.item.recipeSourceId]; return r.minutes === undefined ? null : r.minutes }))`));
+  ok("R6-A-05 las recetas propias traen sus minutos en sus detalles (15, 90 y sin dato)", JSON.stringify(minPropia) === "[15,90,null]", JSON.stringify(minPropia));
+  const hueco = JSON.parse(ev(`JSON.stringify((() => { const r = ArmameSemana.armar({ modo: "todo" }); const x = r.asignadas.find(a => a.dia === "lunes" && a.slot === "almuerzo"); return x && x.cand.item ? x.cand.item.id : (x ? "idea:" + x.cand.idea.minutos : null) })())`));
+  ok("R6-A-05 en un hueco de poco tiempo Armame puede poner una receta propia de 15 minutos (y no la de 90 ni la sin dato)", hueco !== B && hueco !== C, String(hueco));
+
   const R0 = await (await fetch("/tests/fixtures/respaldo-v14.9.94.json", { cache: "no-store" })).json(), w = H.w();
   const conClaves = JSON.parse(JSON.stringify(R0)); conClaves.data[GUSTOS] = JSON.stringify({ "tarta": "sn" }); conClaves.data[REGLAS] = JSON.stringify({ poco: { minutos: 45, huecos: ["lunes|cena"] } });
   const malo1 = JSON.parse(JSON.stringify(R0)); malo1.data[GUSTOS] = '{"tarta":"x"}';

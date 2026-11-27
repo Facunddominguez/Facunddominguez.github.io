@@ -251,11 +251,19 @@ var ArmameSemana=(function(){
     // pasada (no se repite) y los huecos de poco tiempo (recetas de hasta N minutos).
     const gustos=Gustos.cargar(),veces=Gustos.vecesComidas(),reglas=ArmameReglas.leer(),previas=comidasDeLaSemanaAnterior();
     const esFavorita=c=>c.tipo==="mia"&&!!c.item&&!!c.item.fav;
+    let detalles=null;
     const minutosDe=c=>{
       let m=null;
       try{
-        const idea=c.idea||(c.item?IdeasHoja.ideaDeComida(c.item):null);
-        if(idea&&Number.isFinite(Number(idea.minutos)))m=Number(idea.minutos)
+        if(c.item&&c.item.recipeSourceId){
+          // Una receta propia (o importada) trae sus minutos en sus detalles.
+          if(!detalles)detalles=loadRecipeDetails();
+          const r=detalles[c.item.recipeSourceId];
+          if(r&&Number.isFinite(Number(r.minutes)))m=Number(r.minutes)
+        }else{
+          const idea=c.idea||(c.item?IdeasHoja.ideaDeComida(c.item):null);
+          if(idea&&Number.isFinite(Number(idea.minutos)))m=Number(idea.minutos)
+        }
       }catch(e){}
       return m
     };
@@ -270,6 +278,8 @@ var ArmameSemana=(function(){
     };
     const costo=(c,dia,slot)=>{const v=costoDe(c,dia,memo);return v===null?medianaDe(slot):v};
     const hayPrecios=cp.concat(cd).some(c=>costoDe(c,"lunes",memo)!==null);
+    // Pasadas: 1) con todo (sin repetir la semana pasada y con el tiempo), 2) repitiendo, 3) sin mirar el tiempo, 4) sin ninguna.
+    const PASADA_COMPLETA={repite:false,tiempo:false},PASADAS=[PASADA_COMPLETA,{repite:true,tiempo:false},{repite:false,tiempo:true},{repite:true,tiempo:true}];
     const asignadas=new Map(),dobles=[],vecina=(dia,slot,delta)=>{const i=DAYS.findIndex(d=>d[0]===dia)+delta;return i>=0&&i<DAYS.length?(sem.comidas.get(DAYS[i][0]+"|"+slot)||{}).k:undefined};
     const valido=(c,dia,slot,pos,pasada)=>{
       if((sem.cuenta.get(c.k)||0)>=MAX_REPETIDA)return false;
@@ -313,9 +323,7 @@ var ArmameSemana=(function(){
       if(asignadas.has(pos))continue;
       const meta=objetivo(slot),faltaGrupo={};
       for(const g of GRUPOS_META)if(metas[g])faltaGrupo[g]=metas[g]-contarGrupo(g);
-      let mejor=null,mejorPuntos=-1e9,pasadaUsada=null;
-      // Pasadas: 1) con todo (sin repetir la semana pasada y con el tiempo), 2) repitiendo, 3) sin mirar el tiempo, 4) sin ninguna.
-      const PASADAS=[{repite:false,tiempo:false},{repite:true,tiempo:false},{repite:false,tiempo:true},{repite:true,tiempo:true}];
+      let mejor=null,mejorPuntos=-1e9;
       for(const pasada of PASADAS){
       for(const c of pool(slot)){
         if(!valido(c,dia,slot,pos,pasada))continue;
@@ -329,20 +337,13 @@ var ArmameSemana=(function(){
         // Etapa 49: prefiere tus favoritas, las comidas con "Sí" y las que más comiste; baja lo que tiene más "No" que "Sí".
         if(esFavorita(c))puntos+=4;
         puntos+=1.5*Gustos.puntaje(c.k,gustos)+0.5*Math.min(4,veces.get(c.k)||0);
-        if(puntos>mejorPuntos){mejor=c;mejorPuntos=puntos;pasadaUsada=pasada}
+        if(puntos>mejorPuntos){mejor=c;mejorPuntos=puntos}
       }
       if(mejor)break
       }
       if(!mejor)continue;
       sumar(sem,pos,mejor,1);
       asignadas.set(pos,mejor);
-      if(esFavorita(mejor))porque.favoritas.add(mejor.nombre);
-      else if(Gustos.estado(mejor.k,gustos).si>0)porque.gustadas.add(mejor.nombre);
-      if(esPoco(pos)&&esPlatoPos(pos)){
-        if(pasadaUsada&&pasadaUsada.tiempo)porque.sinPoco.push(Semana.nombreDelHueco(dia,slot).toLowerCase());
-        else porque.poco++
-      }
-      if(pasadaUsada&&pasadaUsada.repite&&esPlatoPos(pos)&&previas.has(mejor.k)&&!esFavorita(mejor))porque.repetidas.push(mejor.nombre);
       gastado+=costo(mejor,dia,slot);
       // Cociná doble: la cena de hoy es el almuerzo de mañana.
       if(slot==="cena"&&r()<0.3){
@@ -384,7 +385,7 @@ var ArmameSemana=(function(){
             if(cuidar)for(const g of GRUPOS_META)if(metas[g])antes[g]=contarGrupo(g);
             sumar(sem,pos,c,-1);
             for(const o of pool(slot)){
-              if(o.k===c.k||!valido(o,dia,slot,pos))continue;
+              if(o.k===c.k||!valido(o,dia,slot,pos,PASADA_COMPLETA))continue;
               if(cuidar){
                 const go=gruposDe(o);
                 if(Object.keys(antes).some(g=>antes[g]-(gc.has(g)?1:0)+(go.has(g)?1:0)<Math.min(metas[g],antes[g])))continue
@@ -403,6 +404,19 @@ var ArmameSemana=(function(){
         asignadas.set(mejor.pos,mejor.o);
         cambios++;
         total=costoSemana()
+      }
+    }
+    // "Ver detalle": se cuenta desde lo que quedó asignado al final (incluido lo que cambió el ajuste por presupuesto).
+    for(const [pos,c] of asignadas){
+      if(esFavorita(c))porque.favoritas.add(c.nombre);
+      else if(Gustos.estado(c.k,gustos).si>0)porque.gustadas.add(c.nombre);
+      if(esPlatoPos(pos)){
+        if(esPoco(pos)){
+          const m=minutosDe(c);
+          if(m!==null&&m<=reglas.minutos)porque.poco++;
+          else{const [d,sl]=pos.split("|");porque.sinPoco.push(Semana.nombreDelHueco(d,sl).toLowerCase())}
+        }
+        if(previas.has(c.k)&&!esFavorita(c))porque.repetidas.push(c.nombre)
       }
     }
     const reutilizados=[...sem.ings.values()].filter(n=>n>=2).length;

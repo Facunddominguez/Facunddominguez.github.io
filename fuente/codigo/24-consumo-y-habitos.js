@@ -229,7 +229,7 @@ document.addEventListener("click",e=>{
       Consumo.recordConsumption({
         date:Rutina.localTrainingDate(new Date()),meal:slot,item,planned:true
       });renderPlan();planStatus("Registrado como comido hoy. El plan no cambió.");renderConsumption();
-      if(typeof Gustos!=="undefined")Gustos.preguntar(mealName(item))
+      try{if(typeof Gustos!=="undefined")Gustos.preguntar(mealName(item))}catch(e){}
     }catch(err){
       planStatus(err.message)
     }

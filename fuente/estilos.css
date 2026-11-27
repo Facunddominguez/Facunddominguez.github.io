@@ -3792,11 +3792,12 @@ body.cocina-abierta{overflow:hidden}
 .gusto-pregunta__texto{flex:1 1 auto;font-weight:700}
 .gusto-pregunta .button{flex:0 0 auto;min-height:44px;min-width:56px;padding:6px 12px;margin:0}
 .gusto-pregunta__cerrar{flex:0 0 44px;min-height:44px;width:44px;border:0;border-radius:12px;background:none;color:var(--muted);font:inherit;font-size:18px;cursor:pointer}
+body:has(#gustoPregunta:not(.gusto-pregunta--cocina)){padding-bottom:72px}
 .gusto-pregunta--cocina{position:static;margin:16px 0 0;box-shadow:none}
 .poco-grilla{display:grid;gap:4px;margin:8px 0}
-.poco-fila{display:grid;grid-template-columns:96px 1fr 1fr;gap:8px;align-items:center}
+.poco-fila{display:grid;grid-template-columns:76px minmax(0,1fr) minmax(0,1fr);gap:6px;align-items:center}
 .poco-fila__dia{font-weight:700}
-.poco-chip{min-height:44px;justify-content:center}
+.poco-chip{min-height:44px;min-width:0;justify-content:center;padding-left:6px;padding-right:6px}
 .poco-chip[aria-pressed="true"]{background:var(--green);border-color:var(--green);color:var(--on-green)}
 /* Etapa 50: avisos de Hoy ("Para mañana" y "Para comprar hoy"). */
 .hoy-avisos{display:grid;gap:10px;margin:10px 0}
