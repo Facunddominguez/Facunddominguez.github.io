@@ -86,4 +86,4 @@ Cada ítem tiene un control `R6-<ID>` en `docs/validacion/criterios.json` y una 
 **Opción 2.** Dejar a Armame como está (sin criterio de estación).
 
 ## Resumen (Etapa 55)
-Pendiente.
+De los 51 pedidos, **46 quedaron en ✅** (cada uno con su prueba en verde y su captura del después) y **5 en ⚠️**, con el motivo y 2 opciones arriba: P-02 (SEPA responde 403 a los servidores de GitHub: es un bloqueo de origen que el código no resuelve) y E-01 a E-04 (frutas y verduras de estación: no se pudo leer una fuente pública verificable desde este entorno y no se inventa; E-02 a E-04 dependen de E-01). Ninguno quedó en ⬜. El recorrido final de la Etapa 55 (una semana completa: armar la que viene, comprar con su lista, cocinar en modo cocina, "Lo comí" y "¿Te gustó?") tiene su prueba en `pruebas/r6e55_semana.js`, y `revisor-usuario` miró las pantallas a 390, 360 y 320 px, en claro y en oscuro.

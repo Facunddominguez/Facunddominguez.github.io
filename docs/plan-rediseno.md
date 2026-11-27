@@ -3439,3 +3439,9 @@ Rama `rediseno-6-etapa-54-estacion`. Ítems: E-01 a E-04 → **⚠️ no hechos*
 - E-02, E-03 y E-04 dependen del archivo de E-01 (ejemplos del mes, marca "de estación" y desempate de Armame): sin los datos no se escribe código muerto ni se muestran "ejemplos de estación" inventados. "Fruta de estación" sigue como antes (un genérico con el precio de su categoría).
 - Pendiente para vos (opciones en la lista): habilitar `buenosaires.gob.ar` en la red del entorno o pasar la fuente que prefieras, y volver a correr esta etapa; o cargar vos `datos/estacion.json` con el formato indicado, y el resto se hace sin tocar nada más.
 - Compuerta: sin código nuevo, esta etapa no tiene prueba propia; sus controles R6-E-01 a E-04 figuran como "⚠️ no hecho" y la compuerta de la Etapa 55 corre todo de nuevo.
+
+#### Etapa 55 · Cierre (v20.10.0)
+Rama `rediseno-6-etapa-55-cierre`. Reúne el cierre de las Etapas 53 y 54 (su compuerta corrió aquí, una sola vez, ya con todo integrado: la de la 53 había fallado solo en `r4_ux.js` X4, ya adaptada).
+- Recorrido de una semana completa de punta a punta (`pruebas/r6e55_semana.js`, 11 pruebas, viernes 27/11/2026): armar la semana que viene con "Armame la semana" (queda en `planProxima_v1` con el lunes 30/11, usa las favoritas), comprar (el viernes la lista abre en "La semana que viene", tachar se guarda en esa semana y "Terminé de comprar" lo deja como comprado), cocinar una receta en el modo cocina hasta el último paso, "Lo comí" (queda en el registro de hoy y el historial de cocinado), "¿Te gustó?" → "Sí" (queda en `gustos_v1`) y el Registro.
+- `revisor-usuario` miró las pantallas a 390, 360 y 320 px, en claro y en oscuro (capturas de la compuerta en `capturas/etapa-55`, `-360` y `-320`), con los ítems de las nueve etapas.
+- `docs/ronda-6-lista.md` termina con el resumen (46 ✅ y 5 ⚠️, ninguno en ⬜) y `docs/informe-ronda-6.md` es la descripción del PR `rediseno-6` → `main` (sin mergear).
