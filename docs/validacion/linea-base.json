@@ -8,7 +8,7 @@
     "navegador": "Chrome/156.0.8078.73"
   },
   "pruebas": {
-    "total": 854,
+    "total": 892,
     "suites": {
       "d01_diseno.js": 8,
       "m01_modo.js": 13,
@@ -85,8 +85,9 @@
       "r5e42_mas.js": 19,
       "r5e43_bienvenida.js": 11,
       "r6e45_precios.js": 8,
-      "r6e46_lista.js": 25,
-      "r6e47_cocina.js": 31
+      "r6e46_lista.js": 26,
+      "r6e47_cocina.js": 31,
+      "r6e48_semana.js": 37
     }
   },
   "claves": [
@@ -125,6 +126,7 @@
     "miPlatoFacil_region_v1",
     "miPlatoFacil_respaldoAviso_v1",
     "miPlatoFacil_saved",
+    "miPlatoFacil_semanaAjustes_v1",
     "miPlatoFacil_shoppingBudget_v1",
     "miPlatoFacil_shoppingChecks_v1",
     "miPlatoFacil_theme",
@@ -167,6 +169,7 @@
     "miPlatoFacil_region_v1",
     "miPlatoFacil_respaldoAviso_v1",
     "miPlatoFacil_saved",
+    "miPlatoFacil_semanaAjustes_v1",
     "miPlatoFacil_shoppingBudget_v1",
     "miPlatoFacil_shoppingChecks_v1",
     "miPlatoFacil_theme",
@@ -201,6 +204,7 @@
     "miPlatoFacil_referencePrices_v1",
     "miPlatoFacil_region_v1",
     "miPlatoFacil_respaldoAviso_v1",
+    "miPlatoFacil_semanaAjustes_v1",
     "miPlatoFacil_shoppingBudget_v1",
     "miPlatoFacil_shoppingChecks_v1"
   ],
@@ -1096,8 +1100,8 @@
     }
   },
   "actualizada": {
-    "etapa": 47,
-    "version": "20.2.0",
-    "fecha": "2026-11-26"
+    "etapa": 48,
+    "version": "20.3.0",
+    "fecha": "2026-11-27"
   }
 }

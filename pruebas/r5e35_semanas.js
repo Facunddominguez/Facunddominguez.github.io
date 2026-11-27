@@ -49,8 +49,8 @@
   const idElegido = elegir && elegir.dataset.selectorId;
   await tocar(elegir, 300);
   const cambiado = !!idElegido && copia().plan.lunes.almuerzo === idElegido && copia().saved.some(p => p.id === idElegido);
-  ok("R5-S-05 tocar una comida abre la misma hoja que en Semana (Ver ingredientes o Ver receta, Cambiar, Cambiar por otra parecida, Cambiar por una más barata, Quitar, Cerrar) y Quitar y Cambiar se guardan en la copia de esa semana sin tocar el plan de esta",
-    /^(Ver receta|Ver ingredientes)/.test(hoja1[0]) && JSON.stringify(hoja1.slice(1)) === JSON.stringify(["Cambiar", "Cambiar por otra parecida", "Cambiar por una más barata", "Quitar", "Cerrar"])
+  ok("R5-S-05 tocar una comida abre la misma hoja que en Semana (Ver ingredientes o Ver receta, Cambiar, Cambiar por otra parecida, Cambiar por una más barata, Quitar, Cerrar; más lo de la Etapa 48) y Quitar y Cambiar se guardan en la copia de esa semana sin tocar el plan de esta",
+    /^(Ver receta|Ver ingredientes)/.test(hoja1[0]) && JSON.stringify(hoja1.slice(1).filter(t => !/^(Pasar a otro día|Que sobre para mañana|Comemos afuera)$/.test(t))) === JSON.stringify(["Cambiar", "Cambiar por otra parecida", "Cambiar por una más barata", "Quitar", "Cerrar"]) /* Etapa 48 (R6-F-01 a F-03): la hoja suma Pasar a otro día, Que sobre para mañana y Comemos afuera */
     && quitado && /^Elegir /i.test(titulo2) && cambiado && localStorage.getItem("miPlatoFacil_plan") === planActual && Object.keys(leer("miPlatoFacil_datedWeeks_v1")).join() === lunes, JSON.stringify({ hoja1, idAntes, idElegido, titulo2 }));
 
   // R5-S-06: sin "Cambiar comidas de una semana guardada".

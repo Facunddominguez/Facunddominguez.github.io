@@ -8,7 +8,7 @@
   // lunes y miraban la lista entera: para que no dependan del día de la semana en que se corren, corren un lunes: el de la semana de hoy (así las
   // claves por semana no cambian), tanto en la página como en cada marco de la app que abre la batería. Las demás siguen con la fecha real y
   // las de la Ronda 6 fijan su propio día.
-  const LUNES = new Set(["u01_toque.js", "f02_units.js", "f01_int.js", "f01_alias.js", "f01_rec.js", "f03_plan.js", "r3_rec.js", "r3_saved.js", "regression.js", "j01_recorridos.js", "e1_confianza.js", "e5_compras.js", "e7_precios.js", "e8_herramientas.js", "e20_un_costo.js", "e23_catalogo_lista.js", "e24_semana_clara.js", "r2_shop.js", "r4_ux.js", "r4e26_lista.js"]);
+  const LUNES = new Set(["u01_toque.js", "f02_units.js", "f01_int.js", "f01_alias.js", "f01_rec.js", "f03_plan.js", "r3_rec.js", "r3_saved.js", "regression.js", "j01_recorridos.js", "e1_confianza.js", "e5_compras.js", "e7_precios.js", "e8_herramientas.js", "e20_un_costo.js", "e21_ficha_precio.js", "e23_catalogo_lista.js", "e24_semana_clara.js", "r2_shop.js", "r4_ux.js", "r4e26_lista.js"]);
   const enMarco = e => { if (e.target && e.target.tagName === "IFRAME") { try { R6_LUNES(e.target.contentWindow) } catch (err) { } } };
   const suites = window.__suites || ["f02_units.js", "f01_key.js", "f01_int.js", "f01_alias.js", "r4_ux.js", "r3_rec.js", "r3_dup.js", "r3_saved.js", "r2_dom.js", "r2_uni.js", "r2_pan.js", "r2_shop.js", "bkp01.js", "bkp02.js", "imp01.js", "regression.js"];
   const out = {}; let total = 0, pass = 0;
