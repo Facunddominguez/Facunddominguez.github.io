@@ -31,7 +31,14 @@ const partesCuerpo = ['fuente/cuerpo/inicio.html', ...(await listar('fuente/cuer
 const cuerpo = (await Promise.all(partesCuerpo.map(leer))).map(t => t.replace(/\n+$/, '')).join('\n');
 
 // Código: los archivos se concatenan en orden alfabético (el prefijo numérico define el orden de arranque).
-const codigo = (await Promise.all((await listar('fuente/codigo')).map(f => leer('fuente/codigo/' + f)))).map(t => t.replace(/\n+$/, '')).join('\n');
+// Los comentarios de línea completa (los que empiezan con //) quedan en fuente/ y no viajan en index.html: ahorran unos 100 KB sin tocar el código.
+// En ningún archivo hay plantillas de varias líneas ni cadenas partidas, así que una línea que empieza con // siempre es un comentario (lo controla esta
+// misma herramienta: si apareciera una plantilla de varias líneas, la construcción falla y hay que decidir de nuevo).
+const sinComentarios = (t, f) => {
+  if (t.split('\n').some(l => (l.match(/`/g) || []).length % 2 === 1 && !/\[[^\]]*`[^\]]*\]/.test(l))) throw new Error(f + ' tiene una plantilla de varias líneas: no se pueden quitar los comentarios de línea completa de forma segura.');
+  return t.split('\n').filter(l => !/^\s*\/\//.test(l)).join('\n');
+};
+const codigo = (await Promise.all((await listar('fuente/codigo')).map(async f => sinComentarios(await leer('fuente/codigo/' + f), f)))).map(t => t.replace(/\n+$/, '')).join('\n');
 
 // Datos de nutrición incluidos en la app (así funciona sin conexión y como archivo local).
 const datos = JSON.stringify(JSON.parse(await leer('datos/nutricion.json')))

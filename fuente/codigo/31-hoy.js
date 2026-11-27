@@ -101,7 +101,9 @@ function filaHoy(day,slot,plan,byId,esHoy,primera){
   // Etapa 48: un hueco marcado "Afuera" se lee "Afuera" (con el gasto, si se anotó).
   let textoAfuera="";
   if(!it)try{textoAfuera=SemanaAjustes.textoAfuera(day,slot)}catch(e){}
-  const plato=ce("span","today-row__plate"+(it||textoAfuera?"":" is-empty"),it?nombreCortoDeComida(it):(textoAfuera||"Sin elegir"));
+  // Etapa 51: donde nadie come en casa (miPlatoFacil_comensales_v1) se lee "Nadie come en casa".
+  const nadie=typeof Comensales!=="undefined"&&Comensales.nadieEn(day,slot);
+  const plato=ce("span","today-row__plate"+(it||textoAfuera||nadie?"":" is-empty"),it?nombreCortoDeComida(it)+(nadie?" · Nadie come en casa":""):(textoAfuera||(nadie?"Nadie come en casa":"Sin elegir")));
   // El botón de acción va primero (es el principal de la fila); el nombre, al lado, abre las opciones del hueco.
   let action=null;
   if(!it){
@@ -109,6 +111,9 @@ function filaHoy(day,slot,plan,byId,esHoy,primera){
     action.type="button";
     if(esHoy)action.dataset.todayChoose=slot;else action.dataset.huecoHoy=day+"|"+slot;
     action.setAttribute("aria-label","Elegir "+Semana.nombreDelHueco(day,slot).toLowerCase())
+  }else if(esHoy&&nadie){
+    // Etapa 51: donde nadie come en casa no hay nada para anotar.
+    action=null
   }else if(esHoy&&eatenToday(it,slot))action=ce("span","today-row__done","✓ Lo comí");
   else if(esHoy){
     action=ce("button","button button--soft","Lo comí");

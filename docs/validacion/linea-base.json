@@ -8,7 +8,7 @@
     "navegador": "Chrome/156.0.8078.73"
   },
   "pruebas": {
-    "total": 951,
+    "total": 986,
     "suites": {
       "d01_diseno.js": 8,
       "m01_modo.js": 13,
@@ -89,7 +89,8 @@
       "r6e47_cocina.js": 31,
       "r6e48_semana.js": 37,
       "r6e49_armame.js": 30,
-      "r6e50_hoy.js": 29
+      "r6e50_hoy.js": 29,
+      "r6e51_comensales.js": 35
     }
   },
   "claves": [
@@ -98,6 +99,7 @@
     "miPlatoFacil_armameReglas_v1",
     "miPlatoFacil_basicosFaltantes_v1",
     "miPlatoFacil_bienvenida_v1",
+    "miPlatoFacil_comensales_v1",
     "miPlatoFacil_comprasOpciones_v1",
     "miPlatoFacil_comprasPeriodo_v1",
     "miPlatoFacil_comprasVueltas_v1",
@@ -144,6 +146,7 @@
     "miPlatoFacil_armameReglas_v1",
     "miPlatoFacil_basicosFaltantes_v1",
     "miPlatoFacil_bienvenida_v1",
+    "miPlatoFacil_comensales_v1",
     "miPlatoFacil_comprasOpciones_v1",
     "miPlatoFacil_comprasPeriodo_v1",
     "miPlatoFacil_comprasVueltas_v1",
@@ -188,6 +191,7 @@
     "miPlatoFacil_armameReglas_v1",
     "miPlatoFacil_basicosFaltantes_v1",
     "miPlatoFacil_bienvenida_v1",
+    "miPlatoFacil_comensales_v1",
     "miPlatoFacil_comprasOpciones_v1",
     "miPlatoFacil_comprasPeriodo_v1",
     "miPlatoFacil_comprasVueltas_v1",
@@ -1111,8 +1115,8 @@
     }
   },
   "actualizada": {
-    "etapa": 50,
-    "version": "20.5.0",
+    "etapa": 51,
+    "version": "20.6.0",
     "fecha": "2026-11-27"
   }
 }

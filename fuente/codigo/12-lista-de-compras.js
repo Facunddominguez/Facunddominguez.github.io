@@ -154,11 +154,13 @@ shoppingPlanItems(periodo){
     e.semanas.add(lunesDe);
     return e
   };
-  const personas=personasHogar();
   for(const {
-    item,portions,lunes
+    item,portions,lunes,day,slot
   } of periodo?Semana.entradasDelPeriodo(periodo):Semana.planEntriesFlat()){
     lunesDe=lunes||Compras.shoppingChecksWeek();
+    // Etapa 51: las porciones de esa comida (las de siempre si no se cargó quién come en cada una); si nadie come en casa, no suma.
+    const personas=porcionesEn(day,slot);
+    if(personas===0)continue;
     let amount=null;
     if(item&&item.recipeSourceId){
       if(!recipes){
@@ -442,11 +444,14 @@ shareCompras(){
 };
 // v19.8 (R5-K-12): "Porciones, existencias y costos" salió de Compras; el presupuesto compara el plan tal cual está (multiplicador 1).
 function shoppingMissingRows(){
-  const totals=new Map(),unknown=new Set(),recipes=loadRecipeDetails(),amounts=loadRecipeAmounts(),stock=loadStockQuantities(),multiplier=1;
+  const totals=new Map(),unknown=new Set(),recipes=loadRecipeDetails(),amounts=loadRecipeAmounts(),stock=loadStockQuantities();
   for(const {
-    item,portions
+    item,portions,day,slot
   } of Semana.entradasDelPeriodo(Compras.periodoActual())){
     if(!item||!item.recipeSourceId)continue;
+    // Etapa 51: sin quién-come cargado el multiplicador es 1 como siempre; con él, las porciones de esa comida.
+    const multiplier=factorEnHueco(day,slot);
+    if(multiplier===0)continue;
     const recipe=recipes[item.recipeSourceId],amount=recipe&&recipe.amountsTitle&&amounts[recipe.amountsTitle];
     if(!amount)continue;
     for(const row of amount.rows){

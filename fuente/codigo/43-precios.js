@@ -570,16 +570,17 @@ function costoDelDiaPlan(diaDado){
   for(const e of Semana.planEntriesFlat()){
     if(e.day!==dia)continue;
     const a=cantidadesDeComida("plato",e.item.id);
-    if(a)costo+=costoDeFilas(a.rows,Semana.portionFactor(e.portions,a)*personasHogar()).costo
+    if(a)costo+=costoDeFilas(a.rows,Semana.portionFactor(e.portions,a)*porcionesEn(e.day,e.slot)).costo
   }
   return costo
 }
 // ≈ costo de una comida del plan para todo el hogar, o "" si no hay precios o cantidades. Con estimados lo dice.
-function costoDeLaComida(item,porciones){
+function costoDeLaComida(item,porciones,dia,slot){
   if(!preciosActivos()||!preciosDataset()||!item)return "";
   const a=cantidadesDeComida("plato",item.id);
   if(!a)return "";
-  const c=costoDeFilas(a.rows,Semana.portionFactor(porciones===undefined?null:porciones,a)*personasHogar());
+  // Etapa 51: con el día y la comida, las porciones de ese hueco; sin ellos, las de siempre.
+  const c=costoDeFilas(a.rows,Semana.portionFactor(porciones===undefined?null:porciones,a)*(dia&&slot?porcionesEn(dia,slot):personasHogar()));
   return c.costo>0?formatoPesos(c.costo)+(c.estimados?" · estimado":""):""
 }
 // Semana: "Semana ≈ $34.100 · hoy ≈ $4.600" y, debajo, "Con precio: 27 de 29 productos · Completar 2 precios".

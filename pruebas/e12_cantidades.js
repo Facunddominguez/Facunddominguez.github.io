@@ -60,7 +60,7 @@
   const tres = unidadesDe();
   const mapa = new Map(tres.map(x => [x[0], x]));
   const malosTriple = uno.filter(([k, us]) => us.length && !(mapa.get(k) && mapa.get(k)[1].length === us.length && us.every(([u, q], i) => mapa.get(k)[1][i][0] === u && Math.abs(mapa.get(k)[1][i][1] - 3 * q) < 1e-6)));
-  ok("C12-2 pasar de 1 a 3 personas triplica las cantidades y se guarda en hogar_v1", sinClave && uno.filter(x => x[1].length).length > 15 && !malosTriple.length && localStorage.getItem("miPlatoFacil_hogar_v1") === '{"personas":3}' && ev('document.getElementById("hogarPersonas").value') === "3", JSON.stringify(malosTriple.slice(0, 3)));
+  ok("C12-2 pasar de 1 a 3 personas triplica las cantidades y se guarda en hogar_v1", sinClave && uno.filter(x => x[1].length).length > 15 && !malosTriple.length && localStorage.getItem("miPlatoFacil_hogar_v1") === '{"personas":3}' && ev('(go("preferencias"), document.getElementById("comensalesResumen").textContent)') === "3 personas", JSON.stringify(malosTriple.slice(0, 3)));
   // Respaldo: hogar_v1 se restaura, queda como opcional y uno inválido se rechaza.
   const snap = JSON.parse(ev("JSON.stringify(completeBackupSnapshot(localStorage))"));
   const tieneHogar = snap.data.miPlatoFacil_hogar_v1 === '{"personas":3}';

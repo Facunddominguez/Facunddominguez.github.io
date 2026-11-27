@@ -159,14 +159,14 @@ var ArmameSemana=(function(){
     return a
   }
   // ≈ costo para el hogar de una candidata (null si no hay precios), con una caché por corrida. Incluye estimados (Etapa 20).
-  function costoDe(c,dia,memo){
-    const id=c.k+"|"+(c.tipo==="idea"?diaDeRutinaDe(dia):"");
+  function costoDe(c,dia,memo,slot){
+    const id=c.k+"|"+(c.tipo==="idea"?diaDeRutinaDe(dia):"")+"|"+porcionesEn(dia,slot);
     if(memo.has(id))return memo.get(id);
     let v=null;
     try{
       const a=filasDe(c,dia);
       if(a){
-        const r=costoDeFilas(a.rows,Semana.portionFactor(null,a)*personasHogar());
+        const r=costoDeFilas(a.rows,Semana.portionFactor(null,a)*porcionesEn(dia,slot));
         v=r.costo>0?r.costo:null;
         // "Completo": todos sus ingredientes tienen precio, real o estimado (nada cuenta $0 en silencio).
         memo.set(id+"|completo",r.sinPrecio===0&&r.costo>0)
@@ -177,9 +177,9 @@ var ArmameSemana=(function(){
     memo.set(id,v);
     return v
   }
-  function completoDe(c,dia,memo){
-    costoDe(c,dia,memo);
-    return !!memo.get(c.k+"|"+(c.tipo==="idea"?diaDeRutinaDe(dia):"")+"|completo")
+  function completoDe(c,dia,memo,slot){
+    costoDe(c,dia,memo,slot);
+    return !!memo.get(c.k+"|"+(c.tipo==="idea"?diaDeRutinaDe(dia):"")+"|"+porcionesEn(dia,slot)+"|completo")
   }
   function mediana(xs){
     const a=xs.filter(x=>x!==null).sort((p,q)=>p-q);
@@ -243,6 +243,8 @@ var ArmameSemana=(function(){
       const id=(plan[dia]||{})[slot];
       // Etapa 48: un hueco marcado "Afuera" no se llena.
       if(!id&&typeof SemanaAjustes!=="undefined"&&SemanaAjustes.afuera(dia,slot))continue;
+      // Etapa 51: donde nadie come en casa no hace falta una comida.
+      if(!id&&Comensales.nadieEn(dia,slot))continue;
       if(modo==="todo"||!id||!items.has(id))aFillar.push([dia,slot])
     }
     const salvo=new Set(aFillar.map(([d,s])=>d+"|"+s)),sem=leerSemana(plan,salvo),memo=new Map(),sd=semilla(modo),r=azar(sd);
@@ -276,7 +278,7 @@ var ArmameSemana=(function(){
       if(imputados[p]===null)imputados[p]=mediana(pool(slot).map(c=>costoDe(c,"lunes",memo)));
       return imputados[p]
     };
-    const costo=(c,dia,slot)=>{const v=costoDe(c,dia,memo);return v===null?medianaDe(slot):v};
+    const costo=(c,dia,slot)=>{const v=costoDe(c,dia,memo,slot);return v===null?medianaDe(slot):v};
     const hayPrecios=cp.concat(cd).some(c=>costoDe(c,"lunes",memo)!==null);
     // Pasadas: 1) con todo (sin repetir la semana pasada y con el tiempo), 2) repitiendo, 3) sin mirar el tiempo, 4) sin ninguna.
     const PASADA_COMPLETA={repite:false,tiempo:false},PASADAS=[PASADA_COMPLETA,{repite:true,tiempo:false},{repite:false,tiempo:true},{repite:true,tiempo:true}];
@@ -366,7 +368,7 @@ var ArmameSemana=(function(){
         const [dia,slot]=pos.split("|");
         let a=null;
         try{a=x.cand?filasDe(x.cand,dia):x.item?cantidadesDeComida("plato",x.item.id):null}catch(e){a=null}
-        if(a)grupos.push({rows:a.rows,factor:Semana.portionFactor(null,a)*personasHogar()});
+        if(a)grupos.push({rows:a.rows,factor:Semana.portionFactor(null,a)*porcionesEn(dia,slot)});
         else extra+=medianaDe(slot)||0
       }
       const c=costoSemanaDeFilas(grupos);
@@ -579,10 +581,10 @@ var ArmameSemana=(function(){
     let ingsActual=[];
     try{ingsActual=Semana.extractIngredients(actual).map(ingredientKey)}catch(e){}
     const lista=slotPool(slot)==="plato"?candidatosPlato():candidatosDesayuno("cambio"),r=azar(semilla("hueco|"+dia+"|"+slot+"|"+actual.id+"|"+como));
-    const candActual={k:kActual,nombre:mealName(actual),tipo:"mia",item:actual,ings:ingsActual},costoActual=costoDe(candActual,dia,memo);
-    const med=mediana(lista.map(c=>costoDe(c,dia,memo)));
+    const candActual={k:kActual,nombre:mealName(actual),tipo:"mia",item:actual,ings:ingsActual},costoActual=costoDe(candActual,dia,memo,slot);
+    const med=mediana(lista.map(c=>costoDe(c,dia,memo,slot)));
     // "Más barata" solo compara comidas con todos sus precios (reales o estimados) y elige la de menor costo.
-    if(como==="barata"&&(costoActual===null||!completoDe(candActual,dia,memo)))return {ok:false,texto:"A esta comida le faltan precios y no puedo compararla. Completá los precios y probá de nuevo."};
+    if(como==="barata"&&(costoActual===null||!completoDe(candActual,dia,memo,slot)))return {ok:false,texto:"A esta comida le faltan precios y no puedo compararla. Completá los precios y probá de nuevo."};
     const vecina=delta=>{const i=DAYS.findIndex(d=>d[0]===dia)+delta;return i>=0&&i<DAYS.length?(sem.comidas.get(DAYS[i][0]+"|"+slot)||{}).k:undefined};
     let mejor=null,mejorPuntos=-1e9;
     for(const c of lista){
@@ -592,8 +594,8 @@ var ArmameSemana=(function(){
       if(c.tipo==="mia"&&c.item&&c.item.state&&c.item.state.day&&slotPool(slot)==="plato"){const d=diaDeRutinaDe(dia);if(d&&c.item.state.day!==d)continue}
       if(prohibido(c.ings))continue;
       if(slotPool(slot)==="plato"&&[...basesDe(c.ings)].some(b=>(sem.bases.get(b)||0)>=topeDe(b)))continue;
-      const v=costoDe(c,dia,memo),vc=v===null?med:v,base=costoActual===null?med:costoActual;
-      if(como==="barata"&&!(v!==null&&completoDe(c,dia,memo)&&v<costoActual-1))continue;
+      const v=costoDe(c,dia,memo,slot),vc=v===null?med:v,base=costoActual===null?med:costoActual;
+      if(como==="barata"&&!(v!==null&&completoDe(c,dia,memo,slot)&&v<costoActual-1))continue;
       const parecido=ingsActual.length?c.ings.filter(g=>ingsActual.includes(g)).length/ingsActual.length:0;
       const puntos=como==="barata"?-v+r()*0.01:parecido+r()*0.05;
       if(puntos>mejorPuntos){mejor=c;mejorPuntos=puntos;mejor._costo=vc}
