@@ -166,7 +166,10 @@ guardarHogarDeBienvenida(){
     }
   }
   try{
-    if(personas>1)guardarPersonasHogar(personas);
+    // Etapa 51: con chicos, se guarda quién come en casa (un chico cuenta media porción); sin chicos, lo de siempre.
+    const chicos=Number(document.getElementById("bienvenidaChicos").value)||0;
+    if(chicos>0&&typeof Comensales!=="undefined")Comensales.guardar({adultos:personas,chicos,porcionChico:0.5,huecos:{}});
+    else if(personas>1)guardarPersonasHogar(personas);
     Bienvenida.guardarEvitarDeBienvenida();
     if(limite!==null)localStorage.setItem(SHOP_BUDGET_KEY,JSON.stringify({currency:"ARS",limit:limite,period:"semana"}));
     if(region!=="GBA"||localStorage.getItem(REGION_PRECIOS_KEY)!==null)guardarRegionPrecios(region);

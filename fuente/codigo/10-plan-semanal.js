@@ -801,7 +801,7 @@ function crearHueco(dia,slot,it,porciones){
       if(fila!==texto)texto.append(fila);
       // ≈ costo de esta comida para el hogar (con los precios encendidos y cantidades conocidas).
       try{
-        const ct=typeof costoDeLaComida==="function"?costoDeLaComida(it,porciones[dia+"|"+slot]):null;
+        const ct=typeof costoDeLaComida==="function"?costoDeLaComida(it,porciones[dia+"|"+slot],dia,slot):null;
         if(ct)fila.append(ce("span","hueco__costo",ct))
       }catch(e){
       }
@@ -809,6 +809,8 @@ function crearHueco(dia,slot,it,porciones){
       let sobra="";
       try{sobra=SemanaAjustes.textoSobra(dia,slot,loadPlan())}catch(e){}
       if(sobra)texto.append(ce("span","hueco__sobra",sobra));
+      // Etapa 51: "Nadie come en casa" (la comida no suma a la lista ni a los costos).
+      if(typeof Comensales!=="undefined"&&Comensales.nadieEn(dia,slot))texto.append(ce("span","hueco__sobra","Nadie come en casa"));
       b.setAttribute("aria-label",Semana.nombreDelHueco(dia,slot)+": "+mealName(it)+(sobra?". "+sobra:"")+". Cambiar, quitar y más")
     }else{
       // Etapa 48: "Comemos afuera" (con el gasto, si se anotó).
@@ -820,7 +822,8 @@ function crearHueco(dia,slot,it,porciones){
         texto.append(ce("span","hueco__plato",SemanaAjustes.textoAfuera(dia,slot)));
         b.setAttribute("aria-label",Semana.nombreDelHueco(dia,slot)+": comemos afuera. Cambiar o quitar")
       }else{
-        texto.append(ce("span","hueco__plato is-empty","Sin elegir"));
+        const nadie=typeof Comensales!=="undefined"&&Comensales.nadieEn(dia,slot);
+        texto.append(ce("span","hueco__plato"+(nadie?"":" is-empty"),nadie?"Nadie come en casa":"Sin elegir"));
         b.setAttribute("aria-label","Elegir "+Semana.nombreDelHueco(dia,slot).toLowerCase())
       }
     }

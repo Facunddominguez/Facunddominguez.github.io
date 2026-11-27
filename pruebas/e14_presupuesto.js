@@ -68,7 +68,7 @@
   const t = $("planSemanaTitulo") && true;
   const costos = ev("costosDelPlan()"), conHogar = ev("personasHogar()"), region = ev("regionPrecios()");
   ev('go("preferencias")'); await espera(150);
-  const prefs = { personas: $("hogarPersonas").value, region: $("preciosRegion").value };
+  const prefs = { personas: $("comensalesResumen").textContent.replace(/ personas?$/, ""), region: $("preciosRegion").value };
   ok("C14-2 lo cargado en la bienvenida se ve en Compras (barra de presupuesto), Semana (costo para el hogar) y Preferencias",
     /45\.000/.test(barra) && conHogar === 2 && region === "Pampeana" && t && prefs.personas === "2" && prefs.region === "Pampeana", JSON.stringify({ barra, conHogar, region, prefs, costos }));
 

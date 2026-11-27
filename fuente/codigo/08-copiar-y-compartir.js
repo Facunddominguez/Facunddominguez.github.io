@@ -220,10 +220,10 @@ semanaParaCompartir(){
     if(typeof preciosActivos==="function"&&preciosActivos()&&preciosDataset()){
       // Esta semana: el mismo total que Semana y Compras. La que viene: con las comidas de su plan.
       const c=prox?(()=>{
-        const grupos=[],personas=personasHogar();
+        const grupos=[];
         for(const [key] of DAYS)for(const [slot] of SLOTS){
           const id=plan[key]&&plan[key][slot],a=id?cantidadesDeComida("plato",id):null;
-          if(a)grupos.push({rows:a.rows,factor:Semana.portionFactor(null,a)*personas})
+          if(a)grupos.push({rows:a.rows,factor:Semana.portionFactor(null,a)*porcionesEn(key,slot)})
         }
         return costoSemanaDeFilas(grupos)
       })():costoSemanaPlan();

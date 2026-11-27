@@ -5,7 +5,14 @@
 // El adaptador solo lee: los platos (miPlatoFacil_saved) y las recetas (miPlatoFacil_recipeDetails_v1) siguen separados.
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como Comidas.nombre().
 var Comidas={
-abrirComida(origen,id){
+// Etapa 51: si la ficha se abrió desde un hueco de la semana, sus cantidades usan las porciones de ese hueco; si no, las de siempre.
+contexto:null,
+porcionesDeFicha(){
+  const c=Comidas.contexto;
+  return c&&c.dia&&c.slot?porcionesEn(c.dia,c.slot):(typeof personasHogar==="function"?personasHogar():1)
+},
+abrirComida(origen,id,contexto){
+  Comidas.contexto=contexto||null;
   if(origen==="receta"){
     recipeReadReturnTo="misplatos";
     showRecipeRead(id);
@@ -73,7 +80,7 @@ pasosDeComida(){
 // Lo que necesita el modo cocina: título, ingredientes con las cantidades de la ficha y pasos (o null si no se puede cocinar).
 datosDeCocina(){
   if(!comidaActual)return null;
-  const pasos=Comidas.pasosDeComida(),personas=typeof personasHogar==="function"?personasHogar():1;
+  const pasos=Comidas.pasosDeComida(),personas=Comidas.porcionesDeFicha();
   const filas=receta=>{
     let am=null;
     try{am=loadRecipeAmounts()}catch(e){}
@@ -367,7 +374,7 @@ function pintarDetallePlato(it,conservarAviso){
   // Etapa 28: si la comida es una idea del catálogo, "Qué lleva" trae la cantidad para el hogar y debajo "Cómo se hace" con los pasos.
   let idea=null;
   try{idea=IdeasHoja.ideaDeComida(it)}catch(e){}
-  const personas=typeof personasHogar==="function"?personasHogar():1,pasos=document.getElementById("comidaPasos");
+  const personas=Comidas.porcionesDeFicha(),pasos=document.getElementById("comidaPasos");
   if(idea&&Array.isArray(idea.cantidades)&&idea.cantidades.length){
     ul.replaceChildren(...idea.cantidades.map(([n,q,u])=>{
       const li=ce("li"),b=ce("button","comida-ingrediente",n+" · "+IdeasHoja.textoCantidad(q*personas,u));b.type="button";b.dataset.nutrienteIngrediente=n;li.append(b);return li

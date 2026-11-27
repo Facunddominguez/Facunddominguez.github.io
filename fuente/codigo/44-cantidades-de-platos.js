@@ -6,7 +6,17 @@
 // Funciones de este archivo, agrupadas (Etapa 18). El resto de la app las llama como CantidadesPlatos.nombre().
 var CantidadesPlatos={
 cambiarPersonasHogar(valor){
-  const ok=guardarPersonasHogar(valor),st=document.getElementById("hogarPersonasEstado");
+  let ok;
+  // Etapa 51: con adultos y chicos cargados, este selector son los adultos de esa clave; miPlatoFacil_hogar_v1 no se toca.
+  if(typeof Comensales!=="undefined"&&Comensales.configurado()){
+    try{
+      Comensales.cambiar({adultos:Math.round(Number(valor))});
+      ok=true
+    }catch(e){
+      ok=false
+    }
+  }else ok=guardarPersonasHogar(valor);
+  const st=document.getElementById("hogarPersonasEstado");
   if(!ok&&st)st.textContent="No se pudo guardar.";
   renderHogar();
   try{renderCompras()}catch(e){}
@@ -23,6 +33,14 @@ function validBasicosFaltantes(o){
   return !!o&&typeof o==="object"&&!Array.isArray(o)&&Object.keys(o).length===1&&Array.isArray(o.faltan)&&o.faltan.length<=50&&o.faltan.every(x=>typeof x==="string"&&x.length>0&&x.length<=60)
 }
 function personasHogar(){
+  // Etapa 51: con adultos y chicos cargados (miPlatoFacil_comensales_v1), el total sale de ahí; si no, de miPlatoFacil_hogar_v1 como siempre.
+  try{
+    if(typeof Comensales!=="undefined"){
+      const b=Comensales.base();
+      if(b!==null)return b
+    }
+  }catch(e){
+  }
   try{
     const raw=localStorage.getItem(HOGAR_KEY);
     if(raw===null)return 1;
@@ -31,6 +49,22 @@ function personasHogar(){
   }catch(e){
     return 1
   }
+}
+// Etapa 51: las porciones de una comida de la semana. Función suelta (y no solo Comensales.porcionesEn) porque el arranque pinta la lista y Hoy
+// antes de que se cargue 51-comensales.js: hasta entonces vale lo de siempre.
+function porcionesEn(dia,slot){
+  try{
+    if(typeof Comensales!=="undefined"&&Comensales&&typeof Comensales.porcionesEn==="function")return Comensales.porcionesEn(dia,slot)
+  }catch(e){
+  }
+  return personasHogar()
+}
+function factorEnHueco(dia,slot){
+  try{
+    if(typeof Comensales!=="undefined"&&Comensales&&typeof Comensales.factorEn==="function")return Comensales.factorEn(dia,slot)
+  }catch(e){
+  }
+  return 1
 }
 function guardarPersonasHogar(n){
   const v=Math.round(Number(n));
@@ -248,7 +282,12 @@ function envasar(nombre,units){
 // Personas por hogar (Preferencias) y básicos de alacena (Despensa).
 function renderHogar(){
   const sel=document.getElementById("hogarPersonas");
-  if(sel)sel.value=String(personasHogar())
+  if(sel)sel.value=String(typeof Comensales!=="undefined"&&Comensales.configurado()?Comensales.leer().adultos:personasHogar());
+  try{
+    Comensales.pintar();
+    Comensales.resumen()
+  }catch(e){
+  }
 }
 var BASICOS_VISIBLES=["Aceite","Sal","Pimienta","Vinagre","Orégano","Pimentón","Comino","Ají molido"];
 function renderBasicos(){

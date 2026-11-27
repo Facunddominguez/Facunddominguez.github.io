@@ -509,7 +509,8 @@ document.addEventListener("click",e=>{
     const [dia,slot]=d.huecoCambiar.split("|");return abrirSelector(dia,slot)
   }
   if(d.huecoReceta){
-    huecoAbierto=null;hoja.cerrar();return Comidas.abrirComida("plato",d.huecoReceta)
+    const desde=huecoAbierto;
+    huecoAbierto=null;hoja.cerrar();return Comidas.abrirComida("plato",d.huecoReceta,desde?{dia:desde.dia,slot:desde.slot}:null)
   }
   if(d.selectorId)return Selector.elegirEnSelector(h=>Selector.asignarHueco(h.dia,h.slot,d.selectorId));
   if(d.selectorReceta)return Selector.elegirEnSelector(h=>asignarRecetaAlPlan(d.selectorReceta,h.dia,h.slot,false));
