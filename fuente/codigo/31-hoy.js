@@ -111,6 +111,9 @@ function filaHoy(day,slot,plan,byId,esHoy,primera){
     action.type="button";
     if(esHoy)action.dataset.todayChoose=slot;else action.dataset.huecoHoy=day+"|"+slot;
     action.setAttribute("aria-label","Elegir "+Semana.nombreDelHueco(day,slot).toLowerCase())
+  }else if(esHoy&&nadie){
+    // Etapa 51: donde nadie come en casa no hay nada para anotar.
+    action=null
   }else if(esHoy&&eatenToday(it,slot))action=ce("span","today-row__done","✓ Lo comí");
   else if(esHoy){
     action=ce("button","button button--soft","Lo comí");

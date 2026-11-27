@@ -3798,6 +3798,8 @@ body:has(#gustoPregunta:not(.gusto-pregunta--cocina)){padding-bottom:72px}
 .poco-grilla{display:grid;gap:4px;margin:8px 0}
 .poco-fila{display:grid;grid-template-columns:76px minmax(0,1fr) minmax(0,1fr);gap:6px;align-items:center}
 .poco-fila__dia{font-weight:700}
+.poco-fila__slot{font-size:13px;color:var(--muted);text-align:center}
+.poco-chip[aria-pressed="true"]::after{content:"✓";font-weight:800}
 .poco-chip{min-height:44px;min-width:0;justify-content:center;padding-left:6px;padding-right:6px}
 .poco-chip[aria-pressed="true"]{background:var(--green);border-color:var(--green);color:var(--on-green)}
 /* Etapa 50: avisos de Hoy ("Para mañana" y "Para comprar hoy"). */
@@ -3809,7 +3811,6 @@ body:has(#gustoPregunta:not(.gusto-pregunta--cocina)){padding-bottom:72px}
 .hoy-aviso__fila{display:flex;align-items:center;gap:10px}
 .hoy-aviso__texto{flex:1 1 auto;margin:0;line-height:1.35}
 .hoy-aviso .button{flex:0 0 auto;min-height:44px;margin:0;padding:6px 14px}
-.hoy-aviso--comprar{display:flex;align-items:center;gap:10px}
 /* Etapa 51: quién come en cada comida (Preferencias). */
 .comensales-grilla{display:grid;gap:4px;margin:8px 0}
 .comensales-fila{display:grid;grid-template-columns:72px repeat(4,minmax(0,1fr));gap:4px;align-items:center}
@@ -3820,6 +3821,9 @@ body:has(#gustoPregunta:not(.gusto-pregunta--cocina)){padding-bottom:72px}
 #ticketCargar[hidden]{display:none}
 #ticketCargar{margin-top:8px}
 .ticket-fila{border:1px solid var(--line);border-radius:12px;padding:8px;margin:8px 0}
+.hoy-aviso--comprar{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.hoy-aviso--comprar .hoy-aviso__texto{flex:1 1 100%;min-width:0;overflow-wrap:anywhere}
+.hoy-aviso--comprar .button{flex:1 1 100%;max-width:100%}
 </style></head><body>
 <div class="app-shell"><header class="app-header"><div class="app-header__row"><div class="brand"><div><h1 class="brand__title" aria-label="Mi Plato Fácil"><span class="wordmark-mi">mi</span> plato <span class="wordmark-facil">fácil</span></h1></div></div><button class="home-button" id="homeTop" type="button">Inicio</button></div></header><main id="appMain">
 <section class="screen card is-active" id="home"><p class="screen__kicker">Hoy</p><h2 class="screen__title">Hoy</h2><p class="screen__hint"></p><div class="today" id="todayPanel"><div class="today__entreno" id="todayEntreno"></div><p class="today__costo" id="todayCosto" hidden></p><p class="today__primera" id="todayPrimera" hidden></p><div class="today__rows" id="todayRows"></div><div class="hoy-avisos" id="hoyAvisos" hidden></div><p class="screen__hint today__status" id="todayStatus" aria-live="polite"></p><p class="respaldo-aviso" id="todayRespaldo" hidden></p></div><div class="home-group home-group--main hoy-acciones">
@@ -12013,6 +12017,8 @@ function filaHoy(day,slot,plan,byId,esHoy,primera){
     action.type="button";
     if(esHoy)action.dataset.todayChoose=slot;else action.dataset.huecoHoy=day+"|"+slot;
     action.setAttribute("aria-label","Elegir "+Semana.nombreDelHueco(day,slot).toLowerCase())
+  }else if(esHoy&&nadie){
+    action=null
   }else if(esHoy&&eatenToday(it,slot))action=ce("span","today-row__done","✓ Lo comí");
   else if(esHoy){
     action=ce("button","button button--soft","Lo comí");
@@ -14046,7 +14052,7 @@ function pintarDetallePlato(it,conservarAviso){
   }):[ce("li",null,"Sin ingredientes cargados")]));
   {
     const h=document.querySelector("#comidaPlato h4");
-    if(h)h.textContent=idea&&Array.isArray(idea.cantidades)&&idea.cantidades.length?"Qué lleva · para "+personas+(personas===1?" persona":" personas"):"Qué lleva"
+    if(h)h.textContent=idea&&Array.isArray(idea.cantidades)&&idea.cantidades.length?(personas===0?"Qué lleva · nadie come en casa":"Qué lleva · para "+String(personas).replace(".",",")+(personas===1?" porción":" porciones")):"Qué lleva"
   }
   if(pasos){
     const lista=Comidas.pasosDeComida(),hay=lista.length>0;
@@ -14321,7 +14327,8 @@ guardarHogarDeBienvenida(){
   }
   try{
     const chicos=Number(document.getElementById("bienvenidaChicos").value)||0;
-    if(chicos>0&&typeof Comensales!=="undefined")Comensales.guardar({adultos:personas,chicos,porcionChico:0.5,huecos:{}});
+    if(typeof Comensales!=="undefined"&&Comensales.configurado())Comensales.cambiar({adultos:personas,chicos});
+    else if(chicos>0&&typeof Comensales!=="undefined")Comensales.guardar({adultos:personas,chicos,porcionChico:0.5,huecos:{}});
     else if(personas>1)guardarPersonasHogar(personas);
     Bienvenida.guardarEvitarDeBienvenida();
     if(limite!==null)localStorage.setItem(SHOP_BUDGET_KEY,JSON.stringify({currency:"ARS",limit:limite,period:"semana"}));
@@ -16586,7 +16593,7 @@ var ArmameSemana=(function(){
     const pool=slot=>slotPool(slot)==="plato"?cp:cd;
     const medianaDe=slot=>{
       const p=slotPool(slot);
-      if(imputados[p]===null)imputados[p]=mediana(pool(slot).map(c=>costoDe(c,"lunes",memo,slot)));
+      if(imputados[p]===null)imputados[p]=mediana(pool(slot).map(c=>costoDe(c,"lunes",memo)));
       return imputados[p]
     };
     const costo=(c,dia,slot)=>{const v=costoDe(c,dia,memo,slot);return v===null?medianaDe(slot):v};
@@ -17829,11 +17836,13 @@ pintar(){
     }
     sel.value=String(r.minutos)
   }
-  g.replaceChildren(...DAYS.map(([d,nombre])=>{
+  const cab=ce("div","poco-fila poco-fila--cab");
+  cab.append(ce("span"),ce("span","poco-fila__slot",Semana.planSlotName("almuerzo")),ce("span","poco-fila__slot",Semana.planSlotName("cena")));
+  g.replaceChildren(cab,...DAYS.map(([d,nombre])=>{
     const fila=ce("div","poco-fila"),et=ce("span","poco-fila__dia",nombre);
     fila.append(et);
     for(const slot of ["almuerzo","cena"]){
-      const b=ce("button","filter-chip poco-chip",Semana.planSlotName(slot)),on=r.huecos.includes(d+"|"+slot);
+      const b=ce("button","filter-chip poco-chip"),on=r.huecos.includes(d+"|"+slot);
       b.type="button";
       b.dataset.pocoTiempo=d+"|"+slot;
       b.setAttribute("aria-pressed",String(on));
@@ -17913,7 +17922,7 @@ comidasDe(cual){
     d=diaSiguienteDelPlan(dia);
     plan=dia==="domingo"?Semana.planDeLaSemana("proxima"):loadPlan()
   }else plan=loadPlan();
-  return HOY_COMIDAS.map(s=>plan[d]&&plan[d][s]?byId.get(plan[d][s]):null).filter(Boolean)
+  return HOY_COMIDAS.filter(s=>!(typeof Comensales!=="undefined"&&Comensales.nadieEn(d,s))).map(s=>plan[d]&&plan[d][s]?byId.get(plan[d][s]):null).filter(Boolean)
 },
 palabras(texto){
   return normalizeSearchText(String(texto||"")).split(/[^a-z0-9ñ]+/).filter(Boolean)
@@ -17981,13 +17990,14 @@ paraComprarHoy(){
       if(!k||vistos.has(k))continue;
       vistos.add(k);
       if(tengo.has(nombre)||stock.has(k)||marcas.t.has(k)||marcas.c.has(k))continue;
-      out.push(nombre.charAt(0).toLowerCase()+nombre.slice(1))
+      const corto=Compras.nombreCorto(nombre);
+      out.push(corto.charAt(0).toLowerCase()+corto.slice(1))
     }
   }
   return out
 },
 texto(nombres){
-  const a=nombres.length>4?nombres.slice(0,4).concat("otros "+(nombres.length-4)):nombres;
+  const a=nombres.length>3?nombres.slice(0,3).concat("otros "+(nombres.length-3)):nombres;
   return a.length>1?a.slice(0,-1).join(", ")+" y "+a.at(-1):a[0]
 },
 pintar(){
