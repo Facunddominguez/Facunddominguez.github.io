@@ -1,0 +1,19 @@
+{
+ "version": 1,
+ "fuente": {
+  "nombre": "Gobierno de la Ciudad de Buenos Aires, Mi Escuela Saludable (Desarrollo Saludable): frutas y verduras de cada estación",
+  "url": "https://www.buenosaires.gob.ar/sites/default/files/media/document/2020/05/21/0d92ccba16654596dfe3499783fa4eeebd6cedaa.pdf",
+  "fecha": "2020-05-21",
+  "consultado": "2026-11-28",
+  "nota": "Las listas son las del documento, por estación. Los meses de cada estación (hemisferio sur) y los sinónimos los agrega la app."
+ },
+ "meses": {"verano": [12, 1, 2], "otono": [3, 4, 5], "invierno": [6, 7, 8], "primavera": [9, 10, 11]},
+ "temporadas": {
+  "verano": {"frutas": ["ciruela", "durazno", "limón", "melón", "naranja", "pera", "sandía", "uva"], "verduras": ["batata", "choclo", "pepino", "pimiento", "tomate"]},
+  "otono": {"frutas": ["mandarina", "manzana", "pera", "uva", "palta", "limón"], "verduras": ["apio", "berenjena", "choclo", "pimiento", "tomate", "zapallito", "zapallo", "batata"]},
+  "invierno": {"frutas": ["mandarina", "manzana", "pomelo", "frutilla", "palta"], "verduras": ["alcaucil", "apio", "batata", "berenjena", "choclo", "pimiento", "repollo", "zapallito", "zapallo"]},
+  "primavera": {"frutas": ["durazno", "damasco", "frutilla", "naranja", "melón", "pera", "pomelo", "sandía", "uva", "palta", "limón"], "verduras": ["berenjena", "apio", "choclo", "espárrago", "pepino", "pimiento", "repollo", "tomate", "zapallito", "zapallo"]}
+ },
+ "todoElAnio": {"verduras": ["ajo", "cebolla", "chaucha", "lechuga", "zanahoria", "papa"]},
+ "sinonimos": {"pimiento": ["morron"]}
+}

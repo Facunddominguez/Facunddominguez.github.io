@@ -151,7 +151,7 @@ pintar(){
     sec.dataset.hoyComprarHoy="";
     b.type="button";
     b.dataset.hoyVerLista="";
-    sec.append(ce("p","hoy-aviso__texto","Para comprar hoy: "+HoyAnticipa.texto(comprar)),b);
+    sec.append(ce("p","hoy-aviso__texto","Para comprar hoy: "+(typeof Estacion!=="undefined"?Estacion.conEjemplos(HoyAnticipa.texto(comprar)):HoyAnticipa.texto(comprar))),b);
     hijos.push(sec)
   }
   caja.replaceChildren(...hijos);

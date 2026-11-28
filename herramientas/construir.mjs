@@ -68,6 +68,16 @@ const archivoAvisos = JSON.parse(await leer('datos/avisos-hoy.json'));
   if (archivoAvisos.version !== 1 || !pal || typeof pal !== 'object' || !Object.entries(pal).every(([k, v]) => /^[a-z]+$/.test(k) && ['el', 'la', 'los', 'las'].includes(v))
     || !lista(archivoAvisos.legumbres.excluir) || !lista(archivoAvisos.legumbres.remojo) || !lista(archivoAvisos.congelados && archivoAvisos.congelados.palabras) || !lista(archivoAvisos.congelados.excluir) || !lista(archivoAvisos.pasos && archivoAvisos.pasos.palabras)) throw new Error('datos/avisos-hoy.json no tiene la forma esperada (palabras en minúscula y sin tildes)');
 }
+// Frutas y verduras de estación (Ronda 6, Etapa 54; v20.11): listas por estación con su fuente citada.
+const archivoEstacion = JSON.parse(await leer('datos/estacion.json'));
+{
+  const f = archivoEstacion.fuente, est = ['verano', 'otono', 'invierno', 'primavera'], meses = est.flatMap(t => (archivoEstacion.meses || {})[t] || []);
+  const lista = a => Array.isArray(a) && a.length > 0 && a.every(x => typeof x === 'string' && x.trim() && x === x.toLowerCase());
+  if (archivoEstacion.version !== 1 || !f || !f.nombre || !/^https:\/\//.test(f.url || '') || !/^\d{4}-\d{2}-\d{2}$/.test(f.fecha || '')
+    || meses.length !== 12 || new Set(meses).size !== 12 || !est.every(t => archivoEstacion.temporadas && archivoEstacion.temporadas[t] && lista(archivoEstacion.temporadas[t].frutas) && lista(archivoEstacion.temporadas[t].verduras)))
+    throw new Error('datos/estacion.json no tiene la forma esperada (fuente con nombre, url y fecha; 12 meses; frutas y verduras por estación, en minúscula)');
+}
+const datosEstacion = JSON.stringify(archivoEstacion).replace(/<\//g, '<\\/').split('\u2028').join('\\u2028').split('\u2029').join('\\u2029');
 const datosAvisos = JSON.stringify(archivoAvisos).replace(/<\//g, '<\\/').split('\u2028').join('\\u2028').split('\u2029').join('\\u2029');
 
 if (Buffer.byteLength(datosPrecios) > 80000) throw new Error('datos/precios.json pesa más de 80.000 bytes: ' + Buffer.byteLength(datosPrecios));
@@ -75,7 +85,7 @@ if (Buffer.byteLength(datosPrecios) > 80000) throw new Error('datos/precios.json
 let html = await leer('fuente/plantilla.html');
 html = unaVez(html, '{{ESTILOS}}', (await leer('fuente/estilos.css')).replace(/\n+$/, ''));
 html = unaVez(html, '{{CUERPO}}', cuerpo);
-html = unaVez(html, '{{CODIGO}}', unaVez(unaVez(unaVez(unaVez(unaVez(codigo, '__DATOS_NUTRICION__', datos), '__DATOS_PRECIOS__', datosPrecios), '__DATOS_ENVASES__', datosEnvases), '__DATOS_IDEAS__', datosIdeas), '__DATOS_AVISOS_HOY__', datosAvisos));
+html = unaVez(html, '{{CODIGO}}', unaVez(unaVez(unaVez(unaVez(unaVez(unaVez(codigo, '__DATOS_NUTRICION__', datos), '__DATOS_PRECIOS__', datosPrecios), '__DATOS_ENVASES__', datosEnvases), '__DATOS_IDEAS__', datosIdeas), '__DATOS_AVISOS_HOY__', datosAvisos), '__DATOS_ESTACION__', datosEstacion));
 html = unaVez(html, '{{VERSION}}', version);
 const sw = unaVez(await leer('fuente/sw.js'), '{{VERSION}}', version);
 
@@ -83,7 +93,7 @@ const sw = unaVez(await leer('fuente/sw.js'), '{{VERSION}}', version);
 const script = html.slice(html.indexOf('<script>') + 8, html.lastIndexOf('</script>'));
 new vm.Script(script, { filename: 'index.html' });
 new vm.Script(sw, { filename: 'sw.js' });
-if (/\{\{[A-Z]+\}\}|__DATOS_NUTRICION__|__DATOS_PRECIOS__|__DATOS_ENVASES__|__DATOS_IDEAS__|__DATOS_AVISOS_HOY__/.test(html)) throw new Error('Quedaron marcas sin reemplazar en index.html');
+if (/\{\{[A-Z]+\}\}|__DATOS_NUTRICION__|__DATOS_PRECIOS__|__DATOS_ENVASES__|__DATOS_IDEAS__|__DATOS_AVISOS_HOY__|__DATOS_ESTACION__/.test(html)) throw new Error('Quedaron marcas sin reemplazar en index.html');
 
 const topeHtml = Math.min(1100000, Number(arg('--tope-html')) || 1100000), topeGzip = Math.min(300000, Number(arg('--tope-gzip')) || 300000);
 if (Buffer.byteLength(html) > topeHtml) throw new Error(`index.html pesa más de ${topeHtml.toLocaleString('es-AR')} bytes: ${Buffer.byteLength(html)}`);

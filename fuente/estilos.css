@@ -3829,3 +3829,9 @@ body:has(#gustoPregunta:not(.gusto-pregunta--cocina)){padding-bottom:72px}
 .ticket-fila>button{grid-column:6;grid-row:1;min-width:0;min-height:var(--tap);padding:0}
 .ticket-fila input,.ticket-fila select{width:100%;min-width:0;min-height:var(--tap);padding:10px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--text);font:inherit}
 .ticket-fila .purchase-campo:last-child{grid-column:1 / -1}
+/* v20.11: botones de la ficha que se ocultan porque ya están en ⋯ o arriba ("← Comidas"). */
+#recipeReadAcciones>[hidden]{display:none}
+/* v20.11 (R6-E-03): marca "de estación" en la lista y al elegir una comida. */
+.marca-estacion{display:inline-block;margin-left:4px;padding:1px 8px;border-radius:999px;font-size:12px;font-weight:700;line-height:1.5;color:var(--green);background:color-mix(in srgb,var(--green) 12%,transparent);white-space:nowrap;vertical-align:baseline}
+.shop-item label[data-de-estacion]::after{content:"de estación";display:inline-block;margin-left:6px;padding:1px 8px;border-radius:999px;font-size:12px;font-weight:700;line-height:1.5;color:var(--green);background:color-mix(in srgb,var(--green) 12%,transparent);white-space:nowrap;vertical-align:baseline}
+.selector-item__estacion{align-self:flex-start;justify-self:start;width:max-content;max-width:100%;margin:2px 0 0}

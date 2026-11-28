@@ -72,6 +72,10 @@ export const ESCENAS = [
   { id: 'principal-comidas', items: ['O-03'], ir: HOY('2026-11-24') + 'openTab("miscomidas"); ' + esperar },
   { id: 'principal-compras', items: ['O-03'], fija: true, ir: HOY('2026-11-24') + 'openTab("compras"); ' + esperar },
   { id: 'principal-mas', items: ['O-03'], oscuro: true, ir: HOY('2026-11-24') + 'openTab("mas"); ' + esperar },
+  // Etapa 54 · Frutas y verduras de estación (completada en la v20.11; jueves 26/11 = primavera)
+  { id: 'estacion-lista', items: ['E-02', 'E-03'], oscuro: true, ir: HOY('2026-11-26') + armarSemana + 'openTab("compras"); ' + esperar },
+  { id: 'estacion-selector', items: ['E-03'], ir: HOY('2026-11-26') + armarSemana + 'Semana.elegirDiaPlan("miercoles"); renderPlan(); abrirSelector("miercoles", "almuerzo"); ' + esperar, medir: '.hoja' },
+  { id: 'estacion-detalle', items: ['E-01', 'E-04'], ir: HOY('2026-11-26') + armarSemana + '{ const d = [...document.querySelectorAll("details")].find(x => x.querySelector("summary") && /Ver detalle/.test(x.querySelector("summary").textContent)); if (d) d.open = true; } ' + esperar },
 ];
 // Ítems que se comprueban en la salida de una herramienta y no en una pantalla: su "captura" es un texto
 // (docs/capturas-ronda-6/<nombre>-antes.txt y -despues.txt).

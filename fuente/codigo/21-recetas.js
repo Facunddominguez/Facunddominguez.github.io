@@ -599,6 +599,11 @@ function showRecipeRead(id){
   document.getElementById("recipeCatalogResults").hidden=true;
   panel.hidden=false;
   document.getElementById("recipeReadBack").textContent=recipeReadReturnTo==="misplatos"?"← Volver a Comidas":"← Volver";
+  // v20.11: menos botones en la ficha. "Volver a Comidas" repite el "← Comidas" de arriba, y Duplicar y Agregar lo que
+  // falta a Compras ya están en ⋯ (que los toca igual estando ocultos). "← Volver" (desde Semana u Hoy) se sigue viendo.
+  document.getElementById("recipeReadBack").hidden=recipeReadReturnTo==="misplatos";
+  document.getElementById("recipeReadDuplicate").hidden=true;
+  document.getElementById("recipeReadToShopping").hidden=true;
   document.getElementById("recipeReadStatus").textContent="";
   document.getElementById("recipeReadTitle").textContent=r.title;
   document.getElementById("recipeReadOrigin").textContent=r.sourceTitle?"Idea de origen: "+r.sourceTitle:"Receta propia";
@@ -611,7 +616,7 @@ function showRecipeRead(id){
     const ul=ce("ul","comida-componentes");
     for(const row of amount.rows){
       // Cada ingrediente se toca para ver sus nutrientes (v15.3); el texto de la fila no cambia.
-      const li=ce("li"),b=ce("button","comida-ingrediente",row.name+": "+(row.quantity===null?"cantidad desconocida":row.quantity+" "+row.unit));
+      const li=ce("li"),b=ce("button","comida-ingrediente",(typeof Estacion!=="undefined"?Estacion.conEjemplos(row.name):row.name)+": "+(row.quantity===null?"cantidad desconocida":row.quantity+" "+row.unit));
       b.type="button";
       b.dataset.nutrienteIngrediente=row.name;
       li.append(b);
@@ -633,7 +638,9 @@ function showRecipeRead(id){
   panel.scrollIntoView({
     block:"start",behavior:"smooth"
   });
-  document.getElementById("recipeReadBack").focus({
+  const foco=document.getElementById("recipeReadBack");
+  if(foco.hidden)document.getElementById("recipeReadTitle").tabIndex=-1;
+  (foco.hidden?document.getElementById("recipeReadTitle"):foco).focus({
     preventScroll:true
   })
 }
