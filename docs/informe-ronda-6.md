@@ -81,6 +81,6 @@ Versión final: **20.10.0**. Rama `rediseno-6` → `main`. Esta página es la de
 
 ## Pendientes para vos
 
-- **P-02 (SEPA, HTTP 403 desde GitHub):** correr `node herramientas/actualizar-precios.mjs` desde tu computadora una vez por semana (o un runner autoalojado), o pedir a la Secretaría de Comercio que deje pasar a GitHub Actions. Detalle y opciones en `docs/ronda-6-lista.md`.
-- **E-01 a E-04 (frutas y verduras de estación):** no se pudo armar `datos/estacion.json` porque desde este entorno ningún sitio con el calendario oficial responde (`buenosaires.gob.ar`, `argentina.gob.ar` y notas de prensa quedaron fuera de la red permitida) y inventarlo no corresponde. Hace falta habilitar el dominio o pasar la fuente; con el archivo, E-02 a E-04 se hacen sin tocar nada más. Opciones en `docs/ronda-6-lista.md`.
-- El botón "📅 Mañana" de Hoy muestra, un domingo, el lunes de la semana que ya pasó (código de antes de la ronda); "Para mañana" ya mira la semana que viene.
+- **P-02 (SEPA, HTTP 403 desde GitHub):** correr `node herramientas/actualizar-precios.mjs` desde tu computadora una vez por semana (o un runner autoalojado), o pedir a la Secretaría de Comercio que deje pasar a GitHub Actions. Detalle y opciones en `docs/ronda-6-lista.md`. Paso a paso: `docs/actualizar-precios-a-mano.md`.
+- ~~**E-01 a E-04 (frutas y verduras de estación)**~~: hechos en la v20.11 con la fuente del Gobierno de la Ciudad de Buenos Aires (ver `docs/ronda-6-lista.md`).
+- ~~El botón "📅 Mañana" de Hoy mostraba, un domingo, el lunes de la semana que ya pasó~~: arreglado en la v20.11.

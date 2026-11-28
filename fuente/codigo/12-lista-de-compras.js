@@ -305,8 +305,11 @@ shoppingRow(x,i,checked,detail){
   // La ficha (nutrientes, fuente, mes y rango del precio) se abre con el botón "ⓘ" de la derecha, que no tacha.
   // El importe ("≈ $135") va en un bloque que no se parte; el resto del texto puede bajar de línea (a 320 px, "sin precio · estimado" es largo).
   const imp=x.precioTxt?/^(.*?)(≈ \$[\d.]+)$/.exec(x.precioTxt):null;
-  lab.append(document.createTextNode(Ingredientes.textoLegible(x.cortar?Compras.nombreCorto(x.text):x.text)+(x.precioTxt?" · "+(imp?imp[1]:x.precioTxt):"")));
+  lab.append(document.createTextNode((typeof Estacion!=="undefined"?Estacion.conEjemplos(Ingredientes.textoLegible(x.cortar?Compras.nombreCorto(x.text):x.text)):Ingredientes.textoLegible(x.cortar?Compras.nombreCorto(x.text):x.text))+(x.precioTxt?" · "+(imp?imp[1]:x.precioTxt):"")));
   if(imp)lab.append(ce("span","shop-item__precio",imp[2]));
+  // v20.11 (R6-E-03): lo de estación lleva la marca "de estación". Va como ::after del texto (CSS), así el texto de la fila
+  // (el que se copia, se comparte y miran las pruebas) no cambia.
+  if(typeof Estacion!=="undefined"&&Estacion.es(x.name))lab.dataset.deEstacion="1";
   cb.type="checkbox";
   cb.checked=checked;
   cb.dataset.shopKey=x.key;

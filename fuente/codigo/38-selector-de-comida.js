@@ -303,7 +303,7 @@ function seccionesSelector(h,q){
   const noGusta=new Set(items.filter(it=>{try{return Gustos.disgustada(Gustos.claveDe(mealName(it)))}catch(e){return false}}).map(it=>it.id));
   const fila=it=>{
     const motivo=motivoDe(it)||(noGusta.has(it.id)?"No te gustó":""),b=ce("button","selector-item"+(it.id===h.id?" is-actual":"")+(motivo?" is-apagado":""));b.type="button";b.dataset.selectorId=it.id;b.append(ce("span","selector-item__nombre",Semana.planPlateLabel(it,nombre(it))));
-    if(motivo){b.append(ce("span","selector-item__motivo",motivo));b.setAttribute("aria-label",nombre(it)+". "+motivo)}const d=savedItemLines(it).join(" · ");if(d)b.append(ce("span","selector-item__detalle",d));if(it.id===h.id)b.setAttribute("aria-current","true");return b
+    if(!motivo&&typeof Estacion!=="undefined"){let ing=[];try{ing=Semana.extractIngredients(it)}catch(e){}if(Estacion.deLista(ing).length)b.append(Estacion.marca("marca-estacion selector-item__estacion"))}if(motivo){b.append(ce("span","selector-item__motivo",motivo));b.setAttribute("aria-label",nombre(it)+". "+motivo)}const d=savedItemLines(it).join(" · ");if(d)b.append(ce("span","selector-item__detalle",d));if(it.id===h.id)b.setAttribute("aria-current","true");return b
   };
   const seccion=(titulo,clave,filas,vacio)=>{
     const s=ce("section","selector-seccion");s.dataset.selectorSeccion=clave;s.append(ce("h3","selector-seccion__titulo",titulo));if(filas.length)s.append(...filas);else s.append(ce("p","screen__hint",vacio));return s
@@ -330,7 +330,7 @@ function seccionesSelector(h,q){
     const yaEstan=new Set(items.map(it=>normalizeSearchText(mealName(it))));
     let ideasD=(data.desayunoCatalog||[]).filter(i=>textoPermitido(textoDeIdea(i))&&coincide(i.text+" "+(i.tags||[]).join(" "))&&!yaEstan.has(normalizeSearchText(i.text)));
     out.push(seccion("Ideas","ideas",ideasD.slice(0,n?20:6).map(i=>{
-      const b=ce("button","selector-item");b.type="button";b.dataset.selectorIdea=i.text;b.append(ce("span","selector-item__nombre","💡 "+i.text));return b
+      const b=ce("button","selector-item");b.type="button";b.dataset.selectorIdea=i.text;b.append(ce("span","selector-item__nombre","💡 "+i.text));if(typeof Estacion!=="undefined"&&Estacion.deLista((i.cantidades||[]).map(c=>c[0])).length)b.append(Estacion.marca("marca-estacion selector-item__estacion"));return b
     }),n?"Ninguna idea coincide.":"No hay ideas de desayuno que no tengan lo que evitás."))
   }
   if(h.slot==="almuerzo"||h.slot==="cena"){
@@ -344,7 +344,7 @@ function seccionesSelector(h,q){
     ideas=ideas.filter(x=>{const k=normalizeSearchText(x.idea.text);if(yaEstan.has(k)||vistas.has(k))return false;vistas.add(k);return true});
     ideas.sort((a,b)=>b.peso-a.peso);
     out.push(seccion("Ideas","ideas",ideas.slice(0,n?20:6).map(x=>{
-      const b=ce("button","selector-item");b.type="button";b.dataset.selectorIdea=x.idea.text;b.append(ce("span","selector-item__nombre","💡 "+x.idea.text));return b
+      const b=ce("button","selector-item");b.type="button";b.dataset.selectorIdea=x.idea.text;b.append(ce("span","selector-item__nombre","💡 "+x.idea.text));if(typeof Estacion!=="undefined"&&Estacion.deLista((x.idea.cantidades||[]).map(c=>c[0])).length)b.append(Estacion.marca("marca-estacion selector-item__estacion"));return b
     }),n?"Ninguna idea coincide.":avisoSinSugerencias()));
     const pocas=dietaAvisoPocas();
     if(pocas)out.at(-1).append(ce("p","screen__hint",pocas))

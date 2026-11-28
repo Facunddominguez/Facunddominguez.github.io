@@ -377,10 +377,10 @@ function pintarDetallePlato(it,conservarAviso){
   const personas=Comidas.porcionesDeFicha(),pasos=document.getElementById("comidaPasos");
   if(idea&&Array.isArray(idea.cantidades)&&idea.cantidades.length){
     ul.replaceChildren(...idea.cantidades.map(([n,q,u])=>{
-      const li=ce("li"),b=ce("button","comida-ingrediente",n+" · "+IdeasHoja.textoCantidad(q*personas,u));b.type="button";b.dataset.nutrienteIngrediente=n;li.append(b);return li
+      const li=ce("li"),b=ce("button","comida-ingrediente",(typeof Estacion!=="undefined"?Estacion.conEjemplos(n):n)+" · "+IdeasHoja.textoCantidad(q*personas,u));b.type="button";b.dataset.nutrienteIngrediente=n;li.append(b);return li
     }))
   }else ul.replaceChildren(...(c.componentes.length?c.componentes.map(n=>{
-    const li=ce("li"),b=ce("button","comida-ingrediente",n);b.type="button";b.dataset.nutrienteIngrediente=n;li.append(b);return li
+    const li=ce("li"),b=ce("button","comida-ingrediente",(typeof Estacion!=="undefined"?Estacion.conEjemplos(n):n));b.type="button";b.dataset.nutrienteIngrediente=n;li.append(b);return li
   }):[ce("li",null,"Sin ingredientes cargados")]));
   {
     const h=document.querySelector("#comidaPlato h4");

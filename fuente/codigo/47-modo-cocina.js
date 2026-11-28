@@ -158,7 +158,7 @@ pintar(){
         fila.classList.toggle("is-hecho",cb.checked)
       });
       fila.classList.toggle("is-hecho",cb.checked);
-      fila.append(cb,ce("span",null,Ingredientes.textoLegible(texto)));
+      fila.append(cb,ce("span",null,(typeof Estacion!=="undefined"?Estacion.conEjemplos(Ingredientes.textoLegible(texto)):Ingredientes.textoLegible(texto))));
       cuerpo.append(fila)
     })
   }else{

@@ -212,7 +212,8 @@ function renderToday(){
 }
 // v19.5 (R5-H-05): "Mañana" es un botón que abre las comidas de mañana en una hoja (antes era un desplegable).
 function abrirMananaHoy(){
-  const day=todayPlanDay(),plan=loadPlan(),byId=new Map(MisPlatos.loadSaved().map(p=>[p.id,p])),manana=diaSiguienteDelPlan(day),filas=ce("div","today__rows");
+  // v20.11: mañana de un domingo es el lunes de la semana que viene (antes mostraba el lunes de esta semana, que ya pasó).
+  const day=todayPlanDay(),plan=day==="domingo"?Semana.planDeLaSemana("proxima"):loadPlan(),byId=new Map(MisPlatos.loadSaved().map(p=>[p.id,p])),manana=diaSiguienteDelPlan(day),filas=ce("div","today__rows");
   filas.append(...HOY_COMIDAS.map(slot=>filaHoy(manana,slot,plan,byId,false,false)));
   hoja.abrir({
     titulo:"Mañana · "+Semana.planDayName(manana).toLowerCase(),contenido:[filas],botones:[],foco:false

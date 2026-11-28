@@ -270,7 +270,7 @@ var ArmameSemana=(function(){
       return m
     };
     const esPoco=pos=>reglas.huecos.includes(pos);
-    const porque={favoritas:new Set(),gustadas:new Set(),poco:0,sinPoco:[],repetidas:[]};
+    const porque={favoritas:new Set(),gustadas:new Set(),poco:0,sinPoco:[],repetidas:[],estacion:new Set()};
     const presupuesto=presupuestoSemanal(),imputados={plato:null,desayuno:null};
     const pool=slot=>slotPool(slot)==="plato"?cp:cd;
     const medianaDe=slot=>{
@@ -325,7 +325,7 @@ var ArmameSemana=(function(){
       if(asignadas.has(pos))continue;
       const meta=objetivo(slot),faltaGrupo={};
       for(const g of GRUPOS_META)if(metas[g])faltaGrupo[g]=metas[g]-contarGrupo(g);
-      let mejor=null,mejorPuntos=-1e9;
+      let mejor=null,mejorPuntos=-1e9,mejorEst=0;
       for(const pasada of PASADAS){
       for(const c of pool(slot)){
         if(!valido(c,dia,slot,pos,pasada))continue;
@@ -339,7 +339,10 @@ var ArmameSemana=(function(){
         // Etapa 49: prefiere tus favoritas, las comidas con "Sí" y las que más comiste; baja lo que tiene más "No" que "Sí".
         if(esFavorita(c))puntos+=4;
         puntos+=1.5*Gustos.puntaje(c.k,gustos)+0.5*Math.min(4,veces.get(c.k)||0);
-        if(puntos>mejorPuntos){mejor=c;mejorPuntos=puntos}
+        // v20.11 (R6-E-04): desempate por frutas y verduras de estación. Solo entre opciones casi iguales (a 0,05 puntos o
+        // menos) gana la que tiene más cosas de estación; si no, manda el puntaje, como siempre.
+        const est=typeof Estacion!=="undefined"?Math.min(2,Estacion.deLista(c.ings).length):0;
+        if(puntos>mejorPuntos+0.05||(puntos>mejorPuntos-0.05&&(est!==mejorEst?est>mejorEst:puntos>mejorPuntos))){mejor=c;mejorPuntos=puntos;mejorEst=est}
       }
       if(mejor)break
       }
@@ -412,6 +415,7 @@ var ArmameSemana=(function(){
     for(const [pos,c] of asignadas){
       if(esFavorita(c))porque.favoritas.add(c.nombre);
       else if(Gustos.estado(c.k,gustos).si>0)porque.gustadas.add(c.nombre);
+      if(typeof Estacion!=="undefined")for(const e of Estacion.deLista(c.ings))porque.estacion.add(e);
       if(esPlatoPos(pos)){
         if(esPoco(pos)){
           const m=minutosDe(c);
@@ -429,7 +433,7 @@ var ArmameSemana=(function(){
     const resultado={modo,plan,asignadas:[...asignadas].map(([pos,c])=>({dia:pos.split("|")[0],slot:pos.split("|")[1],cand:c})),huecos:aFillar.length,
       llenos:asignadas.size,costo:Math.round(total),presupuesto:presupuesto===null?null:Math.round(presupuesto),pasado:!!(presupuesto&&hayPrecios&&total>presupuesto),
       sinPrecios:!!(presupuesto&&!hayPrecios),dobles,reutilizados,cambios,usoDespensa:usoDespensa.size,sinObjetivo,
-      porque:{favoritas:[...porque.favoritas],gustadas:[...porque.gustadas],poco:porque.poco,sinPoco:porque.sinPoco,repetidas:porque.repetidas,minutos:reglas.minutos}};
+      porque:{favoritas:[...porque.favoritas],gustadas:[...porque.gustadas],poco:porque.poco,sinPoco:porque.sinPoco,repetidas:porque.repetidas,minutos:reglas.minutos,estacion:[...porque.estacion],temporada:typeof Estacion!=="undefined"?Estacion.temporada():null}};
     return resultado
   }
   // Escribe lo armado: Mis comidas una vez, el plan una vez, con historial y Deshacer.
@@ -506,6 +510,7 @@ var ArmameSemana=(function(){
       if(pq.gustadas.length)out.push("Elegí comidas que te gustaron: "+listaY(pq.gustadas.slice(0,4))+".");
       if(pq.poco>0)out.push("En tus días con poco tiempo puse recetas de hasta "+pq.minutos+" minutos ("+pq.poco+(pq.poco===1?" hueco":" huecos")+").");
       if(pq.sinPoco.length)out.push("No encontré recetas de hasta "+pq.minutos+" minutos para "+listaY(pq.sinPoco.slice(0,4))+": puse otra comida.");
+      if(pq.estacion&&pq.estacion.length)out.push("Entre opciones parecidas elegí lo de estación. De estación ("+Estacion.NOMBRES[pq.temporada]+") esta semana: "+listaY(pq.estacion.slice(0,5))+".");
       if(pq.repetidas.length)out.push("Repetí de la semana pasada: "+listaY([...new Set(pq.repetidas)].slice(0,4))+", porque no alcanzaban las otras opciones.")
     }
     if(res.usoDespensa>0)out.push("Usé "+res.usoDespensa+(res.usoDespensa===1?" producto":" productos")+" de tu despensa.");

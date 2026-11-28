@@ -36,7 +36,12 @@
   ok("R6-C-01 en la ficha de una receta pasa lo mismo: ingredientes y preparación primero; Ver en el registro, Compartir y ⋯ después de los pasos",
     visible($("recipeReadIngredients")) && visible($("recipeReadSteps")) && arriba($("recipeReadIngredients")) < arriba($("recipeReadSteps")) && arriba($("recipeReadSteps")) < arriba(regR) && arriba($("recipeReadSteps")) < arriba(compR) && arriba($("recipeReadSteps")) < arriba(menuR) && visible(regR) && visible(compR) && visible(menuR),
     JSON.stringify([arriba($("recipeReadIngredients")), arriba($("recipeReadSteps")), arriba(regR), arriba(compR), arriba(menuR)]));
-  ok("R6-C-01 los botones de la receta (Editar, Duplicar, Lo comí…) siguen ahí, después de los pasos, y solo se ven con la receta abierta", ["recipeReadEdit", "recipeReadDuplicate", "recipeReadToShopping", "recipeReadCookNow"].every(id => visible($(id)) && arriba($(id)) > arriba($("recipeReadSteps"))), ["recipeReadEdit", "recipeReadDuplicate", "recipeReadToShopping", "recipeReadCookNow"].map(id => id + ":" + visible($(id)) + ":" + Math.round(arriba($(id)))).join(" ") + " pasos " + Math.round(arriba($("recipeReadSteps"))));
+  // v20.11: Duplicar y "Agregar lo que falta a Compras" ya estaban en ⋯: se ocultan abajo para no repetirlos (y "Volver a Comidas" repetía el "← Comidas" de arriba).
+  // La prueba sigue mirando que estén todos: Editar y Lo comí después de los pasos, y Duplicar y Agregar lo que falta dentro de ⋯.
+  await tocar(menuR, 250);
+  const enMenu = qa(".hoja-fondo:not([hidden]) .menu-semana button").map(b => norm(b.innerText));
+  const hojaAbierta = doc().querySelector(".hoja-fondo:not([hidden])"); if (hojaAbierta) { ev("hoja.cerrar()"); await espera(150) }
+  ok("R6-C-01 los botones de la receta siguen todos: Editar y Lo comí después de los pasos, y Duplicar y Agregar lo que falta a Compras en ⋯ (sin repetirse abajo)", ["recipeReadEdit", "recipeReadCookNow"].every(id => visible($(id)) && arriba($(id)) > arriba($("recipeReadSteps"))) && !visible($("recipeReadDuplicate")) && !visible($("recipeReadToShopping")) && enMenu.includes("Duplicar receta") && enMenu.includes("Agregar lo que falta a Compras"), ["recipeReadEdit", "recipeReadDuplicate", "recipeReadToShopping", "recipeReadCookNow"].map(id => id + ":" + visible($(id)) + ":" + Math.round(arriba($(id)))).join(" ") + " menú " + JSON.stringify(enMenu));
   await ficha("plato", "rp_recipe_cocina6a");
   ok("R6-C-01 al ver una comida (no una receta) esos botones de la receta no se ven", !visible($("recipeReadEdit")) && !visible($("recipeReadCookNow")) && visible(doc().querySelector("#comidaPlatoAcciones button")));
 
