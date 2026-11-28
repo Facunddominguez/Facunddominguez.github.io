@@ -15,7 +15,8 @@
   };
   const ev = x => w.eval(x), doc = () => w.document;
   const texto = id => (doc().getElementById(id) || { textContent: "" }).textContent;
-  const cargar = datos => { localStorage.clear(); for (const [k, v] of Object.entries(datos)) if (v !== null) localStorage.setItem(k, v) };
+  // Etapa 49 (R6-A-05): por omisión Armame mira los minutos de las cenas de lunes a viernes; estas pruebas dependen de qué semana arma, así que parten sin huecos de poco tiempo (como en la v19.10.5).
+  const cargar = datos => { localStorage.clear(); localStorage.setItem("miPlatoFacil_armameReglas_v1", JSON.stringify({ poco: { minutos: 30, huecos: [] } })); for (const [k, v] of Object.entries(datos)) if (v !== null) localStorage.setItem(k, v) };
   const MARCA = { miPlatoFacil_bienvenida_v1: '{"vista":true}' };
   const PRES = l => ({ miPlatoFacil_shoppingBudget_v1: JSON.stringify({ currency: "ARS", limit: l, period: "semana" }) });
   const tocar = async el => { el.click(); await espera(200) };

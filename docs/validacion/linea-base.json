@@ -8,7 +8,7 @@
     "navegador": "Chrome/156.0.8078.73"
   },
   "pruebas": {
-    "total": 783,
+    "total": 1049,
     "suites": {
       "d01_diseno.js": 8,
       "m01_modo.js": 13,
@@ -16,7 +16,7 @@
       "l01_biblioteca.js": 12,
       "dp01_despensa.js": 14,
       "u01_toque.js": 9,
-      "f08_ai.js": 21,
+      "f08_ai.js": 27,
       "f07_nutri.js": 16,
       "f02_units.js": 16,
       "f01_key.js": 5,
@@ -82,16 +82,29 @@
       "r5e39_registro.js": 11,
       "r5e40_comidas.js": 14,
       "r5e41_compras.js": 25,
-      "r5e42_mas.js": 18,
-      "r5e43_bienvenida.js": 11
+      "r5e42_mas.js": 19,
+      "r5e43_bienvenida.js": 11,
+      "r6e45_precios.js": 8,
+      "r6e46_lista.js": 26,
+      "r6e47_cocina.js": 31,
+      "r6e48_semana.js": 37,
+      "r6e49_armame.js": 30,
+      "r6e50_hoy.js": 29,
+      "r6e51_comensales.js": 35,
+      "r6e52_ticket.js": 37,
+      "r6e53_orden.js": 15,
+      "r6e55_semana.js": 11
     }
   },
   "claves": [
     "miPlatoFacil_adviceFavorites",
     "miPlatoFacil_aiSettings_v1",
+    "miPlatoFacil_armameReglas_v1",
     "miPlatoFacil_basicosFaltantes_v1",
     "miPlatoFacil_bienvenida_v1",
+    "miPlatoFacil_comensales_v1",
     "miPlatoFacil_comprasOpciones_v1",
+    "miPlatoFacil_comprasPeriodo_v1",
     "miPlatoFacil_comprasVueltas_v1",
     "miPlatoFacil_consumption_v1",
     "miPlatoFacil_cookingHistory_v1",
@@ -99,8 +112,10 @@
     "miPlatoFacil_dieta_v1",
     "miPlatoFacil_dondeCompro_v1",
     "miPlatoFacil_gastoSemanal_v1",
+    "miPlatoFacil_gustos_v1",
     "miPlatoFacil_habitGoals_v1",
     "miPlatoFacil_hogar_v1",
+    "miPlatoFacil_hoyAvisos_v1",
     "miPlatoFacil_ingredientAliases_v1",
     "miPlatoFacil_manualShopping_v1",
     "miPlatoFacil_mostrarPrecios_v1",
@@ -121,6 +136,7 @@
     "miPlatoFacil_region_v1",
     "miPlatoFacil_respaldoAviso_v1",
     "miPlatoFacil_saved",
+    "miPlatoFacil_semanaAjustes_v1",
     "miPlatoFacil_shoppingBudget_v1",
     "miPlatoFacil_shoppingChecks_v1",
     "miPlatoFacil_theme",
@@ -130,9 +146,12 @@
   ],
   "clavesRespaldo": [
     "miPlatoFacil_adviceFavorites",
+    "miPlatoFacil_armameReglas_v1",
     "miPlatoFacil_basicosFaltantes_v1",
     "miPlatoFacil_bienvenida_v1",
+    "miPlatoFacil_comensales_v1",
     "miPlatoFacil_comprasOpciones_v1",
+    "miPlatoFacil_comprasPeriodo_v1",
     "miPlatoFacil_comprasVueltas_v1",
     "miPlatoFacil_consumption_v1",
     "miPlatoFacil_cookingHistory_v1",
@@ -140,8 +159,10 @@
     "miPlatoFacil_dieta_v1",
     "miPlatoFacil_dondeCompro_v1",
     "miPlatoFacil_gastoSemanal_v1",
+    "miPlatoFacil_gustos_v1",
     "miPlatoFacil_habitGoals_v1",
     "miPlatoFacil_hogar_v1",
+    "miPlatoFacil_hoyAvisos_v1",
     "miPlatoFacil_ingredientAliases_v1",
     "miPlatoFacil_manualShopping_v1",
     "miPlatoFacil_mostrarPrecios_v1",
@@ -162,6 +183,7 @@
     "miPlatoFacil_region_v1",
     "miPlatoFacil_respaldoAviso_v1",
     "miPlatoFacil_saved",
+    "miPlatoFacil_semanaAjustes_v1",
     "miPlatoFacil_shoppingBudget_v1",
     "miPlatoFacil_shoppingChecks_v1",
     "miPlatoFacil_theme",
@@ -169,17 +191,22 @@
     "miPlatoFacil_trainingWeek"
   ],
   "clavesRespaldoOpcionales": [
+    "miPlatoFacil_armameReglas_v1",
     "miPlatoFacil_basicosFaltantes_v1",
     "miPlatoFacil_bienvenida_v1",
+    "miPlatoFacil_comensales_v1",
     "miPlatoFacil_comprasOpciones_v1",
+    "miPlatoFacil_comprasPeriodo_v1",
     "miPlatoFacil_comprasVueltas_v1",
     "miPlatoFacil_consumption_v1",
     "miPlatoFacil_cookingHistory_v1",
     "miPlatoFacil_dieta_v1",
     "miPlatoFacil_dondeCompro_v1",
     "miPlatoFacil_gastoSemanal_v1",
+    "miPlatoFacil_gustos_v1",
     "miPlatoFacil_habitGoals_v1",
     "miPlatoFacil_hogar_v1",
+    "miPlatoFacil_hoyAvisos_v1",
     "miPlatoFacil_ingredientAliases_v1",
     "miPlatoFacil_mostrarPrecios_v1",
     "miPlatoFacil_pantryMoves_v1",
@@ -195,6 +222,7 @@
     "miPlatoFacil_referencePrices_v1",
     "miPlatoFacil_region_v1",
     "miPlatoFacil_respaldoAviso_v1",
+    "miPlatoFacil_semanaAjustes_v1",
     "miPlatoFacil_shoppingBudget_v1",
     "miPlatoFacil_shoppingChecks_v1"
   ],
@@ -1090,8 +1118,8 @@
     }
   },
   "actualizada": {
-    "etapa": 43,
-    "version": "19.10.0",
-    "fecha": "2026-11-24"
+    "etapa": 55,
+    "version": "20.10.0",
+    "fecha": "2026-11-27"
   }
 }

@@ -463,6 +463,61 @@ planEntriesFlat(){
   }));
   return out
 },
+// Etapa 46 (R6-L-01 a L-04): el plan de esta semana o de la que viene, sin depender de lo que se esté viendo en Semana
+// (Compras elige su período por separado). "esta" cuenta de hoy al domingo; las comidas de días que ya pasaron no entran.
+planDeLaSemana(cual){
+  if(cual==="proxima"){
+    Semana.alDiaProxima();
+    const p=Semana.loadProxima();
+    return Semana.migratePlan(p&&p.plan||{
+    })
+  }
+  Semana.adoptarProxima();
+  try{
+    const raw=localStorage.getItem(PKEY),o=raw?JSON.parse(raw):{
+    };
+    return Semana.migratePlan(o&&typeof o==="object"?o:{
+    })
+  }catch(e){
+    return Semana.migratePlan({
+    })
+  }
+},
+porcionesDeEsta(){
+  try{
+    const o=JSON.parse(localStorage.getItem(PLAN_PORTIONS_KEY)||"{}");
+    return Semana.validPlanPortions(o)?o:{
+    }
+  }catch(e){
+    return {
+    }
+  }
+},
+planEntriesDe(cual){
+  const plan=Semana.planDeLaSemana(cual),byId={
+  };
+  MisPlatos.loadSaved().forEach(p=>{
+    byId[p.id]=p
+  });
+  const lunes=cual==="proxima"?Semana.lunesSiguiente():Semana.semanaActual(),port=cual==="proxima"?{
+  }:Semana.porcionesDeEsta(),hoy=cual==="proxima"?0:DAYS.findIndex(d=>d[0]===todayPlanDay()),out=[];
+  DAYS.forEach(([day],i)=>{
+    if(i<hoy)return;
+    SLOTS.forEach(([slot])=>{
+      const id=plan[day]?plan[day][slot]:null;
+      if(id&&byId[id])out.push({
+        day,slot,item:byId[id],portions:port[day+"|"+slot]||null,lunes
+      })
+    })
+  });
+  return out
+},
+semanasDelPeriodo(periodo){
+  return periodo==="dos"?[Semana.semanaActual(),Semana.lunesSiguiente()]:periodo==="proxima"?[Semana.lunesSiguiente()]:[Semana.semanaActual()]
+},
+entradasDelPeriodo(periodo){
+  return periodo==="dos"?Semana.planEntriesDe("esta").concat(Semana.planEntriesDe("proxima")):Semana.planEntriesDe(periodo==="proxima"?"proxima":"esta")
+},
 portionFactor(portions,amount){
   return portions&&amount&&amount.yield>0?portions/amount.yield:1
 },
@@ -626,6 +681,7 @@ function setSlot(dayKey,slot,id){
     planStatus(errorDelPlan);
     return false
   }
+  if(id&&typeof SemanaAjustes!=="undefined")SemanaAjustes.limpiarAfuera(dayKey,slot);
   if(before!==(id||null)){
     try{
       const p=Semana.loadPlanPortions();
@@ -745,16 +801,33 @@ function crearHueco(dia,slot,it,porciones){
       if(fila!==texto)texto.append(fila);
       // ≈ costo de esta comida para el hogar (con los precios encendidos y cantidades conocidas).
       try{
-        const ct=typeof costoDeLaComida==="function"?costoDeLaComida(it,porciones[dia+"|"+slot]):null;
+        const ct=typeof costoDeLaComida==="function"?costoDeLaComida(it,porciones[dia+"|"+slot],dia,slot):null;
         if(ct)fila.append(ce("span","hueco__costo",ct))
       }catch(e){
       }
-      b.setAttribute("aria-label",Semana.nombreDelHueco(dia,slot)+": "+mealName(it)+". Cambiar, quitar y más")
+      // Etapa 48: "Sobra de la cena del lunes".
+      let sobra="";
+      try{sobra=SemanaAjustes.textoSobra(dia,slot,loadPlan())}catch(e){}
+      if(sobra)texto.append(ce("span","hueco__sobra",sobra));
+      // Etapa 51: "Nadie come en casa" (la comida no suma a la lista ni a los costos).
+      if(typeof Comensales!=="undefined"&&Comensales.nadieEn(dia,slot))texto.append(ce("span","hueco__sobra","Nadie come en casa"));
+      b.setAttribute("aria-label",Semana.nombreDelHueco(dia,slot)+": "+mealName(it)+(sobra?". "+sobra:"")+". Cambiar, quitar y más")
     }else{
-      texto.append(ce("span","hueco__plato is-empty","Sin elegir"));
-      b.setAttribute("aria-label","Elegir "+Semana.nombreDelHueco(dia,slot).toLowerCase())
+      // Etapa 48: "Comemos afuera" (con el gasto, si se anotó).
+      let afuera=null;
+      try{afuera=SemanaAjustes.afuera(dia,slot)}catch(e){}
+      if(afuera){
+        b.classList.add("hueco--afuera");
+        b.classList.remove("hueco--vacio");
+        texto.append(ce("span","hueco__plato",SemanaAjustes.textoAfuera(dia,slot)));
+        b.setAttribute("aria-label",Semana.nombreDelHueco(dia,slot)+": comemos afuera. Cambiar o quitar")
+      }else{
+        const nadie=typeof Comensales!=="undefined"&&Comensales.nadieEn(dia,slot);
+        texto.append(ce("span","hueco__plato"+(nadie?"":" is-empty"),nadie?"Nadie come en casa":"Sin elegir"));
+        b.setAttribute("aria-label","Elegir "+Semana.nombreDelHueco(dia,slot).toLowerCase())
+      }
     }
-    b.append(texto,ce("span","hueco__accion",it?"›":"Elegir"));
+    b.append(texto,ce("span","hueco__accion",it||b.classList.contains("hueco--afuera")?"›":"Elegir"));
     return b
 }
 // La semana del plan es la de su último cambio (el historial guarda la hora en UTC; se pasa a la fecha local).
@@ -782,7 +855,12 @@ function renderPlan(){
     // v19.1: la letra y el número del día, sin la barra ni el "4/4" (la cuenta queda en el aria-label); un punto marca el día completo.
     b.dataset.comidas=String(n);
     b.append(ce("span","semana-dia-chip__letra",label.charAt(0)),ce("span","semana-dia-chip__num",String(f.getDate())));
-    if(n>=4)b.classList.add("es-completo");
+    // Un hueco marcado "Afuera" también cuenta como resuelto para el punto del día completo (la cuenta "N de 4" sigue siendo de comidas).
+    // (El módulo SemanaAjustes se carga después de este archivo: si todavía no está, no hay marcas.)
+    let afuera=0;
+    try{afuera=SLOTS.filter(([sl])=>!(plan[key]&&plan[key][sl])&&SemanaAjustes.afuera(key,sl)).length}catch(e){}
+    total+=afuera;
+    if(n+afuera>=4)b.classList.add("es-completo");
     return b
   });
   document.getElementById("planDias").replaceChildren(...chips);
@@ -821,6 +899,11 @@ function renderPlan(){
   if(nueva){
     const pendiente=!prox&&Semana.semanaNuevaPendiente(plan);
     nueva.hidden=!pendiente;
+    // Etapa 53 (R6-O-03): una sola acción principal a la vista: con la pregunta de la semana nueva, "Armame la semana" pasa a secundaria.
+    if(pendiente&&armame){
+      armame.classList.remove("button--primary");
+      armame.classList.add("button--soft")
+    }
     if(pendiente)document.getElementById("planSemanaNuevaTexto").textContent="Tu plan es de la semana del "+typedAppDateLabel(Semana.semanaDelPlan()).slice(0,5)+"."
   }
   const aviso=document.getElementById("planAviso");

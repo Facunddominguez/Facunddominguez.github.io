@@ -104,7 +104,7 @@
   const semana = (faltan, comidas) => { ev("preciosDataset = () => ({}); costosDelPlan = () => ({ dia: 0, semana: 1000, faltan: " + faltan + ", pendientes: " + comidas + ", conPrecio: " + (comidas - faltan) + ", sinEstimar: " + (faltan * 2 > comidas ? faltan : 0) + " }); pintarCostoDia()"); return doc().getElementById("planDiaCosto").textContent + " | " + doc().getElementById("planPreciosEstado").textContent };
   const sMuchos = semana(3, 4), sPocos = semana(1, 4);
   ok("C10-6 el cartel de presupuesto y el total semanal dicen al menos ≈ $X si faltan más de la mitad de los precios y siguen igual si faltan pocos",
-    /· al menos ≈ \$500 estimado \(faltan 3 precios\)/.test(muchos) && /· ≈ \$500 estimado \(faltan 1 precio\)/.test(pocos) && sMuchos.includes("Semana al menos ≈ $1.000") && sMuchos.includes("Con precio: 1 de 4 productos · Completar 3 precios") && sPocos.includes("Semana ≈ $1.000") && sPocos.includes("Con precio: 3 de 4 productos · Completar 1 precio") && !sPocos.includes("al menos"),
+    /· al menos ≈ \$500 \(faltan 3 precios\)/.test(muchos) && /· ≈ \$500 \(faltan 1 precio\)/.test(pocos) && sMuchos.includes("Semana al menos ≈ $1.000") && sMuchos.includes("Con precio: 1 de 4 productos · Completar 3 precios") && sPocos.includes("Semana ≈ $1.000") && sPocos.includes("Con precio: 3 de 4 productos · Completar 1 precio") && !sPocos.includes("al menos"),
     [muchos, pocos, sMuchos, sPocos].join(" | "));
 
   if (marco) marco.remove();

@@ -175,6 +175,8 @@ function rendimientoDeReceta(rid){
 // Hueco lleno: Cambiar, Quitar, Porciones (recetas) y Lo comí (solo hoy).
 function abrirHueco(dia,slot){
   const id=(loadPlan()[dia]||{})[slot]||null,it=id?Semana.guardadosActivos().find(p=>p.id===id):null;
+  // Etapa 48: un hueco "Afuera" abre su propia hoja (gasto, "Ya no comemos afuera" o elegir una comida).
+  if(!it&&SemanaAjustes.afuera(dia,slot))return SemanaAjustes.abrirAfuera(dia,slot);
   if(!it)return abrirSelector(dia,slot);
   const pk=dia+"|"+slot,caja=ce("div","hueco-hoja"),h={
     dia,slot,id,modo:"lleno",caja,item:it
@@ -219,6 +221,15 @@ function abrirHueco(dia,slot){
     huecoParecida:pk
   }),botonHoja("Cambiar por una más barata","button--soft",{
     huecoBarata:pk
+  }),botonHoja("Pasar a otro día","button--soft",{
+    huecoPasar:pk
+  }));
+  // Etapa 48: lo que sobra de un almuerzo o una cena pasa al almuerzo de mañana; "Comemos afuera" saca la comida del hueco.
+  if(SemanaAjustes.puedeQueSobre(dia,slot))acciones.append(botonHoja("Que sobre para mañana","button--soft",{
+    huecoSobra:pk
+  }));
+  acciones.append(botonHoja("Comemos afuera","button--soft",{
+    huecoAfuera:pk
   }),botonHoja("Quitar","button--danger",{
     planClear:pk
   }));
@@ -288,19 +299,23 @@ function seccionesSelector(h,q){
   const motivoDe=it=>{
     try{return dietaMotivo(mealName(it)+" "+Semana.extractIngredients(it).join(" "))}catch(e){return ""}
   };
+  // Etapa 49 (R6-A-03): lo que no te gustó (dos o más "No" seguidos) va al final, con la nota "No te gustó".
+  const noGusta=new Set(items.filter(it=>{try{return Gustos.disgustada(Gustos.claveDe(mealName(it)))}catch(e){return false}}).map(it=>it.id));
   const fila=it=>{
-    const motivo=motivoDe(it),b=ce("button","selector-item"+(it.id===h.id?" is-actual":"")+(motivo?" is-apagado":""));b.type="button";b.dataset.selectorId=it.id;b.append(ce("span","selector-item__nombre",Semana.planPlateLabel(it,nombre(it))));
+    const motivo=motivoDe(it)||(noGusta.has(it.id)?"No te gustó":""),b=ce("button","selector-item"+(it.id===h.id?" is-actual":"")+(motivo?" is-apagado":""));b.type="button";b.dataset.selectorId=it.id;b.append(ce("span","selector-item__nombre",Semana.planPlateLabel(it,nombre(it))));
     if(motivo){b.append(ce("span","selector-item__motivo",motivo));b.setAttribute("aria-label",nombre(it)+". "+motivo)}const d=savedItemLines(it).join(" · ");if(d)b.append(ce("span","selector-item__detalle",d));if(it.id===h.id)b.setAttribute("aria-current","true");return b
   };
   const seccion=(titulo,clave,filas,vacio)=>{
     const s=ce("section","selector-seccion");s.dataset.selectorSeccion=clave;s.append(ce("h3","selector-seccion__titulo",titulo));if(filas.length)s.append(...filas);else s.append(ce("p","screen__hint",vacio));return s
   };
   const out=[];
-  if(!n&&items.length>4)out.push(seccion("Recientes","recientes",recientesDelTipo(items).map(fila),""));
+  // Etapa 53 (R6-O-02): ninguna comida aparece dos veces: las de Recientes van primero y "Mis comidas" y "Mis recetas" muestran el resto.
+  const recientes=!n&&items.length>4?recientesDelTipo(items).filter(it=>!noGusta.has(it.id)):[],enRecientes=new Set(recientes.map(it=>it.id));
+  if(!n&&items.length>4)out.push(seccion("Recientes","recientes",recientes.map(fila),""));
   // v19.1 (S-19): "Mis recetas" es una sección más (junto a Recientes, Mis comidas e Ideas): las recetas que ya tienen copia para este tipo de comida y las que todavía no.
   const orden=(a,b)=>(b.fav?1:0)-(a.fav?1:0),coincideItem=it=>coincide(nombre(it)+" "+savedItemLines(it).join(" ")),
-    mias=items.filter(it=>!it.recipeSourceId&&coincideItem(it)).sort(orden),
-    conCopia=items.filter(it=>it.recipeSourceId&&coincideItem(it)).sort(orden),
+    mias=items.filter(it=>!it.recipeSourceId&&!noGusta.has(it.id)&&!enRecientes.has(it.id)&&coincideItem(it)).sort(orden),
+    conCopia=items.filter(it=>it.recipeSourceId&&!noGusta.has(it.id)&&!enRecientes.has(it.id)&&coincideItem(it)).sort(orden),
     recetasNuevas=recetasSinCopia(items).filter(r=>coincide(r.title)).map(r=>{
       let motivo="";
       try{motivo=dietaMotivo(r.title+" "+loadRecipeAmounts()[r.amountsTitle].rows.map(x=>x.name).join(" "))}catch(e){}
@@ -308,7 +323,7 @@ function seccionesSelector(h,q){
       if(motivo)b.append(ce("span","selector-item__motivo",motivo));
       return b
     });
-  out.push(seccion("Mis comidas","mias",mias.map(fila),n?"Ninguna de tus comidas coincide.":"Todavía no guardaste comidas de este tipo: armá una nueva."));
+  out.push(seccion("Mis comidas","mias",mias.map(fila),n?"Ninguna de tus comidas coincide.":enRecientes.size?"No hay más comidas guardadas de este tipo.":"Todavía no guardaste comidas de este tipo: armá una nueva."));
   if(conCopia.length||recetasNuevas.length)out.push(seccion("Mis recetas","recetas",[...conCopia.map(fila),...recetasNuevas],""));
   // Etapa 29: al elegir desayuno o merienda, también las ideas de desayuno (con sus cantidades y pasos).
   if(pool==="desayuno"){
@@ -334,6 +349,8 @@ function seccionesSelector(h,q){
     const pocas=dietaAvisoPocas();
     if(pocas)out.at(-1).append(ce("p","screen__hint",pocas))
   }
+  const finales=items.filter(it=>noGusta.has(it.id)&&coincideItem(it));
+  if(finales.length)out.push(seccion("No te gustó","nogusto",finales.map(fila),""));
   return out
 }
 function abrirSelector(dia,slot){
@@ -350,6 +367,10 @@ function abrirSelector(dia,slot){
   }));
   acciones.append(botonHoja("🎲 Sugerime","button--soft",{
     selectorSugerir:""
+  }));
+  // Etapa 48: el hueco queda marcado "Afuera" (no suma a la lista ni al presupuesto y Armame no lo llena).
+  acciones.append(botonHoja("Comemos afuera","button--soft",{
+    huecoAfuera:dia+"|"+slot
   }));
   sug.hidden=true;
   sug.setAttribute("aria-live","polite");
@@ -490,7 +511,8 @@ document.addEventListener("click",e=>{
     const [dia,slot]=d.huecoCambiar.split("|");return abrirSelector(dia,slot)
   }
   if(d.huecoReceta){
-    huecoAbierto=null;hoja.cerrar();return Comidas.abrirComida("plato",d.huecoReceta)
+    const desde=huecoAbierto;
+    huecoAbierto=null;hoja.cerrar();return Comidas.abrirComida("plato",d.huecoReceta,desde?{dia:desde.dia,slot:desde.slot}:null)
   }
   if(d.selectorId)return Selector.elegirEnSelector(h=>Selector.asignarHueco(h.dia,h.slot,d.selectorId));
   if(d.selectorReceta)return Selector.elegirEnSelector(h=>asignarRecetaAlPlan(d.selectorReceta,h.dia,h.slot,false));

@@ -118,26 +118,36 @@ readPurchaseForm(){
   }
 },
 savePurchase(){
-  const p=ComprasHechas.readPurchaseForm(),a=loadPurchases();
-  if(a.length>=1000)throw Error("Máximo 1000 compras registradas. Quitá algunas antiguas.");
-  a.push({
-    id:Date.now().toString(36)+"_"+Math.random().toString(36).slice(2,8),...p
-  });
-  if(!validPurchases(a))throw Error("Revisá los datos de la compra.");
+  return ComprasHechas.guardarCompra(ComprasHechas.readPurchaseForm(),{
+    precios:document.getElementById("purchaseUpdatePrices").checked,despensa:document.getElementById("purchaseAddStock").checked
+  })
+},
+// Guarda una compra ya leída (del formulario o de la foto de un ticket). opciones: {precios, despensa} (los dos tildes) y, para el ticket,
+// {relacionados}: por posición de p.items, el nombre del ingrediente de la app con que se relaciona cada producto (o null); con eso se
+// actualizan Mis precios y la Despensa. Sin "relacionados", se usa el nombre del producto, como el formulario de siempre.
+guardarCompra(p,opciones){
+  const a=loadPurchases(),rel=opciones&&Array.isArray(opciones.relacionados)?opciones.relacionados:null,nombreDe=(it,i)=>rel?rel[i]:it.name,sinCompra=!!(opciones&&opciones.sinCompra);
+  if(!sinCompra){
+    if(a.length>=1000)throw Error("Máximo 1000 compras registradas. Quitá algunas antiguas.");
+    a.push({
+      id:Date.now().toString(36)+"_"+Math.random().toString(36).slice(2,8),...p
+    });
+    if(!validPurchases(a))throw Error("Revisá los datos de la compra.")
+  }
   let newPrices=null,count=0;
-  if(document.getElementById("purchaseUpdatePrices").checked){
+  if(opciones&&opciones.precios){
     newPrices=loadReferencePrices();
-    for(const it of p.items){
-      if(it.quantity===null||!it.unit||it.price===null)continue;
+    for(const [i,it] of p.items.entries()){
+      if(it.quantity===null||!it.unit||it.price===null||!nombreDe(it,i))continue;
       const id=Date.now().toString(36)+"_"+Math.random().toString(36).slice(2);
       newPrices[id]={
-        id,name:it.name,pack:(p.store?"Compra en "+p.store:"Compra registrada").slice(0,100),amount:it.quantity,price:it.price,unit:it.unit,currency:p.currency,date:p.date
+        id,name:String(nombreDe(it,i)).slice(0,100),pack:(p.store?"Compra en "+p.store:"Compra registrada").slice(0,100),amount:it.quantity,price:it.price,unit:it.unit,currency:p.currency,date:p.date
       };
       count++
     }
     if(count&&!validReferencePrices(newPrices))throw Error("Algún producto no se puede guardar como precio de referencia (cantidad o precio fuera de rango). No se registró nada.")
   }
-  try{
+  if(!sinCompra)try{
     localStorage.setItem(PURCHASES_KEY,JSON.stringify(a))
   }catch(e){
     throw Error("No se pudo registrar la compra (falta de espacio u otro error).")
@@ -152,9 +162,9 @@ savePurchase(){
     }
   }
   let stockAdded=0,stockError=null;
-  if(document.getElementById("purchaseAddStock").checked){
-    const changes=p.items.filter(it=>it.quantity!==null&&it.unit).map(it=>({
-      name:it.name,unit:it.unit,delta:it.quantity
+  if(opciones&&opciones.despensa){
+    const changes=p.items.map((it,i)=>({it,i})).filter(({it,i})=>it.quantity!==null&&it.unit&&nombreDe(it,i)).map(({it,i})=>({
+      name:String(nombreDe(it,i)),unit:it.unit,delta:it.quantity
     }));
     if(changes.length){
       try{
@@ -319,7 +329,7 @@ document.getElementById("purchaseAddItem").addEventListener("click",()=>{
 });
 document.getElementById("purchaseFromList").addEventListener("click",()=>{
   const st=document.getElementById("purchaseStatus");try{
-    const box=document.getElementById("purchaseItems");if(box.children.length&&!window.confirm("¿Reemplazar los productos cargados por los pendientes de la lista?"))return;box.replaceChildren();let n=0;for(const e of Compras.shoppingPlanItems()){
+    const box=document.getElementById("purchaseItems");if(box.children.length&&!window.confirm("¿Reemplazar los productos cargados por los pendientes de la lista?"))return;box.replaceChildren();let n=0;for(const e of Compras.shoppingPlanItems(Compras.periodoActual())){
       if(comprasDone[e.key])continue;const m=Ingredientes.mergeUnits(e.units),one=m.size===1?[...m.entries()][0]:null;ComprasHechas.appendPurchaseItem({
         name:e.name,quantity:one&&!e.unknown?one[1]:null,unit:one&&!e.unknown?one[0]:null,price:null
       });n++

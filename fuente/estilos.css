@@ -1257,7 +1257,6 @@ button:active{
 }
 
 .train-month-head strong{
-  text-transform:capitalize;
   font-size:15px
 }
 
@@ -3721,3 +3720,112 @@ select{max-width:100%;min-width:0}
 .bienvenida__evitar>h3{margin:0 0 12px}
 .bienvenida__evitar .filter-row{margin:0 0 8px}
 .bienvenida__evitar input{width:100%;min-height:var(--tap);padding:10px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--text);font:inherit}
+
+/* ===== Ronda 6 ===== */
+/* Etapa 45: aviso de precios viejos en la lista (desde los 14 días). */
+.precios-viejos{margin:0 0 8px;padding:10px 12px;border:1px solid var(--orange);border-left-width:4px;border-radius:12px;background:var(--surface);color:var(--text);font-size:14px;line-height:1.4}
+.precios-viejos[hidden]{display:none}
+/* Etapa 46: "Comprar para" (esta semana, la que viene o las dos) arriba de la lista. */
+.compras-periodo{margin:0 0 8px}
+.compras-periodo__cabeza{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin:0 0 4px}
+.compras-periodo__titulo{margin:0;font-weight:700;font-size:14px;color:var(--muted)}
+.compras-periodo__hint{margin:0;font-size:13px}
+.compras-periodo__botones{display:grid;grid-template-columns:1fr 1.7fr .9fr;gap:8px}
+.compras-periodo__boton{min-height:var(--tap);padding:4px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--text);font:inherit;font-size:13px;font-weight:700;line-height:1.15;cursor:pointer}
+.compras-periodo__boton[aria-pressed="true"]{background:var(--green);border-color:var(--green);color:var(--on-green)}
+/* Etapa 46: una fila con la nota de la despensa ("💡 Despensa: tenés 3 unidades…") baja la nota a otra línea en vez de apretar el nombre. */
+.shop-item:has(>.shop-item__detail){flex-wrap:wrap}
+/* Etapa 46: "Agregar producto" en dos columnas (Producto y Cantidad lado a lado) para que la pantalla no crezca con los botones nuevos. */
+.compras-agregar #manualShoppingForm{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}
+.compras-agregar #manualShoppingForm .summary-actions{grid-column:1 / -1}
+.shop-item__volver{min-width:44px;font-size:18px}
+.compras-agregar #manualShoppingForm .portion-field+.portion-field{margin-top:0}
+.compras-agregar>.plan-day__title{margin:0 0 8px}
+.compras-controles{margin:0}
+#manualShopList .manual-shop-row .filter-chip{padding:8px 7px}
+/* Etapa 46: los encabezados de sección de la lista se acercan un poco (el alto de Compras tiene tope). */
+.compras-seccion{margin:6px 0 2px}
+.compras-seccion__titulo{margin:8px 0 2px}
+/* Etapa 47: ficha de la comida (ingredientes y pasos primero; acciones después) y modo cocina. */
+.comida-principal{margin:16px 0 8px}
+.comida-acciones .comida-registro{display:contents}
+.comida-acciones{margin-top:12px}
+body.cocina-abierta{overflow:hidden}
+.cocina{position:fixed;inset:0;z-index:5000;display:flex;flex-direction:column;background:var(--bg);color:var(--text)}
+.cocina__cabeza{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:12px 16px 8px;border-bottom:1px solid var(--line)}
+.cocina__titulos{min-width:0}
+.cocina__titulo{margin:0;font-size:18px;line-height:1.25;overflow-wrap:anywhere}
+.cocina__titulo:focus{outline:none}
+.cocina__progreso{margin:2px 0 0;font-size:15px;font-weight:700;color:var(--muted)}
+.cocina__salir{flex:0 0 auto;min-height:var(--tap);min-width:var(--tap);padding:0 14px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--text);font:inherit;font-weight:700;cursor:pointer}
+.cocina__cuerpo{flex:1 1 auto;overflow-y:auto;padding:16px;-webkit-overflow-scrolling:touch}
+.cocina__subtitulo{margin:0 0 8px;font-size:20px}
+.cocina__ingrediente{display:flex;align-items:center;gap:14px;min-height:56px;padding:6px 0;border-bottom:1px solid var(--line);font-size:20px;line-height:1.3;cursor:pointer}
+.cocina__ingrediente input{flex:0 0 28px;width:28px;height:28px;accent-color:var(--green)}
+.cocina__ingrediente.is-hecho span{text-decoration:line-through;color:var(--muted)}
+.cocina__paso{margin:0 0 20px;font-size:22px;line-height:1.5}
+.cocina__estado{margin:16px 0 0;font-size:18px;font-weight:700;color:var(--green)}
+.cocina__tiempo-caja{margin:8px 0 16px;padding:14px;border:1px solid var(--line);border-radius:16px;background:var(--surface);text-align:center}
+.cocina__tiempo-rotulo{margin:0;font-size:14px;color:var(--muted)}
+.cocina__tiempo{margin:4px 0 12px;font-size:44px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.1}
+.cocina__tiempo.is-listo{color:var(--green)}
+.cocina__tiempo-botones{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.cocina__tiempo-botones .button{min-height:var(--tap);padding:8px 4px;font-size:15px}
+.cocina__barra{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--line);background:var(--bg)}
+.cocina__barra .button{min-height:52px;margin:0;font-size:17px}
+.cocina__barra.is-final #cocinaLoComi{grid-column:1 / -1}
+.summary-actions[hidden],.comida-principal [hidden]{display:none}
+.comida-acciones{display:flex;flex-wrap:wrap;gap:8px}
+.comida-acciones .comida-registro{display:block;flex:1 1 100%}
+.comida-acciones .comida-registro .button{width:100%}
+.comida-acciones>.button{flex:1 1 0;margin:0}
+.comida-acciones>[data-comida-menu]{flex:0 0 64px}
+.cocina__barra .button:disabled{opacity:.4;cursor:default}
+.cocina__tiempo-rotulo{color:var(--text);opacity:.75}
+/* Etapa 48: hueco "Afuera" y "Sobra de…". */
+.hueco--afuera{border-style:dashed}
+.hueco--afuera .hueco__plato{font-style:italic}
+.hueco__sobra{display:block;margin-top:2px;font-size:13px;color:var(--muted)}
+/* Etapa 49: "¿Te gustó?" y "Días con poco tiempo". */
+.gusto-pregunta{position:fixed;left:12px;right:12px;bottom:calc(var(--section-nav-h,64px) + 12px);z-index:70;display:flex;align-items:center;gap:8px;padding:8px 8px 8px 14px;border:1px solid var(--line);border-radius:16px;background:var(--surface);color:var(--text);box-shadow:0 6px 20px rgba(0,0,0,.18)}
+.gusto-pregunta__texto{flex:1 1 auto;font-weight:700}
+.gusto-pregunta .button{flex:0 0 auto;min-height:44px;min-width:56px;padding:6px 12px;margin:0}
+.gusto-pregunta__cerrar{flex:0 0 44px;min-height:44px;width:44px;border:0;border-radius:12px;background:none;color:var(--muted);font:inherit;font-size:18px;cursor:pointer}
+body:has(#gustoPregunta:not(.gusto-pregunta--cocina)){padding-bottom:72px}
+.gusto-pregunta--cocina{position:static;margin:16px 0 0;box-shadow:none}
+.poco-grilla{display:grid;gap:4px;margin:8px 0}
+.poco-fila{display:grid;grid-template-columns:76px minmax(0,1fr) minmax(0,1fr);gap:6px;align-items:center}
+.poco-fila__dia{font-weight:700}
+.poco-fila__slot{font-size:13px;color:var(--muted);text-align:center}
+.poco-chip[aria-pressed="true"]::after{content:"✓";font-weight:800}
+.poco-chip{min-height:44px;min-width:0;justify-content:center;padding-left:6px;padding-right:6px}
+.poco-chip[aria-pressed="true"]{background:var(--green);border-color:var(--green);color:var(--on-green)}
+/* Etapa 50: avisos de Hoy ("Para mañana" y "Para comprar hoy"). */
+.hoy-avisos{display:grid;gap:10px;margin:10px 0}
+.hoy-avisos[hidden]{display:none}
+.hoy-aviso{padding:10px 12px;border:1px solid var(--line);border-radius:14px;background:var(--surface)}
+.hoy-aviso .settings-label{margin:0 0 6px}
+.hoy-aviso__lista{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.hoy-aviso__fila{display:flex;align-items:center;gap:10px}
+.hoy-aviso__texto{flex:1 1 auto;margin:0;line-height:1.35}
+.hoy-aviso .button{flex:0 0 auto;min-height:44px;margin:0;padding:6px 14px}
+/* Etapa 51: quién come en cada comida (Preferencias). */
+.comensales-grilla{display:grid;gap:4px;margin:8px 0}
+.comensales-fila{display:grid;grid-template-columns:58px repeat(4,minmax(0,1fr));gap:4px;align-items:center}
+.comensales-fila__dia{font-weight:700;font-size:13px;overflow-wrap:anywhere}
+.comensales-fila__slot{font-size:11px;color:var(--muted);text-align:center;overflow-wrap:anywhere}
+.comensales-fila__sel{min-width:0;min-height:44px;width:100%;padding:0 0 0 5px;font-size:13px;text-align:left;border:1px solid var(--line);border-radius:10px;background-color:var(--surface);color:var(--text)}
+/* Etapa 52: "Cargar ticket (foto)" y su revisión. */
+#ticketCargar[hidden]{display:none}
+#ticketCargar{margin-top:8px}
+.ticket-fila{border:1px solid var(--line);border-radius:12px;padding:8px;margin:8px 0}
+/* Etapa 53: una sola acción principal por pestaña (Más: Registro). */
+#home .tool-button.tool-button--primary,[data-theme="dark"] #home .tool-button.tool-button--primary,#home[data-home-tab="mas"] .tool-button.tool-button--primary{background:var(--green)!important;border-color:var(--green)!important;color:var(--on-green)!important}
+#home .tool-button.tool-button--primary .tool-button__label,#home .tool-button.tool-button--primary .tool-button__desc,#home .tool-button.tool-button--primary .tool-button__emoji{color:var(--on-green)!important;background:none!important}
+.hoy-aviso--comprar{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.hoy-aviso--comprar .hoy-aviso__texto{flex:1 1 100%;min-width:0;overflow-wrap:anywhere}
+.hoy-aviso--comprar .button{flex:1 1 100%;max-width:100%}
+.ticket-fila [data-ticket-nombre]{grid-column:1 / 6}
+.ticket-fila>button{grid-column:6;grid-row:1;min-width:0;min-height:var(--tap);padding:0}
+.ticket-fila input,.ticket-fila select{width:100%;min-width:0;min-height:var(--tap);padding:10px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--text);font:inherit}
+.ticket-fila .purchase-campo:last-child{grid-column:1 / -1}

@@ -17,7 +17,7 @@
   const botonesVisibles = (raiz, re) => H.botones(re, raiz);
   // Una semana armada con tres ingredientes que ya están en la despensa (marcados, sin cantidad): quedan en "Ya tenés".
   const conTenes = async () => {
-    await H.abrir({ ...H.MARCA, ...PRECIOS, ...H.PRES(60000) });
+    await H.abrir({ ...H.MARCA, ...PRECIOS, ...H.PRES(60000) }); R6_LUNES(H.w()); // R6-L-02: el plan armado por Armame empieza hoy; la prueba mira la semana entera
     await H.armar("todo"); await irCompras();
     const pend = ev("shoppingDisplayItems()").filter(x => x.group === "pendiente").map(x => x.name).slice(0, 3);
     ev('go("ingredientes")'); await espera(200);

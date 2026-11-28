@@ -190,6 +190,31 @@ function datosSepaPrecios(d){
   const s=d&&d.meta.sepa;
   return s&&typeof s==="object"&&/^\d{4}-\d{2}-\d{2}$/.test(s.fecha||"")?s:null
 }
+// Etapa 45 (R6-P-04 y R6-P-05): cuántos días tienen los precios incluidos, contados contra la fecha del teléfono.
+// La fecha es la del archivo de SEPA (la de INDEC es mensual); si no hay SEPA, la de la última revisión del archivo de precios.
+var PRECIOS_VIEJOS_DIAS=14;
+function fechaDeLosPrecios(){
+  const d=preciosDataset();
+  if(!d)return null;
+  const s=datosSepaPrecios(d);
+  if(s)return s.fecha;
+  return /^\d{4}-\d{2}-\d{2}$/.test(d.meta.revisado||"")?d.meta.revisado:null
+}
+function diasDeLosPrecios(){
+  const f=fechaDeLosPrecios();
+  return f?diasDesdePrecios(f):null
+}
+// "Precios de hace 22 días", o "" si no hay precios o la fecha del teléfono quedó antes que la del archivo.
+function antiguedadPrecios(){
+  const n=diasDeLosPrecios();
+  if(n===null||n<0)return "";
+  return n===0?"Precios de hoy":n===1?"Precios de ayer":"Precios de hace "+n+" días"
+}
+// Desde los 14 días: el aviso de la lista. Con menos, "".
+function avisoPreciosViejos(){
+  const n=diasDeLosPrecios();
+  return n!==null&&n>=PRECIOS_VIEJOS_DIAS?"Los precios pueden estar desactualizados. Tus precios (Mi precio) se usan primero.":""
+}
 // Fuente escrita. Sin datos de SEPA es la de siempre; con ellos, la línea general dice las dos.
 function fuentePrecios(region,cual){
   const d=preciosDataset();
@@ -545,16 +570,17 @@ function costoDelDiaPlan(diaDado){
   for(const e of Semana.planEntriesFlat()){
     if(e.day!==dia)continue;
     const a=cantidadesDeComida("plato",e.item.id);
-    if(a)costo+=costoDeFilas(a.rows,Semana.portionFactor(e.portions,a)*personasHogar()).costo
+    if(a)costo+=costoDeFilas(a.rows,Semana.portionFactor(e.portions,a)*porcionesEn(e.day,e.slot)).costo
   }
   return costo
 }
 // ≈ costo de una comida del plan para todo el hogar, o "" si no hay precios o cantidades. Con estimados lo dice.
-function costoDeLaComida(item,porciones){
+function costoDeLaComida(item,porciones,dia,slot){
   if(!preciosActivos()||!preciosDataset()||!item)return "";
   const a=cantidadesDeComida("plato",item.id);
   if(!a)return "";
-  const c=costoDeFilas(a.rows,Semana.portionFactor(porciones===undefined?null:porciones,a)*personasHogar());
+  // Etapa 51: con el día y la comida, las porciones de ese hueco; sin ellos, las de siempre.
+  const c=costoDeFilas(a.rows,Semana.portionFactor(porciones===undefined?null:porciones,a)*(dia&&slot?porcionesEn(dia,slot):personasHogar()));
   return c.costo>0?formatoPesos(c.costo)+(c.estimados?" · estimado":""):""
 }
 // Semana: "Semana ≈ $34.100 · hoy ≈ $4.600" y, debajo, "Con precio: 27 de 29 productos · Completar 2 precios".
@@ -788,9 +814,10 @@ function fichaPrecio(nombre){
     cont.append(ce("h3","ficha-precio__titulo","Precio"));
     if(dual)for(const x of dual)cont.append(ce("p","ficha-precio__linea",x.texto));
     else cont.append(ce("p","ficha-precio__linea",textoPrecioFicha(nombre)));
+    {const auto=mio?null:precioAuto(nombre);if(auto&&auto.fuente==="sepa"&&antiguedadPrecios())cont.append(ce("p","screen__hint ficha-precio__antiguedad",antiguedadPrecios()))}
     if(mio){
       const auto=precioAuto(nombre);
-      if(auto)cont.append(ce("p","screen__hint","Promedio de la zona: ≈ "+pesosCortos(auto.precio)+"/"+(auto.it.b==="l"?"l":auto.it.b==="unidad"?"unidad":"kg")));
+      if(auto)cont.append(ce("p","screen__hint ficha-precio__antiguedad","Promedio de la zona: ≈ "+pesosCortos(auto.precio)+"/"+(auto.it.b==="l"?"l":auto.it.b==="unidad"?"unidad":"kg")+(auto.fuente==="sepa"&&antiguedadPrecios()?" · "+antiguedadPrecios():"")));
       const rev=precioParaRevisar(mio);
       if(rev){
         const caja=ce("div","ficha-precio__revision"),igual=ce("button","button button--soft","Sigue igual"),act=ce("button","button button--primary","Actualizar");
@@ -1146,7 +1173,7 @@ function detallePrecio(costo,rango,fuente){
   return formatoPesos(costo)+(rango?" · entre "+pesos(rango[0])+" y "+pesos(rango[1]):"")+(fuente?" · "+fuente:"")
 }
 function totalAutomaticoLista(){
-  const p=preciosDeLaLista(shoppingDisplayItems());
+  const p=preciosDeLaLista(shoppingDisplayItems(Compras.periodoActual()));
   return p&&p.conPrecio+p.estimados>0?p:null
 }
 // Textos de la lista: resumen con el total, fuente y aviso para quien no activó los precios.
@@ -1155,8 +1182,13 @@ function pintarPreciosCompras(p){
   if(a)a.hidden=preciosActivos();
   aplicarPrecios();
   if(f){
-    f.textContent=p&&p.conPrecio>0?fuentePrecios(undefined,"sepa").replace(" · mediana",""):"";
+    f.textContent=p&&p.conPrecio>0?[fuentePrecios(undefined,"sepa").replace(" · mediana",""),antiguedadPrecios()].filter(Boolean).join(" · "):"";
     f.hidden=!f.textContent
+  }
+  const v=document.getElementById("comprasPreciosViejos");
+  if(v){
+    v.textContent=preciosActivos()&&p&&p.conPrecio>0?avisoPreciosViejos():"";
+    v.hidden=!v.textContent
   }
 }
 function resumenPrecios(p){
@@ -1224,7 +1256,7 @@ function atribucionPrecios(){
       refrescarPrecios()
     })
   }
-  const lista=document.getElementById("comprasHint");
+  const lista=document.getElementById("comprasPeriodoGrupo");
   if(lista&&!document.getElementById("comprasPrecioFuente")){
     const f=ce("p","screen__hint");
     f.id="comprasPrecioFuente";
@@ -1233,7 +1265,11 @@ function atribucionPrecios(){
     a.type="button";
     a.id="comprasPreciosAviso";
     a.dataset.preciosAviso="";
-    lista.after(f,a)
+    const v=ce("p","precios-viejos");
+    v.id="comprasPreciosViejos";
+    v.setAttribute("role","status");
+    v.hidden=true;
+    lista.after(f,v,a)
   }
   document.addEventListener("click",e=>{
     if(e.target.closest&&e.target.closest("[data-precios-aviso]"))go("preferencias")

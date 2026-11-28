@@ -95,20 +95,28 @@ function diaSiguienteDelPlan(dia){
 function esPrimeraVez(plan,day){
   return !MisPlatos.loadSaved().length&&!HOY_COMIDAS.some(s=>plan[day]&&plan[day][s])
 }
-function filaHoy(day,slot,plan,byId,esHoy,primera){
+function filaHoy(day,slot,plan,byId,esHoy,primera,principal){
   const label=SLOTS.find(s=>s[0]===slot)[1],name=Semana.planSlotName(slot),id=plan[day]&&plan[day][slot],it=id?byId.get(id):null,row=ce("div","today-row"+(it?"":" today-row--vacia"));
   row.dataset.todaySlot=slot;
-  const plato=ce("span","today-row__plate"+(it?"":" is-empty"),it?nombreCortoDeComida(it):"Sin elegir");
+  // Etapa 48: un hueco marcado "Afuera" se lee "Afuera" (con el gasto, si se anotó).
+  let textoAfuera="";
+  if(!it)try{textoAfuera=SemanaAjustes.textoAfuera(day,slot)}catch(e){}
+  // Etapa 51: donde nadie come en casa (miPlatoFacil_comensales_v1) se lee "Nadie come en casa".
+  const nadie=typeof Comensales!=="undefined"&&Comensales.nadieEn(day,slot);
+  const plato=ce("span","today-row__plate"+(it||textoAfuera||nadie?"":" is-empty"),it?nombreCortoDeComida(it)+(nadie?" · Nadie come en casa":""):(textoAfuera||(nadie?"Nadie come en casa":"Sin elegir")));
   // El botón de acción va primero (es el principal de la fila); el nombre, al lado, abre las opciones del hueco.
   let action=null;
   if(!it){
-    action=ce("button","button "+(primera&&slot==="almuerzo"?"button--primary":"button--soft"),"Elegir");
+    action=ce("button","button "+((primera&&slot==="almuerzo")||principal===slot?"button--primary":"button--soft"),"Elegir");
     action.type="button";
     if(esHoy)action.dataset.todayChoose=slot;else action.dataset.huecoHoy=day+"|"+slot;
     action.setAttribute("aria-label","Elegir "+Semana.nombreDelHueco(day,slot).toLowerCase())
+  }else if(esHoy&&nadie){
+    // Etapa 51: donde nadie come en casa no hay nada para anotar.
+    action=null
   }else if(esHoy&&eatenToday(it,slot))action=ce("span","today-row__done","✓ Lo comí");
   else if(esHoy){
-    action=ce("button","button button--soft","Lo comí");
+    action=ce("button","button "+(principal===slot?"button--primary":"button--soft"),"Lo comí");
     action.type="button";
     action.dataset.planEaten=day+"|"+slot;
     // Marca de Hoy: el manejador del plan repinta Hoy antes que el de acá, y el botón ya no está en #todayPanel.
@@ -188,7 +196,11 @@ function renderToday(){
     pv.textContent=primera?"Medio plato de verduras, un cuarto de almidones y un cuarto de proteínas. Empezá eligiendo tu almuerzo.":""
   }
   // En el orden del día (el plan las guarda como desayuno, merienda, almuerzo, cena).
-  box.replaceChildren(...HOY_COMIDAS.map(slot=>filaHoy(day,slot,plan,byId,true,primera)));
+  // Etapa 53 (R6-O-03): una sola acción principal: "Lo comí" de la primera comida por anotar (o, sin comidas, "Elegir" el almuerzo).
+  const hayAlgo=HOY_COMIDAS.some(s=>plan[day]&&plan[day][s]&&byId.get(plan[day][s])),
+    principal=HOY_COMIDAS.find(s=>{const it=plan[day]&&plan[day][s]?byId.get(plan[day][s]):null;return !!it&&!eatenToday(it,s)&&!(typeof Comensales!=="undefined"&&Comensales.nadieEn(day,s))})||(hayAlgo?null:"almuerzo");
+  box.replaceChildren(...HOY_COMIDAS.map(slot=>filaHoy(day,slot,plan,byId,true,primera,principal)));
+  try{HoyAnticipa.pintar()}catch(e){}
   // v19.5 (R5-H-01): sin Deshacer debajo de las comidas. El cambio hecho desde Hoy se cuenta en una línea y se va con el siguiente.
   const st=document.getElementById("todayStatus");
   if(!st)return;

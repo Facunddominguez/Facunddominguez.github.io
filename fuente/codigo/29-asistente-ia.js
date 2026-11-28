@@ -99,17 +99,23 @@ async geminiChooseModel(key){
 // modelos Flash y Flash-Lite de la cuenta (uno por vez, sin repetir pedidos de más) y el que anda queda guardado.
 esperaReintento:1500,
 esperaRespuesta:90000,
-async geminiPedir(key,model,prompt,json){
-  const config={temperature:0.4};
+// Etapa 52: "imagen" (opcional) = {mimeType, data (base64)}: la foto de un ticket va junto con el texto.
+async geminiPedir(key,model,prompt,json,imagen){
+  const config={temperature:0.4},partes=[{
+    text:prompt
+  }];
+  if(imagen)partes.push({
+    inlineData:{
+      mimeType:imagen.mimeType,data:imagen.data
+    }
+  });
   if(json)config.responseMimeType="application/json";
   const j=await AsistenteIA.geminiFetch("https://generativelanguage.googleapis.com/v1beta/models/"+encodeURIComponent(model||"gemini-flash-latest")+":generateContent",{
     method:"POST",headers:{
       "Content-Type":"application/json","x-goog-api-key":key
     },body:JSON.stringify({
       contents:[{
-        role:"user",parts:[{
-          text:prompt
-        }]
+        role:"user",parts:partes
       }],generationConfig:config
     })
   },AsistenteIA.esperaRespuesta),c=j&&Array.isArray(j.candidates)&&j.candidates[0],text=c&&c.content&&Array.isArray(c.content.parts)?c.content.parts.map(p=>typeof p.text==="string"&&!p.thought?p.text:"").join(""):"";
@@ -129,7 +135,7 @@ geminiAlternativas(list,excluir){
   const flash=ok.filter(n=>/^gemini-\d+(\.\d+)?-flash$/.test(n)).sort((a,b)=>ver(b)-ver(a));
   return lite.concat(flash)
 },
-async geminiGenerate(prompt){
+async geminiGenerate(prompt,imagen){
   const s=loadAiSettings();
   if(!s.key)throw Error("Configurá tu clave de Gemini en Más → Asistente de IA.");
   const actual=s.model||"gemini-flash-latest",pausa=ms=>new Promise(r=>setTimeout(r,ms));
@@ -138,7 +144,7 @@ async geminiGenerate(prompt){
   const otroModelo=e=>!!e&&(e.status>=500||e.status===429||e.status===404||e.tiempo===true||e.vacia===true);
   const errores=[];
   try{
-    return await AsistenteIA.geminiPedir(s.key,actual,prompt,true)
+    return await AsistenteIA.geminiPedir(s.key,actual,prompt,true,imagen)
   }catch(e){
     if(!otroModelo(e))throw e;
     errores.push(e)
@@ -147,7 +153,7 @@ async geminiGenerate(prompt){
   if(errores[0].status>=500||errores[0].vacia){
     await pausa(AsistenteIA.esperaReintento);
     try{
-      return await AsistenteIA.geminiPedir(s.key,actual,prompt,false)
+      return await AsistenteIA.geminiPedir(s.key,actual,prompt,false,imagen)
     }catch(e){
       if(!otroModelo(e))throw e;
       errores.push(e)
@@ -166,7 +172,7 @@ async geminiGenerate(prompt){
   }
   for(const otro of alternativas){
     try{
-      const text=await AsistenteIA.geminiPedir(s.key,otro,prompt,true);
+      const text=await AsistenteIA.geminiPedir(s.key,otro,prompt,true,imagen);
       AsistenteIA.saveAiSettings({key:s.key,model:otro});
       return text
     }catch(e){

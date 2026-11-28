@@ -32,10 +32,10 @@ const ANCHO = Number(arg('--ancho') || 390) || 390, ALTO = 844;
 const RELOJ = '2026-10-26T12:00:00-03:00';
 // El respaldo de ejemplo es siempre el de esta copia de las herramientas (no el de --raiz), para medir igual antes y después.
 const RESPALDO = fileURLToPath(new URL('../pruebas/fixtures/respaldo-v14.9.94.json', import.meta.url));
-const salida = resolve(arg('--salida') || (arg('--r5') ? join(RAIZ, 'docs', 'capturas-ronda-5') : join(RAIZ, 'capturas', 'actual')));
+const salida = resolve(arg('--salida') || (arg('--r6') ? join(RAIZ, 'docs', 'capturas-ronda-6') : arg('--r5') ? join(RAIZ, 'docs', 'capturas-ronda-5') : join(RAIZ, 'capturas', 'actual')));
 const conImagenes = !args.includes('--sin-imagenes');
-const temas = (arg('--temas') || (arg('--r5') ? 'claro,oscuro' : 'claro,oscuro')).split(',');
-const estados = (arg('--estados') || (arg('--r5') ? 'vacio,normal' : 'vacio,normal,todo')).split(',');
+const temas = (arg('--temas') || 'claro,oscuro').split(',');
+const estados = (arg('--estados') || ((arg('--r5') || arg('--r6')) ? 'vacio,normal' : 'vacio,normal,todo')).split(',');
 const version = JSON.parse(await readFile(join(RAIZ, 'fuente', 'version.json'), 'utf8')).version;
 
 // Vistas: cómo llegar a cada una desde el inicio. Cuando la interfaz cambia se actualiza el camino, no el significado
@@ -88,10 +88,11 @@ const VISTAS = [
 
 // Ronda 5: --r5 antes|despues toma las escenas de herramientas/r5-escenas.mjs (una captura por escena, a 390 px o al --ancho)
 // y las guarda en docs/capturas-ronda-5/<escena>-<antes|despues>[-oscuro].png. --ids S-11,S-12 limita a las escenas de esos ítems.
-const R5 = arg('--r5');
-if (R5 && !/^(antes|despues)$/.test(R5)) { console.error('--r5 va con antes o despues'); process.exit(2) }
+// Ronda 6: --r6 antes|despues hace lo mismo con herramientas/r6-escenas.mjs y docs/capturas-ronda-6/.
+const R5 = arg('--r5') || arg('--r6');
+if (R5 && !/^(antes|despues)$/.test(R5)) { console.error('--r5 y --r6 van con antes o despues'); process.exit(2) }
 if (R5) {
-  const { ESCENAS } = await import('./r5-escenas.mjs');
+  const { ESCENAS } = await import(arg('--r6') ? './r6-escenas.mjs' : './r5-escenas.mjs');
   const ids = arg('--ids') ? arg('--ids').split(',') : null;
   VISTAS.length = 0;
   for (const e of ESCENAS) if (!ids || e.items.some(i => ids.includes(i))) VISTAS.push({ id: e.id, ir: e.ir, medir: e.medir, escena: e });
@@ -308,7 +309,7 @@ try {
         if (conImagenes && !m.error) {
           // Para la imagen, la ventana se estira al alto de la página: así las barras fijas quedan abajo, donde se ven al
           // final del recorrido, y no tapan contenido en el medio de la captura. Las medidas ya se tomaron a 390×844.
-          const altoFoto = Math.min(m.alto, 16000);
+          const altoFoto = vista.escena && vista.escena.fija ? ALTO : Math.min(m.alto, 16000); // fija: pantalla completa (modo cocina), se saca a la altura de la ventana
           await enviar('Emulation.setDeviceMetricsOverride', { width: ANCHO, height: altoFoto, deviceScaleFactor: 1, mobile: true }, S);
           await espera(200);
           const foto = await enviar('Page.captureScreenshot', { format: 'png', clip: { x: 0, y: 0, width: ANCHO, height: altoFoto, scale: 1 } }, S);

@@ -1,0 +1,46 @@
+// Control de docs/ronda-6-lista.md para la compuerta (Ronda 6, Etapas 45 a 55).
+// Uso: node herramientas/controlar-lista-r6.mjs <N de 45 a 55>
+// Exige: los 51 ítems en la tabla, cada uno con su control R6-<ID> en criterios.json (tipo "prueba", o "comando" para los de la
+// tarea de precios de la Etapa 45); los ítems de la etapa N y de las anteriores en ✅ (con sus capturas antes y después en
+// docs/capturas-ronda-6/: .png, o .txt con la salida de la herramienta en los ítems P-01 a P-03) o en ⚠️ con motivo y 2 opciones en
+// la sección "Ítems en ⚠️"; en la Etapa 55, ninguno en ⬜ y el resumen completo. La prueba en verde de cada ✅ la mira el control R6-<ID>.
+import { readFileSync, existsSync } from 'node:fs';
+import { resolve, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+const RAIZ = resolve(fileURLToPath(new URL('../', import.meta.url)));
+const N = Number(process.argv[2]);
+if (!(N >= 45 && N <= 55)) { console.error('Uso: node herramientas/controlar-lista-r6.mjs <N de 45 a 55>'); process.exit(2) }
+const texto = readFileSync(join(RAIZ, 'docs', 'ronda-6-lista.md'), 'utf8');
+const filas = texto.split('\n').filter(l => /^\| [A-Z]-\d+ \|/.test(l)).map(l => { const c = l.split('|').map(s => s.trim()); return { id: c[1], etapa: Number(c[3]), prueba: c[4], antes: c[5], despues: c[6], estado: c[7] } });
+const fallas = [];
+if (filas.length !== 51 || new Set(filas.map(f => f.id)).size !== 51) fallas.push(`la tabla tiene ${filas.length} ítems (tienen que ser 51 distintos)`);
+const criterios = JSON.parse(readFileSync(join(RAIZ, 'docs', 'validacion', 'criterios.json'), 'utf8')).controles;
+for (const f of filas) if (!criterios.some(c => c.id === 'R6-' + f.id && (c.tipo === 'prueba' ? c.prueba === 'R6-' + f.id : c.tipo === 'comando' && c.comando.includes('R6-' + f.id)) && c.etapa === f.etapa)) fallas.push(`${f.id}: falta su control R6-${f.id} (etapa ${f.etapa}) en criterios.json`);
+const seccionAdvertencias = (texto.split(/\n## Ítems en ⚠️[^\n]*\n/)[1] || '').split(/\n## /)[0];
+const archivos = celda => celda.split(/[ ,]+/).filter(x => /\.(png|txt)$/.test(x));
+for (const f of filas.filter(f => f.etapa <= N)) {
+  if (f.estado === '✅') {
+    if (f.prueba !== 'R6-' + f.id) fallas.push(`${f.id}: la columna Prueba dice "${f.prueba}" y tiene que decir R6-${f.id}`);
+    for (const [nombre, celda, marca] of [['antes', f.antes, 'antes'], ['después', f.despues, 'despues']]) {
+      const lista = archivos(celda);
+      if (!lista.length) fallas.push(`${f.id}: sin captura del ${nombre}`);
+      for (const a of lista) {
+        if (!new RegExp('-' + marca + '(-oscuro)?(-\\d+)?\\.(png|txt)$').test(a)) fallas.push(`${f.id}: la captura "${a}" no es del ${nombre} (tiene que terminar en -${marca}.png)`);
+        if (!existsSync(join(RAIZ, 'docs', 'capturas-ronda-6', a))) fallas.push(`${f.id}: no existe docs/capturas-ronda-6/${a}`);
+      }
+    }
+  } else if (f.estado === '⚠️') {
+    const m = new RegExp('### ' + f.id + '\\b([\\s\\S]*?)(?=\\n### |$)').exec(seccionAdvertencias);
+    if (!m || !/Motivo/i.test(m[1]) || !/Opción 1/i.test(m[1]) || !/Opción 2/i.test(m[1])) fallas.push(`${f.id}: ⚠️ sin motivo y 2 opciones en la sección "Ítems en ⚠️"`);
+  } else fallas.push(`${f.id}: sigue en ${f.estado || 'sin estado'} (la etapa ${f.etapa} ya cerró)`);
+}
+if (N === 55) {
+  const faltan = filas.filter(f => f.estado !== '✅' && f.estado !== '⚠️');
+  if (faltan.length) fallas.push('sin cerrar: ' + faltan.map(f => f.id).join(', '));
+  const resumen = (texto.split('\n## Resumen (Etapa 55)\n')[1] || '');
+  const dice = new RegExp(`${filas.filter(f => f.estado === '✅').length} (ítems )?(en |quedaron en )?✅`).test(resumen) && new RegExp(`${filas.filter(f => f.estado === '⚠️').length} (ítems )?(en |quedaron en )?⚠️`).test(resumen);
+  if (!dice || /^Pendiente\.?\s*$/m.test(resumen)) fallas.push('falta el resumen final con los números reales (cuántos ✅ y cuántos ⚠️, por ejemplo "49 ítems en ✅ y 2 en ⚠️")');
+}
+const hechos = filas.filter(f => f.estado === '✅').length, avisos = filas.filter(f => f.estado === '⚠️').length;
+if (fallas.length) { console.error(`Lista de la Ronda 6 (Etapa ${N}): ${fallas.length} falla(s)\n  - ` + fallas.slice(0, 40).join('\n  - ')); process.exit(1) }
+console.log(`Lista de la Ronda 6 (Etapa ${N}): bien (${hechos} ✅, ${avisos} ⚠️, ${filas.length - hechos - avisos} ⬜)`);

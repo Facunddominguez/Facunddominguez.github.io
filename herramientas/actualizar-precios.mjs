@@ -330,30 +330,64 @@ export function precioBase(b, c) {
   return null;
 }
 // ----- ZIP (solo lectura de bytes; sin dependencias) -----
-function directorioZip(leer, tam) {
+// Lee ZIP común y ZIP64 (Etapa 45, R6-P-01): cuando un campo de 32 bits vale 0xFFFFFFFF (o la cantidad 0xFFFF) el valor real está en el
+// registro "ZIP64 end of central directory" o en el campo extra 0x0001 de la entrada.
+const u64 = (b, o) => { const v = b.readBigUInt64LE(o); if (v > BigInt(Number.MAX_SAFE_INTEGER)) throw new Error('ZIP con un tamaño fuera de rango'); return Number(v) };
+export function entradasZip(leer, tam, maxEntradas = 1000) {
   const n = Math.min(tam, 70000);
   if (n < 22) throw new Error('ZIP demasiado chico');
   const t = leer(tam - n, n), e = t.lastIndexOf(Buffer.from([0x50, 0x4b, 5, 6]));
   if (e < 0) throw new Error('ZIP sin directorio central');
-  const cant = t.readUInt16LE(e + 10), cdTam = t.readUInt32LE(e + 12), cdOff = t.readUInt32LE(e + 16);
-  if (cant === 0xffff || cdOff === 0xffffffff || cdTam === 0xffffffff) throw new Error('ZIP64 no soportado');
-  if (cant > 1000 || cdOff + cdTam > tam) throw new Error('Directorio ZIP inválido');
+  let cant = t.readUInt16LE(e + 10), cdTam = t.readUInt32LE(e + 12), cdOff = t.readUInt32LE(e + 16);
+  if (cant === 0xffff || cdOff === 0xffffffff || cdTam === 0xffffffff) {
+    // Localizador ZIP64 (20 bytes antes del fin de directorio) → registro ZIP64 con los valores de 64 bits.
+    const abs = tam - n + e;
+    if (abs < 20) throw new Error('ZIP64 sin localizador');
+    const loc = leer(abs - 20, 20);
+    if (loc.readUInt32LE(0) !== 0x07064b50) throw new Error('ZIP64 sin localizador');
+    const off64 = u64(loc, 8);
+    if (off64 + 56 > tam) throw new Error('ZIP64 con el registro fuera del archivo');
+    const r = leer(off64, 56);
+    if (r.readUInt32LE(0) !== 0x06064b50) throw new Error('ZIP64 con el registro dañado');
+    cant = u64(r, 32); cdTam = u64(r, 40); cdOff = u64(r, 48);
+  }
+  if (cant > maxEntradas || cdTam > 64 * 1024 * 1024 || cdOff + cdTam > tam) throw new Error('Directorio ZIP inválido');
   const cd = leer(cdOff, cdTam), out = [];
   let p = 0;
   for (let i = 0; i < cant; i++) {
     if (p + 46 > cd.length || cd.readUInt32LE(p) !== 0x02014b50) throw new Error('Directorio ZIP dañado');
-    const metodo = cd.readUInt16LE(p + 10), csize = cd.readUInt32LE(p + 20), usize = cd.readUInt32LE(p + 24), nl = cd.readUInt16LE(p + 28), el = cd.readUInt16LE(p + 30), cl = cd.readUInt16LE(p + 32), off = cd.readUInt32LE(p + 42);
+    const metodo = cd.readUInt16LE(p + 10); let csize = cd.readUInt32LE(p + 20), usize = cd.readUInt32LE(p + 24), off = cd.readUInt32LE(p + 42);
+    const nl = cd.readUInt16LE(p + 28), el = cd.readUInt16LE(p + 30), cl = cd.readUInt16LE(p + 32), disco = cd.readUInt16LE(p + 34);
     const nombre = cd.toString('utf8', p + 46, p + 46 + nl);
+    if (usize === 0xffffffff || csize === 0xffffffff || off === 0xffffffff) {
+      // Campo extra 0x0001: trae, en este orden y solo los que valen 0xFFFFFFFF, tamaño original, tamaño comprimido y posición.
+      const ex = cd.subarray(p + 46 + nl, p + 46 + nl + el);
+      let q = 0, z = null;
+      while (q + 4 <= ex.length) { const id = ex.readUInt16LE(q), len = ex.readUInt16LE(q + 2); if (id === 1) { z = ex.subarray(q + 4, q + 4 + len); break } q += 4 + len }
+      if (!z) throw new Error('ZIP64 sin el campo extra de tamaños');
+      let k = 0; const sig = () => { if (k + 8 > z.length) throw new Error('ZIP64 con el campo extra incompleto'); const v = u64(z, k); k += 8; return v };
+      if (usize === 0xffffffff) usize = sig();
+      if (csize === 0xffffffff) csize = sig();
+      if (off === 0xffffffff) off = sig();
+    }
     p += 46 + nl + el + cl;
-    if (csize === 0xffffffff || usize === 0xffffffff || off === 0xffffffff) throw new Error('ZIP64 no soportado');
-    if (!csize) continue;
-    if (metodo !== 0 && metodo !== 8) throw new Error('Método de compresión no soportado: ' + metodo);
-    if (off + 30 > tam) throw new Error('Entrada ZIP fuera del archivo');
-    const h = leer(off, 30);
+    if (disco > 0 && disco !== 0xffff) throw new Error('ZIP en varios discos no soportado');
+    out.push({ nombre, metodo, csize, usize, off });
+  }
+  return out;
+}
+// Entradas con datos (sin carpetas) con la posición real de los bytes comprimidos.
+function directorioZip(leer, tam, maxEntradas = 1000) {
+  const out = [];
+  for (const e of entradasZip(leer, tam, maxEntradas)) {
+    if (!e.csize) continue;
+    if (e.metodo !== 0 && e.metodo !== 8) throw new Error('Método de compresión no soportado: ' + e.metodo);
+    if (e.off + 30 > tam) throw new Error('Entrada ZIP fuera del archivo');
+    const h = leer(e.off, 30);
     if (h.readUInt32LE(0) !== 0x04034b50) throw new Error('Entrada ZIP dañada');
-    const datos = off + 30 + h.readUInt16LE(26) + h.readUInt16LE(28);
-    if (datos + csize > tam) throw new Error('Entrada ZIP fuera del archivo');
-    out.push({ nombre, metodo, csize, usize, datos });
+    const datos = e.off + 30 + h.readUInt16LE(26) + h.readUInt16LE(28);
+    if (datos + e.csize > tam) throw new Error('Entrada ZIP fuera del archivo');
+    out.push({ nombre: e.nombre, metodo: e.metodo, csize: e.csize, usize: e.usize, datos });
   }
   return out;
 }
@@ -385,17 +419,9 @@ export async function leerSepa(archivo, mapa) {
     if (tam > SEPA_MAX_ZIP || tam < 100) throw new Error('El ZIP de SEPA tiene un tamaño inesperado: ' + tam);
     if (leer(0, 2).toString('latin1') !== 'PK') throw new Error('El archivo de SEPA no es un ZIP');
     const dirs = [];
-    {
-      const n = Math.min(tam, 70000), t = leer(tam - n, n), e = t.lastIndexOf(Buffer.from([0x50, 0x4b, 5, 6]));
-      const cdOff = t.readUInt32LE(e + 16), cdTam = t.readUInt32LE(e + 12), cd = leer(cdOff, cdTam);
-      for (let p = 0; p + 46 <= cd.length && cd.readUInt32LE(p) === 0x02014b50;) {
-        const nl = cd.readUInt16LE(p + 28), el = cd.readUInt16LE(p + 30), cl = cd.readUInt16LE(p + 32), nom = cd.toString('utf8', p + 46, p + 46 + nl);
-        const m = /^(\d{4}-\d{2}-\d{2})\//.exec(nom); if (m) dirs.push(m[1]);
-        p += 46 + nl + el + cl;
-      }
-    }
+    for (const e of entradasZip(leer, tam, 100000)) { const m = /^(\d{4}-\d{2}-\d{2})\//.exec(e.nombre); if (m) dirs.push(m[1]) }
     fecha = dirs[0] || null;
-    externo = directorioZip(leer, tam).filter(e => /\.zip$/i.test(e.nombre));
+    externo = directorioZip(leer, tam, 100000).filter(e => /\.zip$/i.test(e.nombre));
     if (!externo.length) throw new Error('El ZIP de SEPA no trae ZIP por comercio');
     if (externo.length > 200) throw new Error('El ZIP de SEPA trae demasiados comercios');
     const { reglas, indice } = compilarReglas(mapa);
@@ -455,18 +481,41 @@ export async function leerSepa(archivo, mapa) {
     return { fecha, items, cuentas };
   } finally { closeSync(fd) }
 }
-export async function descargarSepa() {
-  const ctl = AbortSignal.timeout(15 * 60 * 1000);
-  const rp = await fetch(SEPA_PAQUETE, { headers: { 'User-Agent': 'mi-plato-facil (GitHub Actions)' }, signal: AbortSignal.timeout(30000) });
-  if (!rp.ok) throw new Error(`HTTP ${rp.status} al pedir el paquete de SEPA`);
+// Pedidos al portal de datos (Etapa 45, R6-P-02): el 17/11 y el 24/11 el paquete respondió "HTTP 403" desde los servidores de GitHub.
+// Se reintenta con espera (5, 20 y 60 s) y con cabeceras de navegador; si sigue negándose, el error dice qué respondió el servidor.
+export const CABECERAS_NAVEGADOR = {
+  'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
+  Accept: 'application/json, text/plain, application/zip, */*', 'Accept-Language': 'es-AR,es;q=0.9,en;q=0.5', Referer: SEPA_DATASET,
+};
+export const ESPERAS_SEPA = [5000, 20000, 60000];
+const REINTENTABLES = new Set([403, 408, 425, 429, 500, 502, 503, 504]);
+const dormir = ms => new Promise(r => setTimeout(r, ms));
+export async function pedirConReintentos(url, { que, timeout = 30000, fetchFn = fetch, esperas = ESPERAS_SEPA, espera = dormir, cabeceras = CABECERAS_NAVEGADOR, log = console.warn } = {}) {
+  let ultimo = null;
+  for (let i = 0; i <= esperas.length; i++) {
+    if (i > 0) { log(`SEPA: ${ultimo.corto}; reintento ${i} de ${esperas.length} en ${esperas[i - 1] / 1000} s`); await espera(esperas[i - 1]) }
+    try {
+      const r = await fetchFn(url, { headers: cabeceras, redirect: 'follow', signal: AbortSignal.timeout(timeout) });
+      if (r.ok) return r;
+      let cuerpo = ''; try { cuerpo = (await r.text()).replace(/\s+/g, ' ').trim().slice(0, 160) } catch { /* sin cuerpo */ }
+      const h = n => (r.headers && r.headers.get && r.headers.get(n)) || '';
+      const detalle = [h('server') && 'server: ' + h('server'), h('cf-ray') && 'cf-ray: ' + h('cf-ray'), h('content-type') && 'tipo: ' + h('content-type'), cuerpo && 'cuerpo: "' + cuerpo + '"'].filter(Boolean).join(', ');
+      ultimo = { status: r.status, corto: `HTTP ${r.status} ${que}`, largo: `HTTP ${r.status} ${que} (${i + 1} intento${i ? 's' : ''}${detalle ? '; ' + detalle : ''})` };
+      if (!REINTENTABLES.has(r.status)) break;
+    } catch (e) { const antes = ultimo && ultimo.status ? `; antes respondió ${ultimo.corto}` : ''; ultimo = { status: 0, corto: `${que}: ${e.message}`, largo: `${que}: ${e.message} (${i + 1} intento${i ? 's' : ''}${antes})` } }
+  }
+  throw new Error(ultimo.largo);
+}
+export async function descargarSepa(opciones = {}) {
+  const rp = await pedirConReintentos(SEPA_PAQUETE, { que: 'al pedir el paquete de SEPA', timeout: 30000, ...opciones });
   const texto = await rp.text();
   if (texto.length > 1e6) throw new Error('La respuesta de CKAN es más grande de lo esperado');
   const pkg = JSON.parse(texto).result;
   const zips = (pkg.resources || []).filter(r => String(r.format).toUpperCase() === 'ZIP' && /\/sepa_[a-z]+\.zip$/.test(String(r.url)) && String(r.url).startsWith('https://datos.produccion.gob.ar/'))
     .sort((a, b) => String(b.last_modified).localeCompare(String(a.last_modified)));
   if (!zips.length) throw new Error('El paquete de SEPA no trae ZIP diarios reconocibles');
-  const r = await fetch(zips[0].url, { headers: { 'User-Agent': 'mi-plato-facil (GitHub Actions)' }, redirect: 'follow', signal: ctl });
-  if (!r.ok || !r.body) throw new Error(`HTTP ${r.status} al descargar SEPA`);
+  const r = await pedirConReintentos(zips[0].url, { que: 'al descargar SEPA', timeout: 15 * 60 * 1000, ...opciones });
+  if (!r.body) throw new Error('La descarga de SEPA vino sin cuerpo');
   const carpeta = await mkdtemp(join(tmpdir(), 'sepa-')), archivo = join(carpeta, 'sepa.zip');
   let total = 0;
   const limite = new Transform({ transform(d, _e, cb) { total += d.length; cb(total > SEPA_MAX_ZIP ? new Error('El ZIP de SEPA supera el tope de 600 MB') : null, d) } });
@@ -567,6 +616,20 @@ export function coberturaAmbito(d, mapa) {
   return { nucleo: cuenta(amb.nucleo), armado: cuenta(amb.armado), total: cuenta([...amb.nucleo, ...amb.armado]) };
 }
 
+// ---------- Frescura (Etapa 45, R6-P-03) ----------
+// Si SEPA no dio precios nuevos y los guardados tienen más de 10 días, la tarea falla (así GitHub avisa) en vez de decir "sin cambios".
+export const MAX_DIAS_SIN_SEPA = 10;
+export const diasEntre = (desde, hasta) => Math.round((Date.parse(hasta) - Date.parse(desde)) / 864e5);
+export function fechaDePrecios(d) { return d ? ((d.sepa && d.sepa.fecha) || d.revisado || null) : null }
+export function controlarFrescura({ previo, sepa, hoy, errores = [] }) {
+  if (sepa) return null;
+  const fecha = fechaDePrecios(previo);
+  if (!fecha) return null;
+  const dias = diasEntre(fecha, hoy);
+  if (!(dias > MAX_DIAS_SIN_SEPA)) return null;
+  return `SEPA no dio precios nuevos y los guardados son de hace ${dias} días (del ${fecha}; el máximo es ${MAX_DIAS_SIN_SEPA}). La tarea falla para que GitHub avise y datos/precios.json queda como estaba.${errores.length ? ' Motivo: ' + errores.join(' · ') : ''}`;
+}
+
 // ---------- Programa ----------
 async function descargar() {
   const r = await fetch(DESCARGA, { headers: { 'User-Agent': 'mi-plato-facil (GitHub Actions)' }, redirect: 'follow', signal: AbortSignal.timeout(90000) });
@@ -602,11 +665,16 @@ async function principal() {
   const hoy = arg('--hoy') || new Date().toISOString().slice(0, 10);
   const soloIndec = args.includes('--solo-indec'), soloSepa = args.includes('--solo-sepa');
   const salida = arg('--salida') ? resolve(arg('--salida')) : fileURLToPath(ruta('datos/precios.json'));
-  let previo = null; try { previo = JSON.parse(await readFile(fileURLToPath(ruta('datos/precios.json')), 'utf8')) } catch { /* no existe */ }
-  if (!previo) try { previo = JSON.parse(await readFile(salida, 'utf8')) } catch { /* no existe */ }
+  // --previo y --indec-json son solo para pruebas: obligan a elegir --salida (así nunca pisan datos/precios.json) y un --previo ilegible falla.
+  if ((arg('--previo') || arg('--indec-json')) && !arg('--salida')) throw new Error('--previo y --indec-json se usan con --salida: así no se pisa datos/precios.json');
+  let previo = null;
+  if (arg('--previo')) previo = JSON.parse(await readFile(resolve(arg('--previo')), 'utf8'));
+  else try { previo = JSON.parse(await readFile(fileURLToPath(ruta('datos/precios.json')), 'utf8')) } catch { /* no existe */ }
+  if (!previo && !arg('--previo')) try { previo = JSON.parse(await readFile(salida, 'utf8')) } catch { /* no existe */ }
   let indec = null, sepa = null, hashIndec = null;
   const errores = [];
-  if (!soloSepa) {
+  if (!soloSepa && arg('--indec-json')) indec = JSON.parse(await readFile(resolve(arg('--indec-json')), 'utf8')); // solo para pruebas: usa un JSON ya armado en lugar del .xls de INDEC
+  else if (!soloSepa) {
     try {
       let buf, origen = arg('--archivo');
       if (origen) buf = await readFile(origen); else ({ buf, archivo: origen } = await descargar());
@@ -633,6 +701,7 @@ async function principal() {
     finally { for (const c of limpiar) await rm(c, { recursive: true, force: true }).catch(() => {}) }
   }
   if (!indec && !sepa) throw new Error(errores.join(' · ') || 'No se pudo actualizar nada');
+  if (!soloIndec) { const vencido = controlarFrescura({ previo, sepa, hoy, errores }); if (vencido) throw new Error(vencido) }
   for (const e of errores) console.warn('Aviso, se conserva lo anterior: ' + e);
   const { datos, avisos } = componer({ previo, indec, sepa, mapa, hoy, excepciones });
   for (const a of avisos) console.warn('Aviso: ' + a);

@@ -60,7 +60,7 @@ cookRecipeNow(id){
 },
 boughtNow(){
   Compras.syncShoppingWeek();
-  const all=Compras.shoppingPlanItems(),boughtBefore=Compras.shoppingBoughtSet(),items=all.filter(e=>comprasDone[e.key]&&!boughtBefore.has(e.key));
+  const all=Compras.shoppingPlanItems(Compras.periodoActual()),boughtBefore=Compras.shoppingBoughtSet(all),items=all.filter(e=>comprasDone[e.key]&&!boughtBefore.has(e.key));
   if(!items.length)return {
     text:all.some(e=>comprasDone[e.key])?"Lo tachado ya está en tu despensa.":"Primero tachá lo que compraste en la lista."
   };
@@ -104,9 +104,7 @@ boughtNow(){
   };
   try{
     if(changes.length)res=applyStockChanges(changes,("Lo compré · "+typedAppDateLabel(Rutina.localTrainingDate(new Date()))).slice(0,80));
-    const bought=Compras.shoppingBoughtSet();
-    items.forEach(e=>bought.add(e.key));
-    Compras.saveShoppingChecks(bought)
+    Compras.guardarMarcas(items.map(e=>({semanas:e.semanas,key:e.key,t:true,c:true})))
   }catch(err){
     deshacer();
     throw err
@@ -147,14 +145,16 @@ document.addEventListener("click",e=>{
         before:r.before,after:r.after,status:st
       };
       RegistroRapido.afterOneTap();
-      RegistroRapido.oneTapStatus(st,r.text,"cook")
+      RegistroRapido.oneTapStatus(st,r.text,"cook");
+      try{if(typeof Gustos!=="undefined")Gustos.preguntar(loadRecipeDetails()[recipeReadId].title)}catch(e){}
     }else if(b.dataset.savedRecipeCook){
       const st=document.getElementById("savedActionStatus"),r=RegistroRapido.cookRecipeNow(b.dataset.savedRecipeCook);
       oneTapUndo.cook={
         before:r.before,after:r.after,status:st
       };
       RegistroRapido.afterOneTap();
-      RegistroRapido.oneTapStatus(st,r.text,"cook")
+      RegistroRapido.oneTapStatus(st,r.text,"cook");
+      try{if(typeof Gustos!=="undefined")Gustos.preguntar(loadRecipeDetails()[b.dataset.savedRecipeCook].title)}catch(e){}
     }else if(b.id==="comprasBought"){
       const st=document.getElementById("comprasBoughtStatus"),r=RegistroRapido.boughtNow();
       // v19.8 (R5-K-01): sin Deshacer en Compras.

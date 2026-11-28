@@ -31,7 +31,14 @@ const partesCuerpo = ['fuente/cuerpo/inicio.html', ...(await listar('fuente/cuer
 const cuerpo = (await Promise.all(partesCuerpo.map(leer))).map(t => t.replace(/\n+$/, '')).join('\n');
 
 // Código: los archivos se concatenan en orden alfabético (el prefijo numérico define el orden de arranque).
-const codigo = (await Promise.all((await listar('fuente/codigo')).map(f => leer('fuente/codigo/' + f)))).map(t => t.replace(/\n+$/, '')).join('\n');
+// Los comentarios de línea completa (los que empiezan con //) quedan en fuente/ y no viajan en index.html: ahorran unos 100 KB sin tocar el código.
+// En ningún archivo hay plantillas de varias líneas ni cadenas partidas, así que una línea que empieza con // siempre es un comentario (lo controla esta
+// misma herramienta: si apareciera una plantilla de varias líneas, la construcción falla y hay que decidir de nuevo).
+const sinComentarios = (t, f) => {
+  if (t.split('\n').some(l => (l.match(/`/g) || []).length % 2 === 1 && !/\[[^\]]*`[^\]]*\]/.test(l))) throw new Error(f + ' tiene una plantilla de varias líneas: no se pueden quitar los comentarios de línea completa de forma segura.');
+  return t.split('\n').filter(l => !/^\s*\/\//.test(l)).join('\n');
+};
+const codigo = (await Promise.all((await listar('fuente/codigo')).map(async f => sinComentarios(await leer('fuente/codigo/' + f), f)))).map(t => t.replace(/\n+$/, '')).join('\n');
 
 // Datos de nutrición incluidos en la app (así funciona sin conexión y como archivo local).
 const datos = JSON.stringify(JSON.parse(await leer('datos/nutricion.json')))
@@ -53,12 +60,22 @@ if (Buffer.byteLength(archivoIdeas) > 150000) throw new Error('datos/ideas.json 
 const datosIdeas = JSON.stringify(JSON.parse(archivoIdeas))
   .replace(/<\//g, '<\\/').split('\u2028').join('\\u2028').split('\u2029').join('\\u2029');
 
+// Palabras de los avisos "Para mañana" de Hoy (Ronda 6, Etapa 50). Se valida la forma antes de incrustarlas.
+const archivoAvisos = JSON.parse(await leer('datos/avisos-hoy.json'));
+{
+  const lista = a => Array.isArray(a) && a.length > 0 && a.every(x => typeof x === 'string' && x.trim() && x === x.toLowerCase() && !/[\u0300-\u036f]/.test(x.normalize('NFD')));
+  const pal = archivoAvisos.legumbres && archivoAvisos.legumbres.palabras;
+  if (archivoAvisos.version !== 1 || !pal || typeof pal !== 'object' || !Object.entries(pal).every(([k, v]) => /^[a-z]+$/.test(k) && ['el', 'la', 'los', 'las'].includes(v))
+    || !lista(archivoAvisos.legumbres.excluir) || !lista(archivoAvisos.legumbres.remojo) || !lista(archivoAvisos.congelados && archivoAvisos.congelados.palabras) || !lista(archivoAvisos.congelados.excluir) || !lista(archivoAvisos.pasos && archivoAvisos.pasos.palabras)) throw new Error('datos/avisos-hoy.json no tiene la forma esperada (palabras en minúscula y sin tildes)');
+}
+const datosAvisos = JSON.stringify(archivoAvisos).replace(/<\//g, '<\\/').split('\u2028').join('\\u2028').split('\u2029').join('\\u2029');
+
 if (Buffer.byteLength(datosPrecios) > 80000) throw new Error('datos/precios.json pesa más de 80.000 bytes: ' + Buffer.byteLength(datosPrecios));
 
 let html = await leer('fuente/plantilla.html');
 html = unaVez(html, '{{ESTILOS}}', (await leer('fuente/estilos.css')).replace(/\n+$/, ''));
 html = unaVez(html, '{{CUERPO}}', cuerpo);
-html = unaVez(html, '{{CODIGO}}', unaVez(unaVez(unaVez(unaVez(codigo, '__DATOS_NUTRICION__', datos), '__DATOS_PRECIOS__', datosPrecios), '__DATOS_ENVASES__', datosEnvases), '__DATOS_IDEAS__', datosIdeas));
+html = unaVez(html, '{{CODIGO}}', unaVez(unaVez(unaVez(unaVez(unaVez(codigo, '__DATOS_NUTRICION__', datos), '__DATOS_PRECIOS__', datosPrecios), '__DATOS_ENVASES__', datosEnvases), '__DATOS_IDEAS__', datosIdeas), '__DATOS_AVISOS_HOY__', datosAvisos));
 html = unaVez(html, '{{VERSION}}', version);
 const sw = unaVez(await leer('fuente/sw.js'), '{{VERSION}}', version);
 
@@ -66,7 +83,7 @@ const sw = unaVez(await leer('fuente/sw.js'), '{{VERSION}}', version);
 const script = html.slice(html.indexOf('<script>') + 8, html.lastIndexOf('</script>'));
 new vm.Script(script, { filename: 'index.html' });
 new vm.Script(sw, { filename: 'sw.js' });
-if (/\{\{[A-Z]+\}\}|__DATOS_NUTRICION__|__DATOS_PRECIOS__|__DATOS_ENVASES__|__DATOS_IDEAS__/.test(html)) throw new Error('Quedaron marcas sin reemplazar en index.html');
+if (/\{\{[A-Z]+\}\}|__DATOS_NUTRICION__|__DATOS_PRECIOS__|__DATOS_ENVASES__|__DATOS_IDEAS__|__DATOS_AVISOS_HOY__/.test(html)) throw new Error('Quedaron marcas sin reemplazar en index.html');
 
 const topeHtml = Math.min(1100000, Number(arg('--tope-html')) || 1100000), topeGzip = Math.min(300000, Number(arg('--tope-gzip')) || 300000);
 if (Buffer.byteLength(html) > topeHtml) throw new Error(`index.html pesa más de ${topeHtml.toLocaleString('es-AR')} bytes: ${Buffer.byteLength(html)}`);

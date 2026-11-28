@@ -74,6 +74,16 @@
     "r5e40_comidas.js",
     "r5e41_compras.js",
     "r5e42_mas.js",
-    "r5e43_bienvenida.js"
+    "r5e43_bienvenida.js",
+    "r6e45_precios.js",
+    "r6e46_lista.js",
+    "r6e47_cocina.js",
+    "r6e48_semana.js",
+    "r6e49_armame.js",
+    "r6e50_hoy.js",
+    "r6e51_comensales.js",
+    "r6e52_ticket.js",
+    "r6e53_orden.js",
+    "r6e55_semana.js"
   ]
 }
